@@ -1,0 +1,24 @@
+.avatars-clickable-panel {
+	display: flex;
+	flex-direction: column;
+	gap: 0.65rem;
+}
+
+.avatars-clickable-list {
+	display: flex;
+	flex-direction: column;
+	gap: 0.55rem;
+}
+
+.avatars-clickable-row {
+	display: flex;
+	align-items: center;
+	gap: 0.65rem;
+	min-width: 0;
+}
+
+.avatars-clickable-avatar {
+	--neo-avatar-size: 1.5rem;
+	width: 1.5rem;
+	height: 1.5rem;
+}

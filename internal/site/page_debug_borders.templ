@@ -1,0 +1,368 @@
+package site
+
+import "github.com/romshark/morpheus/neo"
+
+// PageDebugBorders: hidden /debug-borders/ harness for visually
+// auditing border width/color consistency across every bordered
+// control, standalone and composed inside input groups. Custom top bar
+// flips theme, color mode, and high contrast so the same grid can be
+// compared across every combination. Not linked from navigation.
+templ PageDebugBorders(morpheusVersion string) {
+	<!DOCTYPE html>
+	<html lang="en">
+		@pageHead("Debug: border width/color consistency audit across all bordered controls.")
+		<body id="debug-borders-body" class="db-body">
+			@debugBordersBar()
+			<main class="db-main">
+				<h2 class="db-section-title">Standalone controls</h2>
+				<div class="db-grid">
+					@dbCell("Button (default)") {
+						<neo-button>Button</neo-button>
+					}
+					@dbCell("Button (primary)") {
+						<neo-button variant="primary">Primary</neo-button>
+					}
+					@dbCell("Button (secondary)") {
+						<neo-button variant="secondary">Secondary</neo-button>
+					}
+					@dbCell("Button (ghost)") {
+						<neo-button variant="ghost">Ghost</neo-button>
+					}
+					@dbCell("Button (danger)") {
+						<neo-button variant="danger">Danger</neo-button>
+					}
+					@dbCell("Button (disabled)") {
+						<neo-button disabled>Disabled</neo-button>
+					}
+					@dbCell("Badge") {
+						<neo-badge>Badge</neo-badge>
+						<neo-badge variant="primary">Primary</neo-badge>
+					}
+					@dbCell("Kbd") {
+						<neo-kbd>⌘</neo-kbd>
+						<neo-kbd>K</neo-kbd>
+					}
+					@dbCell("Text input") {
+						<neo-textinput placeholder="Text input"></neo-textinput>
+					}
+					@dbCell("Textarea") {
+						@neo.Textarea(neo.TextareaOpts{Placeholder: neo.Set("Textarea"), Rows: neo.Set(2)})
+					}
+					@dbCell("Select") {
+						<neo-select placeholder="Select" aria-label="Select" value="b">
+							<neo-option value="a">Option A</neo-option>
+							<neo-option value="b">Option B</neo-option>
+							<neo-option value="c">Option C</neo-option>
+						</neo-select>
+					}
+					@dbCell("Combobox") {
+						<neo-combobox placeholder="Combobox" aria-label="Combobox" value="b">
+							<neo-option value="a">Option A</neo-option>
+							<neo-option value="b">Option B</neo-option>
+							<neo-option value="c">Option C</neo-option>
+						</neo-combobox>
+					}
+					@dbCell("Checkbox") {
+						<neo-checkbox aria-label="Unchecked"></neo-checkbox>
+						<neo-checkbox checked aria-label="Checked"></neo-checkbox>
+						<neo-checkbox indeterminate aria-label="Indeterminate"></neo-checkbox>
+						<neo-checkbox disabled aria-label="Disabled"></neo-checkbox>
+					}
+					@dbCell("Radio group") {
+						<neo-radio-group value="b" aria-label="Radio">
+							<label><neo-radio value="a"></neo-radio> <span>A</span></label>
+							<label><neo-radio value="b"></neo-radio> <span>B</span></label>
+							<label><neo-radio value="c"></neo-radio> <span>C</span></label>
+						</neo-radio-group>
+					}
+					@dbCell("Switch") {
+						<neo-switch aria-label="Off"></neo-switch>
+						<neo-switch checked aria-label="On"></neo-switch>
+					}
+					@dbCell("Toggle") {
+						<neo-toggle>Toggle</neo-toggle>
+						<neo-toggle pressed>Pressed</neo-toggle>
+					}
+					@dbCell("Button group") {
+						<neo-buttongroup value="b" aria-label="Button group">
+							<neo-button value="a">One</neo-button>
+							<neo-button value="b">Two</neo-button>
+							<neo-button value="c">Three</neo-button>
+						</neo-buttongroup>
+					}
+					@dbCell("Toggle group") {
+						<neo-toggle-group value="b" aria-label="Toggle group">
+							<neo-toggle value="a">One</neo-toggle>
+							<neo-toggle value="b">Two</neo-toggle>
+							<neo-toggle value="c">Three</neo-toggle>
+						</neo-toggle-group>
+					}
+					@dbCell("Color field") {
+						<neo-color-field value="#3366ff" aria-label="Color"></neo-color-field>
+					}
+					@dbCell("Slider") {
+						<neo-slider min="0" max="100" value="50" aria-label="Slider"></neo-slider>
+					}
+					@dbCell("Tabs") {
+						<neo-tabs value="b">
+							<neo-tablist aria-label="Tabs">
+								<neo-tab value="a">One</neo-tab>
+								<neo-tab value="b">Two</neo-tab>
+								<neo-tab value="c">Three</neo-tab>
+							</neo-tablist>
+							<neo-tabpanel value="a">Panel A</neo-tabpanel>
+							<neo-tabpanel value="b">Panel B</neo-tabpanel>
+							<neo-tabpanel value="c">Panel C</neo-tabpanel>
+						</neo-tabs>
+					}
+					@dbCell("Alert") {
+						<neo-alert variant="info">Info alert</neo-alert>
+					}
+				</div>
+				<h2 class="db-section-title">Inside input groups</h2>
+				<div class="db-grid">
+					@dbCell("Text + button") {
+						<neo-input-group>
+							<neo-textinput placeholder="Search"></neo-textinput>
+							<neo-button>Go</neo-button>
+						</neo-input-group>
+					}
+					@dbCell("Prefix text + input") {
+						<neo-input-group>
+							<span>$</span>
+							<neo-textinput placeholder="0.00"></neo-textinput>
+						</neo-input-group>
+					}
+					@dbCell("Input + select") {
+						<neo-input-group>
+							<neo-textinput placeholder="Amount"></neo-textinput>
+							<neo-select value="kg" aria-label="Unit">
+								<neo-option value="g">g</neo-option>
+								<neo-option value="kg">kg</neo-option>
+								<neo-option value="t">t</neo-option>
+							</neo-select>
+						</neo-input-group>
+					}
+					@dbCell("Input + combobox") {
+						<neo-input-group>
+							<input type="text" placeholder="username"/>
+							<neo-combobox value="gmail.com" aria-label="Domain">
+								<neo-option value="gmail.com">{ "@gmail.com" }</neo-option>
+								<neo-option value="outlook.com">{ "@outlook.com" }</neo-option>
+							</neo-combobox>
+						</neo-input-group>
+					}
+					@dbCell("Toggle + input + select") {
+						<neo-input-group>
+							<neo-toggle aria-label="Bound">min</neo-toggle>
+							<neo-textinput placeholder="Value"></neo-textinput>
+							<neo-select value="kg" aria-label="Unit">
+								<neo-option value="g">g</neo-option>
+								<neo-option value="kg">kg</neo-option>
+							</neo-select>
+						</neo-input-group>
+					}
+					@dbCell("Button + input + button") {
+						<neo-input-group>
+							<neo-button>−</neo-button>
+							<neo-textinput placeholder="0"></neo-textinput>
+							<neo-button>+</neo-button>
+						</neo-input-group>
+					}
+					@dbCell("Select + input") {
+						<neo-input-group>
+							<neo-select value="https" aria-label="Scheme">
+								<neo-option value="https">https://</neo-option>
+								<neo-option value="http">http://</neo-option>
+							</neo-select>
+							<neo-textinput placeholder="example.com"></neo-textinput>
+						</neo-input-group>
+					}
+					@dbCell("Combobox + button") {
+						<neo-input-group>
+							<neo-combobox value="a" aria-label="Pick">
+								<neo-option value="a">Alpha</neo-option>
+								<neo-option value="b">Bravo</neo-option>
+							</neo-combobox>
+							<neo-button>Add</neo-button>
+						</neo-input-group>
+					}
+					@dbCell("Text + select (group)") {
+						<neo-input-group>
+							<span>Sort</span>
+							<neo-select value="b" aria-label="Sort by">
+								<neo-option value="a">Newest</neo-option>
+								<neo-option value="b">Oldest</neo-option>
+								<neo-option value="c">A–Z</neo-option>
+							</neo-select>
+						</neo-input-group>
+					}
+					@dbCell("Text + combobox (group)") {
+						<neo-input-group>
+							<span>Tag</span>
+							<neo-combobox value="b" aria-label="Tag">
+								<neo-option value="a">bug</neo-option>
+								<neo-option value="b">feature</neo-option>
+								<neo-option value="c">chore</neo-option>
+							</neo-combobox>
+						</neo-input-group>
+					}
+				</div>
+				<h2 class="db-section-title">Popover &amp; dropdown panels</h2>
+				<div class="db-grid">
+					@dbCell("Popover") {
+						<neo-popover placement="bottom-start">
+							<neo-button data-neo-popover-trigger>Open popover</neo-button>
+							<div data-neo-popover-content>
+								<p style="margin:0">Popover panel border should thicken in high contrast.</p>
+							</div>
+						</neo-popover>
+					}
+				</div>
+			</main>
+			@debugBordersStyle()
+		</body>
+	</html>
+}
+
+templ dbCell(label string) {
+	<neo-layout class="db-cell" column gap="sm">
+		<span class="db-label">{ label }</span>
+		<neo-layout class="db-control" wrap align-items="center">
+			{ children... }
+		</neo-layout>
+	</neo-layout>
+}
+
+// debugBordersBar: sticky controls that flip theme, color mode, and
+// high contrast. Combines siteTheme + siteA11yPrefs signal wiring into
+// one bar (see site.templ for the canonical versions).
+templ debugBordersBar() {
+	<header
+		class="db-bar"
+		data-signals="{
+			_theme: window.neoTheme.saved().theme,
+			_mode: window.neoTheme.saved().mode,
+			_a11y_contrast: window.neoA11y.saved().contrast
+		}"
+		data-effect="
+			window.neoTheme.apply($_theme, $_mode);
+			document.documentElement.toggleAttribute('data-pref-contrast-more', $_a11y_contrast);
+			try {
+				localStorage.setItem('neo-theme', $_theme);
+				localStorage.setItem('neo-mode', $_mode);
+				localStorage.setItem('neo-a11y-contrast', $_a11y_contrast ? '1' : '0');
+			} catch (_) {}
+		"
+	>
+		<strong class="db-title">Border debug</strong>
+		<neo-select aria-label="Theme" data-attr:value="$_theme" data-on:neo-select-change="$_theme = evt.detail.value">
+			<neo-option value="default">Default</neo-option>
+			<neo-option value="sunshine">Sunshine</neo-option>
+			<neo-option value="ocean">Ocean</neo-option>
+			<neo-option value="matrix">Matrix</neo-option>
+			<neo-option value="rose">Rose</neo-option>
+		</neo-select>
+		<neo-buttongroup value="system" aria-label="Color mode" data-attr:value="$_mode" data-on:neo-buttongroup-change="$_mode = evt.detail.value">
+			<neo-button value="light" aria-label="Light">☀</neo-button>
+			<neo-button value="system" aria-label="System">◐</neo-button>
+			<neo-button value="dark" aria-label="Dark">☾</neo-button>
+		</neo-buttongroup>
+		<label class="db-contrast">
+			<neo-switch size="sm" aria-label="High contrast" data-attr:checked="$_a11y_contrast" data-on:neo-switch-change="$_a11y_contrast = evt.detail.checked"></neo-switch>
+			<span>High contrast</span>
+		</label>
+	</header>
+}
+
+templ debugBordersStyle() {
+	<style>
+		/* Standalone page: defeat the site-wide html/body height clamp. */
+		html:has(> .db-body) {
+			height: auto;
+			overflow: auto;
+		}
+		.db-body {
+			font-family: var(--neo-font-family, system-ui, sans-serif);
+			background: var(--page-bg, #fafafa);
+			color: var(--page-fg, #111);
+			min-height: 100vh;
+			height: auto;
+			overflow: auto;
+			margin: 0;
+		}
+		.db-bar {
+			position: sticky;
+			top: 0;
+			z-index: 1000;
+			display: flex;
+			align-items: center;
+			flex-wrap: wrap;
+			gap: 1rem;
+			padding: 0.75rem 1.25rem;
+			background: color-mix(in srgb, var(--page-bg) 86%, var(--page-fg));
+			border-bottom: 1px solid color-mix(in srgb, var(--page-fg) 14%, transparent);
+			backdrop-filter: blur(6px);
+		}
+		.db-title {
+			font-size: 1rem;
+			margin-right: auto;
+		}
+		.db-contrast {
+			display: inline-flex;
+			align-items: center;
+			gap: 0.5rem;
+			cursor: pointer;
+		}
+		.db-main {
+			padding: 1.5rem 1.25rem 4rem;
+		}
+		.db-section-title {
+			font-size: 0.95rem;
+			font-weight: 700;
+			letter-spacing: 0.02em;
+			margin: 1.5rem 0 0.75rem;
+		}
+		.db-grid {
+			display: grid;
+			grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+			gap: 1rem;
+			align-items: start;
+		}
+		.db-cell {
+			display: flex;
+			flex-direction: column;
+			gap: 0.5rem;
+			padding: 0.9rem;
+			border-radius: 0.5rem;
+			background: var(--page-bg);
+			box-shadow: 0 0 0 1px color-mix(in srgb, var(--page-fg) 8%, transparent);
+		}
+		.db-label {
+			font-size: 0.72rem;
+			font-weight: 600;
+			letter-spacing: 0.04em;
+			text-transform: uppercase;
+			color: var(--muted, color-mix(in srgb, var(--page-fg) 55%, transparent));
+		}
+		.db-control {
+			display: flex;
+			flex-wrap: wrap;
+			align-items: center;
+			gap: 0.6rem;
+		}
+		/* Input groups should span the cell so addon seams are easy to read. */
+		.db-control neo-input-group {
+			width: 100%;
+		}
+		.db-control neo-textinput,
+		.db-control neo-textarea {
+			flex: 1 1 8rem;
+		}
+		.db-control neo-radio-group label {
+			display: inline-flex;
+			align-items: center;
+			gap: 0.3rem;
+		}
+	</style>
+}

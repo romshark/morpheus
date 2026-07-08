@@ -1,0 +1,35 @@
+.kbd-shortcut-table {
+	width: 100%;
+	max-width: 28rem;
+	border-collapse: collapse;
+}
+
+.kbd-shortcut-table-label {
+	padding: 0.45rem 0.25rem;
+	font-weight: normal;
+	text-align: left;
+	border-bottom: 1px solid color-mix(in srgb, var(--page-fg) 8%, transparent);
+}
+
+.kbd-shortcut-table-keys {
+	padding: 0.45rem 0.25rem;
+	font-weight: normal;
+	text-align: right;
+	white-space: nowrap;
+	width: 1%;
+	border-bottom: 1px solid color-mix(in srgb, var(--page-fg) 8%, transparent);
+}
+
+.kbd-shortcut-table-label-last {
+	padding: 0.45rem 0.25rem;
+	font-weight: normal;
+	text-align: left;
+}
+
+.kbd-shortcut-table-keys-last {
+	padding: 0.45rem 0.25rem;
+	font-weight: normal;
+	text-align: right;
+	white-space: nowrap;
+	width: 1%;
+}

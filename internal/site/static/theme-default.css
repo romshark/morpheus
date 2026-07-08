@@ -1,0 +1,123 @@
+/* theme-default.css: the kit's default palette. Channel values use
+ * the modern OKLCH colour space and map onto the kit's role tokens:
+ *   primary       -> --accent
+ *   foreground    -> --page-fg
+ *   background    -> --page-bg
+ *   muted-fg      -> --muted
+ *   border        -> --btn-border
+ *   secondary     -> --btn-hover-bg
+ *   destructive   -> --danger-bg
+ *
+ * The default palette has no theme- class; it lives on the bare
+ * `:root` selector so a page with no JS (or before the app's theme
+ * switcher runs) still reads as the kit's default look. The @media
+ * block at the bottom gives no-JS users dark mode via their OS
+ * preference. */
+
+:root {
+	color-scheme: light;
+
+	/* Neutral light. Primary is near-black, no hue, the
+	 * "default" button colour. */
+	--accent: oklch(0.205 0 0);
+	--accent-hover: oklch(0.205 0 0 / 0.9);
+	--accent-fg: oklch(0.985 0 0);
+
+	--page-fg: oklch(0.145 0 0);
+	--page-bg: oklch(1 0 0);
+	--muted: oklch(0.556 0 0);
+
+	/* Baseline font. Other themes override --page-font-family; without
+	 * a default here, body's var() would fall back to the UA serif. */
+	--page-font-family: ui-sans-serif, system-ui, -apple-system,
+		"Segoe UI", Roboto, sans-serif;
+
+	/* Body-prose links. The neutral palette's --accent ≈ --page-fg
+	 * (near-black), so links need their own hue; a conventional blue
+	 * + the always-on underline in morpheus.css give links a clear,
+	 * accessible style distinct from text and buttons. */
+	--link: #2563eb;
+	--link-hover: #1d4ed8;
+	--link-visited: #7c3aed;
+
+	/* Default button = outline button: background matches the page
+	 * (--page-bg), border = --btn-border, hover swaps in
+	 * --btn-hover-bg. Primary buttons (variant="primary") get
+	 * --accent / --accent-fg above. */
+	--btn-bg: oklch(1 0 0);
+	--btn-fg: oklch(0.145 0 0);
+	--btn-border: oklch(0.922 0 0);
+	--btn-hover-bg: oklch(0.97 0 0);
+
+	--danger-bg: oklch(0.577 0.245 27.325);
+	--danger-fg: oklch(0.985 0 0);
+	--danger-hover-bg: oklch(0.577 0.245 27.325 / 0.9);
+
+	--neo-tooltip-bg: oklch(0.205 0 0);
+	--neo-tooltip-color: oklch(0.985 0 0);
+}
+
+:root.dark {
+	color-scheme: dark;
+
+	/* Neutral dark. Primary inverts to near-white. Borders use a
+	 * translucent white tint (`oklch(1 0 0 / 10%)`) over the dark
+	 * background so they read as a soft hairline rather than a hard
+	 * grey rule. */
+	--accent: oklch(0.922 0 0);
+	--accent-hover: oklch(0.922 0 0 / 0.9);
+	--accent-fg: oklch(0.205 0 0);
+
+	--page-fg: oklch(0.985 0 0);
+	--page-bg: oklch(0.145 0 0);
+	--muted: oklch(0.708 0 0);
+
+	/* Lighter blue/violet for contrast on the dark page bg. */
+	--link: #60a5fa;
+	--link-hover: #93c5fd;
+	--link-visited: #c4b5fd;
+
+	--btn-bg: oklch(0.205 0 0);
+	--btn-fg: oklch(0.985 0 0);
+	--btn-border: oklch(1 0 0 / 0.1);
+	--btn-hover-bg: oklch(0.269 0 0);
+
+	--danger-bg: oklch(0.704 0.191 22.216);
+	--danger-fg: oklch(0.985 0 0);
+	--danger-hover-bg: oklch(0.704 0.191 22.216 / 0.9);
+
+	--neo-tooltip-bg: oklch(0.985 0 0);
+	--neo-tooltip-color: oklch(0.145 0 0);
+
+	/* Card fill is lighter than the page bg in dark mode, so the
+	 * translucent-white --btn-border that works for styling on page-bg
+	 * disappears here. Use an opaque, slightly lighter hairline. */
+	--neo-card-border-color: #2e2e2e;
+}
+
+/* No-JS dark-mode fallback: if <html> has no component-applied mode
+ * class (so neither .light nor .dark) and the OS asks for dark, fall
+ * back to the default-dark palette (mirroring the rule above). */
+@media (prefers-color-scheme: dark) {
+	:root:not(.light):not(.dark) {
+		color-scheme: dark;
+		--accent: oklch(0.922 0 0);
+		--accent-hover: oklch(0.922 0 0 / 0.9);
+		--accent-fg: oklch(0.205 0 0);
+		--page-fg: oklch(0.985 0 0);
+		--page-bg: oklch(0.145 0 0);
+		--muted: oklch(0.708 0 0);
+		--link: #60a5fa;
+		--link-hover: #93c5fd;
+		--link-visited: #c4b5fd;
+		--btn-bg: oklch(0.205 0 0);
+		--btn-fg: oklch(0.985 0 0);
+		--btn-border: oklch(1 0 0 / 0.1);
+		--btn-hover-bg: oklch(0.269 0 0);
+
+		--neo-tooltip-bg: oklch(0.985 0 0);
+		--neo-tooltip-color: oklch(0.145 0 0);
+
+		--neo-card-border-color: #2e2e2e;
+	}
+}

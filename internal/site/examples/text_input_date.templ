@@ -1,0 +1,11 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ TextInputDate() {
+	@neo.TextInput(neo.TextInputOpts{
+		Mask:        neo.Set("##/##/####"),
+		Inputmode:   neo.Set(neo.TextInputInputmodeNumeric),
+		Placeholder: neo.Set("MM/DD/YYYY"),
+	})
+}

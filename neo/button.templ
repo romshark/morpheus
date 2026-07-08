@@ -1,0 +1,51 @@
+package neo
+
+// ButtonVariant is the visual style enum for <neo-button>.
+// ButtonVariantDefault is the neutral-styling variant and is what an
+// unset (zero-value) Variant maps to.
+type ButtonVariant string
+
+const (
+	ButtonVariantDefault   ButtonVariant = "default"
+	ButtonVariantPrimary   ButtonVariant = "primary"
+	ButtonVariantSecondary ButtonVariant = "secondary"
+	ButtonVariantGhost     ButtonVariant = "ghost"
+	ButtonVariantDanger    ButtonVariant = "danger"
+	ButtonVariantAnchor    ButtonVariant = "anchor"
+)
+
+type ButtonOpts struct {
+	Variant Attr[ButtonVariant]
+	// Disabled removes the host from the tab order and swallows clicks.
+	Disabled Attr[bool]
+	// Size is the control-size step ("sm" | "lg"); empty is the default
+	// size. Shared with the other row controls so they line up.
+	Size Attr[string]
+}
+
+// Button prerenders <neo-button> with role/tabindex matching the upgraded
+// state, so the host paints once with no flicker.
+templ Button(opts ButtonOpts) {
+	@ButtonAttrs(opts, nil) {
+		{ children... }
+	}
+}
+
+// ButtonAttrs is [Button] with an extra attribute set.
+templ ButtonAttrs(opts ButtonOpts, attrs templ.Attributes) {
+	<neo-button
+		role="button"
+		{ opts.Variant.Attrs("variant")... }
+		{ opts.Size.Attrs("size")... }
+		if opts.Disabled.Or(false) {
+			disabled
+			aria-disabled="true"
+			tabindex="-1"
+		} else {
+			tabindex="0"
+		}
+		{ attrs... }
+	>
+		{ children... }
+	</neo-button>
+}

@@ -1,0 +1,35 @@
+.cm-card {
+	display: inline-flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 0.25rem;
+	min-width: min(100%, 18rem);
+	min-height: 5rem;
+	padding: 1rem;
+	border: 1px dashed var(--btn-border);
+	border-radius: var(--page-radius);
+	background: color-mix(in srgb, var(--page-fg) 5%, transparent);
+	color: var(--page-fg);
+	text-align: left;
+	cursor: context-menu;
+	user-select: none;
+}
+
+.cm-card:focus-visible {
+	outline: 2px solid var(--accent);
+	outline-offset: 2px;
+}
+
+.cm-card > span {
+	color: var(--muted);
+	font-size: 0.85rem;
+}
+
+.cm-custom {
+	--neo-menu-min-width: 13rem;
+	--neo-menu-item-padding-x: 0.65rem;
+}
+
+.cm-custom neo-menuitem[value="delete"] {
+	color: var(--danger-bg);
+}

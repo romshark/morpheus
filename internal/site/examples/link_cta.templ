@@ -1,0 +1,19 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ LinkCta() {
+	@neo.Link(neo.LinkOpts{Href: neo.Set("#"), Variant: neo.Set(neo.LinkVariantButtonPrimary)}) {
+		Get started
+		@neo.Icon("arrow-right")
+	}
+	@neo.Link(neo.LinkOpts{
+		Href:    neo.Set("https://example.com"),
+		Target:  neo.Set("_blank"),
+		Rel:     neo.Set("noopener noreferrer"),
+		Variant: neo.Set(neo.LinkVariantButtonSecondary),
+	}) {
+		@neo.Icon("link")
+		Open external docs
+	}
+}

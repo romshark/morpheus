@@ -1,0 +1,12 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ RatingHearts() {
+	@neo.Rating(neo.RatingOpts{
+		Label: neo.Set("Favourite"),
+		Value: neo.Set(4.0),
+		Icon:  neo.Set("heart"),
+		Size:  neo.Set("lg"),
+	})
+}

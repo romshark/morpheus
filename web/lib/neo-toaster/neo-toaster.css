@@ -1,0 +1,202 @@
+/* -----------------------------------------------------------------------
+ * <neo-toaster>
+ * -----------------------------------------------------------------------
+ * Fixed-positioned stack of <neo-toast> notifications, modelled on
+ * Sonner's stacked-deck visualisation:
+ *
+ *   • Toasts are absolutely positioned at one corner of the host;
+ *     all of them share the same anchor.
+ *   • `stack="0"` (default) shows every toast in a normal vertical
+ *     stack. Positive `stack` values keep that many full toasts
+ *     visible, then tuck up to two older toasts behind the last full
+ *     one as peek cards.
+ *   • Hovering, focusing, or clicking the host adds [data-neo-expanded]
+ *     to it; every toast moves to its measured per-slot offset
+ *     (cumulative heights from JS) at scale 1, i.e. a non-overlapping
+ *     vertical list. All auto-dismiss timers pause for the duration.
+ *   • Toasts past the visible cap fade to opacity 0 in collapsed
+ *     mode and reappear in the expanded view.
+ *   • Entry / exit are pure transitions: the pre-mount /
+ *     [data-neo-toast-leaving] state has the toast translated off-
+ *     screen along the anchor axis; flipping [data-neo-mounted] (or
+ *     removing the leaving marker) lets the transform interpolate
+ *     to / from the resting position.
+ *
+ * Architecture: the toaster's positioning + Sonner-pile transforms
+ * are driven from this file, scoped to <neo-toast> children of a
+ * <neo-toaster>. The inner stack wrapper (host's shadow root) and
+ * each toast's markup (icon / body / close button, in <neo-toast>'s
+ * shadow root) are styled via in-component <style> blocks. */
+
+:root {
+	--neo-toaster-z-index: 1200;
+	--neo-toaster-padding: 1rem;
+	--neo-toaster-max-width: 22rem;
+	--neo-toaster-gap: 10px;
+	--neo-toaster-stack-offset: 14px;
+	--neo-toaster-stack-scale-step: 0.05;
+	--neo-toaster-transition: calc(400ms * var(--neo-duration-scale, 1)) var(--neo-easing, cubic-bezier(0.32, 0.72, 0, 1));
+	--neo-toast-bg: var(--btn-bg);
+	--neo-toast-fg: var(--page-fg);
+	--neo-toast-border: var(--btn-border);
+	--neo-toast-radius: var(--page-radius, 0.5rem);
+	--neo-toast-shadow: 0 8px 24px -10px rgba(0, 0, 0, 0.22), 0 2px 4px -2px rgba(0, 0, 0, 0.08);
+	--neo-toast-shadow-bleed: 1.5rem;
+	--neo-toaster-max-height: calc(
+		100dvh -
+		var(--neo-toaster-padding) -
+		var(--neo-toaster-padding) +
+		var(--neo-toast-shadow-bleed) +
+		var(--neo-toast-shadow-bleed)
+	);
+	--neo-toast-success: oklch(0.65 0.18 145);
+	--neo-toast-error: var(--danger-bg);
+	--neo-toast-warning: oklch(0.78 0.16 80);
+	--neo-toast-info: oklch(0.6 0.18 240);
+}
+
+neo-toaster {
+	position: fixed;
+	z-index: var(--neo-toaster-z-index);
+	width: calc(var(--neo-toaster-max-width) + var(--neo-toast-shadow-bleed) + var(--neo-toast-shadow-bleed));
+	max-width: calc(
+		100vw -
+		var(--neo-toaster-padding) -
+		var(--neo-toaster-padding) +
+		var(--neo-toast-shadow-bleed) +
+		var(--neo-toast-shadow-bleed)
+	);
+	box-sizing: border-box;
+	pointer-events: none;
+}
+
+/* Contained mode: anchor to the nearest positioned ancestor (a
+ * preview frame, a split-view pane, …) instead of the viewport.
+ * The per-corner offsets above still apply but are now measured
+ * against that ancestor's padding box. The parent must have
+ * `position: relative` (or absolute / fixed / sticky) for this to
+ * work. See `.demo-frame-stage` for the doc-app's preview case. */
+neo-toaster[contained] {
+	position: absolute;
+	max-width: calc(100% + var(--neo-toast-shadow-bleed) + var(--neo-toast-shadow-bleed));
+	width: calc(100% + var(--neo-toast-shadow-bleed) + var(--neo-toast-shadow-bleed));
+	z-index: 1;
+}
+
+neo-toaster[position="top-left"] {
+	top: calc(var(--neo-toaster-padding) - var(--neo-toast-shadow-bleed));
+	left: calc(var(--neo-toaster-padding) - var(--neo-toast-shadow-bleed));
+}
+neo-toaster[position="top-right"] {
+	top: calc(var(--neo-toaster-padding) - var(--neo-toast-shadow-bleed));
+	right: calc(var(--neo-toaster-padding) - var(--neo-toast-shadow-bleed));
+}
+neo-toaster[position="bottom-left"] {
+	bottom: calc(var(--neo-toaster-padding) - var(--neo-toast-shadow-bleed));
+	left: calc(var(--neo-toaster-padding) - var(--neo-toast-shadow-bleed));
+}
+neo-toaster[position="bottom-right"] {
+	bottom: calc(var(--neo-toaster-padding) - var(--neo-toast-shadow-bleed));
+	right: calc(var(--neo-toaster-padding) - var(--neo-toast-shadow-bleed));
+}
+neo-toaster[position="top-center"] {
+	top: calc(var(--neo-toaster-padding) - var(--neo-toast-shadow-bleed));
+	left: 50%;
+	transform: translateX(-50%);
+}
+neo-toaster[position="bottom-center"] {
+	bottom: calc(var(--neo-toaster-padding) - var(--neo-toast-shadow-bleed));
+	left: 50%;
+	transform: translateX(-50%);
+}
+
+/* Each toast is an absolutely-positioned light-DOM child of the
+ * toaster, projected through the host's shadow stack via a single
+ * slot. Layout custom properties are written by the toaster's
+ * updateLayout() per-toast; the shadow markup inherits them through
+ * normal CSS inheritance. */
+neo-toaster > neo-toast {
+	position: absolute;
+	left: 0;
+	right: 0;
+	pointer-events: auto;
+	touch-action: pan-y;
+	will-change: transform, opacity;
+	transition:
+		transform var(--neo-toaster-transition),
+		opacity var(--neo-toaster-transition);
+	/* Higher z-index for the freshest toasts so they paint above the
+	 * older ones in the stacked view. The constant keeps a wide
+	 * range positive even with double-digit toasts. */
+	z-index: calc(100 - var(--toast-stack-index, 0));
+}
+
+/* Bottom-anchored: stack grows away from the screen edge upward.
+ * Older toasts translate UP by `index * offset`; the expanded list
+ * lives entirely above the freshest toast. */
+neo-toaster[position*="bottom"] > neo-toast {
+	bottom: var(--neo-toast-shadow-bleed);
+	transform-origin: bottom center;
+	transform: translateY(calc(-1 * var(--toast-collapsed-offset, 0px))) scale(var(--toast-collapsed-scale, 1));
+}
+neo-toaster[position*="top"] > neo-toast {
+	top: var(--neo-toast-shadow-bleed);
+	transform-origin: top center;
+	transform: translateY(var(--toast-collapsed-offset, 0px)) scale(var(--toast-collapsed-scale, 1));
+}
+
+/* Pre-mount state: the toast hasn't received [data-neo-mounted] yet.
+ * Park it off-screen along the anchor axis so the entry transition
+ * reads as "slid in from outside the corner". */
+neo-toaster[position*="bottom"] > neo-toast:not([data-neo-mounted]),
+neo-toaster[position*="bottom"] > neo-toast[data-neo-toast-leaving] {
+	transform: translateY(150%);
+	opacity: 0;
+}
+neo-toaster[position*="top"] > neo-toast:not([data-neo-mounted]),
+neo-toaster[position*="top"] > neo-toast[data-neo-toast-leaving] {
+	transform: translateY(-150%);
+	opacity: 0;
+}
+
+neo-toaster > neo-toast[data-neo-toast-swipe-dismiss][data-neo-toast-leaving] {
+	transform: translateX(var(--toast-swipe-exit, 120%));
+	opacity: 0;
+}
+
+/* Toasts beyond the visible cap fade to invisible in collapsed
+ * mode; they're still in the DOM (and reappear in the expanded
+ * view) so the reader can browse a long backlog by hovering. */
+neo-toaster > neo-toast[data-neo-toast-hidden] {
+	opacity: 0;
+	pointer-events: none;
+}
+
+/* Expanded mode (host hovered, focused, or clicked). Each toast moves
+ * to its measured offset along the anchor axis, scale resets to 1,
+ * every toast becomes pointer-interactive again. The host
+ * becomes scrollable. */
+neo-toaster[data-neo-expanded] {
+	pointer-events: auto;
+	max-height: var(--neo-toaster-max-height, 75vh);
+	overflow-y: auto;
+}
+
+neo-toaster[data-neo-expanded] > neo-toast {
+	opacity: 1;
+	pointer-events: auto;
+}
+
+neo-toaster[data-neo-expanded][position*="bottom"] > neo-toast {
+	transform: translateY(calc(-1 * var(--toast-expanded-offset, 0px))) scale(1);
+}
+
+neo-toaster[data-neo-expanded][position*="top"] > neo-toast {
+	transform: translateY(var(--toast-expanded-offset, 0px)) scale(1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	neo-toaster > neo-toast {
+		transition-duration: 0.01ms;
+	}
+}

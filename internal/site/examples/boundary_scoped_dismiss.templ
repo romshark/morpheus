@@ -1,0 +1,101 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ BoundaryScopedDismiss() {
+	@neo.Layout(neo.LayoutOpts{
+		Direction:  neo.Set(neo.Row),
+		Wrap:       neo.Set(neo.Wrap),
+		Gap:        neo.Set(neo.GapLg),
+		AlignItems: neo.Set(neo.AlignItemsStretch),
+	}) {
+		@neo.Boundary(neo.BoundaryOpts{}) {
+			<div neo-flex-grow="1" neo-flex-basis="0" class="boundary-scoped-dismiss-panel">
+				<strong>Project A</strong>
+				@neo.Popover(neo.PopoverOpts{
+					Placement:    neo.Set(neo.PlacementBottomStart),
+					FollowScroll: neo.Set(neo.PopoverFollowScrollUntilTriggerInvisible),
+				}) {
+					<neo-button { neo.PopoverTrigger()... }>Actions</neo-button>
+					<div { neo.PopoverContent()... }>
+						<h3 class="boundary-scoped-dismiss-heading">Actions</h3>
+						<p class="boundary-scoped-dismiss-note">Rename, archive, or delete.</p>
+					</div>
+				}
+				@neo.SelectAttrs(neo.SelectOpts{
+					AriaLabel:   neo.Set("Status (Project A)"),
+					Placeholder: neo.Set("Pick a status"),
+				}, templ.Attributes{"class": "boundary-scoped-dismiss-field"}) {
+					@neo.Option(neo.OptionOpts{Value: neo.Set("todo")}) {
+						To do
+					}
+					@neo.Option(neo.OptionOpts{Value: neo.Set("doing")}) {
+						In progress
+					}
+					@neo.Option(neo.OptionOpts{Value: neo.Set("done")}) {
+						Done
+					}
+				}
+				@neo.ComboboxAttrs(neo.ComboboxOpts{
+					AriaLabel:         neo.Set("Assignee (Project A)"),
+					Placeholder:       neo.Set("Pick an assignee"),
+					SearchPlaceholder: neo.Set("Search…"),
+				}, templ.Attributes{"class": "boundary-scoped-dismiss-field"}) {
+					@neo.Option(neo.OptionOpts{Value: neo.Set("alice")}) {
+						Alice Larsson
+					}
+					@neo.Option(neo.OptionOpts{Value: neo.Set("diego")}) {
+						Diego Vega
+					}
+					@neo.Option(neo.OptionOpts{Value: neo.Set("evelyn")}) {
+						Evelyn Kone
+					}
+				}
+			</div>
+		}
+		@neo.Boundary(neo.BoundaryOpts{}) {
+			<div neo-flex-grow="1" neo-flex-basis="0" class="boundary-scoped-dismiss-panel">
+				<strong>Project B</strong>
+				@neo.Popover(neo.PopoverOpts{
+					Placement:    neo.Set(neo.PlacementBottomStart),
+					FollowScroll: neo.Set(neo.PopoverFollowScrollUntilTriggerInvisible),
+				}) {
+					<neo-button { neo.PopoverTrigger()... }>Actions</neo-button>
+					<div { neo.PopoverContent()... }>
+						<h3 class="boundary-scoped-dismiss-heading">Actions</h3>
+						<p class="boundary-scoped-dismiss-note">Rename, archive, or delete.</p>
+					</div>
+				}
+				@neo.SelectAttrs(neo.SelectOpts{
+					AriaLabel:   neo.Set("Status (Project B)"),
+					Placeholder: neo.Set("Pick a status"),
+				}, templ.Attributes{"class": "boundary-scoped-dismiss-field"}) {
+					@neo.Option(neo.OptionOpts{Value: neo.Set("backlog")}) {
+						Backlog
+					}
+					@neo.Option(neo.OptionOpts{Value: neo.Set("active")}) {
+						Active
+					}
+					@neo.Option(neo.OptionOpts{Value: neo.Set("shipped")}) {
+						Shipped
+					}
+				}
+				@neo.ComboboxAttrs(neo.ComboboxOpts{
+					AriaLabel:         neo.Set("Assignee (Project B)"),
+					Placeholder:       neo.Set("Pick an assignee"),
+					SearchPlaceholder: neo.Set("Search…"),
+				}, templ.Attributes{"class": "boundary-scoped-dismiss-field"}) {
+					@neo.Option(neo.OptionOpts{Value: neo.Set("samira")}) {
+						Samira Khalil
+					}
+					@neo.Option(neo.OptionOpts{Value: neo.Set("theo")}) {
+						Theo Becker
+					}
+					@neo.Option(neo.OptionOpts{Value: neo.Set("jan")}) {
+						Jan O'Sullivan
+					}
+				}
+			</div>
+		}
+	}
+}

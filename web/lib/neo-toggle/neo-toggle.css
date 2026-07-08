@@ -1,0 +1,143 @@
+/* -----------------------------------------------------------------------
+ * <neo-toggle>
+ * -----------------------------------------------------------------------
+ * Visually a clone of <neo-button> with an extra "pressed" state. The
+ * pressed look reuses the secondary fill so it reads as "this is on"
+ * without colliding with the primary-button accent (which a sibling
+ * non-toggle CTA may already be using). */
+
+neo-toggle {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.35rem;
+	font: inherit;
+	line-height: 1;
+	cursor: pointer;
+	user-select: none;
+	-webkit-user-select: none;
+	padding: var(--neo-button-padding);
+	border-radius: var(--neo-button-radius);
+	border: 1px solid var(--neo-button-border-color);
+	background: var(--neo-button-bg);
+	color: var(--neo-button-color);
+	/* No-op until contrast-more; an inset ring then strengthens the
+	 * edge without the reflow a 2px border would cause on this
+	 * content-sized control. */
+	box-shadow: var(--neo-button-shadow), var(--neo-contrast-ring);
+	transform: translateY(0);
+	transition:
+		background-color var(--neo-duration-hover, calc(120ms * var(--neo-duration-scale, 1))) var(--neo-easing, ease),
+		border-color var(--neo-duration-hover, calc(120ms * var(--neo-duration-scale, 1))) var(--neo-easing, ease),
+		box-shadow var(--neo-duration-hover, calc(120ms * var(--neo-duration-scale, 1))) var(--neo-easing, ease),
+		transform var(--neo-duration-hover, calc(120ms * var(--neo-duration-scale, 1))) var(--neo-easing, ease);
+}
+
+/* `size` (sm/lg) is the shared control-size scale in _base.css; toggle
+ * is in that selector group, so it needs no per-component size rule. */
+
+neo-toggle:hover {
+	background: var(--neo-button-hover-bg);
+	box-shadow: var(--neo-button-hover-shadow), var(--neo-contrast-ring);
+	transform: translateY(var(--neo-button-hover-lift));
+}
+
+neo-toggle:active {
+	background: var(--neo-button-active-bg);
+	color: var(--neo-button-active-color);
+	box-shadow: var(--neo-button-active-shadow), var(--neo-contrast-ring);
+	transform: translateY(var(--neo-button-active-lift));
+}
+
+neo-toggle:focus-visible {
+	outline: 2px solid var(--neo-button-focus-ring);
+	outline-offset: 2px;
+}
+
+neo-toggle[variant="ghost"] {
+	background: var(--neo-button-ghost-bg);
+	color: var(--neo-button-ghost-color);
+	border-color: transparent;
+	box-shadow: none;
+	transform: none;
+}
+
+neo-toggle[variant="ghost"]:hover {
+	background: var(--neo-button-ghost-hover-bg);
+	box-shadow: none;
+	transform: none;
+}
+
+neo-toggle[variant="ghost"]:active {
+	background: var(--neo-button-ghost-active-bg);
+	color: var(--neo-button-ghost-color);
+	box-shadow: none;
+	transform: none;
+}
+
+neo-toggle[pressed]:not([pressed="false" i]),
+neo-toggle[aria-pressed="true"] {
+	background: color-mix(in srgb, var(--page-fg) 18%, transparent);
+	color: var(--neo-button-color);
+	border-color: color-mix(in srgb, var(--page-fg) 32%, transparent);
+	box-shadow:
+		inset 0 1px 2px rgba(0, 0, 0, 0.18),
+		var(--neo-contrast-ring);
+	transform: translateY(0);
+}
+
+neo-toggle[pressed]:not([pressed="false" i]):hover,
+neo-toggle[aria-pressed="true"]:hover {
+	background: color-mix(in srgb, var(--page-fg) 24%, transparent);
+}
+
+neo-toggle[variant="primary"][pressed]:not([pressed="false" i]),
+neo-toggle[variant="primary"][aria-pressed="true"] {
+	background: var(--neo-button-primary-bg);
+	color: var(--neo-button-primary-color);
+	border-color: transparent;
+}
+
+neo-toggle[variant="primary"][pressed]:not([pressed="false" i]):hover,
+neo-toggle[variant="primary"][aria-pressed="true"]:hover {
+	background: var(--neo-button-primary-hover-bg);
+}
+
+neo-toggle[variant="danger"][pressed]:not([pressed="false" i]),
+neo-toggle[variant="danger"][aria-pressed="true"] {
+	background: var(--neo-button-danger-bg);
+	color: var(--neo-button-danger-color);
+	border-color: transparent;
+}
+
+neo-toggle[variant="danger"][pressed]:not([pressed="false" i]):hover,
+neo-toggle[variant="danger"][aria-pressed="true"]:hover {
+	background: var(--neo-button-danger-hover-bg);
+}
+
+neo-toggle[disabled]:not([disabled="false"]),
+neo-toggle[aria-disabled="true"] {
+	cursor: not-allowed;
+	opacity: 0.55;
+	background-image: var(--neo-disabled-overlay);
+}
+
+/* `[data-neo-toggle-on]` / `[data-neo-toggle-off]` are the two-label slot
+ * convention: mark up both states inline and let the `pressed`
+ * attribute swap which one paints. `display: contents` keeps the
+ * button's flex gap uniform whichever side is active. */
+neo-toggle [data-neo-toggle-off] {
+	display: contents;
+}
+
+neo-toggle [data-neo-toggle-on] {
+	display: none;
+}
+
+neo-toggle[pressed]:not([pressed="false" i]) [data-neo-toggle-off] {
+	display: none;
+}
+
+neo-toggle[pressed]:not([pressed="false" i]) [data-neo-toggle-on] {
+	display: contents;
+}

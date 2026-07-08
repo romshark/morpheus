@@ -1,0 +1,123 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+// CheckboxTree is the server-driven permissions tree. Each leaf posts
+// only its (key, checked) pair; the simulated server recomputes parent
+// indeterminate/checked state and morphs the tree back. Initial visual
+// state is whatever this SSR template emits.
+templ CheckboxTree() {
+	<div id="checkbox-tree-example" class="checkbox-tree-example" data-signals="{checkbox_tree_key: '', checkbox_tree_checked: false}">
+		@neo.TreeAttrs(templ.Attributes{
+			"class":      "checkbox-tree",
+			"aria-label": "Project permissions",
+		}) {
+			@neo.TreeItem(true) {
+				@neo.TreeLabel() {
+					@neo.CheckboxAttrs(neo.CheckboxOpts{
+						Indeterminate: neo.Set(true),
+						AriaLabel:     neo.Set("Repository permissions"),
+					}, templ.Attributes{"data-on:neo-checkbox-change": "$checkbox_tree_key = 'repository'; $checkbox_tree_checked = evt.detail.checked; @post('/checkbox/tree/morph', { requestCancellation: 'disabled' })"})
+					@neo.TreeText() {
+						Repository
+					}
+				}
+				@neo.TreeItem(true) {
+					@neo.TreeLabel() {
+						@neo.CheckboxAttrs(neo.CheckboxOpts{
+							Checked:   neo.Set(true),
+							AriaLabel: neo.Set("Source permissions"),
+						}, templ.Attributes{"data-on:neo-checkbox-change": "$checkbox_tree_key = 'source'; $checkbox_tree_checked = evt.detail.checked; @post('/checkbox/tree/morph', { requestCancellation: 'disabled' })"})
+						@neo.TreeText() {
+							Source
+						}
+					}
+					@neo.TreeItem(false) {
+						@neo.TreeLabel() {
+							@neo.CheckboxAttrs(neo.CheckboxOpts{
+								Checked:   neo.Set(true),
+								AriaLabel: neo.Set("Read source"),
+							}, templ.Attributes{"data-on:neo-checkbox-change": "$checkbox_tree_key = 'read'; $checkbox_tree_checked = evt.detail.checked; @post('/checkbox/tree/morph', { requestCancellation: 'disabled' })"})
+							@neo.TreeText() {
+								Read
+							}
+						}
+					}
+					@neo.TreeItem(false) {
+						@neo.TreeLabel() {
+							@neo.CheckboxAttrs(neo.CheckboxOpts{
+								Checked:   neo.Set(true),
+								AriaLabel: neo.Set("Write source"),
+							}, templ.Attributes{"data-on:neo-checkbox-change": "$checkbox_tree_key = 'write'; $checkbox_tree_checked = evt.detail.checked; @post('/checkbox/tree/morph', { requestCancellation: 'disabled' })"})
+							@neo.TreeText() {
+								Write
+							}
+						}
+					}
+				}
+				@neo.TreeItem(true) {
+					@neo.TreeLabel() {
+						@neo.CheckboxAttrs(neo.CheckboxOpts{
+							Indeterminate: neo.Set(true),
+							AriaLabel:     neo.Set("Deploy permissions"),
+						}, templ.Attributes{"data-on:neo-checkbox-change": "$checkbox_tree_key = 'deploy'; $checkbox_tree_checked = evt.detail.checked; @post('/checkbox/tree/morph', { requestCancellation: 'disabled' })"})
+						@neo.TreeText() {
+							Deploy
+						}
+					}
+					@neo.TreeItem(false) {
+						@neo.TreeLabel() {
+							@neo.CheckboxAttrs(neo.CheckboxOpts{
+								Checked:   neo.Set(true),
+								AriaLabel: neo.Set("Deploy staging"),
+							}, templ.Attributes{"data-on:neo-checkbox-change": "$checkbox_tree_key = 'staging'; $checkbox_tree_checked = evt.detail.checked; @post('/checkbox/tree/morph', { requestCancellation: 'disabled' })"})
+							@neo.TreeText() {
+								Staging
+							}
+						}
+					}
+					@neo.TreeItem(false) {
+						@neo.TreeLabel() {
+							@neo.CheckboxAttrs(neo.CheckboxOpts{
+								AriaLabel: neo.Set("Deploy production"),
+							}, templ.Attributes{"data-on:neo-checkbox-change": "$checkbox_tree_key = 'production'; $checkbox_tree_checked = evt.detail.checked; @post('/checkbox/tree/morph', { requestCancellation: 'disabled' })"})
+							@neo.TreeText() {
+								Production
+							}
+						}
+					}
+				}
+				@neo.TreeItem(true) {
+					@neo.TreeLabel() {
+						@neo.CheckboxAttrs(neo.CheckboxOpts{
+							AriaLabel: neo.Set("Billing permissions"),
+						}, templ.Attributes{"data-on:neo-checkbox-change": "$checkbox_tree_key = 'billing'; $checkbox_tree_checked = evt.detail.checked; @post('/checkbox/tree/morph', { requestCancellation: 'disabled' })"})
+						@neo.TreeText() {
+							Billing
+						}
+					}
+					@neo.TreeItem(false) {
+						@neo.TreeLabel() {
+							@neo.CheckboxAttrs(neo.CheckboxOpts{
+								AriaLabel: neo.Set("View invoices"),
+							}, templ.Attributes{"data-on:neo-checkbox-change": "$checkbox_tree_key = 'invoices'; $checkbox_tree_checked = evt.detail.checked; @post('/checkbox/tree/morph', { requestCancellation: 'disabled' })"})
+							@neo.TreeText() {
+								Invoices
+							}
+						}
+					}
+					@neo.TreeItem(false) {
+						@neo.TreeLabel() {
+							@neo.CheckboxAttrs(neo.CheckboxOpts{
+								AriaLabel: neo.Set("Manage plan"),
+							}, templ.Attributes{"data-on:neo-checkbox-change": "$checkbox_tree_key = 'plan'; $checkbox_tree_checked = evt.detail.checked; @post('/checkbox/tree/morph', { requestCancellation: 'disabled' })"})
+							@neo.TreeText() {
+								Plan
+							}
+						}
+					}
+				}
+			}
+		}
+	</div>
+}

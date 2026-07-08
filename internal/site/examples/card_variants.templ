@@ -1,0 +1,30 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ CardVariants() {
+	@neo.Card(neo.CardOpts{}) {
+		@neo.CardTitle() {
+			Default
+		}
+		@neo.CardDescription() {
+			Filled background, subtle border.
+		}
+	}
+	@neo.Card(neo.CardOpts{Variant: neo.Set(neo.CardVariantOutline)}) {
+		@neo.CardTitle() {
+			Outline
+		}
+		@neo.CardDescription() {
+			Border only, no fill.
+		}
+	}
+	@neo.Card(neo.CardOpts{Variant: neo.Set(neo.CardVariantElevated)}) {
+		@neo.CardTitle() {
+			Elevated
+		}
+		@neo.CardDescription() {
+			Soft shadow, no border.
+		}
+	}
+}

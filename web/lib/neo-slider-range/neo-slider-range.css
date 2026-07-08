@@ -1,0 +1,384 @@
+/* -----------------------------------------------------------------------
+ * <neo-slider-range>
+ * -----------------------------------------------------------------------
+ * Two-handle range slider. Reuses every `--neo-slider-*` variable so
+ * themes apply automatically; the rules below mirror the structural
+ * styling from <neo-slider> for markup the two components share
+ * (rail, thumb, header, value field) and add range-specific rules for
+ * the fill (anchored at both ends rather than left-aligned with a
+ * variable width) and the dash separator between the two values.
+ *
+ * Shadow-scoped: imported as raw text by neo-slider-range.ts and adopted
+ * into the host's shadow root via scopeCssToHost() (which rewrites
+ * `neo-slider-range` selectors to `:host`). It is NOT globally imported, so
+ * the rules only reach the shadow internals. Depends on the shared
+ * `--neo-slider-*` tokens being defined globally above the host (they
+ * inherit across the boundary). See neo-slider.global.css. Contrast
+ * overrides are `@media (prefers-contrast: more) :host { … }` setting
+ * tokens; the manual `:root[data-pref-contrast-more]` toggle lives in
+ * neo-slider.global.css (a descendant selector can't cross the boundary). */
+
+neo-slider-range {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+	width: 100%;
+	font-size: inherit;
+	line-height: 1.2;
+	-webkit-user-select: none;
+	user-select: none;
+}
+
+neo-slider-range > [data-neo-slider-header] {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 0.5rem;
+}
+
+neo-slider-range > [data-neo-slider-header] > [data-neo-slider-label] {
+	color: var(--neo-slider-label-color);
+}
+
+neo-slider-range > [data-neo-slider-header] > [data-neo-slider-output] {
+	display: inline-flex;
+	align-items: baseline;
+	gap: 0.25rem;
+}
+
+neo-slider-range [data-neo-slider-value] {
+	color: var(--neo-slider-value-color);
+	border-radius: 0.25rem;
+	padding: 0 0.2rem;
+	min-width: 1ch;
+	outline: none;
+	cursor: text;
+	caret-color: var(--accent);
+	font-variant-numeric: tabular-nums;
+	-webkit-user-select: text;
+	user-select: text;
+}
+
+neo-slider-range [data-neo-slider-value]:focus-visible {
+	box-shadow: 0 0 0 2px var(--neo-slider-focus-ring);
+}
+
+neo-slider-range [data-neo-slider-separator] {
+	color: var(--neo-slider-unit-color);
+	font-variant-numeric: tabular-nums;
+}
+
+neo-slider-range [data-neo-slider-unit] {
+	color: var(--neo-slider-unit-color);
+	font-size: 0.85em;
+}
+
+neo-slider-range > [data-neo-slider-track] {
+	position: relative;
+	height: var(--neo-slider-track-height);
+	margin-inline: calc(var(--neo-slider-thumb-size) / 2);
+	/* Layer the track-image over an opaque page-bg backdrop so the rail
+	 * and the anchor borders composite against the same base. See the
+	 * matching `<neo-slider>` rule for the full explanation. */
+	background: var(--neo-slider-track-image) var(--page-bg);
+	border-radius: var(--neo-slider-track-radius);
+	cursor: pointer;
+	outline: none;
+	/* High-contrast outline ring: see the matching `<neo-slider>` rule and
+	 * the `@media (prefers-contrast: more) :host` block below. */
+	box-shadow: var(--neo-slider-track-shadow, none);
+	touch-action: none;
+}
+
+/* Touch hit-area overlay: see the matching `<neo-slider>` rule. */
+neo-slider-range > [data-neo-slider-track]::before {
+	content: "";
+	position: absolute;
+	inset-inline: 0;
+	inset-block: calc((var(--neo-slider-track-height) - var(--neo-slider-hit-area)) / 2);
+}
+
+neo-slider-range[vertical] > [data-neo-slider-track]::before {
+	inset-block: 0;
+	inset-inline: calc((var(--neo-slider-track-height) - var(--neo-slider-hit-area)) / 2);
+}
+
+neo-slider-range[vertical] {
+	display: grid;
+	/* See the matching `<neo-slider>` rule for why col 1 is pinned to
+	 * the rail's length: it stops a wide header from padding col 1
+	 * out and pushing the marks away from the rail. */
+	grid-template-columns: var(--neo-slider-track-height) auto;
+	grid-template-rows: auto minmax(0, 1fr);
+	align-items: stretch;
+	justify-content: start;
+	column-gap: 0.75rem;
+	width: max-content;
+	max-width: 100%;
+}
+
+neo-slider-range[vertical] > [data-neo-slider-header] {
+	grid-column: 1 / -1;
+	width: 100%;
+}
+
+neo-slider-range[vertical] > [data-neo-slider-track] {
+	grid-row: 2;
+	align-self: stretch;
+	width: var(--neo-slider-track-height);
+	height: var(--neo-slider-vertical-track-length);
+	min-height: 6rem;
+	margin-block: calc(var(--neo-slider-thumb-size) / 2);
+	margin-inline: 0;
+}
+
+/* Range fill spans between the two thumbs. The component sets `left`
+ * and `right` (or `top`/`bottom` in vertical) inline on every commit;
+ * the rule here only seeds `top`/`bottom` so the band fills the full
+ * rail height (or width, when vertical) without a per-commit write. */
+neo-slider-range > [data-neo-slider-track] > [data-neo-slider-fill] {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	background: var(--neo-slider-fill-bg);
+	border-radius: inherit;
+}
+
+neo-slider-range[vertical] > [data-neo-slider-track] > [data-neo-slider-fill] {
+	top: auto;
+	bottom: auto;
+	left: 0;
+	right: 0;
+}
+
+neo-slider-range [data-neo-slider-thumb] {
+	position: absolute;
+	top: 50%;
+	left: 0;
+	box-sizing: border-box;
+	width: var(--neo-slider-thumb-size);
+	height: var(--neo-slider-thumb-size);
+	border-radius: var(--neo-slider-thumb-radius);
+	background: var(--neo-slider-thumb-bg);
+	border: var(--neo-slider-thumb-border-width) solid var(--neo-slider-thumb-border);
+	box-shadow: var(--neo-slider-thumb-shadow);
+	transform: translate(var(--neo-slider-thumb-offset-x, -50%), -50%);
+	cursor: grab;
+	outline: none;
+}
+
+neo-slider-range[vertical] [data-neo-slider-thumb] {
+	top: auto;
+	left: 50%;
+	transform: translate(-50%, var(--neo-slider-thumb-offset-y, 50%));
+}
+
+neo-slider-range [data-neo-slider-thumb]:focus-visible {
+	box-shadow:
+		var(--neo-slider-thumb-shadow),
+		0 0 0 3px var(--neo-slider-focus-ring);
+}
+
+neo-slider-range [data-neo-slider-thumb]:active {
+	cursor: grabbing;
+}
+
+/* Easing: same custom property, same drag-suppression flag, same
+ * shape as <neo-slider>'s easing block. The fill transitions both
+ * `left` and `right` (horizontal) or `top` and `bottom` (vertical)
+ * because the band is anchored at both ends; the single-value
+ * <neo-slider> only animates `width`/`height`. */
+neo-slider-range[easing] [data-neo-slider-thumb] {
+	transition:
+		left var(--neo-slider-thumb-transition, 200ms ease),
+		transform var(--neo-slider-thumb-transition, 200ms ease);
+}
+
+neo-slider-range[easing][vertical] [data-neo-slider-thumb] {
+	transition:
+		bottom var(--neo-slider-thumb-transition, 200ms ease),
+		transform var(--neo-slider-thumb-transition, 200ms ease);
+}
+
+neo-slider-range[easing] > [data-neo-slider-track] > [data-neo-slider-fill] {
+	transition:
+		left var(--neo-slider-thumb-transition, 200ms ease),
+		right var(--neo-slider-thumb-transition, 200ms ease);
+}
+
+neo-slider-range[easing][vertical] > [data-neo-slider-track] > [data-neo-slider-fill] {
+	transition:
+		top var(--neo-slider-thumb-transition, 200ms ease),
+		bottom var(--neo-slider-thumb-transition, 200ms ease);
+}
+
+neo-slider-range[easing][data-neo-slider-dragging] [data-neo-slider-thumb],
+neo-slider-range[easing][data-neo-slider-dragging] > [data-neo-slider-track] > [data-neo-slider-fill] {
+	transition: none;
+}
+
+neo-slider-range[disabled]:where(:not([disabled="false"])) {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+neo-slider-range[disabled]:where(:not([disabled="false"])) > [data-neo-slider-track],
+neo-slider-range[disabled]:where(:not([disabled="false"])) [data-neo-slider-thumb],
+neo-slider-range[disabled]:where(:not([disabled="false"])) [data-neo-slider-value] {
+	cursor: not-allowed;
+}
+
+neo-slider-range[disabled]:where(:not([disabled="false"])) > [data-neo-slider-track] {
+	background-image: var(--neo-disabled-overlay), var(--neo-slider-track-image);
+}
+neo-slider-range[disabled]:where(:not([disabled="false"])) [data-neo-slider-thumb] {
+	background-image: var(--neo-disabled-overlay);
+}
+
+/* Marks for <neo-slider-range>. Mirrors the slider's markup (same
+ * `--neo-slider-anchor-*` and `--neo-slider-mark-label-*` tokens) so
+ * a theme swap carries the marks along on either component. The
+ * "active" state on a range mark means the value sits inside the
+ * `[valueMin, valueMax]` band the fill covers, set by the JS host
+ * on every commit. Clicking a mark moves whichever thumb is closer
+ * to the mark's value (same pick-nearer rule as a rail click); set
+ * `static-marks` to opt out, in which case the dots and labels drop
+ * `pointer-events` and the cursor stays as the default arrow. */
+neo-slider-range > [data-neo-slider-track] > [data-neo-slider-anchor] {
+	position: absolute;
+	top: 50%;
+	left: 0;
+	width: var(--neo-slider-anchor-size);
+	height: var(--neo-slider-anchor-size);
+	box-sizing: border-box;
+	margin-top: calc(var(--neo-slider-anchor-size) / -2);
+	margin-left: calc(var(--neo-slider-anchor-size) / -2);
+	border-radius: var(--neo-slider-anchor-radius);
+	background: var(--neo-slider-anchor-bg);
+	border: 1px solid var(--neo-slider-anchor-border);
+	cursor: pointer;
+}
+
+/* `static-marks` makes the dot purely decorative: the click handler
+ * on the host bails out, and we drop pointer-events so a click on
+ * the dot passes through to the rail underneath like any other rail
+ * click. Mirrors the same opt-out on `<neo-slider>`. */
+neo-slider-range[static-marks] > [data-neo-slider-track] > [data-neo-slider-anchor] {
+	pointer-events: none;
+	cursor: default;
+}
+
+neo-slider-range[vertical] > [data-neo-slider-track] > [data-neo-slider-anchor] {
+	top: auto;
+	left: 50%;
+	margin-top: 0;
+	margin-bottom: calc(var(--neo-slider-anchor-size) / -2);
+}
+
+/* Flush at-min/at-max dots inward so the rail's edge aligns with the
+ * dot's outer edge instead of bisecting the dot. Mirrors the same fix
+ * on <neo-slider>. */
+neo-slider-range > [data-neo-slider-track] > [data-neo-slider-anchor][data-neo-mark-edge="start"] {
+	margin-left: 0;
+}
+neo-slider-range > [data-neo-slider-track] > [data-neo-slider-anchor][data-neo-mark-edge="end"] {
+	margin-left: calc(var(--neo-slider-anchor-size) * -1);
+}
+neo-slider-range[vertical] > [data-neo-slider-track] > [data-neo-slider-anchor][data-neo-mark-edge="start"] {
+	margin-left: calc(var(--neo-slider-anchor-size) / -2);
+	margin-bottom: 0;
+}
+neo-slider-range[vertical] > [data-neo-slider-track] > [data-neo-slider-anchor][data-neo-mark-edge="end"] {
+	margin-left: calc(var(--neo-slider-anchor-size) / -2);
+	margin-bottom: calc(var(--neo-slider-anchor-size) * -1);
+}
+
+neo-slider-range > [data-neo-slider-track] > [data-neo-slider-anchor][data-neo-active] {
+	background: var(--neo-slider-anchor-active-bg);
+	border-color: var(--neo-slider-anchor-active-border);
+}
+
+neo-slider-range > [data-neo-slider-marks] {
+	position: relative;
+	height: 1lh;
+	margin-top: var(--neo-slider-marks-margin-top);
+	margin-inline: calc(var(--neo-slider-thumb-size) / 2);
+	font-size: var(--neo-slider-mark-label-font-size);
+	color: var(--neo-slider-mark-label-color);
+}
+
+neo-slider-range[vertical] > [data-neo-slider-marks] {
+	grid-row: 2;
+	width: max-content;
+	min-width: 1lh;
+	height: var(--neo-slider-vertical-track-length);
+	margin-block: calc(var(--neo-slider-thumb-size) / 2);
+	margin-inline: 0;
+}
+
+neo-slider-range > [data-neo-slider-marks] > [data-neo-slider-mark-label] {
+	position: absolute;
+	top: 0;
+	transform: translateX(-50%);
+	white-space: nowrap;
+	cursor: pointer;
+}
+
+neo-slider-range
+	> [data-neo-slider-marks]
+	> [data-neo-slider-mark-label][data-neo-mark-overlapping]:not([data-neo-mark-visible]):not([data-neo-mark-hovered]) {
+	opacity: 0;
+}
+
+neo-slider-range > [data-neo-slider-marks] > [data-neo-slider-mark-label][data-neo-mark-hovered] {
+	z-index: 1;
+	opacity: 1;
+}
+
+neo-slider-range > [data-neo-slider-marks] > [data-neo-slider-mark-label][data-neo-mark-hover-suppressed] {
+	opacity: 0;
+}
+
+neo-slider-range[static-marks] > [data-neo-slider-marks] > [data-neo-slider-mark-label] {
+	cursor: default;
+}
+
+neo-slider-range[vertical] > [data-neo-slider-marks] > [data-neo-slider-mark-label] {
+	left: 0;
+	transform: translateY(-50%);
+}
+
+neo-slider-range > [data-neo-slider-marks] > [data-neo-slider-mark-label][data-neo-mark-edge="start"] {
+	transform: translateX(0);
+}
+
+neo-slider-range > [data-neo-slider-marks] > [data-neo-slider-mark-label][data-neo-mark-edge="end"] {
+	transform: translateX(-100%);
+}
+
+neo-slider-range[vertical] > [data-neo-slider-marks] > [data-neo-slider-mark-label][data-neo-mark-edge="start"] {
+	transform: translateY(-100%);
+}
+
+neo-slider-range[vertical] > [data-neo-slider-marks] > [data-neo-slider-mark-label][data-neo-mark-edge="end"] {
+	transform: translateY(0);
+}
+
+neo-slider-range > [data-neo-slider-marks] > [data-neo-slider-mark-label][data-neo-active] {
+	color: var(--neo-slider-mark-label-active-color);
+}
+
+/* High contrast (OS): set the anchor/track tokens on the host so the
+ * shadow rules pick them up. Mirrors the matching `<neo-slider>` block; the
+ * manual `:root[data-pref-contrast-more]` toggle sets the same tokens from
+ * neo-slider.global.css. The track-shadow outlines the low-contrast empty
+ * rail with an outset ring. */
+@media (prefers-contrast: more) {
+	neo-slider-range {
+		--neo-slider-anchor-bg: currentColor;
+		--neo-slider-anchor-border: currentColor;
+		--neo-slider-anchor-active-bg: var(--accent-fg);
+		--neo-slider-anchor-active-border: currentColor;
+		--neo-slider-track-shadow: 0 0 0 1px currentColor;
+	}
+}

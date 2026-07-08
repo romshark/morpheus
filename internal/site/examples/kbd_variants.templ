@@ -1,0 +1,18 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ KbdVariants() {
+	@neo.Kbd(neo.KbdOpts{}) {
+		⌘
+	}
+	@neo.Kbd(neo.KbdOpts{Variant: neo.Set("outline")}) {
+		⌘
+	}
+	@neo.Kbd(neo.KbdOpts{Size: neo.Set("sm")}) {
+		⌘
+	}
+	@neo.Kbd(neo.KbdOpts{Size: neo.Set("sm"), Variant: neo.Set("outline")}) {
+		⌘
+	}
+}

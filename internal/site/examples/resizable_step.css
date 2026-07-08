@@ -1,0 +1,32 @@
+.resizable-step {
+	display: flex;
+	justify-content: center;
+	border: 1px dashed color-mix(in srgb, var(--accent) 55%, var(--btn-border));
+	border-radius: var(--page-radius, 0.5rem);
+	box-sizing: border-box;
+	background-color: color-mix(in srgb, var(--accent) 6%, var(--btn-bg));
+	background-image:
+		linear-gradient(to right, color-mix(in srgb, var(--accent) 22%, transparent) 1px, transparent 1px),
+		linear-gradient(to bottom, color-mix(in srgb, var(--accent) 22%, transparent) 1px, transparent 1px);
+	background-size: 24px 24px;
+}
+
+.resizable-step strong { color: var(--page-fg); font-weight: 600; }
+
+.resizable-step span {
+	font-family: ui-monospace, monospace;
+	font-size: 0.8rem;
+	padding: 0.1em 0.4em;
+	border-radius: 0.25rem;
+	background: rgba(127, 127, 127, 0.18);
+}
+
+/* Content styling; the .resizable-* flex container above centers it. */
+.resizable-step > neo-layout {
+	padding: 1rem;
+	box-sizing: border-box;
+	color: var(--muted);
+	font-size: 0.9rem;
+	text-align: center;
+	pointer-events: none;
+}

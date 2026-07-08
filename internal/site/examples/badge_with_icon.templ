@@ -1,0 +1,26 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ BadgeWithIcon() {
+	@neo.Badge(neo.BadgeOpts{}) {
+		@neo.Icon("check")
+		Saved
+	}
+	@neo.Badge(neo.BadgeOpts{Variant: neo.Set(neo.BadgeVariantPrimary)}) {
+		@neo.Icon("sparkles")
+		Pro
+	}
+	@neo.Badge(neo.BadgeOpts{Variant: neo.Set(neo.BadgeVariantDanger)}) {
+		@neo.Icon("triangle-alert")
+		Failed
+	}
+	@neo.Badge(neo.BadgeOpts{Variant: neo.Set(neo.BadgeVariantSecondary)}) {
+		@neo.Icon("info")
+		Info
+	}
+	@neo.Badge(neo.BadgeOpts{Variant: neo.Set(neo.BadgeVariantOutline)}) {
+		@neo.Icon("eye")
+		Beta
+	}
+}

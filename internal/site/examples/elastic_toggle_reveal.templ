@@ -1,0 +1,34 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ ElasticToggleReveal() {
+	<div id="elastic-toggle-demo">
+		@neo.ButtonAttrs(neo.ButtonOpts{}, templ.Attributes{
+			"id": "elastic-toggle-btn",
+		}) {
+			Show details
+		}
+		@neo.Elastic(neo.ElasticOpts{}) {
+			<div id="elastic-toggle-details" hidden>
+				<p>
+					The classic accordion case. While the inner is
+					display:none the wrapper measures at zero height
+					and the host shrinks all the way closed; on reveal
+					it animates back to the natural content height.
+				</p>
+			</div>
+		}
+		<script>
+			(() => {
+				const btn = document.getElementById('elastic-toggle-btn');
+				const det = document.getElementById('elastic-toggle-details');
+				btn.addEventListener('click', () => {
+					const opening = det.hidden;
+					det.hidden = !opening;
+					btn.textContent = opening ? 'Hide details' : 'Show details';
+				});
+			})();
+		</script>
+	</div>
+}

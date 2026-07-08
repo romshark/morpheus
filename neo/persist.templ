@@ -1,0 +1,57 @@
+package neo
+
+import "strings"
+
+// PersistOpts: see <neo-persist> attributes. For targets by id when
+// non-empty (else first child).
+type PersistOpts struct {
+	Key     Attr[string]
+	Props   []string
+	On      []string
+	Session Attr[bool]
+	For     Attr[string]
+}
+
+// Spread instead of literal `on=…`; templ's parser treats `on*`
+// attributes as JS event handlers requiring templ.ComponentScript.
+func persistAttrs(opts PersistOpts, extra templ.Attributes) templ.Attributes {
+	a := templ.Attributes{}
+	for k, v := range opts.Key.Attrs("key") {
+		a[k] = v
+	}
+	if len(opts.Props) > 0 {
+		a["props"] = strings.Join(opts.Props, " ")
+	}
+	if len(opts.On) > 0 {
+		a["on"] = strings.Join(opts.On, " ")
+	}
+	for k, v := range opts.Session.Attrs("session") {
+		a[k] = v
+	}
+	for k, v := range opts.For.Attrs("for") {
+		a[k] = v
+	}
+	for k, v := range extra {
+		a[k] = v
+	}
+	return a
+}
+
+// Persist wraps `<neo-persist>` around its first child.
+templ Persist(opts PersistOpts) {
+	@PersistAttrs(opts, nil) {
+		{ children... }
+	}
+}
+
+// PersistAttrs is [Persist] with an extra attribute set.
+templ PersistAttrs(opts PersistOpts, attrs templ.Attributes) {
+	<neo-persist { persistAttrs(opts, attrs)... }>
+		{ children... }
+	</neo-persist>
+}
+
+// PersistFor is the childless reference-mode form (target by opts.For).
+templ PersistFor(opts PersistOpts) {
+	<neo-persist { persistAttrs(opts, nil)... }></neo-persist>
+}

@@ -1,0 +1,85 @@
+package neo
+
+// TabsOpts is the typed attribute surface for <neo-tabs>.
+type TabsOpts struct {
+	// Value is the selected tab value (emitted as `value`).
+	Value Attr[string]
+	// Orientation is "horizontal" (default) or "vertical"; it also sets
+	// aria-orientation on the tablist and the primary arrow-key axis.
+	Orientation Attr[Axis]
+	// Easing is the transition shorthand for the active-ink slide.
+	Easing Attr[string]
+	// EnterAnimation / ExitAnimation name the panel transition.
+	EnterAnimation Attr[string]
+	ExitAnimation  Attr[string]
+	// AutoActivate selects a tab on focus (arrow keys) rather than
+	// requiring Enter/Space.
+	AutoActivate Attr[bool]
+}
+
+// Tabs prerenders <neo-tabs value="…"> in the upgraded state: inactive
+// panels get `hidden`; the active tab gets aria-selected="true" +
+// tabindex="0". Use with [Tab] and [TabPanel] children.
+templ Tabs(opts TabsOpts) {
+	@TabsAttrs(opts, nil) {
+		{ children... }
+	}
+}
+
+// TabsAttrs is [Tabs] with an extra attribute set.
+templ TabsAttrs(opts TabsOpts, attrs templ.Attributes) {
+	<neo-tabs
+		{ opts.Value.Attrs("value")... }
+		{ opts.Orientation.Attrs("orientation")... }
+		{ opts.Easing.Attrs("easing")... }
+		{ opts.EnterAnimation.Attrs("enter-animation")... }
+		{ opts.ExitAnimation.Attrs("exit-animation")... }
+		{ opts.AutoActivate.Attrs("auto-activate")... }
+		{ attrs... }
+	>
+		{ children... }
+	</neo-tabs>
+}
+
+// Tab emits <neo-tab value="…"> with ARIA + tabindex matching the
+// upgraded state (active tab focusable, inactive aria-selected="false").
+templ Tab(value, active string) {
+	<neo-tab
+		value={ value }
+		if value == active {
+			aria-selected="true"
+			tabindex="0"
+		} else {
+			aria-selected="false"
+			tabindex="-1"
+		}
+	>
+		{ children... }
+	</neo-tab>
+}
+
+// TabPanel emits <neo-tabpanel value="…"> with `hidden` set when
+// value != active.
+templ TabPanel(value, active string) {
+	<neo-tabpanel
+		value={ value }
+		if value != active {
+			hidden
+		}
+	>
+		{ children... }
+	</neo-tabpanel>
+}
+
+// TabList emits <neo-tablist>, the row of Tab triggers. Place it as the
+// first child of Tabs, before the TabPanels. ariaLabel names the tablist
+// (omit for none).
+templ TabList(ariaLabel string) {
+	<neo-tablist
+		if ariaLabel != "" {
+			aria-label={ ariaLabel }
+		}
+	>
+		{ children... }
+	</neo-tablist>
+}

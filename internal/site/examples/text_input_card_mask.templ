@@ -1,0 +1,11 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ TextInputCardMask() {
+	@neo.TextInput(neo.TextInputOpts{
+		Mask:        neo.Set("#### #### #### ####"),
+		Placeholder: neo.Set("0000 0000 0000 0000"),
+		Inputmode:   neo.Set(neo.TextInputInputmodeNumeric),
+	})
+}

@@ -1,0 +1,18 @@
+.elastic-async-placeholder {
+	max-width: 32rem;
+}
+
+.elastic-async-placeholder-line-1 {
+	height: 0.9rem;
+	width: 90%;
+}
+
+.elastic-async-placeholder-line-2 {
+	height: 0.9rem;
+	width: 72%;
+}
+
+.elastic-async-placeholder-line-3 {
+	height: 0.9rem;
+	width: 54%;
+}

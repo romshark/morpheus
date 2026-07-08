@@ -1,0 +1,52 @@
+package neo
+
+// Layout renders <neo-layout>, the CSS-only Flexbox layout primitive.
+// Every option maps to the flex container property of the same name, so
+// the markup reads like the CSS it produces. Defaults to a row, like
+// display:flex; set Direction: Column for a vertical stack. Use [Item]
+// for per-child flex behaviour. CSS-only.
+templ Layout(opts LayoutOpts) {
+	@LayoutAttrs(opts, nil) {
+		{ children... }
+	}
+}
+
+// LayoutAttrs is [Layout] with an extra attribute set.
+templ LayoutAttrs(opts LayoutOpts, attrs templ.Attributes) {
+	<neo-layout
+		if opts.Direction.Or(DirectionDefault) == Row {
+			row
+		}
+		if opts.Direction.Or(DirectionDefault) == RowReverse {
+			row-reverse
+		}
+		if opts.Direction.Or(DirectionDefault) == Column {
+			column
+		}
+		if opts.Direction.Or(DirectionDefault) == ColumnReverse {
+			column-reverse
+		}
+		if opts.Wrap.Or(WrapDefault) == Nowrap {
+			nowrap
+		}
+		if opts.Wrap.Or(WrapDefault) == Wrap {
+			wrap
+		}
+		if opts.Wrap.Or(WrapDefault) == WrapReverse {
+			wrap-reverse
+		}
+		{ opts.AlignItems.Attrs("align-items")... }
+		{ opts.JustifyContent.Attrs("justify-content")... }
+		{ opts.AlignContent.Attrs("align-content")... }
+		{ opts.Gap.Attrs("gap")... }
+		{ opts.ColumnGap.Attrs("column-gap")... }
+		{ opts.RowGap.Attrs("row-gap")... }
+		{ opts.MinHeight.Attrs("min-height")... }
+		{ opts.Inline.Attrs("inline")... }
+		{ opts.Container.Attrs("container")... }
+		{ opts.Collapse.Attrs("collapse")... }
+		{ attrs... }
+	>
+		{ children... }
+	</neo-layout>
+}

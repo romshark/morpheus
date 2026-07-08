@@ -1,0 +1,14 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ InputGroupDisabled() {
+	<neo-input-group>
+		<span>$</span>
+		@neo.TextInput(neo.TextInputOpts{
+			Value:    neo.Set("42.00"),
+			Disabled: neo.Set(true),
+		})
+		<span>USD</span>
+	</neo-input-group>
+}

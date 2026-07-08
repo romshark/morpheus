@@ -1,0 +1,67 @@
+/* -----------------------------------------------------------------------
+ * <neo-kbd> + <neo-kbd-group>
+ * -----------------------------------------------------------------------
+ * Small inline keyboard-key indicator: a monospaced glyph in a
+ * subtle chip with a thin border and a 1px inset bottom shadow that
+ * suggests a key with depth. Sized off the surrounding font so it
+ * nests cleanly inside button labels, input trailing slots, and
+ * prose. */
+
+:root {
+	--neo-kbd-padding-y: 0.125rem;
+	--neo-kbd-padding-x: 0.4rem;
+	--neo-kbd-radius: 0.3rem;
+	--neo-kbd-font-size: 0.7em;
+	--neo-kbd-font-weight: 500;
+	--neo-kbd-min-width: 1.5em;
+	/* Derive from currentColor, not --page-fg, so a chip nested in a colored
+	 * container (e.g. a primary button) stays legible against it. */
+	--neo-kbd-color: color-mix(in srgb, currentColor 70%, transparent);
+	--neo-kbd-bg: color-mix(in srgb, currentColor 5%, transparent);
+	--neo-kbd-border-color: color-mix(in srgb, currentColor 18%, transparent);
+	--neo-kbd-shadow: inset 0 -1px 0 0 color-mix(in srgb, currentColor 14%, transparent);
+}
+
+neo-kbd {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: var(--neo-kbd-min-width);
+	padding: var(--neo-kbd-padding-y) var(--neo-kbd-padding-x);
+	border-radius: var(--neo-kbd-radius);
+	border: 1px solid var(--neo-kbd-border-color);
+	background: var(--neo-kbd-bg);
+	color: var(--neo-kbd-color);
+	font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+	font-size: var(--neo-kbd-font-size);
+	font-weight: var(--neo-kbd-font-weight);
+	line-height: 1;
+	white-space: nowrap;
+	user-select: none;
+	-webkit-user-select: none;
+	vertical-align: baseline;
+	box-shadow: var(--neo-kbd-shadow), var(--neo-contrast-ring);
+	box-sizing: border-box;
+}
+
+neo-kbd[size="sm"] {
+	--neo-kbd-padding-y: 0.05rem;
+	--neo-kbd-padding-x: 0.3rem;
+	--neo-kbd-font-size: 0.625em;
+	--neo-kbd-min-width: 1.25em;
+}
+
+neo-kbd[variant="outline"] {
+	background: transparent;
+	box-shadow: none;
+}
+
+/* Group keys inline. Authors compose by nesting <neo-kbd> children;
+ * literal text between them ("+") works too; the group is just a
+ * flex inline-flex container with a small gap. */
+neo-kbd-group {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.2rem;
+	vertical-align: baseline;
+}

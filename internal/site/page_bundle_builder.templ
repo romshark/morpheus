@@ -1,0 +1,267 @@
+package site
+
+import (
+	"github.com/romshark/morpheus/internal/href"
+	"github.com/romshark/morpheus/neo"
+)
+
+templ PageBundleBuilder(morpheusVersion string) {
+	@PageDoc(href.PageBundleBuilder(), "Bundle builder", morpheusVersion) {
+		<section class="demo" data-signals={ bundleSignals() }>
+			@anchoredH2("dependency-graph") {
+				Bundle builder
+			}
+			<p class="intro">
+				Every Morpheus component and the building blocks it composes,
+				arranged in a ring. Faint curves trace each component's
+				dependencies. Point at (or keyboard-focus) a name to light up
+				what it pulls in; everything unrelated dims away.
+			</p>
+			@anchoredH3("components") {
+				Components
+			}
+			<p>
+				Toggle a component to include or exclude it from your
+				bundle. Excluded components (and every dependency edge
+				touching them) dim out in the graph below.
+			</p>
+			<neo-layout class="bundle-bulk-actions" justify-content="center">
+				@neo.ButtonGroupAttrs(neo.ButtonGroupOpts{
+					AriaLabel: neo.Set("Select or clear all components"),
+				}, nil) {
+					<neo-button data-on:click={ bundleEnableAllExpr() }>
+						Enable all
+					</neo-button>
+					<neo-button data-on:click={ bundleDisableAllExpr() }>
+						Disable all
+					</neo-button>
+				}
+			</neo-layout>
+			@neo.NavGroupAttrs(neo.NavGroupOpts{
+				Orientation: neo.Set(neo.OrientationGrid),
+				Wrap:        neo.Set(true),
+				Typeahead:   neo.Set(true),
+			}, templ.Attributes{
+				"class":      "bundle-toggle-grid",
+				"role":       "group",
+				"aria-label": "Components in the bundle",
+			}) {
+				for _, nd := range bundleNodes() {
+					if !nd.Bound {
+						@neo.ToggleAttrs(neo.ToggleOpts{
+							Pressed:  neo.Set(!nd.Disabled),
+							Disabled: neo.Set(bundleInitiallyLocked(nd)),
+							Size:     neo.Set("sm"),
+							Value:    neo.Set(nd.Name),
+						}, templ.Attributes{
+							"data-neo-navgroup-item":    true,
+							"data-attr:pressed":         bundleTogglePressed(nd),
+							"data-attr:disabled":        bundleToggleLock(nd),
+							"data-on:neo-toggle-change": bundleToggleChange(nd),
+						}) {
+							{ nd.Name }
+						}
+					}
+				}
+			}
+			<p class="bundle-count" aria-live="polite" data-text={ bundleCountText() }></p>
+			<div id="bundle-size" class="bundle-size" data-state="building">
+				<div class="bundle-size-overlay" aria-hidden="true">
+					<neo-spinner></neo-spinner>
+					<span class="bundle-size-overlay-label">Building bundle…</span>
+				</div>
+				<div class="bundle-size-body">
+					<neo-layout class="bundle-size-head" align-items="baseline" justify-content="space-between" gap="md">
+						<h3>Estimated bundle size</h3>
+						<span id="bundle-size-status" class="bundle-size-status" aria-live="polite">Building bundle…</span>
+					</neo-layout>
+					<table class="bundle-size-table">
+						<thead>
+							<tr>
+								<th scope="col"></th>
+								<th scope="col">Uncompressed</th>
+								<th scope="col">gzip</th>
+								<th scope="col">brotli</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<th scope="row">morpheus.min.js</th>
+								<td id="bundle-size-js-raw">–</td>
+								<td id="bundle-size-js-gzip">–</td>
+								<td id="bundle-size-js-br">–</td>
+							</tr>
+							<tr>
+								<th scope="row">morpheus.min.css</th>
+								<td id="bundle-size-css-raw">–</td>
+								<td id="bundle-size-css-gzip">–</td>
+								<td id="bundle-size-css-br">–</td>
+							</tr>
+							<tr class="bundle-size-total">
+								<th scope="row">Total</th>
+								<td id="bundle-size-total-raw">–</td>
+								<td id="bundle-size-total-gzip">–</td>
+								<td id="bundle-size-total-br">–</td>
+							</tr>
+						</tbody>
+					</table>
+					<p class="bundle-size-note">
+						Built in your browser with esbuild from the selected
+						TypeScript modules and component CSS modules.
+					</p>
+				</div>
+			</div>
+			<span hidden aria-hidden="true" data-effect="window.__bundleSizeUpdate($bundleSel)"></span>
+			<figure class="bundle-graph-figure">
+				<bundle-graph>
+					for _, nd := range bundleNodes() {
+						<span
+							id={ nd.ID }
+							if nd.DependsOn != "" {
+								depends-on={ nd.DependsOn }
+							}
+							if nd.Disabled {
+								disabled
+							}
+							data-attr:disabled={ bundleSpanDisabled(nd) }
+						>{ nd.Name }</span>
+					}
+				</bundle-graph>
+				<figcaption>
+					Component-to-component dependencies, mirrored from the
+					project README. An edge points from the component that
+					creates or coordinates another.
+				</figcaption>
+			</figure>
+		</section>
+		<style>
+			.bundle-graph-figure {
+				margin: 0;
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				gap: 1rem;
+			}
+			.bundle-graph-figure figcaption {
+				max-width: 42rem;
+				text-align: center;
+				color: var(--muted);
+				font-size: 0.9rem;
+			}
+			/* Element-qualified like the kit's own neo-navgroup.component-grid:
+			 * a bare class can be out-specified by neo-navgroup's base style. */
+			neo-navgroup.bundle-toggle-grid {
+				display: grid;
+				grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr));
+				gap: 0.4rem;
+				width: 100%;
+				max-width: 56rem;
+				margin: 0 auto 2rem;
+			}
+			.bundle-toggle-grid neo-toggle {
+				width: 100%;
+				min-width: 0;
+			}
+			.bundle-bulk-actions {
+				display: flex;
+				justify-content: center;
+				margin: 0 0 1rem;
+			}
+			.bundle-count {
+				text-align: center;
+				color: var(--muted);
+				font-size: 0.9rem;
+				margin: 0 0 0.5rem;
+			}
+			.bundle-size {
+				position: relative;
+				overflow: hidden;
+				max-width: 34rem;
+				margin: 0 auto 1.5rem;
+				padding: 1rem 1.25rem;
+				border: 1px solid color-mix(in srgb, var(--page-fg) 12%, transparent);
+				border-radius: var(--page-radius, 0.5rem);
+			}
+			.bundle-size-overlay {
+				position: absolute;
+				inset: 0;
+				z-index: 1;
+				display: none;
+				flex-direction: column;
+				align-items: center;
+				justify-content: center;
+				gap: 0.6rem;
+				color: var(--muted);
+				font-size: 0.85rem;
+				background: color-mix(in srgb, var(--page-bg) 62%, transparent);
+				backdrop-filter: blur(1.5px);
+			}
+			.bundle-size[data-state="building"] .bundle-size-overlay {
+				display: flex;
+			}
+			.bundle-size[data-state="building"] .bundle-size-body {
+				opacity: 0.45;
+				filter: grayscale(1);
+				pointer-events: none;
+				user-select: none;
+			}
+			.bundle-size-head {
+				display: flex;
+				align-items: baseline;
+				justify-content: space-between;
+				gap: 1rem;
+			}
+			.bundle-size-head h3 {
+				margin: 0;
+				font-size: 1rem;
+			}
+			.bundle-size-status {
+				color: var(--muted);
+				font-size: 0.85rem;
+			}
+			.bundle-size[data-state="ready"] .bundle-size-status {
+				display: none;
+			}
+			.bundle-size-table {
+				width: 100%;
+				margin: 0.75rem 0 0;
+				border-collapse: collapse;
+				font-variant-numeric: tabular-nums;
+			}
+			.bundle-size-table th,
+			.bundle-size-table td {
+				padding: 0.3rem 0.5rem;
+				text-align: right;
+				font-size: 0.9rem;
+			}
+			.bundle-size-table thead th,
+			.bundle-size-table tbody th {
+				color: var(--muted);
+				font-weight: 600;
+			}
+			.bundle-size-table tbody th[scope="row"] {
+				text-align: left;
+				color: var(--page-fg);
+			}
+			.bundle-size-total td,
+			.bundle-size-total th {
+				border-top: 1px solid color-mix(in srgb, var(--page-fg) 14%, transparent);
+				font-weight: 700;
+			}
+			.bundle-size-note {
+				margin: 0.75rem 0 0;
+				color: var(--muted);
+				font-size: 0.78rem;
+				line-height: 1.4;
+			}
+		</style>
+		<script>
+			// Buffer selection updates until bundlebuilder.min.js
+			// loads; the module flushes the latest on ready.
+			window.__bundleSizeUpdate = function (s) {
+				window.__bundleSizePending = s;
+			};
+		</script>
+		<script type="module" src={ href.Asset("min/bundlebuilder.min.js") }></script>
+	}
+}

@@ -1,0 +1,47 @@
+package examples
+
+import (
+	"github.com/romshark/morpheus/datastar"
+	"github.com/romshark/morpheus/neo"
+)
+
+templ ComboboxAsyncFailure() {
+	@datastar.ComboboxAsync(datastar.ComboboxAsyncOpts{
+		ComboboxOpts: neo.ComboboxOpts{
+			AriaLabel:         neo.Set("Assignee"),
+			Placeholder:       neo.Set("Pick an assignee"),
+			SearchPlaceholder: neo.Set("Search assignees…"),
+			SearchDebounce:    neo.Set(300),
+			LiveSearch:        neo.Set(true),
+		},
+		ID:            "comboboxAsyncDemo",
+		URL:           "/combobox/asyncload/",
+		SearchSignal:  "comboboxAsyncDemo_query",
+		ExtraPostOpts: "retry: 'auto', retryInterval: 1000, retryScaler: 2, retryMaxWait: 30000, retryMaxCount: 2",
+		Loading:       comboboxAsyncFailureLoading(),
+		Failed:        comboboxAsyncFailureFailed(),
+	})
+}
+
+// Cloned above the listbox on every open. The combobox kit hides
+// it once the server morphs <neo-datalist id="<ID>-options">.
+templ comboboxAsyncFailureLoading() {
+	<div class="combobox-async-failure-loading">
+		<neo-spinner></neo-spinner>
+		Loading…
+	</div>
+}
+
+// Swapped into the visible loading clone once Datastar fires
+// retries-failed. The retry button carries
+// [data-neo-popover-async-retry] so ComboboxAsync re-fires the
+// @post action when clicked.
+templ comboboxAsyncFailureFailed() {
+	<div class="popover-async-loading popover-async-failed" role="alert">
+		@neo.Icon("triangle-alert")
+		<strong>Couldn't load options.</strong>
+		<neo-button { neo.PopoverAsyncRetry()... }>
+			Retry
+		</neo-button>
+	</div>
+}

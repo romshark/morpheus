@@ -1,0 +1,117 @@
+package site
+
+import (
+	"github.com/romshark/morpheus/internal/href"
+	"github.com/romshark/morpheus/internal/site/examples"
+	"github.com/romshark/morpheus/neo"
+)
+
+templ PageCondition(morpheusVersion string) {
+	@PageDoc(href.PageCondition(), "Condition", morpheusVersion) {
+		<section class="demo">
+			@anchoredH2("overview") {
+				Condition
+			}
+			<p class="intro">
+				Component <code>{ "<neo-condition>" }</code> is a
+				conditional wrapper: it shows its content only when a
+				condition is true, and hides it otherwise. Right now that
+				condition is the operating system. Use it only for what CSS
+				can't check. CSS <code>{ "@media" }</code> already handles
+				touch, dark mode, and the like.
+			</p>
+			@anchoredH2("reference") {
+				Reference
+			}
+			@ComponentDocs(conditionDoc)
+			@anchoredH3("condition-syntax") {
+				Condition syntax
+			}
+			<p>
+				<code>platform</code> names the operating systems to show
+				on:
+			</p>
+			<ul>
+				<li>
+					<code>apple</code>: macOS or iOS (aliases
+					<code>mac</code>, <code>macos</code>, <code>ios</code>).
+				</li>
+				<li>
+					<code>windows</code> (alias <code>win</code>).
+				</li>
+				<li>
+					<code>linux</code> (also Android / ChromeOS).
+				</li>
+			</ul>
+			<p>
+				<code>{ `platform="windows linux"` }</code> matches either;
+				<code>{ `platform="not apple"` }</code> matches everything but
+				Apple.
+			</p>
+		</section>
+		<section class="demo">
+			@anchoredH2("examples") {
+				Examples
+			}
+			@anchoredH3("platform-branch") {
+				Platform branch
+			}
+			<p class="demo-note">
+				Each branch carries platform-specific wording and shows
+				only on its OS: you're seeing the one for your system.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				StageClass:     "demo-stage-flow",
+				HTMLSource:     conditionPlatformBranchHTML,
+				TemplSource:    conditionPlatformBranchTempl,
+			}) {
+				@examples.ConditionPlatformBranch()
+			}
+			@neo.AlertAttrs(neo.AlertOpts{Variant: neo.Set(neo.AlertVariantInfo)}, templ.Attributes{"class": "demo-callout"}) {
+				@neo.AlertIcon() {
+					@neo.Icon("info")
+				}
+				@neo.AlertContent() {
+					@neo.AlertDescription() {
+						This static demo shows only your own OS's branch, and
+						swaps it in after the script loads, a brief flash. A
+						templ server avoids that: pass the request user agent
+						to <code>ConditionOpts.UserAgent</code> and the
+						matching branch renders up front, no flash. To preview
+						another OS here, open DevTools →
+						<code>Network conditions</code> →
+						<code>User agent client hints</code> →
+						<code>Platform</code>, then reload.
+					}
+				}
+			}
+			@anchoredH3("multiple-platforms") {
+				Multiple platforms
+			}
+			<p class="demo-note">
+				List several tokens to match any of them. Here one branch
+				covers Windows and Linux together; the other is Apple-only.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				StageClass:     "demo-stage-flow",
+				HTMLSource:     conditionMultiplePlatformsHTML,
+				TemplSource:    conditionMultiplePlatformsTempl,
+			}) {
+				@examples.ConditionMultiplePlatforms()
+			}
+		</section>
+	}
+}
+
+var conditionDoc = ComponentDoc{
+	Attributes: []DocAttribute{
+		{Name: "platform", Type: "string", Observed: true,
+			Description: templ.Raw("Which platforms to show on. One or more of <code>apple</code>, <code>windows</code>, <code>linux</code>, separated by spaces to match any (<code>windows linux</code>). Prefix <code>not</code> to invert (<code>not apple</code>). Leave empty to show everywhere.")},
+	},
+	Slots: []DocSlot{
+		{Name: "default",
+			Description: templ.Raw("Shown only while <code>platform</code> matches the current platform.")},
+	},
+}

@@ -1,0 +1,26 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ ToggleGroupAlignment() {
+	@neo.ToggleGroup(neo.ToggleGroupOpts{
+		Value:     neo.Set("wrap,minimap"),
+		AriaLabel: neo.Set("View options"),
+	}) {
+		@neo.ToggleAttrs(neo.ToggleOpts{Value: neo.Set("wrap")}, templ.Attributes{
+			"aria-label": "Word wrap",
+		}) {
+			Wrap
+		}
+		@neo.ToggleAttrs(neo.ToggleOpts{Value: neo.Set("minimap")}, templ.Attributes{
+			"aria-label": "Minimap",
+		}) {
+			Map
+		}
+		@neo.ToggleAttrs(neo.ToggleOpts{Value: neo.Set("guides")}, templ.Attributes{
+			"aria-label": "Indent guides",
+		}) {
+			Guides
+		}
+	}
+}

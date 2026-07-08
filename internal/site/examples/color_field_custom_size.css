@@ -1,0 +1,9 @@
+.color-field-custom-size-compact {
+	--neo-color-field-width: 10rem;
+	--neo-color-field-height: 7rem;
+}
+
+.color-field-custom-size-wide {
+	--neo-color-field-width: 22rem;
+	--neo-color-field-height: 8rem;
+}

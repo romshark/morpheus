@@ -1,0 +1,33 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ PopoverActions() {
+	@neo.Popover(neo.PopoverOpts{}) {
+		<neo-button { neo.PopoverTrigger()... }>With actions</neo-button>
+		<div aria-labelledby="actions-title" { neo.PopoverContent()... }>
+			<h3 id="actions-title">Delete this item?</h3>
+			<p>This action can't be undone.</p>
+			<div class="popover-actions-toolbar">
+				@neo.NavGroupAttrs(neo.NavGroupOpts{
+					Orientation: neo.Set(neo.OrientationHorizontal),
+					Wrap:        neo.Set(true),
+				}, templ.Attributes{
+					"role":       "toolbar",
+					"aria-label": "Confirm or cancel",
+				}) {
+					<neo-button { neo.PopoverClose()... } { neo.NavGroupItem()... }>
+						Cancel
+					</neo-button>
+					<neo-button
+						variant="danger"
+						{ neo.PopoverClose()... }
+						{ neo.NavGroupItem()... }
+					>
+						Delete
+					</neo-button>
+				}
+			</div>
+		</div>
+	}
+}

@@ -1,0 +1,18 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ RevealableSticky() {
+	<p>
+		One-shot reveal (no auto re-hide):{ " " }
+		@neo.Revealable(neo.RevealableOpts{}) {
+			42
+		}
+		.
+		Auto re-hide after 2s:{ " " }
+		@neo.Revealable(neo.RevealableOpts{RehideAfter: neo.Set(2000)}) {
+			also 42
+		}
+		.
+	</p>
+}

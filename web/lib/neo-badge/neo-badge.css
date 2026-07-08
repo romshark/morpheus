@@ -1,0 +1,69 @@
+/* -----------------------------------------------------------------------
+ * <neo-badge>
+ * -----------------------------------------------------------------------
+ * A small inline chip for status, counts, tags, and category markers.
+ * Variants reuse the button colour tokens so a kit-wide theme swap
+ * carries badges along without per-variant overrides. The default
+ * (no variant) is a neutral filled chip with a subtle border, matching
+ * the kit's "default = neutral" pattern from <neo-button>; variant
+ * fills (primary / secondary / danger) drop the border so the colour
+ * carries the variant, and variant="outline" keeps the border but
+ * goes background-transparent.
+ */
+
+:root {
+	--neo-badge-padding-y: 0.125rem;
+	--neo-badge-padding-x: 0.5rem;
+	--neo-badge-radius: 9999px;
+	--neo-badge-font-size: 0.75rem;
+	--neo-badge-font-weight: 600;
+	--neo-badge-gap: 0.25rem;
+	--neo-badge-border-color: color-mix(in srgb, var(--page-fg) 14%, transparent);
+	--neo-badge-bg: color-mix(in srgb, var(--page-fg) 6%, transparent);
+	--neo-badge-color: var(--page-fg);
+}
+
+neo-badge {
+	/* Marks this stylesheet as loaded so the kit can flag a trimmed CSS-only component. */
+	--neo-loaded: neo-badge;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: var(--neo-badge-gap);
+	padding: var(--neo-badge-padding-y) var(--neo-badge-padding-x);
+	border-radius: var(--neo-badge-radius);
+	border: 1px solid var(--neo-badge-border-color);
+	background: var(--neo-badge-bg);
+	color: var(--neo-badge-color);
+	font-size: var(--neo-badge-font-size);
+	font-weight: var(--neo-badge-font-weight);
+	line-height: 1;
+	white-space: nowrap;
+	user-select: none;
+	-webkit-user-select: none;
+	vertical-align: baseline;
+}
+
+neo-badge[variant="primary"] {
+	background: var(--neo-button-primary-bg);
+	color: var(--neo-button-primary-color);
+	border-color: transparent;
+}
+
+neo-badge[variant="secondary"] {
+	background: var(--neo-button-secondary-bg);
+	color: var(--neo-button-secondary-color);
+	border-color: transparent;
+}
+
+neo-badge[variant="danger"] {
+	background: var(--neo-button-danger-bg);
+	color: var(--neo-button-danger-color);
+	border-color: transparent;
+}
+
+neo-badge[variant="outline"] {
+	background: transparent;
+	color: var(--page-fg);
+	border-color: var(--neo-badge-border-color);
+}

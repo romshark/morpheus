@@ -1,0 +1,22 @@
+package examples
+
+import (
+	"github.com/romshark/morpheus/internal/href"
+	"github.com/romshark/morpheus/neo"
+)
+
+templ AvatarsBasic() {
+	@neo.Avatars(neo.AvatarsOpts{
+		CollapseAt: neo.Set(5),
+		AriaLabel:  neo.Set("Project members"),
+	}) {
+		@neo.Avatar(neo.AvatarOpts{Src: neo.Set(href.Asset("avatar/avatar_1.svg")), Alt: neo.Set("Diego Vega")})
+		@neo.Avatar(neo.AvatarOpts{Src: neo.Set(href.Asset("avatar/avatar_2.svg")), Alt: neo.Set("Jan O'Sullivan")})
+		@neo.Avatar(neo.AvatarOpts{Src: neo.Set(href.Asset("avatar/avatar_3.svg")), Alt: neo.Set("Evelyn Kone")})
+		@neo.Avatar(neo.AvatarOpts{Src: neo.Set(href.Asset("avatar/avatar_4.svg")), Alt: neo.Set("Samira Khalil")})
+		@neo.Avatar(neo.AvatarOpts{Src: neo.Set(href.Asset("avatar/avatar_5.svg")), Alt: neo.Set("Alice Larsson")})
+		@neo.Avatar(neo.AvatarOpts{Src: neo.Set(href.Asset("avatar/avatar_6.svg")), Alt: neo.Set("Camila Duarte")})
+		@neo.Avatar(neo.AvatarOpts{Src: neo.Set(href.Asset("avatar/avatar_7.svg")), Alt: neo.Set("Theo Becker")})
+		@neo.Avatar(neo.AvatarOpts{Src: neo.Set(href.Asset("avatar/avatar_8.svg")), Alt: neo.Set("Mateusz Wisniewski")})
+	}
+}

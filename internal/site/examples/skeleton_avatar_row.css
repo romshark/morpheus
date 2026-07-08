@@ -1,0 +1,25 @@
+.skeleton-avatar-row {
+	display: flex;
+	gap: 0.75rem;
+	align-items: center;
+}
+
+.skeleton-avatar-row-avatar {
+	width: 2.5rem;
+}
+
+.skeleton-avatar-row-lines {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+	flex: 1;
+}
+
+.skeleton-avatar-row-name {
+	width: 40%;
+}
+
+.skeleton-avatar-row-meta {
+	width: 65%;
+	height: 0.75rem;
+}

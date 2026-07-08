@@ -1,0 +1,21 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ TogglePressed() {
+	@neo.Toggle(neo.ToggleOpts{Pressed: neo.Set(true)}) {
+		Default
+	}
+	@neo.Toggle(neo.ToggleOpts{Pressed: neo.Set(true), Variant: neo.Set(neo.ToggleVariantPrimary)}) {
+		Primary
+	}
+	@neo.Toggle(neo.ToggleOpts{Pressed: neo.Set(true), Variant: neo.Set(neo.ToggleVariantSecondary)}) {
+		Secondary
+	}
+	@neo.Toggle(neo.ToggleOpts{Pressed: neo.Set(true), Variant: neo.Set(neo.ToggleVariantGhost)}) {
+		Ghost
+	}
+	@neo.Toggle(neo.ToggleOpts{Pressed: neo.Set(true), Variant: neo.Set(neo.ToggleVariantDanger)}) {
+		Danger
+	}
+}

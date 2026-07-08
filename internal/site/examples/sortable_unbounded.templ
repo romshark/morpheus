@@ -1,0 +1,23 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ SortableUnbounded() {
+	@neo.SortableAttrs(neo.SortableOpts{
+		Orientation: neo.Set(neo.OrientationVertical),
+		Unbounded:   neo.Set(true),
+	}, templ.Attributes{"class": "sortable-unbounded"}) {
+		@neo.SortableItem("one") {
+			One
+		}
+		@neo.SortableItem("two") {
+			Two
+		}
+		@neo.SortableItem("three") {
+			Three
+		}
+		@neo.SortableItem("four") {
+			Four
+		}
+	}
+}

@@ -1,0 +1,204 @@
+/* -----------------------------------------------------------------------
+ * <neo-drawer>
+ * -----------------------------------------------------------------------
+ * Side-anchored modal sheet. Same native-<dialog> foundation as
+ * <neo-dialog> (top-layer, focus trap, scroll lock, Esc); the
+ * difference is purely visual: instead of centering and fading the
+ * panel, we pin it to one of the four viewport edges and slide it
+ * in. Reuses --neo-dialog-* tokens so theme overrides carry the
+ * drawer along with the dialog. */
+
+:root {
+	--neo-drawer-width: 22rem;
+	--neo-drawer-height: 16rem;
+	--neo-drawer-enter-duration: calc(220ms * var(--neo-duration-scale, 1));
+}
+
+neo-drawer {
+	display: contents;
+}
+
+neo-drawer > dialog {
+	box-sizing: border-box;
+	margin: 0;
+	padding: var(--neo-dialog-padding);
+	background: var(--neo-dialog-bg);
+	color: var(--neo-dialog-color);
+	border: var(--neo-dialog-border-width) solid var(--neo-dialog-border-color);
+	box-shadow: var(--neo-dialog-shadow);
+	backdrop-filter: blur(var(--neo-dialog-blur));
+	-webkit-backdrop-filter: blur(var(--neo-dialog-blur));
+	overflow: auto;
+	overscroll-behavior: contain;
+
+	opacity: 0;
+	transition:
+		opacity var(--neo-drawer-enter-duration) var(--neo-easing, ease-out),
+		transform var(--neo-drawer-enter-duration) var(--neo-easing, ease-out),
+		display var(--neo-drawer-enter-duration) allow-discrete,
+		overlay var(--neo-drawer-enter-duration) allow-discrete;
+}
+
+/* Scoped to [open] so the closed <dialog> reverts to UA `display:
+ * none` and stops intercepting scroll/touch on the viewport edge. */
+neo-drawer > dialog[open] {
+	display: flex;
+	flex-direction: column;
+}
+
+/* Default + side="right": right-anchored, slides in from the right. */
+/* Border zeroing is per-side: a bare `neo-drawer > dialog` selector
+ * would leak `border-right: 0` onto left/top/bottom drawers. */
+neo-drawer > dialog,
+neo-drawer[side="right"] > dialog {
+	inset: 0 0 0 auto;
+	width: var(--neo-drawer-width);
+	max-width: 100vw;
+	height: 100dvh;
+	max-height: 100dvh;
+	border-radius: 0;
+	transform: translateX(100%);
+}
+
+neo-drawer:not([side]) > dialog,
+neo-drawer[side="right"] > dialog {
+	border-top: 0;
+	border-right: 0;
+	border-bottom: 0;
+}
+
+neo-drawer[side="left"] > dialog {
+	inset: 0 auto 0 0;
+	width: var(--neo-drawer-width);
+	max-width: 100vw;
+	height: 100dvh;
+	max-height: 100dvh;
+	border-radius: 0;
+	border-top: 0;
+	border-right: var(--neo-dialog-border-width) solid var(--neo-dialog-border-color);
+	border-bottom: 0;
+	border-left: 0;
+	transform: translateX(-100%);
+}
+
+neo-drawer[side="top"] > dialog {
+	inset: 0 0 auto 0;
+	width: 100vw;
+	max-width: 100vw;
+	height: var(--neo-drawer-height);
+	max-height: 100dvh;
+	border-radius: 0;
+	border-top: 0;
+	border-right: 0;
+	border-bottom: var(--neo-dialog-border-width) solid var(--neo-dialog-border-color);
+	border-left: 0;
+	transform: translateY(-100%);
+}
+
+neo-drawer[side="bottom"] > dialog {
+	inset: auto 0 0 0;
+	width: 100vw;
+	max-width: 100vw;
+	height: var(--neo-drawer-height);
+	max-height: 100dvh;
+	border-radius: 0;
+	border-top: var(--neo-dialog-border-width) solid var(--neo-dialog-border-color);
+	border-right: 0;
+	border-bottom: 0;
+	border-left: 0;
+	transform: translateY(100%);
+}
+
+neo-drawer > dialog[open] {
+	opacity: 1;
+	transform: translate(0, 0);
+}
+
+@starting-style {
+	neo-drawer[side="right"] > dialog[open],
+	neo-drawer:not([side]) > dialog[open] {
+		opacity: 0;
+		transform: translateX(100%);
+	}
+	neo-drawer[side="left"] > dialog[open] {
+		opacity: 0;
+		transform: translateX(-100%);
+	}
+	neo-drawer[side="top"] > dialog[open] {
+		opacity: 0;
+		transform: translateY(-100%);
+	}
+	neo-drawer[side="bottom"] > dialog[open] {
+		opacity: 0;
+		transform: translateY(100%);
+	}
+}
+
+neo-drawer > dialog::backdrop {
+	background: var(--neo-dialog-overlay-bg);
+	backdrop-filter: blur(var(--neo-dialog-overlay-blur));
+	-webkit-backdrop-filter: blur(var(--neo-dialog-overlay-blur));
+	opacity: 0;
+	transition:
+		opacity var(--neo-drawer-enter-duration) var(--neo-easing, ease-out),
+		display var(--neo-drawer-enter-duration) allow-discrete,
+		overlay var(--neo-drawer-enter-duration) allow-discrete;
+}
+
+neo-drawer > dialog[open]::backdrop {
+	opacity: 1;
+}
+
+@starting-style {
+	neo-drawer > dialog[open]::backdrop {
+		opacity: 0;
+	}
+}
+
+/* Optional structural slots: same naming convention as
+ * <neo-dialog>'s slots, with `data-neo-drawer-*` prefixes. The body
+ * stretches to fill the remaining vertical space so the footer
+ * sticks to the bottom of the panel even when the body is short. */
+neo-drawer [data-neo-drawer-header] {
+	display: flex;
+	flex-direction: column;
+	gap: 0.35rem;
+	flex: 0 0 auto;
+	margin-bottom: calc(var(--page-spacing, 0.25rem) * 4);
+}
+
+neo-drawer [data-neo-drawer-title] {
+	margin: 0;
+	font-size: 1.125rem;
+	font-weight: 600;
+	line-height: 1.3;
+}
+
+neo-drawer [data-neo-drawer-description] {
+	margin: 0;
+	color: var(--muted, currentColor);
+	line-height: 1.5;
+}
+
+neo-drawer [data-neo-drawer-body] {
+	display: block;
+	flex: 1 1 auto;
+	min-height: 0;
+	overflow: auto;
+	margin-block: calc(var(--page-spacing, 0.25rem) * 2) calc(var(--page-spacing, 0.25rem) * 4);
+}
+
+neo-drawer[side="top"] [data-neo-drawer-body],
+neo-drawer[side="bottom"] [data-neo-drawer-body] {
+	flex: 0 0 auto;
+	overflow: visible;
+}
+
+neo-drawer [data-neo-drawer-footer] {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: flex-end;
+	flex: 0 0 auto;
+	gap: calc(var(--page-spacing, 0.25rem) * 2);
+	margin-top: calc(var(--page-spacing, 0.25rem) * 4);
+}

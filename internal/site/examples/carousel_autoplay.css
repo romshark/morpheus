@@ -1,0 +1,60 @@
+.cx-pill {
+	display: grid;
+	width: 100%;
+	height: 100%;
+	grid-template-columns: minmax(0, 1fr);
+	grid-template-rows: 1fr auto;
+	grid-template-areas: "slides" "controls";
+}
+
+.cx-pill > neo-carousel-track,
+.cx-pill > .cx-nav,
+.cx-pill::part(dots) { grid-area: slides; }
+
+.cx-pill::part(dots) {
+	align-self: end;
+	justify-self: center;
+	margin-bottom: 0.5rem;
+	padding: 0;
+	z-index: 1;
+	pointer-events: auto;
+}
+
+.cx-pill > .cx-nav {
+	align-self: center;
+	z-index: 1;
+	width: 2.25rem;
+	height: 2.25rem;
+	padding: 0;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 999px;
+	background: color-mix(in srgb, var(--page-bg) 88%, transparent);
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18);
+}
+
+.cx-pill > [data-neo-carousel-prev].cx-nav { justify-self: start; margin-left: 0.5rem; }
+
+.cx-pill > [data-neo-carousel-next].cx-nav { justify-self: end; margin-right: 0.5rem; }
+
+.cx-pill > .cx-controls {
+	grid-area: controls;
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	margin-top: 0.6rem;
+}
+
+.cx-pause-label { display: inline-flex; align-items: center; gap: 0.4rem; }
+
+.cx-slide {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 100%;
+	background: var(--btn-bg);
+	border: 1px solid var(--btn-border);
+	border-radius: var(--page-radius, 0.5rem);
+	font-weight: 600;
+}

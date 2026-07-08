@@ -1,0 +1,53 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+// popoverAutoFlipCountries is inlined so the example is self-sufficient.
+var popoverAutoFlipCountries = []string{
+	"🇦🇫 Afghanistan", "🇦🇱 Albania", "🇩🇿 Algeria", "🇦🇩 Andorra",
+	"🇦🇴 Angola", "🇦🇬 Antigua and Barbuda", "🇦🇷 Argentina",
+	"🇦🇲 Armenia", "🇦🇺 Australia", "🇦🇹 Austria", "🇦🇿 Azerbaijan",
+	"🇧🇸 Bahamas", "🇧🇭 Bahrain", "🇧🇩 Bangladesh", "🇧🇧 Barbados",
+	"🇧🇾 Belarus", "🇧🇪 Belgium", "🇧🇿 Belize", "🇧🇯 Benin",
+	"🇧🇹 Bhutan", "🇧🇴 Bolivia", "🇧🇦 Bosnia and Herzegovina",
+	"🇧🇼 Botswana", "🇧🇷 Brazil", "🇧🇳 Brunei", "🇧🇬 Bulgaria",
+	"🇧🇫 Burkina Faso", "🇧🇮 Burundi", "🇰🇭 Cambodia", "🇨🇲 Cameroon",
+	"🇨🇦 Canada", "🇨🇻 Cape Verde", "🇨🇫 Central African Republic",
+	"🇹🇩 Chad", "🇨🇱 Chile", "🇨🇳 China", "🇨🇴 Colombia",
+	"🇰🇲 Comoros", "🇨🇬 Congo", "🇨🇷 Costa Rica", "🇭🇷 Croatia",
+	"🇨🇺 Cuba", "🇨🇾 Cyprus", "🇨🇿 Czechia", "🇩🇰 Denmark",
+	"🇩🇯 Djibouti", "🇩🇲 Dominica", "🇩🇴 Dominican Republic",
+	"🇪🇨 Ecuador", "🇪🇬 Egypt", "🇸🇻 El Salvador",
+	"🇬🇶 Equatorial Guinea", "🇪🇷 Eritrea", "🇪🇪 Estonia",
+	"🇸🇿 Eswatini", "🇪🇹 Ethiopia", "🇫🇯 Fiji", "🇫🇮 Finland",
+	"🇫🇷 France", "🇬🇦 Gabon", "🇬🇲 Gambia", "🇬🇪 Georgia",
+	"🇩🇪 Germany", "🇬🇭 Ghana", "🇬🇷 Greece", "🇬🇩 Grenada",
+	"🇬🇹 Guatemala", "🇬🇳 Guinea", "🇬🇼 Guinea-Bissau", "🇬🇾 Guyana",
+	"🇭🇹 Haiti", "🇭🇳 Honduras", "🇭🇺 Hungary", "🇮🇸 Iceland",
+	"🇮🇳 India", "🇮🇩 Indonesia", "🇮🇷 Iran", "🇮🇶 Iraq",
+	"🇮🇪 Ireland", "🇮🇱 Israel", "🇮🇹 Italy", "🇯🇲 Jamaica",
+	"🇯🇵 Japan", "🇯🇴 Jordan", "🇰🇿 Kazakhstan", "🇰🇪 Kenya",
+	"🇰🇮 Kiribati", "🇰🇼 Kuwait", "🇰🇬 Kyrgyzstan", "🇱🇦 Laos",
+	"🇱🇻 Latvia", "🇱🇧 Lebanon", "🇱🇸 Lesotho", "🇱🇷 Liberia",
+	"🇱🇾 Libya", "🇱🇮 Liechtenstein", "🇱🇹 Lithuania",
+	"🇱🇺 Luxembourg", "🇲🇬 Madagascar", "🇲🇼 Malawi",
+	"🇲🇾 Malaysia", "🇲🇻 Maldives",
+}
+
+templ PopoverAutoFlip() {
+	@neo.PopoverAttrs(neo.PopoverOpts{
+		Placement:    neo.Set(neo.PlacementBottomStart),
+		ScreenOffset: neo.Set("1rem"),
+		MinFitHeight: neo.Set("8rem"),
+	}, nil) {
+		<neo-button { neo.PopoverTrigger()... }>Open popover</neo-button>
+		<div aria-labelledby="autoflip-title" { neo.PopoverContent()... }>
+			<h3 id="autoflip-title">Long list</h3>
+			<ul class="popover-autoflip-list">
+				for _, name := range popoverAutoFlipCountries {
+					<li>{ name }</li>
+				}
+			</ul>
+		</div>
+	}
+}

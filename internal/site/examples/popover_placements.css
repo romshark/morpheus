@@ -1,0 +1,20 @@
+.popover-placements-grid {
+	flex: 1;
+	align-self: stretch;
+	display: grid;
+	grid-template-columns: repeat(3, max-content);
+	gap: 0.75rem;
+	place-content: center;
+}
+
+/* Shrink the panel to its label; the family default is 14rem. */
+.popover-placements-item {
+	--neo-popover-min-width: 0;
+}
+
+.popover-placements-panel {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
+}

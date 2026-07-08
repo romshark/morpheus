@@ -1,0 +1,26 @@
+package neo
+
+// InputGroup renders <neo-input-group>, the layout wrapper that
+// flushes leading/trailing addons against an inner input under a
+// shared border. DOM order decides placement: anything before the
+// inner input renders on the left, anything after on the right.
+//
+// Direct children are recognized automatically:
+//   span / neo-kbd / neo-kbd-group : static text or shortcut hint
+//   neo-icon                        : leading/trailing icon
+//   direct button / neo-button /
+//   neo-toggle                     : automatic clickable control
+//
+// The inner field is either a plain `<input>` or a `<neo-textinput>`.
+templ InputGroup() {
+	@InputGroupAttrs(nil) {
+		{ children... }
+	}
+}
+
+// InputGroupAttrs is [InputGroup] with an extra attribute set.
+templ InputGroupAttrs(attrs templ.Attributes) {
+	<neo-input-group { attrs... }>
+		{ children... }
+	</neo-input-group>
+}

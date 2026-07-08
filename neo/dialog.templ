@@ -1,0 +1,119 @@
+package neo
+
+type DialogOpts struct {
+	// Open seeds the open state.
+	Open Attr[bool]
+	// Dismissible controls whether backdrop click and Escape close the
+	// dialog. Default leaves it dismissible; DismissibleOff locks it open
+	// for must-decide flows where the user has to pick a button.
+	Dismissible Attr[Dismissible]
+}
+
+// Dialog renders <neo-dialog>: a modal dialog wrapping a native <dialog>.
+// The host owns trigger/close wiring and ARIA; the browser owns modal
+// lifecycle (top-layer, focus trap, scroll lock, Esc). Children must
+// include a `[data-neo-dialog-trigger]` and a `<dialog>` element. Any
+// `[data-neo-dialog-close]` descendant closes on click; standard layout
+// slots are `[data-neo-dialog-header]`, `-title`, `-description`,
+// `-body`, `-footer`.
+templ Dialog(opts DialogOpts) {
+	@DialogAttrs(opts, nil) {
+		{ children... }
+	}
+}
+
+// DialogAttrs is [Dialog] with an extra attribute set.
+templ DialogAttrs(opts DialogOpts, attrs templ.Attributes) {
+	<neo-dialog
+		{ opts.Open.Attrs("open")... }
+		if opts.Dismissible.Or(DismissibleDefault) == DismissibleOn {
+			dismissible="true"
+		}
+		if opts.Dismissible.Or(DismissibleDefault) == DismissibleOff {
+			dismissible="false"
+		}
+		{ attrs... }
+	>
+		{ children... }
+	</neo-dialog>
+}
+
+// DialogTrigger marks the element that opens the dialog on click. Spread
+// onto any focusable element (the host wires aria-haspopup / aria-controls).
+func DialogTrigger() templ.Attributes {
+	return templ.Attributes{"data-neo-dialog-trigger": true}
+}
+
+// DialogClose marks any descendant inside the dialog as a close
+// control; clicking it dismisses the dialog.
+func DialogClose() templ.Attributes {
+	return templ.Attributes{"data-neo-dialog-close": true}
+}
+
+// Dialog layout slots. Each renders one data-neo-dialog-* element with the
+// kit's spacing/typography presets. Place them inside the dialog's
+// <dialog> element.
+templ DialogHeader() {
+	@DialogHeaderAttrs(nil) {
+		{ children... }
+	}
+}
+
+// DialogHeaderAttrs is [DialogHeader] with an extra attribute set.
+templ DialogHeaderAttrs(attrs templ.Attributes) {
+	<header data-neo-dialog-header { attrs... }>
+		{ children... }
+	</header>
+}
+
+templ DialogTitle() {
+	@DialogTitleAttrs(nil) {
+		{ children... }
+	}
+}
+
+// DialogTitleAttrs is [DialogTitle] with an extra attribute set.
+templ DialogTitleAttrs(attrs templ.Attributes) {
+	<h2 data-neo-dialog-title { attrs... }>
+		{ children... }
+	</h2>
+}
+
+templ DialogDescription() {
+	@DialogDescriptionAttrs(nil) {
+		{ children... }
+	}
+}
+
+// DialogDescriptionAttrs is [DialogDescription] with an extra attribute set.
+templ DialogDescriptionAttrs(attrs templ.Attributes) {
+	<p data-neo-dialog-description { attrs... }>
+		{ children... }
+	</p>
+}
+
+templ DialogBody() {
+	@DialogBodyAttrs(nil) {
+		{ children... }
+	}
+}
+
+// DialogBodyAttrs is [DialogBody] with an extra attribute set.
+templ DialogBodyAttrs(attrs templ.Attributes) {
+	<div data-neo-dialog-body { attrs... }>
+		{ children... }
+	</div>
+}
+
+templ DialogFooter() {
+	@DialogFooterAttrs(nil) {
+		{ children... }
+	}
+}
+
+// DialogFooterAttrs is [DialogFooter] with an extra attribute set.
+templ DialogFooterAttrs(attrs templ.Attributes) {
+	<footer data-neo-dialog-footer { attrs... }>
+		{ children... }
+	</footer>
+}

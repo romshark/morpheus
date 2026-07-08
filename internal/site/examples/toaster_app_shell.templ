@@ -1,0 +1,16 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ ToasterAppShell() {
+	@neo.ButtonAttrs(neo.ButtonOpts{Variant: neo.Set(neo.ButtonVariantPrimary)}, templ.Attributes{
+		"data-on:click": "@post('/toaster/app-shell/show')",
+	}) {
+		Show toast
+	}
+	@neo.ButtonAttrs(neo.ButtonOpts{Variant: neo.Set(neo.ButtonVariantDanger)}, templ.Attributes{
+		"data-on:click": "@post('/toaster/app-shell/dismiss')",
+	}) {
+		Dismiss app toasts
+	}
+}

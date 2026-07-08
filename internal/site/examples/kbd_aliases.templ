@@ -1,0 +1,14 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ KbdAliases() {
+	@neo.Kbd(neo.KbdOpts{Key: neo.Set("esc")})
+	@neo.Kbd(neo.KbdOpts{Key: neo.Set("enter")})
+	@neo.Kbd(neo.KbdOpts{Key: neo.Set("space")})
+	@neo.Kbd(neo.KbdOpts{Key: neo.Set("up")})
+	@neo.Kbd(neo.KbdOpts{Key: neo.Set("down")})
+	@neo.Kbd(neo.KbdOpts{Key: neo.Set("del")})
+	@neo.Kbd(neo.KbdOpts{Key: neo.Set("plus")})
+	@neo.Kbd(neo.KbdOpts{Key: neo.Set("comma")})
+}

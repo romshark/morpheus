@@ -1,0 +1,26 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ ButtonComposed() {
+	@neo.ButtonAttrs(neo.ButtonOpts{Variant: neo.Set(neo.ButtonVariantSecondary)}, templ.Attributes{
+		"class": "button-metric-demo",
+	}) {
+		<div class="button-metric-demo-rail" aria-hidden="true">
+			<span></span>
+			<span></span>
+			<span></span>
+		</div>
+		<div class="button-metric-demo-body">
+			<span class="button-metric-demo-label">
+				@neo.Icon("activity")
+				Live deploy
+			</span>
+			<span class="button-metric-demo-title">Project Morpheus</span>
+		</div>
+		<div class="button-metric-demo-stat">
+			<span class="button-metric-demo-value">97%</span>
+			<span class="button-metric-demo-caption">healthy</span>
+		</div>
+	}
+}

@@ -1,0 +1,13 @@
+.sortable-scrollable-box {
+	width: 100%;
+	max-height: 16rem;
+	overflow-y: auto;
+	box-sizing: border-box;
+	padding: 0.5rem;
+	border: 1px solid var(--btn-border);
+	border-radius: var(--page-radius, 0.5rem);
+}
+
+.sortable-scrollable {
+	width: 100%;
+}

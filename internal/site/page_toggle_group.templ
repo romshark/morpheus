@@ -1,0 +1,106 @@
+package site
+
+import (
+	"github.com/romshark/morpheus/internal/href"
+	"github.com/romshark/morpheus/internal/site/examples"
+)
+
+templ PageToggleGroup(morpheusVersion string) {
+	@PageDoc(href.PageToggleGroup(), "Toggle group", morpheusVersion) {
+		<section class="demo">
+			@anchoredH2("overview") {
+				Toggle group
+			}
+			<p class="intro">
+				Component <code>{ "<neo-toggle-group>" }</code> is a
+				cluster of&nbsp;
+				@ComponentLink("neo-toggle", href.PageToggle())
+				&nbsp;children sharing a selection model. Each child
+				toggle remains independent. The group
+				<code>value</code> is a comma-separated list of the
+				pressed child values. For singular segmented choices,
+				use&nbsp;
+				@ComponentLink("neo-buttongroup", href.PageButtonGroup())
+				.
+			</p>
+			<p class="demo-note">
+				Use toggle group for independent on/off controls,
+				such as Bold + Italic. Use button group for one
+				selected value, such as Day / Week / Month.
+			</p>
+			@Playground(PlaygroundOpts{
+				ID:     "toggle-group-playground",
+				States: toggleGroupPlaygroundStates(),
+			})
+			@anchoredH2("reference") {
+				Reference
+			}
+			@ComponentDocs(toggleGroupDoc)
+		</section>
+		<section class="demo">
+			@anchoredH2("examples") {
+				Examples
+			}
+			@anchoredH3("formatting-toolbar") {
+				Formatting toolbar
+			}
+			<p class="demo-note">
+				Each toggle flips independently; the group's
+				<code>value</code> is a comma-separated list of
+				the pressed children's own <code>value</code>
+				attributes.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     toggleGroupFormattingHTML,
+				TemplSource:    toggleGroupFormattingTempl,
+			}) {
+				@examples.ToggleGroupFormatting()
+			}
+			@anchoredH3("view-options") {
+				View options
+			}
+			<p class="demo-note">
+				The group allows any combination of values. For
+				exclusive choices, use&nbsp;
+				@ComponentLink("neo-buttongroup", href.PageButtonGroup())
+				.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     toggleGroupAlignmentHTML,
+				TemplSource:    toggleGroupAlignmentTempl,
+			}) {
+				@examples.ToggleGroupAlignment()
+			}
+			@anchoredH3("vertical") {
+				Vertical
+			}
+			<p class="demo-note">
+				<code>{ `orientation="vertical"` }</code> only
+				changes layout; selection semantics are unchanged
+				and any of the four arrow keys move focus.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     toggleGroupVerticalHTML,
+				TemplSource:    toggleGroupVerticalTempl,
+			}) {
+				@examples.ToggleGroupVertical()
+			}
+		</section>
+	}
+}
+
+var toggleGroupDoc = ComponentDoc{
+	Attributes: []DocAttribute{
+		{Name: "value", Type: "string", Default: `""`, Reflected: true, Observed: true,
+			Description: templ.Raw("Comma-separated active child values. A child value must not contain a comma; the separator is unescaped. Use <code>neo-buttongroup</code> for a single selected value.")},
+		{Name: "orientation", Type: `"horizontal" | "vertical"`, Default: "horizontal",
+			Description: templ.Raw("Layout axis only. All four arrow keys move focus regardless of orientation.")},
+	},
+	Events: []DocEvent{
+		{Name: "neo-toggle-group-change", Detail: "{ value: string, values: string[] }", Bubbles: true,
+			Description: templ.Raw("Fires after the selection changes.")},
+	},
+}

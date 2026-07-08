@@ -1,0 +1,77 @@
+package site
+
+import (
+	"github.com/romshark/morpheus/internal/href"
+	"github.com/romshark/morpheus/internal/site/examples"
+)
+
+templ PageClipcopy(morpheusVersion string) {
+	@PageDoc(href.PageClipcopy(), "Clipcopy", morpheusVersion) {
+		<section class="demo">
+			@anchoredH2("overview") {
+				Clipcopy
+			}
+			<p class="intro">
+				Component <code>{ "<neo-clipcopy>" }</code> is a
+				wrapper that copies a value to the clipboard when
+				its first child is clicked. The host toggles a
+				<code>copied</code> attribute so consumers style
+				idle and copied states from CSS.
+			</p>
+			@Playground(PlaygroundOpts{
+				ID:     "clipcopy-playground",
+				States: clipcopyPlaygroundStates(),
+			})
+			@anchoredH2("reference") {
+				Reference
+			}
+			@ComponentDocs(clipcopyDoc)
+		</section>
+		<section class="demo">
+			@anchoredH2("examples") {
+				Examples
+			}
+			@anchoredH3("icon-target-ref") {
+				Icon + target ref
+			}
+			<p class="demo-note">
+				The host reads the
+				<code>textContent</code> of the
+				<code>{ `<code>` }</code> element pointed to
+				by its <code>for</code> attribute, so the
+				copied value tracks what the user sees on the
+				page. Useful when the rendered text
+				<em>is</em> the source of truth.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     clipcopyTargetHTML,
+				TemplSource:    clipcopyTargetTempl,
+				CSSSource:      clipcopyTargetCSS,
+			}) {
+				@examples.ClipcopyTarget()
+			}
+		</section>
+	}
+}
+
+var clipcopyDoc = ComponentDoc{
+	Attributes: []DocAttribute{
+		{Name: "value", Type: "string",
+			Description: templ.Raw("Literal text to copy. Takes precedence over <code>for</code>.")},
+		{Name: "for", Type: "string",
+			Description: templ.Raw("Id of an element whose <code>textContent</code> is copied.")},
+		{Name: "copied-duration", Type: "number", Default: "1500",
+			Description: templ.Raw("Milliseconds the <code>copied</code> attribute stays on the host.")},
+	},
+	Slots: []DocSlot{
+		{Name: "default",
+			Description: templ.Raw("Trigger element. Children may use <code>[data-neo-clipcopy-idle]</code> and <code>[data-neo-clipcopy-copied]</code> to swap label content per state.")},
+	},
+	Events: []DocEvent{
+		{Name: "neo-clipcopy-copy", Detail: "{ value: string }", Bubbles: true,
+			Description: templ.Raw("Fires after a successful copy.")},
+		{Name: "neo-clipcopy-error", Detail: "{ error: Error }", Bubbles: true,
+			Description: templ.Raw("Fires when the clipboard write fails.")},
+	},
+}

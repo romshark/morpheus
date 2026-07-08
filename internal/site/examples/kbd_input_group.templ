@@ -1,0 +1,18 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ KbdInputGroup() {
+	<neo-input-group class="kbd-input-group-host">
+		@neo.IconAttrs("search", templ.Attributes{"aria-hidden": "true"})
+		<input type="search" placeholder="Search the docs…" aria-label="Search"/>
+		@neo.KbdGroup() {
+			@neo.Kbd(neo.KbdOpts{Size: neo.Set("sm")}) {
+				⌘
+			}
+			@neo.Kbd(neo.KbdOpts{Size: neo.Set("sm")}) {
+				K
+			}
+		}
+	</neo-input-group>
+}

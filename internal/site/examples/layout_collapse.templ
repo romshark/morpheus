@@ -1,0 +1,25 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ layoutCollapsePanel(title string) {
+	@neo.CardAttrs(
+		neo.CardOpts{Variant: neo.Set(neo.CardVariantOutline)},
+		templ.Attributes{"neo-flex-grow": "1", "neo-min-width": "0"},
+	) {
+		<strong>{ title }</strong>
+	}
+}
+
+templ LayoutCollapse() {
+	@neo.LayoutAttrs(
+		neo.LayoutOpts{Direction: neo.Set(neo.Column), Container: neo.Set(true)},
+		neo.Item(neo.ItemOpts{Width: neo.Set(neo.ItemSizeFull), MinWidth0: neo.Set(true)}),
+	) {
+		@neo.Layout(neo.LayoutOpts{Direction: neo.Set(neo.Row), Collapse: neo.Set(neo.CollapseSm), Gap: neo.Set(neo.GapMd)}) {
+			@layoutCollapsePanel("Source")
+			@layoutCollapsePanel("Build")
+			@layoutCollapsePanel("Deploy")
+		}
+	}
+}

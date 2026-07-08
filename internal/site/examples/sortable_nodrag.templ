@@ -1,0 +1,27 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+// Whole-item drag with a drag-free control. Each row is the grip, but
+// the <neo-switch> sits in a data-neo-sortable-nodrag wrapper so
+// pressing it toggles instead of starting a drag. Native controls
+// (links, buttons, form fields) are already exempt; a custom element
+// like neo-switch needs the marker.
+templ SortableNodrag() {
+	@neo.SortableAttrs(neo.SortableOpts{
+		Orientation: neo.Set(neo.OrientationVertical),
+	}, templ.Attributes{"class": "sortable-nodrag"}) {
+		@sortableNodragRow("email", "Email digest", true)
+		@sortableNodragRow("push", "Push notifications", false)
+		@sortableNodragRow("sms", "SMS alerts", true)
+	}
+}
+
+templ sortableNodragRow(id, label string, on bool) {
+	@neo.SortableItem(id) {
+		<span>{ label }</span>
+		<span class="sortable-nodrag-control" { neo.SortableNoDrag()... }>
+			@neo.Switch(neo.SwitchOpts{Checked: neo.Set(on), AriaLabel: neo.Set(label)})
+		</span>
+	}
+}

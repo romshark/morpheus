@@ -1,0 +1,22 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ SelectDisabledControl() {
+	@neo.Select(neo.SelectOpts{
+		Disabled:    neo.Set(true),
+		Value:       neo.Set("team"),
+		AriaLabel:   neo.Set("Billing plan"),
+		Placeholder: neo.Set("Billing plan"),
+	}) {
+		@neo.Option(neo.OptionOpts{Value: neo.Set("free")}) {
+			Free
+		}
+		@neo.Option(neo.OptionOpts{Value: neo.Set("team")}) {
+			Team
+		}
+		@neo.Option(neo.OptionOpts{Value: neo.Set("enterprise")}) {
+			Enterprise
+		}
+	}
+}

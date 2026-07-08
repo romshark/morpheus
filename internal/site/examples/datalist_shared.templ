@@ -1,0 +1,47 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ DatalistShared() {
+	@neo.Datalist(neo.DatalistOpts{ID: neo.Set("shared-tz-opts")}) {
+		@neo.OptGroup(neo.OptGroupOpts{Label: neo.Set("Americas")}) {
+			@neo.Option(neo.OptionOpts{Value: neo.Set("America/New_York"), Label: neo.Set("New York")}) {
+				New York<small class="datalist-shared-utc">UTC−05:00</small>
+			}
+			@neo.Option(neo.OptionOpts{Value: neo.Set("America/Sao_Paulo"), Label: neo.Set("São Paulo")}) {
+				São Paulo<small class="datalist-shared-utc">UTC−03:00</small>
+			}
+		}
+		@neo.OptGroup(neo.OptGroupOpts{Label: neo.Set("Europe")}) {
+			@neo.Option(neo.OptionOpts{Value: neo.Set("Europe/London"), Label: neo.Set("London")}) {
+				London<small class="datalist-shared-utc">UTC+00:00</small>
+			}
+			@neo.Option(neo.OptionOpts{Value: neo.Set("Europe/Berlin"), Label: neo.Set("Berlin")}) {
+				Berlin<small class="datalist-shared-utc">UTC+01:00</small>
+			}
+		}
+		@neo.OptGroup(neo.OptGroupOpts{Label: neo.Set("Asia & Pacific")}) {
+			@neo.Option(neo.OptionOpts{Value: neo.Set("Asia/Tokyo"), Label: neo.Set("Tokyo")}) {
+				Tokyo<small class="datalist-shared-utc">UTC+09:00</small>
+			}
+			@neo.Option(neo.OptionOpts{Value: neo.Set("Australia/Sydney"), Label: neo.Set("Sydney")}) {
+				Sydney<small class="datalist-shared-utc">UTC+11:00</small>
+			}
+		}
+	}
+	<div class="datalist-shared-row">
+		@neo.SelectAttrs(neo.SelectOpts{List: neo.Set("shared-tz-opts"), Placeholder: neo.Set("From…")}, templ.Attributes{
+			"id":         "tz-from",
+			"aria-label": "From time zone",
+		})
+		@neo.ComboboxAttrs(neo.ComboboxOpts{List: neo.Set("shared-tz-opts"), Placeholder: neo.Set("To…"), SearchPlaceholder: neo.Set("Search time zones…")}, templ.Attributes{
+			"id":         "tz-to",
+			"aria-label": "To time zone",
+		})
+		@neo.TextInputAttrs(neo.TextInputOpts{List: neo.Set("shared-tz-opts"), Placeholder: neo.Set("Type a time zone…")}, templ.Attributes{
+			"id":         "tz-note",
+			"aria-label": "Time zone note",
+			"class":      "datalist-shared-note",
+		})
+	</div>
+}

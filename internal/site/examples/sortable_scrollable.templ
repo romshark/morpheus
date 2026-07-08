@@ -1,0 +1,22 @@
+package examples
+
+import (
+	"strconv"
+
+	"github.com/romshark/morpheus/neo"
+)
+
+templ SortableScrollable() {
+	<div class="sortable-scrollable-box">
+		@neo.SortableAttrs(neo.SortableOpts{Orientation: neo.Set(neo.OrientationVertical)}, templ.Attributes{
+			"class": "sortable-scrollable",
+		}) {
+			for i := 1; i <= 20; i++ {
+				@neo.SortableItem("task-" + strconv.Itoa(i)) {
+					@neo.SortableHandle()
+					{ " Item " + strconv.Itoa(i) }
+				}
+			}
+		}
+	</div>
+}

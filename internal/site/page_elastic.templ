@@ -1,0 +1,167 @@
+package site
+
+import (
+	"github.com/romshark/morpheus/internal/href"
+	"github.com/romshark/morpheus/internal/site/examples"
+)
+
+templ PageElastic(morpheusVersion string) {
+	@PageDoc(href.PageElastic(), "Elastic", morpheusVersion) {
+		// list.js registers /elastic/list/{inc,dec}/ for the Growing
+		// list example; async.js registers /elastic/async-load/ for the
+		// Async placeholder example.
+		<script type="module" src="/static/sim/elastic/list.js"></script>
+		<script type="module" src="/static/sim/elastic/async.js"></script>
+		<section class="demo">
+			@anchoredH2("overview") {
+				Elastic
+			}
+			<p class="intro">
+				Component <code>{ "<neo-elastic>" }</code> is a block
+				container that animates its height as the natural
+				size of its content changes: toggled visibility,
+				added items, swapped blocks, async-loaded payloads.
+				A <code>ResizeObserver</code> pins the latest content
+				height to the host; the transition rides
+				<code>--neo-easing</code> /
+				<code>--neo-duration-scale</code> so each theme paces
+				it differently. Server-side morphs that swap content
+				animate the height shift automatically.
+			</p>
+			@Playground(PlaygroundOpts{
+				ID:     "elastic-playground",
+				States: elasticPlaygroundStates(),
+			})
+			@anchoredH2("reference") {
+				Reference
+			}
+			@ComponentDocs(elasticDoc)
+		</section>
+		<section class="demo">
+			@anchoredH2("examples") {
+				Examples
+			}
+			@anchoredH3("toggle-reveal") {
+				Toggle reveal
+			}
+			<p class="demo-note">
+				The accordion case. While the inner is
+				<code>display: none</code> the wrapper measures zero and
+				the host collapses; on reveal it animates back to the
+				natural content height. The button just flips the
+				inner's <code>hidden</code> attribute; the host
+				re-measures on its own.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     elasticToggleRevealHTML,
+				TemplSource:    elasticToggleRevealTempl,
+			}) {
+				@examples.ElasticToggleReveal()
+			}
+		</section>
+		<section class="demo">
+			@anchoredH2("examples-datastar") {
+				Examples: Datastar
+			}
+			<p class="demo-note">
+				Datastar morph patches that swap or re-render the
+				inner content animate the height shift automatically;
+				Elastic's ResizeObserver / MutationObserver re-pin on
+				every reflow, so any server-driven content swap reads
+				as a smooth transition without per-demo wiring.
+			</p>
+			@anchoredH3("morphing-during-interaction") {
+				Morphing during interaction
+			}
+			<p class="demo-note">
+				A Datastar fat-morph can grow or shrink the content
+				inside a <code>{ "<neo-elastic>" }</code> mid-view. The
+				host stays mounted across each morph and animates from
+				the old height to the new one, no per-demo wiring.
+				Autoplay cycles the states below to simulate the morphs.
+			</p>
+			@Playground(PlaygroundOpts{
+				ID:       "elastic-morph-playground",
+				Autoplay: true,
+				States:   elasticMorphStates(),
+			})
+			@anchoredH3("growing-list") {
+				Growing list
+			}
+			<p class="demo-note">
+				A Datastar morph patch replaces the inner
+				<code>{ `<ul>` }</code> with a fresh count of items. The
+				wrapper re-measures on every replacement and the host
+				transitions between the old and new heights.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     elasticGrowingListHTML,
+				TemplSource:    elasticGrowingListTempl,
+				ScriptSource:   elasticGrowingListScript,
+			}) {
+				@examples.ElasticGrowingList()
+			}
+			@anchoredH3("content-swap") {
+				Content swap
+			}
+			<p class="demo-note">
+				Not just expand-from-zero: the host shrinks or grows
+				between two differently sized blocks. Whatever the
+				wrapper measures, the host transitions to. Re-toggling
+				mid-flight retargets the latest height instead of
+				finishing the old one.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     elasticContentSwapHTML,
+				TemplSource:    elasticContentSwapTempl,
+				CSSSource:      elasticContentSwapCSS,
+			}) {
+				@examples.ElasticContentSwap()
+			}
+			@anchoredH3("async-placeholder") {
+				Async placeholder
+			}
+			<p class="demo-note">
+				Combine <code>reset-on-collapse</code> with a
+				<code>{ "<template data-neo-async-placeholder>" }</code>
+				to reload content through the placeholder. Opening
+				reveals the skeleton and posts to the server, which
+				morphs the loaded panel into the slot; collapsing
+				reinstates the skeleton after the transition, so the
+				next open loads fresh. Closing aborts an in-flight
+				request. Load details, collapse, then reopen.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     elasticAsyncPlaceholderHTML,
+				TemplSource:    elasticAsyncPlaceholderTempl,
+				CSSSource:      elasticAsyncPlaceholderCSS,
+				ScriptSource:   elasticAsyncScript,
+			}) {
+				@examples.ElasticAsyncPlaceholder()
+			}
+		</section>
+	}
+}
+
+var elasticDoc = ComponentDoc{
+	Attributes: []DocAttribute{
+		{Name: "open", Type: "boolean", Default: "true", Observed: true,
+			Description: templ.Raw("Open by default. Set <code>open=\"false\"</code> to animate the host to 0px tall.")},
+		{Name: "reset-on-collapse", Type: "boolean", Default: "false",
+			Description: templ.Raw("Swap content for <code>[data-neo-async-placeholder]</code> after the collapse transition.")},
+	},
+	Slots: []DocSlot{
+		{Name: "[data-neo-async-placeholder]",
+			Description: templ.Raw("Replacement content shown after collapse when <code>reset-on-collapse</code> is set.")},
+	},
+	Events: []DocEvent{
+		{Name: "neo-elastic-start", Detail: "{ from: number, to: number }", Bubbles: true,
+			Description: templ.Raw("Fires at the start of a height transition.")},
+		{Name: "neo-elastic-end", Detail: "{ height: number }", Bubbles: true,
+			Description: templ.Raw("Fires once the height transition lands.")},
+	},
+}

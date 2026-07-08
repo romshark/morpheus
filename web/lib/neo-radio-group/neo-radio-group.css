@@ -1,0 +1,150 @@
+/* -----------------------------------------------------------------------
+ * <neo-radio-group> + <neo-radio>
+ * -----------------------------------------------------------------------
+ * Accessible radio-group input. The radio is a circle styled the
+ * same way <neo-checkbox> is (same border, same focus ring, same
+ * accent fill on the active state), but with an inner dot indicator
+ * instead of a check mark glyph. The group is a flex container that
+ * stacks its radios vertically (the default) or horizontally
+ * (orientation="horizontal").
+ */
+
+:root {
+	--neo-radio-size: 1.15rem;
+	--neo-radio-border-width: 1px;
+	--neo-radio-border: var(--btn-border);
+	--neo-radio-bg: transparent;
+	--neo-radio-checked-bg: var(--accent);
+	--neo-radio-checked-border: var(--accent);
+	--neo-radio-dot-color: var(--accent-fg);
+	--neo-radio-dot-scale: 0.45;
+	--neo-radio-transition-duration: calc(120ms * var(--neo-duration-scale, 1));
+	--neo-radio-group-gap: calc(var(--page-spacing, 0.25rem) * 2);
+}
+
+neo-radio-group {
+	display: inline-flex;
+	flex-direction: column;
+	gap: var(--neo-radio-group-gap);
+}
+
+neo-radio-group[orientation="horizontal"] {
+	flex-direction: row;
+	align-items: center;
+	flex-wrap: wrap;
+}
+
+neo-radio {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+	box-sizing: border-box;
+	width: var(--neo-radio-size);
+	height: var(--neo-radio-size);
+	border: var(--neo-radio-border-width) solid var(--neo-radio-border);
+	border-radius: 50%;
+	background: var(--neo-radio-bg);
+	cursor: pointer;
+	user-select: none;
+	-webkit-user-select: none;
+	vertical-align: middle;
+	transition:
+		background var(--neo-radio-transition-duration) var(--neo-easing, ease),
+		border-color var(--neo-duration-hover, var(--neo-radio-transition-duration)) var(--neo-easing, ease),
+		box-shadow var(--neo-duration-hover, var(--neo-radio-transition-duration)) var(--neo-easing, ease);
+}
+
+/* Inner dot: a square pseudo-element clipped to a circle by mask,
+ * scaled down so it leaves a visible ring of the parent's bg colour
+ * around it. Pops in on the active state with the same easing as the
+ * checkbox's mark. */
+neo-radio::before {
+	content: "";
+	display: block;
+	width: 100%;
+	height: 100%;
+	border-radius: 50%;
+	background-color: var(--neo-radio-dot-color);
+	transform: scale(0);
+	opacity: 0;
+	transition:
+		transform var(--neo-radio-transition-duration) var(--neo-easing, ease),
+		opacity var(--neo-radio-transition-duration) var(--neo-easing, ease);
+}
+
+neo-radio[aria-checked="true"] {
+	background: var(--neo-radio-checked-bg);
+	border-color: var(--neo-radio-checked-border);
+}
+
+neo-radio[aria-checked="true"]::before {
+	transform: scale(var(--neo-radio-dot-scale));
+	opacity: 1;
+}
+
+neo-radio:focus-visible {
+	outline: none;
+	box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 50%, transparent);
+}
+
+neo-radio[disabled]:not([disabled="false"]),
+neo-radio[aria-disabled="true"] {
+	cursor: not-allowed;
+	opacity: 0.5;
+	background-image: var(--neo-disabled-overlay);
+}
+
+neo-radio-group[disabled]:not([disabled="false"]),
+neo-radio-group[disabled]:not([disabled="false"]) label:has(neo-radio),
+neo-radio-group label:has(neo-radio[disabled]:not([disabled="false"])),
+neo-radio-group label:has(neo-radio[aria-disabled="true"]) {
+	color: var(--muted);
+	cursor: not-allowed;
+}
+
+neo-radio[size="sm"] {
+	--neo-radio-size: 0.875rem;
+}
+
+/* Accent-on-accent collapses under forced-colors; spell each state
+ * in system colours. */
+@media (forced-colors: active) {
+	neo-radio {
+		background: ButtonFace;
+		border-color: ButtonText;
+	}
+	neo-radio::before {
+		background-color: HighlightText;
+		forced-color-adjust: none;
+	}
+	neo-radio[aria-checked="true"] {
+		background: Highlight;
+		border-color: Highlight;
+	}
+	neo-radio:focus-visible {
+		outline: 2px solid Highlight;
+		outline-offset: 2px;
+		box-shadow: none;
+	}
+	neo-radio[disabled]:not([disabled="false"]),
+	neo-radio[aria-disabled="true"] {
+		border-color: GrayText;
+	}
+}
+
+/* Match the kit's 2px currentColor outline; checked keeps accent. The
+ * dot is a fixed-size border-box, so the wider border is absorbed and
+ * never shifts layout. A real border here, not the inset ring the
+ * auto-sized controls use. */
+@media (prefers-contrast: more) {
+	neo-radio {
+		--neo-radio-border-width: 2px;
+		--neo-radio-border: currentColor;
+	}
+}
+
+:root[data-pref-contrast-more] neo-radio {
+	--neo-radio-border-width: 2px;
+	--neo-radio-border: currentColor;
+}

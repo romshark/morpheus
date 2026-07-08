@@ -1,0 +1,18 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ ConditionPlatformBranch() {
+	@neo.Condition(neo.ConditionOpts{Platform: neo.Set("apple")}) {
+		On macOS, press <neo-kbd-group><neo-kbd key="mod"></neo-kbd><neo-kbd key="enter"></neo-kbd></neo-kbd-group> to run the demo action.
+	}
+	@neo.Condition(neo.ConditionOpts{Platform: neo.Set("windows")}) {
+		On Windows, press <neo-kbd-group><neo-kbd key="mod"></neo-kbd><neo-kbd key="enter"></neo-kbd></neo-kbd-group> to run the demo action.
+	}
+	@neo.Condition(neo.ConditionOpts{Platform: neo.Set("linux")}) {
+		On Linux, press <neo-kbd-group><neo-kbd key="mod"></neo-kbd><neo-kbd key="enter"></neo-kbd></neo-kbd-group> to run the demo action.
+	}
+	@neo.KeysAttrs(neo.KeysOpts{Keys: neo.Set("mod+enter"), Target: neo.Set("window")}, templ.Attributes{
+		"data-on:neo-keys": "NeoToast.info('Shortcut fired', {description: 'You ran the demo action on the Condition page.'})",
+	})
+}

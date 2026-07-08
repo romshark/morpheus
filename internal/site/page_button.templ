@@ -1,0 +1,158 @@
+package site
+
+import (
+	"github.com/romshark/morpheus/internal/href"
+	"github.com/romshark/morpheus/internal/site/examples"
+)
+
+templ PageButton(morpheusVersion string) {
+	@PageDoc(href.PageButton(), "Button", morpheusVersion) {
+		<section class="demo">
+			@anchoredH2("overview") {
+				Button
+			}
+			<p class="intro">
+				Component <code>{ "<neo-button>" }</code> is a
+				styled, keyboard-activated button with variant,
+				size, and icon-slot conventions shared across the
+				kit.
+			</p>
+			@Playground(PlaygroundOpts{
+				ID:     "button-playground",
+				States: buttonPlaygroundStates(),
+			})
+			@anchoredH2("reference") {
+				Reference
+			}
+			@ComponentDocs(buttonDoc)
+		</section>
+		<section class="demo">
+			@anchoredH2("examples") {
+				Examples
+			}
+			@anchoredH3("variants-states") {
+				Variants & states
+			}
+			<p class="demo-note">
+				The six built-in <code>variant</code> values
+				(<code>default</code>, <code>primary</code>,
+				<code>secondary</code>, <code>ghost</code>,
+				<code>danger</code>, <code>anchor</code>), the
+				<code>disabled</code> state, and an icon-and-label
+				composition.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     buttonVariantsHTML,
+				TemplSource:    buttonVariantsTempl,
+			}) {
+				@examples.ButtonVariants()
+			}
+			@anchoredH3("composed-content") {
+				Composed content
+			}
+			<p class="demo-note">
+				A button can host richer markup when the action
+				needs more context than a short label.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     buttonComposedHTML,
+				TemplSource:    buttonComposedTempl,
+				CSSSource:      buttonComposedCSS,
+			}) {
+				@examples.ButtonComposed()
+			}
+		</section>
+	}
+}
+
+templ buttonValueDesc() {
+	Selection value inside a&nbsp;
+	@ComponentLink("neo-buttongroup", href.PageButtonGroup())
+	.
+}
+
+var buttonDoc = ComponentDoc{
+	Attributes: []DocAttribute{
+		{Name: "variant", Type: `"primary" | "secondary" | "ghost" | "danger" | "anchor"`,
+			Description: templ.Raw("Visual style. Omit for the default neutral styling.")},
+		{Name: "disabled", Type: "boolean", Default: "false", Observed: true,
+			Description: templ.Raw("Removes the host from the tab order and swallows clicks.")},
+		{Name: "size", Type: `"sm" | "lg"`,
+			Description: templ.Raw("Control-size step: <code>sm</code> compact, <code>lg</code> large. Omit for the default size.")},
+		{Name: "value", Type: "string", Description: buttonValueDesc()},
+	},
+	Events: []DocEvent{
+		{Name: "click", URL: W3CEventURL("click"), Bubbles: true,
+			Description: templ.Raw("Also fires on <code>Enter</code> / <code>Space</code>.")},
+	},
+	CSSProps: []DocCSSProp{
+		{Name: "--neo-button-bg", Default: "#ffffff",
+			Description: templ.Raw("Background of the default neutral button.")},
+		{Name: "--neo-button-color", Default: "#111827",
+			Description: templ.Raw("Text color of the default neutral button.")},
+		{Name: "--neo-button-border-color", Default: "rgba(0, 0, 0, 0.12)",
+			Description: templ.Raw("Border color of the default neutral button.")},
+		{Name: "--neo-button-hover-bg", Default: "rgba(0, 0, 0, 0.04)",
+			Description: templ.Raw("Background on hover for the default neutral button.")},
+		{Name: "--neo-button-active-bg", Default: "rgba(0, 0, 0, 0.08)",
+			Description: templ.Raw("Background while pressed (<code>:active</code>) for the default neutral button. Darker than hover.")},
+		{Name: "--neo-button-active-color", Default: "var(--neo-button-color)",
+			Description: templ.Raw("Text color while pressed for the default neutral button.")},
+		{Name: "--neo-button-gap", Default: "0.35rem",
+			Description: templ.Raw("Gap between adjacent button content (icon and label).")},
+		{Name: "--neo-button-shadow", Default: "0 1px 2px rgba(0, 0, 0, 0.1)",
+			Description: templ.Raw("Resting box shadow.")},
+		{Name: "--neo-button-hover-shadow", Default: "0 6px 16px rgba(0, 0, 0, 0.2)",
+			Description: templ.Raw("Box shadow on hover.")},
+		{Name: "--neo-button-active-shadow", Default: "0 1px 3px rgba(0, 0, 0, 0.14)",
+			Description: templ.Raw("Box shadow while pressed.")},
+		{Name: "--neo-button-hover-lift", Default: "-1px",
+			Description: templ.Raw("Vertical <code>translateY</code> offset on hover. Zeroed under reduced motion and while a popup is anchored open.")},
+		{Name: "--neo-button-active-lift", Default: "1px",
+			Description: templ.Raw("Vertical <code>translateY</code> offset while pressed. Zeroed under reduced motion and while a popup is anchored open.")},
+		{Name: "--neo-button-radius", Default: "var(--page-radius, 0.25rem)",
+			Description: templ.Raw("Corner radius.")},
+		{Name: "--neo-button-padding", Default: "round(calc(var(--page-spacing, 0.25rem) * 2), 1px) round(calc(var(--page-spacing, 0.25rem) * 3.5), 1px)",
+			Description: templ.Raw("Per-side padding, snapped to whole pixels so the used height stays an integer.")},
+		{Name: "--neo-button-primary-bg", Default: "#2563eb",
+			Description: templ.Raw("Background of the <code>primary</code> variant.")},
+		{Name: "--neo-button-primary-color", Default: "#ffffff",
+			Description: templ.Raw("Text color of the <code>primary</code> variant.")},
+		{Name: "--neo-button-primary-hover-bg", Default: "#1d4ed8",
+			Description: templ.Raw("Background on hover for the <code>primary</code> variant.")},
+		{Name: "--neo-button-primary-active-bg", Default: "color-mix(in srgb, var(--neo-button-primary-hover-bg), #000 8%)",
+			Description: templ.Raw("Background while pressed for the <code>primary</code> variant.")},
+		{Name: "--neo-button-secondary-bg", Default: "rgba(0, 0, 0, 0.06)",
+			Description: templ.Raw("Background of the <code>secondary</code> variant.")},
+		{Name: "--neo-button-secondary-color", Default: "currentColor",
+			Description: templ.Raw("Text color of the <code>secondary</code> variant.")},
+		{Name: "--neo-button-secondary-hover-bg", Default: "rgba(0, 0, 0, 0.1)",
+			Description: templ.Raw("Background on hover for the <code>secondary</code> variant.")},
+		{Name: "--neo-button-secondary-active-bg", Default: "rgba(0, 0, 0, 0.14)",
+			Description: templ.Raw("Background while pressed for the <code>secondary</code> variant.")},
+		{Name: "--neo-button-ghost-bg", Default: "transparent",
+			Description: templ.Raw("Background of the <code>ghost</code> variant.")},
+		{Name: "--neo-button-ghost-color", Default: "currentColor",
+			Description: templ.Raw("Text color of the <code>ghost</code> variant.")},
+		{Name: "--neo-button-ghost-hover-bg", Default: "rgba(0, 0, 0, 0.06)",
+			Description: templ.Raw("Background on hover for the <code>ghost</code> variant.")},
+		{Name: "--neo-button-ghost-active-bg", Default: "rgba(0, 0, 0, 0.1)",
+			Description: templ.Raw("Background while pressed for the <code>ghost</code> variant.")},
+		{Name: "--neo-button-danger-bg", Default: "#dc2626",
+			Description: templ.Raw("Background of the <code>danger</code> variant.")},
+		{Name: "--neo-button-danger-color", Default: "#ffffff",
+			Description: templ.Raw("Text color of the <code>danger</code> variant.")},
+		{Name: "--neo-button-danger-hover-bg", Default: "#b91c1c",
+			Description: templ.Raw("Background on hover for the <code>danger</code> variant.")},
+		{Name: "--neo-button-danger-active-bg", Default: "color-mix(in srgb, var(--neo-button-danger-hover-bg), #000 8%)",
+			Description: templ.Raw("Background while pressed for the <code>danger</code> variant.")},
+		{Name: "--neo-button-anchor-underline-offset", Default: "0.25em",
+			Description: templ.Raw("Underline offset for the <code>anchor</code> variant.")},
+		{Name: "--neo-button-focus-ring", Default: "currentColor",
+			Description: templ.Raw("Focus-visible outline color.")},
+		{Name: "--neo-link-radius", Default: "2px",
+			Description: templ.Raw("Corner radius of the focus outline on the <code>anchor</code> variant and <code>&lt;a data-neo-link&gt;</code>.")},
+	},
+}

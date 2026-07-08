@@ -1,0 +1,30 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ SelectDisabled() {
+	@neo.Select(neo.SelectOpts{
+		Value:       neo.Set("standard"),
+		AriaLabel:   neo.Set("Shipping method"),
+		Placeholder: neo.Set("Shipping method"),
+	}) {
+		@neo.Option(neo.OptionOpts{Value: neo.Set("standard")}) {
+			Standard (3–5 days)
+		}
+		@neo.Option(neo.OptionOpts{Value: neo.Set("express")}) {
+			Express (1–2 days)
+		}
+		@neo.Option(neo.OptionOpts{Value: neo.Set("overnight"), Disabled: neo.Set(true)}) {
+			Overnight (sold out)
+		}
+		@neo.Option(neo.OptionOpts{Value: neo.Set("pickup")}) {
+			In-store pickup
+		}
+		@neo.Option(neo.OptionOpts{Value: neo.Set("locker"), Disabled: neo.Set(true)}) {
+			Locker drop (region unsupported)
+		}
+		@neo.Option(neo.OptionOpts{Value: neo.Set("freight"), Disabled: neo.Set(true)}) {
+			Freight (contact sales)
+		}
+	}
+}

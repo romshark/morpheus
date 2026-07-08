@@ -1,0 +1,9 @@
+{
+	"extends": "../tsconfig.json",
+	"compilerOptions": {
+		"paths": {
+			"/static/datasim.js": ["./datasim.d.ts"]
+		}
+	},
+	"include": ["**/*.ts"]
+}

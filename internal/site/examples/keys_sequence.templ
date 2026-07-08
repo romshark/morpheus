@@ -1,0 +1,26 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ KeysSequence() {
+	<div class="keys-demo" tabindex="0" data-signals="{keys_route: 'inbox'}">
+		<p class="keys-demo-hint">
+			Focus the panel, then type in sequence
+			<neo-kbd-group>
+				<neo-kbd>g</neo-kbd>
+				<neo-kbd>i</neo-kbd>
+			</neo-kbd-group> to open inbox or
+			<neo-kbd-group>
+				<neo-kbd>g</neo-kbd>
+				<neo-kbd>s</neo-kbd>
+			</neo-kbd-group> to open settings.
+		</p>
+		<p>Route: <strong data-text="$keys_route"></strong></p>
+		@neo.KeysAttrs(neo.KeysOpts{Keys: neo.Set("g, i")}, templ.Attributes{
+			"data-on:neo-keys": "$keys_route = 'inbox'",
+		})
+		@neo.KeysAttrs(neo.KeysOpts{Keys: neo.Set("g, s")}, templ.Attributes{
+			"data-on:neo-keys": "$keys_route = 'settings'",
+		})
+	</div>
+}

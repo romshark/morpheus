@@ -1,0 +1,152 @@
+/* -----------------------------------------------------------------------
+ * <neo-sortable>
+ * -----------------------------------------------------------------------
+ * Drag-to-reorder container. The host owns layout: a default flex
+ * column, a flex row, or an auto-fill grid keyed off `orientation`.
+ * The grip carries `data-neo-sortable-grip` (set by the element on the
+ * handle, or on the item when there's no handle). During a pointer
+ * drag the grabbed item is `data-neo-sortable-dragging` and pinned
+ * `position: fixed` by JS (CSS only lends elevation); a same-size
+ * `[data-neo-sortable-placeholder]` holds its slot, and the displaced
+ * items FLIP-glide via a JS transition tuned by the `easing` attribute
+ * (--neo-sortable-move-duration is the unset-attribute default).
+ */
+
+:root {
+	--neo-sortable-gap: 0.5rem;
+	--neo-sortable-grid-min: 7rem;
+	--neo-sortable-move-duration: 180ms;
+	/* The lifted item reuses the elevated-card shadow so it reads as
+	 * the same elevation and stays dark in every theme; the old
+	 * --page-fg mix turned into a bright halo in dark mode. */
+	--neo-sortable-drag-shadow: var(--neo-card-shadow);
+	/* Solid ring on the lifted item. A drop shadow alone vanishes on a
+	 * dark background, so the keyboard-grabbed item needs a crisp border
+	 * to stay legible. Themes override this to tune colour/width/inset. */
+	--neo-sortable-drag-ring: inset 0 0 0 2px var(--accent, #6366f1);
+	--neo-sortable-handle-color: var(--muted, currentColor);
+	--neo-sortable-handle-hover-color: var(--page-fg, currentColor);
+	--neo-sortable-placeholder-color: color-mix(in srgb, var(--accent, #6366f1) 55%, transparent);
+}
+
+neo-sortable {
+	display: flex;
+	flex-direction: column;
+	gap: var(--neo-sortable-gap);
+	box-sizing: border-box;
+}
+
+neo-sortable[orientation="horizontal"] {
+	flex-direction: row;
+	flex-wrap: nowrap;
+}
+
+neo-sortable[orientation="grid"] {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(var(--neo-sortable-grid-min), 1fr));
+}
+
+/* Kill selection site-wide for any reorder gesture (pointer or
+ * keyboard) so a fast pointer off the grip doesn't deselect text. */
+neo-sortable[data-neo-sortable-active] {
+	user-select: none;
+	-webkit-user-select: none;
+}
+
+/* The grip: a handle subtree, or the whole item when none is given.
+ * touch-action:none so a touch drag reorders instead of scrolling.
+ * :where() keeps the false-form test from raising specificity above the
+ * later active/disabled cursor overrides. */
+neo-sortable:not([disabled]:where(:not([disabled="false"]))) [data-neo-sortable-grip] {
+	cursor: grab;
+	touch-action: none;
+}
+
+/* A nodrag region inside a whole-item grip starts no drag, so it must
+ * not advertise grab. Reset to auto so the region's own control cursor
+ * (or the default arrow) shows through instead of the inherited grab. */
+neo-sortable [data-neo-sortable-grip] [data-neo-sortable-nodrag] {
+	cursor: auto;
+}
+
+/* Grabbing cursor only for a *pointer* drag; a keyboard reorder has
+ * no pointer and must not hijack the mouse cursor (the host attribute
+ * is "pointer" vs "keyboard"). */
+neo-sortable[data-neo-sortable-active="pointer"],
+neo-sortable[data-neo-sortable-active="pointer"] [data-neo-sortable-grip],
+neo-sortable[data-neo-sortable-active="pointer"] [data-neo-sortable-dragging] {
+	cursor: grabbing;
+}
+
+/* The lifted item: elevation cue for both pointer and keyboard. JS
+ * owns position/left/top/z-index inline. */
+/* biome-ignore lint/style/noDescendingSpecificity: sets box-shadow; the higher-specificity active="pointer" dragging rule sets cursor, disjoint, no conflict */
+neo-sortable [data-neo-sortable-dragging] {
+	box-shadow: var(--neo-sortable-drag-ring), var(--neo-sortable-drag-shadow);
+}
+
+/* Forced-colors drops box-shadow entirely; keep a grabbed cue. */
+@media (forced-colors: active) {
+	/* biome-ignore lint/style/noDescendingSpecificity: sets outline only; the higher-specificity active="pointer" rule sets cursor, disjoint, no conflict */
+	neo-sortable [data-neo-sortable-dragging] {
+		outline: 2px solid Highlight;
+		outline-offset: -2px;
+	}
+}
+
+/* The gap left behind: a dashed outline of the grabbed item's slot.
+ * Sibling FLIP transitions are applied inline by JS, not here, so the
+ * `easing` attribute stays the single source of truth. */
+neo-sortable [data-neo-sortable-placeholder] {
+	box-sizing: border-box;
+	border: 1px dashed var(--neo-sortable-placeholder-color);
+	border-radius: var(--neo-radius, 0.5rem);
+	background: color-mix(in srgb, var(--neo-sortable-placeholder-color) 12%, transparent);
+}
+
+/* A `<template data-neo-sortable-placeholder>` was slotted: the
+ * author's markup owns the look, so drop the default styling. */
+neo-sortable [data-neo-sortable-placeholder][data-neo-sortable-custom-placeholder] {
+	border: 0;
+	background: none;
+	border-radius: 0;
+}
+
+neo-sortable[disabled]:where(:not([disabled="false"])) [data-neo-sortable-grip] {
+	cursor: default;
+}
+
+neo-sortable[disabled]:where(:not([disabled="false"])) [data-neo-sortable-handle] {
+	opacity: 0.4;
+}
+
+/* biome-ignore lint/style/noDescendingSpecificity: base sets display/align/justify/color/transition; the higher-specificity neo-sortable[disabled] handle rule sets opacity, disjoint, no conflict */
+[data-neo-sortable-handle] {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	color: var(--neo-sortable-handle-color);
+	transition: color var(--neo-duration-hover, calc(120ms * var(--neo-duration-scale, 1))) var(--neo-easing, ease);
+}
+
+[data-neo-sortable-grip][data-neo-sortable-handle]:hover,
+[data-neo-sortable-grip][data-neo-sortable-handle]:focus-visible {
+	color: var(--neo-sortable-handle-hover-color);
+}
+
+/* Default item styling: a plain row with the handle leading. Authors
+ * can restyle freely; this just keeps the bare element legible. */
+[data-neo-sortable-item] {
+	display: flex;
+	align-items: center;
+	gap: 0.6rem;
+	box-sizing: border-box;
+	padding: 0.6rem 0.8rem;
+	background: var(--surface, var(--page-bg, #fff));
+	border: 1px solid var(--border, color-mix(in srgb, currentColor 15%, transparent));
+	border-radius: var(--neo-radius, 0.5rem);
+}
+
+/* The visually-hidden keyboard-reorder announcer is now owned by the
+ * <neo-sortable> shadow root (see SHADOW_TEMPLATE in neo-sortable.ts);
+ * its styles live in the shadow stylesheet and morph can't reach them. */

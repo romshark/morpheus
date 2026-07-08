@@ -1,0 +1,41 @@
+.slider-stars-pg {
+	--neo-slider-anchor-size: 1.1rem;
+	--neo-slider-thumb-size: 1.4rem;
+}
+
+.slider-stars-pg > [data-neo-slider-track] > [data-neo-slider-anchor],
+.slider-stars-pg > [data-neo-slider-track] > [data-neo-slider-anchor][data-neo-active] {
+	background: transparent;
+	border: none;
+}
+
+.slider-stars-pg > [data-neo-slider-track] > [data-neo-slider-anchor] {
+	color: #9ca3af;
+	--neo-icon-size: 1.1rem;
+	transition: color 120ms ease;
+}
+
+.slider-stars-pg > [data-neo-slider-track] > [data-neo-slider-anchor][data-neo-active] {
+	color: var(--accent);
+}
+
+.slider-stars-pg > [data-neo-slider-track] > [data-neo-slider-anchor] neo-icon::part(svg),
+.slider-stars-pg [data-neo-slider-thumb] neo-icon::part(svg) {
+	fill: currentColor;
+	stroke: var(--page-bg);
+	stroke-width: 3px;
+	paint-order: stroke fill;
+}
+
+.slider-stars-pg [data-neo-slider-thumb] {
+	background: transparent;
+	border: none;
+	box-shadow: none;
+	color: var(--accent);
+	--neo-icon-size: 1.4rem;
+	cursor: grab;
+}
+
+.slider-stars-pg [data-neo-slider-thumb]:focus-visible {
+	box-shadow: 0 0 0 3px var(--neo-slider-focus-ring);
+}

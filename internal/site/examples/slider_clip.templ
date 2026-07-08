@@ -1,0 +1,14 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ SliderClip() {
+	@neo.Slider(neo.SliderOpts[float64]{
+		Min:   neo.Set(10.0),
+		Max:   neo.Set(200.0),
+		Step:  neo.Set(1.0),
+		Value: neo.Set(50.0),
+		Label: neo.Set("Bitrate"),
+		Unit:  neo.Set("kbps"),
+	})
+}

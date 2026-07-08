@@ -1,0 +1,80 @@
+package site
+
+import "github.com/romshark/morpheus/internal/href"
+
+templ PageComponents(morpheusVersion string) {
+	@PageDoc(href.PageComponents(), "Components", morpheusVersion) {
+		<p class="intro">
+			Pick a component from the sidebar, or jump in below.
+		</p>
+		<section class="demo">
+			<h2>
+				<neo-icon name="component"></neo-icon>
+				Components
+			</h2>
+			<neo-navgroup
+				orientation="grid"
+				wrap
+				typeahead
+				class="component-grid"
+				aria-label="Components"
+			>
+				for _, link := range ComponentLinks {
+					<a
+						href={ href.External(link.Path) }
+						data-neo-navgroup-item
+						class="component-card"
+					>
+						{ link.Label }
+					</a>
+				}
+			</neo-navgroup>
+		</section>
+		<section class="demo">
+			<h2>
+				<neo-icon name="square-function"></neo-icon>
+				Utility Components
+			</h2>
+			<neo-navgroup
+				orientation="grid"
+				wrap
+				typeahead
+				class="component-grid"
+				aria-label="Utility components"
+			>
+				for _, link := range UtilityLinks {
+					<a
+						href={ href.External(link.Path) }
+						data-neo-navgroup-item
+						class="component-card"
+					>
+						{ link.Label }
+					</a>
+				}
+			</neo-navgroup>
+		</section>
+		<section class="demo">
+			<h2>
+				<neo-icon name="braces"></neo-icon>
+				Data Components
+			</h2>
+			<neo-navgroup
+				orientation="grid"
+				wrap
+				typeahead
+				class="component-grid"
+				aria-label="Data components"
+			>
+				for _, link := range DataLinks {
+					<a
+						href={ href.External(link.Path) }
+						data-neo-navgroup-item
+						class="component-card"
+					>
+						{ link.Label }
+					</a>
+				}
+			</neo-navgroup>
+		</section>
+	}
+}

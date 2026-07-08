@@ -1,0 +1,30 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ BadgeCounts() {
+	<span class="badge-count-row">
+		<span>Inbox</span>
+		@neo.Badge(neo.BadgeOpts{Variant: neo.Set(neo.BadgeVariantPrimary)}) {
+			12
+		}
+	</span>
+	<span class="badge-count-row">
+		<span>Mentions</span>
+		@neo.Badge(neo.BadgeOpts{Variant: neo.Set(neo.BadgeVariantDanger)}) {
+			3
+		}
+	</span>
+	<span class="badge-count-row">
+		<span>Drafts</span>
+		@neo.Badge(neo.BadgeOpts{Variant: neo.Set(neo.BadgeVariantSecondary)}) {
+			42
+		}
+	</span>
+	<span class="badge-count-row">
+		<span>Archive</span>
+		@neo.Badge(neo.BadgeOpts{}) {
+			128
+		}
+	</span>
+}

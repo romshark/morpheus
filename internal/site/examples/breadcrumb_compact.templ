@@ -1,0 +1,15 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ BreadcrumbCompact() {
+	@neo.BreadcrumbAttrs([]neo.BreadcrumbItem{
+		{Href: "#", Label: "A"}, {Href: "#", Label: "B"},
+		{Href: "#", Label: "C"}, {Href: "#", Label: "D"},
+		{Href: "#", Label: "E"}, {Href: "#", Label: "F"},
+		{Href: "#", Label: "G"}, {Href: "#", Label: "H"},
+		{Href: "#", Label: "I"}, {Href: "#", Label: "J"},
+		{Href: "#", Label: "K"},
+		{Label: "L"},
+	}, templ.Attributes{"aria-label": "Breadcrumb"})
+}

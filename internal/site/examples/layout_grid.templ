@@ -1,0 +1,30 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ layoutGridCard(title string) {
+	@neo.CardAttrs(
+		neo.CardOpts{Variant: neo.Set(neo.CardVariantOutline)},
+		templ.Attributes{"neo-flex-grow": "1", "neo-min-width": "0", "class": "layout-grid-card"},
+	) {
+		<strong>{ title }</strong>
+	}
+}
+
+templ LayoutGrid() {
+	@neo.LayoutAttrs(
+		neo.LayoutOpts{
+			Direction: neo.Set(neo.Row), Wrap: neo.Set(neo.Wrap),
+			Gap: neo.Set(neo.GapMd), AlignContent: neo.Set(neo.AlignContentFlexStart),
+		},
+		neo.Item(neo.ItemOpts{
+			Width: neo.Set(neo.ItemSizeFull), Height: neo.Set(neo.ItemSizeFull),
+			MinWidth0: neo.Set(true), MinHeight0: neo.Set(true), Overflow: neo.Set(neo.OverflowAuto),
+		}),
+	) {
+		@layoutGridCard("Analytics")
+		@layoutGridCard("Automations")
+		@layoutGridCard("Customers")
+		@layoutGridCard("Reports")
+	}
+}

@@ -1,0 +1,8 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ SwitchDisabled() {
+	@neo.Switch(neo.SwitchOpts{Disabled: neo.Set(true), AriaLabel: neo.Set("Disabled off")})
+	@neo.Switch(neo.SwitchOpts{Checked: neo.Set(true), Disabled: neo.Set(true), AriaLabel: neo.Set("Disabled on")})
+}

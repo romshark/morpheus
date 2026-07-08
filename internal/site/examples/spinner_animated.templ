@@ -1,0 +1,22 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ SpinnerAnimated() {
+	@neo.SpinnerProgressAttrs(neo.SpinnerOpts[float64]{
+		Value:  neo.Set(0.0),
+		Easing: neo.Set("120ms"),
+		Label:  neo.Set("Downloading"),
+	}, templ.Attributes{
+		"id":    "demo-progress",
+		"class": "spinner-animated-ring",
+	})
+	<script type="module">
+		const el = document.getElementById("demo-progress");
+		let v = 0;
+		setInterval(() => {
+			v = (v + 1) % 101;
+			el.setAttribute("value", String(v));
+		}, 60);
+	</script>
+}

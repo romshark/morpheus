@@ -1,0 +1,17 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ LayoutSpacer() {
+	@neo.LayoutAttrs(neo.LayoutOpts{Direction: neo.Set(neo.Row), AlignItems: neo.Set(neo.AlignItemsCenter), Gap: neo.Set(neo.GapSm)},
+		neo.Item(neo.ItemOpts{Grow: neo.Set(true), MinWidth0: neo.Set(true)})) {
+		@neo.Button(neo.ButtonOpts{}) {
+			Back
+		}
+		<strong>Page title</strong>
+		<span { neo.Item(neo.ItemOpts{Grow: neo.Set(true)})... }></span>
+		@neo.Button(neo.ButtonOpts{Variant: neo.Set(neo.ButtonVariantPrimary)}) {
+			Save
+		}
+	}
+}

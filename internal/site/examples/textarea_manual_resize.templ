@@ -1,0 +1,21 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ TextareaManualResize() {
+	@neo.Textarea(neo.TextareaOpts{
+		ScaleVertical: neo.Set(true),
+		Placeholder:   neo.Set("Vertically resizable (manual)"),
+		Rows:          neo.Set(3),
+	})
+	@neo.Textarea(neo.TextareaOpts{
+		ScaleHorizontal: neo.Set(true),
+		ScaleVertical:   neo.Set(true),
+		Placeholder:     neo.Set("Manually resize in both directions"),
+		Rows:            neo.Set(3),
+	})
+	@neo.Textarea(neo.TextareaOpts{
+		Placeholder: neo.Set("Fixed, no resize handle"),
+		Rows:        neo.Set(3),
+	})
+}

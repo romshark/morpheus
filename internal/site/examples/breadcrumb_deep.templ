@@ -1,0 +1,15 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ BreadcrumbDeep() {
+	@neo.BreadcrumbAttrs([]neo.BreadcrumbItem{
+		{Href: "#", Label: "Home"},
+		{Href: "#", Label: "Catalog"},
+		{Href: "#", Label: "Electronics"},
+		{Href: "#", Label: "Computers"},
+		{Href: "#", Label: "Laptops"},
+		{Href: "#", Label: "Gaming"},
+		{Label: "UltraBook 12"},
+	}, templ.Attributes{"aria-label": "Breadcrumb"})
+}

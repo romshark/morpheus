@@ -1,0 +1,40 @@
+package examples
+
+import (
+	"github.com/romshark/morpheus/datastar"
+	"github.com/romshark/morpheus/neo"
+)
+
+templ PopoverAsyncFailure() {
+	@datastar.PopoverAsync(datastar.PopoverAsyncOpts{
+		PopoverOpts:   neo.PopoverOpts{FollowScroll: neo.Set(neo.PopoverFollowScrollUntilTriggerInvisible)},
+		ID:            "popoverAsyncDemo",
+		URL:           "/popover/asyncload/",
+		ExtraPostOpts: "retry: 'auto', retryInterval: 1000, retryScaler: 2, retryMaxWait: 30000, retryMaxCount: 2",
+		Loading:       popoverAsyncFailureLoading(),
+		Failed:        popoverAsyncFailureFailed(),
+	}) {
+		Open async popover
+	}
+}
+
+// Shown while the request is in flight.
+templ popoverAsyncFailureLoading() {
+	<div class="popover-async-loading">
+		<neo-spinner></neo-spinner>
+		<span>Loading options…</span>
+	</div>
+}
+
+// Swapped in once Datastar fires retries-failed. The retry button
+// carries [data-neo-popover-async-retry] so PopoverAsync re-fires
+// the @post action when clicked.
+templ popoverAsyncFailureFailed() {
+	<div class="popover-async-loading popover-async-failed" role="alert">
+		@neo.Icon("triangle-alert")
+		<strong>Couldn't load content.</strong>
+		<neo-button { neo.PopoverAsyncRetry()... }>
+			Retry
+		</neo-button>
+	</div>
+}

@@ -1,0 +1,45 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ BoundaryStacking() {
+	<div class="boundary-stacking">
+		<div class="boundary-stacking-overlay">
+			Host app overlay · z-index 100
+		</div>
+		<div class="boundary-stacking-row">
+			<div class="boundary-stacking-col">
+				@neo.Boundary(neo.BoundaryOpts{}) {
+					<div class="boundary-stacking-panel">
+						<p class="boundary-stacking-label">Default</p>
+						@neo.Popover(neo.PopoverOpts{Placement: neo.Set(neo.PlacementBottomStart)}) {
+							<neo-button { neo.PopoverTrigger()... }>Account</neo-button>
+							<div { neo.PopoverContent()... }>
+								<h3 class="boundary-stacking-heading">Account</h3>
+								<p class="boundary-stacking-line">Signed in as Alice Larsson.</p>
+								<p class="boundary-stacking-line-sm">Plan: Team · 4 seats</p>
+								<p class="boundary-stacking-line-muted">No stacking context, so the panel's z-index 1000 paints over the host overlay.</p>
+							</div>
+						}
+					</div>
+				}
+			</div>
+			<div class="boundary-stacking-col">
+				@neo.Boundary(neo.BoundaryOpts{Scopes: neo.Set(neo.BoundaryScopes{Stacking: true})}) {
+					<div class="boundary-stacking-panel">
+						<p class="boundary-stacking-label">stacking</p>
+						@neo.Popover(neo.PopoverOpts{Placement: neo.Set(neo.PlacementBottomStart)}) {
+							<neo-button { neo.PopoverTrigger()... }>Account</neo-button>
+							<div { neo.PopoverContent()... }>
+								<h3 class="boundary-stacking-heading">Account</h3>
+								<p class="boundary-stacking-line">Signed in as Alice Larsson.</p>
+								<p class="boundary-stacking-line-sm">Plan: Team · 4 seats</p>
+								<p class="boundary-stacking-line-muted">A local stacking context confines the panel, so the host overlay paints over it.</p>
+							</div>
+						}
+					</div>
+				}
+			</div>
+		</div>
+	</div>
+}

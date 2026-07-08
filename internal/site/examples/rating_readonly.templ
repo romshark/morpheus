@@ -1,0 +1,12 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ RatingReadonly() {
+	@neo.Rating(neo.RatingOpts{
+		Label:     neo.Set("Average score"),
+		Value:     neo.Set(4.0),
+		Precision: neo.Set(0.5),
+		Readonly:  neo.Set(true),
+	})
+}

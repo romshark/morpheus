@@ -1,0 +1,26 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ ElasticContentSwap() {
+	<div data-signals:verbose="false">
+		@neo.ButtonAttrs(neo.ButtonOpts{}, templ.Attributes{
+			"data-on:click": "$verbose = !$verbose",
+		}) {
+			<span data-text="$verbose ? 'Brief' : 'Verbose'">Verbose</span>
+		}
+		@neo.ElasticAttrs(neo.ElasticOpts{}, templ.Attributes{
+			"class": "elastic-content-swap",
+		}) {
+			<p data-show="!$verbose">Short summary: one sentence and out.</p>
+			<div data-show="$verbose" class="elastic-content-swap-verbose">
+				<p>The same container animates between wildly different content sizes.</p>
+				<ul>
+					<li>Each toggle reads the new natural height.</li>
+					<li>Mid-animation interrupts retarget the latest height.</li>
+					<li>Resizing the viewport reflows; ResizeObserver re-pins.</li>
+				</ul>
+			</div>
+		}
+	</div>
+}

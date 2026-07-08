@@ -1,0 +1,40 @@
+<style>
+  .cm-target {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: min(100%, 16rem);
+    min-height: 5rem;
+    padding: 1rem;
+    border: 1px dashed var(--btn-border);
+    border-radius: var(--page-radius);
+    background: color-mix(in srgb, var(--page-fg) 5%, transparent);
+    color: var(--page-fg);
+    text-align: center;
+    cursor: context-menu;
+    user-select: none;
+  }
+  .cm-target:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+</style>
+<neo-contextmenu>
+  <div data-neo-contextmenu-trigger class="cm-target">
+    Right-click this note
+  </div>
+  <neo-menu>
+    <neo-menuitem value="open">Open</neo-menuitem>
+    <neo-menuitem value="rename">Rename</neo-menuitem>
+    <neo-submenu label="Move to">
+      <neo-menuitem value="inbox">Inbox</neo-menuitem>
+      <neo-menuitem value="archive">Archive</neo-menuitem>
+      <neo-submenu label="Project">
+        <neo-menuitem value="atlas">Atlas</neo-menuitem>
+        <neo-menuitem value="morpheus">Morpheus</neo-menuitem>
+      </neo-submenu>
+    </neo-submenu>
+    <hr/>
+    <neo-menuitem value="delete">Delete</neo-menuitem>
+  </neo-menu>
+</neo-contextmenu>

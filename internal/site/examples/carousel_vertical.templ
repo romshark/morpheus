@@ -1,0 +1,27 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+// Side dots: the kit host is a flex row; flex-direction:column + top/
+// bottom:0 lets its default justify-content:center centre the stacked
+// column on the now-vertical main axis.
+templ CarouselVertical() {
+	@neo.CarouselAttrs(neo.CarouselOpts{
+		Orientation: neo.Set(neo.AxisVertical),
+		DragNav:     neo.Set(true),
+		Dots:        neo.Set(true),
+		AriaLabel:   neo.Set("Slides"),
+	}, templ.Attributes{"class": "cx-vert"}) {
+		@neo.CarouselTrack() {
+			@neo.CarouselSlideAttrs("1", templ.Attributes{"class": "cx-slide"}) {
+				Top
+			}
+			@neo.CarouselSlideAttrs("2", templ.Attributes{"class": "cx-slide"}) {
+				Middle
+			}
+			@neo.CarouselSlideAttrs("3", templ.Attributes{"class": "cx-slide"}) {
+				Bottom
+			}
+		}
+	}
+}

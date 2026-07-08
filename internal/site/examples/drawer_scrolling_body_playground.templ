@@ -1,0 +1,31 @@
+package examples
+
+import (
+	"github.com/romshark/morpheus/neo"
+	"strconv"
+)
+
+templ DrawerScrollingBodyPlayground() {
+	@neo.Drawer(neo.DrawerOpts{Side: neo.Set(neo.SideRight)}) {
+		<neo-button { neo.DrawerTrigger()... }>Open settings</neo-button>
+		<dialog>
+			@neo.DrawerHeader() {
+				@neo.DrawerTitle() {
+					Settings
+				}
+				@neo.DrawerDescription() {
+					Header stays put while the body scrolls.
+				}
+			}
+			@neo.DrawerBody() {
+				for i := 1; i <= 30; i++ {
+					<p>Setting row { strconv.Itoa(i) }: placeholder copy to make the body overflow.</p>
+				}
+			}
+			@neo.DrawerFooter() {
+				<neo-button { neo.DrawerClose()... }>Cancel</neo-button>
+				<neo-button variant="primary" { neo.DrawerClose()... }>Save</neo-button>
+			}
+		</dialog>
+	}
+}

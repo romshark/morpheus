@@ -1,0 +1,163 @@
+package site
+
+import (
+	"github.com/romshark/morpheus/internal/href"
+	"github.com/romshark/morpheus/internal/site/examples"
+)
+
+templ PageAlert(morpheusVersion string) {
+	@PageDoc(href.PageAlert(), "Alert", morpheusVersion) {
+		<section class="demo">
+			@anchoredH2("overview") {
+				Alert
+			}
+			<p class="intro">
+				Component <code>{ "<neo-alert>" }</code> is a
+				CSS-only message surface for status, warning, and
+				error callouts. Compose an optional
+				<code>{ "[data-neo-alert-icon]" }</code> with a
+				<code>{ "[data-neo-alert-title]" }</code>,
+				<code>{ "[data-neo-alert-description]" }</code>, and
+				<code>{ "[data-neo-alert-actions]" }</code>; add a
+				<code>role</code> based on how assertively the message
+				should be announced.
+			</p>
+			@Playground(PlaygroundOpts{
+				ID:     "alert-playground",
+				States: alertPlaygroundStates(),
+			})
+			@anchoredH2("reference") {
+				Reference
+			}
+			@ComponentDocs(alertDoc)
+		</section>
+		<section class="demo">
+			@anchoredH2("examples") {
+				Examples
+			}
+			@anchoredH3("variants") {
+				Variants
+			}
+			<p class="demo-note">
+				Five treatments cover common callout severity:
+				neutral default, <code>info</code>,
+				<code>success</code>, <code>warning</code>, and
+				<code>danger</code>.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				Width:          "42rem",
+				StageMinWidth:  "18rem",
+				StageMinHeight: "max-content",
+				HTMLSource:     alertVariantsHTML,
+				TemplSource:    alertVariantsTempl,
+				CSSSource:      alertVariantsCSS,
+			}) {
+				@examples.AlertVariants()
+			}
+			@anchoredH3("with-actions") {
+				With actions
+			}
+			<p class="demo-note">
+				Put controls in a
+				<code>{ "[data-neo-alert-actions]" }</code> row when
+				the alert should offer an immediate next step.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				Width:          "34rem",
+				StageMinWidth:  "18rem",
+				StageMinHeight: "max-content",
+				HTMLSource:     alertWithActionsHTML,
+				TemplSource:    alertWithActionsTempl,
+			}) {
+				@examples.AlertWithActions()
+			}
+		</section>
+	}
+}
+
+var alertDoc = ComponentDoc{
+	Attributes: []DocAttribute{
+		{Name: "variant", Type: `"info" | "success" | "warning" | "danger"`,
+			Description: templ.Raw("Visual tone. Omit for the neutral default.")},
+	},
+	Slots: []DocSlot{
+		{Name: `[data-neo-alert-icon]`,
+			Description: templ.Raw("Optional leading icon column. Decorative: mark it <code>aria-hidden=&quot;true&quot;</code> so assistive tech skips the glyph.")},
+		{Name: `[data-neo-alert-content]`,
+			Description: templ.Raw("Content column for the title, description, and actions.")},
+		{Name: `[data-neo-alert-title]`,
+			Description: templ.Raw("Alert title heading. Bolder weight, no default margin.")},
+		{Name: `[data-neo-alert-description]`,
+			Description: templ.Raw("Supporting message text. Muted colour, no default margin.")},
+		{Name: `[data-neo-alert-actions]`,
+			Description: templ.Raw("Optional action row below the description.")},
+	},
+	CSSProps: []DocCSSProp{
+		{Name: "--neo-alert-padding-y", Default: "calc(var(--page-spacing, 0.25rem) * 4)",
+			Description: templ.Raw("Vertical padding.")},
+		{Name: "--neo-alert-padding-x", Default: "calc(var(--page-spacing, 0.25rem) * 4)",
+			Description: templ.Raw("Horizontal padding.")},
+		{Name: "--neo-alert-gap", Default: "calc(var(--page-spacing, 0.25rem) * 3)",
+			Description: templ.Raw("Gap between the icon and content columns.")},
+		{Name: "--neo-alert-content-gap", Default: "calc(var(--page-spacing, 0.25rem) * 1.5)",
+			Description: templ.Raw("Gap between title, description, and actions.")},
+		{Name: "--neo-alert-action-gap", Default: "calc(var(--page-spacing, 0.25rem) * 2)",
+			Description: templ.Raw("Gap between controls in the actions row.")},
+		{Name: "--neo-alert-radius", Default: "var(--page-radius, 0.5rem)",
+			Description: templ.Raw("Corner radius.")},
+		{Name: "--neo-alert-border-width", Default: "1px",
+			Description: templ.Raw("Border width.")},
+		{Name: "--neo-alert-neutral-accent", Default: "var(--page-fg)",
+			Description: templ.Raw("Accent color for the neutral default tone.")},
+		{Name: "--neo-alert-info-accent", Default: "var(--accent)",
+			Description: templ.Raw("Accent color for the <code>info</code> tone.")},
+		{Name: "--neo-alert-success-accent", Default: "oklch(0.55 0.14 145)",
+			Description: templ.Raw("Accent color for the <code>success</code> tone.")},
+		{Name: "--neo-alert-warning-accent", Default: "oklch(0.68 0.16 70)",
+			Description: templ.Raw("Accent color for the <code>warning</code> tone.")},
+		{Name: "--neo-alert-danger-accent", Default: "var(--danger-bg)",
+			Description: templ.Raw("Accent color for the <code>danger</code> tone.")},
+		{Name: "--neo-alert-neutral-bg", Default: "color-mix(in srgb, var(--neo-alert-neutral-accent) 5%, transparent)",
+			Description: templ.Raw("Background for the neutral default tone.")},
+		{Name: "--neo-alert-info-bg", Default: "color-mix(in srgb, var(--neo-alert-info-accent) 8%, transparent)",
+			Description: templ.Raw("Background for the <code>info</code> tone.")},
+		{Name: "--neo-alert-success-bg", Default: "color-mix(in srgb, var(--neo-alert-success-accent) 9%, transparent)",
+			Description: templ.Raw("Background for the <code>success</code> tone.")},
+		{Name: "--neo-alert-warning-bg", Default: "color-mix(in srgb, var(--neo-alert-warning-accent) 10%, transparent)",
+			Description: templ.Raw("Background for the <code>warning</code> tone.")},
+		{Name: "--neo-alert-danger-bg", Default: "color-mix(in srgb, var(--neo-alert-danger-accent) 9%, transparent)",
+			Description: templ.Raw("Background for the <code>danger</code> tone.")},
+		{Name: "--neo-alert-neutral-border-color", Default: "color-mix(in srgb, var(--neo-alert-neutral-accent) 18%, transparent)",
+			Description: templ.Raw("Border color for the neutral default tone.")},
+		{Name: "--neo-alert-info-border-color", Default: "color-mix(in srgb, var(--neo-alert-info-accent) 28%, transparent)",
+			Description: templ.Raw("Border color for the <code>info</code> tone.")},
+		{Name: "--neo-alert-success-border-color", Default: "color-mix(in srgb, var(--neo-alert-success-accent) 28%, transparent)",
+			Description: templ.Raw("Border color for the <code>success</code> tone.")},
+		{Name: "--neo-alert-warning-border-color", Default: "color-mix(in srgb, var(--neo-alert-warning-accent) 32%, transparent)",
+			Description: templ.Raw("Border color for the <code>warning</code> tone.")},
+		{Name: "--neo-alert-danger-border-color", Default: "color-mix(in srgb, var(--neo-alert-danger-accent) 30%, transparent)",
+			Description: templ.Raw("Border color for the <code>danger</code> tone.")},
+		{Name: "--neo-alert-accent", Default: "var(--neo-alert-neutral-accent)",
+			Description: templ.Raw("Active accent color, resolved from the current variant.")},
+		{Name: "--neo-alert-bg", Default: "var(--neo-alert-neutral-bg)",
+			Description: templ.Raw("Active background, resolved from the current variant.")},
+		{Name: "--neo-alert-color", Default: "var(--page-fg)",
+			Description: templ.Raw("Body text color.")},
+		{Name: "--neo-alert-border-color", Default: "var(--neo-alert-neutral-border-color)",
+			Description: templ.Raw("Active border color, resolved from the current variant.")},
+		{Name: "--neo-alert-description-color", Default: "color-mix(in srgb, var(--neo-alert-color) 70%, transparent)",
+			Description: templ.Raw("Description text color.")},
+		{Name: "--neo-alert-title-size", Default: "0.95rem",
+			Description: templ.Raw("Title font size.")},
+		{Name: "--neo-alert-title-line-height", Default: "1.35",
+			Description: templ.Raw("Title line height.")},
+		{Name: "--neo-alert-title-line-size", Default: "1.2825rem",
+			Description: templ.Raw("Title line box size.")},
+		{Name: "--neo-alert-title-weight", Default: "600",
+			Description: templ.Raw("Title font weight.")},
+		{Name: "--neo-alert-icon-size", Default: "1.1rem",
+			Description: templ.Raw("Icon glyph size.")},
+		{Name: "--neo-alert-icon-margin-top", Default: "0.25rem",
+			Description: templ.Raw("Top margin aligning the icon with the title.")},
+	},
+}

@@ -1,0 +1,16 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ ToasterStackDismiss() {
+	@neo.ButtonAttrs(neo.ButtonOpts{}, templ.Attributes{
+		"data-on:click": "for (let i = 1; i <= 4; i++) setTimeout(() => NeoToast.show({ title: `Notification ${i}` }), i * 150)",
+	}) {
+		Stack four
+	}
+	@neo.ButtonAttrs(neo.ButtonOpts{Variant: neo.Set(neo.ButtonVariantDanger)}, templ.Attributes{
+		"data-on:click": "NeoToast.dismiss()",
+	}) {
+		Dismiss all
+	}
+}

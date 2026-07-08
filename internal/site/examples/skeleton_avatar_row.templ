@@ -1,0 +1,19 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ SkeletonAvatarRow() {
+	<div class="skeleton-avatar-row">
+		@neo.SkeletonAttrs(neo.SkeletonOpts{Variant: neo.Set(neo.SkeletonVariantCircle)}, templ.Attributes{
+			"class": "skeleton-avatar-row-avatar",
+		})
+		<div class="skeleton-avatar-row-lines">
+			@neo.SkeletonAttrs(neo.SkeletonOpts{}, templ.Attributes{
+				"class": "skeleton-avatar-row-name",
+			})
+			@neo.SkeletonAttrs(neo.SkeletonOpts{}, templ.Attributes{
+				"class": "skeleton-avatar-row-meta",
+			})
+		</div>
+	</div>
+}

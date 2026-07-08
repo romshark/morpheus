@@ -1,0 +1,21 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ ToggleVariants() {
+	@neo.Toggle(neo.ToggleOpts{}) {
+		Default
+	}
+	@neo.Toggle(neo.ToggleOpts{Variant: neo.Set(neo.ToggleVariantPrimary)}) {
+		Primary
+	}
+	@neo.Toggle(neo.ToggleOpts{Variant: neo.Set(neo.ToggleVariantSecondary)}) {
+		Secondary
+	}
+	@neo.Toggle(neo.ToggleOpts{Variant: neo.Set(neo.ToggleVariantGhost)}) {
+		Ghost
+	}
+	@neo.Toggle(neo.ToggleOpts{Variant: neo.Set(neo.ToggleVariantDanger)}) {
+		Danger
+	}
+}

@@ -1,0 +1,309 @@
+package site
+
+import (
+	"github.com/romshark/morpheus/internal/href"
+	"github.com/romshark/morpheus/internal/site/examples"
+	"github.com/romshark/morpheus/neo"
+)
+
+templ PageSidebar(morpheusVersion string) {
+	@PageDoc(href.PageSidebar(), "Sidebar", morpheusVersion) {
+		@sidebarSimulator()
+		<section class="demo">
+			@anchoredH2("overview") {
+				Sidebar
+			}
+			<p class="intro">
+				Component <code>{ "<neo-sidebar>" }</code> is a
+				responsive navigation rail. Below the
+				<code>overlay-breakpoint</code> width (50rem
+				default) it switches to a fixed overlay with a
+				backdrop; dismiss via the header X, backdrop click,
+				or <neo-kbd>Esc</neo-kbd>.
+			</p>
+			@Playground(PlaygroundOpts{
+				ID:       "sidebar-playground",
+				Height:   "28rem",
+				MinWidth: "32rem",
+				States:   sidebarPlaygroundStates(),
+			})
+			@anchoredH2("reference") {
+				Reference
+			}
+			@ComponentDocs(sidebarDoc)
+		</section>
+		<section class="demo">
+			@anchoredH2("examples") {
+				Examples
+			}
+			<p class="demo-note">
+				Both sidebars use the global <code>50rem</code>
+				threshold by default; the
+				<code>overlay-breakpoint</code> attribute overrides
+				it per instance. With a left nav and a right drawer
+				both in-flow, push the drawer into overlay mode
+				sooner (larger breakpoint) while keeping the nav
+				in-flow longer (smaller breakpoint).
+			</p>
+			@anchoredH3("mixed-breakpoints") {
+				Mixed breakpoints
+			}
+			<p class="demo-note">
+				The preview has a left nav at
+				<code>{ `overlay-breakpoint="30rem"` }</code> and a
+				right settings drawer at
+				<code>{ `overlay-breakpoint="50rem"` }</code>, the
+				same strategy the doc-app frame uses. Drag the
+				frame's right handle to try it.
+			</p>
+			<ul class="demo-note">
+				<li>Above 50rem both stay in-flow.</li>
+				<li>
+					Between 30rem and 50rem only the right one becomes
+					a drawer (toggle it with the gear button).
+				</li>
+				<li>Below 30rem both are drawers.</li>
+			</ul>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     sidebarMixedBreakpointsHTML,
+				TemplSource:    sidebarMixedBreakpointsTempl,
+				CSSSource:      sidebarMixedBreakpointsCSS,
+			}) {
+				@examples.SidebarMixedBreakpoints()
+			}
+			<p class="demo-note">
+				Wrap the sidebar in a
+				<code>{ `<neo-resizable>` }</code> and drive
+				<code>--neo-sidebar-width</code> from
+				<code>--neo-resizable-width</code> so the sidebar
+				follows the wrapper's width. The wrapper's
+				<code>min-width</code> / <code>max-width</code> set
+				the drag bounds (here 12rem to 22rem). Drag the
+				inner edge of either sidebar to try it.
+			</p>
+			@anchoredH3("resizable-widths") {
+				Resizable widths
+			}
+			<p class="demo-note">
+				When the preview crosses the overlay breakpoint,
+				or when either sidebar is closed, the resizable
+				wrappers release their flex space. The sidebars keep
+				the last resized width when they reopen or become
+				drawers. Use the menu and info buttons below to
+				bring them back.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     sidebarResizableHTML,
+				TemplSource:    sidebarResizableTempl,
+				CSSSource:      sidebarResizableCSS,
+			}) {
+				@examples.SidebarResizable()
+			}
+			@anchoredH3("touch-dismiss") {
+				Touch-dismiss
+			}
+			<p class="demo-note">
+				Mobile-style drag-to-close, on by default in overlay
+				mode. A single-touch horizontal swipe in the closing
+				direction follows the finger; release past the
+				threshold or a fast flick closes, otherwise it snaps
+				back.
+			</p>
+			<ul class="demo-note">
+				<li>
+					The threshold defaults to half the host's width;
+					pass a CSS length (here
+					<code>{ `touch-dismiss="120px"` }</code>) to pin
+					it, or <code>{ `touch-dismiss="off"` }</code> to
+					opt out.
+				</li>
+				<li>
+					Try the preview on a touchscreen, or with browser
+					device-toolbar touch emulation.
+				</li>
+			</ul>
+			<p class="demo-note">
+				The gesture stands down for descendants that own a
+				horizontal gesture of their own: horizontally
+				scrollable containers, range inputs, sliders, resizable
+				handles, color fields, or any element marked
+				<code>{ `[data-neo-sidebar-touch-ignore]` }</code>,
+				and only engages in overlay mode (it has no meaning for
+				the in-flow wide-mode column). The
+				<code>{ `<neo-slider>` }</code> in the panel below
+				demonstrates this: dragging the slider thumb
+				horizontally never closes the sidebar.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     sidebarTouchDismissHTML,
+				TemplSource:    sidebarTouchDismissTempl,
+				CSSSource:      sidebarTouchDismissCSS,
+			}) {
+				@examples.SidebarTouchDismiss()
+			}
+		</section>
+		<section class="demo">
+			@anchoredH2("examples-datastar") {
+				Examples: Datastar
+			}
+			@anchoredH3("async-loading") {
+				Async loading
+			}
+			<p class="demo-note">
+				Load content on every open. Mark the resting content
+				with
+				<code>{ `[data-neo-async-placeholder]` }</code>: the
+				sidebar snapshots it on connect and restores it on
+				close, so every open loads fresh (same slot pattern as
+				<code>{ "<neo-dialog>" }</code> and
+				<code>{ "<neo-drawer>" }</code>).
+			</p>
+			<ul class="demo-note">
+				<li>
+					Open emits <code>neo-sidebar-open</code>; wire
+					<code>data-on:neo-sidebar-open</code> to post and
+					morph the returned panel into the
+					<code>{ `[data-neo-sidebar-content]` }</code> slot
+					(matched by id).
+				</li>
+				<li>
+					The <code>neo-sidebar-close</code> handler only
+					aborts the in-flight request; the host resets the
+					placeholder.
+				</li>
+			</ul>
+			@simDelayHint()
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     sidebarAsyncLoadingHTML,
+				TemplSource:    sidebarAsyncLoadingTempl,
+				CSSSource:      sidebarAsyncLoadingCSS,
+				ScriptSource:   sidebarAsyncScript,
+			}) {
+				@examples.SidebarAsyncLoading()
+			}
+			@anchoredH3("async-load-with-failure-swap") {
+				Async load with failure swap
+			}
+			<p class="demo-note">
+				Async load that shows a failure state and a retry
+				button when the request keeps failing.
+			</p>
+			<ul class="demo-note">
+				<li>
+					The loader lives in the sidebar's
+					<code>{ "[data-neo-async-placeholder]" }</code>
+					slot, so close/reopen restores it; on success the
+					server morphs
+					<code>{ "<div id=\"<host-id>-body\">" }</code>
+					in place.
+				</li>
+				<li>
+					Once Datastar exhausts its retry budget, a failure
+					view with a
+					<code>{ "[data-neo-popover-async-retry]" }</code>
+					button replaces the content without closing the
+					sidebar.
+				</li>
+				<li>
+					Same failure-swap contract as{ " " }
+					@neo.Link(neo.LinkOpts{Href: neo.Set(href.PagePopover() + "#async-load-with-failure-swap")}) {
+						PopoverAsync
+					}
+					.
+				</li>
+			</ul>
+			@serverErrorControls()
+			@simDelayHint()
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				TemplSource:    sidebarAsyncFailureTempl,
+				CSSSource:      sidebarAsyncFailureCSS,
+				ScriptSource:   sidebarAsyncFailureScript,
+			}) {
+				@examples.SidebarAsyncFailure()
+			}
+		</section>
+	}
+}
+
+// sidebarSimulator loads the per-demo handler module under
+// /static/sim/sidebar/ that powers the async-loading example (also
+// surfaced in its Server-script tab via sidebarAsyncScript).
+templ sidebarSimulator() {
+	<script type="module" src="/static/sim/sidebar/async.js"></script>
+	<script type="module" src="/static/sim/sidebar/asyncfail.js"></script>
+}
+
+var sidebarDoc = ComponentDoc{
+	Attributes: []DocAttribute{
+		{Name: "open", Type: "boolean", Default: "false", Reflected: true, Observed: true, Description: templ.Raw("Whether the sidebar is expanded.")},
+		{Name: "side", Type: `"left" | "right"`, Default: "left",
+			Description: templ.Raw("Edge of the viewport the sidebar attaches to.")},
+		{Name: "manual", Type: "boolean", Default: "false",
+			Description: templ.Raw("Disable auto-open at wide layouts.")},
+		{Name: "overlay", Type: "boolean", Default: "false",
+			Description: templ.Raw("Always render as a fixed overlay.")},
+		{Name: "overlay-breakpoint", Type: "string", Default: `"50rem"`, Observed: true,
+			Description: templ.Raw("CSS length below which the sidebar acts as an overlay.")},
+		{Name: "touch-dismiss", Type: `"off" | CSS length`, Default: "on",
+			Description: templ.Raw("Drag-to-close gesture in overlay mode. " +
+				"On by default; set <code>touch-dismiss=\"off\"</code> " +
+				"(or <code>\"false\"</code> / <code>\"no\"</code> / " +
+				"<code>\"none\"</code>) to disable. The default close " +
+				"threshold is half the host's width; pass a CSS length " +
+				"(e.g. <code>120</code>, <code>120px</code>, or <code>40%</code>) to pin it " +
+				"explicitly. Touches that start on a horizontally-scrollable " +
+				"child or on an element that owns a horizontal gesture " +
+				"(range input, slider, resizable handle, color field, or " +
+				"any <code>[data-neo-sidebar-touch-ignore]</code> " +
+				"descendant) are ignored.")},
+	},
+	Slots: []DocSlot{
+		{Name: "[data-neo-sidebar-header]",
+			Description: templ.Raw("Top section.")},
+		{Name: "[data-neo-sidebar-content]",
+			Description: templ.Raw("Scrollable middle section.")},
+		{Name: "[data-neo-async-placeholder]",
+			Description: templ.Raw("Resting content inside <code>[data-neo-sidebar-content]</code>; snapshotted on connect and restored on close so each open loads fresh.")},
+		{Name: "[data-neo-sidebar-footer]",
+			Description: templ.Raw("Bottom section.")},
+		{Name: "[data-neo-sidebar-minimized]",
+			Description: templ.Raw("Compact wide-mode closed state.")},
+		{Name: "[data-neo-sidebar-close]",
+			Description: templ.Raw("Any descendant carrying this attribute closes the sidebar on click.")},
+	},
+	Events: []DocEvent{
+		{Name: "neo-sidebar-open", Bubbles: true,
+			Description: templ.Raw("Fires when the sidebar opens.")},
+		{Name: "neo-sidebar-close", Bubbles: true,
+			Description: templ.Raw("Fires when the sidebar closes.")},
+	},
+	CSSProps: []DocCSSProp{
+		{Name: "--neo-sidebar-width", Default: "16rem",
+			Description: templ.Raw("Open column width.")},
+		{Name: "--neo-sidebar-bg", Default: "var(--btn-bg)",
+			Description: templ.Raw("Background color.")},
+		{Name: "--neo-sidebar-fg", Default: "var(--btn-fg)",
+			Description: templ.Raw("Text color.")},
+		{Name: "--neo-sidebar-border-color", Default: "var(--btn-border)",
+			Description: templ.Raw("Edge border color.")},
+		{Name: "--neo-sidebar-padding", Default: "round(calc(var(--page-spacing, 0.25rem) * 3), 1px)",
+			Description: templ.Raw("Padding of header, content, and footer sections.")},
+		{Name: "--neo-sidebar-gap", Default: "round(calc(var(--page-spacing, 0.25rem) * 2), 1px)",
+			Description: templ.Raw("Gap within header and footer rows.")},
+		{Name: "--neo-sidebar-transition-duration", Default: "calc(200ms * var(--neo-duration-scale, 1))",
+			Description: templ.Raw("Open / close animation duration.")},
+		{Name: "--neo-sidebar-overlay-breakpoint", Default: "50rem",
+			Description: templ.Raw("Width below which the sidebar acts as an overlay. The <code>overlay-breakpoint</code> attribute overrides this per instance.")},
+		{Name: "--neo-sidebar-minimized-width", Default: "3.5rem",
+			Description: templ.Raw("Width of the minimized wide-mode rail.")},
+		{Name: "--neo-sidebar-z-index", Default: "60",
+			Description: templ.Raw("Stacking index in overlay mode; the backdrop sits one below.")},
+		{Name: "--neo-sidebar-backdrop-bg", Default: "rgba(0, 0, 0, 0.45)",
+			Description: templ.Raw("Overlay backdrop color.")},
+	},
+}

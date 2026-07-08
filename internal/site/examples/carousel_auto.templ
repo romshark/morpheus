@@ -1,0 +1,29 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ CarouselAutoWidth() {
+	@neo.CarouselAttrs(neo.CarouselOpts{
+		PerView:   neo.Set(-1),
+		Spacing:   neo.Set("0.75rem"),
+		Align:     neo.Set(neo.CarouselAlignEnd),
+		AriaLabel: neo.Set("Slides"),
+	}, templ.Attributes{"class": "cx-grid"}) {
+		@neo.CarouselTrack() {
+			for _, s := range []struct{ Value, Width, Label string }{
+				{"xxl", "26rem", "XXL"},
+				{"xl", "20rem", "XL"},
+				{"l", "16rem", "L"},
+				{"m", "12rem", "M"},
+				{"s", "8rem", "S"},
+				{"xs", "5rem", "XS"},
+			} {
+				@neo.CarouselSlideAttrs(s.Value, templ.Attributes{"style": "display:flex;align-items:center;justify-content:center;height:100%;width:" + s.Width + ";background:var(--btn-bg);border:1px solid var(--btn-border);border-radius:var(--page-radius, 0.5rem);font-weight:600;"}) {
+					{ s.Label }
+				}
+			}
+		}
+		<neo-button class="cx-nav" aria-label="Previous slide" { neo.CarouselPrev()... }><neo-icon name="chevron-left"></neo-icon></neo-button>
+		<neo-button class="cx-nav" aria-label="Next slide" { neo.CarouselNext()... }><neo-icon name="chevron-right"></neo-icon></neo-button>
+	}
+}

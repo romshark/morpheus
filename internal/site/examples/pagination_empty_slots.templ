@@ -1,0 +1,12 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ PaginationEmptySlots() {
+	@neo.Pagination(neo.PaginationOpts{
+		Page: neo.Set(5), Pages: neo.Set(25),
+	}) {
+		<template data-neo-pagination-prev></template>
+		<template data-neo-pagination-next></template>
+	}
+}

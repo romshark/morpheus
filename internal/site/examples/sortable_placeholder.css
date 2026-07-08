@@ -1,0 +1,21 @@
+.sortable-placeholder {
+	width: 100%;
+}
+
+.sortable-placeholder-drop {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.4rem;
+	width: 100%;
+	height: 100%;
+	box-sizing: border-box;
+	border-radius: var(--page-radius, 0.5rem);
+	color: var(--accent);
+	font-size: 0.85rem;
+	font-weight: 600;
+	letter-spacing: 0.02em;
+	background: color-mix(in srgb, var(--accent) 14%, transparent);
+	outline: 2px dashed color-mix(in srgb, var(--accent) 60%, transparent);
+	outline-offset: 7px;
+}

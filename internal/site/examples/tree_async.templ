@@ -1,0 +1,130 @@
+package examples
+
+import (
+	"strings"
+
+	"github.com/romshark/morpheus/neo"
+)
+
+// treeLazyNode is one node of the async-loaded tree. Path uniquely
+// identifies the node; the DOM id is derived from it and posted back to
+// the server on first open.
+type treeLazyNode struct {
+	Path     string
+	Label    string
+	Children []treeLazyNode
+}
+
+var treeLazyData = []treeLazyNode{
+	{Path: "src", Label: "src", Children: []treeLazyNode{
+		{Path: "src/components", Label: "components", Children: []treeLazyNode{
+			{Path: "src/components/Button.tsx", Label: "Button.tsx"},
+			{Path: "src/components/Card.tsx", Label: "Card.tsx"},
+			{Path: "src/components/Modal.tsx", Label: "Modal.tsx"},
+		}},
+		{Path: "src/hooks", Label: "hooks", Children: []treeLazyNode{
+			{Path: "src/hooks/useDebounce.ts", Label: "useDebounce.ts"},
+			{Path: "src/hooks/useMediaQuery.ts", Label: "useMediaQuery.ts"},
+		}},
+		{Path: "src/App.tsx", Label: "App.tsx"},
+	}},
+	{Path: "docs", Label: "docs", Children: []treeLazyNode{
+		{Path: "docs/intro.md", Label: "intro.md"},
+		{Path: "docs/guide", Label: "guide", Children: []treeLazyNode{
+			{Path: "docs/guide/setup.md", Label: "setup.md"},
+			{Path: "docs/guide/usage.md", Label: "usage.md"},
+		}},
+		{Path: "docs/api.md", Label: "api.md"},
+	}},
+	{Path: "tests", Label: "tests", Children: []treeLazyNode{
+		{Path: "tests/unit", Label: "unit", Children: []treeLazyNode{
+			{Path: "tests/unit/parser.test.ts", Label: "parser.test.ts"},
+			{Path: "tests/unit/router.test.ts", Label: "router.test.ts"},
+		}},
+		{Path: "tests/integration.test.ts", Label: "integration.test.ts"},
+	}},
+}
+
+// treeLazyNodeID slugifies a path into a stable DOM id the server posts
+// back to.
+func treeLazyNodeID(path string) string {
+	var b strings.Builder
+	b.WriteString("lazy-tree-node-")
+	lastDash := false
+	for _, r := range path {
+		if (r >= 'A' && r <= 'Z') ||
+			(r >= 'a' && r <= 'z') ||
+			(r >= '0' && r <= '9') {
+			b.WriteRune(r)
+			lastDash = false
+			continue
+		}
+		if !lastDash {
+			b.WriteByte('-')
+			lastDash = true
+		}
+	}
+	return b.String()
+}
+
+// treeLazyItem renders an unloaded branch (skeleton placeholder child)
+// or, when loaded, the branch with its real children. Same-file
+// recursion keeps the embedded source self-contained.
+templ treeLazyItem(n treeLazyNode, loaded bool) {
+	if len(n.Children) == 0 {
+		@neo.TreeItemAttrs(false, templ.Attributes{
+			"id":             treeLazyNodeID(n.Path),
+			"data-tree-path": n.Path,
+		}) {
+			@neo.TreeLabel() {
+				{ n.Label }
+			}
+		}
+	} else if loaded {
+		@neo.TreeItemAttrs(true, templ.Attributes{
+			"id":             treeLazyNodeID(n.Path),
+			"data-tree-path": n.Path,
+		}) {
+			@neo.TreeLabel() {
+				{ n.Label }
+			}
+			for _, c := range n.Children {
+				@treeLazyItem(c, false)
+			}
+		}
+	} else {
+		@neo.TreeItemAttrs(false, templ.Attributes{
+			"id":              treeLazyNodeID(n.Path),
+			"data-tree-path":  n.Path,
+			"data-tree-async": true,
+		}) {
+			@neo.TreeLabel() {
+				{ n.Label }
+			}
+			@treeLazyPlaceholder()
+		}
+	}
+}
+
+templ treeLazyPlaceholder() {
+	@neo.TreeItemAttrs(false, templ.Attributes{"aria-disabled": "true"}) {
+		@neo.TreeLabelAttrs(templ.Attributes{"class": "tree-async-placeholder-label"}) {
+			<neo-skeleton variant="line" class="tree-async-placeholder-skeleton"></neo-skeleton>
+		}
+	}
+}
+
+templ TreeAsync() {
+	<div data-signals:tree_async_node="">
+		@neo.TreeAttrs(templ.Attributes{
+			"id":         "lazy-tree",
+			"aria-label": "Async-loaded tree",
+			"data-on:neo-tree-item-toggle": "if (evt.detail.expanded && evt.target.hasAttribute('data-tree-async')) " +
+				"{ $tree_async_node = evt.detail.id; @post('/tree/loadnode/', {requestCancellation: 'disabled'}) }",
+		}) {
+			for _, n := range treeLazyData {
+				@treeLazyItem(n, false)
+			}
+		}
+	</div>
+}

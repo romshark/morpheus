@@ -1,0 +1,17 @@
+.revealable-styled-host {
+	--neo-revealable-veil: #1e1b4b;
+	--neo-revealable-particle-color: #67e8f9;
+}
+
+.revealable-styled-body {
+	padding: 1rem;
+	max-width: 28rem;
+}
+
+.revealable-styled-title {
+	margin: 0 0 0.5rem;
+}
+
+.revealable-styled-text {
+	margin: 0;
+}

@@ -1,0 +1,20 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ ResizableEdges() {
+	@neo.ResizableAttrs(neo.ResizableOpts[float64]{
+		Handles:   neo.Set(neo.ResizableTop | neo.ResizableBottom | neo.ResizableLeft | neo.ResizableRight),
+		Width:     neo.Set("22rem"),
+		Height:    neo.Set("11rem"),
+		MinWidth:  neo.Set("12rem"),
+		MinHeight: neo.Set("6rem"),
+	}, templ.Attributes{
+		"class": "resizable-demo",
+	}) {
+		<neo-layout column align-items="center" justify-content="center" gap="xs">
+			<strong>Pick an edge</strong>
+			<span>handles="top bottom left right"</span>
+		</neo-layout>
+	}
+}

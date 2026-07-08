@@ -1,0 +1,12 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ ConditionMultiplePlatforms() {
+	@neo.Condition(neo.ConditionOpts{Platform: neo.Set("windows linux")}) {
+		Ctrl-based shortcuts (Windows and Linux).
+	}
+	@neo.Condition(neo.ConditionOpts{Platform: neo.Set("apple")}) {
+		Command-based shortcuts (macOS and iOS).
+	}
+}

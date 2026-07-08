@@ -1,0 +1,154 @@
+/* -----------------------------------------------------------------------
+ * <neo-alert>
+ * -----------------------------------------------------------------------
+ * CSS-only callout surface for status, warning, and error messages.
+ * Markers keep the layout predictable while leaving the light-DOM
+ * content fully author-owned. Variant tokens are intentionally exposed
+ * so themes can tune each alert tone without changing markup.
+ */
+
+:root {
+	--neo-alert-padding-y: calc(var(--page-spacing, 0.25rem) * 4);
+	--neo-alert-padding-x: calc(var(--page-spacing, 0.25rem) * 4);
+	--neo-alert-gap: calc(var(--page-spacing, 0.25rem) * 3);
+	--neo-alert-content-gap: calc(var(--page-spacing, 0.25rem) * 1.5);
+	--neo-alert-action-gap: calc(var(--page-spacing, 0.25rem) * 2);
+	--neo-alert-radius: var(--page-radius, 0.5rem);
+	--neo-alert-border-width: 1px;
+	--neo-alert-neutral-accent: var(--page-fg);
+	--neo-alert-info-accent: var(--accent);
+	--neo-alert-success-accent: oklch(0.55 0.14 145);
+	--neo-alert-warning-accent: oklch(0.68 0.16 70);
+	--neo-alert-danger-accent: var(--danger-bg);
+	--neo-alert-neutral-bg: color-mix(in srgb, var(--neo-alert-neutral-accent) 5%, transparent);
+	--neo-alert-info-bg: color-mix(in srgb, var(--neo-alert-info-accent) 8%, transparent);
+	--neo-alert-success-bg: color-mix(in srgb, var(--neo-alert-success-accent) 9%, transparent);
+	--neo-alert-warning-bg: color-mix(in srgb, var(--neo-alert-warning-accent) 10%, transparent);
+	--neo-alert-danger-bg: color-mix(in srgb, var(--neo-alert-danger-accent) 9%, transparent);
+	--neo-alert-neutral-border-color: color-mix(in srgb, var(--neo-alert-neutral-accent) 18%, transparent);
+	--neo-alert-info-border-color: color-mix(in srgb, var(--neo-alert-info-accent) 28%, transparent);
+	--neo-alert-success-border-color: color-mix(in srgb, var(--neo-alert-success-accent) 28%, transparent);
+	--neo-alert-warning-border-color: color-mix(in srgb, var(--neo-alert-warning-accent) 32%, transparent);
+	--neo-alert-danger-border-color: color-mix(in srgb, var(--neo-alert-danger-accent) 30%, transparent);
+	--neo-alert-accent: var(--neo-alert-neutral-accent);
+	--neo-alert-bg: var(--neo-alert-neutral-bg);
+	--neo-alert-color: var(--page-fg);
+	--neo-alert-border-color: var(--neo-alert-neutral-border-color);
+	--neo-alert-description-color: color-mix(in srgb, var(--neo-alert-color) 70%, transparent);
+	--neo-alert-title-size: 0.95rem;
+	--neo-alert-title-line-height: 1.35;
+	--neo-alert-title-line-size: 1.2825rem;
+	--neo-alert-title-weight: 600;
+	--neo-alert-icon-size: 1.1rem;
+	--neo-alert-icon-margin-top: 0.25rem;
+}
+
+neo-alert {
+	/* Marks this stylesheet as loaded so the kit can flag a trimmed CSS-only component. */
+	--neo-loaded: neo-alert;
+	display: grid;
+	grid-template-columns: auto minmax(0, 1fr);
+	gap: var(--neo-alert-gap);
+	align-items: flex-start;
+	width: 100%;
+	padding: var(--neo-alert-padding-y) var(--neo-alert-padding-x);
+	border: var(--neo-alert-border-width) solid var(--neo-alert-border-color);
+	border-radius: var(--neo-alert-radius);
+	background: var(--neo-alert-bg);
+	color: var(--neo-alert-color);
+	/* No-op until contrast-more; then an inset accent ring thickens the
+	 * edge without the reflow a wider border would cause. */
+	box-shadow: var(--neo-contrast-ring);
+}
+
+neo-alert:not(:has([data-neo-alert-icon])) {
+	grid-template-columns: minmax(0, 1fr);
+}
+
+neo-alert[variant="info"] {
+	--neo-alert-accent: var(--neo-alert-info-accent);
+	--neo-alert-bg: var(--neo-alert-info-bg);
+	--neo-alert-border-color: var(--neo-alert-info-border-color);
+}
+
+neo-alert[variant="success"] {
+	--neo-alert-accent: var(--neo-alert-success-accent);
+	--neo-alert-bg: var(--neo-alert-success-bg);
+	--neo-alert-border-color: var(--neo-alert-success-border-color);
+}
+
+neo-alert[variant="warning"] {
+	--neo-alert-accent: var(--neo-alert-warning-accent);
+	--neo-alert-bg: var(--neo-alert-warning-bg);
+	--neo-alert-border-color: var(--neo-alert-warning-border-color);
+}
+
+neo-alert[variant="danger"] {
+	--neo-alert-accent: var(--neo-alert-danger-accent);
+	--neo-alert-bg: var(--neo-alert-danger-bg);
+	--neo-alert-border-color: var(--neo-alert-danger-border-color);
+}
+
+neo-alert [data-neo-alert-icon] {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 1.25rem;
+	height: var(--neo-alert-icon-size);
+	margin-top: var(--neo-alert-icon-margin-top);
+	color: var(--neo-alert-accent);
+	line-height: 1;
+}
+
+neo-alert [data-neo-alert-icon] > neo-icon {
+	--neo-icon-size: var(--neo-alert-icon-size);
+}
+
+neo-alert [data-neo-alert-content] {
+	display: grid;
+	gap: var(--neo-alert-content-gap);
+	min-width: 0;
+}
+
+neo-alert [data-neo-alert-title] {
+	margin: 0;
+	color: color-mix(in srgb, var(--neo-alert-accent) 82%, var(--page-fg));
+	font-size: var(--neo-alert-title-size);
+	font-weight: var(--neo-alert-title-weight);
+	line-height: var(--neo-alert-title-line-height);
+}
+
+neo-alert [data-neo-alert-description] {
+	margin: 0;
+	color: var(--neo-alert-description-color);
+	line-height: 1.5;
+}
+
+neo-alert [data-neo-alert-actions] {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--neo-alert-action-gap);
+	margin-top: calc(var(--page-spacing, 0.25rem) * 1.5);
+}
+
+/* Match the 2px stroke the kit applies to controls inside the alert
+ * so the styling reads consistently. Variant accent keeps the tone. */
+@media (forced-colors: active) {
+	neo-alert {
+		border-color: CanvasText;
+	}
+}
+
+/* Pin the border to the accent and add a matching inset ring (instead
+ * of a 2px border) so the edge reads as 2px without reflowing. */
+@media (prefers-contrast: more) {
+	neo-alert {
+		--neo-alert-border-color: var(--neo-alert-accent);
+		--neo-contrast-ring: inset 0 0 0 1px var(--neo-alert-accent);
+	}
+}
+
+:root[data-pref-contrast-more] neo-alert {
+	--neo-alert-border-color: var(--neo-alert-accent);
+	--neo-contrast-ring: inset 0 0 0 1px var(--neo-alert-accent);
+}

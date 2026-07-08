@@ -1,0 +1,181 @@
+package site
+
+import (
+	"github.com/romshark/morpheus/internal/href"
+	"github.com/romshark/morpheus/internal/site/examples"
+)
+
+templ PageToggle(morpheusVersion string) {
+	@PageDoc(href.PageToggle(), "Toggle", morpheusVersion) {
+		<section class="demo">
+			@anchoredH2("overview") {
+				Toggle
+			}
+			<p class="intro">
+				Component <code>{ "<neo-toggle>" }</code> is a
+				button with a sticky on/off pressed state. Same
+				visual styling as&nbsp;
+				@ComponentLink("neo-button", href.PageButton())
+				&nbsp;but a click flips <code>aria-pressed</code>:
+				the toolbar "Bold" / "Italic" control. Cluster
+				several inside&nbsp;
+				@ComponentLink("neo-toggle-group", href.PageToggleGroup())
+				&nbsp;to build single- or multi-select toolbars.
+			</p>
+			@Playground(PlaygroundOpts{
+				ID:     "toggle-playground",
+				States: togglePlaygroundStates(),
+			})
+			@anchoredH2("reference") {
+				Reference
+			}
+			@ComponentDocs(toggleDoc)
+		</section>
+		<section class="demo">
+			@anchoredH2("examples") {
+				Examples
+			}
+			@anchoredH3("variants") {
+				Variants
+			}
+			<p class="demo-note">
+				Five fills share the button colour tokens: a
+				neutral default, <code>primary</code> (accent),
+				<code>secondary</code> (muted), <code>ghost</code>
+				(transparent), and <code>danger</code>. Click any
+				toggle to flip its pressed state.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     toggleVariantsHTML,
+				TemplSource:    toggleVariantsTempl,
+			}) {
+				@examples.ToggleVariants()
+			}
+			@anchoredH3("sizes") {
+				Sizes
+			}
+			<p class="demo-note">
+				<code>{ `size="sm"` }</code> tightens padding and
+				font size for dense rows. Omit it for the default
+				size.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     toggleSizesHTML,
+				TemplSource:    toggleSizesTempl,
+			}) {
+				@examples.ToggleSizes()
+			}
+			@anchoredH3("pressed") {
+				Pressed
+			}
+			<p class="demo-note">
+				The sticky on state, reflected to
+				<code>{ `aria-pressed="true"` }</code> so
+				assistive technology reads the toggle correctly.
+				The default variant gets a subtle inset fill; the
+				coloured variants deepen.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     togglePressedHTML,
+				TemplSource:    togglePressedTempl,
+			}) {
+				@examples.TogglePressed()
+			}
+			@anchoredH3("disabled") {
+				Disabled
+			}
+			<p class="demo-note">
+				<code>disabled</code> blocks pointer events,
+				drops the host from the tab order, and fades it.
+				Both the off and pressed-disabled states stay
+				readable so the value is still visible.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     toggleDisabledHTML,
+				TemplSource:    toggleDisabledTempl,
+			}) {
+				@examples.ToggleDisabled()
+			}
+			@anchoredH3("with-icon") {
+				With icon
+			}
+			<p class="demo-note">
+				A <code>{ "<neo-icon>" }</code> as the first child
+				is spaced from the label by the toggle's flex
+				layout and inherits the current font colour, so
+				it recolours with the variant and pressed state.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     toggleWithIconHTML,
+				TemplSource:    toggleWithIconTempl,
+			}) {
+				@examples.ToggleWithIcon()
+			}
+			<p class="demo-note">
+				Mark up both
+				<code>{ `[data-neo-toggle-off]` }</code> and
+				<code>{ `[data-neo-toggle-on]` }</code> children
+				and <code>pressed</code> swaps which one paints,
+				when the toggled state needs a different verb,
+				icon, or both. Click to flip.
+			</p>
+			@toggleSlotDemo()
+		</section>
+	}
+}
+
+// toggleSlotDemo: the slot-driven on / off composition.
+// [data-neo-toggle-off] paints the resting label and
+// [data-neo-toggle-on] the pressed one as `pressed` flips.
+templ toggleSlotDemo() {
+	@anchoredH3("slot-driven-on-off") {
+		Slot-driven on / off
+	}
+	@demoFrameWith(DemoFrameOpts{
+		Width:          "100%",
+		StageMinHeight: "6rem",
+		StageMaxHeight: "16rem",
+		HTMLSource:     toggleSlotHTML,
+		TemplSource:    toggleSlotTempl,
+	}) {
+		@examples.ToggleSlot()
+	}
+}
+
+templ toggleValueDesc() {
+	Selection value inside a&nbsp;
+	@ComponentLink("neo-toggle-group", href.PageToggleGroup())
+	. The group reports pressed children as a comma-separated
+	<code>value</code>.
+}
+
+var toggleDoc = ComponentDoc{
+	Attributes: []DocAttribute{
+		{Name: "pressed", Type: "boolean", Default: "false", Reflected: true, Observed: true,
+			Description: templ.Raw("On/off state. Mirrored to <code>aria-pressed</code>.")},
+		{Name: "disabled", Type: "boolean", Default: "false", Observed: true,
+			Description: templ.Raw("Non-interactive state.")},
+		{Name: "variant", Type: `"primary" | "secondary" | "ghost" | "danger"`,
+			Description: templ.Raw("Visual style. Omit for the default neutral styling.")},
+		{Name: "size", Type: `"sm" | "lg"`,
+			Description: templ.Raw("Control-size step: <code>sm</code> compact, <code>lg</code> large. Omit for the default size.")},
+		{Name: "value", Type: "string", Description: toggleValueDesc()},
+	},
+	Slots: []DocSlot{
+		{Name: "default",
+			Description: templ.Raw("Toggle content. An icon followed by a label is the common composition.")},
+		{Name: "[data-neo-toggle-off]",
+			Description: templ.Raw("Content shown only when the toggle is not pressed. Pair with <code>[data-neo-toggle-on]</code> to swap label and icon by state.")},
+		{Name: "[data-neo-toggle-on]",
+			Description: templ.Raw("Content shown only when the toggle is pressed.")},
+	},
+	Events: []DocEvent{
+		{Name: "neo-toggle-change", Detail: "{ pressed: boolean }", Bubbles: true,
+			Description: templ.Raw("Fires after a click or <code>Enter</code> / <code>Space</code> activation flips <code>pressed</code>.")},
+	},
+}

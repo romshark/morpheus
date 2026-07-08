@@ -1,0 +1,22 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ SliderEasing() {
+	@neo.Slider(neo.SliderOpts[float64]{
+		Min:    neo.Set(0.0),
+		Max:    neo.Set(100.0),
+		Step:   neo.Set(1.0),
+		Value:  neo.Set(20.0),
+		Label:  neo.Set("Launch"),
+		Unit:   neo.Set("%"),
+		Easing: neo.Set("520ms cubic-bezier(0.34, 1.35, 0.64, 1)"),
+		Marks: []neo.SliderMark{
+			{Value: 0, Label: "Idle"},
+			{Value: 25, Label: "Boost"},
+			{Value: 50, Label: "Burn"},
+			{Value: 75, Label: "Orbit"},
+			{Value: 100, Label: "Escape"},
+		},
+	})
+}

@@ -1,0 +1,29 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ BoundaryNested() {
+	@neo.Boundary(neo.BoundaryOpts{}) {
+		<div class="boundary-nested-outer">
+			<p class="boundary-nested-intro">Outer boundary: default scope.</p>
+			@neo.Boundary(neo.BoundaryOpts{Scopes: neo.Set(neo.BoundaryScopes{NoDismiss: true})}) {
+				<div class="boundary-nested-inner">
+					@neo.Popover(neo.PopoverOpts{
+						Placement:    neo.Set(neo.PlacementBottomStart),
+						FollowScroll: neo.Set(neo.PopoverFollowScrollUntilTriggerInvisible),
+					}) {
+						<neo-button { neo.PopoverTrigger()... }>Menu</neo-button>
+						<div { neo.PopoverContent()... }>
+							<p class="boundary-nested-body">
+								The closest boundary defines the rules. Dismiss is off here, so a click
+								anywhere outside this popover closes it, even though the outer boundary
+								enables dismiss scoping. Rules are not inherited.
+							</p>
+						</div>
+					}
+					<p class="boundary-nested-caption">Inner boundary: <code>{ `scope="positioning"` }</code> (no dismiss).</p>
+				</div>
+			}
+		</div>
+	}
+}

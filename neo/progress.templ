@@ -1,0 +1,58 @@
+package neo
+
+// Progress renders <neo-progress> as the bare host: only attributes plus
+// the progressbar ARIA semantics and any author marks as light children.
+// The JS host builds the painted bar (header, track + fill, marks) into a
+// shadow root on connect, kept out of light DOM so a Datastar fat-morph
+// can't wipe it, letting a plain `value` change ease instead of snapping.
+templ Progress[N Number](opts ProgressOpts[N]) {
+	@ProgressAttrs(opts, nil)
+}
+
+// ProgressAttrs is [Progress] with an extra attribute set.
+templ ProgressAttrs[N Number](opts ProgressOpts[N], attrs templ.Attributes) {
+	<neo-progress
+		role="progressbar"
+		aria-valuemin={ formatNumber(opts.min()) }
+		aria-valuemax={ formatNumber(opts.max()) }
+		if !opts.Indeterminate.Or(false) {
+			aria-valuenow={ formatNumber(opts.value()) }
+		}
+		if opts.ariaName() != "" {
+			aria-label={ opts.ariaName() }
+		}
+		{ opts.Min.Attrs("min")... }
+		{ opts.Max.Attrs("max")... }
+		{ opts.Value.Attrs("value")... }
+		{ opts.Label.Attrs("label")... }
+		{ opts.Unit.Attrs("unit")... }
+		{ opts.HideValue.Attrs("hide-value")... }
+		{ opts.Vertical.Attrs("vertical")... }
+		{ opts.Indeterminate.Attrs("indeterminate")... }
+		{ opts.Easing.Attrs("easing")... }
+		{ attrs... }
+	>
+		for _, m := range opts.Marks {
+			<span data-neo-progress-mark={ formatNumber(m.Value) }>{ m.Label }</span>
+		}
+	</neo-progress>
+}
+
+// ProgressMarkAt declares one rail mark as a light-DOM child of
+// <neo-progress>. The host reads these [data-neo-progress-mark] children
+// on connect and builds the anchor dot plus its label (the children;
+// omit them for a bare dot). value is the numeric position; marks outside
+// [min, max] are skipped. The server-prerendered Progress takes marks via
+// ProgressOpts.Marks instead.
+templ ProgressMarkAt[N Number](value N) {
+	@ProgressMarkAtAttrs(value, nil) {
+		{ children... }
+	}
+}
+
+// ProgressMarkAtAttrs is [ProgressMarkAt] with an extra attribute set.
+templ ProgressMarkAtAttrs[N Number](value N, attrs templ.Attributes) {
+	<span data-neo-progress-mark={ formatNumber(value) } { attrs... }>
+		{ children... }
+	</span>
+}

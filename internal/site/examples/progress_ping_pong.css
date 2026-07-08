@@ -1,0 +1,24 @@
+@keyframes pingpong {
+	0% {
+		left: -50%;
+		right: 150%;
+		animation-timing-function: ease-out;
+	}
+	50% {
+		left: 10%;
+		right: 10%;
+		animation-timing-function: ease-in;
+	}
+	100% {
+		left: 150%;
+		right: -50%;
+	}
+}
+
+/* The rail is in the shadow root; reach the fill across the boundary with
+   ::part(fill) and override the default indeterminate animation. */
+neo-progress.pingpong[indeterminate]::part(fill) {
+	inset: 0;
+	width: auto;
+	animation: pingpong 3s infinite;
+}

@@ -1,0 +1,121 @@
+package neo
+
+// MenuMode picks the cascade strategy for nested submenus. Zero value
+// (MenuModeDefault) defers to <neo-menu>'s own default (auto: cascade
+// when there's room, push when there isn't).
+type MenuMode string
+
+const (
+	MenuModeDefault MenuMode = ""
+	MenuModeAuto    MenuMode = "auto"
+	MenuModeCascade MenuMode = "cascade"
+	MenuModePush    MenuMode = "push"
+)
+
+// MenuOpts forwards popover-host attributes onto the inner
+// <neo-popover> the host wires up for cascade and submenu panels.
+type MenuOpts struct {
+	Placement Attr[Placement]
+	Mode      Attr[MenuMode]
+	// Open seeds the open state (server-rendered expanded menu).
+	Open           Attr[bool]
+	ScreenOffset   Attr[CSSUnit]
+	ClampPlacement Attr[bool]
+	MinFitHeight   Attr[CSSUnit]
+	MinFitWidth    Attr[CSSUnit]
+}
+
+// Menu renders <neo-menu>: a triggerless menu panel. Nest it directly
+// inside a <neo-button> (the button becomes the dropdown trigger) or a
+// ContextMenu (opened at the pointer). Its children are the rows
+// (MenuItem / SubMenu / <hr>); it owns all keyboard/submenu behavior.
+templ Menu(opts MenuOpts) {
+	@MenuAttrs(opts, nil) {
+		{ children... }
+	}
+}
+
+// MenuAttrs is [Menu] with an extra attribute set.
+templ MenuAttrs(opts MenuOpts, attrs templ.Attributes) {
+	<neo-menu
+		{ opts.Placement.Attrs("placement")... }
+		{ opts.Mode.Attrs("mode")... }
+		{ opts.Open.Attrs("open")... }
+		{ opts.ScreenOffset.Attrs("screen-offset")... }
+		{ opts.ClampPlacement.Attrs("clamp-placement")... }
+		{ opts.MinFitHeight.Attrs("min-fit-height")... }
+		{ opts.MinFitWidth.Attrs("min-fit-width")... }
+		{ attrs... }
+	>
+		{ children... }
+	</neo-menu>
+}
+
+type MenuItemOpts struct {
+	// Value identifies the item in the `neo-menuitem-select` event.
+	Value Attr[string]
+	// Shortcut is a global hotkey, e.g. "Cmd+S" / "Mod+K" /
+	// "Shift+Alt+P": the host registers a document keydown that
+	// activates the item, and renders a trailing kbd hint.
+	Shortcut Attr[string]
+	Disabled Attr[bool]
+}
+
+// MenuItem renders <neo-menuitem>: a leaf entry inside a Menu or
+// SubMenu.
+templ MenuItem(opts MenuItemOpts) {
+	@MenuItemAttrs(opts, nil) {
+		{ children... }
+	}
+}
+
+// MenuItemAttrs is [MenuItem] with an extra attribute set.
+templ MenuItemAttrs(opts MenuItemOpts, attrs templ.Attributes) {
+	<neo-menuitem
+		{ opts.Value.Attrs("value")... }
+		{ opts.Shortcut.Attrs("shortcut")... }
+		{ opts.Disabled.Attrs("disabled")... }
+		{ attrs... }
+	>
+		{ children... }
+	</neo-menuitem>
+}
+
+// SubMenuOpts forwards popover-host attributes onto the cascade popover.
+type SubMenuOpts struct {
+	// Label is the trigger text in the parent menu row.
+	Label     Attr[string]
+	Placement Attr[Placement]
+	Disabled  Attr[bool]
+	// Open seeds the open state (server-rendered expanded submenu).
+	Open           Attr[bool]
+	ScreenOffset   Attr[CSSUnit]
+	ClampPlacement Attr[bool]
+	MinFitHeight   Attr[CSSUnit]
+	MinFitWidth    Attr[CSSUnit]
+}
+
+// SubMenu renders <neo-submenu>: a nested menu that opens to the side
+// of its parent row.
+templ SubMenu(opts SubMenuOpts) {
+	@SubMenuAttrs(opts, nil) {
+		{ children... }
+	}
+}
+
+// SubMenuAttrs is [SubMenu] with an extra attribute set.
+templ SubMenuAttrs(opts SubMenuOpts, attrs templ.Attributes) {
+	<neo-submenu
+		label={ opts.Label.Or("") }
+		{ opts.Placement.Attrs("placement")... }
+		{ opts.Disabled.Attrs("disabled")... }
+		{ opts.Open.Attrs("open")... }
+		{ opts.ScreenOffset.Attrs("screen-offset")... }
+		{ opts.ClampPlacement.Attrs("clamp-placement")... }
+		{ opts.MinFitHeight.Attrs("min-fit-height")... }
+		{ opts.MinFitWidth.Attrs("min-fit-width")... }
+		{ attrs... }
+	>
+		{ children... }
+	</neo-submenu>
+}

@@ -1,0 +1,15 @@
+.datalist-shared-utc {
+	margin-left: auto;
+	color: var(--muted);
+}
+
+.datalist-shared-row {
+	display: flex;
+	gap: 1rem;
+	flex-wrap: wrap;
+	align-items: start;
+}
+
+.datalist-shared-note {
+	width: 14rem;
+}

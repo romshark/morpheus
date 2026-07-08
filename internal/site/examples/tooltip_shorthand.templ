@@ -1,0 +1,27 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ TooltipShorthand() {
+	@neo.Tooltip(neo.TooltipOpts{Text: neo.Set("Copy to clipboard")}) {
+		@neo.ButtonAttrs(neo.ButtonOpts{}, templ.Attributes{"aria-label": "Copy"}) {
+			@neo.Icon("clipboard")
+		}
+	}
+	@neo.Tooltip(neo.TooltipOpts{
+		Text: neo.Set("Share with teammates"), Placement: neo.Set(neo.PlacementTopStart),
+	}) {
+		@neo.ButtonAttrs(neo.ButtonOpts{}, templ.Attributes{"aria-label": "Share"}) {
+			@neo.Icon("link")
+		}
+	}
+	@neo.Tooltip(neo.TooltipOpts{
+		Text: neo.Set("Delete. This cannot be undone."), Placement: neo.Set(neo.PlacementBottomEnd),
+	}) {
+		@neo.ButtonAttrs(neo.ButtonOpts{Variant: neo.Set(neo.ButtonVariantDanger)}, templ.Attributes{
+			"aria-label": "Delete",
+		}) {
+			@neo.Icon("trash-2")
+		}
+	}
+}

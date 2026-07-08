@@ -1,0 +1,32 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ TooltipDelays() {
+	@neo.TooltipAttrs(neo.TooltipOpts{
+		Text: neo.Set("Instant (hover-open-delay 0)"),
+	}, templ.Attributes{"hover-open-delay": "0"}) {
+		@neo.Button(neo.ButtonOpts{}) {
+			hover-open-delay 0
+		}
+	}
+	@neo.Tooltip(neo.TooltipOpts{Text: neo.Set("Default 350ms")}) {
+		@neo.Button(neo.ButtonOpts{}) {
+			default 350ms
+		}
+	}
+	@neo.Tooltip(neo.TooltipOpts{
+		Text: neo.Set("Slow (1s)"), HoverOpenDelay: neo.Set(1000),
+	}) {
+		@neo.Button(neo.ButtonOpts{}) {
+			hover-open-delay 1000
+		}
+	}
+	@neo.Tooltip(neo.TooltipOpts{
+		Text: neo.Set("Lingers (hover-close-delay 600ms)"), HoverCloseDelay: neo.Set(600),
+	}) {
+		@neo.Button(neo.ButtonOpts{}) {
+			hover-close-delay 600
+		}
+	}
+}

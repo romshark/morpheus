@@ -1,0 +1,34 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ ElasticAsyncPlaceholder() {
+	@neo.LayoutAttrs(
+		neo.LayoutOpts{Direction: neo.Set(neo.Column), AlignItems: neo.Set(neo.AlignItemsFlexStart), Gap: neo.Set(neo.GapNone)},
+		templ.Attributes{"data-signals:elastic_open": "false"},
+	) {
+		@neo.ButtonAttrs(neo.ButtonOpts{}, templ.Attributes{
+			"data-signals:elastic_load": "new AbortController()",
+			"data-on:click":             "$elastic_open = !$elastic_open; if ($elastic_open) { @post('/elastic/async-load/', { requestCancellation: $elastic_load }) } else { $elastic_load.abort(); $elastic_load = new AbortController() }",
+		}) {
+			<span data-text="$elastic_open ? 'Collapse' : 'Load details'">Load details</span>
+		}
+		@neo.ElasticAttrs(
+			neo.ElasticOpts{Collapsed: neo.Set(true), ResetOnCollapse: neo.Set(true)},
+			templ.Attributes{"data-attr:open": "$elastic_open ? 'true' : 'false'", "class": "elastic-async-placeholder"},
+		) {
+			<template { neo.AsyncPlaceholder()... }>
+				<div id="elastic-async-content">
+					<neo-skeleton immediate class="elastic-async-placeholder-line-1"></neo-skeleton>
+					<neo-skeleton immediate class="elastic-async-placeholder-line-2"></neo-skeleton>
+					<neo-skeleton immediate class="elastic-async-placeholder-line-3"></neo-skeleton>
+				</div>
+			</template>
+			<div id="elastic-async-content">
+				<neo-skeleton immediate class="elastic-async-placeholder-line-1"></neo-skeleton>
+				<neo-skeleton immediate class="elastic-async-placeholder-line-2"></neo-skeleton>
+				<neo-skeleton immediate class="elastic-async-placeholder-line-3"></neo-skeleton>
+			</div>
+		}
+	}
+}

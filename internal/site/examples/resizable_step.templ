@@ -1,0 +1,22 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ ResizableStep() {
+	@neo.ResizableAttrs(neo.ResizableOpts[float64]{
+		Handles:        neo.Set(neo.ResizableBottomRight),
+		Width:          neo.Set("240px"),
+		Height:         neo.Set("144px"),
+		MinWidth:       neo.Set("96px"),
+		MinHeight:      neo.Set("72px"),
+		StepHorizontal: neo.Set(24.0),
+		StepVertical:   neo.Set(24.0),
+	}, templ.Attributes{
+		"class": "resizable-step",
+	}) {
+		<neo-layout column align-items="center" justify-content="center" gap="xs">
+			<strong>Drag the corner</strong>
+			<span>step-horizontal="24" step-vertical="24"</span>
+		</neo-layout>
+	}
+}

@@ -1,0 +1,243 @@
+package site
+
+import (
+	"github.com/romshark/morpheus/internal/href"
+	"github.com/romshark/morpheus/internal/site/examples"
+)
+
+templ PageSliderRange(morpheusVersion string) {
+	@PageDoc(href.PageSliderRange(), "Slider range", morpheusVersion) {
+		<section class="demo">
+			@anchoredH2("overview") {
+				Slider range
+			}
+			<p class="intro">
+				Component <code>{ "<neo-slider-range>" }</code> is a
+				two-handle slider picking a
+				<code>{ `[min, max]` }</code> range. The fill spans
+				between the thumbs; each drags independently and is
+				clamped against the other so the low handle can't
+				pass the high handle. Clicking the rail moves the
+				nearer thumb to the click point. Both endpoints have
+				a contenteditable readout with the same number-only
+				input filter as <code>{ `<neo-slider>` }</code>.
+			</p>
+			@Playground(PlaygroundOpts{
+				ID:     "slider-range-playground",
+				States: sliderRangePlaygroundStates(),
+			})
+			@anchoredH2("reference") {
+				Reference
+			}
+			@ComponentDocs(sliderRangeDoc)
+		</section>
+		<section class="demo">
+			@anchoredH2("examples") {
+				Examples
+			}
+			@anchoredH3("decimal-step") {
+				Decimal step
+			}
+			<p class="demo-note">
+				<code>{ `step="0.1"` }</code> snaps
+				both values to one decimal place. The
+				<code>.</code> key is allowed in the value fields
+				because the step is non-integer. Marks show the dB
+				scale's reference points; the active range lights up
+				the marks it covers.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     sliderRangeDecimalHTML,
+				TemplSource:    sliderRangeDecimalTempl,
+			}) {
+				@examples.SliderRangeDecimal()
+			}
+			@anchoredH3("dense-mark-labels") {
+				Dense mark labels
+			}
+			<p class="demo-note">
+				Labels that overlap or sit less than
+				<code>1ch</code> apart collapse automatically.
+				Hover a hidden label to reveal it. When both active
+				extremes compete for the same space, the label
+				closest to either thumb stays visible. Equal
+				distances prefer the high label; hover or focus the
+				lower thumb to prefer the low label instead.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				Width:          "20rem",
+				StageMinHeight: "max-content",
+				HTMLSource:     sliderRangeDenseMarksHTML,
+				TemplSource:    sliderRangeDenseMarksTempl,
+			}) {
+				@examples.SliderRangeDenseMarks()
+			}
+			@anchoredH3("negative-range") {
+				Negative range
+			}
+			<p class="demo-note">
+				When <code>min</code> is below zero
+				both value fields accept a leading
+				<code>-</code>. Useful for symmetric ranges like
+				time offsets or pan positions.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     sliderRangeNegativeHTML,
+				TemplSource:    sliderRangeNegativeTempl,
+			}) {
+				@examples.SliderRangeNegative()
+			}
+			@anchoredH3("custom-easing") {
+				Custom easing
+			}
+			<p class="demo-note">
+				Set <code>easing</code> to animate the
+				thumbs and fill between committed values. Click the
+				rail or nudge with the keyboard to see the
+				transition; dragging still tracks the pointer
+				directly.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     sliderRangeEasingHTML,
+				TemplSource:    sliderRangeEasingTempl,
+			}) {
+				@examples.SliderRangeEasing()
+			}
+			@anchoredH3("vertical-temperature") {
+				Vertical temperature
+			}
+			<p class="demo-note">
+				Set <code>vertical</code> to rotate the
+				layout. The low value sits at the bottom and the
+				high value at the top; pointer dragging follows the
+				vertical rail. Marks light up when the active range
+				covers them.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				Width:          "18rem",
+				Height:         "20rem",
+				StageMinHeight: "20rem",
+				StageMaxHeight: "32rem",
+				HTMLSource:     sliderRangeVerticalHTML,
+				TemplSource:    sliderRangeVerticalTempl,
+			}) {
+				@examples.SliderRangeVertical()
+			}
+			@anchoredH3("bare-rail-no-header") {
+				Bare rail (no header)
+			}
+			<p class="demo-note">
+				Omit <code>label</code> and set
+				<code>hide-value</code> to drop the entire header
+				row. The thumbs still focus on
+				<neo-kbd>Tab</neo-kbd> and the value bubbles still pop on
+				hover/press, so the control stays operable.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     sliderRangeBareHTML,
+				TemplSource:    sliderRangeBareTempl,
+			}) {
+				@examples.SliderRangeBare()
+			}
+			@anchoredH3("disabled") {
+				Disabled
+			}
+			<p class="demo-note">
+				Pointer and keyboard input are ignored,
+				the thumbs leave the tab order, and the host gets a
+				50% opacity overlay.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     sliderRangeDisabledHTML,
+				TemplSource:    sliderRangeDisabledTempl,
+			}) {
+				@examples.SliderRangeDisabled()
+			}
+		</section>
+		<section class="demo">
+			@anchoredH2("examples-datastar") {
+				Examples: Datastar
+			}
+			@anchoredH3("morphing-during-interaction") {
+				Morphing during interaction
+			}
+			<p class="demo-note">
+				A Datastar app can
+				fat-morph the page at any moment, and a server narrowing
+				or widening the band just re-emits the range with new
+				<code>value-min</code> / <code>value-max</code>
+				attributes. The rail, both thumbs, and the fill live in
+				the component's shadow root, so a morph of the bare light
+				host only changes those two attributes and never touches
+				the thumb or fill nodes, so the <code>easing</code>
+				transition eases the band to its new bounds. Autoplay
+				cycles the states below, with no signals or morph hints, and
+				the band glides from Low to Medium to High just the same.
+			</p>
+			@Playground(PlaygroundOpts{
+				ID:       "slider-range-morph-playground",
+				Autoplay: true,
+				States:   sliderRangeMorphStates(),
+			})
+		</section>
+	}
+}
+
+var sliderRangeDoc = ComponentDoc{
+	Attributes: []DocAttribute{
+		{Name: "value-min", Type: "number", Reflected: true, Observed: true,
+			Description: templ.Raw("Lower bound. Normalized against <code>value-max</code>.")},
+		{Name: "value-max", Type: "number", Reflected: true, Observed: true,
+			Description: templ.Raw("Upper bound.")},
+		{Name: "min", Type: "number", Default: "0", Observed: true,
+			Description: templ.Raw("Lower bound.")},
+		{Name: "max", Type: "number", Default: "100", Observed: true,
+			Description: templ.Raw("Upper bound.")},
+		{Name: "step", Type: "number", Default: "1", Observed: true,
+			Description: templ.Raw("Increment between snap points.")},
+		{Name: "label", Type: "string", Observed: true, Description: templ.Raw("Plain-text caption.")},
+		{Name: "unit", Type: "string", Observed: true,
+			Description: templ.Raw("Plain-text suffix; rendered after the upper bound.")},
+		{Name: "hide-value", Type: "boolean", Default: "false", Observed: true,
+			Description: templ.Raw("Suppress the value-pair display.")},
+		{Name: "hide-tooltip", Type: "boolean", Default: "false", Observed: true,
+			Description: templ.Raw("Suppress the hover bubbles.")},
+		{Name: "vertical", Type: "boolean", Default: "false", Observed: true,
+			Description: templ.Raw("Switch to vertical orientation.")},
+		{Name: "disabled", Type: "boolean", Default: "false", Observed: true,
+			Description: templ.Raw("Non-interactive state.")},
+		{Name: "static-marks", Type: "boolean", Default: "false", Observed: true,
+			Description: templ.Raw("Make marks non-interactive.")},
+		{Name: "easing", Type: "string", Observed: true,
+			Description: templ.Raw("CSS transition shorthand for the thumbs.")},
+	},
+	Slots: []DocSlot{
+		{Name: "[data-neo-slider-mark]",
+			Description: templ.Raw("Anchor mark at a numeric value, optionally with a label child.")},
+	},
+	Events: []DocEvent{
+		{Name: "neo-slider-range-input", Detail: "{ min: number, max: number }", Bubbles: true,
+			Description: templ.Raw("Fires on every value change during a pointer drag. Keyboard nav commits via change instead.")},
+		{Name: "neo-slider-range-change", Detail: "{ min: number, max: number }", Bubbles: true,
+			Description: templ.Raw("Fires when the interaction commits.")},
+	},
+	Parts: []DocPart{
+		{Name: "header", Description: templ.Raw("Row holding the label, output, and unit.")},
+		{Name: "label", Description: templ.Raw("Label text.")},
+		{Name: "output", Description: templ.Raw("Wrapper around the min value, separator, and max value.")},
+		{Name: "value-min", Description: templ.Raw("Editable lower-bound value field.")},
+		{Name: "value-max", Description: templ.Raw("Editable upper-bound value field.")},
+		{Name: "separator", Description: templ.Raw("Glyph between the two value fields.")},
+		{Name: "unit", Description: templ.Raw("Unit suffix after the values.")},
+		{Name: "track", Description: templ.Raw("The rail the thumbs travel along.")},
+		{Name: "fill", Description: templ.Raw("Painted segment between the two thumbs.")},
+		{Name: "thumb-min", Description: templ.Raw("Lower-bound drag handle.")},
+		{Name: "thumb-max", Description: templ.Raw("Upper-bound drag handle.")},
+		{Name: "marks", Description: templ.Raw("Container for anchor-mark labels below the track.")},
+	},
+}

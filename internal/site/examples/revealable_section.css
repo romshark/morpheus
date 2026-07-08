@@ -1,0 +1,15 @@
+.revealable-section-host {
+	max-width: 30rem;
+}
+
+.revealable-section-body {
+	padding: 1rem;
+}
+
+.revealable-section-title {
+	margin: 0 0 0.5rem;
+}
+
+.revealable-section-text {
+	margin: 0;
+}

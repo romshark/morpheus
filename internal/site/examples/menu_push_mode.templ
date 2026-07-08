@@ -1,0 +1,40 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ MenuPushMode() {
+	<neo-button>
+		File
+		@neo.Icon("chevrons-up-down")
+		@neo.Menu(neo.MenuOpts{Mode: neo.Set(neo.MenuModePush)}) {
+			@neo.MenuItem(neo.MenuItemOpts{Value: neo.Set("new"), Shortcut: neo.Set("Mod+N")}) {
+				New file
+			}
+			@neo.MenuItem(neo.MenuItemOpts{Value: neo.Set("save"), Shortcut: neo.Set("Mod+S")}) {
+				Save
+			}
+			<hr/>
+			@neo.SubMenu(neo.SubMenuOpts{Label: neo.Set("Open recent")}) {
+				@neo.MenuItem(neo.MenuItemOpts{Value: neo.Set("a")}) {
+					Project A.json
+				}
+				@neo.MenuItem(neo.MenuItemOpts{Value: neo.Set("b")}) {
+					Project B.json
+				}
+			}
+			@neo.SubMenu(neo.SubMenuOpts{Label: neo.Set("Settings")}) {
+				@neo.MenuItem(neo.MenuItemOpts{Value: neo.Set("editor")}) {
+					Editor
+				}
+				@neo.SubMenu(neo.SubMenuOpts{Label: neo.Set("Theme")}) {
+					@neo.MenuItem(neo.MenuItemOpts{Value: neo.Set("light")}) {
+						Light
+					}
+					@neo.MenuItem(neo.MenuItemOpts{Value: neo.Set("dark")}) {
+						Dark
+					}
+				}
+			}
+		}
+	</neo-button>
+}

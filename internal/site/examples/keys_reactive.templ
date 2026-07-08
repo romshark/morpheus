@@ -1,0 +1,25 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ KeysReactive() {
+	<div class="keys-demo" tabindex="0" data-signals="{keys_armed: true, keys_count: 0}">
+		<p class="keys-demo-hint">
+			Focus the panel and press <neo-kbd>↑</neo-kbd>/<neo-kbd>k</neo-kbd>
+			or <neo-kbd>↓</neo-kbd>/<neo-kbd>j</neo-kbd>. Toggle the binding to
+			watch a signal drive the <code>disabled</code> attribute.
+		</p>
+		<p>Counter: <strong data-text="$keys_count"></strong></p>
+		<neo-button data-on:click="$keys_armed = !$keys_armed">
+			<span data-text="$keys_armed ? 'Shortcuts: on' : 'Shortcuts: off'"></span>
+		</neo-button>
+		@neo.KeysAttrs(neo.KeysOpts{Keys: neo.Set("up | k")}, templ.Attributes{
+			"data-attr:disabled": "!$keys_armed",
+			"data-on:neo-keys":   "$keys_count++",
+		})
+		@neo.KeysAttrs(neo.KeysOpts{Keys: neo.Set("down | j")}, templ.Attributes{
+			"data-attr:disabled": "!$keys_armed",
+			"data-on:neo-keys":   "$keys_count--",
+		})
+	</div>
+}

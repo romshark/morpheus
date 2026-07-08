@@ -1,0 +1,212 @@
+/* -----------------------------------------------------------------------
+ * <neo-resizable>
+ * -----------------------------------------------------------------------
+ * A wrapper that can be drag-resized from any subset of its edges and
+ * corners. The host owns its width/height; CSS positions the handles,
+ * picks the right resize cursor, and makes them visible on hover so the
+ * preview-canvas use case (see .resizable-canvas in style.css) doesn't
+ * litter the page with permanently-bright grippers.
+ *
+ * The corners deliberately sit on top of the edges (z-index: 2) so the
+ * NW/SE / NE/SW resize cursor wins where the two would otherwise overlap.
+ */
+
+:root {
+	--neo-resizable-handle-color: var(--muted, currentColor);
+	--neo-resizable-handle-hover-color: var(--page-fg, currentColor);
+	--neo-resizable-handle-opacity: 0.55;
+	--neo-resizable-handle-hover-opacity: 1;
+	--neo-resizable-handle-hover-bg: color-mix(in srgb, var(--page-fg) 5%, transparent);
+	--neo-resizable-edge-thickness: 0.5rem;
+	--neo-resizable-corner-size: 1rem;
+	--neo-resizable-icon-size: 0.85rem;
+}
+
+neo-resizable {
+	position: relative;
+	display: block;
+	box-sizing: border-box;
+}
+
+/* Active drag: lock selection / cursor reflow site-wide for the duration
+ * of the gesture so quick mouse moves outside the handle don't deselect
+ * or hand off the cursor to the underlying content. */
+neo-resizable[resizing] {
+	user-select: none;
+	-webkit-user-select: none;
+}
+
+neo-resizable[resizing][data-neo-resizable-active-handle="top"],
+neo-resizable[resizing][data-neo-resizable-active-handle="bottom"] {
+	cursor: ns-resize;
+}
+
+neo-resizable[resizing][data-neo-resizable-active-handle="left"],
+neo-resizable[resizing][data-neo-resizable-active-handle="right"] {
+	cursor: ew-resize;
+}
+
+neo-resizable[resizing][data-neo-resizable-active-handle="top-left"],
+neo-resizable[resizing][data-neo-resizable-active-handle="bottom-right"] {
+	cursor: nwse-resize;
+}
+
+neo-resizable[resizing][data-neo-resizable-active-handle="top-right"],
+neo-resizable[resizing][data-neo-resizable-active-handle="bottom-left"] {
+	cursor: nesw-resize;
+}
+
+neo-resizable > [data-neo-resizable-handle] > * {
+	pointer-events: none;
+}
+
+:root[data-neo-resizable-cursor="ns-resize"],
+:root[data-neo-resizable-cursor="ns-resize"] *,
+:root:has(neo-resizable > [data-neo-resizable-handle="top"]:hover),
+:root:has(neo-resizable > [data-neo-resizable-handle="top"]:hover) *,
+:root:has(neo-resizable > [data-neo-resizable-handle="bottom"]:hover),
+:root:has(neo-resizable > [data-neo-resizable-handle="bottom"]:hover) * {
+	/* biome-ignore lint/complexity/noImportantStyles: keep hover/drag resize cursors stable over nested interactive content. */
+	cursor: ns-resize !important;
+}
+
+:root[data-neo-resizable-cursor="ew-resize"],
+:root[data-neo-resizable-cursor="ew-resize"] *,
+:root:has(neo-resizable > [data-neo-resizable-handle="left"]:hover),
+:root:has(neo-resizable > [data-neo-resizable-handle="left"]:hover) *,
+:root:has(neo-resizable > [data-neo-resizable-handle="right"]:hover),
+:root:has(neo-resizable > [data-neo-resizable-handle="right"]:hover) * {
+	/* biome-ignore lint/complexity/noImportantStyles: keep hover/drag resize cursors stable over nested interactive content. */
+	cursor: ew-resize !important;
+}
+
+:root[data-neo-resizable-cursor="nwse-resize"],
+:root[data-neo-resizable-cursor="nwse-resize"] *,
+:root:has(neo-resizable > [data-neo-resizable-handle="top-left"]:hover),
+:root:has(neo-resizable > [data-neo-resizable-handle="top-left"]:hover) *,
+:root:has(neo-resizable > [data-neo-resizable-handle="bottom-right"]:hover),
+:root:has(neo-resizable > [data-neo-resizable-handle="bottom-right"]:hover) * {
+	/* biome-ignore lint/complexity/noImportantStyles: keep hover/drag resize cursors stable over nested interactive content. */
+	cursor: nwse-resize !important;
+}
+
+:root[data-neo-resizable-cursor="nesw-resize"],
+:root[data-neo-resizable-cursor="nesw-resize"] *,
+:root:has(neo-resizable > [data-neo-resizable-handle="top-right"]:hover),
+:root:has(neo-resizable > [data-neo-resizable-handle="top-right"]:hover) *,
+:root:has(neo-resizable > [data-neo-resizable-handle="bottom-left"]:hover),
+:root:has(neo-resizable > [data-neo-resizable-handle="bottom-left"]:hover) * {
+	/* biome-ignore lint/complexity/noImportantStyles: keep hover/drag resize cursors stable over nested interactive content. */
+	cursor: nesw-resize !important;
+}
+
+neo-resizable[resizing] > neo-sidebar {
+	/* biome-ignore lint/complexity/noImportantStyles: kill the sidebar's open/close transition while actively resizing. */
+	transition: none !important;
+}
+
+neo-resizable > [data-neo-resizable-handle] {
+	position: absolute;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	color: var(--neo-resizable-handle-color);
+	opacity: var(--neo-resizable-handle-opacity);
+	font-size: var(--neo-resizable-icon-size);
+	box-sizing: border-box;
+	user-select: none;
+	-webkit-user-select: none;
+	touch-action: none;
+	z-index: 1;
+	transition: var(--neo-duration-hover, calc(120ms * var(--neo-duration-scale, 1))) var(--neo-easing, ease);
+	transition-property: opacity, color;
+}
+
+neo-resizable > [data-neo-resizable-handle]:hover,
+neo-resizable[resizing] > [data-neo-resizable-handle] {
+	color: var(--neo-resizable-handle-hover-color);
+	opacity: var(--neo-resizable-handle-hover-opacity);
+	background: var(--neo-resizable-handle-hover-bg);
+}
+
+neo-resizable > [data-neo-resizable-handle="top"],
+neo-resizable > [data-neo-resizable-handle="bottom"] {
+	left: 0;
+	right: 0;
+	height: var(--neo-resizable-edge-thickness);
+	cursor: ns-resize;
+}
+
+neo-resizable > [data-neo-resizable-handle="top"] {
+	top: 0;
+}
+
+neo-resizable > [data-neo-resizable-handle="bottom"] {
+	bottom: 0;
+}
+
+neo-resizable > [data-neo-resizable-handle="left"],
+neo-resizable > [data-neo-resizable-handle="right"] {
+	top: 0;
+	bottom: 0;
+	width: var(--neo-resizable-edge-thickness);
+	cursor: ew-resize;
+}
+
+neo-resizable > [data-neo-resizable-handle="left"] {
+	left: 0;
+}
+
+neo-resizable > [data-neo-resizable-handle="right"] {
+	right: 0;
+}
+
+neo-resizable > [data-neo-resizable-handle="top-left"],
+neo-resizable > [data-neo-resizable-handle="top-right"],
+neo-resizable > [data-neo-resizable-handle="bottom-left"],
+neo-resizable > [data-neo-resizable-handle="bottom-right"] {
+	width: var(--neo-resizable-corner-size);
+	height: var(--neo-resizable-corner-size);
+	z-index: 2;
+}
+
+neo-resizable > [data-neo-resizable-handle="top-left"] {
+	top: 0;
+	left: 0;
+	cursor: nwse-resize;
+}
+
+neo-resizable > [data-neo-resizable-handle="top-right"] {
+	top: 0;
+	right: 0;
+	cursor: nesw-resize;
+}
+
+neo-resizable > [data-neo-resizable-handle="bottom-left"] {
+	bottom: 0;
+	left: 0;
+	cursor: nesw-resize;
+}
+
+neo-resizable > [data-neo-resizable-handle="bottom-right"] {
+	bottom: 0;
+	right: 0;
+	cursor: nwse-resize;
+}
+
+/* The default icons are sized via --neo-icon-size; pin a smaller
+ * footprint here so the gripper sits unobtrusively in the corner /
+ * edge instead of dominating it. */
+neo-resizable > [data-neo-resizable-handle] > neo-icon {
+	--neo-icon-size: var(--neo-resizable-icon-size);
+}
+
+/* Author-supplied [data-neo-resizable-icon] children are templates: the
+ * component lifts them into a managed handle wrapper on upgrade. The
+ * `> [data-neo-resizable-icon]` direct-child selector only matches the raw
+ * pre-hydration markup (after the move, the icon is a grand-child),
+ * so this rule cleanly suppresses the pre-paint flash without
+ * affecting the lifted icon. */
+neo-resizable > [data-neo-resizable-icon] {
+	display: none;
+}

@@ -1,0 +1,6 @@
+.rating-fire {
+	--neo-rating-color: #f97316;
+	--neo-rating-empty-color: color-mix(
+		in srgb, #f97316 22%, transparent);
+	--neo-rating-symbol-gap: 0.5rem;
+}

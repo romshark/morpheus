@@ -1,0 +1,102 @@
+package neo
+
+// SortableOpts is the attribute surface for <neo-sortable>, whose
+// direct element children drag-reorder via pointer, touch, or keyboard.
+type SortableOpts struct {
+	// Orientation constrains pointer travel and the reorder axis.
+	// Zero value defaults to a vertical column; OrientationGrid
+	// enables 2-D reordering.
+	Orientation Attr[Orientation]
+	// Disabled freezes reordering and drops the keyboard grip.
+	Disabled Attr[bool]
+	// Unbounded opts out of the default behavior of clamping the
+	// floating dragged element to the host's bounding box, letting it
+	// follow the pointer anywhere on the page.
+	Unbounded Attr[bool]
+	// Easing for displaced (non-dragged) items: empty omits the
+	// attribute (theme --neo-easing at default duration), a bare
+	// duration ("220ms") pairs with --neo-easing, a full pair is
+	// verbatim. Explicit empty via SortableAttrs disables it.
+	Easing Attr[string]
+	// TolerateReorder relaxes the mid-drag abort rule: by default a
+	// server morph that reorders items aborts the user's drag (the
+	// slot data semantically changed). With TolerateReorder set,
+	// order-only changes are treated as a no-op (same set of ids
+	// and same per-id content, just shuffled) and the drag continues
+	// against the new layout. Content/set changes still abort.
+	TolerateReorder Attr[bool]
+}
+
+// Sortable renders <neo-sortable>. Give each child item a stable `id`
+// so the reorder events' order arrays are meaningful.
+templ Sortable(opts SortableOpts) {
+	@SortableAttrs(opts, nil) {
+		{ children... }
+	}
+}
+
+// SortableAttrs is [Sortable] with an extra attribute set.
+templ SortableAttrs(opts SortableOpts, attrs templ.Attributes) {
+	<neo-sortable
+		{ opts.Orientation.Attrs("orientation")... }
+		{ opts.Disabled.Attrs("disabled")... }
+		{ opts.Unbounded.Attrs("unbounded")... }
+		{ opts.Easing.Attrs("easing")... }
+		{ opts.TolerateReorder.Attrs("tolerate-reorder")... }
+		{ attrs... }
+	>
+		{ children... }
+	</neo-sortable>
+}
+
+// SortableItem emits one item; id is what the reorder events report.
+// Add a SortableHandle child to restrict the drag grip, else the
+// whole item is draggable.
+templ SortableItem(id string) {
+	@SortableItemAttrs(id, nil) {
+		{ children... }
+	}
+}
+
+// SortableItemAttrs is [SortableItem] with an extra attribute set.
+templ SortableItemAttrs(id string, attrs templ.Attributes) {
+	<div id={ id } data-neo-sortable-item { attrs... }>
+		{ children... }
+	</div>
+}
+
+// SortablePlaceholder customizes the drop-gap indicator (default: a
+// dashed slot outline). Its children render inside the same-size gap,
+// replacing the default markup. An inert <template>, so never itself
+// a sortable item.
+templ SortablePlaceholder() {
+	<template data-neo-sortable-placeholder>
+		{ children... }
+	</template>
+}
+
+// SortableHandle is the drag grip. Inside a SortableItem it limits
+// dragging to itself, leaving the rest free for buttons, links, and
+// selection.
+templ SortableHandle() {
+	@SortableHandleAttrs(nil)
+}
+
+// SortableHandleAttrs is [SortableHandle] with an extra attribute set.
+templ SortableHandleAttrs(attrs templ.Attributes) {
+	<span
+		data-neo-sortable-handle
+		aria-hidden="true"
+		{ attrs... }
+	>
+		@Icon("grip-vertical")
+	</span>
+}
+
+// SortableNoDrag marks an interactive descendant (button, link, input) so
+// a pointer-down on it starts no drag, leaving the control usable. Spread
+// onto the element. Only needed when the whole item is draggable (no
+// SortableHandle).
+func SortableNoDrag() templ.Attributes {
+	return templ.Attributes{"data-neo-sortable-nodrag": true}
+}

@@ -1,0 +1,17 @@
+.boundary-positioning-region {
+	height: 13rem;
+	padding: 1rem;
+	border: 1px dashed var(--muted);
+	border-radius: var(--page-radius);
+	display: flex;
+	align-items: flex-end;
+	justify-content: center;
+}
+
+.boundary-positioning-heading {
+	margin: 0 0 0.25rem;
+}
+
+.boundary-positioning-body {
+	margin: 0;
+}

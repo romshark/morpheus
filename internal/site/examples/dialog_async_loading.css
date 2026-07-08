@@ -1,0 +1,24 @@
+.dialog-async-loading-title {
+	width: 50%;
+	height: 1.4rem;
+}
+
+.dialog-async-loading-meta {
+	width: 30%;
+	height: 1rem;
+}
+
+.dialog-async-loading-line-1 {
+	width: 90%;
+	height: 0.85rem;
+}
+
+.dialog-async-loading-line-2 {
+	width: 75%;
+	height: 0.85rem;
+}
+
+.dialog-async-loading-line-3 {
+	width: 80%;
+	height: 0.85rem;
+}

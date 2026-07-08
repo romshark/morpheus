@@ -1,0 +1,21 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ ToasterPatchUpdate() {
+	@neo.ButtonAttrs(neo.ButtonOpts{Variant: neo.Set(neo.ButtonVariantPrimary)}, templ.Attributes{
+		"data-on:click": "@post('/toast/update-title', { requestCancellation: 'disabled' })",
+	}) {
+		Update title
+	}
+	@neo.ToasterAttrs(neo.ToasterOpts{
+		Contained: neo.Set(true),
+		Position:  neo.Set(neo.ToasterPositionBottomRight),
+		Stack:     neo.Set(1),
+	}, templ.Attributes{"id": "my-toaster"}) {
+		@neo.Toast(neo.ToastOpts{}) {
+			<span id="job-42-title" slot="title">Original title</span>
+			<span slot="description">Click "Update title" to morph this label.</span>
+		}
+	}
+}

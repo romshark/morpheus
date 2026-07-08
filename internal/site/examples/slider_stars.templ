@@ -1,0 +1,25 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ SliderStars() {
+	@neo.SliderAttrs(neo.SliderOpts[float64]{
+		Min:   neo.Set(0.0),
+		Max:   neo.Set(5.0),
+		Step:  neo.Set(1.0),
+		Value: neo.Set(3.0),
+		Label: neo.Set("Rating"),
+	}, templ.Attributes{"class": "slider-stars-pg"}) {
+		@neo.SliderMarkAt(1)
+		@neo.SliderMarkAt(2)
+		@neo.SliderMarkAt(3)
+		@neo.SliderMarkAt(4)
+		@neo.SliderMarkAt(5)
+		@neo.SliderAnchor() {
+			@neo.Icon("star")
+		}
+		@neo.SliderThumb() {
+			@neo.Icon("star")
+		}
+	}
+}

@@ -1,0 +1,96 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+// treeExplorerNode is one file-explorer node. Icon names the leading
+// glyph; Branches carry Children, leaves leave it nil.
+type treeExplorerNode struct {
+	Label    string
+	Icon     string
+	Expanded bool
+	Children []treeExplorerNode
+}
+
+var treeExplorerData = []treeExplorerNode{
+	{Label: "src", Icon: "folder", Expanded: true, Children: []treeExplorerNode{
+		{Label: "components", Icon: "folder", Children: []treeExplorerNode{
+			{Label: "Button.tsx", Icon: "file"},
+			{Label: "Card.tsx", Icon: "file"},
+		}},
+		{Label: "App.tsx", Icon: "file"},
+		{Label: "main.tsx", Icon: "file"},
+	}},
+	{Label: "public", Icon: "folder", Children: []treeExplorerNode{
+		{Label: "favicon.svg", Icon: "file"},
+	}},
+	{Label: "package.json", Icon: "file"},
+	{Label: "tsconfig.json", Icon: "file"},
+}
+
+// treeExplorerItem composes a rich row: icon + text + trailing actions.
+// [data-neo-tree-text] takes the available width; [data-neo-tree-actions]
+// pins the trailing button to the tree's right edge.
+templ treeExplorerItem(n treeExplorerNode) {
+	if len(n.Children) == 0 {
+		@neo.TreeItem(false) {
+			@treeExplorerRow(n)
+		}
+	} else {
+		@neo.TreeItem(n.Expanded) {
+			@treeExplorerRow(n)
+			for _, c := range n.Children {
+				@treeExplorerItem(c)
+			}
+		}
+	}
+}
+
+templ treeExplorerRow(n treeExplorerNode) {
+	@neo.TreeLabel() {
+		@neo.Icon(n.Icon)
+		@neo.TreeText() {
+			{ n.Label }
+		}
+		@neo.TreeActions() {
+			<neo-button size="sm" aria-label={ "Preview " + n.Label }>
+				@neo.Icon("eye")
+			</neo-button>
+		}
+	}
+}
+
+templ TreeExplorer() {
+	<neo-layout class="sidebar-preview sidebar-preview--fill">
+		<neo-sidebar id="tree-sidebar" overlay-breakpoint="24rem">
+			@neo.SidebarHeader() {
+				<span>Files</span>
+			}
+			<div { neo.SidebarContent()... }>
+				@neo.TreeAttrs(templ.Attributes{"aria-label": "Project files"}) {
+					for _, n := range treeExplorerData {
+						@treeExplorerItem(n)
+					}
+				}
+			</div>
+		</neo-sidebar>
+		<neo-layout class="sidebar-preview-main" column>
+			<header class="sidebar-preview-bar">
+				<neo-button
+					aria-label="Toggle sidebar"
+					data-on:click="document.getElementById('tree-sidebar').toggle()"
+				>
+					@neo.Icon("menu")
+				</neo-button>
+				<strong>Editor</strong>
+			</header>
+			<div class="sidebar-preview-body">
+				<p>
+					The eye buttons stay flush with the sidebar's right
+					edge no matter how deep the tree nests: that's the
+					<code>[data-neo-tree-actions]</code> wrapper plus
+					<code>{ "margin-left: auto" }</code>.
+				</p>
+			</div>
+		</neo-layout>
+	</neo-layout>
+}

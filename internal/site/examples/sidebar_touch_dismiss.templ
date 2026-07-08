@@ -1,0 +1,60 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ SidebarTouchDismiss() {
+	<neo-layout class="sb-shell">
+		@neo.SidebarAttrs(neo.SidebarOpts{Overlay: neo.Set(true), TouchDismissThreshold: neo.Set("120px")}, templ.Attributes{"id": "demo-sidebar-touch"}) {
+			@neo.SidebarHeader() {
+				<span>Menu</span>
+				@neo.ButtonAttrs(neo.ButtonOpts{}, templ.Attributes{"data-neo-sidebar-close": true, "aria-label": "Close menu"}) {
+					@neo.Icon("x")
+				}
+			}
+			<div { neo.SidebarContent()... }>
+				@neo.NavGroupAttrs(neo.NavGroupOpts{Orientation: neo.Set(neo.OrientationVertical), Wrap: neo.Set(true)}, templ.Attributes{"role": "menu", "aria-label": "Touch-dismiss nav", "class": "sb-touch-dismiss-menu"}) {
+					@neo.ButtonAttrs(neo.ButtonOpts{}, neo.NavGroupItem()) {
+						@neo.Icon("home")
+						{ " " }Home
+					}
+					@neo.ButtonAttrs(neo.ButtonOpts{}, neo.NavGroupItem()) {
+						@neo.Icon("heart")
+						{ " " }Favorites
+					}
+					@neo.ButtonAttrs(neo.ButtonOpts{}, neo.NavGroupItem()) {
+						@neo.Icon("mail")
+						{ " " }Inbox
+					}
+					@neo.ButtonAttrs(neo.ButtonOpts{}, neo.NavGroupItem()) {
+						@neo.Icon("settings")
+						{ " " }Settings
+					}
+				}
+				@neo.SliderAttrs(neo.SliderOpts[float64]{
+					Min:   neo.Set(0.0),
+					Max:   neo.Set(100.0),
+					Value: neo.Set(40.0),
+					Label: neo.Set("Volume"),
+				}, templ.Attributes{"class": "sb-touch-dismiss-slider"})
+			</div>
+		}
+		<neo-layout class="sb-main" column>
+			<header class="sb-bar">
+				@neo.ButtonAttrs(neo.ButtonOpts{}, templ.Attributes{"aria-label": "Open menu", "data-on:click": "document.getElementById('demo-sidebar-touch').show()"}) {
+					@neo.Icon("menu")
+				}
+				<strong>Workspace</strong>
+			</header>
+			<div class="sb-body">
+				<p class="sb-touch-dismiss-hint">
+					@neo.IconAttrs("info", templ.Attributes{"aria-hidden": "true"})
+					{ " " }Touch devices only.
+				</p>
+				<p>
+					Open the menu, then swipe it left (toward its anchored side) to
+					drag it out. Release past the 120px threshold to close.
+				</p>
+			</div>
+		</neo-layout>
+	</neo-layout>
+}

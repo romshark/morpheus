@@ -1,0 +1,31 @@
+/* -----------------------------------------------------------------------
+ * <neo-progress>: global (light-DOM) half
+ * -----------------------------------------------------------------------
+ * The painted bar (header, track, fill, marks) lives in the host's SHADOW
+ * root, styled by the adopted neo-progress.css. This file holds only what
+ * must resolve OUTSIDE the shadow:
+ *
+ *   - the `--neo-progress-*` token defaults the shadow rules read (custom
+ *     properties inherit across the boundary into the shadow);
+ *   - the manual reduced-motion hook below.
+ *
+ * First paint needs nothing here: before upgrade the host matches
+ * `neo-progress:not(:defined)` (a skeleton placeholder in style.css); after
+ * upgrade the adopted `:host` rules take over.
+ *
+ * `--neo-slider-*` tokens (consumed by the shadow rules) are defined in
+ * neo-slider.css and inherit through the host. Keep that file global. */
+
+:root {
+	--neo-progress-fill-bg: var(--neo-slider-fill-bg, var(--accent));
+	--neo-progress-indeterminate-duration: calc(1.4s * var(--neo-duration-scale, 1));
+}
+
+/* The painted rail is in the shadow, out of reach of the site's manual
+ * reduced-motion toggle (a descendant selector can't cross the boundary).
+ * Flip the inherited animation-name to `none` so the shadow's indeterminate
+ * rule stops animating. See neo-progress.css. OS `prefers-reduced-motion`
+ * is handled directly inside the shadow sheet. */
+:root[data-pref-reduced-motion] {
+	--neo-progress-indeterminate-name: none;
+}

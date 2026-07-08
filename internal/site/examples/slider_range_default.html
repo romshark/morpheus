@@ -1,0 +1,8 @@
+<neo-slider-range
+  data-signals="{slider_range_value_min: '20', slider_range_value_max: '60'}"
+  min="0" max="100" step="1"
+  data-attr:value-min="$slider_range_value_min"
+  data-attr:value-max="$slider_range_value_max"
+  data-on:neo-slider-range-input="$slider_range_value_min = Number(evt.detail.min); $slider_range_value_max = Number(evt.detail.max)"
+  label="Volume" unit="%"
+></neo-slider-range>

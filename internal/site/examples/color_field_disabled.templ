@@ -1,0 +1,11 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ ColorFieldDisabled() {
+	@neo.ColorField(neo.ColorFieldOpts[float64]{
+		Value:     neo.Set("#16a34a"),
+		Disabled:  neo.Set(true),
+		AriaLabel: neo.Set("Disabled color"),
+	})
+}

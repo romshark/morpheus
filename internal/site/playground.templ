@@ -1,0 +1,362 @@
+package site
+
+import "github.com/romshark/morpheus/neo"
+
+// Playground renders the reusable component-doc playground shell.
+// State templates are trusted docs source and become editable in-page.
+templ Playground(opts PlaygroundOpts) {
+	<site-playground
+		id={ opts.ID }
+		class="component-playground"
+		autoplay?={ opts.Autoplay }
+		data-signals={ playgroundSignals(opts) }
+		data-on:site-playground-patch-elements={ playgroundPatchElementsHandler(opts) }
+		data-on:site-playground-patch-signals={ playgroundPatchSignalsHandler(opts) }
+	>
+		<neo-layout class="component-playground-toolbar" align-items="stretch" container>
+			@neo.ButtonAttrs(neo.ButtonOpts{}, templ.Attributes{
+				"class":          "component-playground-add",
+				"aria-label":     "Duplicate default state",
+				"title":          "Duplicate default state",
+				"neo-hide-below": "sm",
+			}) {
+				@neo.Icon("plus")
+			}
+			@neo.ContextMenuAttrs(neo.ContextMenuOpts{ClampPlacement: neo.Set(true)}, templ.Attributes{
+				"class": "component-playground-states-menu",
+			}) {
+				@neo.SortableAttrs(neo.SortableOpts{
+					Orientation: neo.Set(neo.OrientationHorizontal),
+				}, templ.Attributes{
+					"class":                        "component-playground-states",
+					"aria-label":                   "Preview states",
+					"data-neo-contextmenu-trigger": true,
+					// Don't add a tab stop; the contextmenu only sets
+					// tabindex when absent, and Shift+F10 still bubbles
+					// here from a focused handle / name / eye.
+					"tabindex": "-1",
+				}) {
+					for i, state := range opts.States {
+						@playgroundStateButton(opts.ID, i, state.Label)
+					}
+				}
+				@neo.Menu(neo.MenuOpts{}) {
+					@neo.MenuItem(neo.MenuItemOpts{Value: neo.Set("toggle")}) {
+						Deactivate
+					}
+					@neo.MenuItem(neo.MenuItemOpts{Value: neo.Set("rename")}) {
+						Rename
+					}
+					@neo.MenuItem(neo.MenuItemOpts{Value: neo.Set("duplicate")}) {
+						Duplicate
+					}
+					<hr/>
+					@neo.MenuItem(neo.MenuItemOpts{Value: neo.Set("delete")}) {
+						Delete
+					}
+				}
+			}
+			@neo.ToggleAttrs(neo.ToggleOpts{}, templ.Attributes{
+				"class":          "component-playground-play",
+				"aria-label":     "Autoplay states",
+				"title":          "Autoplay states",
+				"neo-hide-below": "sm",
+			}) {
+				<span data-neo-toggle-off>
+					@neo.Icon("play")
+				</span>
+				<span data-neo-toggle-on>
+					@neo.Icon("pause")
+				</span>
+			}
+			@playgroundSimWarning()
+			@neo.ButtonAttrs(neo.ButtonOpts{}, templ.Attributes{
+				"class":          "component-playground-menu",
+				"aria-label":     "Playground options",
+				"title":          "Playground options",
+				"neo-show-below": "sm",
+			}) {
+				@neo.Icon("more-horizontal")
+				@neo.Menu(neo.MenuOpts{Placement: neo.Set(neo.PlacementBottomEnd)}) {
+					@neo.MenuItem(neo.MenuItemOpts{Value: neo.Set("new")}) {
+						@neo.Icon("plus")
+						New state
+					}
+					@neo.MenuItem(neo.MenuItemOpts{Value: neo.Set("play")}) {
+						@neo.Icon("play")
+						Toggle autoplay
+					}
+				}
+			}
+		</neo-layout>
+		@boundary(opts.Boundary) {
+			@neo.ResizableAttrs(neo.ResizableOpts[float64]{
+				Handles:   neo.Set(neo.ResizableBottom | neo.ResizableRight | neo.ResizableBottomRight),
+				MinWidth:  neo.Set(opts.stageMinWidth()),
+				MaxWidth:  neo.Set("100%"),
+				MinHeight: neo.Set("10rem"),
+				MaxHeight: neo.Set("48rem"),
+				Height:    neo.Set(opts.Height),
+			}, templ.Attributes{
+				"class":    "component-playground-stage",
+				"tabindex": "-1",
+			}) {
+				<div id={ opts.ID + "-preview" } class="component-playground-preview">
+					@templ.Raw(playgroundInitialHTML(opts.States))
+				</div>
+			}
+		}
+		@neo.ResizableAttrs(neo.ResizableOpts[float64]{
+			Handles:   neo.Set(neo.ResizableBottom),
+			Height:    neo.Set("22rem"),
+			MinHeight: neo.Set("18rem"),
+			MaxHeight: neo.Set("44rem"),
+		}, templ.Attributes{
+			"class": "component-playground-editors-resize",
+		}) {
+			<div class="component-playground-editors">
+				<section class="component-playground-pane component-playground-code">
+					@neo.TabsAttrs(neo.TabsOpts{Value: neo.Set("html")}, templ.Attributes{
+						"class": "component-playground-code-tabs",
+					}) {
+						<div class="component-playground-pane-head">
+							@neo.TabList("Editor source") {
+								@neo.Tab("html", "html") {
+									HTML
+								}
+								@neo.Tab("css", "html") {
+									CSS
+								}
+							}
+							@playgroundPaneInfo("HTML and CSS") {
+								The selected state's markup and its scoped CSS.
+								The CSS is wrapped in
+								<code>{ `<style>@scope { ... }</style>` }</code>
+								and applies to the preview only. Edits change
+								the preview above, applied live while Sync is
+								on, or when you click Patch.
+							}
+						</div>
+						@neo.TabPanel("html", "html") {
+							<site-codemirror
+								language="html"
+								data-editor="html"
+								aria-label="Preview HTML"
+							></site-codemirror>
+						}
+						@neo.TabPanel("css", "html") {
+							<site-codemirror
+								language="css"
+								data-editor="css"
+								aria-label="Preview CSS"
+							></site-codemirror>
+						}
+					}
+					<footer>
+						<label>
+							@neo.Switch(neo.SwitchOpts{
+								Checked:   neo.Set(true),
+								AriaLabel: neo.Set("Sync source changes"),
+							})
+							<span>Sync</span>
+						</label>
+						@neo.ButtonAttrs(neo.ButtonOpts{}, templ.Attributes{
+							"class": "component-playground-patch-code",
+						}) {
+							Patch
+						}
+					</footer>
+				</section>
+				<section class="component-playground-pane component-playground-signals">
+					@playgroundPaneHead("Signals") {
+						@linkChip("Datastar signals", "https://data-star.dev/guide/reactive_signals")
+						{ " " }declared in the selected state's markup. Change
+						a value to drive the preview, applied live while Sync
+						is on, or when you click Patch.
+					}
+					<div class="component-playground-signal-list"></div>
+					<footer>
+						<label>
+							@neo.Switch(neo.SwitchOpts{
+								Checked:   neo.Set(true),
+								AriaLabel: neo.Set("Sync signal changes"),
+							})
+							<span>Sync</span>
+						</label>
+						@neo.ButtonAttrs(neo.ButtonOpts{}, templ.Attributes{
+							"class": "component-playground-patch-signals",
+						}) {
+							Patch
+						}
+					</footer>
+				</section>
+			</div>
+		}
+		for _, state := range opts.States {
+			<template data-playground-state data-label={ state.Label }>
+				{ state.HTML }
+			</template>
+			<template data-playground-css>{ state.CSS }</template>
+		}
+		@playgroundSimulator()
+	</site-playground>
+}
+
+templ playgroundStateButton(id string, index int, label string) {
+	@neo.SortableItemAttrs(playgroundStateID(id, index), templ.Attributes{
+		"class":                 "component-playground-state",
+		"data-playground-index": index,
+		"data-active":           index == 0,
+		"title":                 "Select " + label,
+	}) {
+		<span
+			data-neo-sortable-handle
+			aria-label={ "Reorder " + label }
+			title="Reorder state"
+		>
+			@neo.IconAttrs("grip-vertical", templ.Attributes{"aria-hidden": "true"})
+		</span>
+		<span
+			class="component-playground-state-name"
+			tabindex="0"
+			title="Double-click or press Enter to rename"
+		>{ label }</span>
+		@neo.ToggleAttrs(neo.ToggleOpts{
+			Pressed: neo.Set(true),
+			Size:    neo.Set("sm"),
+		}, templ.Attributes{
+			"class":      "component-playground-enable-state",
+			"aria-label": "Include " + label + " in autoplay",
+			"title":      "Include in autoplay",
+		}) {
+			<span data-neo-toggle-on>
+				@neo.Icon("eye")
+			</span>
+			<span data-neo-toggle-off>
+				@neo.Icon("eye-closed")
+			</span>
+		}
+	}
+}
+
+// playgroundPaneHead renders a pane heading with an info popover whose
+// body (children) explains what the pane edits.
+templ playgroundPaneHead(heading string) {
+	<div class="component-playground-pane-head">
+		<h3>{ heading }</h3>
+		@playgroundPaneInfo(heading) {
+			{ children... }
+		}
+	</div>
+}
+
+// playgroundPaneInfo renders the info popover trigger and panel. label
+// names the panel for assistive tech; children are the explanatory body.
+templ playgroundPaneInfo(label string) {
+	@neo.PopoverAttrs(neo.PopoverOpts{
+		Placement:      neo.Set(neo.PlacementBottomEnd),
+		ClampPlacement: neo.Set(true),
+		// A preview patch reflows the page and moves the trigger;
+		// track it while visible rather than dismissing on scroll.
+		FollowScroll: neo.Set(neo.PopoverFollowScrollUntilTriggerInvisible),
+	}, templ.Attributes{
+		"class": "component-playground-info-pop",
+	}) {
+		@neo.ButtonAttrs(neo.ButtonOpts{}, templ.Attributes{
+			"data-neo-popover-trigger": true,
+			"class":                    "component-playground-info",
+			"aria-label":               "About the " + label + " panel",
+			"title":                    "About the " + label + " panel",
+		}) {
+			@neo.IconAttrs("info", templ.Attributes{"aria-hidden": "true"})
+		}
+		<div class="component-playground-info-panel" { neo.PopoverContent()... }>
+			<p>
+				{ children... }
+			</p>
+		</div>
+	}
+}
+
+// playgroundSimWarning is a toolbar warning popover shown only while the
+// simulator is throttled, erroring, or unreachable, so the preview's odd
+// behavior reads as configured rather than broken.
+templ playgroundSimWarning() {
+	@neo.PopoverAttrs(neo.PopoverOpts{
+		Placement:      neo.Set(neo.PlacementBottomEnd),
+		ClampPlacement: neo.Set(true),
+		FollowScroll:   neo.Set(neo.PopoverFollowScrollUntilTriggerInvisible),
+	}, templ.Attributes{
+		"class": "component-playground-info-pop component-playground-sim-warning",
+		// Hidden at parse time to avoid a flash before Datastar runs.
+		// data-show removes the inline display when the guard is true.
+		"style":     "display:none",
+		"data-show": playgroundSimWarningShow,
+	}) {
+		@neo.ButtonAttrs(neo.ButtonOpts{}, templ.Attributes{
+			"data-neo-popover-trigger": true,
+			"class":                    "component-playground-info component-playground-sim-warning-btn",
+			"aria-label":               "Simulator settings affect this preview",
+			"title":                    "Simulator settings affect this preview",
+		}) {
+			@neo.IconAttrs("triangle-alert", templ.Attributes{"aria-hidden": "true"})
+		}
+		<div class="component-playground-info-panel" { neo.PopoverContent()... }>
+			<p>
+				The preview routes through the in-browser server
+				simulator. Its current Settings (network latency, a
+				non-200 response, or an unreachable server) are in effect,
+				so the live preview can look like it is misbehaving.
+				Adjust them in the Settings panel.
+			</p>
+		</div>
+	}
+}
+
+templ playgroundSimulator() {
+	<script type="module">
+		import sim from "/static/datasim.js";
+
+		if (!window.__morpheusPlaygroundSimulator) {
+			window.__morpheusPlaygroundSimulator = true;
+
+			const escAttr = (value) =>
+				String(value)
+					.replace(/&/g, "&amp;")
+					.replace(/"/g, "&quot;")
+					.replace(/</g, "&lt;");
+
+			sim.post("/playground/:id/elements/", async (ctx, sse) => {
+				const id = ctx.params.id;
+				const prefix = id
+					.replace(/[^A-Za-z0-9_]/g, "_")
+					.replace(/^[0-9]/, "_");
+				const code = String(ctx.signals?.[prefix + "_code"] ?? "");
+				sse.patchElements(
+					`<div id="${escAttr(id)}-preview"` +
+						` class="component-playground-preview">` +
+						code +
+					`</div>`,
+				);
+			});
+
+			sim.post("/playground/:id/signals/", async (ctx, sse) => {
+				const id = ctx.params.id;
+				const prefix = id
+					.replace(/[^A-Za-z0-9_]/g, "_")
+					.replace(/^[0-9]/, "_");
+				const raw = ctx.signals?.[prefix + "_signals"];
+				if (typeof raw !== "string") return;
+				let signals;
+				try {
+					signals = JSON.parse(raw);
+				} catch {
+					return;
+				}
+				if (!signals || Array.isArray(signals) ||
+					typeof signals !== "object") return;
+				sse.patchSignals(signals);
+			});
+		}
+	</script>
+}

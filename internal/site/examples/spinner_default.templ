@@ -1,0 +1,10 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ SpinnerDefault() {
+	<span class="spinner-default-item">
+		@neo.SpinnerAttrs(templ.Attributes{"aria-hidden": "true"})
+		Loading…
+	</span>
+}

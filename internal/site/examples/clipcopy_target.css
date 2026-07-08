@@ -1,0 +1,9 @@
+.clipcopy-target-code {
+	align-self: center;
+	font-family: ui-monospace, monospace;
+	font-size: 0.9em;
+	padding: 0.35rem 0.6rem;
+	border-radius: 0.4rem;
+	background: rgba(127, 127, 127, 0.12);
+	user-select: all;
+}

@@ -1,0 +1,30 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ BreadcrumbChips() {
+	<neo-breadcrumb aria-label="Breadcrumb">
+		<span class="breadcrumb-chips-crumb">
+			<span aria-hidden="true" class="breadcrumb-chips-dot">●</span>
+			<a href="#">Docs</a>
+		</span>
+		@neo.BreadcrumbSep() {
+			@neo.Icon("chevron-right")
+		}
+		<span class="breadcrumb-chips-crumb">
+			<span aria-hidden="true" class="breadcrumb-chips-dot">●</span>
+			<a href="#">Reference</a>
+		</span>
+		@neo.BreadcrumbSep() {
+			@neo.Icon("chevron-right")
+		}
+		<span class="breadcrumb-chips-crumb">
+			<span aria-hidden="true" class="breadcrumb-chips-dot">●</span>
+			<a href="#">Components</a>
+		</span>
+		@neo.BreadcrumbSep() {
+			@neo.Icon("chevron-right")
+		}
+		<span aria-current="page" class="breadcrumb-chips-current">Breadcrumb</span>
+	</neo-breadcrumb>
+}

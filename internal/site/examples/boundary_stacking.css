@@ -1,0 +1,63 @@
+.boundary-stacking {
+	position: relative;
+	padding: 1.5rem;
+	min-height: 18rem;
+}
+
+.boundary-stacking-overlay {
+	position: absolute;
+	left: 1.5rem;
+	right: 1.5rem;
+	top: 8rem;
+	height: 2.75rem;
+	z-index: 100;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0 1rem;
+	border-radius: var(--page-radius);
+	background: #4f46e5;
+	box-shadow: 0 6px 16px -6px rgba(0, 0, 0, 0.45);
+	font-size: 0.85rem;
+	font-weight: 600;
+	color: #ffffff;
+}
+
+.boundary-stacking-row {
+	display: flex;
+	gap: 1rem;
+	align-items: flex-start;
+}
+
+.boundary-stacking-col {
+	flex: 1;
+}
+
+.boundary-stacking-panel {
+	min-height: 14rem;
+	padding: 1rem;
+	border: 1px dashed var(--muted);
+	border-radius: var(--page-radius);
+}
+
+.boundary-stacking-label {
+	margin: 0 0 0.75rem;
+	font-weight: 600;
+}
+
+.boundary-stacking-heading {
+	margin: 0 0 0.5rem;
+}
+
+.boundary-stacking-line {
+	margin: 0;
+}
+
+.boundary-stacking-line-sm {
+	margin: 0.5rem 0 0;
+}
+
+.boundary-stacking-line-muted {
+	margin: 0.5rem 0 0;
+	color: var(--muted);
+}

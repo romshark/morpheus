@@ -1,0 +1,76 @@
+/* -----------------------------------------------------------------------
+ * <neo-option>
+ * ----------------------------------------------------------------------- */
+
+:root {
+	--neo-select-option-radius: var(--page-radius, 0.25rem);
+	--neo-select-option-padding: calc(var(--page-spacing, 0.25rem) * 1.5) calc(var(--page-spacing, 0.25rem) * 2.5);
+	--neo-select-option-gap: calc(var(--page-spacing, 0.25rem) * 2);
+	--neo-select-option-hover-bg: rgba(127, 127, 127, 0.12);
+	--neo-select-option-selected-bg: var(--neo-button-focus-ring);
+	--neo-select-option-selected-color: var(--neo-popover-bg);
+}
+
+neo-option {
+	display: flex;
+	align-items: center;
+	gap: var(--neo-select-option-gap);
+}
+
+/* `display: flex` above overrides the UA `[hidden] { display: none }`,
+ * so the combobox's search filter (which toggles `hidden` on options)
+ * would otherwise leave filtered rows visible. */
+neo-option[hidden] {
+	display: none;
+}
+
+neo-option[role="option"] {
+	padding: var(--neo-select-option-padding);
+	border-radius: var(--neo-select-option-radius);
+	cursor: pointer;
+	user-select: none;
+	-webkit-user-select: none;
+}
+
+neo-option[role="option"]:hover {
+	background: var(--neo-select-option-hover-bg);
+}
+
+neo-option[role="option"][aria-selected="true"] {
+	background: var(--neo-select-option-selected-bg);
+	color: var(--neo-select-option-selected-color);
+}
+
+neo-option[role="option"][aria-disabled="true"] {
+	opacity: 0.5;
+	cursor: not-allowed;
+	background-image: var(--neo-disabled-overlay);
+}
+
+neo-option[role="option"]:focus {
+	outline: none;
+}
+
+neo-option[role="option"]:focus-visible {
+	outline: 2px solid var(--neo-button-focus-ring);
+	outline-offset: -2px;
+}
+
+/* When the row is *both* selected and focus-visible, the default
+ * outline colour (--neo-button-focus-ring) collides with the
+ * selection background (which resolves to the same accent), and
+ * any single replacement colour collides with one surface or the
+ * other (the accent fill of the row, or the popover panel
+ * around it). Use a two-tone inset ring instead: an outer band
+ * in --page-fg (dark on light themes, light on dark) plus an
+ * inner band in --neo-popover-bg (the inverse). Whichever theme
+ * is active, one of the two tones is high-contrast against the
+ * accent fill and the row reads as unambiguously focused. Most
+ * visible in multi-select where several rows can be aria-
+ * selected at once. */
+neo-option[role="option"][aria-selected="true"]:focus-visible {
+	outline: none;
+	box-shadow:
+		inset 0 0 0 2px var(--page-fg),
+		inset 0 0 0 4px var(--neo-popover-bg);
+}

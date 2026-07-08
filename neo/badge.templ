@@ -1,0 +1,36 @@
+package neo
+
+// BadgeVariant is the visual style enum for <neo-badge>. Zero value
+// (BadgeVariantNeutral) renders the default neutral chip and emits no
+// `variant` attribute.
+type BadgeVariant string
+
+const (
+	BadgeVariantNeutral   BadgeVariant = ""
+	BadgeVariantPrimary   BadgeVariant = "primary"
+	BadgeVariantSecondary BadgeVariant = "secondary"
+	BadgeVariantDanger    BadgeVariant = "danger"
+	BadgeVariantOutline   BadgeVariant = "outline"
+)
+
+type BadgeOpts struct {
+	Variant Attr[BadgeVariant]
+}
+
+// Badge renders <neo-badge>, a small inline label / chip for status,
+// counts, tags, and category markers. No JS; visuals from morpheus.css.
+templ Badge(opts BadgeOpts) {
+	@BadgeAttrs(opts, nil) {
+		{ children... }
+	}
+}
+
+// BadgeAttrs is [Badge] with an extra attribute set.
+templ BadgeAttrs(opts BadgeOpts, attrs templ.Attributes) {
+	<neo-badge
+		{ opts.Variant.Attrs("variant")... }
+		{ attrs... }
+	>
+		{ children... }
+	</neo-badge>
+}

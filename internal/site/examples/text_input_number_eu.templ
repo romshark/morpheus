@@ -1,0 +1,14 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ TextInputNumberEu() {
+	@neo.TextInput(neo.TextInputOpts{
+		Format:             neo.Set(neo.TextInputFormatNumber),
+		DecimalPlaces:      neo.Set(2),
+		DecimalMark:        neo.Set(","),
+		ThousandsSeparator: neo.Set("."),
+		Inputmode:          neo.Set(neo.TextInputInputmodeDecimal),
+		Placeholder:        neo.Set("0,00"),
+	})
+}

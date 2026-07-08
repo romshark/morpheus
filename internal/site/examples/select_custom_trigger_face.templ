@@ -1,0 +1,151 @@
+package examples
+
+import (
+	"github.com/romshark/morpheus/internal/href"
+	"github.com/romshark/morpheus/neo"
+)
+
+templ SelectCustomTriggerFace() {
+	@neo.Select(neo.SelectOpts{
+		Value:       neo.Set("evelyn_kone"),
+		AriaLabel:   neo.Set("Project owner (custom face)"),
+		Placeholder: neo.Set("Pick an owner"),
+	}) {
+		@neo.Option(neo.OptionOpts{Value: neo.Set("diego_vega")}) {
+			@neo.OptionTrigger() {
+				<neo-avatar class="select-custom-trigger-face-avatar-sm" aria-hidden="true">
+					<img src={ href.Asset("avatar/avatar_1.svg") } alt=""/>
+				</neo-avatar>
+				<span class="select-custom-trigger-face-name">Diego Vega</span>
+			}
+			<div class="select-custom-trigger-face-row">
+				<neo-avatar class="select-custom-trigger-face-avatar-lg" aria-hidden="true">
+					<img src={ href.Asset("avatar/avatar_1.svg") } alt=""/>
+				</neo-avatar>
+				<div class="select-custom-trigger-face-col">
+					<div class="select-custom-trigger-face-name">Diego Vega</div>
+					<div class="select-custom-trigger-face-subtitle">CFO</div>
+				</div>
+			</div>
+		}
+		@neo.Option(neo.OptionOpts{Value: neo.Set("jan_osullivan")}) {
+			@neo.OptionTrigger() {
+				<neo-avatar class="select-custom-trigger-face-avatar-sm" aria-hidden="true">
+					<img src={ href.Asset("avatar/avatar_2.svg") } alt=""/>
+				</neo-avatar>
+				<span class="select-custom-trigger-face-name">Jan O'Sullivan</span>
+			}
+			<div class="select-custom-trigger-face-row">
+				<neo-avatar class="select-custom-trigger-face-avatar-lg" aria-hidden="true">
+					<img src={ href.Asset("avatar/avatar_2.svg") } alt=""/>
+				</neo-avatar>
+				<div class="select-custom-trigger-face-col">
+					<div class="select-custom-trigger-face-name">Jan O'Sullivan</div>
+					<div class="select-custom-trigger-face-subtitle">Lead Designer</div>
+				</div>
+			</div>
+		}
+		@neo.Option(neo.OptionOpts{Value: neo.Set("evelyn_kone")}) {
+			@neo.OptionTrigger() {
+				<neo-avatar class="select-custom-trigger-face-avatar-sm" aria-hidden="true">
+					<img src={ href.Asset("avatar/avatar_3.svg") } alt=""/>
+				</neo-avatar>
+				<span class="select-custom-trigger-face-name">Evelyn Kone</span>
+			}
+			<div class="select-custom-trigger-face-row">
+				<neo-avatar class="select-custom-trigger-face-avatar-lg" aria-hidden="true">
+					<img src={ href.Asset("avatar/avatar_3.svg") } alt=""/>
+				</neo-avatar>
+				<div class="select-custom-trigger-face-col">
+					<div class="select-custom-trigger-face-name">Evelyn Kone</div>
+					<div class="select-custom-trigger-face-subtitle">Data Analyst</div>
+				</div>
+			</div>
+		}
+		@neo.Option(neo.OptionOpts{Value: neo.Set("samira_khalil")}) {
+			@neo.OptionTrigger() {
+				<neo-avatar class="select-custom-trigger-face-avatar-sm" aria-hidden="true">
+					<img src={ href.Asset("avatar/avatar_4.svg") } alt=""/>
+				</neo-avatar>
+				<span class="select-custom-trigger-face-name">Samira Khalil</span>
+			}
+			<div class="select-custom-trigger-face-row">
+				<neo-avatar class="select-custom-trigger-face-avatar-lg" aria-hidden="true">
+					<img src={ href.Asset("avatar/avatar_4.svg") } alt=""/>
+				</neo-avatar>
+				<div class="select-custom-trigger-face-col">
+					<div class="select-custom-trigger-face-name">Samira Khalil</div>
+					<div class="select-custom-trigger-face-subtitle">Head of Engineering</div>
+				</div>
+			</div>
+		}
+		@neo.Option(neo.OptionOpts{Value: neo.Set("alice_larsson")}) {
+			@neo.OptionTrigger() {
+				<neo-avatar class="select-custom-trigger-face-avatar-sm" aria-hidden="true">
+					<img src={ href.Asset("avatar/avatar_5.svg") } alt=""/>
+				</neo-avatar>
+				<span class="select-custom-trigger-face-name">Alice Larsson</span>
+			}
+			<div class="select-custom-trigger-face-row">
+				<neo-avatar class="select-custom-trigger-face-avatar-lg" aria-hidden="true">
+					<img src={ href.Asset("avatar/avatar_5.svg") } alt=""/>
+				</neo-avatar>
+				<div class="select-custom-trigger-face-col">
+					<div class="select-custom-trigger-face-name">Alice Larsson</div>
+					<div class="select-custom-trigger-face-subtitle">Product Manager</div>
+				</div>
+			</div>
+		}
+		@neo.Option(neo.OptionOpts{Value: neo.Set("camila_duarte")}) {
+			@neo.OptionTrigger() {
+				<neo-avatar class="select-custom-trigger-face-avatar-sm" aria-hidden="true">
+					<img src={ href.Asset("avatar/avatar_6.svg") } alt=""/>
+				</neo-avatar>
+				<span class="select-custom-trigger-face-name">Camila Duarte</span>
+			}
+			<div class="select-custom-trigger-face-row">
+				<neo-avatar class="select-custom-trigger-face-avatar-lg" aria-hidden="true">
+					<img src={ href.Asset("avatar/avatar_6.svg") } alt=""/>
+				</neo-avatar>
+				<div class="select-custom-trigger-face-col">
+					<div class="select-custom-trigger-face-name">Camila Duarte</div>
+					<div class="select-custom-trigger-face-subtitle">DevOps Engineer</div>
+				</div>
+			</div>
+		}
+		@neo.Option(neo.OptionOpts{Value: neo.Set("theo_becker")}) {
+			@neo.OptionTrigger() {
+				<neo-avatar class="select-custom-trigger-face-avatar-sm" aria-hidden="true">
+					<img src={ href.Asset("avatar/avatar_7.svg") } alt=""/>
+				</neo-avatar>
+				<span class="select-custom-trigger-face-name">Theo Becker</span>
+			}
+			<div class="select-custom-trigger-face-row">
+				<neo-avatar class="select-custom-trigger-face-avatar-lg" aria-hidden="true">
+					<img src={ href.Asset("avatar/avatar_7.svg") } alt=""/>
+				</neo-avatar>
+				<div class="select-custom-trigger-face-col">
+					<div class="select-custom-trigger-face-name">Theo Becker</div>
+					<div class="select-custom-trigger-face-subtitle">UX Researcher</div>
+				</div>
+			</div>
+		}
+		@neo.Option(neo.OptionOpts{Value: neo.Set("mateusz_wisniewski")}) {
+			@neo.OptionTrigger() {
+				<neo-avatar class="select-custom-trigger-face-avatar-sm" aria-hidden="true">
+					<img src={ href.Asset("avatar/avatar_8.svg") } alt=""/>
+				</neo-avatar>
+				<span class="select-custom-trigger-face-name">Mateusz Wiśniewski</span>
+			}
+			<div class="select-custom-trigger-face-row">
+				<neo-avatar class="select-custom-trigger-face-avatar-lg" aria-hidden="true">
+					<img src={ href.Asset("avatar/avatar_8.svg") } alt=""/>
+				</neo-avatar>
+				<div class="select-custom-trigger-face-col">
+					<div class="select-custom-trigger-face-name">Mateusz Wiśniewski</div>
+					<div class="select-custom-trigger-face-subtitle">Fullstack Engineer</div>
+				</div>
+			</div>
+		}
+	}
+}

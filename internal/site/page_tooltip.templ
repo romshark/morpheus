@@ -1,0 +1,173 @@
+package site
+
+import (
+	"github.com/romshark/morpheus/internal/href"
+	"github.com/romshark/morpheus/internal/site/examples"
+	"github.com/romshark/morpheus/neo"
+)
+
+templ PageTooltip(morpheusVersion string) {
+	@PageDoc(href.PageTooltip(), "Tooltip", morpheusVersion) {
+		<section class="demo">
+			@anchoredH2("overview") {
+				Tooltip
+			}
+			<p class="intro">
+				Component <code>{ "<neo-tooltip>" }</code> is a
+				hover/focus tooltip on the same positioning
+				primitives as <code>{ "<neo-popover>" }</code> with
+				tooltip semantics: no focus stealing, no click
+				dismissal, <code>pointer-events: none</code>,
+				<code>{ `role="tooltip"` }</code>, and
+				<code>aria-describedby</code> on the trigger. The
+				first non-content child is the trigger. The
+				<code>text</code> attribute is the shorthand body;
+				pass a child carrying
+				<code>{ `[data-neo-tooltip-content]` }</code> instead
+				to render rich markup.
+			</p>
+			@neo.AlertAttrs(neo.AlertOpts{Variant: neo.Set(neo.AlertVariantWarning)}, templ.Attributes{"class": "demo-callout"}) {
+				@neo.AlertIcon() {
+					@neo.Icon("triangle-alert")
+				}
+				@neo.AlertContent() {
+					@neo.AlertTitle(3) {
+						Not visible on touch
+					}
+					@neo.AlertDescription() {
+						Tooltips trigger on hover and keyboard
+						focus; touch devices have neither, so a tap
+						never reveals one. Never put essential
+						information only in a tooltip; keep it
+						available inline for touch and assistive
+						technology users.
+					}
+				}
+			}
+			@Playground(PlaygroundOpts{
+				ID:     "tooltip-playground",
+				Height: "20rem",
+				States: tooltipPlaygroundStates(),
+			})
+			@anchoredH2("reference") {
+				Reference
+			}
+			@ComponentDocs(tooltipDoc)
+		</section>
+		<section class="demo">
+			@anchoredH2("examples") {
+				Examples
+			}
+			@anchoredH3("placements") {
+				Placements
+			}
+			<p class="demo-note">
+				Twelve combinations: each side
+				(<code>top</code>, <code>right</code>,
+				<code>bottom</code>, <code>left</code>) paired
+				with optional <code>-start</code> or
+				<code>-end</code> alignment. Bare side names
+				center the panel on that edge;
+				<code>bottom-start</code> is the initial value.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				HTMLSource:  tooltipPlacementsHTML,
+				TemplSource: tooltipPlacementsTempl,
+				CSSSource:   tooltipPlacementsCSS,
+			}) {
+				@examples.TooltipPlacements()
+			}
+			@anchoredH3("shorthand-body") {
+				Shorthand body
+			}
+			<p class="demo-note">
+				Pass <code>text</code> and skip
+				the slot entirely. Common for icon-only triggers
+				where the tooltip names the action a glyph
+				represents.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				HTMLSource:  tooltipShorthandHTML,
+				TemplSource: tooltipShorthandTempl,
+			}) {
+				@examples.TooltipShorthand()
+			}
+			@anchoredH3("rich-content") {
+				Rich content
+			}
+			<p class="demo-note">
+				Drop a child carrying
+				<code>{ `[data-neo-tooltip-content]` }</code> to
+				render arbitrary markup as the body. The
+				<code>text</code> attribute is ignored once that
+				slot is present, so the slot wins on collisions.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				HTMLSource:  tooltipRichHTML,
+				TemplSource: tooltipRichTempl,
+				CSSSource:   tooltipRichCSS,
+			}) {
+				@examples.TooltipRich()
+			}
+			@anchoredH3("delays") {
+				Delays
+			}
+			<p class="demo-note">
+				<code>hover-open-delay</code>
+				is the hover dwell (ms) the host waits before
+				showing the tooltip; <code>hover-close-delay</code> is
+				how long it lingers after the pointer leaves.
+				Defaults are <code>350</code> and <code>0</code>.
+				Focus shows the tooltip immediately; the delays are
+				hover-only.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				HTMLSource:  tooltipDelaysHTML,
+				TemplSource: tooltipDelaysTempl,
+			}) {
+				@examples.TooltipDelays()
+			}
+		</section>
+	}
+}
+
+var tooltipDoc = ComponentDoc{
+	Attributes: []DocAttribute{
+		{Name: "text", Type: "string", Observed: true,
+			Description: templ.Raw("Plain-text body. Ignored when <code>[data-neo-tooltip-content]</code> is present.")},
+		{Name: "placement", Type: "string", Default: `"bottom-start"`, Observed: true,
+			Description: templ.Raw(`Same values as <a href="` + href.PagePopover() + `"><code>&lt;neo-popover&gt;</code></a>; see its placement values.`)},
+		{Name: "hover-open-delay", Type: "number", Default: "350",
+			Description: templ.Raw("Hover dwell in ms before showing. Focus shows immediately.")},
+		{Name: "hover-close-delay", Type: "number", Default: "0",
+			Description: templ.Raw("Linger in ms after pointer leaves.")},
+		{Name: "open", Type: "boolean", Default: "false", Reflected: true, Observed: true, Description: templ.Raw("Controls tooltip visibility.")},
+	},
+	Slots: []DocSlot{
+		{Name: "default", Description: templ.Raw("Trigger element.")},
+		{Name: "[data-neo-tooltip-content]",
+			Description: templ.Raw("Rich body. Overrides the <code>text</code> attribute.")},
+	},
+	CSSProps: []DocCSSProp{
+		{Name: "--neo-tooltip-bg", Default: "color-mix(in srgb, var(--page-fg) 92%, transparent)",
+			Description: templ.Raw("Tooltip background.")},
+		{Name: "--neo-tooltip-color", Default: "var(--page-bg)",
+			Description: templ.Raw("Tooltip text color.")},
+		{Name: "--neo-tooltip-radius", Default: "var(--page-radius, 0.25rem)",
+			Description: templ.Raw("Corner radius.")},
+		{Name: "--neo-tooltip-padding", Default: "calc(var(--page-spacing, 0.25rem) * 1.25) calc(var(--page-spacing, 0.25rem) * 2.25)",
+			Description: templ.Raw("Inner padding.")},
+		{Name: "--neo-tooltip-font-size", Default: "0.8rem",
+			Description: templ.Raw("Body font size.")},
+		{Name: "--neo-tooltip-max-width", Default: "18rem",
+			Description: templ.Raw("Maximum width before the body wraps.")},
+		{Name: "--neo-tooltip-shadow", Default: "0 4px 12px -2px rgba(0, 0, 0, 0.25)",
+			Description: templ.Raw("Box shadow.")},
+		{Name: "--neo-tooltip-z-index", Default: "1100",
+			Description: templ.Raw("Stacking order of the floating body.")},
+		{Name: "--neo-tooltip-enter-duration", Default: "calc(120ms * var(--neo-duration-scale, 1))",
+			Description: templ.Raw("Enter and exit transition duration.")},
+		{Name: "--neo-tooltip-screen-offset", Default: "8px",
+			Description: templ.Raw("Minimum margin between the body and the viewport edge.")},
+	},
+}

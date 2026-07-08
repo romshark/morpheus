@@ -1,0 +1,23 @@
+.boundary-scoped-dismiss-panel {
+	min-width: 15rem;
+	padding: 1.25rem;
+	border: 1px dashed var(--muted);
+	border-radius: var(--page-radius);
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
+	align-items: flex-start;
+}
+
+.boundary-scoped-dismiss-heading {
+	margin: 0 0 0.25rem;
+}
+
+.boundary-scoped-dismiss-note {
+	margin: 0;
+	color: var(--muted);
+}
+
+.boundary-scoped-dismiss-field {
+	width: 12rem;
+}

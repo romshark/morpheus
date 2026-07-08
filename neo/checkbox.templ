@@ -1,0 +1,47 @@
+package neo
+
+type CheckboxOpts struct {
+	Checked Attr[bool]
+	// Indeterminate paints a dash and sets aria-checked="mixed"; it
+	// takes precedence over Checked for ARIA, but user input still
+	// clears the mixed state.
+	Indeterminate Attr[bool]
+	Disabled      Attr[bool]
+	// Size: "" (default) or "sm" (compact).
+	Size      Attr[string]
+	AriaLabel Attr[string]
+}
+
+// Checkbox prerenders <neo-checkbox> with role/aria-checked/tabindex
+// matching the upgraded state, so the host paints once with no flicker.
+templ Checkbox(opts CheckboxOpts) {
+	@CheckboxAttrs(opts, nil)
+}
+
+// CheckboxAttrs is [Checkbox] with an extra attribute set.
+templ CheckboxAttrs(opts CheckboxOpts, attrs templ.Attributes) {
+	<neo-checkbox
+		role="checkbox"
+		if opts.Indeterminate.Or(false) {
+			indeterminate
+			aria-checked="mixed"
+		}
+		else
+		if opts.Checked.Or(false) {
+			checked
+			aria-checked="true"
+		} else {
+			aria-checked="false"
+		}
+		if opts.Disabled.Or(false) {
+			disabled
+			aria-disabled="true"
+			tabindex="-1"
+		} else {
+			tabindex="0"
+		}
+		{ opts.Size.Attrs("size")... }
+		{ opts.AriaLabel.Attrs("aria-label")... }
+		{ attrs... }
+	></neo-checkbox>
+}

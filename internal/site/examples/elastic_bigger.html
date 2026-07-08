@@ -1,0 +1,11 @@
+<neo-elastic style="max-width: 36rem;">
+  <p style="margin: 0 0 0.5rem;">A plain block container that smoothly animates its height when the natural size of the content changes.</p>
+  <p style="margin: 0 0 0.75rem;">This state carries a much taller payload, so switching to it from the default animates the host up to the larger content height.</p>
+  <ul style="margin: 0 0 0.75rem; padding-left: 1.25rem;">
+    <li>Each state swap reads the new natural height.</li>
+    <li>The host transitions from the old height to the new one.</li>
+    <li>Mid-flight swaps retarget the latest height instead of finishing the old animation.</li>
+    <li>Resizing the viewport reflows the content; the ResizeObserver fires and the host re-pins.</li>
+  </ul>
+  <p style="margin: 0;">Switch back to the default to watch the host shrink the same way it grew.</p>
+</neo-elastic>

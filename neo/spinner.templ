@@ -1,0 +1,78 @@
+package neo
+
+// Spinner renders the bare indeterminate <neo-spinner>. The JS host owns
+// the SVG ring in its shadow root.
+templ Spinner() {
+	@SpinnerAttrs(nil)
+}
+
+// SpinnerAttrs is [Spinner] with an extra attribute set.
+templ SpinnerAttrs(attrs templ.Attributes) {
+	<neo-spinner { attrs... }></neo-spinner>
+}
+
+// SpinnerProgress renders a determinate circular progress ring (the
+// round counterpart of Progress). No text is drawn on the ring; with
+// opts.Tooltip the value (plus Unit) is shown in a wrapping
+// <neo-tooltip> on hover/focus. With opts.Indeterminate it falls back
+// to the indeterminate spin while keeping any label / ARIA wiring.
+templ SpinnerProgress[N Number](opts SpinnerOpts[N]) {
+	@SpinnerProgressAttrs(opts, nil)
+}
+
+// SpinnerProgressAttrs is [SpinnerProgress] with an extra attribute set.
+templ SpinnerProgressAttrs[N Number](opts SpinnerOpts[N], attrs templ.Attributes) {
+	if opts.determinate() {
+		if opts.Tooltip.Or(false) {
+			@TooltipAttrs(TooltipOpts{
+				Text:      Set(opts.tooltipText()),
+				Placement: Set(PlacementTop),
+			}, nil) {
+				@spinnerDeterminate(opts, attrs)
+			}
+		} else {
+			@spinnerDeterminate(opts, attrs)
+		}
+	} else {
+		@spinnerIndeterminate(opts, attrs)
+	}
+}
+
+// spinnerDeterminate emits only public host attributes; the persistent
+// shadow arc derives its position from them.
+templ spinnerDeterminate[N Number](opts SpinnerOpts[N], attrs templ.Attributes) {
+	<neo-spinner
+		role="progressbar"
+		value={ opts.valueStr() }
+		{ opts.Min.Attrs("min")... }
+		{ opts.Max.Attrs("max")... }
+		{ opts.Label.Attrs("label")... }
+		{ opts.Easing.Attrs("easing")... }
+		aria-valuemin={ formatNumber(opts.min()) }
+		aria-valuemax={ formatNumber(opts.max()) }
+		aria-valuenow={ opts.valueStr() }
+		if opts.ariaLabel() != "" {
+			aria-label={ opts.ariaLabel() }
+		}
+		{ attrs... }
+	></neo-spinner>
+}
+
+// spinnerIndeterminate carries opts-driven label / ARIA / easing where
+// set; otherwise it stays the bare rotating spinner.
+templ spinnerIndeterminate[N Number](opts SpinnerOpts[N], attrs templ.Attributes) {
+	<neo-spinner
+		indeterminate
+		{ opts.Easing.Attrs("easing")... }
+		if label := opts.Label.Or(""); label != "" {
+			label={ label }
+			role="progressbar"
+			aria-valuemin={ formatNumber(opts.min()) }
+			aria-valuemax={ formatNumber(opts.max()) }
+		}
+		if opts.ariaLabel() != "" {
+			aria-label={ opts.ariaLabel() }
+		}
+		{ attrs... }
+	></neo-spinner>
+}

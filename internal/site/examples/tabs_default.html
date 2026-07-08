@@ -1,0 +1,24 @@
+<neo-tabs data-signals="{tabs_value: 'overview'}" data-attr:value="$tabs_value" easing="280ms cubic-bezier(0.25, 1, 0.5, 1)" enter-animation="neo-tab-slide" exit-animation="neo-tab-slide">
+  <neo-tablist aria-label="Project">
+    <neo-tab value="overview">Overview</neo-tab>
+    <neo-tab value="activity">Activity</neo-tab>
+    <neo-tab value="reports" disabled>Reports</neo-tab>
+    <neo-tab value="settings">Settings</neo-tab>
+  </neo-tablist>
+  <neo-tabpanel value="overview">
+    <h3>Overview</h3>
+    <p>A snapshot of the project — open issues, recent commits, and the CI status.</p>
+  </neo-tabpanel>
+  <neo-tabpanel value="activity">
+    <h3>Activity</h3>
+    <p>The chronological feed.</p>
+  </neo-tabpanel>
+  <neo-tabpanel value="reports">
+    <h3>Reports</h3>
+    <p>(unreachable in this demo)</p>
+  </neo-tabpanel>
+  <neo-tabpanel value="settings">
+    <h3>Settings</h3>
+    <p>Project-wide preferences.</p>
+  </neo-tabpanel>
+</neo-tabs>

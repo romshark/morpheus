@@ -1,0 +1,34 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ SliderRangeDenseMarks() {
+	@neo.SliderRange(neo.SliderRangeOpts[float64]{
+		Min:      neo.Set(0.0),
+		Max:      neo.Set(100.0),
+		Step:     neo.Set(1.0),
+		ValueMin: neo.Set(15.0),
+		ValueMax: neo.Set(85.0),
+		Label:    neo.Set("Project window"),
+		Unit:     neo.Set("%"),
+	}) {
+		@neo.SliderMarkAt(0) {
+			Backlog
+		}
+		@neo.SliderMarkAt(20) {
+			Discovery
+		}
+		@neo.SliderMarkAt(40) {
+			Definition
+		}
+		@neo.SliderMarkAt(60) {
+			Development
+		}
+		@neo.SliderMarkAt(80) {
+			Verification
+		}
+		@neo.SliderMarkAt(100) {
+			Released
+		}
+	}
+}

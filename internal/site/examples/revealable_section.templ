@@ -1,0 +1,20 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ RevealableSection() {
+	@neo.RevealableAttrs(neo.RevealableOpts{
+		Variant:     neo.Set(neo.RevealableVariantMedia),
+		BlurContent: neo.Set(true),
+	}, templ.Attributes{"class": "revealable-section-host"}) {
+		<article class="revealable-section-body">
+			<h4 class="revealable-section-title">Chapter 12: The Reckoning</h4>
+			<p class="revealable-section-text">
+				Every named character converges on the
+				harbour at dawn; two do not walk away,
+				and the map was upside-down the whole
+				time.
+			</p>
+		</article>
+	}
+}

@@ -1,0 +1,335 @@
+package site
+
+import (
+	"github.com/romshark/morpheus/internal/href"
+	"github.com/romshark/morpheus/internal/site/examples"
+)
+
+templ PageLayout(morpheusVersion string) {
+	@PageDoc(href.PageLayout(), "Layout", morpheusVersion) {
+		<section class="demo">
+			@anchoredH2("overview") {
+				Layout
+			}
+			<p class="intro">
+				Component <code>{ "<neo-layout>" }</code> is a CSS-only
+				Flexbox container whose attributes are CSS flex
+				properties and whose values are CSS values: one element
+				that covers stacks, rows, wrapping clusters, and centered
+				boxes, with no utility classes and no build step.
+				Per-child flex behaviour rides on namespaced
+				<code>neo-*</code> attributes on any flex child. You write
+				no media queries of your own: a row that
+				<code>wrap</code>s reflows on its own as its width changes,
+				and children that grow or shrink
+				(<code>neo-flex-grow</code>, <code>neo-flex-shrink</code>)
+				take up or give back space. The row-to-column breakpoints
+				it does have (<code>collapse</code>,
+				<code>neo-hide-below</code>, <code>neo-show-below</code>)
+				are CSS container queries keyed to the nearest
+				<code>container</code> ancestor’s width, not the viewport,
+				so the same markup adapts inside a sidebar, a drawer, or a
+				full page. Everything on this page is built only from the
+				kit with no page-specific CSS; resize the live example to
+				simulate a narrower screen, or reshape it with the
+				parameters.
+			</p>
+			@Playground(PlaygroundOpts{
+				ID:     "layout-playground",
+				States: layoutPlaygroundStates(),
+			})
+		</section>
+		<section class="demo">
+			@anchoredH2("reference") {
+				Reference
+			}
+			@ComponentDocs(layoutDoc)
+			<h3 class="api-element">Child attributes</h3>
+			<p class="api-element-desc">
+				Namespaced <code>neo-*</code> attributes set on any flex
+				child. Each is <code>neo-</code> plus the CSS property it
+				sets.
+			</p>
+			@ComponentDocs(layoutItemDoc)
+		</section>
+		<section class="demo">
+			@anchoredH2("examples") {
+				Examples
+			}
+			@anchoredH3("composition") {
+				Composition
+			}
+			<p class="demo-note">
+				A whole dashboard nested several levels deep and filling
+				the stage. The root is a <code>container</code>, so as you
+				drag the corner the navbar morphs across three layouts
+				(links → search-icon, full buttons → an icon group) via
+				<code>neo-hide-below</code> / <code>neo-show-below</code>,
+				the cards reflow 3 → 2 → 1, and the dashboard scrolls
+				vertically when it overflows. All box-relative, no
+				viewport media queries.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				Width:          "56rem",
+				Height:         "28rem",
+				StageMinWidth:  "22rem",
+				StageMinHeight: "20rem",
+				HTMLSource:     layoutOverviewHTML,
+				TemplSource:    layoutOverviewTempl,
+				CSSSource:      layoutOverviewCSS,
+			}) {
+				@examples.LayoutOverview()
+			}
+			@anchoredH3("cluster") {
+				Wrapping cluster
+			}
+			<p class="demo-note">
+				A <code>row</code> with <code>wrap</code> flows its
+				children onto new lines as the stage narrows: the
+				"cluster" shape for tags, chips, and filters.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				Width:          "30rem",
+				StageMinWidth:  "10rem",
+				StageMinHeight: "max-content",
+				HTMLSource:     layoutClusterHTML,
+				TemplSource:    layoutClusterTempl,
+			}) {
+				@examples.LayoutCluster()
+			}
+			@anchoredH3("responsive-grid") {
+				Responsive grid
+			}
+			<p class="demo-note">
+				Growing cards with a shared <code>flex-basis</code> form
+				equal rows and wrap into fewer columns as the stage
+				narrows. No breakpoints required.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				Width:          "44rem",
+				Height:         "16rem",
+				StageMinWidth:  "12rem",
+				StageMinHeight: "8rem",
+				HTMLSource:     layoutGridHTML,
+				TemplSource:    layoutGridTempl,
+				CSSSource:      layoutGridCSS,
+			}) {
+				@examples.LayoutGrid()
+			}
+			@anchoredH3("conditional-rendering") {
+				Responsive conditional rendering
+			}
+			<p class="demo-note">
+				Resize the stage below <code>40rem</code>. The detailed
+				label and text button hide, while compact replacements
+				appear. The condition follows the nearest
+				<code>container</code>, not the viewport.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				Width:          "44rem",
+				StageMinWidth:  "16rem",
+				StageMinHeight: "max-content",
+				HTMLSource:     layoutConditionalHTML,
+				TemplSource:    layoutConditionalTempl,
+			}) {
+				@examples.LayoutConditional()
+			}
+			@anchoredH3("collapse") {
+				Responsive collapse
+			}
+			<p class="demo-note">
+				A <code>row</code> folds to a single <code>column</code>
+				when its nearest <code>container</code> ancestor drops below
+				a tier. Drag the stage under <code>40rem</code> and the three
+				panels reflow from a row into a stack via a container query, so
+				it tracks the box, not the viewport.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				Width:          "44rem",
+				StageMinWidth:  "13rem",
+				StageMinHeight: "max-content",
+				HTMLSource:     layoutCollapseHTML,
+				TemplSource:    layoutCollapseTempl,
+			}) {
+				@examples.LayoutCollapse()
+			}
+			@anchoredH3("alignment") {
+				Alignment
+			}
+			<p class="demo-note">
+				<code>align-items</code> and <code>justify-content</code>
+				take their literal CSS values, so the markup reads like
+				the rule it produces.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				Width:          "32rem",
+				Height:         "12rem",
+				StageMinWidth:  "20rem",
+				StageMinHeight: "9rem",
+				HTMLSource:     layoutAlignHTML,
+				TemplSource:    layoutAlignTempl,
+			}) {
+				@examples.LayoutAlign()
+			}
+			@anchoredH3("child-attributes") {
+				Child attributes
+			}
+			<p class="demo-note">
+				Resize in both directions. The folder rail keeps its
+				fixed basis, the main pane grows into the remaining
+				space, its long title truncates instead of forcing the
+				row wider, and the checklist scrolls when height runs
+				out. Each behaviour comes from a <code>neo-*</code>
+				attribute on the child that needs it.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				Width:          "36rem",
+				Height:         "16rem",
+				StageMinWidth:  "22rem",
+				StageMinHeight: "12rem",
+				HTMLSource:     layoutShellHTML,
+				TemplSource:    layoutShellTempl,
+				CSSSource:      layoutShellCSS,
+			}) {
+				@examples.LayoutShell()
+			}
+			@anchoredH3("spacer") {
+				Spacer
+			}
+			<p class="demo-note">
+				A spacer is just an empty child that grows: drop a child
+				with <code>{ `neo-flex-grow="1"` }</code> between two
+				groups and it soaks up the leftover space,
+				pinning whatever follows to the far edge. Here it keeps
+				<strong>Save</strong> to the right while <strong>Back</strong>
+				and the title stay on the left.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				Width:          "30rem",
+				StageMinWidth:  "22rem",
+				StageMinHeight: "max-content",
+				HTMLSource:     layoutSpacerHTML,
+				TemplSource:    layoutSpacerTempl,
+			}) {
+				@examples.LayoutSpacer()
+			}
+			@anchoredH3("separate-gaps") {
+				Split row and column gaps
+			}
+			<p class="demo-note">
+				<code>column-gap</code> spaces the children along the row;
+				<code>row-gap</code> spaces the wrapped lines. Columns are
+				tight (<code>xs</code>) and rows are loose (<code>lg</code>),
+				so the chips stay close while wrapped lines get room. Narrow
+				the stage to wrap them.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				Width:          "26rem",
+				StageMinWidth:  "10rem",
+				StageMinHeight: "max-content",
+				HTMLSource:     layoutSeparateGapsHTML,
+				TemplSource:    layoutSeparateGapsTempl,
+			}) {
+				@examples.LayoutSeparateGaps()
+			}
+			@anchoredH3("reverse") {
+				Reverse direction
+			}
+			<p class="demo-note">
+				<code>row-reverse</code> and <code>column-reverse</code> flip
+				the main-axis order so the first child renders last; the DOM
+				order (and tab order) stays intact. Both groups list 1, 2, 3
+				in source.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				Width:          "100%",
+				Height:         "12rem",
+				StageMinWidth:  "16rem",
+				StageMinHeight: "9rem",
+				HTMLSource:     layoutReverseHTML,
+				TemplSource:    layoutReverseTempl,
+			}) {
+				@examples.LayoutReverse()
+			}
+			@anchoredH3("inline") {
+				Inline flow
+			}
+			<p class="demo-note">
+				<code>inline</code> switches the container to
+				<code>{ `display: inline-flex` }</code>, so it sits in the
+				text flow instead of forcing its own line, handy for an
+				icon-and-label cluster inside running prose.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				Width:          "26rem",
+				StageMinWidth:  "12rem",
+				StageMinHeight: "max-content",
+				HTMLSource:     layoutInlineHTML,
+				TemplSource:    layoutInlineTempl,
+			}) {
+				@examples.LayoutInline()
+			}
+		</section>
+	}
+}
+
+var layoutGapType = `"none" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl"`
+
+var layoutDoc = ComponentDoc{
+	Attributes: []DocAttribute{
+		{Name: "row, row-reverse, column, column-reverse", Type: "boolean",
+			Description: templ.Raw("flex-direction, as a boolean attribute. Pick one; row is the default.")},
+		{Name: "nowrap, wrap, wrap-reverse", Type: "boolean",
+			Description: templ.Raw("flex-wrap, as a boolean attribute. Default nowrap.")},
+		{Name: "align-items", Type: `"flex-start" | "flex-end" | "center" | "stretch" | "baseline"`,
+			Description: templ.Raw("Cross-axis alignment.")},
+		{Name: "justify-content", Type: `"flex-start" | "flex-end" | "center" | "space-between" | "space-around" | "space-evenly"`,
+			Description: templ.Raw("Main-axis distribution.")},
+		{Name: "align-content", Type: `"flex-start" | "flex-end" | "center" | "space-between" | "space-around" | "space-evenly" | "stretch"`,
+			Description: templ.Raw("Wrapped-line distribution. Needs <code>wrap</code>.")},
+		{Name: "gap", Type: layoutGapType,
+			Description: templ.Raw("Spacing between children on both axes. <code>column-gap</code> and <code>row-gap</code> override it per axis.")},
+		{Name: "column-gap", Type: layoutGapType,
+			Description: templ.Raw("Spacing between children along the row. Overrides <code>gap</code> on this axis.")},
+		{Name: "row-gap", Type: layoutGapType,
+			Description: templ.Raw("Spacing between wrapped lines. Overrides <code>gap</code> on this axis.")},
+		{Name: "min-height", Type: `"100vh" | "100%"`,
+			Description: templ.Raw("Minimum-height preset.")},
+		{Name: "inline", Type: "boolean",
+			Description: templ.Raw("Use <code>display: inline-flex</code>.")},
+		{Name: "container", Type: "boolean",
+			Description: templ.Raw("Neo extension: make this a query container (<code>container-type: inline-size</code>) so a descendant's <code>collapse</code> reacts to this element's width.")},
+		{Name: "collapse", Type: `"sm" | "md" | "lg"`,
+			Description: templ.Raw("Neo extension: fold a row to a column when the nearest <code>container</code> ancestor is narrower than the tier (40 / 48 / 64rem). Container-query based: reacts to the box, not the viewport.")},
+	},
+}
+
+var layoutItemDoc = ComponentDoc{
+	Prefix: "item",
+	Attributes: []DocAttribute{
+		{Name: "neo-flex-grow", Type: `"0" | "1"`,
+			Description: templ.Raw("flex-grow. Set to 1 to fill; doubles as a spacer.")},
+		{Name: "neo-flex-shrink", Type: `"0" | "1"`,
+			Description: templ.Raw("flex-shrink. Set to 0 to pin the size.")},
+		{Name: "neo-flex-basis", Type: `"0" | "auto" | "100%"`,
+			Description: templ.Raw("flex-basis (CSS keywords only). For a fixed width set it via <code>style</code> (e.g. <code>style=\"flex-basis: var(--neo-size-sidebar)\"</code>).")},
+		{Name: "neo-align-self", Type: `"flex-start" | "flex-end" | "center" | "stretch" | "baseline"`,
+			Description: templ.Raw("Per-child align-self override.")},
+		{Name: "neo-width", Type: `"100%"`,
+			Description: templ.Raw("Definite full width of the containing block.")},
+		{Name: "neo-height", Type: `"100%"`,
+			Description: templ.Raw("Definite full height of the containing block.")},
+		{Name: "neo-min-width", Type: `"0"`,
+			Description: templ.Raw("min-width:0, the flex min-size fix, in a row.")},
+		{Name: "neo-min-height", Type: `"0"`,
+			Description: templ.Raw("min-height:0, the flex min-size fix, in a column.")},
+		{Name: "neo-overflow", Type: `"visible" | "hidden" | "scroll" | "auto"`,
+			Description: templ.Raw("Overflow behaviour.")},
+		{Name: "neo-truncate", Type: "boolean",
+			Description: templ.Raw("Neo extension: single-line ellipsis truncation.")},
+		{Name: "neo-hide-below", Type: `"sm" | "md" | "lg"`,
+			Description: templ.Raw("Neo extension: hide the child while the nearest <code>container</code> is narrower than the tier (40 / 48 / 64rem). Container-query based.")},
+		{Name: "neo-show-below", Type: `"sm" | "md" | "lg"`,
+			Description: templ.Raw("Neo extension: show the child only while the nearest <code>container</code> is narrower than the tier (hidden at or above it).")},
+	},
+}

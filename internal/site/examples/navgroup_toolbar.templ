@@ -1,0 +1,38 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ NavgroupToolbar() {
+	@neo.NavGroupAttrs(neo.NavGroupOpts{
+		Orientation: neo.Set(neo.OrientationHorizontal),
+		Wrap:        neo.Set(true),
+	}, templ.Attributes{
+		"role":       "toolbar",
+		"aria-label": "Text formatting",
+	}) {
+		@neo.ButtonAttrs(neo.ButtonOpts{}, templ.Attributes{
+			"data-neo-navgroup-item": true,
+			"aria-label":             "Bold",
+		}) {
+			<b>B</b>
+		}
+		@neo.ButtonAttrs(neo.ButtonOpts{}, templ.Attributes{
+			"data-neo-navgroup-item": true,
+			"aria-label":             "Italic",
+		}) {
+			<i>I</i>
+		}
+		@neo.ButtonAttrs(neo.ButtonOpts{}, templ.Attributes{
+			"data-neo-navgroup-item": true,
+			"aria-label":             "Underline",
+		}) {
+			<u>U</u>
+		}
+		@neo.ButtonAttrs(neo.ButtonOpts{}, templ.Attributes{
+			"data-neo-navgroup-item": true,
+			"aria-label":             "Strikethrough",
+		}) {
+			<s>S</s>
+		}
+	}
+}

@@ -1,0 +1,27 @@
+package examples
+
+import (
+	"github.com/romshark/morpheus/datastar"
+	"github.com/romshark/morpheus/neo"
+)
+
+templ ServerDrivenAsyncLoad() {
+	@datastar.ComboboxAsync(datastar.ComboboxAsyncOpts{
+		ComboboxOpts: neo.ComboboxOpts{
+			AriaLabel:     neo.Set("Combobox"),
+			Placeholder:   neo.Set("Pick an option"),
+			MinOpenHeight: neo.Set("7rem"),
+		},
+		ID:      "serverDrivenAsyncLoad",
+		URL:     "/serverdriven/asyncload/",
+		Loading: serverDrivenAsyncLoadLoading(),
+	})
+}
+
+// Cloned above the listbox while the request is in flight.
+templ serverDrivenAsyncLoadLoading() {
+	<div class="server-driven-async-load-loading">
+		<neo-spinner></neo-spinner>
+		Loading…
+	</div>
+}

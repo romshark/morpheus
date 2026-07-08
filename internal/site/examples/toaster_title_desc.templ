@@ -1,0 +1,11 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ ToasterTitleDesc() {
+	@neo.ButtonAttrs(neo.ButtonOpts{}, templ.Attributes{
+		"data-on:click": "NeoToast.show({ title: 'Event created', description: 'Sunday, December 03, 2023 at 9:00 AM' })",
+	}) {
+		Show
+	}
+}

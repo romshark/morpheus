@@ -1,0 +1,144 @@
+package neo
+
+// AlertVariant picks the semantic colour treatment for <neo-alert>.
+// Zero value (AlertVariantNeutral) renders a neutral alert and emits no
+// `variant` attribute.
+type AlertVariant string
+
+const (
+	AlertVariantNeutral AlertVariant = ""
+	AlertVariantInfo    AlertVariant = "info"
+	AlertVariantSuccess AlertVariant = "success"
+	AlertVariantWarning AlertVariant = "warning"
+	AlertVariantDanger  AlertVariant = "danger"
+)
+
+type AlertOpts struct {
+	Variant Attr[AlertVariant]
+}
+
+// Alert renders <neo-alert>, a CSS-only message surface for status,
+// warning, and error callouts. Compose its parts with the child
+// components AlertIcon, AlertContent, AlertTitle, AlertDescription, and
+// AlertActions. Set role via AlertAttrs to control how assertively the
+// message is announced (e.g. "status" or "alert").
+templ Alert(opts AlertOpts) {
+	@AlertAttrs(opts, nil) {
+		{ children... }
+	}
+}
+
+// AlertAttrs is [Alert] with an extra attribute set (typically `role`).
+templ AlertAttrs(opts AlertOpts, attrs templ.Attributes) {
+	<neo-alert
+		{ opts.Variant.Attrs("variant")... }
+		{ attrs... }
+	>
+		{ children... }
+	</neo-alert>
+}
+
+// AlertIcon renders the optional leading icon column. Use only as a
+// direct child of Alert or AlertAttrs. The icon is decorative
+// (aria-hidden), so the alert's meaning must come from its title and
+// description text, not the glyph. Wrap a [Icon] as the child.
+templ AlertIcon() {
+	@AlertIconAttrs(nil) {
+		{ children... }
+	}
+}
+
+// AlertIconAttrs is [AlertIcon] with an extra attribute set. The icon
+// stays decorative; do not pass aria-hidden.
+templ AlertIconAttrs(attrs templ.Attributes) {
+	<div data-neo-alert-icon aria-hidden="true" { attrs... }>
+		{ children... }
+	</div>
+}
+
+// AlertContent renders the content column holding the title,
+// description, and actions. Use only as a direct child of Alert or
+// AlertAttrs, alongside an optional AlertIcon.
+templ AlertContent() {
+	@AlertContentAttrs(nil) {
+		{ children... }
+	}
+}
+
+// AlertContentAttrs is [AlertContent] with an extra attribute set.
+templ AlertContentAttrs(attrs templ.Attributes) {
+	<div data-neo-alert-content { attrs... }>
+		{ children... }
+	</div>
+}
+
+// AlertTitle renders the alert title as a heading. level selects the
+// heading element (1–6); pick the level that fits the alert's place in
+// the page outline (values outside 1–6 fall back to <h2>). Use only as
+// a child of AlertContent.
+templ AlertTitle(level int) {
+	@AlertTitleAttrs(level, nil) {
+		{ children... }
+	}
+}
+
+// AlertTitleAttrs is [AlertTitle] with an extra attribute set.
+templ AlertTitleAttrs(level int, attrs templ.Attributes) {
+	switch level {
+		case 1:
+			<h1 data-neo-alert-title { attrs... }>
+				{ children... }
+			</h1>
+		case 3:
+			<h3 data-neo-alert-title { attrs... }>
+				{ children... }
+			</h3>
+		case 4:
+			<h4 data-neo-alert-title { attrs... }>
+				{ children... }
+			</h4>
+		case 5:
+			<h5 data-neo-alert-title { attrs... }>
+				{ children... }
+			</h5>
+		case 6:
+			<h6 data-neo-alert-title { attrs... }>
+				{ children... }
+			</h6>
+		default:
+			<h2 data-neo-alert-title { attrs... }>
+				{ children... }
+			</h2>
+	}
+}
+
+// AlertDescription renders the supporting message text below the title.
+// Muted colour, no default margin. Use only as a child of AlertContent.
+templ AlertDescription() {
+	@AlertDescriptionAttrs(nil) {
+		{ children... }
+	}
+}
+
+// AlertDescriptionAttrs is [AlertDescription] with an extra attribute set.
+templ AlertDescriptionAttrs(attrs templ.Attributes) {
+	<p data-neo-alert-description { attrs... }>
+		{ children... }
+	</p>
+}
+
+// AlertActions renders the optional action row below the description,
+// typically holding [Button] controls. Use only as a child of
+// AlertContent.
+templ AlertActions() {
+	@AlertActionsAttrs(nil) {
+		{ children... }
+	}
+}
+
+// AlertActionsAttrs is [AlertActions] with an extra attribute set.
+templ AlertActionsAttrs(attrs templ.Attributes) {
+	<div data-neo-alert-actions { attrs... }>
+		{ children... }
+	</div>
+}

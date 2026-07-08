@@ -1,0 +1,10 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ SwitchWithLabel() {
+	<label class="switch-with-label-row">
+		@neo.Switch(neo.SwitchOpts{})
+		<span>Enable notifications</span>
+	</label>
+}

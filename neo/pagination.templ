@@ -1,0 +1,63 @@
+package neo
+
+type PaginationOpts struct {
+	// Page is the active page (1-indexed). Set(0) emits page="0", the
+	// matching idiom Slider / Progress use for explicit zero values that
+	// must round-trip as attributes.
+	Page Attr[int]
+	// Pages is the total number of pages; the host renders no chips
+	// when Pages < 1.
+	Pages Attr[int]
+	// SiblingCount controls how many pages flank the current one
+	// (default in the JS host: 1).
+	SiblingCount Attr[int]
+	// BoundaryCount controls how many pages flank the start/end runs
+	// (default in the JS host: 1).
+	BoundaryCount Attr[int]
+
+	Disabled Attr[bool]
+
+	AriaLabel Attr[string]
+}
+
+// Pagination renders <neo-pagination>. The component builds its own
+// structure on connect (Prev / boundary / window / boundary / Next) and
+// adapts that structure via ResizeObserver, mirroring <neo-breadcrumb>'s
+// "render full -> measure -> degrade" pattern.
+//
+// Pass `<template data-neo-pagination-prev>` and/or
+// `<template data-neo-pagination-next>` children to customise the
+// content inside the prev / next buttons (icon, text, custom span).
+// The default content is a single chevron-left / chevron-right icon,
+// rendering both buttons as icon-only at every viewport.
+//
+//	@neo.Pagination(neo.PaginationOpts{Page: 5, Pages: 25}) {
+//	    <template data-neo-pagination-prev>
+//	        @neo.Icon("chevron-left")
+//	        <span>Previous</span>
+//	    </template>
+//	    <template data-neo-pagination-next>
+//	        <span>Next</span>
+//	        @neo.Icon("chevron-right")
+//	    </template>
+//	}
+templ Pagination(opts PaginationOpts) {
+	@PaginationAttrs(opts, nil) {
+		{ children... }
+	}
+}
+
+// PaginationAttrs is [Pagination] with an extra attribute set.
+templ PaginationAttrs(opts PaginationOpts, attrs templ.Attributes) {
+	<neo-pagination
+		{ opts.Page.Attrs("page")... }
+		{ opts.Pages.Attrs("pages")... }
+		{ opts.SiblingCount.Attrs("sibling-count")... }
+		{ opts.BoundaryCount.Attrs("boundary-count")... }
+		{ opts.Disabled.Attrs("disabled")... }
+		{ opts.AriaLabel.Attrs("aria-label")... }
+		{ attrs... }
+	>
+		{ children... }
+	</neo-pagination>
+}

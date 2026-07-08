@@ -1,0 +1,32 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ CardMediaHero() {
+	@neo.Card(neo.CardOpts{Variant: neo.Set(neo.CardVariantElevated)}) {
+		@neo.CardMedia() {
+			<img
+				src="https://collectionapi.metmuseum.org/api/collection/v1/iiif/15444/38888/restricted"
+				alt="Bay of Uri, Brunnen, by John Singer Sargent, June 4, 1870"
+			/>
+		}
+		@neo.CardHeader() {
+			@neo.CardTitle() {
+				Bay of Uri, Brunnen
+				<br/>
+				<sub>from Switzerland 1870 Sketchbook</sub>
+			}
+			@neo.CardDescription() {
+				John Singer Sargent
+			}
+			@neo.CardDescription() {
+				American · June 4, 1870
+			}
+		}
+		@neo.CardFooterAttrs(templ.Attributes{"class": "card-media-hero-footer"}) {
+			<a class="card-pg-link" href="https://www.metmuseum.org/art/collection/search/15444">
+				See source →
+			</a>
+		}
+	}
+}

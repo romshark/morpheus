@@ -1,0 +1,71 @@
+package datastar
+
+import "github.com/romshark/morpheus/neo"
+
+// DrawerAsync renders a <neo-drawer> wired to a Datastar SSE action
+// that fetches its body content on every open. The Loading template is
+// wrapped in [data-neo-async-placeholder] so the drawer can restore it
+// after close; on success the server morphs `<div id="<ID>-body">` in
+// place. When Datastar exhausts its retry budget, Failed is swapped
+// into the same body wrapper.
+//
+// The trigger label is supplied via children. Any descendant in the
+// Failed template that carries data-neo-popover-async-retry becomes a
+// retry button: a click aborts any in-flight fetch, restores loading,
+// and re-fires the action without closing the drawer.
+templ DrawerAsync(opts DrawerAsyncOpts) {
+	@neo.DrawerAttrs(opts.DrawerOpts, templ.Attributes{
+		"id":                       opts.ID,
+		"data-signals":             drawerAsyncSignals(opts),
+		"data-on:neo-drawer-open":  drawerAsyncOpen(opts),
+		"data-on:neo-drawer-close": drawerAsyncClose(opts),
+		"data-on:datastar-fetch":   drawerAsyncOnFetch(opts),
+		"data-on:click":            drawerAsyncRetry(opts),
+	}) {
+		<neo-button data-neo-drawer-trigger>
+			{ children... }
+		</neo-button>
+		<dialog>
+			if opts.Title != "" || opts.Description != "" {
+				<header data-neo-drawer-header>
+					if opts.Title != "" {
+						<h2 data-neo-drawer-title>{ opts.Title }</h2>
+					}
+					if opts.Description != "" {
+						<p data-neo-drawer-description>{ opts.Description }</p>
+					}
+				</header>
+			}
+			<div id={ opts.ID + "-body" } class="drawer-async-slot">
+				<div data-neo-async-placeholder class="drawer-async-skeleton">
+					@opts.Loading
+				</div>
+			</div>
+			if opts.CloseLabel != "" {
+				<footer data-neo-drawer-footer>
+					<neo-button data-neo-drawer-close>{ opts.CloseLabel }</neo-button>
+				</footer>
+			}
+		</dialog>
+	}
+	<template id={ opts.ID + "-tpl-loading" }>
+		<div data-neo-async-placeholder class="drawer-async-skeleton">
+			@opts.Loading
+		</div>
+	</template>
+	<template id={ opts.ID + "-tpl-failed" }>
+		@drawerAsyncFailed(opts.Failed)
+	</template>
+}
+
+// drawerAsyncFailed renders the user-supplied Failed template, or a
+// minimal built-in callout if none was provided.
+templ drawerAsyncFailed(failed templ.Component) {
+	if failed != nil {
+		@failed
+	} else {
+		<div class="popover-async-failed" role="alert">
+			Failed to load.
+		</div>
+	}
+}

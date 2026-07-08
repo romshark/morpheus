@@ -1,0 +1,18 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ ToggleWithIcon() {
+	@neo.Toggle(neo.ToggleOpts{}) {
+		@neo.Icon("eye")
+		Watch
+	}
+	@neo.Toggle(neo.ToggleOpts{Pressed: neo.Set(true), Variant: neo.Set(neo.ToggleVariantPrimary)}) {
+		@neo.Icon("bell")
+		Notify
+	}
+	@neo.Toggle(neo.ToggleOpts{Variant: neo.Set(neo.ToggleVariantGhost)}) {
+		@neo.Icon("star")
+		Favourite
+	}
+}

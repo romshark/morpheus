@@ -1,0 +1,29 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ RadioGroupRichRows() {
+	@neo.RadioGroup(neo.RadioGroupOpts{Value: neo.Set("team"), AriaLabel: neo.Set("Plan")}) {
+		<label class="radio-pg-card">
+			@neo.Radio(neo.RadioOpts{Value: neo.Set("free")})
+			<div>
+				<div>Free</div>
+				<div>Up to 3 projects, community support.</div>
+			</div>
+		</label>
+		<label class="radio-pg-card">
+			@neo.Radio(neo.RadioOpts{Value: neo.Set("team")})
+			<div>
+				<div>Team</div>
+				<div>Unlimited projects, shared workspaces, email support.</div>
+			</div>
+		</label>
+		<label class="radio-pg-card">
+			@neo.Radio(neo.RadioOpts{Value: neo.Set("enterprise")})
+			<div>
+				<div>Enterprise</div>
+				<div>SSO, audit logs, dedicated success manager.</div>
+			</div>
+		</label>
+	}
+}

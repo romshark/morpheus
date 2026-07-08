@@ -1,0 +1,393 @@
+package site
+
+import (
+	"github.com/romshark/morpheus/internal/href"
+	"github.com/romshark/morpheus/internal/site/examples"
+	"github.com/romshark/morpheus/neo"
+)
+
+templ PageDialog(morpheusVersion string) {
+	@PageDoc(href.PageDialog(), "Dialog", morpheusVersion) {
+		@dialogSimulator()
+		<section class="demo">
+			@anchoredH2("overview") {
+				Dialog
+			}
+			<p class="intro">
+				Component <code>{ "<neo-dialog>" }</code> is a modal
+				dialog wrapping the platform
+				<code>{ `<dialog>` }</code> element. The host wires
+				trigger, close, and aria plumbing; the browser owns
+				top-layer rendering, focus trap, scroll lock, and
+				Esc. No portal: markup stays in light DOM so kit
+				CSS themes it directly.
+			</p>
+			@Playground(PlaygroundOpts{
+				ID:     "dialog-playground",
+				Height: "24rem",
+				States: dialogPlaygroundStates(),
+			})
+			@anchoredH2("reference") {
+				Reference
+			}
+			@ComponentDocs(dialogDoc)
+		</section>
+		<section class="demo">
+			@anchoredH2("examples") {
+				Examples
+			}
+			@anchoredH3("non-dismissible") {
+				Non-dismissible
+			}
+			<p class="demo-note">
+				For must-decide flows, set
+				<code>{ `dismissible="false"` }</code>: backdrop
+				clicks and <neo-kbd>Esc</neo-kbd> are ignored, so the user
+				must pick an action. Pair it with a clearly
+				destructive primary button.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     dialogNonDismissibleHTML,
+				TemplSource:    dialogNonDismissibleTempl,
+			}) {
+				@examples.DialogNonDismissible()
+			}
+			@anchoredH3("custom-surface") {
+				Custom surface
+			}
+			<p class="demo-note">
+				Theme the surface by setting
+				<code>{ `--neo-dialog-*` }</code> tokens inline
+				on the host.
+			</p>
+			<ul class="demo-note">
+				<li>
+					Here a dark translucent panel with an 18px
+					backdrop blur over a heavier overlay dim.
+				</li>
+				<li>
+					Holds up in light and dark modes: the dialog
+					stays dark and the blurred page reads through
+					the glass either way.
+				</li>
+			</ul>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     dialogCustomSurfaceHTML,
+				TemplSource:    dialogCustomSurfaceTempl,
+				CSSSource:      dialogCustomSurfaceCSS,
+			}) {
+				@examples.DialogCustomSurface()
+			}
+		</section>
+		<section class="demo">
+			@anchoredH2("examples-datastar") {
+				Examples: Datastar
+			}
+			@anchoredH3("morphing-during-interaction") {
+				Morphing during interaction
+			}
+			<p class="demo-note">
+				A Datastar app can fat-morph an open dialog's body
+				at any moment; the dialog stays mounted and open and
+				focus survives.
+			</p>
+			<ul class="demo-note">
+				<li>
+					A <code>{ "<neo-elastic>" }</code> wrapper around
+					the body animates the dialog's height between the
+					two layouts.
+				</li>
+				<li>
+					Autoplay cycles the states below to simulate the
+					server-driven morphs.
+				</li>
+			</ul>
+			@Playground(PlaygroundOpts{
+				ID:       "dialog-morph-playground",
+				Autoplay: true,
+				States:   dialogMorphStates(),
+			})
+			<p class="demo-note">
+				Load the body on every open. A
+				<code>{ `[data-neo-async-placeholder]` }</code>
+				child holds skeleton bars; opening posts to the
+				server, whose response morph-patches real content
+				in to replace it.
+			</p>
+			<ul class="demo-note">
+				<li>
+					On close the host reinstates the placeholder, so
+					each open shows it again until the new request
+					resolves.
+				</li>
+				<li>
+					<code>requestCancellation</code> aborts an
+					in-flight request when the user closes mid-load.
+				</li>
+			</ul>
+			@asyncDialogDemo()
+			@dialogAsyncFailureDemo()
+			<p class="demo-note">
+				Opening streams progress patches over time. Each
+				patch morphs the steps wrapper inside a
+				<code>{ `<neo-elastic>` }</code>, which animates the
+				dialog's height as rows are added.
+			</p>
+			<p class="demo-note">
+				The final patch swaps in a
+				<code>{ `<neo-button data-neo-dialog-close>` }</code>
+				so the user can dismiss only after the simulated job
+				finishes.
+			</p>
+			@asyncPatchingDialogDemo()
+		</section>
+	}
+}
+
+var dialogDoc = ComponentDoc{
+	Attributes: []DocAttribute{
+		{Name: "open", Type: "boolean", Default: "false", Reflected: true, Observed: true,
+			Description: templ.Raw("Controls modal visibility.")},
+		{Name: "dismissible", Type: "true | false", Default: "true",
+			Description: templ.Raw("Backdrop click and <code>Esc</code> close the dialog. Set <code>dismissible=\"false\"</code> to require an explicit close.")},
+	},
+	Slots: []DocSlot{
+		{Name: "default",
+			Description: templ.Raw("A <code>&lt;dialog&gt;</code> with optional <code>[data-neo-dialog-header]</code>, <code>[data-neo-dialog-body]</code>, <code>[data-neo-dialog-footer]</code> children.")},
+		{Name: "[data-neo-dialog-trigger]",
+			Description: templ.Raw("Element that opens the dialog on click.")},
+		{Name: "[data-neo-async-placeholder]",
+			Description: templ.Raw("Loading skeleton swapped in while the body morphs in.")},
+	},
+	Events: []DocEvent{
+		{Name: "neo-dialog-open", Bubbles: true,
+			Description: templ.Raw("Fires when the dialog opens.")},
+		{Name: "neo-dialog-close", Bubbles: true,
+			Description: templ.Raw("Fires when the dialog closes.")},
+	},
+	CSSProps: []DocCSSProp{
+		{Name: "--neo-dialog-bg", Default: "var(--page-bg, #ffffff)",
+			Description: templ.Raw("Dialog surface background.")},
+		{Name: "--neo-dialog-color", Default: "var(--page-fg, #111827)",
+			Description: templ.Raw("Dialog text color.")},
+		{Name: "--neo-dialog-border-color", Default: "var(--btn-border, rgba(0, 0, 0, 0.08))",
+			Description: templ.Raw("Border color.")},
+		{Name: "--neo-dialog-border-width", Default: "1px",
+			Description: templ.Raw("Border width.")},
+		{Name: "--neo-dialog-radius", Default: "calc(var(--page-radius, 0.25rem) * 1.5)",
+			Description: templ.Raw("Corner radius.")},
+		{Name: "--neo-dialog-padding", Default: "calc(var(--page-spacing, 0.25rem) * 6)",
+			Description: templ.Raw("Inner padding of the dialog box.")},
+		{Name: "--neo-dialog-shadow", Default: "0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 10px 15px -3px rgba(0, 0, 0, 0.1)",
+			Description: templ.Raw("Box shadow of the dialog box.")},
+		{Name: "--neo-dialog-min-width", Default: "18rem",
+			Description: templ.Raw("Minimum width of the dialog box.")},
+		{Name: "--neo-dialog-max-width", Default: "32rem",
+			Description: templ.Raw("Maximum width of the dialog box.")},
+		{Name: "--neo-dialog-screen-offset", Default: "1rem",
+			Description: templ.Raw("Minimum gap between the dialog box and the viewport edge.")},
+		{Name: "--neo-dialog-enter-duration", Default: "calc(180ms * var(--neo-duration-scale, 1))",
+			Description: templ.Raw("Open and close transition duration.")},
+		{Name: "--neo-dialog-overlay-bg", Default: "rgba(0, 0, 0, 0.55)",
+			Description: templ.Raw("Backdrop dim color behind the dialog.")},
+		{Name: "--neo-dialog-overlay-blur", Default: "0px",
+			Description: templ.Raw("Backdrop blur applied to the page behind the dialog.")},
+		{Name: "--neo-dialog-blur", Default: "0px",
+			Description: templ.Raw("Surface blur applied as a <code>backdrop-filter</code> on the dialog box for a frosted-glass effect with a translucent background.")},
+	},
+}
+
+// asyncDialogDemo: a dialog whose body is loaded on every open via a
+// Datastar action. The AbortController and the simulator's response
+// HTML are seeded with `data-signals` on the host.
+templ asyncDialogDemo() {
+	@anchoredH3("async-loading") {
+		Async loading
+	}
+	@simDelayHint()
+	@demoFrameWith(DemoFrameOpts{
+		Width:          "100%",
+		StageMinHeight: "6rem",
+		StageMaxHeight: "24rem",
+		HTMLSource:     dialogAsyncLoadingHTML,
+		TemplSource:    dialogAsyncLoadingTempl,
+		CSSSource:      dialogAsyncLoadingCSS,
+	}) {
+		@examples.DialogAsyncLoading()
+	}
+}
+
+templ dialogAsyncFailureDemo() {
+	@anchoredH3("async-load-with-failure-swap") {
+		Async load with failure swap
+	}
+	<p class="demo-note">
+		Async load that shows a failure state and a retry
+		button when the request keeps failing.
+	</p>
+	<ul class="demo-note">
+		<li>
+			The loader lives in the dialog's
+			<code>{ "[data-neo-async-placeholder]" }</code> slot,
+			so close/reopen restores it; on success the server
+			morphs <code>{ "<div id=\"<host-id>-body\">" }</code>
+			in place.
+		</li>
+		<li>
+			Once Datastar exhausts its retry budget, a failure
+			view with a
+			<code>{ "[data-neo-popover-async-retry]" }</code>
+			button replaces the body without closing the dialog.
+		</li>
+		<li>
+			Same failure-swap contract as{ " " }
+			@neo.Link(neo.LinkOpts{Href: neo.Set(href.PagePopover() + "#async-load-with-failure-swap")}) {
+				PopoverAsync
+			}
+			.
+		</li>
+	</ul>
+	@serverErrorControls()
+	@dialogAsyncFailureSimulator()
+	@simDelayHint()
+	@demoFrameWith(DemoFrameOpts{
+		Width:          "100%",
+		StageMinHeight: "6rem",
+		StageMaxHeight: "24rem",
+		TemplSource:    dialogAsyncFailureTempl,
+		CSSSource:      dialogAsyncFailureCSS,
+	}) {
+		@examples.DialogAsyncFailure()
+	}
+}
+
+// dialogAsyncFailureSimulator seeds the retry-success payload: on a
+// reachable retry the simulator morphs this template into the body.
+templ dialogAsyncFailureSimulator() {
+	<template id="dialogAsyncDemo-success-template">
+		<div id="dialogAsyncDemo-body" class="dialog-async-slot dialog-async-loaded">
+			@templ.Raw(asyncDialogDefaultHTML)
+		</div>
+	</template>
+}
+
+// asyncPatchingDialogDemo: a dialog whose body grows as the server
+// streams progress patches. The steps wrapper is morph-targeted by
+// id (`#dialog-patching-steps`) so each patch is a child diff rather
+// than a wrapper replacement; the wrapper lives inside a
+// <neo-elastic> that detects the size change and animates the
+// dialog's height as rows accumulate.
+templ asyncPatchingDialogDemo() {
+	@anchoredH3("continuous-patching") {
+		Continuous patching
+	}
+	@demoFrameWith(DemoFrameOpts{
+		StageMinHeight: "max-content",
+		HTMLSource:     dialogContinuousPatchingHTML,
+		TemplSource:    dialogContinuousPatchingTempl,
+		CSSSource:      dialogContinuousPatchingCSS,
+	}) {
+		@examples.DialogContinuousPatching()
+	}
+}
+
+// dialogSimulator: /dialog/async-load and /dialog/work-stream for the
+// async-loading and continuous-patching examples.
+templ dialogSimulator() {
+	<script type="module">
+		import sim from "/static/datasim.js";
+
+		const escText = (str) =>
+			String(str)
+				.replace(/&/g, "&amp;")
+				.replace(/</g, "&lt;")
+				.replace(/>/g, "&gt;");
+
+		// Async-loading demo: each dialog open POSTs here. The
+		// response payload is read from the `dialog_async_html`
+		// signal (seeded on the host).
+		sim.post("/dialog/async-load", async (ctx, sse) => {
+			const s = ctx.signals || {};
+			const html = s.dialog_async_html == null
+				? ""
+				: String(s.dialog_async_html);
+			sse.patchElements(
+				`<div id="dialog-async-body" class="dialog-async-slot dialog-async-loaded">` +
+					html +
+					`</div>`,
+			);
+		});
+
+		// Failure-swap demo: each retry/open POSTs here. The handler
+		// always returns success; failures are injected globally by the
+		// server-error controls. On a reachable response it morphs the
+		// retry-success template into the body.
+		const templateHTML = (id) =>
+			document.getElementById(id).innerHTML.trim();
+
+		sim.post("/dialog/asyncload/", async (_ctx, sse) => {
+			sse.patchElements(templateHTML("dialogAsyncDemo-success-template"));
+		});
+
+		// Continuous-patching demo. Each `await sse.delay(...)` is a
+		// cancellation point: closing the dialog while the stream is
+		// in flight aborts the requestCancellation controller wired on
+		// the host, so the next delay rejects and no further patches
+		// land.
+		const patchingStep = (state, label) => {
+			const glyph = state === "done"
+				? `<neo-icon name="check"></neo-icon>`
+				: `<neo-spinner></neo-spinner>`;
+			return `<li data-state="${state}">${glyph}` +
+				`<span>${escText(label)}</span></li>`;
+		};
+		const patchingState = (steps, footer) =>
+			`<div id="dialog-patching-steps" class="dialog-patching-progress">` +
+			`<ul class="dialog-patching-steplist">` +
+			steps.map(([state, label]) => patchingStep(state, label)).join("") +
+			`</ul>` +
+			(footer || "") +
+			`</div>`;
+
+		sim.post("/dialog/work-stream", async (_ctx, sse) => {
+			const stages = [
+				"Connecting to server",
+				"Building artifacts",
+				"Bundling assets",
+				"Running tests",
+				"Pushing release",
+			];
+			const doneLabel = (i) => [
+				"Connected to server",
+				"Built artifacts",
+				"Bundled assets",
+				"Tests passed",
+				"Released v0.1.0",
+			][i];
+
+			await sse.delay(300);
+			for (let i = 0; i < stages.length; i++) {
+				const rows = [];
+				for (let j = 0; j < i; j++) {
+					rows.push(["done", doneLabel(j)]);
+				}
+				rows.push(["active", stages[i]]);
+				sse.patchElements(patchingState(rows));
+				await sse.delay(700);
+			}
+
+			const finalRows = stages.map((_, j) => ["done", doneLabel(j)]);
+			const footer =
+				`<div class="dialog-patching-result">` +
+				`<neo-icon name="sparkles"></neo-icon>` +
+				`<span>Deployment complete · 3.5s</span>` +
+				`</div>` +
+				`<div class="dialog-patching-actions">` +
+				`<neo-button variant="primary" data-neo-dialog-close>Dismiss</neo-button>` +
+				`</div>`;
+			sse.patchElements(patchingState(finalRows, footer));
+		});
+	</script>
+}

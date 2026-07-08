@@ -1,0 +1,103 @@
+package examples
+
+import (
+	"github.com/romshark/morpheus/internal/href"
+	"github.com/romshark/morpheus/neo"
+)
+
+templ SelectCompactPreview() {
+	@neo.Select(neo.SelectOpts{
+		Value:       neo.Set("evelyn_kone"),
+		AriaLabel:   neo.Set("Project owner (compact preview)"),
+		Placeholder: neo.Set("Pick an owner"),
+	}) {
+		@neo.Option(neo.OptionOpts{Value: neo.Set("diego_vega"), Label: neo.Set("Diego Vega")}) {
+			<div class="select-compact-preview-row">
+				<neo-avatar class="select-compact-preview-avatar" aria-hidden="true">
+					<img src={ href.Asset("avatar/avatar_1.svg") } alt=""/>
+				</neo-avatar>
+				<div class="select-compact-preview-col">
+					<div class="select-compact-preview-name">Diego Vega</div>
+					<div class="select-compact-preview-subtitle">CFO</div>
+				</div>
+			</div>
+		}
+		@neo.Option(neo.OptionOpts{Value: neo.Set("jan_osullivan"), Label: neo.Set("Jan O'Sullivan")}) {
+			<div class="select-compact-preview-row">
+				<neo-avatar class="select-compact-preview-avatar" aria-hidden="true">
+					<img src={ href.Asset("avatar/avatar_2.svg") } alt=""/>
+				</neo-avatar>
+				<div class="select-compact-preview-col">
+					<div class="select-compact-preview-name">Jan O'Sullivan</div>
+					<div class="select-compact-preview-subtitle">Lead Designer</div>
+				</div>
+			</div>
+		}
+		@neo.Option(neo.OptionOpts{Value: neo.Set("evelyn_kone"), Label: neo.Set("Evelyn Kone")}) {
+			<div class="select-compact-preview-row">
+				<neo-avatar class="select-compact-preview-avatar" aria-hidden="true">
+					<img src={ href.Asset("avatar/avatar_3.svg") } alt=""/>
+				</neo-avatar>
+				<div class="select-compact-preview-col">
+					<div class="select-compact-preview-name">Evelyn Kone</div>
+					<div class="select-compact-preview-subtitle">Data Analyst</div>
+				</div>
+			</div>
+		}
+		@neo.Option(neo.OptionOpts{Value: neo.Set("samira_khalil"), Label: neo.Set("Samira Khalil")}) {
+			<div class="select-compact-preview-row">
+				<neo-avatar class="select-compact-preview-avatar" aria-hidden="true">
+					<img src={ href.Asset("avatar/avatar_4.svg") } alt=""/>
+				</neo-avatar>
+				<div class="select-compact-preview-col">
+					<div class="select-compact-preview-name">Samira Khalil</div>
+					<div class="select-compact-preview-subtitle">Head of Engineering</div>
+				</div>
+			</div>
+		}
+		@neo.Option(neo.OptionOpts{Value: neo.Set("alice_larsson"), Label: neo.Set("Alice Larsson")}) {
+			<div class="select-compact-preview-row">
+				<neo-avatar class="select-compact-preview-avatar" aria-hidden="true">
+					<img src={ href.Asset("avatar/avatar_5.svg") } alt=""/>
+				</neo-avatar>
+				<div class="select-compact-preview-col">
+					<div class="select-compact-preview-name">Alice Larsson</div>
+					<div class="select-compact-preview-subtitle">Product Manager</div>
+				</div>
+			</div>
+		}
+		@neo.Option(neo.OptionOpts{Value: neo.Set("camila_duarte"), Label: neo.Set("Camila Duarte")}) {
+			<div class="select-compact-preview-row">
+				<neo-avatar class="select-compact-preview-avatar" aria-hidden="true">
+					<img src={ href.Asset("avatar/avatar_6.svg") } alt=""/>
+				</neo-avatar>
+				<div class="select-compact-preview-col">
+					<div class="select-compact-preview-name">Camila Duarte</div>
+					<div class="select-compact-preview-subtitle">DevOps Engineer</div>
+				</div>
+			</div>
+		}
+		@neo.Option(neo.OptionOpts{Value: neo.Set("theo_becker"), Label: neo.Set("Theo Becker")}) {
+			<div class="select-compact-preview-row">
+				<neo-avatar class="select-compact-preview-avatar" aria-hidden="true">
+					<img src={ href.Asset("avatar/avatar_7.svg") } alt=""/>
+				</neo-avatar>
+				<div class="select-compact-preview-col">
+					<div class="select-compact-preview-name">Theo Becker</div>
+					<div class="select-compact-preview-subtitle">UX Researcher</div>
+				</div>
+			</div>
+		}
+		@neo.Option(neo.OptionOpts{Value: neo.Set("mateusz_wisniewski"), Label: neo.Set("Mateusz Wiśniewski")}) {
+			<div class="select-compact-preview-row">
+				<neo-avatar class="select-compact-preview-avatar" aria-hidden="true">
+					<img src={ href.Asset("avatar/avatar_8.svg") } alt=""/>
+				</neo-avatar>
+				<div class="select-compact-preview-col">
+					<div class="select-compact-preview-name">Mateusz Wiśniewski</div>
+					<div class="select-compact-preview-subtitle">Fullstack Engineer</div>
+				</div>
+			</div>
+		}
+	}
+}

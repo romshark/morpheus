@@ -1,0 +1,100 @@
+package site
+
+import (
+	"github.com/romshark/morpheus/internal/href"
+	"github.com/romshark/morpheus/internal/site/examples"
+	"github.com/romshark/morpheus/neo"
+)
+
+templ PageDatalist(morpheusVersion string) {
+	@PageDoc(href.PageDatalist(), "Datalist", morpheusVersion) {
+		<section class="demo">
+			@anchoredH2("overview") {
+				Datalist
+			}
+			<p class="intro">
+				Component <code>{ "<neo-datalist>" }</code> is an
+				option-data container, not a rendered or interactive
+				element. Modeled on native <code>{ "<datalist>" }</code>,
+				it carries <code>{ "<neo-option>" }</code> /
+				<code>{ "<neo-optgroup>" }</code> data that control components like
+				{ " " }
+				@neo.Link(neo.LinkOpts{Href: neo.Set(href.PageSelect())}) {
+					Select
+				}
+				,{ " " }
+				@neo.Link(neo.LinkOpts{Href: neo.Set(href.PageCombobox())}) {
+					Combobox
+				}
+				, or
+				{ " " }
+				@neo.Link(neo.LinkOpts{Href: neo.Set(href.PageTextInput())}) {
+					Text input
+				}
+				{ " " }
+				suggestions read. Place a datalist
+				inside a control as its option source, or give it an
+				<code>{ "id" }</code> and point one or more controls at it
+				with <code>{ `list="<id>"` }</code>, exactly like
+				<code>{ `<input list>` }</code>.
+			</p>
+			@anchoredH2("reference") {
+				Reference
+			}
+			@ComponentDocs(datalistDoc)
+		</section>
+		<section class="demo">
+			@anchoredH2("examples") {
+				Examples
+			}
+			@anchoredH3("shared-across-controls") {
+				Shared across controls
+			}
+			<p class="demo-note">
+				One <code>{ `<neo-datalist id="…">` }</code> supplies the
+				same options to every control whose
+				<code>{ `list="<id>"` }</code> references it.
+			</p>
+			<ul class="demo-note">
+				<li>
+					A control opts in with <code>{ "list" }</code> set to
+					the datalist's <code>{ "id" }</code>, just like native
+					<code>{ `<input list>` }</code>. One id can feed many
+					controls.
+				</li>
+				<li>
+					The datalist itself renders nothing; each control
+					reads it and renders its own way: Select and
+					Combobox as listbox options, Text input as
+					free-text suggestions. Selection stays
+					per-control.
+				</li>
+				<li>
+					Patching the datalist (server morph, edit) updates
+					every control it feeds, with no per-control patch.
+				</li>
+			</ul>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				StageMaxHeight: "20rem",
+				Height:         "20rem",
+				HTMLSource:     datalistSharedHTML,
+				TemplSource:    datalistSharedTempl,
+				CSSSource:      datalistSharedCSS,
+			}) {
+				@examples.DatalistShared()
+			}
+		</section>
+	}
+}
+
+var datalistDoc = ComponentDoc{
+	Attributes: []DocAttribute{
+		{Name: "id", Type: "string", Observed: true,
+			Description: templ.Raw("Names the datalist so controls can reference it. A control opts in with <code>list=\"&lt;id&gt;\"</code> (like native <code>&lt;input list&gt;</code>); one id can feed several controls. Omit it for an <em>inline</em> datalist placed inside a single control. An inline datalist (or a control's own authored options) always wins over a referenced external one.")},
+	},
+	Slots: []DocSlot{
+		{Name: "default",
+			Description: templ.Raw("<code>&lt;neo-option&gt;</code> and <code>&lt;neo-optgroup&gt;</code> option data: the same children a <code>&lt;neo-select&gt;</code> / <code>&lt;neo-combobox&gt;</code> takes. The element is not interactive; the consuming control reads this data and owns the trigger, listbox, keyboard, and selection. Patching these children re-syncs every control the datalist feeds.")},
+	},
+}

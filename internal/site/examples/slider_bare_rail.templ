@@ -1,0 +1,18 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ SliderBareRail() {
+	@neo.Slider(neo.SliderOpts[float64]{
+		Min:       neo.Set(0.0),
+		Max:       neo.Set(100.0),
+		Step:      neo.Set(5.0),
+		Value:     neo.Set(60.0),
+		HideValue: neo.Set(true),
+		Marks: []neo.SliderMark{
+			{Value: 0, Label: "0"},
+			{Value: 50, Label: "50"},
+			{Value: 100, Label: "100"},
+		},
+	})
+}

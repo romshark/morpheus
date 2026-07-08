@@ -1,0 +1,285 @@
+package site
+
+import (
+	"github.com/romshark/morpheus/internal/href"
+	"github.com/romshark/morpheus/internal/site/examples"
+)
+
+templ PageMenu(morpheusVersion string) {
+	@PageDoc(href.PageMenu(), "Menu", morpheusVersion) {
+		<section class="demo">
+			@anchoredH2("overview") {
+				Menu
+			}
+			<p class="intro">
+				Component <code>{ "<neo-menu>" }</code> is a
+				keyboard-navigable dropdown menu. Author a trigger
+				plus a flat list of
+				<code>{ `<neo-menuitem>` }</code> /
+				<code>{ `<neo-submenu>` }</code> /
+				<code>{ `<hr>` }</code> children; the host wraps
+				them into a fly-out panel and owns hover, focus,
+				ArrowRight / ArrowLeft submenu navigation, Esc, and
+				a global <code>shortcut</code> binding per item:
+				<neo-kbd>{ "⌘" }</neo-kbd>+<neo-kbd>S</neo-kbd> works from anywhere
+				on this page.
+			</p>
+			@Playground(PlaygroundOpts{
+				ID:     "menu-playground",
+				Height: "24rem",
+				States: menuPlaygroundStates(),
+			})
+			<h3 class="api-element">{ `<neo-menu>` }</h3>
+			<p class="api-element-desc">
+				A triggerless menu panel. Nest it directly inside a
+				<code>{ `<neo-button>` }</code> (the button becomes the
+				dropdown trigger). The trigger can also be a context
+				menu: nest it in a&nbsp;
+				@ComponentLink("neo-contextmenu", href.PageContextMenu())
+				&nbsp;and it opens at the pointer instead. Its children are the rows; it wraps them into
+				a self-contained fly-out and owns hover, focus,
+				ArrowRight-to-enter / ArrowLeft-to-exit, and a global
+				keyboard <code>shortcut</code> per item. From a button
+				host: click or focus the button and press
+				<neo-kbd>Enter</neo-kbd> / <neo-kbd>Space</neo-kbd> / <neo-kbd>↓</neo-kbd> to
+				open; outside-click, focus loss, or <neo-kbd>Esc</neo-kbd>
+				closes.
+			</p>
+			@anchoredH2("reference") {
+				Reference
+			}
+			@ComponentDocs(menuDoc)
+			<h3 class="api-element">{ `<neo-menuitem>` }</h3>
+			<p class="api-element-desc">
+				A leaf row inside a menu or submenu. Activates on
+				click, <neo-kbd>Enter</neo-kbd>, <neo-kbd>Space</neo-kbd>, or a
+				global <code>shortcut</code> binding; emits
+				<code>neo-menuitem-select</code> and the enclosing
+				menu collapses the chain.
+			</p>
+			@ComponentDocs(menuItemDoc)
+			<h3 class="api-element">{ `<neo-submenu>` }</h3>
+			<p class="api-element-desc">
+				A nested fly-out. Place it as a child of
+				<code>{ `<neo-menu>` }</code> or another
+				<code>{ `<neo-submenu>` }</code>; the host
+				auto-renders the trigger row from <code>label</code>,
+				and the element's children become the panel. Opens on
+				hover, click, or <neo-kbd>-></neo-kbd>; <neo-kbd>←</neo-kbd> closes
+				and returns focus to the trigger row.
+			</p>
+			@ComponentDocs(submenuDoc)
+		</section>
+		<section class="demo">
+			@anchoredH2("examples") {
+				Examples
+			}
+			@anchoredH3("push-mode") {
+				Push mode
+			}
+			<p class="demo-note">
+				Submenus replace the root panel
+				rather than fly out to the side, with a
+				synthesized back row. This is the native mobile
+				pattern and the default for narrow viewports
+				(<code>(hover: none) and (pointer: coarse)</code>
+				or <code>(max-width: 36rem)</code>) when
+				<code>mode</code> is left at its default
+				<code>auto</code>. Forced here to preview on
+				desktop.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "24rem",
+				HTMLSource:     menuPushModeHTML,
+				TemplSource:    menuPushModeTempl,
+			}) {
+				@examples.MenuPushMode()
+			}
+			@anchoredH3("open-above") {
+				Open above
+			}
+			<p class="demo-note">
+				Anchor the panel at
+				<code>top-start</code>. Strict placement is the
+				default: the panel stays glued to
+				<code>top-*</code>, shrinks its
+				<code>max-height</code> to the slot above the
+				trigger, and scrolls the items inside. Submenu
+				fly-outs inherit. Toggle
+				<code>clamp-placement</code> on to opt into the
+				alternative: the menu re-anchors below the
+				trigger when there isn't enough room above.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "24rem",
+				HTMLSource:     menuOpenAboveHTML,
+				TemplSource:    menuOpenAboveTempl,
+				CSSSource:      menuOpenAboveCSS,
+			}) {
+				@examples.MenuOpenAbove()
+			}
+			@anchoredH3("disabled-rows") {
+				Disabled rows
+			}
+			<p class="demo-note">
+				Disabled items skip the focus ring, swallow
+				clicks, and ignore their bound shortcut. The
+				submenu's own <code>disabled</code> attribute
+				disables the entire branch.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "24rem",
+				HTMLSource:     menuDisabledRowsHTML,
+				TemplSource:    menuDisabledRowsTempl,
+			}) {
+				@examples.MenuDisabledRows()
+			}
+		</section>
+		<section class="demo">
+			@anchoredH2("examples-datastar") {
+				Examples: Datastar
+			}
+			@anchoredH3("morphing-during-interaction") {
+				Morphing during interaction
+			}
+			<p class="demo-note">
+				A Datastar app can
+				fat-morph the page at any moment, so the rows under a
+				<code>{ "<neo-menu>" }</code> may appear, disappear, or
+				flip to <code>disabled</code> while the menu is open.
+				Autoplay cycles the states below to simulate those
+				server-driven morphs: open the menu and watch it
+				reconcile in place: the trigger and panel stay
+				mounted, the menu stays open, and focus survives.
+			</p>
+			@Playground(PlaygroundOpts{
+				ID:       "menu-morph-playground",
+				Height:   "24rem",
+				Autoplay: true,
+				States:   menuMorphStates(),
+			})
+		</section>
+	}
+}
+
+var menuDoc = ComponentDoc{
+	Prefix: "menu",
+	Attributes: []DocAttribute{
+		{Name: "open", Type: "boolean", Default: "false", Reflected: true, Observed: true,
+			Description: templ.Raw("Controls visibility.")},
+		{Name: "placement", Type: "string", Default: `"bottom-start"`, Observed: true,
+			Description: templ.Raw("Anchor position relative to the trigger; same values as <code>&lt;neo-popover&gt;</code>.")},
+		{Name: "mode", Type: `"auto" | "cascade" | "push"`, Default: `"auto"`, Observed: true,
+			Description: templ.Raw("Submenu presentation. <code>cascade</code> flies out to the side (desktop). <code>push</code> replaces the parent panel with a back row (mobile). <code>auto</code> picks based on <code>(hover: none) and (pointer: coarse), (max-width: 36rem)</code>. Resolved value is mirrored to <code>data-mode-effective</code>.")},
+		{Name: "screen-offset", Type: "string", Observed: true,
+			Description: templ.Raw("Minimum margin between the panel and viewport edge; inherited by descendant <code>&lt;neo-submenu&gt;</code>s via the <code>--neo-menu-screen-offset</code> CSS cascade.")},
+		{Name: "clamp-placement", Type: "boolean", Default: "false", Observed: true,
+			Description: templ.Raw("Opt out of the default strict placement. The menu panel re-anchors its position to keep itself inside the viewport when content would otherwise overflow, instead of staying glued to the configured side and shrinking <code>max-width</code>/<code>max-height</code>. Inherited by descendant <code>&lt;neo-submenu&gt;</code>s unless they set their own value.")},
+		{Name: "min-fit-height", Type: `CSS length | "content"`, Default: `"content"`, Observed: true,
+			Description: templ.Raw("Minimum vertical slot the strict placement requires. If the slot at the configured side is shorter and the opposite side has more room, the menu auto-flips (e.g. <code>bottom-start</code> -> <code>top-start</code>). <code>content</code> resolves from the menu panel's scroll height on each positioning pass. Inherited by descendant <code>&lt;neo-submenu&gt;</code>s via the <code>--neo-menu-min-fit-height</code> CSS cascade.")},
+		{Name: "min-fit-width", Type: `CSS length | "content"`, Default: `"content"`, Observed: true,
+			Description: templ.Raw("Same as <code>min-fit-height</code> but for the horizontal axis (<code>left-*</code>/<code>right-*</code>). <code>content</code> resolves from the panel's scroll width. Use <code>0</code> to disable the horizontal flip.")},
+	},
+	Slots: []DocSlot{
+		{Name: "host",
+			Description: templ.Raw("Parent <code>&lt;neo-button&gt;</code> or <code>&lt;neo-contextmenu&gt;</code>: the button becomes the trigger; the context menu opens the panel at the pointer. There is no trigger child.")},
+		{Name: "default",
+			Description: templ.Raw("Children (<code>&lt;neo-menuitem&gt;</code>, <code>&lt;neo-submenu&gt;</code>, or <code>&lt;hr&gt;</code> separators) are wrapped into the fly-out panel on connect.")},
+	},
+	Events: []DocEvent{
+		{Name: "neo-menu-open", Bubbles: true,
+			Description: templ.Raw("Fires when the menu opens.")},
+		{Name: "neo-menu-close", Bubbles: true,
+			Description: templ.Raw("Fires when the menu closes.")},
+		{Name: "neo-menuitem-select", Detail: "{ value: string | null }", Bubbles: true,
+			Description: templ.Raw("Fires when any descendant <code>&lt;neo-menuitem&gt;</code> activates. The root menu auto-closes after.")},
+	},
+	CSSProps: []DocCSSProp{
+		{Name: "--neo-menu-bg", Default: "var(--btn-bg)",
+			Description: templ.Raw("Panel background.")},
+		{Name: "--neo-menu-color", Default: "var(--page-fg)",
+			Description: templ.Raw("Panel text color.")},
+		{Name: "--neo-menu-border-color", Default: "var(--btn-border)",
+			Description: templ.Raw("Panel border color.")},
+		{Name: "--neo-menu-border-width", Default: "1px",
+			Description: templ.Raw("Panel border width.")},
+		{Name: "--neo-menu-radius", Default: "var(--page-radius, 0.625rem)",
+			Description: templ.Raw("Panel corner radius.")},
+		{Name: "--neo-menu-padding", Default: "calc(var(--page-spacing, 0.25rem) * 1)",
+			Description: templ.Raw("Padding around the panel rows.")},
+		{Name: "--neo-menu-shadow", Default: "0 1px 2px rgba(0, 0, 0, 0.06), 0 8px 28px rgba(0, 0, 0, 0.18)",
+			Description: templ.Raw("Panel box shadow.")},
+		{Name: "--neo-menu-min-width", Default: "12rem",
+			Description: templ.Raw("Panel minimum width.")},
+		{Name: "--neo-menu-z-index", Default: "1200",
+			Description: templ.Raw("Panel stacking order.")},
+		{Name: "--neo-menu-item-radius", Default: "calc(var(--page-radius, 0.625rem) * 0.6)",
+			Description: templ.Raw("Row corner radius.")},
+		{Name: "--neo-menu-item-padding-y", Default: "calc(var(--page-spacing, 0.25rem) * 1.5)",
+			Description: templ.Raw("Vertical padding of a row.")},
+		{Name: "--neo-menu-item-padding-x", Default: "calc(var(--page-spacing, 0.25rem) * 2.5)",
+			Description: templ.Raw("Horizontal padding of a row.")},
+		{Name: "--neo-menu-item-hover-bg", Default: "color-mix(in srgb, var(--page-fg) 8%, transparent)",
+			Description: templ.Raw("Background of the focused row.")},
+		{Name: "--neo-menu-item-active-bg", Default: "color-mix(in srgb, var(--page-fg) 12%, transparent)",
+			Description: templ.Raw("Background of an open submenu's trigger row.")},
+		{Name: "--neo-menu-shortcut-color", Default: "color-mix(in srgb, var(--page-fg) 55%, transparent)",
+			Description: templ.Raw("Color of the trailing shortcut hint and submenu chevron.")},
+		{Name: "--neo-menu-separator-color", Default: "color-mix(in srgb, var(--page-fg) 12%, transparent)",
+			Description: templ.Raw("Color of an <code>&lt;hr&gt;</code> separator.")},
+		{Name: "--neo-menu-separator-width", Default: "1px",
+			Description: templ.Raw("Thickness of an <code>&lt;hr&gt;</code> separator.")},
+	},
+}
+
+var menuItemDoc = ComponentDoc{
+	Prefix: "menuitem",
+	Attributes: []DocAttribute{
+		{Name: "value", Type: "string",
+			Description: templ.Raw("Identifier carried in the <code>neo-menuitem-select</code> event detail.")},
+		{Name: "disabled", Type: "boolean", Default: "false", Observed: true,
+			Description: templ.Raw("Non-interactive state. Skips the focus ring, swallows clicks, and ignores the bound <code>shortcut</code>.")},
+		{Name: "shortcut", Type: "string", Observed: true,
+			Description: templ.Raw("Global hotkey, e.g. <code>Mod+S</code>, <code>Cmd+K</code>, <code>Shift+Alt+P</code>. <code>Mod</code> resolves to ⌘ on macOS, Ctrl elsewhere. Renders a trailing kbd-styled hint and registers a document-level keydown that synthesizes activation. Suppressed when the user is typing into an <code>&lt;input&gt;</code>, <code>&lt;textarea&gt;</code>, or contentEditable.")},
+	},
+	Slots: []DocSlot{
+		{Name: "default",
+			Description: templ.Raw("Item label. May contain text, icons, or any other markup.")},
+	},
+	Events: []DocEvent{
+		{Name: "neo-menuitem-select", Detail: "{ value: string | null }", Bubbles: true,
+			Description: templ.Raw("Fires on click, <code>Enter</code>, <code>Space</code>, or shortcut activation. The enclosing menu listens and closes the chain.")},
+	},
+}
+
+var submenuDoc = ComponentDoc{
+	Prefix: "submenu",
+	Attributes: []DocAttribute{
+		{Name: "label", Type: "string", Observed: true,
+			Description: templ.Raw("Required. Trigger row text. The host auto-renders the row + chevron.")},
+		{Name: "open", Type: "boolean", Default: "false", Reflected: true, Observed: true,
+			Description: templ.Raw("Controls fly-out visibility.")},
+		{Name: "placement", Type: "string", Default: `"right-start"`, Observed: true,
+			Description: templ.Raw("Anchor position relative to the trigger row.")},
+		{Name: "disabled", Type: "boolean", Default: "false", Observed: true,
+			Description: templ.Raw("Disables the entire branch: the trigger row is unfocusable and hover/click no longer opens.")},
+		{Name: "screen-offset", Type: "string", Observed: true,
+			Description: templ.Raw("Minimum margin between the panel and viewport edge; inherits from the ancestor <code>&lt;neo-menu&gt;</code> unless set directly.")},
+		{Name: "clamp-placement", Type: "boolean", Default: "false", Observed: true,
+			Description: templ.Raw("Opt out of the default strict placement and re-anchor the submenu panel position to fit. The ancestor <code>&lt;neo-menu&gt;</code>'s value is also honored, so usually only the root needs to set it.")},
+		{Name: "min-fit-height", Type: `CSS length | "content"`, Default: `"content"`, Observed: true,
+			Description: templ.Raw("Minimum vertical slot the strict placement requires; inherits from the ancestor <code>&lt;neo-menu&gt;</code> unless set directly.")},
+		{Name: "min-fit-width", Type: `CSS length | "content"`, Default: `"content"`, Observed: true,
+			Description: templ.Raw("Same as <code>min-fit-height</code> but for the horizontal axis.")},
+	},
+	Slots: []DocSlot{
+		{Name: "default",
+			Description: templ.Raw("Children (<code>&lt;neo-menuitem&gt;</code>, nested <code>&lt;neo-submenu&gt;</code>, or <code>&lt;hr&gt;</code> separators) are wrapped into the fly-out panel on connect.")},
+	},
+	Events: []DocEvent{
+		{Name: "neo-submenu-open", Bubbles: true,
+			Description: templ.Raw("Fires when the fly-out opens.")},
+		{Name: "neo-submenu-close", Bubbles: true,
+			Description: templ.Raw("Fires when the fly-out closes.")},
+	},
+}

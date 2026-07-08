@@ -1,0 +1,38 @@
+.combobox-rich-options-row {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	width: 100%;
+	min-width: 0;
+}
+
+.combobox-rich-options-avatar {
+	flex: 0 0 auto;
+	--neo-avatar-size: 2.25rem;
+	width: 2.25rem;
+	height: 2.25rem;
+}
+
+.combobox-rich-options-text {
+	flex: 1 1 auto;
+	min-width: 0;
+	text-align: left;
+}
+
+.combobox-rich-options-title {
+	font-weight: 600;
+	line-height: 1.3;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.combobox-rich-options-sub {
+	margin-top: 0.1rem;
+	font-size: 0.85em;
+	color: var(--muted);
+	line-height: 1.3;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}

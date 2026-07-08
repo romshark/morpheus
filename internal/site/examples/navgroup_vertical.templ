@@ -1,0 +1,26 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ NavgroupVertical() {
+	@neo.NavGroupAttrs(neo.NavGroupOpts{
+		Orientation: neo.Set(neo.OrientationVertical),
+		Wrap:        neo.Set(true),
+	}, templ.Attributes{
+		"role":       "menu",
+		"aria-label": "Account",
+	}) {
+		@neo.ButtonAttrs(neo.ButtonOpts{}, neo.NavGroupItem()) {
+			Profile
+		}
+		@neo.ButtonAttrs(neo.ButtonOpts{}, neo.NavGroupItem()) {
+			Settings
+		}
+		@neo.ButtonAttrs(neo.ButtonOpts{}, neo.NavGroupItem()) {
+			Billing
+		}
+		@neo.ButtonAttrs(neo.ButtonOpts{}, neo.NavGroupItem()) {
+			Sign out
+		}
+	}
+}

@@ -1,0 +1,71 @@
+package datastar
+
+import "github.com/romshark/morpheus/neo"
+
+// DialogAsync renders a <neo-dialog> wired to a Datastar SSE action
+// that fetches its body content on every open. The Loading template is
+// wrapped in [data-neo-async-placeholder] so the dialog can restore it
+// after close; on success the server morphs `<div id="<ID>-body">` in
+// place. When Datastar exhausts its retry budget, Failed is swapped
+// into the same body wrapper.
+//
+// The trigger label is supplied via children. Any descendant in the
+// Failed template that carries data-neo-popover-async-retry becomes a
+// retry button: a click aborts any in-flight fetch, restores loading,
+// and re-fires the action without closing the dialog.
+templ DialogAsync(opts DialogAsyncOpts) {
+	@neo.DialogAttrs(opts.DialogOpts, templ.Attributes{
+		"id":                       opts.ID,
+		"data-signals":             dialogAsyncSignals(opts),
+		"data-on:neo-dialog-open":  dialogAsyncOpen(opts),
+		"data-on:neo-dialog-close": dialogAsyncClose(opts),
+		"data-on:datastar-fetch":   dialogAsyncOnFetch(opts),
+		"data-on:click":            dialogAsyncRetry(opts),
+	}) {
+		<neo-button data-neo-dialog-trigger>
+			{ children... }
+		</neo-button>
+		<dialog>
+			if opts.Title != "" || opts.Description != "" {
+				<header data-neo-dialog-header>
+					if opts.Title != "" {
+						<h2 data-neo-dialog-title>{ opts.Title }</h2>
+					}
+					if opts.Description != "" {
+						<p data-neo-dialog-description>{ opts.Description }</p>
+					}
+				</header>
+			}
+			<div id={ opts.ID + "-body" } class="dialog-async-slot">
+				<div data-neo-async-placeholder class="dialog-async-skeleton">
+					@opts.Loading
+				</div>
+			</div>
+			if opts.CloseLabel != "" {
+				<footer data-neo-dialog-footer>
+					<neo-button data-neo-dialog-close>{ opts.CloseLabel }</neo-button>
+				</footer>
+			}
+		</dialog>
+	}
+	<template id={ opts.ID + "-tpl-loading" }>
+		<div data-neo-async-placeholder class="dialog-async-skeleton">
+			@opts.Loading
+		</div>
+	</template>
+	<template id={ opts.ID + "-tpl-failed" }>
+		@dialogAsyncFailed(opts.Failed)
+	</template>
+}
+
+// dialogAsyncFailed renders the user-supplied Failed template, or a
+// minimal built-in callout if none was provided.
+templ dialogAsyncFailed(failed templ.Component) {
+	if failed != nil {
+		@failed
+	} else {
+		<div class="popover-async-failed" role="alert">
+			Failed to load.
+		</div>
+	}
+}

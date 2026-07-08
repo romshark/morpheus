@@ -1,0 +1,16 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ ButtongroupVertical() {
+	@neo.ButtonGroupAttrs(neo.ButtonGroupOpts{
+		Value:       neo.Set("medium"),
+		Orientation: neo.Set(neo.AxisVertical),
+	}, templ.Attributes{
+		"aria-label": "Size",
+	}) {
+		<neo-button value="small">S</neo-button>
+		<neo-button value="medium">M</neo-button>
+		<neo-button value="large">L</neo-button>
+	}
+}

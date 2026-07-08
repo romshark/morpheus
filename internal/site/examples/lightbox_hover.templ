@@ -1,0 +1,32 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ LightboxHover() {
+	@neo.LightboxAttrs(neo.LightboxOpts{
+		Contained:       neo.Set(true),
+		Transition:      neo.Set(neo.LightboxTransitionFade),
+		Hover:           neo.Set(true),
+		HoverOpenDelay:  neo.Set(120),
+		HoverCloseDelay: neo.Set(200),
+	}, templ.Attributes{
+		"class":      "lb-hover-preview",
+		"aria-label": "Photo preview",
+	}) {
+		<div class="lb-hover-frame">
+			@neo.ButtonAttrs(neo.ButtonOpts{}, neo.LightboxTrigger()) {
+				Hover to preview
+			}
+		</div>
+		<div
+			class="lb-hover-content"
+			{ neo.LightboxContent()... }
+		>
+			<img
+				src="/static/jar_5.webp"
+				alt="A glass jar"
+				class="lb-hover-img"
+			/>
+		</div>
+	}
+}

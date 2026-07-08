@@ -1,0 +1,20 @@
+package neo
+
+// ColorField renders <neo-color-field>, a 2D saturation/value picker.
+templ ColorField[N Number](opts ColorFieldOpts[N]) {
+	@ColorFieldAttrs(opts, nil)
+}
+
+// ColorFieldAttrs is [ColorField] with an extra attribute set.
+templ ColorFieldAttrs[N Number](opts ColorFieldOpts[N], attrs templ.Attributes) {
+	<neo-color-field
+		{ opts.Value.Attrs("value")... }
+		{ opts.Hue.Attrs("hue")... }
+		if opts.Disabled.Or(false) {
+			disabled
+			aria-disabled="true"
+		}
+		{ opts.AriaLabel.Attrs("aria-label")... }
+		{ attrs... }
+	></neo-color-field>
+}

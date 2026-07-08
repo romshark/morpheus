@@ -1,0 +1,159 @@
+package site
+
+import (
+	"github.com/romshark/morpheus/internal/href"
+	"github.com/romshark/morpheus/internal/site/examples"
+	"github.com/romshark/morpheus/neo"
+)
+
+templ PageBadge(morpheusVersion string) {
+	@PageDoc(href.PageBadge(), "Badge", morpheusVersion) {
+		<section class="demo">
+			@anchoredH2("overview") {
+				Badge
+			}
+			<p class="intro">
+				Component <code>{ "<neo-badge>" }</code> is a small
+				inline label / chip for status, counts, tags, and
+				category markers. Variants reuse the button colour
+				tokens so theme swaps carry badges along.
+			</p>
+			@Playground(PlaygroundOpts{
+				ID:     "badge-playground",
+				States: badgePlaygroundStates(),
+			})
+			@anchoredH2("reference") {
+				Reference
+			}
+			@ComponentDocs(badgeDoc)
+		</section>
+		<section class="demo">
+			@anchoredH2("examples") {
+				Examples
+			}
+			@anchoredH3("variants") {
+				Variants
+			}
+			<p class="demo-note">
+				Five fills tied to the button colour tokens:
+				default (neutral), <code>primary</code>,
+				<code>secondary</code>, <code>danger</code>, and
+				<code>outline</code> (transparent with a border).
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     badgeVariantsHTML,
+				TemplSource:    badgeVariantsTempl,
+			}) {
+				@examples.BadgeVariants()
+			}
+			@anchoredH3("with-icon") {
+				With icon
+			}
+			<p class="demo-note">
+				Drop a <code>{ "<neo-icon>" }</code> as the
+				badge's first child. The flex layout spaces it
+				from the label, and it inherits the badge's font
+				colour, so the icon recolours with the variant.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     badgeWithIconHTML,
+				TemplSource:    badgeWithIconTempl,
+			}) {
+				@examples.BadgeWithIcon()
+			}
+			@anchoredH3("with-status-dot") {
+				With status dot
+			}
+			<p class="demo-note">
+				A small inline <code>{ "<span>" }</code> with a
+				round <code>background</code> makes a
+				status-indicator badge. A modifier class sets the
+				dot colour per status.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     badgeStatusDotHTML,
+				TemplSource:    badgeStatusDotTempl,
+				CSSSource:      badgeStatusDotCSS,
+			}) {
+				@examples.BadgeStatusDot()
+			}
+			@anchoredH3("as-link") {
+				As link
+			}
+			<p class="demo-note">
+				Wrap the badge in an <code>{ "<a>" }</code>. It is
+				<code>display: inline-flex</code>, so it nests
+				inside inline anchors and picks up the link's
+				hover and focus from the cascade.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     badgeAsLinkHTML,
+				TemplSource:    badgeAsLinkTempl,
+				CSSSource:      badgeAsLinkCSS,
+			}) {
+				@examples.BadgeAsLink()
+			}
+			@anchoredH3("counts") {
+				Counts
+			}
+			<p class="demo-note">
+				Short numeric badges next to a label: the
+				unread-count pattern. <code>line-height: 1</code>
+				keeps them from stretching the row at small font
+				sizes.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     badgeCountsHTML,
+				TemplSource:    badgeCountsTempl,
+				CSSSource:      badgeCountsCSS,
+			}) {
+				@examples.BadgeCounts()
+			}
+			<p class="demo-note">
+				The badge sits on the text baseline, so it reads
+				as part of a sentence without pushing surrounding
+				lines apart. New tags roll out&nbsp;
+				@neo.Badge(neo.BadgeOpts{Variant: neo.Set(neo.BadgeVariantPrimary)}) {
+					weekly
+				}
+				&nbsp;and the experimental ones ship behind a&nbsp;
+				@neo.Badge(neo.BadgeOpts{Variant: neo.Set(neo.BadgeVariantOutline)}) {
+					beta
+				}
+				&nbsp;flag.
+			</p>
+		</section>
+	}
+}
+
+var badgeDoc = ComponentDoc{
+	Attributes: []DocAttribute{
+		{Name: "variant", Type: `"primary" | "secondary" | "danger" | "outline"`,
+			Description: templ.Raw("Visual style. Omit for the default neutral chip.")},
+	},
+	CSSProps: []DocCSSProp{
+		{Name: "--neo-badge-padding-y", Default: "0.125rem",
+			Description: templ.Raw("Vertical padding.")},
+		{Name: "--neo-badge-padding-x", Default: "0.5rem",
+			Description: templ.Raw("Horizontal padding.")},
+		{Name: "--neo-badge-radius", Default: "9999px",
+			Description: templ.Raw("Corner radius. Default fully rounds the chip into a pill.")},
+		{Name: "--neo-badge-font-size", Default: "0.75rem",
+			Description: templ.Raw("Label font size.")},
+		{Name: "--neo-badge-font-weight", Default: "600",
+			Description: templ.Raw("Label font weight.")},
+		{Name: "--neo-badge-gap", Default: "0.25rem",
+			Description: templ.Raw("Gap between an icon and the label.")},
+		{Name: "--neo-badge-border-color", Default: "color-mix(in srgb, var(--page-fg) 14%, transparent)",
+			Description: templ.Raw("Border color of the default and <code>outline</code> chips.")},
+		{Name: "--neo-badge-bg", Default: "color-mix(in srgb, var(--page-fg) 6%, transparent)",
+			Description: templ.Raw("Background of the default chip.")},
+		{Name: "--neo-badge-color", Default: "var(--page-fg)",
+			Description: templ.Raw("Text color of the default chip.")},
+	},
+}

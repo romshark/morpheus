@@ -1,0 +1,39 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ SelectFormSubmission() {
+	<form id="select-form-demo" class="select-form-row">
+		@neo.Select(neo.SelectOpts{
+			Name:        neo.Set("plan"),
+			Value:       neo.Set("team"),
+			AriaLabel:   neo.Set("Billing plan"),
+			Placeholder: neo.Set("Billing plan"),
+		}) {
+			@neo.Option(neo.OptionOpts{Value: neo.Set("free")}) {
+				Free
+			}
+			@neo.Option(neo.OptionOpts{Value: neo.Set("team")}) {
+				Team
+			}
+			@neo.Option(neo.OptionOpts{Value: neo.Set("enterprise")}) {
+				Enterprise
+			}
+		}
+		<button type="submit" class="select-form-submit">
+			Submit
+		</button>
+		<output id="select-form-output" class="select-form-output">Submit to see the posted value.</output>
+	</form>
+	<script>
+		(() => {
+			const form = document.getElementById('select-form-demo');
+			const out = document.getElementById('select-form-output');
+			form.addEventListener('submit', (e) => {
+				e.preventDefault();
+				const entries = [...new FormData(form)].map(([k, v]) => k + '=' + v);
+				out.textContent = entries.length ? entries.join(' & ') : '(nothing submitted)';
+			});
+		})();
+	</script>
+}

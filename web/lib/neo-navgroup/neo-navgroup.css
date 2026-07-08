@@ -1,0 +1,70 @@
+/* -----------------------------------------------------------------------
+ * <neo-navgroup>
+ * ----------------------------------------------------------------------- */
+
+:root {
+	--neo-navgroup-gap: calc(var(--page-spacing, 0.25rem) * 2);
+}
+
+neo-navgroup {
+	display: inline-flex;
+	gap: var(--neo-navgroup-gap);
+}
+
+/* The explicit `display` above (and the grid orientation rule below)
+ * otherwise beats the UA `[hidden]` rule, so `hidden` wouldn't hide
+ * the group (e.g. neo-select toggling its option source off during
+ * async load). */
+neo-navgroup[hidden] {
+	/* biome-ignore lint/complexity/noImportantStyles: must beat the explicit display above so `hidden` actually hides the group. */
+	display: none !important;
+}
+
+neo-navgroup[orientation="vertical"] {
+	flex-direction: column;
+}
+
+neo-navgroup[orientation="grid"] {
+	display: inline-grid;
+	/* JS mirrors arbitrary `columns` values into this property after
+	 * upgrade. The attribute selectors below cover common counts for
+	 * first paint so server-rendered grids don't flash as one column. */
+	grid-template-columns: repeat(var(--neo-navgroup-columns, 1), auto);
+}
+
+neo-navgroup[orientation="grid"][columns="1"] {
+	--neo-navgroup-columns: 1;
+}
+neo-navgroup[orientation="grid"][columns="2"] {
+	--neo-navgroup-columns: 2;
+}
+neo-navgroup[orientation="grid"][columns="3"] {
+	--neo-navgroup-columns: 3;
+}
+neo-navgroup[orientation="grid"][columns="4"] {
+	--neo-navgroup-columns: 4;
+}
+neo-navgroup[orientation="grid"][columns="5"] {
+	--neo-navgroup-columns: 5;
+}
+neo-navgroup[orientation="grid"][columns="6"] {
+	--neo-navgroup-columns: 6;
+}
+neo-navgroup[orientation="grid"][columns="7"] {
+	--neo-navgroup-columns: 7;
+}
+neo-navgroup[orientation="grid"][columns="8"] {
+	--neo-navgroup-columns: 8;
+}
+neo-navgroup[orientation="grid"][columns="9"] {
+	--neo-navgroup-columns: 9;
+}
+neo-navgroup[orientation="grid"][columns="10"] {
+	--neo-navgroup-columns: 10;
+}
+neo-navgroup[orientation="grid"][columns="11"] {
+	--neo-navgroup-columns: 11;
+}
+neo-navgroup[orientation="grid"][columns="12"] {
+	--neo-navgroup-columns: 12;
+}

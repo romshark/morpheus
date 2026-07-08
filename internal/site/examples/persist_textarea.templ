@@ -1,0 +1,17 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ PersistTextarea() {
+	@neo.Persist(neo.PersistOpts{
+		Key:     neo.Set("demo-persist-textarea"),
+		Props:   []string{"value"},
+		On:      []string{"input"},
+		Session: neo.Set(true),
+	}) {
+		@neo.Textarea(neo.TextareaOpts{
+			Rows:        neo.Set(4),
+			Placeholder: neo.Set("Type a draft and reload the page…"),
+		})
+	}
+}

@@ -1,0 +1,14 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ SwitchStates() {
+	<label class="switch-states-label">
+		@neo.Switch(neo.SwitchOpts{})
+		<span>Airplane mode</span>
+	</label>
+	<label class="switch-states-label">
+		@neo.Switch(neo.SwitchOpts{Checked: neo.Set(true)})
+		<span>Auto-update</span>
+	</label>
+}

@@ -1,0 +1,32 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ MenuOpenAbove() {
+	<div class="menu-open-above-stage">
+		<neo-button>
+			File
+			@neo.Icon("chevrons-up-down")
+			@neo.Menu(neo.MenuOpts{Placement: neo.Set(neo.PlacementTopStart)}) {
+				@neo.MenuItem(neo.MenuItemOpts{Value: neo.Set("new"), Shortcut: neo.Set("Mod+N")}) {
+					New file
+				}
+				@neo.MenuItem(neo.MenuItemOpts{Value: neo.Set("save"), Shortcut: neo.Set("Mod+S")}) {
+					Save
+				}
+				<hr/>
+				@neo.SubMenu(neo.SubMenuOpts{Label: neo.Set("Open recent")}) {
+					@neo.MenuItem(neo.MenuItemOpts{Value: neo.Set("a")}) {
+						Project A.json
+					}
+					@neo.MenuItem(neo.MenuItemOpts{Value: neo.Set("b")}) {
+						Project B.json
+					}
+				}
+				@neo.MenuItem(neo.MenuItemOpts{Value: neo.Set("quit"), Shortcut: neo.Set("Mod+Q")}) {
+					Quit
+				}
+			}
+		</neo-button>
+	</div>
+}

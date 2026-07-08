@@ -1,0 +1,183 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+// PopoverCascading is a nested menu: each submenu is a child neo-popover
+// living inside its parent's content panel. Hover/keydown wiring on every
+// inner navgroup drives roving focus and submenu open/close.
+templ PopoverCascading() {
+	@neo.PopoverAttrs(neo.PopoverOpts{}, templ.Attributes{
+		"data-on:neo-popover-open": "window.__neoMenuOpen(el, evt)",
+	}) {
+		<neo-button { neo.PopoverTrigger()... }>
+			File
+			@neo.Icon("chevrons-up-down")
+		</neo-button>
+		<div
+			class="popover-cascading-panel"
+			{ neo.PopoverContent()... }
+		>
+			@neo.NavGroupAttrs(neo.NavGroupOpts{
+				Orientation: neo.Set(neo.OrientationVertical),
+				Wrap:        neo.Set(true),
+			}, templ.Attributes{
+				"role":              "menu",
+				"class":             "popover-menu",
+				"data-on:mouseover": "window.__neoMenuHover(el, evt)",
+				"data-on:keydown":   "window.__neoMenuKey(el, evt)",
+			}) {
+				<neo-button
+					role="menuitem"
+					{ neo.NavGroupItem()... }
+					{ neo.PopoverClose()... }
+				>
+					New file
+				</neo-button>
+				@neo.PopoverAttrs(neo.PopoverOpts{
+					Placement:     neo.Set(neo.PlacementRightStart),
+					TriggerAction: neo.Set(neo.PopoverTriggerShow),
+				}, templ.Attributes{
+					"data-on:neo-popover-open": "window.__neoMenuOpen(el, evt)",
+				}) {
+					<neo-button
+						role="menuitem"
+						{ neo.PopoverTrigger()... }
+						{ neo.NavGroupItem()... }
+					>
+						Open recent
+						@neo.Icon("chevron-right")
+					</neo-button>
+					<div
+						class="popover-cascading-panel"
+						{ neo.PopoverContent()... }
+					>
+						@neo.NavGroupAttrs(neo.NavGroupOpts{
+							Orientation: neo.Set(neo.OrientationVertical),
+							Wrap:        neo.Set(true),
+						}, templ.Attributes{
+							"role":              "menu",
+							"class":             "popover-menu",
+							"data-on:mouseover": "window.__neoMenuHover(el, evt)",
+							"data-on:keydown":   "window.__neoMenuKey(el, evt)",
+						}) {
+							<neo-button
+								role="menuitem"
+								{ neo.NavGroupItem()... }
+								{ neo.PopoverClose()... }
+							>Project A.json</neo-button>
+							<neo-button
+								role="menuitem"
+								{ neo.NavGroupItem()... }
+								{ neo.PopoverClose()... }
+							>Project B.json</neo-button>
+							<neo-button
+								role="menuitem"
+								{ neo.NavGroupItem()... }
+								{ neo.PopoverClose()... }
+							>Notes.md</neo-button>
+						}
+					</div>
+				}
+				<neo-button
+					role="menuitem"
+					{ neo.NavGroupItem()... }
+					{ neo.PopoverClose()... }
+				>
+					Save
+				</neo-button>
+				@neo.PopoverAttrs(neo.PopoverOpts{
+					Placement:     neo.Set(neo.PlacementRightStart),
+					TriggerAction: neo.Set(neo.PopoverTriggerShow),
+				}, templ.Attributes{
+					"data-on:neo-popover-open": "window.__neoMenuOpen(el, evt)",
+				}) {
+					<neo-button
+						role="menuitem"
+						{ neo.PopoverTrigger()... }
+						{ neo.NavGroupItem()... }
+					>
+						Settings
+						@neo.Icon("chevron-right")
+					</neo-button>
+					<div
+						class="popover-cascading-panel"
+						{ neo.PopoverContent()... }
+					>
+						@neo.NavGroupAttrs(neo.NavGroupOpts{
+							Orientation: neo.Set(neo.OrientationVertical),
+							Wrap:        neo.Set(true),
+						}, templ.Attributes{
+							"role":              "menu",
+							"class":             "popover-menu",
+							"data-on:mouseover": "window.__neoMenuHover(el, evt)",
+							"data-on:keydown":   "window.__neoMenuKey(el, evt)",
+						}) {
+							<neo-button
+								role="menuitem"
+								{ neo.NavGroupItem()... }
+								{ neo.PopoverClose()... }
+							>Editor</neo-button>
+							@neo.PopoverAttrs(neo.PopoverOpts{
+								Placement:     neo.Set(neo.PlacementRightStart),
+								TriggerAction: neo.Set(neo.PopoverTriggerShow),
+							}, templ.Attributes{
+								"data-on:neo-popover-open": "window.__neoMenuOpen(el, evt)",
+							}) {
+								<neo-button
+									role="menuitem"
+									{ neo.PopoverTrigger()... }
+									{ neo.NavGroupItem()... }
+								>
+									Theme
+									@neo.Icon("chevron-right")
+								</neo-button>
+								<div
+									class="popover-cascading-panel-narrow"
+									{ neo.PopoverContent()... }
+								>
+									@neo.NavGroupAttrs(neo.NavGroupOpts{
+										Orientation: neo.Set(neo.OrientationVertical),
+										Wrap:        neo.Set(true),
+									}, templ.Attributes{
+										"role":              "menu",
+										"class":             "popover-menu",
+										"data-on:mouseover": "window.__neoMenuHover(el, evt)",
+										"data-on:keydown":   "window.__neoMenuKey(el, evt)",
+									}) {
+										<neo-button
+											role="menuitemradio"
+											{ neo.NavGroupItem()... }
+											{ neo.PopoverClose()... }
+										>Light</neo-button>
+										<neo-button
+											role="menuitemradio"
+											{ neo.NavGroupItem()... }
+											{ neo.PopoverClose()... }
+										>Dark</neo-button>
+										<neo-button
+											role="menuitemradio"
+											{ neo.NavGroupItem()... }
+											{ neo.PopoverClose()... }
+										>System</neo-button>
+									}
+								</div>
+							}
+							<neo-button
+								role="menuitem"
+								{ neo.NavGroupItem()... }
+								{ neo.PopoverClose()... }
+							>Keybindings</neo-button>
+						}
+					</div>
+				}
+				<neo-button
+					role="menuitem"
+					{ neo.NavGroupItem()... }
+					{ neo.PopoverClose()... }
+				>
+					Quit
+				</neo-button>
+			}
+		</div>
+	}
+}

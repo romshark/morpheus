@@ -1,0 +1,197 @@
+package site
+
+import (
+	"github.com/romshark/morpheus/internal/href"
+	"github.com/romshark/morpheus/internal/site/examples"
+)
+
+templ PageCheckbox(morpheusVersion string) {
+	@PageDoc(href.PageCheckbox(), "Checkbox", morpheusVersion) {
+		@checkboxTreeSimulator()
+		<section class="demo">
+			@anchoredH2("overview") {
+				Checkbox
+			}
+			<p class="intro">
+				Component <code>{ "<neo-checkbox>" }</code> is a
+				three-state checkbox: <code>checked</code>,
+				unchecked, or <code>indeterminate</code>
+				(<code>{ `aria-checked="mixed"` }</code>) for parent
+				rows whose children are partially selected.
+				Participates
+				in a wrapping <code>{ `<label>` }</code> like a
+				native checkbox.
+			</p>
+			@Playground(PlaygroundOpts{
+				ID:     "checkbox-playground",
+				States: checkboxPlaygroundStates(),
+			})
+			@anchoredH2("reference") {
+				Reference
+			}
+			@ComponentDocs(checkboxDoc)
+		</section>
+		<section class="demo">
+			@anchoredH2("examples") {
+				Examples
+			}
+			@anchoredH3("states") {
+				States
+			}
+			<p class="demo-note">
+				Three states: unchecked, checked,
+				indeterminate. Click the box or focus with
+				<neo-kbd>Tab</neo-kbd> and toggle with <neo-kbd>Space</neo-kbd>.
+				Input on a mixed checkbox resolves it to
+				checked, matching the native rule.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     checkboxStatesHTML,
+				TemplSource:    checkboxStatesTempl,
+				CSSSource:      checkboxStatesCSS,
+			}) {
+				@examples.CheckboxStates()
+			}
+			@anchoredH3("small-size") {
+				Small size
+			}
+			<p class="demo-note">
+				The <code>{ `size="sm"` }</code> variant is a
+				0.875rem square, for dense rows where the default
+				1.15rem box would dominate.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     checkboxSmallHTML,
+				TemplSource:    checkboxSmallTempl,
+			}) {
+				@examples.CheckboxSmall()
+			}
+			@anchoredH3("disabled") {
+				Disabled
+			}
+			<p class="demo-note">
+				<code>disabled</code> blocks pointer events,
+				drops the host from the tab order, and fades it
+				to 50% opacity. Each state still reads correctly.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     checkboxDisabledHTML,
+				TemplSource:    checkboxDisabledTempl,
+			}) {
+				@examples.CheckboxDisabled()
+			}
+			@anchoredH3("with-label") {
+				With label
+			}
+			<p class="demo-note">
+				Wrapping a checkbox in a
+				<code>{ `<label>` }</code> makes the whole row
+				clickable: the host forwards clicks on its
+				closest <code>{ `<label>` }</code> ancestor and
+				moves focus to itself, keeping the keyboard
+				target in sync.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     checkboxWithLabelHTML,
+				TemplSource:    checkboxWithLabelTempl,
+				CSSSource:      checkboxWithLabelCSS,
+			}) {
+				@examples.CheckboxWithLabel()
+			}
+			@anchoredH3("settings-group") {
+				Settings group
+			}
+			<p class="demo-note">
+				A typical settings panel: each row is its own
+				<code>{ `<label>` }</code>, with the checkbox
+				on the left and the description on the right.
+				The disabled row still shows its current
+				value but resists interaction.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				Width:          "100%",
+				StageMinHeight: "max-content",
+				HTMLSource:     checkboxSettingsGroupHTML,
+				TemplSource:    checkboxSettingsGroupTempl,
+				CSSSource:      checkboxSettingsGroupCSS,
+			}) {
+				@examples.CheckboxSettingsGroup()
+			}
+		</section>
+		<section class="demo">
+			@anchoredH2("examples-datastar") {
+				Examples: Datastar
+			}
+			@anchoredH3("tree-selection") {
+				Tree selection
+			}
+			<p class="demo-note">
+				Parent nodes go <code>indeterminate</code> when
+				only some descendants are selected,
+				<code>checked</code> when all are, and unchecked
+				when none are. Each change posts to the server,
+				which recomputes the parents and morphs the tree
+				back into place.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     checkboxTreeHTML,
+				TemplSource:    checkboxTreeTempl,
+				ScriptSource:   checkboxTreeScript,
+			}) {
+				@examples.CheckboxTree()
+			}
+		</section>
+	}
+}
+
+var checkboxDoc = ComponentDoc{
+	Attributes: []DocAttribute{
+		{Name: "checked", Type: "boolean", Default: "false", Reflected: true, Observed: true,
+			Description: templ.Raw("Mirrored to <code>aria-checked</code>.")},
+		{Name: "indeterminate", Type: "boolean", Default: "false", Reflected: true, Observed: true,
+			Description: templ.Raw("Three-state mixed indicator.")},
+		{Name: "disabled", Type: "boolean", Default: "false", Observed: true,
+			Description: templ.Raw("Non-interactive state.")},
+		{Name: "size", Type: `"sm"`,
+			Description: templ.Raw("Compact size. Omit for the default size.")},
+	},
+	Events: []DocEvent{
+		{Name: "neo-checkbox-change", Detail: "{ checked: boolean, indeterminate: boolean }", Bubbles: true,
+			Description: templ.Raw("Fires after a click or <code>Space</code> / <code>Enter</code> activation.")},
+	},
+	CSSProps: []DocCSSProp{
+		{Name: "--neo-checkbox-size", Default: "1.15rem",
+			Description: templ.Raw("Box width and height. Drops to <code>0.875rem</code> at <code>size=\"sm\"</code>.")},
+		{Name: "--neo-checkbox-radius", Default: "calc(var(--page-radius, 0.25rem) * 0.5)",
+			Description: templ.Raw("Corner radius.")},
+		{Name: "--neo-checkbox-border-width", Default: "1px",
+			Description: templ.Raw("Border width.")},
+		{Name: "--neo-checkbox-border", Default: "var(--btn-border)",
+			Description: templ.Raw("Border color when unchecked.")},
+		{Name: "--neo-checkbox-bg", Default: "transparent",
+			Description: templ.Raw("Background when unchecked.")},
+		{Name: "--neo-checkbox-checked-bg", Default: "var(--accent)",
+			Description: templ.Raw("Background when checked or indeterminate.")},
+		{Name: "--neo-checkbox-checked-border", Default: "var(--accent)",
+			Description: templ.Raw("Border color when checked or indeterminate.")},
+		{Name: "--neo-checkbox-mark-color", Default: "var(--accent-fg)",
+			Description: templ.Raw("Color of the check / indeterminate mark.")},
+		{Name: "--neo-checkbox-transition-duration", Default: "calc(120ms * var(--neo-duration-scale, 1))",
+			Description: templ.Raw("Duration of the background and mark transitions.")},
+		{Name: "--neo-checkbox-mark", Default: `url("data:image/svg+xml;utf8,<svg …><polyline points='5 12 10 17 19 7'/></svg>")`,
+			Description: templ.Raw("Mask image for the checked mark. Override to swap the mark shape.")},
+		{Name: "--neo-checkbox-mark-indeterminate", Default: `url("data:image/svg+xml;utf8,<svg …><line x1='5' y1='12' x2='19' y2='12'/></svg>")`,
+			Description: templ.Raw("Mask image for the indeterminate mark.")},
+	},
+}
+
+// checkboxTreeSimulator loads the tree example's POST handler
+// (/static/sim/checkbox/tree.js, also surfaced in its Server script tab).
+templ checkboxTreeSimulator() {
+	<script type="module" src="/static/sim/checkbox/tree.js"></script>
+}

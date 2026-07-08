@@ -1,0 +1,62 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+// treeFsNode is one node of the file-system demo tree. Branches carry
+// Children; leaves leave it nil.
+type treeFsNode struct {
+	Label    string
+	Expanded bool
+	Children []treeFsNode
+}
+
+var treeFsData = []treeFsNode{
+	{Label: "src", Expanded: true, Children: []treeFsNode{
+		{Label: "components", Expanded: true, Children: []treeFsNode{
+			{Label: "Button.tsx"},
+			{Label: "Card.tsx"},
+			{Label: "Modal.tsx"},
+		}},
+		{Label: "hooks", Children: []treeFsNode{
+			{Label: "useDebounce.ts"},
+			{Label: "useMediaQuery.ts"},
+		}},
+		{Label: "App.tsx"},
+		{Label: "main.tsx"},
+	}},
+	{Label: "public", Children: []treeFsNode{
+		{Label: "favicon.svg"},
+		{Label: "robots.txt"},
+	}},
+	{Label: "package.json"},
+	{Label: "tsconfig.json"},
+}
+
+// treeFsItem renders any depth; recursion lives in the same file so the
+// embedded source is self-contained.
+templ treeFsItem(n treeFsNode) {
+	if len(n.Children) == 0 {
+		@neo.TreeItem(false) {
+			@neo.TreeLabel() {
+				{ n.Label }
+			}
+		}
+	} else {
+		@neo.TreeItem(n.Expanded) {
+			@neo.TreeLabel() {
+				{ n.Label }
+			}
+			for _, c := range n.Children {
+				@treeFsItem(c)
+			}
+		}
+	}
+}
+
+templ TreeFileSystem() {
+	@neo.Tree() {
+		for _, n := range treeFsData {
+			@treeFsItem(n)
+		}
+	}
+}

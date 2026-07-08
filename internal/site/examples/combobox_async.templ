@@ -1,0 +1,27 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ ComboboxAsync() {
+	@neo.ComboboxAttrs(neo.ComboboxOpts{
+		Async:             neo.Set(true),
+		AriaLabel:         neo.Set("Assignee"),
+		Placeholder:       neo.Set("Pick an assignee"),
+		SearchPlaceholder: neo.Set("Search assignees…"),
+	}, templ.Attributes{
+		"id":                        "demo-async-combobox",
+		"data-signals:cmbctl":       "new AbortController()",
+		"data-on:neo-combobox-load": "@post('/combobox/async-load/', {requestCancellation: $cmbctl})",
+		"data-on:neo-popover-close": "$cmbctl.abort(); $cmbctl = new AbortController()",
+	}) {
+		@neo.Datalist(neo.DatalistOpts{ID: neo.Set("demo-async-combobox-options")}) {
+			<div
+				class="combobox-async-placeholder"
+				{ neo.AsyncPlaceholder()... }
+			>
+				<neo-spinner></neo-spinner>
+				Loading…
+			</div>
+		}
+	}
+}

@@ -1,0 +1,18 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ ProgressMarks() {
+	@neo.Progress(neo.ProgressOpts[float64]{
+		Min:    neo.Set(0.0),
+		Max:    neo.Set(100.0),
+		Value:  neo.Set(60.0),
+		Label:  neo.Set("Quality"),
+		Unit:   neo.Set("%"),
+		Easing: neo.Set("300ms"),
+		Marks: []neo.ProgressMark{
+			{Value: 35, Label: "Minimum"},
+			{Value: 70, Label: "Recommended"},
+		},
+	})
+}

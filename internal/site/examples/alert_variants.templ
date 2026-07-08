@@ -1,0 +1,73 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ AlertVariants() {
+	<div class="alert-variants-grid">
+		@neo.Alert(neo.AlertOpts{}) {
+			@neo.AlertIcon() {
+				@neo.Icon("info")
+			}
+			@neo.AlertContent() {
+				@neo.AlertTitle(3) {
+					Neutral
+				}
+				@neo.AlertDescription() {
+					General note with a calm surface.
+				}
+			}
+		}
+		@neo.Alert(neo.AlertOpts{Variant: neo.Set(neo.AlertVariantInfo)}) {
+			@neo.AlertIcon() {
+				@neo.Icon("info")
+			}
+			@neo.AlertContent() {
+				@neo.AlertTitle(3) {
+					Info
+				}
+				@neo.AlertDescription() {
+					Useful context before continuing.
+				}
+			}
+		}
+		@neo.Alert(neo.AlertOpts{Variant: neo.Set(neo.AlertVariantSuccess)}) {
+			@neo.AlertIcon() {
+				@neo.Icon("circle-check")
+			}
+			@neo.AlertContent() {
+				@neo.AlertTitle(3) {
+					Success
+				}
+				@neo.AlertDescription() {
+					The operation completed cleanly.
+				}
+			}
+		}
+		@neo.Alert(neo.AlertOpts{Variant: neo.Set(neo.AlertVariantWarning)}) {
+			@neo.AlertIcon() {
+				@neo.Icon("triangle-alert")
+			}
+			@neo.AlertContent() {
+				@neo.AlertTitle(3) {
+					Warning
+				}
+				@neo.AlertDescription() {
+					Review this before moving on.
+				}
+			}
+		}
+		@neo.Alert(neo.AlertOpts{Variant: neo.Set(neo.AlertVariantDanger)}) {
+			@neo.AlertIcon() {
+				@neo.Icon("circle-x")
+			}
+			@neo.AlertContent() {
+				@neo.AlertTitle(3) {
+					Danger
+				}
+				@neo.AlertDescription() {
+					Something needs attention now.
+				}
+			}
+		}
+	</div>
+}

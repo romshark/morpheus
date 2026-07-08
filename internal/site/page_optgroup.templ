@@ -1,0 +1,58 @@
+package site
+
+import (
+	"github.com/romshark/morpheus/internal/href"
+	"github.com/romshark/morpheus/neo"
+)
+
+templ PageOptgroup(morpheusVersion string) {
+	@PageDoc(href.PageOptgroup(), "Optgroup", morpheusVersion) {
+		<section class="demo">
+			@anchoredH2("overview") {
+				Optgroup
+			}
+			<p class="intro">
+				Component <code>{ "<neo-optgroup>" }</code> is an
+				option-data carrier, not a rendered or interactive
+				element. It groups its
+				{ " " }
+				@neo.Link(neo.LinkOpts{Href: neo.Set(href.PageOption())}) {
+					Option
+				}
+				{ " " }
+				children under a heading the consuming control renders
+				above them. Place it inside a
+				{ " " }
+				@neo.Link(neo.LinkOpts{Href: neo.Set(href.PageSelect())}) {
+					Select
+				}
+				,{ " " }
+				@neo.Link(neo.LinkOpts{Href: neo.Set(href.PageCombobox())}) {
+					Combobox
+				}
+				, or
+				{ " " }
+				@neo.Link(neo.LinkOpts{Href: neo.Set(href.PageDatalist())}) {
+					Datalist
+				}
+				. The group itself renders nothing; the control owns the
+				listbox and draws the heading.
+			</p>
+			@anchoredH2("reference") {
+				Reference
+			}
+			@ComponentDocs(optgroupDoc)
+		</section>
+	}
+}
+
+var optgroupDoc = ComponentDoc{
+	Attributes: []DocAttribute{
+		{Name: "label", Type: "string",
+			Description: templ.Raw("The group heading the control renders above the contained options. A non-selectable separator, not an option value.")},
+	},
+	Slots: []DocSlot{
+		{Name: "default",
+			Description: templ.Raw("The <code>&lt;neo-option&gt;</code> children that belong to the group.")},
+	},
+}

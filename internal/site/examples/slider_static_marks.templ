@@ -1,0 +1,22 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ SliderStaticMarks() {
+	@neo.Slider(neo.SliderOpts[float64]{
+		Min:         neo.Set(0.0),
+		Max:         neo.Set(100.0),
+		Step:        neo.Set(5.0),
+		Value:       neo.Set(35.0),
+		Label:       neo.Set("Zoom"),
+		Unit:        neo.Set("%"),
+		StaticMarks: neo.Set(true),
+		Marks: []neo.SliderMark{
+			{Value: 0, Label: "0"},
+			{Value: 25, Label: "25"},
+			{Value: 50, Label: "50"},
+			{Value: 75, Label: "75"},
+			{Value: 100, Label: "100"},
+		},
+	})
+}

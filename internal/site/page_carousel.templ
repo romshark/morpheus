@@ -1,0 +1,414 @@
+package site
+
+import (
+	"github.com/romshark/morpheus/internal/href"
+	"github.com/romshark/morpheus/internal/site/examples"
+)
+
+templ PageCarousel(morpheusVersion string) {
+	@PageDoc(href.PageCarousel(), "Carousel", morpheusVersion) {
+		<section class="demo">
+			@anchoredH2("overview") {
+				Carousel
+			}
+			<p class="intro">
+				Component <code>{ "<neo-carousel>" }</code> is a
+				scroll-snap carousel over a native
+				<code>{ "<neo-carousel-track>" }</code> with
+				<code>{ "<neo-carousel-slide>" }</code> children.
+				Scrolling runs on the compositor via
+				<code>overflow + scroll-snap-type</code>; JS only
+				wires prev / next, keyboard, and active-slide
+				tracking. Add
+				<code>{ `<neo-button data-neo-carousel-prev>` }</code>
+				/ <code>{ `<neo-button data-neo-carousel-next>` }</code>
+				to opt into arrow controls and the boolean
+				<code>dots</code> attribute to opt into the dot
+				pagination (rendered in the host's shadow root).
+			</p>
+			@Playground(PlaygroundOpts{
+				ID: "carousel-playground",
+				// Carousels fill the stage (height:100%), so they need a
+				// definite canvas: vertical and touch="false" require it outright.
+				Height: "14rem",
+				States: carouselPlaygroundStates(),
+			})
+			@anchoredH2("reference") {
+				Reference
+			}
+			@ComponentDocs(carouselDoc)
+		</section>
+		<section class="demo">
+			@anchoredH2("examples") {
+				Examples
+			}
+			@anchoredH3("multi-item") {
+				Multiple slides per view
+			}
+			<p class="demo-note">
+				Show more than one slide with
+				<code>{ `per-view="N"` }</code>. Use
+				<code>spacing</code> to set the gap.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				Width:          "100%",
+				Height:         "14rem",
+				StageMinHeight: "max-content",
+				HTMLSource:     carouselMultiHTML,
+				TemplSource:    carouselMultiTempl,
+				CSSSource:      carouselMultiCSS,
+			}) {
+				@examples.CarouselMulti()
+			}
+			@anchoredH3("auto-width") {
+				Intrinsic widths
+			}
+			<p class="demo-note">
+				Use <code>{ `per-view="auto"` }</code> when slides
+				should keep their own widths.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				Height:         "14rem",
+				StageMinHeight: "max-content",
+				HTMLSource:     carouselAutoHTML,
+				TemplSource:    carouselAutoTempl,
+				CSSSource:      carouselAutoCSS,
+			}) {
+				@examples.CarouselAutoWidth()
+			}
+			@anchoredH3("card-deck") {
+				Card deck
+			}
+			<p class="demo-note">
+				Card slides with center snap, mouse drag, click
+				navigation, and visible-slide highlighting.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				Width:          "100%",
+				StageMinHeight: "max-content",
+				HTMLSource:     carouselCardsHTML,
+				TemplSource:    carouselCardsTempl,
+				CSSSource:      carouselCardsCSS,
+				StageClass:     "card-deck-example",
+			}) {
+				@examples.CarouselCards()
+			}
+			@anchoredH3("custom-dots") {
+				Custom navigation styling
+			}
+			<p class="demo-note">
+				Dots live in the host's shadow root. Reach them from
+				the page via <code>::part(dots)</code> (the tablist
+				container) and <code>::part(dot)</code> (each button);
+				the kit also mirrors state into named parts
+				(<code>{ `::part(dot-partial)` }</code>,
+				<code>{ `::part(dot-full)` }</code>,
+				<code>{ `::part(dot-current)` }</code>) so you can
+				style the three visibility states and the active dot.
+				Here a scoped <code>{ "<style>" }</code> block turns the
+				buttons into bars.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				Width:       "100%",
+				Height:      "14rem",
+				HTMLSource:  carouselCustomDotsHTML,
+				TemplSource: carouselCustomDotsTempl,
+				CSSSource:   carouselCustomDotsCSS,
+			}) {
+				@examples.CarouselCustomDots()
+			}
+			@anchoredH3("autoplay") {
+				Autoplay + loop
+			}
+			<p class="demo-note">
+				Set <code>{ `autoplay="3000"` }</code> to advance on
+				a timer. Add <code>loop</code> and an optional pause
+				button.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				Height:      "14rem",
+				HTMLSource:  carouselAutoplayHTML,
+				TemplSource: carouselAutoplayTempl,
+				CSSSource:   carouselAutoplayCSS,
+			}) {
+				@examples.CarouselAutoplay()
+			}
+			@anchoredH3("easing") {
+				Custom easing
+			}
+			<p class="demo-note">
+				Use <code>easing</code> to customize programmatic
+				scrolls. Durations can also reuse the theme easing.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				Width:       "100%",
+				Height:      "14rem",
+				HTMLSource:  carouselEasingHTML,
+				TemplSource: carouselEasingTempl,
+				CSSSource:   carouselEasingCSS,
+			}) {
+				@examples.CarouselEasing()
+			}
+			@anchoredH3("vertical") {
+				Vertical
+			}
+			<p class="demo-note">
+				Set <code>{ `orientation="vertical"` }</code> to get a
+				y-axis carousel. Give the host a height.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				Width:       "18rem",
+				Height:      "14rem",
+				HTMLSource:  carouselVerticalHTML,
+				TemplSource: carouselVerticalTempl,
+				CSSSource:   carouselVerticalCSS,
+			}) {
+				@examples.CarouselVertical()
+			}
+			@anchoredH3("touch") {
+				No touch
+			}
+			<p class="demo-note">
+				Use <code>{ `touch="false"` }</code> when gestures should belong
+				to slide content. Buttons and keyboard still work.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				Width:       "100%",
+				Height:      "12rem",
+				HTMLSource:  carouselNoTouchHTML,
+				TemplSource: carouselNoTouchTempl,
+				CSSSource:   carouselNoTouchCSS,
+			}) {
+				@examples.CarouselNoTouch()
+			}
+			@anchoredH3("many-slides") {
+				100 slides
+			}
+			<p class="demo-note">
+				For large slide sets, skip dots and use buttons,
+				wheel, or touch navigation.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				Width:       "100%",
+				Height:      "14rem",
+				HTMLSource:  carouselManySlidesHTML,
+				TemplSource: carouselManySlidesTempl,
+				CSSSource:   carouselManySlidesCSS,
+			}) {
+				@examples.CarouselManySlides()
+			}
+		</section>
+	}
+}
+
+var carouselDoc = ComponentDoc{
+	Attributes: []DocAttribute{
+		{Name: "value", Type: "string", Reflected: true, Observed: true,
+			Description: templ.Raw(
+				"Active slide value. Falls back to the " +
+					"first slide when unset. An external patch sets the " +
+					"slide instantly (jump); a fat morph that drops it is " +
+					"no command, so the current slide stays. The " +
+					"carousel's own navigation always animates.",
+			)},
+		{Name: "orientation", Type: `"horizontal" | "vertical"`, Default: "horizontal", Observed: true,
+			Description: templ.Raw(
+				"Layout axis. Vertical mode uses y-axis scrolling " +
+					"and up / down arrow keys.",
+			)},
+		{Name: "per-view", Type: `number | "auto"`, Default: "1", Observed: true,
+			Description: templ.Raw(
+				"Visible slides per view. Use <code>auto</code> " +
+					"to keep each slide's intrinsic size.",
+			)},
+		{Name: "spacing", Type: "length", Observed: true,
+			Description: templ.Raw(
+				"Gap between slides; accepts any CSS length.",
+			)},
+		{Name: "align", Type: `"start" | "center" | "end"`, Default: "start", Observed: true,
+			Description: templ.Raw(
+				"Where the active slide snaps inside the viewport.",
+			)},
+		{Name: "loop", Type: "boolean", Default: "false", Observed: true,
+			Description: templ.Raw(
+				"Wrap prev / next and autoplay past the ends.",
+			)},
+		{Name: "touch", Type: "true | false", Default: "true", Observed: true,
+			Description: templ.Raw(
+				"Native gesture scrolling. Set <code>touch=\"false\"</code> " +
+					"to disable it; buttons and keyboard navigation still work.",
+			)},
+		{Name: "autoplay", Type: "number (ms)", Observed: true,
+			Description: templ.Raw(
+				"Milliseconds between automatic advances. Unset " +
+					"disables autoplay; use <code>paused</code> or a " +
+					"<code>data-neo-carousel-pause</code> button " +
+					"to suspend.",
+			)},
+		{Name: "autoplay-step", Type: "number", Default: "1", Observed: true,
+			Description: templ.Raw(
+				"Slides advanced per autoplay tick. Only applies " +
+					"when <code>per-view</code> is greater than 1.",
+			)},
+		{Name: "paused", Type: "boolean", Default: "false", Reflected: true, Observed: true,
+			Description: templ.Raw(
+				"Suspends autoplay without removing the interval. " +
+					"Toggled by " +
+					"<code>data-neo-carousel-pause</code> buttons " +
+					"and by <neo-kbd>Space</neo-kbd> while the host is " +
+					"focused.",
+			)},
+		{Name: "aria-label", Type: "string",
+			Description: templ.Raw(
+				"Accessible name for the carousel region.",
+			)},
+		{Name: "easing", Type: "string", Observed: true,
+			Description: templ.Raw(
+				"Timing for programmatic scrolls. Use a duration " +
+					"(<code>\"600ms\"</code>) or duration plus timing " +
+					"function. Falls back to theme " +
+					"<code>--neo-easing</code> and respects reduced motion.",
+			)},
+		{Name: "animate-patch", Type: "boolean", Default: "false",
+			Description: templ.Raw(
+				"Animate external <code>value</code> patches (using " +
+					"<code>easing</code>) instead of jumping. Read per " +
+					"patch: set it alongside <code>value</code> to glide " +
+					"one transition, omit it to jump the next.",
+			)},
+		{Name: "highlight-active", Type: "boolean", Default: "false",
+			Description: templ.Raw(
+				"Opt-in visibility styling. Off-screen slides dim " +
+					"to " +
+					"<code>--neo-carousel-slide-inactive-opacity</code> " +
+					"and visible slides remain opaque. The kit also " +
+					"writes <code>data-neo-carousel-slide-visibility</code> " +
+					"for custom styling.",
+			)},
+		{Name: "click-nav", Type: "boolean", Default: "false",
+			Description: templ.Raw(
+				"Click a slide to activate it. Interactive content " +
+					"inside slides keeps its normal click behavior.",
+			)},
+		{Name: "drag-nav", Type: "boolean", Default: "false",
+			Description: templ.Raw(
+				"Mouse / pen drag scrolls the track. Touch keeps " +
+					"native scrolling; ignored when <code>touch=\"false\"</code>.",
+			)},
+		{Name: "auto-activate", Type: "boolean", Default: "false",
+			Description: templ.Raw(
+				"Arrow keys on a focused dot also commit the slide " +
+					"during the focus move (mirrors neo-tabs). Without " +
+					"it, arrow keys are focus-only and " +
+					"<neo-kbd>Enter</neo-kbd> / <neo-kbd>Space</neo-kbd> commits.",
+			)},
+		{Name: "dots", Type: "boolean", Default: "false",
+			Description: templ.Raw(
+				"Renders the dot tablist in the host's shadow root. " +
+					"Position / style via <code>::part(dots)</code> and " +
+					"<code>::part(dot)</code>; customize per-dot inner " +
+					"markup with <code>&lt;template " +
+					"data-neo-carousel-dot&gt;</code>.",
+			)},
+		{Name: "step", Type: "number",
+			Description: templ.Raw(
+				"Slides advanced per prev / next / arrow press. " +
+					"Defaults to <code>per-view</code> so each press " +
+					"exposes a whole new visible group; set to 1 (or " +
+					"any N) for finer stepping.",
+			)},
+	},
+	Slots: []DocSlot{
+		{Name: "default",
+			Description: templ.Raw(
+				"Track, slides, and optional navigation controls.",
+			)},
+		{Name: "<template data-neo-carousel-dot>",
+			Description: templ.Raw(
+				"Optional. Cloned into each dot button for custom " +
+					"inner markup; the kit still owns the button " +
+					"styling (focus, aria-current, " +
+					"<code>data-neo-carousel-dot-visibility</code>).",
+			)},
+		{Name: "[data-neo-carousel-prev]",
+			Description: templ.Raw(
+				"Previous-slide trigger.",
+			)},
+		{Name: "[data-neo-carousel-next]",
+			Description: templ.Raw(
+				"Next-slide trigger.",
+			)},
+		{Name: "[data-neo-carousel-pause]",
+			Description: templ.Raw(
+				"Toggles <code>paused</code>; mirrors state via " +
+					"<code>aria-pressed</code> and disables when " +
+					"autoplay is unset.",
+			)},
+		{Name: "[data-neo-carousel-when-playing]",
+			Description: templ.Raw(
+				"Child of <code>[data-neo-carousel-pause]</code> shown " +
+					"while playing (button not pressed); the kit hides it " +
+					"when paused.",
+			)},
+		{Name: "[data-neo-carousel-when-paused]",
+			Description: templ.Raw(
+				"Child of <code>[data-neo-carousel-pause]</code> shown " +
+					"while paused (button pressed); the kit hides it while " +
+					"playing.",
+			)},
+	},
+	Events: []DocEvent{
+		{Name: "neo-carousel-change",
+			Detail:  "{ value: string, index: number }",
+			Bubbles: true,
+			Description: templ.Raw(
+				"Fires after the active slide changes. " +
+					"<code>index</code> is zero-based.",
+			)},
+	},
+	Parts: []DocPart{
+		{Name: "dots",
+			Description: templ.Raw(
+				"Dot tablist container in the shadow root. " +
+					"Position and lay it out from the page.",
+			)},
+		{Name: "dot",
+			Description: templ.Raw(
+				"Each dot button.",
+			)},
+		{Name: "dot-partial",
+			Description: templ.Raw(
+				"Added to a dot whose slide is partially visible.",
+			)},
+		{Name: "dot-full",
+			Description: templ.Raw(
+				"Added to a dot whose slide is fully visible.",
+			)},
+		{Name: "dot-current",
+			Description: templ.Raw(
+				"Added to the active dot.",
+			)},
+	},
+	CSSProps: []DocCSSProp{
+		{Name: "--neo-carousel-spacing", Default: "1rem",
+			Description: templ.Raw("Gap between slides.")},
+		{Name: "--neo-carousel-track-radius", Default: "var(--page-radius, 0)",
+			Description: templ.Raw("Track corner radius.")},
+		{Name: "--neo-carousel-focus-ring", Default: "var(--accent, currentColor)",
+			Description: templ.Raw("Track focus-visible outline color.")},
+		{Name: "--neo-carousel-dot-size", Default: "0.55rem",
+			Description: templ.Raw("Dot diameter.")},
+		{Name: "--neo-carousel-dot-gap", Default: "0.4rem",
+			Description: templ.Raw("Gap between dots.")},
+		{Name: "--neo-carousel-dot-bg", Default: "color-mix(in srgb, var(--page-fg) 25%, transparent)",
+			Description: templ.Raw("Inactive dot color.")},
+		{Name: "--neo-carousel-dot-active-bg", Default: "var(--accent, currentColor)",
+			Description: templ.Raw("Active dot color.")},
+		{Name: "--neo-carousel-dot-radius", Default: "999px",
+			Description: templ.Raw("Dot corner radius.")},
+		{Name: "--neo-carousel-slide-inactive-opacity", Default: "0.55",
+			Description: templ.Raw("Off-screen slide opacity under <code>highlight-active</code>. Set to 1 to disable dimming.")},
+		{Name: "--neo-carousel-slide-transition", Default: "200ms var(--neo-easing, ease-out)",
+			Description: templ.Raw("Slide opacity transition under <code>highlight-active</code>.")},
+	},
+}

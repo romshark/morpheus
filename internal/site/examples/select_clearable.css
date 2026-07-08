@@ -1,0 +1,9 @@
+.select-clearable-icon {
+	font-size: 1.1em;
+	line-height: 1;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 1.5rem;
+	flex: 0 0 auto;
+}

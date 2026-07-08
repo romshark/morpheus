@@ -1,0 +1,208 @@
+package site
+
+import (
+	"github.com/romshark/morpheus/internal/href"
+	"github.com/romshark/morpheus/internal/site/examples"
+)
+
+templ PageRating(morpheusVersion string) {
+	@PageDoc(href.PageRating(), "Rating", morpheusVersion) {
+		<section class="demo">
+			@anchoredH2("overview") {
+				Rating
+			}
+			<p class="intro">
+				Component <code>{ "<neo-rating>" }</code> is a
+				symbol-based rating control (stars by default)
+				following the WAI-ARIA slider pattern: the host is
+				the single focusable slider and the symbols are
+				decorative, so screen readers announce one value
+				instead of <code>max</code> separate widgets. Hover
+				or drag previews; click commits. Keyboard arrows,
+				<code>Home</code> / <code>End</code>, and digit keys
+				preview; <code>Enter</code> commits. Set
+				<code>precision="0.5"</code> to allow half symbols.
+			</p>
+			@Playground(PlaygroundOpts{
+				ID:     "rating-playground",
+				States: ratingPlaygroundStates(),
+			})
+			@anchoredH2("reference") {
+				Reference
+			}
+			@ComponentDocs(ratingDoc)
+		</section>
+		<section class="demo">
+			@anchoredH2("examples") {
+				Examples
+			}
+			@anchoredH3("basic") {
+				Basic
+			}
+			<p class="demo-note">
+				Five stars, whole-symbol steps. Click a star or focus
+				the control, preview with a digit / arrow key, and press
+				<code>Enter</code> to commit.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     ratingBasicHTML,
+				TemplSource:    ratingBasicTempl,
+			}) {
+				@examples.RatingBasic()
+			}
+			@anchoredH3("half-symbol-precision") {
+				Half-symbol precision
+			}
+			<p class="demo-note">
+				With <code>{ `precision="0.5"` }</code> the left half of
+				a symbol selects the half value and the right half the
+				whole one; pointer and arrow keys both step by
+				<code>0.5</code>.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     ratingHalfHTML,
+				TemplSource:    ratingHalfTempl,
+			}) {
+				@examples.RatingHalf()
+			}
+			@anchoredH3("readonly") {
+				Read-only
+			}
+			<p class="demo-note">
+				<code>readonly</code> shows an aggregate score: it is
+				still announced to assistive tech but takes no pointer
+				or keyboard input and stays out of the tab order.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     ratingReadonlyHTML,
+				TemplSource:    ratingReadonlyTempl,
+			}) {
+				@examples.RatingReadonly()
+			}
+			@anchoredH3("disabled") {
+				Disabled
+			}
+			<p class="demo-note">
+				<code>disabled</code> is read-only plus a dimmed,
+				non-interactive look; use it when the rating is
+				temporarily unavailable.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     ratingDisabledHTML,
+				TemplSource:    ratingDisabledTempl,
+			}) {
+				@examples.RatingDisabled()
+			}
+			@anchoredH3("custom-max") {
+				Custom range
+			}
+			<p class="demo-note">
+				<code>max</code> sets the symbol count; here a
+				score out of ten.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     ratingTenHTML,
+				TemplSource:    ratingTenTempl,
+			}) {
+				@examples.RatingTen()
+			}
+		</section>
+		<section class="demo">
+			@anchoredH2("customization") {
+				Customization
+			}
+			<p class="demo-note">
+				The symbol is any <code>neo-icon</code> via the
+				<code>icon</code> attribute, and three CSS custom
+				properties drive the look:
+				<code>{ `--neo-rating-color` }</code> (filled),
+				<code>{ `--neo-rating-empty-color` }</code> (track),
+				and <code>{ `--neo-rating-symbol-size` }</code> /
+				<code>{ `--neo-rating-symbol-gap` }</code>. The
+				<code>size</code> attribute is a shorthand for the
+				common small / large symbol sizes.
+			</p>
+			@anchoredH3("hearts") {
+				Hearts, large
+			}
+			<p class="demo-note">
+				<code>{ `icon="heart"` }</code> swaps the symbol;
+				<code>{ `size="lg"` }</code> scales it up.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     ratingHeartsHTML,
+				TemplSource:    ratingHeartsTempl,
+			}) {
+				@examples.RatingHearts()
+			}
+			@anchoredH3("themed") {
+				Themed via custom properties
+			}
+			<p class="demo-note">
+				A scoped class redefines the
+				<code>{ `--neo-rating-*` }</code> variables (a warm
+				ember palette with wider spacing) without touching the
+				component itself.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     ratingFireHTML,
+				TemplSource:    ratingFireTempl,
+				CSSSource:      ratingFireCSS,
+			}) {
+				@examples.RatingFire()
+			}
+		</section>
+	}
+}
+
+var ratingDoc = ComponentDoc{
+	Attributes: []DocAttribute{
+		{Name: "value", Type: "number", Default: "0", Reflected: true, Observed: true,
+			Description: templ.Raw("Current rating, clamped to <code>[0, max]</code> and snapped to <code>precision</code>.")},
+		{Name: "max", Type: "number", Default: "5", Observed: true,
+			Description: templ.Raw("Number of symbols.")},
+		{Name: "precision", Type: "number", Default: "1", Observed: true,
+			Description: templ.Raw("Smallest selectable step in <code>(0, 1]</code>. <code>0.5</code> gives half symbols, <code>0.25</code> quarters.")},
+		{Name: "icon", Type: "string", Default: `"star"`, Observed: true,
+			Description: templ.Raw("<code>neo-icon</code> name drawn for each symbol (e.g. <code>heart</code>).")},
+		{Name: "label", Type: "string", Observed: true,
+			Description: templ.Raw("Accessible name; mirrored to <code>aria-label</code> unless an <code>aria-labelledby</code> is already set.")},
+		{Name: "size", Type: `"" | "sm" | "lg"`, Default: `""`,
+			Description: templ.Raw("Symbol size shorthand for <code>--neo-rating-symbol-size</code>.")},
+		{Name: "readonly", Type: "boolean", Default: "false", Observed: true,
+			Description: templ.Raw("Display-only: announced to AT but not interactive and out of the tab order.")},
+		{Name: "disabled", Type: "boolean", Default: "false", Observed: true,
+			Description: templ.Raw("Read-only plus a dimmed, non-interactive appearance.")},
+	},
+	Events: []DocEvent{
+		{Name: "neo-rating-input", Detail: "{ value: number }", Bubbles: true,
+			Description: templ.Raw("Fires continuously while previewing (hover, drag, or keyboard candidate) with the value not yet committed.")},
+		{Name: "neo-rating-change", Detail: "{ value: number }", Bubbles: true,
+			Description: templ.Raw("Fires on commit (click, drag end, keyboard Enter) and only when the value actually changed.")},
+	},
+	Parts: []DocPart{
+		{Name: "svg",
+			Description: templ.Raw("The symbol's <code>&lt;svg&gt;</code>, forwarded from the nested <code>&lt;neo-icon&gt;</code> so its fill and stroke can be styled.")},
+	},
+	CSSProps: []DocCSSProp{
+		{Name: "--neo-rating-symbol-size", Default: "1.5rem",
+			Description: templ.Raw("Symbol size.")},
+		{Name: "--neo-rating-symbol-gap", Default: "0.15rem",
+			Description: templ.Raw("Gap between symbols.")},
+		{Name: "--neo-rating-color", Default: "#f59e0b",
+			Description: templ.Raw("Color of filled symbols.")},
+		{Name: "--neo-rating-preview-color", Default: "var(--neo-rating-color)",
+			Description: templ.Raw("Color of the preview shown while hovering or dragging.")},
+		{Name: "--neo-rating-empty-color", Default: "var(--btn-border)",
+			Description: templ.Raw("Color of empty symbols.")},
+		{Name: "--neo-rating-transition-duration", Default: "calc(120ms * var(--neo-duration-scale, 1))",
+			Description: templ.Raw("Fill transition duration.")},
+	},
+}

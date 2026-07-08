@@ -1,0 +1,24 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ SpinnerSizes() {
+	<div class="spinner-sizes-row">
+		@neo.SpinnerAttrs(templ.Attributes{
+			"aria-hidden": "true",
+			"class":       "spinner-sizes-xs",
+		})
+		@neo.SpinnerAttrs(templ.Attributes{
+			"aria-hidden": "true",
+			"class":       "spinner-sizes-sm",
+		})
+		@neo.SpinnerAttrs(templ.Attributes{
+			"aria-hidden": "true",
+			"class":       "spinner-sizes-md",
+		})
+		@neo.SpinnerAttrs(templ.Attributes{
+			"aria-hidden": "true",
+			"class":       "spinner-sizes-lg",
+		})
+	</div>
+}

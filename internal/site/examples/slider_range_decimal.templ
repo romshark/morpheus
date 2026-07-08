@@ -1,0 +1,34 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ SliderRangeDecimal() {
+	@neo.SliderRange(neo.SliderRangeOpts[float64]{
+		Min:      neo.Set(0.0),
+		Max:      neo.Set(5.0),
+		Step:     neo.Set(0.1),
+		ValueMin: neo.Set(1.2),
+		ValueMax: neo.Set(3.8),
+		Label:    neo.Set("Gain"),
+		Unit:     neo.Set("dB"),
+	}) {
+		@neo.SliderMarkAt(0) {
+			−∞
+		}
+		@neo.SliderMarkAt(1) {
+			1
+		}
+		@neo.SliderMarkAt(2) {
+			2
+		}
+		@neo.SliderMarkAt(3) {
+			3
+		}
+		@neo.SliderMarkAt(4) {
+			4
+		}
+		@neo.SliderMarkAt(5) {
+			5
+		}
+	}
+}

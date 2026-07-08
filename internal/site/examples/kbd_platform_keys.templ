@@ -1,0 +1,12 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ KbdPlatformKeys() {
+	@neo.Kbd(neo.KbdOpts{Key: neo.Set("mod")})
+	@neo.Kbd(neo.KbdOpts{Key: neo.Set("enter")})
+	@neo.KbdGroup() {
+		@neo.Kbd(neo.KbdOpts{Key: neo.Set("mod")})
+		@neo.Kbd(neo.KbdOpts{Key: neo.Set("k")})
+	}
+}

@@ -1,0 +1,62 @@
+{
+	"$schema": "./web/node_modules/@biomejs/biome/configuration_schema.json",
+	"vcs": {
+		"enabled": false,
+		"clientKind": "git",
+		"useIgnoreFile": false
+	},
+	"files": {
+		"ignoreUnknown": false,
+		"includes": ["web/**/*.{ts,css}", "**/*.{json,jsonc}", "!web/node_modules", "!dst", "!min"]
+	},
+	"formatter": {
+		"enabled": true,
+		"indentStyle": "tab",
+		"lineWidth": 120
+	},
+	"linter": {
+		"enabled": true,
+		"rules": {
+			"recommended": true,
+			"correctness": {
+				// Both rules exempt `_`-prefixed identifiers by default,
+				// matching the prior ESLint configuration's
+				// argsIgnorePattern/varsIgnorePattern of "^_".
+				"noUnusedVariables": "error",
+				"noUnusedFunctionParameters": "error"
+			},
+			"style": {
+				// `foo!` non-null assertions are used deliberately in the
+				// DOM-heavy component code where presence is guaranteed.
+				"noNonNullAssertion": "off"
+			},
+			"complexity": {
+				// Stays on so stray `!important` is flagged; the intentional uses
+				// (neo-layout hide/show toggles) carry inline biome-ignore opt-outs.
+				"noImportantStyles": "warn"
+			},
+			"suspicious": {
+				"noDuplicateProperties": "error"
+			}
+		}
+	},
+	"assist": {
+		"enabled": true,
+		"actions": {
+			"source": {
+				"organizeImports": "on",
+				"noDuplicateClasses": "on"
+			}
+		}
+	},
+	"javascript": {
+		"formatter": {
+			"quoteStyle": "double"
+		}
+	},
+	"css": {
+		"parser": {
+			"cssModules": true
+		}
+	}
+}

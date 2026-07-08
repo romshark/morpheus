@@ -1,0 +1,159 @@
+package site
+
+import (
+	"github.com/romshark/morpheus/internal/href"
+	"github.com/romshark/morpheus/internal/site/examples"
+)
+
+templ PageSwitch(morpheusVersion string) {
+	@PageDoc(href.PageSwitch(), "Switch", morpheusVersion) {
+		<section class="demo">
+			@anchoredH2("overview") {
+				Switch
+			}
+			<p class="intro">
+				Component <code>{ "<neo-switch>" }</code> is a
+				two-state on/off control rendered as a sliding pill.
+				Participates in a wrapping
+				<code>{ `<label>` }</code> like a native checkbox.
+			</p>
+			@Playground(PlaygroundOpts{
+				ID:     "switch-playground",
+				States: switchPlaygroundStates(),
+			})
+			@anchoredH2("reference") {
+				Reference
+			}
+			@ComponentDocs(switchDoc)
+		</section>
+		<section class="demo">
+			@anchoredH2("examples") {
+				Examples
+			}
+			@anchoredH3("states") {
+				States
+			}
+			<p class="demo-note">
+				Both states, each paired with a visible label via
+				a wrapping <code>{ `<label>` }</code>. Click the
+				pill or the text, or focus with <neo-kbd>Tab</neo-kbd> and
+				toggle with <neo-kbd>Space</neo-kbd>.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     switchStatesHTML,
+				TemplSource:    switchStatesTempl,
+				CSSSource:      switchStatesCSS,
+			}) {
+				@examples.SwitchStates()
+			}
+			@anchoredH3("small-size") {
+				Small size
+			}
+			<p class="demo-note">
+				The <code>{ `size="sm"` }</code> variant has a
+				1.5rem × 0.875rem track and 0.75rem thumb, for
+				dense rows where the default 2rem pill would
+				dominate.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     switchSmallHTML,
+				TemplSource:    switchSmallTempl,
+			}) {
+				@examples.SwitchSmall()
+			}
+			@anchoredH3("disabled") {
+				Disabled
+			}
+			<p class="demo-note">
+				<code>disabled</code> blocks pointer events, drops
+				the host from the tab order, and fades it to 50%
+				opacity. Both states stay distinct so the value
+				is still readable.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     switchDisabledHTML,
+				TemplSource:    switchDisabledTempl,
+			}) {
+				@examples.SwitchDisabled()
+			}
+			@anchoredH3("with-label") {
+				With label
+			}
+			<p class="demo-note">
+				Wrapping a switch in a <code>{ `<label>` }</code>
+				makes the whole row clickable: the host forwards
+				clicks on its closest
+				<code>{ `<label>` }</code> ancestor and moves
+				focus to itself, keeping the keyboard target in
+				sync.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     switchWithLabelHTML,
+				TemplSource:    switchWithLabelTempl,
+				CSSSource:      switchWithLabelCSS,
+			}) {
+				@examples.SwitchWithLabel()
+			}
+			@anchoredH3("settings-group") {
+				Settings group
+			}
+			<p class="demo-note">
+				A typical settings panel: each row is its own
+				<code>{ `<label>` }</code>, with the switch pinned
+				to the right and the description on the left. The
+				disabled row still shows its current value but
+				resists interaction.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				Width:          "100%",
+				StageMinHeight: "max-content",
+				HTMLSource:     switchSettingsGroupHTML,
+				TemplSource:    switchSettingsGroupTempl,
+				CSSSource:      switchSettingsGroupCSS,
+			}) {
+				@examples.SwitchSettingsGroup()
+			}
+		</section>
+	}
+}
+
+var switchDoc = ComponentDoc{
+	Attributes: []DocAttribute{
+		{Name: "checked", Type: "boolean", Default: "false", Reflected: true, Observed: true,
+			Description: templ.Raw("Mirrored to <code>aria-checked</code>.")},
+		{Name: "disabled", Type: "boolean", Default: "false", Observed: true,
+			Description: templ.Raw("Non-interactive state.")},
+		{Name: "size", Type: `"sm"`,
+			Description: templ.Raw("Compact size. Omit for the default size.")},
+	},
+	Events: []DocEvent{
+		{Name: "neo-switch-change", Detail: "{ checked: boolean }", Bubbles: true,
+			Description: templ.Raw("Fires after a click or <code>Space</code> / <code>Enter</code> activation.")},
+	},
+	CSSProps: []DocCSSProp{
+		{Name: "--neo-switch-width", Default: "2rem",
+			Description: templ.Raw("Track width. Drops to <code>1.5rem</code> at <code>size=\"sm\"</code>.")},
+		{Name: "--neo-switch-height", Default: "1.15rem",
+			Description: templ.Raw("Track height. Drops to <code>0.875rem</code> at <code>size=\"sm\"</code>.")},
+		{Name: "--neo-switch-thumb-size", Default: "1rem",
+			Description: templ.Raw("Thumb diameter. Drops to <code>0.75rem</code> at <code>size=\"sm\"</code>.")},
+		{Name: "--neo-switch-track-radius", Default: "999px",
+			Description: templ.Raw("Track corner radius. Defaults to a pill.")},
+		{Name: "--neo-switch-thumb-radius", Default: "50%",
+			Description: templ.Raw("Thumb corner radius. Defaults to a circle.")},
+		{Name: "--neo-switch-border-width", Default: "1px",
+			Description: templ.Raw("Border width. Surfaced so the checked travel stays symmetric.")},
+		{Name: "--neo-switch-track-off", Default: "var(--btn-border)",
+			Description: templ.Raw("Track color when unchecked.")},
+		{Name: "--neo-switch-track-on", Default: "var(--accent)",
+			Description: templ.Raw("Track color when checked.")},
+		{Name: "--neo-switch-thumb", Default: "var(--btn-bg)",
+			Description: templ.Raw("Thumb color.")},
+		{Name: "--neo-switch-transition-duration", Default: "calc(150ms * var(--neo-duration-scale, 1))",
+			Description: templ.Raw("Duration of the track and thumb transitions.")},
+	},
+}

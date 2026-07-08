@@ -1,0 +1,100 @@
+.sb-shell {
+	display: flex;
+	align-self: stretch;
+	width: 100%;
+	min-height: 22rem;
+	border: 1px solid var(--btn-border);
+	border-radius: var(--page-radius, 0.5rem);
+	overflow: hidden;
+	background: var(--page-bg);
+	container-type: inline-size;
+	container-name: neo-sidebar-shell;
+	contain: paint;
+}
+
+/* Suppress the header separator inside the preview only. */
+.sb-shell neo-sidebar > [data-neo-sidebar-header] {
+	border-bottom: none;
+}
+
+/* neo-sidebar's height:100% resolves to auto when the stage has no
+   definite height; align-self:stretch lets the flex line stretch fill
+   the in-flow sidebar so the sibling can't overhang its border. */
+.sb-shell > neo-sidebar:not([overlay]):not([data-neo-sidebar-overlay]) {
+	height: auto;
+	align-self: stretch;
+}
+
+/* flex-shrink:0 so a drag-set inline width holds; collapse the wrapper
+   when the sidebar closes or goes overlay (width persists via
+   --neo-resizable-width). */
+.sb-shell > neo-resizable {
+	flex-shrink: 0;
+}
+
+.sb-shell > neo-resizable:has(> neo-sidebar:defined:not([open])),
+.sb-shell > neo-resizable:has(> neo-sidebar[data-neo-sidebar-overlay]) {
+	width: 0 !important;
+	min-width: 0 !important;
+	max-width: 0 !important;
+	flex-basis: 0;
+}
+
+.sb-shell > neo-resizable:has(> neo-sidebar:defined:not([open])) > [data-neo-resize-handle],
+.sb-shell > neo-resizable:has(> neo-sidebar[data-neo-sidebar-overlay]) > [data-neo-resize-handle] {
+	display: none;
+}
+
+.sb-shell .sb-main {
+	flex: 1 1 auto;
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+}
+
+.sb-shell .sb-bar {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	padding: 0.75rem;
+	border-bottom: 1px solid var(--btn-border);
+}
+
+.sb-shell .sb-body {
+	flex: 1 1 auto;
+	padding: 1rem;
+	overflow-y: auto;
+}
+
+.sb-shell .sb-body p {
+	margin: 0;
+	color: var(--muted);
+	max-width: 36rem;
+}
+
+/* Compact wide-mode closed rail. */
+.sb-shell [data-neo-sidebar-minimized] {
+	justify-content: flex-start;
+}
+
+.sb-shell [data-neo-sidebar-minimized] > neo-button {
+	width: 100%;
+	aspect-ratio: 1;
+	padding: 0;
+}
+
+.sb-touch-dismiss-menu {
+	width: 100%;
+}
+
+.sb-touch-dismiss-slider {
+	margin-top: 1rem;
+}
+
+.sb-touch-dismiss-hint {
+	display: flex;
+	align-items: center;
+	gap: 0.4rem;
+	font-weight: 600;
+	color: var(--fg);
+}

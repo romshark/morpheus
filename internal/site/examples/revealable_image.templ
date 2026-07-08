@@ -1,0 +1,19 @@
+package examples
+
+import (
+	"github.com/romshark/morpheus/internal/href"
+	"github.com/romshark/morpheus/neo"
+)
+
+templ RevealableImage() {
+	@neo.RevealableAttrs(neo.RevealableOpts{
+		Variant:     neo.Set(neo.RevealableVariantMedia),
+		RehideAfter: neo.Set(4000),
+	}, templ.Attributes{}) {
+		<img
+			src={ href.Asset("avatar/gh_daniel.jpg") }
+			alt="Boss reveal"
+			class="revealable-image-img"
+		/>
+	}
+}

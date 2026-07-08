@@ -1,0 +1,33 @@
+package neo
+
+type ElasticOpts struct {
+	// Collapsed forces the host to height: 0 by emitting open="false"
+	// (the transition still animates). The host is open by default.
+	Collapsed Attr[bool]
+	// ResetOnCollapse swaps the content back to the
+	// [data-neo-async-placeholder] template after a completed collapse,
+	// so re-expanding reloads from the placeholder (e.g. re-fetches).
+	ResetOnCollapse Attr[bool]
+}
+
+// Elastic renders <neo-elastic>, a block container that smoothly
+// animates its height when the inner content's natural size changes.
+// On hydration the children are wrapped in [data-neo-elastic-content].
+templ Elastic(opts ElasticOpts) {
+	@ElasticAttrs(opts, nil) {
+		{ children... }
+	}
+}
+
+// ElasticAttrs is [Elastic] with an extra attribute set.
+templ ElasticAttrs(opts ElasticOpts, attrs templ.Attributes) {
+	<neo-elastic
+		if opts.Collapsed.Or(false) {
+			open="false"
+		}
+		{ opts.ResetOnCollapse.Attrs("reset-on-collapse")... }
+		{ attrs... }
+	>
+		{ children... }
+	</neo-elastic>
+}

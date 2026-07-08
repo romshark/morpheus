@@ -1,0 +1,31 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ SkeletonCard() {
+	<div class="skel-card" role="status" aria-label="Loading">
+		<div class="skel-header">
+			@neo.SkeletonAttrs(neo.SkeletonOpts{Variant: neo.Set(neo.SkeletonVariantCircle)}, templ.Attributes{
+				"class": "skeleton-card-avatar",
+			})
+			<div class="skel-lines">
+				@neo.SkeletonAttrs(neo.SkeletonOpts{}, templ.Attributes{
+					"class": "skeleton-card-name",
+				})
+				@neo.SkeletonAttrs(neo.SkeletonOpts{}, templ.Attributes{
+					"class": "skeleton-card-meta",
+				})
+			</div>
+		</div>
+		@neo.SkeletonAttrs(neo.SkeletonOpts{}, templ.Attributes{
+			"class": "skeleton-card-hero",
+		})
+		<div class="skel-lines skeleton-card-body">
+			@neo.Skeleton(neo.SkeletonOpts{})
+			@neo.Skeleton(neo.SkeletonOpts{})
+			@neo.SkeletonAttrs(neo.SkeletonOpts{}, templ.Attributes{
+				"class": "skeleton-card-line-short",
+			})
+		</div>
+	</div>
+}

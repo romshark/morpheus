@@ -1,0 +1,38 @@
+<div id="fw-accent" style="display:contents" data-signals="{fw_color: '#3b82f6', fw_option: 'blue', fw_src: 'option'}">
+  <neo-card class="framework-demo-card">
+    <div data-neo-card-inner>
+      <neo-layout column gap="md" align-items="center">
+        <h3>Accent color</h3>
+        <neo-layout column gap="md" align-items="center">
+          <neo-select
+            value="blue"
+            aria-label="Named color"
+            placeholder="Pick a color"
+            data-on:neo-select-change="$fw_option = evt.detail.value; $fw_src = 'option'; @post('/frameworks/accent/')"
+          >
+            <neo-option value="red">Red</neo-option>
+            <neo-option value="green">Green</neo-option>
+            <neo-option value="blue">Blue</neo-option>
+            <neo-option value="custom">Custom</neo-option>
+          </neo-select>
+          <neo-color-field
+            value="#3b82f6"
+            class="framework-demo-field"
+            aria-label="Custom color"
+            data-on:neo-color-field-change="$fw_color = evt.detail.value; $fw_src = 'color'; @post('/frameworks/accent/')"
+          ></neo-color-field>
+        </neo-layout>
+        <neo-layout inline gap="sm" align-items="stretch" class="framework-demo-readout">
+          <span class="framework-demo-swatch" style="background: #3b82f6" aria-hidden="true"></span>
+          <neo-textinput
+            mask="aaaaaa"
+            prefix="#"
+            value="#3b82f6"
+            aria-label="Hex color"
+            data-on:neo-textinput-change="$fw_color = evt.detail.value; $fw_src = 'color'; @post('/frameworks/accent/')"
+          ></neo-textinput>
+        </neo-layout>
+      </neo-layout>
+    </div>
+  </neo-card>
+</div>

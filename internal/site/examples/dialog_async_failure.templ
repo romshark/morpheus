@@ -1,0 +1,44 @@
+package examples
+
+import (
+	"github.com/romshark/morpheus/datastar"
+	"github.com/romshark/morpheus/neo"
+)
+
+templ DialogAsyncFailure() {
+	@datastar.DialogAsync(datastar.DialogAsyncOpts{
+		ID:            "dialogAsyncDemo",
+		URL:           "/dialog/asyncload/",
+		Title:         "Team member",
+		Description:   "Loaded fresh from the server each time you open this dialog.",
+		CloseLabel:    "Close",
+		ExtraPostOpts: "retry: 'auto', retryInterval: 1000, retryScaler: 2, retryMaxWait: 30000, retryMaxCount: 2",
+		Loading:       dialogAsyncFailureLoading(),
+		Failed:        dialogAsyncFailureFailed(),
+	}) {
+		Load profile
+	}
+}
+
+// Wrapped in [data-neo-async-placeholder] by DialogAsync so the
+// dialog restores it after close and before retry/reopen.
+templ dialogAsyncFailureLoading() {
+	<neo-skeleton class="dialog-async-failure-title"></neo-skeleton>
+	<neo-skeleton class="dialog-async-failure-meta"></neo-skeleton>
+	<neo-skeleton class="dialog-async-failure-line-1"></neo-skeleton>
+	<neo-skeleton class="dialog-async-failure-line-2"></neo-skeleton>
+}
+
+// Swapped into <div id="<ID>-body"> once Datastar fires
+// retries-failed. The retry button carries
+// [data-neo-popover-async-retry] so DialogAsync re-fires the
+// @post action when clicked.
+templ dialogAsyncFailureFailed() {
+	<div class="popover-async-loading popover-async-failed" role="alert">
+		@neo.Icon("triangle-alert")
+		<strong>Couldn't load content.</strong>
+		<neo-button { neo.PopoverAsyncRetry()... }>
+			Retry
+		</neo-button>
+	</div>
+}

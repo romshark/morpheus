@@ -1,0 +1,170 @@
+package site
+
+import (
+	"github.com/romshark/morpheus/internal/href"
+	"github.com/romshark/morpheus/internal/site/examples"
+	"github.com/romshark/morpheus/neo"
+)
+
+templ PageRadioGroup(morpheusVersion string) {
+	@PageDoc(href.PageRadioGroup(), "Radio group", morpheusVersion) {
+		<section class="demo">
+			@anchoredH2("overview") {
+				Radio group
+			}
+			<p class="intro">
+				Component <code>{ "<neo-radio-group>" }</code> is a
+				set of mutually-exclusive
+				<code>{ "<neo-radio>" }</code> options. The host
+				owns selection and roving-tabindex. Activation is
+				manual by default (like
+				<code>{ "<neo-tabs>" }</code>): arrow keys move
+				focus and <code>Enter</code> / <code>Space</code>
+				commit; add <code>auto-activate</code> to select on
+				arrow. Wrap a radio in a
+				<code>{ "<label>" }</code> to make the whole row
+				clickable.
+			</p>
+			@Playground(PlaygroundOpts{
+				ID:     "radio-group-playground",
+				States: radioGroupPlaygroundStates(),
+			})
+			@anchoredH2("reference") {
+				Reference
+			}
+			@ComponentDocs(radioGroupDoc)
+		</section>
+		<section class="demo">
+			@anchoredH2("examples") {
+				Examples
+			}
+			@anchoredH3("horizontal") {
+				Horizontal
+			}
+			<p class="demo-note">
+				With
+				<code>{ `orientation="horizontal"` }</code> the
+				group lays out on a single row, wrapping if it
+				overflows. Suited to short binary or trinary
+				choices.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     radioGroupHorizontalHTML,
+				TemplSource:    radioGroupHorizontalTempl,
+				CSSSource:      radioGroupHorizontalCSS,
+			}) {
+				@examples.RadioGroupHorizontal()
+			}
+			@anchoredH3("rich-rows") {
+				Rich rows
+			}
+			<p class="demo-note">
+				Each radio's body can be multi-line markup: the
+				radio sits in its own column while the label
+				column holds a title plus a muted caption,
+				as on a plan-picker settings page.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     radioGroupRichRowsHTML,
+				TemplSource:    radioGroupRichRowsTempl,
+				CSSSource:      radioGroupRichRowsCSS,
+			}) {
+				@examples.RadioGroupRichRows()
+			}
+			@anchoredH3("disabled") {
+				Disabled
+			}
+			<p class="demo-note">
+				<code>disabled</code> on the host disables every
+				nested radio and skips them in arrow navigation,
+				regardless of per-radio state. The selected value
+				is preserved, so the form still submits a
+				meaningful answer if the gate later opens.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     radioGroupDisabledHTML,
+				TemplSource:    radioGroupDisabledTempl,
+				CSSSource:      radioGroupDisabledCSS,
+			}) {
+				@examples.RadioGroupDisabled()
+			}
+			@anchoredH3("auto-activate") {
+				Auto-activate
+			}
+			<p class="demo-note">
+				With <code>auto-activate</code> an arrow key
+				selects the focused radio immediately, the classic
+				radio-group behaviour. By default arrows only move
+				focus and <code>Enter</code> / <code>Space</code>
+				commit.
+			</p>
+			@neo.AlertAttrs(neo.AlertOpts{Variant: neo.Set(neo.AlertVariantInfo)}, templ.Attributes{"style": "margin-bottom: 1rem;"}) {
+				@neo.AlertIcon() {
+					@neo.Icon("info")
+				}
+				@neo.AlertContent() {
+					@neo.AlertDescription() {
+						The difference is keyboard-only: Tab into the
+						group, then press an arrow key: the selection
+						moves at once, with no Enter or Space. Clicking
+						behaves the same in every mode.
+					}
+				}
+			}
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     radioGroupAutoActivateHTML,
+				TemplSource:    radioGroupAutoActivateTempl,
+				CSSSource:      radioGroupAutoActivateCSS,
+			}) {
+				@examples.RadioGroupAutoActivate()
+			}
+		</section>
+	}
+}
+
+var radioGroupDoc = ComponentDoc{
+	Attributes: []DocAttribute{
+		{Name: "value", Type: "string", Reflected: true, Observed: true,
+			Description: templ.Raw("Selected radio value. Set to empty string to clear.")},
+		{Name: "disabled", Type: "boolean", Default: "false", Observed: true,
+			Description: templ.Raw("Disables every nested <code>&lt;neo-radio&gt;</code>.")},
+		{Name: "orientation", Type: `"horizontal" | "vertical"`, Default: "vertical",
+			Description: templ.Raw("Layout axis.")},
+		{Name: "auto-activate", Type: "boolean", Default: "false",
+			Description: templ.Raw("By default activation is manual: arrow keys move focus and <code>Enter</code> / <code>Space</code> commit the selection (like <code>&lt;neo-tabs&gt;</code>). Set <code>auto-activate</code> to select a radio as soon as an arrow key focuses it.")},
+	},
+	Slots: []DocSlot{
+		{Name: "default",
+			Description: templ.Raw("<code>&lt;neo-radio&gt;</code> children, typically wrapped in <code>&lt;label&gt;</code>.")},
+	},
+	Events: []DocEvent{
+		{Name: "neo-radio-group-change", Detail: "{ value: string }", Bubbles: true,
+			Description: templ.Raw("Fires after the selection changes.")},
+	},
+	CSSProps: []DocCSSProp{
+		{Name: "--neo-radio-size", Default: "1.15rem",
+			Description: templ.Raw("Radio diameter. Drops to <code>0.875rem</code> at <code>size=\"sm\"</code>.")},
+		{Name: "--neo-radio-border-width", Default: "1px",
+			Description: templ.Raw("Border width.")},
+		{Name: "--neo-radio-border", Default: "var(--btn-border)",
+			Description: templ.Raw("Border color when unchecked.")},
+		{Name: "--neo-radio-bg", Default: "transparent",
+			Description: templ.Raw("Background when unchecked.")},
+		{Name: "--neo-radio-checked-bg", Default: "var(--accent)",
+			Description: templ.Raw("Background when checked.")},
+		{Name: "--neo-radio-checked-border", Default: "var(--accent)",
+			Description: templ.Raw("Border color when checked.")},
+		{Name: "--neo-radio-dot-color", Default: "var(--accent-fg)",
+			Description: templ.Raw("Color of the inner dot.")},
+		{Name: "--neo-radio-dot-scale", Default: "0.45",
+			Description: templ.Raw("Inner dot size as a fraction of the radio.")},
+		{Name: "--neo-radio-transition-duration", Default: "calc(120ms * var(--neo-duration-scale, 1))",
+			Description: templ.Raw("Duration of the background and dot transitions.")},
+		{Name: "--neo-radio-group-gap", Default: "calc(var(--page-spacing, 0.25rem) * 2)",
+			Description: templ.Raw("Gap between radios in the group.")},
+	},
+}

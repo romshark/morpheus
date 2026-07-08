@@ -1,0 +1,127 @@
+package neo
+
+// ToasterPosition picks one of the six viewport corners. Zero value
+// defers to the host's default (bottom-right).
+type ToasterPosition string
+
+const (
+	ToasterPositionDefault      ToasterPosition = ""
+	ToasterPositionTopLeft      ToasterPosition = "top-left"
+	ToasterPositionTopCenter    ToasterPosition = "top-center"
+	ToasterPositionTopRight     ToasterPosition = "top-right"
+	ToasterPositionBottomLeft   ToasterPosition = "bottom-left"
+	ToasterPositionBottomCenter ToasterPosition = "bottom-center"
+	ToasterPositionBottomRight  ToasterPosition = "bottom-right"
+)
+
+type ToasterOpts struct {
+	Position Attr[ToasterPosition]
+	// Contained anchors the stack to the nearest positioned ancestor
+	// instead of fixing it to the viewport (useful for previews/split
+	// views where an app-level overlay would escape bounds).
+	Contained Attr[bool]
+	// Stack controls collapsed wrapping. Zero (default) shows every
+	// live toast in a normal vertical stack. Positive values keep that
+	// many full toasts visible before older toasts become peek cards.
+	Stack Attr[int]
+	// NoTouchDismiss opts out of the swipe-to-dismiss gesture (enabled
+	// by default); renders `touch-dismiss="off"` on the host.
+	NoTouchDismiss Attr[bool]
+	// TouchDismissThreshold overrides the default swipe threshold
+	// (one third of the toast width, minimum 40px). Any CSS length is
+	// accepted, including px, rem, ch, and percent.
+	TouchDismissThreshold Attr[CSSUnit]
+}
+
+// ToastVariant picks the semantic treatment for a declarative
+// <neo-toast> child. Zero value renders the default neutral toast
+// and emits no `variant` attribute.
+type ToastVariant string
+
+const (
+	ToastVariantDefault ToastVariant = ""
+	ToastVariantSuccess ToastVariant = "success"
+	ToastVariantError   ToastVariant = "error"
+	ToastVariantWarning ToastVariant = "warning"
+	ToastVariantInfo    ToastVariant = "info"
+	ToastVariantLoading ToastVariant = "loading"
+)
+
+type ToastOpts struct {
+	Variant Attr[ToastVariant]
+	// Duration is the auto-dismiss delay in ms. A positive value emits
+	// `duration`; zero leaves the toast pinned, matching the
+	// declarative default.
+	Duration Attr[int]
+	// Dismissible controls whether the generated close button is added.
+	// Default adds it; DismissibleOff omits it for pinned notices that
+	// must be cleared through app flow.
+	Dismissible Attr[Dismissible]
+}
+
+// toasterTouchDismissAttr returns the value to render for the
+// `touch-dismiss` attribute. Empty means default-on/default-threshold.
+func toasterTouchDismissAttr(opts ToasterOpts) string {
+	if opts.NoTouchDismiss.Or(false) {
+		return "off"
+	}
+	return opts.TouchDismissThreshold.Or("")
+}
+
+// Toaster renders <neo-toaster>: lays out and animates <neo-toast>
+// children. Authors can drop toasts in declaratively (the host adopts
+// via MutationObserver) or call the imperative API
+// (NeoToast.success / .error / .promise / …); both flow through the
+// same lifecycle.
+templ Toaster(opts ToasterOpts) {
+	@ToasterAttrs(opts, nil) {
+		{ children... }
+	}
+}
+
+// ToasterAttrs is [Toaster] with an extra attribute set.
+templ ToasterAttrs(opts ToasterOpts, attrs templ.Attributes) {
+	<neo-toaster
+		{ opts.Position.Attrs("position")... }
+		{ opts.Contained.Attrs("contained")... }
+		{ opts.Stack.Attrs("stack")... }
+		if toasterTouchDismissAttr(opts) != "" {
+			touch-dismiss={ toasterTouchDismissAttr(opts) }
+		}
+		{ attrs... }
+	>
+		{ children... }
+	</neo-toaster>
+}
+
+// Toast renders a <neo-toast> child for <neo-toaster>. The markup
+// (variant icon, close button, role/aria-live) lives in the toast's
+// own shadow root; author content goes into named slots ("title",
+// "description", "action"). Example:
+//
+//   @neo.Toast(neo.ToastOpts{Variant: [ToastVariantSuccess]}) {
+//     <span slot="title">Saved</span>
+//     <span slot="description">Profile updated.</span>
+//   }
+templ Toast(opts ToastOpts) {
+	@ToastAttrs(opts, nil) {
+		{ children... }
+	}
+}
+
+// ToastAttrs is [Toast] with an extra attribute set.
+templ ToastAttrs(opts ToastOpts, attrs templ.Attributes) {
+	<neo-toast
+		{ opts.Variant.Attrs("variant")... }
+		{ opts.Duration.Attrs("duration")... }
+		if opts.Dismissible.Or(DismissibleDefault) == DismissibleOn {
+			dismissible="true"
+		}
+		if opts.Dismissible.Or(DismissibleDefault) == DismissibleOff {
+			dismissible="false"
+		}
+		{ attrs... }
+	>
+		{ children... }
+	</neo-toast>
+}

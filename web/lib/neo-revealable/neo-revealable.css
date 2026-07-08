@@ -1,0 +1,119 @@
+/* -----------------------------------------------------------------------
+ * <neo-revealable>
+ * -----------------------------------------------------------------------
+ * Spoiler. The cover is a CSS ::after veil, identical before and after
+ * the bundle upgrades, so there's no hydration flash; the canvas only
+ * adds grain on top. Grain defaults to the element's `color` (in-key
+ * per theme); tune via the --neo-revealable-* tokens. */
+neo-revealable {
+	--neo-revealable-radius: var(--page-radius, 0.375rem);
+	--neo-revealable-blur: 14px;
+	/* Theme-adaptive frosted cover (fg↔bg mix), not a near-black slab. */
+	--neo-revealable-veil: color-mix(in srgb, var(--page-fg) 26%, var(--page-bg));
+	--neo-revealable-focus-ring: color-mix(in srgb, var(--accent) 45%, transparent);
+
+	position: relative;
+	display: inline-block;
+	/* No overflow:hidden; on an inline-block it shifts the baseline to
+	 * the bottom edge, lifting the spoiler off the text line. The canvas
+	 * self-clips via border-radius:inherit; media clips below. */
+	/* Content-sized, never full-width: the cover must match the box. */
+	width: fit-content;
+	max-width: 100%;
+	isolation: isolate;
+	vertical-align: baseline;
+	border-radius: var(--neo-revealable-radius);
+	cursor: pointer;
+	caret-color: transparent;
+	user-select: none;
+}
+
+neo-revealable:focus-visible {
+	outline: 2px solid var(--neo-revealable-focus-ring);
+	outline-offset: 2px;
+}
+
+/* Inline wrapper so the host has a real last line box and sits on the
+ * text baseline (a block wrapper re-triggers the bottom-edge baseline). */
+neo-revealable[variant="inline"] > [data-neo-revealable-content] {
+	display: inline;
+}
+
+neo-revealable[variant="media"] {
+	/* Block-level (own line) but still content-sized, not full-width. */
+	display: block;
+	width: fit-content;
+	max-width: 100%;
+	overflow: hidden;
+}
+
+/* biome-ignore lint/style/noDescendingSpecificity: sets transition; the higher-specificity neo-revealable[variant="inline"] content rule sets display; disjoint, no conflict */
+neo-revealable > [data-neo-revealable-content] {
+	transition:
+		filter 120ms var(--neo-easing, ease),
+		opacity 120ms var(--neo-easing, ease);
+}
+
+/* Concealed: opacity:0, not color:transparent (which leaves
+ * images/sections visible); box kept so the host stays sized. JS adds
+ * inert/aria-hidden for the a11y tree + focus order. */
+neo-revealable:not([open]) > [data-neo-revealable-content] {
+	opacity: 0;
+	user-select: none;
+}
+
+/* blur-content (media only): tease the shape with heavy blur + partial
+ * opacity, never readable. Scoped to media because text is already
+ * hidden by opacity:0, so blurring it would just waste a composite. */
+neo-revealable[variant="media"][blur-content]:where(:not([blur-content="false"])):not([open])
+> [data-neo-revealable-content] {
+	opacity: 0.6;
+	filter: blur(var(--neo-revealable-blur));
+}
+
+neo-revealable[open] {
+	cursor: default;
+	user-select: text;
+}
+
+neo-revealable[open] > [data-neo-revealable-content] {
+	filter: none;
+	opacity: 1;
+	user-select: text;
+}
+
+neo-revealable > [data-neo-revealable-canvas] {
+	position: absolute;
+	inset: 0;
+	z-index: 2;
+	width: 100%;
+	height: 100%;
+	border-radius: inherit;
+	pointer-events: none;
+	/* Veil is continuous across hydration; only the grain is new, so
+	 * ease it in instead of popping. Re-runs on each re-conceal. */
+	animation: neo-revealable-grain-in 220ms var(--neo-easing, ease) both;
+}
+
+@keyframes neo-revealable-grain-in {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+
+neo-revealable[open] > [data-neo-revealable-canvas] {
+	display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	/* biome-ignore lint/style/noDescendingSpecificity: sets transition:none; the higher-specificity neo-revealable[variant="inline"] content rule sets display; disjoint, no conflict */
+	neo-revealable > [data-neo-revealable-content] {
+		transition: none;
+	}
+	neo-revealable > [data-neo-revealable-canvas] {
+		animation: none;
+	}
+}

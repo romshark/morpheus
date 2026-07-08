@@ -1,0 +1,35 @@
+package neo
+
+// SkeletonVariant picks the placeholder geometry. Zero value
+// (SkeletonVariantBlock) renders a generic block; SkeletonVariantCircle
+// is 1:1 round, SkeletonVariantLine is an inline text-height bar.
+type SkeletonVariant string
+
+const (
+	SkeletonVariantBlock  SkeletonVariant = ""
+	SkeletonVariantCircle SkeletonVariant = "circle"
+	SkeletonVariantLine   SkeletonVariant = "line"
+)
+
+type SkeletonOpts struct {
+	Variant Attr[SkeletonVariant]
+	// Immediate shows the placeholder at once. By default it fades in
+	// after a short delay so fast loads never flash a skeleton.
+	Immediate Attr[bool]
+}
+
+// Skeleton renders <neo-skeleton>, a gently-pulsing loading placeholder.
+// No intrinsic size: set dimensions via inline style or CSS. No JS;
+// visuals from morpheus.css; honours `prefers-reduced-motion`.
+templ Skeleton(opts SkeletonOpts) {
+	@SkeletonAttrs(opts, nil)
+}
+
+// SkeletonAttrs is [Skeleton] with an extra attribute set.
+templ SkeletonAttrs(opts SkeletonOpts, attrs templ.Attributes) {
+	<neo-skeleton
+		{ opts.Variant.Attrs("variant")... }
+		{ opts.Immediate.Attrs("immediate")... }
+		{ attrs... }
+	></neo-skeleton>
+}

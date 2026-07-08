@@ -1,0 +1,9 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ PaginationFirstPage() {
+	@neo.Pagination(neo.PaginationOpts{
+		Page: neo.Set(1), Pages: neo.Set(25),
+	})
+}

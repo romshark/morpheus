@@ -1,0 +1,77 @@
+package neo
+
+// Slider renders <neo-slider> as the bare host: only attributes plus any
+// author marks as light children. The JS host builds the painted slider
+// (header, track + fill + thumb, marks) into a shadow root on connect,
+// kept out of light DOM so a Datastar fat-morph can't wipe it, letting a
+// plain `value` change ease instead of snapping.
+templ Slider[N Number](opts SliderOpts[N]) {
+	@SliderAttrs(opts, nil)
+}
+
+// SliderAttrs is [Slider] with an extra attribute set.
+templ SliderAttrs[N Number](opts SliderOpts[N], attrs templ.Attributes) {
+	<neo-slider
+		{ opts.Min.Attrs("min")... }
+		{ opts.Max.Attrs("max")... }
+		{ opts.Step.Attrs("step")... }
+		{ opts.Value.Attrs("value")... }
+		{ opts.Label.Attrs("label")... }
+		{ opts.Unit.Attrs("unit")... }
+		{ opts.HideValue.Attrs("hide-value")... }
+		{ opts.HideTooltip.Attrs("hide-tooltip")... }
+		{ opts.Vertical.Attrs("vertical")... }
+		{ opts.StaticMarks.Attrs("static-marks")... }
+		{ opts.MarksOnly.Attrs("marks-only")... }
+		{ opts.Easing.Attrs("easing")... }
+		if opts.Disabled.Or(false) {
+			disabled
+			aria-disabled="true"
+		}
+		{ opts.AriaLabel.Attrs("aria-label")... }
+		{ attrs... }
+	>
+		for _, m := range opts.Marks {
+			<span data-neo-slider-mark={ formatNumber(m.Value) }>{ m.Label }</span>
+		}
+	</neo-slider>
+}
+
+// SliderMarkAt declares one rail mark as a light-DOM child of
+// <neo-slider> / <neo-slider-range>. The host reads these
+// [data-neo-slider-mark] children on connect and builds the anchor dot
+// plus its label (the children; omit them for a bare dot). value is the
+// numeric position; marks outside [min, max] are skipped. The
+// attribute-only Slider takes marks via SliderOpts.Marks instead.
+templ SliderMarkAt[N Number](value N) {
+	@SliderMarkAtAttrs(value, nil) {
+		{ children... }
+	}
+}
+
+// SliderMarkAtAttrs is [SliderMarkAt] with an extra attribute set.
+templ SliderMarkAtAttrs[N Number](value N, attrs templ.Attributes) {
+	<span data-neo-slider-mark={ formatNumber(value) } { attrs... }>
+		{ children... }
+	</span>
+}
+
+// SliderAnchor declares the glyph template for the rail anchor dots. The
+// host reads this <template data-neo-slider-anchor> light-DOM child on
+// connect and clones its content into every anchor (e.g. an icon). Place
+// it as a child of Slider / SliderRange.
+templ SliderAnchor() {
+	<template data-neo-slider-anchor>
+		{ children... }
+	</template>
+}
+
+// SliderThumb declares the glyph template for the drag thumb. The host
+// reads this <template data-neo-slider-thumb> light-DOM child on connect
+// and clones its content into the thumb. Place it as a child of Slider /
+// SliderRange.
+templ SliderThumb() {
+	<template data-neo-slider-thumb>
+		{ children... }
+	</template>
+}

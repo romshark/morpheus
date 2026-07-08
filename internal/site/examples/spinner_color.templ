@@ -1,0 +1,20 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ SpinnerColor() {
+	<div class="spinner-color-row">
+		<span class="spinner-color-accent">
+			@neo.SpinnerAttrs(templ.Attributes{"aria-hidden": "true"})
+		</span>
+		<span class="spinner-color-amber">
+			@neo.SpinnerProgressAttrs(neo.SpinnerOpts[float64]{Value: neo.Set(25.0)}, templ.Attributes{"aria-hidden": "true"})
+		</span>
+		<span class="spinner-color-red">
+			@neo.SpinnerProgressAttrs(neo.SpinnerOpts[float64]{Value: neo.Set(66.0)}, templ.Attributes{"aria-hidden": "true"})
+		</span>
+		<span class="spinner-color-green">
+			@neo.SpinnerProgressAttrs(neo.SpinnerOpts[float64]{Value: neo.Set(100.0)}, templ.Attributes{"aria-hidden": "true"})
+		</span>
+	</div>
+}

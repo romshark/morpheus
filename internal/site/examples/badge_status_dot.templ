@@ -1,0 +1,22 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ BadgeStatusDot() {
+	@neo.Badge(neo.BadgeOpts{Variant: neo.Set(neo.BadgeVariantOutline)}) {
+		<span class="badge-status-dot badge-status-dot-online" aria-hidden="true"></span>
+		Online
+	}
+	@neo.Badge(neo.BadgeOpts{Variant: neo.Set(neo.BadgeVariantOutline)}) {
+		<span class="badge-status-dot badge-status-dot-idle" aria-hidden="true"></span>
+		Idle
+	}
+	@neo.Badge(neo.BadgeOpts{Variant: neo.Set(neo.BadgeVariantOutline)}) {
+		<span class="badge-status-dot badge-status-dot-error" aria-hidden="true"></span>
+		Error
+	}
+	@neo.Badge(neo.BadgeOpts{Variant: neo.Set(neo.BadgeVariantOutline)}) {
+		<span class="badge-status-dot badge-status-dot-offline" aria-hidden="true"></span>
+		Offline
+	}
+}

@@ -1,0 +1,72 @@
+/* -----------------------------------------------------------------------
+ * <neo-slider>: global (light-DOM) half
+ * -----------------------------------------------------------------------
+ * The painted slider (header, track, fill, thumb, marks) lives in the
+ * host's SHADOW root, styled by the adopted neo-slider.css. This file holds
+ * only what must resolve OUTSIDE the shadow:
+ *
+ *   - the shared `--neo-slider-*` token defaults the shadow rules read.
+ *     These inherit across the boundary into every host's shadow tree and
+ *     are also consumed by <neo-progress> and <neo-slider-range>, so this
+ *     file stays globally imported even though the structural neo-slider.css
+ *     is shadow-only.
+ *   - the manual `data-pref-contrast-more` hook below.
+ *
+ * First paint needs nothing here: before upgrade the host matches
+ * `neo-slider:not(:defined)` (a skeleton placeholder in style.css); after
+ * upgrade the adopted `:host` rules take over. */
+
+:root {
+	--neo-slider-track-height: 0.375rem;
+	--neo-slider-track-radius: 999px;
+	/* Cross-axis touch target: extends past the 6px rail via a ::before.
+	 * Floored at the thumb (user spec) and at 1.75rem for fingertip comfort. */
+	--neo-slider-hit-area: max(var(--neo-slider-thumb-size), 1.75rem);
+	--neo-slider-track-bg: var(--btn-border);
+	/* Rail's image layer. Defaults to a solid swatch of track-bg so the
+	 * common case keeps reading track-bg as a colour (anchor borders
+	 * share it); set track-image directly to paint a gradient rail
+	 * (hue/saturation pickers, etc.); a gradient can't be substituted
+	 * into the `linear-gradient(track-bg, track-bg)` wrapper. */
+	--neo-slider-track-image: linear-gradient(var(--neo-slider-track-bg), var(--neo-slider-track-bg));
+	--neo-slider-fill-bg: var(--accent);
+	--neo-slider-vertical-track-length: 12rem;
+
+	--neo-slider-thumb-size: 1rem;
+	--neo-slider-thumb-radius: 50%;
+	--neo-slider-thumb-bg: var(--btn-bg);
+	--neo-slider-thumb-border: var(--accent);
+	--neo-slider-thumb-border-width: 2px;
+	--neo-slider-thumb-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+
+	--neo-slider-anchor-size: 0.375rem;
+	--neo-slider-anchor-radius: 50%;
+	--neo-slider-anchor-bg: var(--page-bg);
+	--neo-slider-anchor-border: var(--neo-slider-track-bg);
+	--neo-slider-anchor-active-bg: var(--page-bg);
+	--neo-slider-anchor-active-border: var(--accent);
+
+	--neo-slider-mark-label-color: var(--muted);
+	--neo-slider-mark-label-active-color: var(--page-fg);
+	--neo-slider-mark-label-font-size: 0.75rem;
+	--neo-slider-marks-margin-top: 0.4rem;
+
+	--neo-slider-label-color: var(--page-fg);
+	--neo-slider-value-color: var(--page-fg);
+	--neo-slider-unit-color: var(--muted);
+	--neo-slider-focus-ring: color-mix(in srgb, var(--accent) 50%, transparent);
+}
+
+/* Manual contrast toggle. The slider's anchors/track live in the shadow,
+ * so the descendant `:root[data-pref-contrast-more] neo-slider > …` form
+ * can't reach them. Override the tokens instead; they inherit into the
+ * shadow, where the structural rules already read them. Mirrors the OS
+ * `@media (prefers-contrast: more) :host` block in neo-slider.css and
+ * covers <neo-slider-range>, which shares the same tokens. */
+:root[data-pref-contrast-more] {
+	--neo-slider-anchor-bg: currentColor;
+	--neo-slider-anchor-border: currentColor;
+	--neo-slider-anchor-active-bg: var(--accent-fg);
+	--neo-slider-anchor-active-border: currentColor;
+	--neo-slider-track-shadow: 0 0 0 1px currentColor;
+}

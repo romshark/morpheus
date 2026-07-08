@@ -1,0 +1,40 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ KbdCombinations() {
+	@neo.Layout(neo.LayoutOpts{AlignItems: neo.Set(neo.AlignItemsCenter), Gap: neo.Set(neo.GapMd), Wrap: neo.Set(neo.Wrap)}) {
+		@neo.KbdGroup() {
+			@neo.Kbd(neo.KbdOpts{}) {
+				⌘
+			}
+			@neo.Kbd(neo.KbdOpts{}) {
+				K
+			}
+		}
+		@neo.KbdGroup() {
+			@neo.Kbd(neo.KbdOpts{}) {
+				⌘
+			}
+			@neo.Kbd(neo.KbdOpts{}) {
+				⇧
+			}
+			@neo.Kbd(neo.KbdOpts{}) {
+				P
+			}
+		}
+		@neo.KbdGroup() {
+			@neo.Kbd(neo.KbdOpts{}) {
+				Ctrl
+			}
+			+
+			@neo.Kbd(neo.KbdOpts{}) {
+				Shift
+			}
+			+
+			@neo.Kbd(neo.KbdOpts{}) {
+				P
+			}
+		}
+	}
+}

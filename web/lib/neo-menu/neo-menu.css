@@ -1,0 +1,279 @@
+/* -----------------------------------------------------------------------
+ * <neo-menu>, <neo-contextmenu>, <neo-submenu>, <neo-menuitem>
+ * -----------------------------------------------------------------------
+ * Self-contained dropdown menu. Trigger is a regular element the author
+ * picks (typically <neo-button>); the panel and submenu fly-outs are
+ * rendered as `position: fixed` cards so they escape any parent overflow
+ * the way <neo-popover> does. */
+
+:root {
+	--neo-menu-bg: var(--btn-bg);
+	--neo-menu-color: var(--page-fg);
+	--neo-menu-border-color: var(--btn-border);
+	--neo-menu-border-width: 1px;
+	--neo-menu-radius: var(--page-radius, 0.625rem);
+	--neo-menu-padding: calc(var(--page-spacing, 0.25rem) * 1);
+	--neo-menu-shadow: 0 1px 2px rgba(0, 0, 0, 0.06), 0 8px 28px rgba(0, 0, 0, 0.18);
+	--neo-menu-min-width: 12rem;
+	--neo-menu-z-index: 1200;
+	--neo-menu-item-radius: calc(var(--page-radius, 0.625rem) * 0.6);
+	--neo-menu-item-padding-y: calc(var(--page-spacing, 0.25rem) * 1.5);
+	--neo-menu-item-padding-x: calc(var(--page-spacing, 0.25rem) * 2.5);
+	--neo-menu-item-hover-bg: color-mix(in srgb, var(--page-fg) 8%, transparent);
+	--neo-menu-item-active-bg: color-mix(in srgb, var(--page-fg) 12%, transparent);
+	--neo-menu-shortcut-color: color-mix(in srgb, var(--page-fg) 55%, transparent);
+	--neo-menu-separator-color: color-mix(in srgb, var(--page-fg) 12%, transparent);
+	--neo-menu-separator-width: 1px;
+}
+
+/* High contrast: pin the panel border and separators to currentColor
+ * and thicken to 2px to match the rest of the kit. The menu panel is
+ * out of flow, so a real 2px border never reflows the page. Mirrored
+ * across the media query and the data-pref simulator hook. */
+@media (prefers-contrast: more) {
+	:root {
+		--neo-menu-border-color: currentColor;
+		--neo-menu-border-width: 2px;
+		--neo-menu-separator-color: currentColor;
+		--neo-menu-separator-width: 2px;
+	}
+}
+
+:root[data-pref-contrast-more] {
+	--neo-menu-border-color: currentColor;
+	--neo-menu-border-width: 2px;
+	--neo-menu-separator-color: currentColor;
+	--neo-menu-separator-width: 2px;
+}
+
+neo-menu,
+neo-contextmenu,
+neo-submenu {
+	display: contents;
+}
+
+/* Pre-hydration: the panel wrapper is JS-built, so until it exists the
+ * rows are raw children, so hide the menu so they don't flash inside the
+ * host (e.g. a <neo-button>) before upgrade. */
+neo-menu:not(:has(> [data-neo-menu-panel])),
+neo-submenu:not(:has(> [data-neo-submenu-panel])) {
+	display: none;
+}
+
+neo-menu > [data-neo-menu-panel],
+neo-contextmenu > [data-neo-contextmenu-panel],
+neo-submenu > [data-neo-submenu-panel] {
+	position: fixed;
+	top: 0;
+	left: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 0.05rem;
+	background: var(--neo-menu-bg);
+	color: var(--neo-menu-color);
+	border: var(--neo-menu-border-width) solid var(--neo-menu-border-color);
+	border-radius: var(--neo-menu-radius);
+	padding: var(--neo-menu-padding);
+	box-shadow: var(--neo-menu-shadow);
+	min-width: var(--neo-menu-min-width);
+	max-width: calc(100vw - 1rem);
+	max-height: calc(100dvh - 1rem);
+	overflow: auto;
+	overscroll-behavior: contain;
+	z-index: var(--neo-menu-z-index);
+	cursor: pointer;
+	opacity: 1;
+	transition:
+		opacity 120ms var(--neo-easing, ease-out),
+		transform 120ms var(--neo-easing, ease-out),
+		display 120ms allow-discrete;
+}
+
+neo-menu:not([open]) > [data-neo-menu-panel],
+neo-contextmenu:not([open]) > [data-neo-contextmenu-panel],
+neo-submenu:not([open]) > [data-neo-submenu-panel] {
+	display: none;
+	opacity: 0;
+	transform: translateY(-4px);
+}
+
+@starting-style {
+	neo-menu[open] > [data-neo-menu-panel],
+	neo-contextmenu[open] > [data-neo-contextmenu-panel],
+	neo-submenu[open] > [data-neo-submenu-panel] {
+		opacity: 0;
+		transform: translateY(-4px);
+	}
+}
+
+neo-menu > [data-neo-menu-panel]:focus,
+neo-contextmenu > [data-neo-contextmenu-panel]:focus,
+neo-submenu > [data-neo-submenu-panel]:focus {
+	outline: none;
+}
+
+/* Item rows: <neo-menuitem> and <neo-submenu>'s auto-generated trigger
+ * row share the same styling so a menu reads as a single column whether
+ * a row leads to a leaf or to a fly-out.
+ *
+ * `touch-action: manipulation` strips the 300ms tap delay on mobile;
+ * `-webkit-touch-callout: none` suppresses the iOS press-and-hold
+ * context menu that pops up over text-bearing rows. */
+neo-menuitem,
+[data-neo-submenu-trigger],
+[data-neo-submenu-back] {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: var(--neo-menu-item-padding-y) var(--neo-menu-item-padding-x);
+	border-radius: var(--neo-menu-item-radius);
+	font: inherit;
+	color: inherit;
+	cursor: pointer;
+	user-select: none;
+	-webkit-user-select: none;
+	-webkit-touch-callout: none;
+	touch-action: manipulation;
+	background: transparent;
+	border: 0;
+	text-align: left;
+	width: 100%;
+	box-sizing: border-box;
+	white-space: nowrap;
+}
+
+/* One highlight, driven by focus only. Hover moves focus to the row (see
+ * onPanelMouseOver), so a separate :hover rule is redundant, and worse,
+ * it lights a second row whenever focus and the pointer diverge, e.g. a
+ * panel opening under a stationary mouse keeps focus on the first row
+ * while the pointer rests on another. */
+neo-menuitem:focus-visible,
+neo-menuitem:focus,
+[data-neo-submenu-trigger]:focus-visible,
+[data-neo-submenu-trigger]:focus {
+	background: var(--neo-menu-item-hover-bg);
+	outline: none;
+}
+
+neo-submenu[open] > [data-neo-submenu-trigger] {
+	background: var(--neo-menu-item-active-bg);
+}
+
+neo-menuitem[disabled]:not([disabled="false"]),
+[data-neo-submenu-trigger][aria-disabled="true"] {
+	cursor: not-allowed;
+	opacity: 0.5;
+}
+
+[data-neo-menuitem-shortcut] {
+	margin-left: auto;
+	padding-left: 1rem;
+	font-size: 0.85em;
+	color: var(--neo-menu-shortcut-color);
+	letter-spacing: 0.04em;
+	white-space: nowrap;
+}
+
+/* Desktop/laptop contexts should show shortcuts immediately. Hide them
+ * only for coarse touch/no-hover devices, then reveal again if a real
+ * keydown is observed (e.g. tablet with a hardware keyboard). */
+@media (hover: none) and (pointer: coarse) {
+	[data-neo-menuitem-shortcut] {
+		display: none;
+	}
+
+	[data-neo-has-keyboard] [data-neo-menuitem-shortcut] {
+		display: revert;
+	}
+}
+
+[data-neo-submenu-chevron] {
+	margin-left: auto;
+	font-size: 1em;
+	line-height: 1;
+	color: var(--neo-menu-shortcut-color);
+}
+
+[data-neo-menu-panel] > hr,
+[data-neo-submenu-panel] > hr {
+	height: var(--neo-menu-separator-width);
+	margin: 0.25rem 0;
+	border: 0;
+	background: var(--neo-menu-separator-color);
+}
+
+/* The submenu's synthesized "Back" row. Hidden in cascade mode (the
+ * default); it only earns its keep in push mode where the submenu
+ * replaces the parent panel and the user needs a control to climb
+ * back up. */
+[data-neo-submenu-back] {
+	display: none;
+	color: var(--neo-menu-shortcut-color);
+	font-weight: 500;
+}
+
+[data-neo-submenu-back-chevron] {
+	font-size: 1.15em;
+	line-height: 1;
+}
+
+[data-neo-submenu-back]:focus-visible,
+[data-neo-submenu-back]:focus {
+	background: var(--neo-menu-item-hover-bg);
+	outline: none;
+}
+
+/* Push mode: submenus replace the parent's visible rows rather than
+ * fly out. Submenu panels flow INLINE inside their parent panel (no
+ * fixed/absolute positioning, no styling of their own), so the root
+ * panel's natural height grows or shrinks to match whichever level is
+ * currently visible. `:has()` hides every sibling of an open submenu
+ * so its panel becomes the visible content of the level. Cascade mode
+ * (the default) is untouched.
+ *
+ * Transitions are disabled in push mode so navigation between levels
+ * is instantaneous; the 120ms opacity/display fade leaves the
+ * panel-being-hidden visible at the same time the parent's items
+ * un-hide (because `:has(> neo-submenu[open])` no longer matches),
+ * which paints both layers for the duration of the fade. Snap-close
+ * is also closer to native mobile behaviour. */
+neo-menu[data-mode-effective="push"] > [data-neo-menu-panel],
+neo-contextmenu[data-mode-effective="push"] > [data-neo-contextmenu-panel],
+neo-menu[data-mode-effective="push"] [data-neo-submenu-panel] {
+	transition: none;
+}
+neo-menu[data-mode-effective="push"] [data-neo-submenu-panel],
+neo-contextmenu[data-mode-effective="push"] [data-neo-submenu-panel] {
+	position: static;
+	inset: auto;
+	min-width: 0;
+	max-width: none;
+	max-height: none;
+	background: transparent;
+	border: 0;
+	padding: 0;
+	box-shadow: none;
+	border-radius: 0;
+	z-index: auto;
+}
+
+neo-menu[data-mode-effective="push"] [data-neo-menu-panel]:has(> neo-submenu[open]) > :not(neo-submenu[open]),
+neo-contextmenu[data-mode-effective="push"]
+	[data-neo-contextmenu-panel]:has(> neo-submenu[open])
+	> :not(neo-submenu[open]),
+neo-menu[data-mode-effective="push"] [data-neo-submenu-panel]:has(> neo-submenu[open]) > :not(neo-submenu[open]),
+neo-contextmenu[data-mode-effective="push"]
+	[data-neo-submenu-panel]:has(> neo-submenu[open])
+	> :not(neo-submenu[open]) {
+	display: none;
+}
+
+neo-menu[data-mode-effective="push"] neo-submenu[open] > [data-neo-submenu-trigger],
+neo-contextmenu[data-mode-effective="push"] neo-submenu[open] > [data-neo-submenu-trigger] {
+	display: none;
+}
+
+neo-menu[data-mode-effective="push"] [data-neo-submenu-back],
+neo-contextmenu[data-mode-effective="push"] [data-neo-submenu-back] {
+	display: flex;
+}

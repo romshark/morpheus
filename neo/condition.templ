@@ -1,0 +1,53 @@
+package neo
+
+// ConditionOpts configures <neo-condition>, the client-side platform
+// gate. It shows its children only when the current OS matches Platform;
+// otherwise the subtree is removed from layout. For platform branches the
+// server can't resolve. Capability conditions (touch, hover, pointer)
+// belong in CSS @media queries instead.
+type ConditionOpts struct {
+	// Platform names which operating systems to show on: one or more of
+	// apple, windows, linux, separated by spaces to match any. Prefix
+	// "not" to invert. Empty shows everywhere. E.g. "windows linux",
+	// "not apple".
+	Platform Attr[string]
+	// UserAgent enables server-side pre-rendering: pass the request
+	// User-Agent (r.UserAgent()) and a matching branch renders already
+	// visible, so it doesn't flash in after the bundle upgrades. The client
+	// then reconciles against the real platform. Leave empty (e.g. on a
+	// static/CDN site that can't read the request UA) for client-only.
+	UserAgent Attr[string]
+}
+
+// conditionAttrs builds the element attributes, pre-showing the branch
+// (display:contents) when the server already knows the platform matches.
+func conditionAttrs(opts ConditionOpts, extra templ.Attributes) templ.Attributes {
+	platform := opts.Platform.Or("")
+	userAgent := opts.UserAgent.Or("")
+	a := templ.Attributes{}
+	if platform != "" {
+		a["platform"] = platform
+	}
+	if userAgent != "" && platformMatches(platform, DetectPlatform(userAgent)) {
+		a["style"] = "display:contents"
+	}
+	for k, v := range extra {
+		a[k] = v
+	}
+	return a
+}
+
+// Condition shows its children only on the platforms matching
+// opts.Platform.
+templ Condition(opts ConditionOpts) {
+	@ConditionAttrs(opts, nil) {
+		{ children... }
+	}
+}
+
+// ConditionAttrs is [Condition] with an extra attribute set.
+templ ConditionAttrs(opts ConditionOpts, attrs templ.Attributes) {
+	<neo-condition { conditionAttrs(opts, attrs)... }>
+		{ children... }
+	</neo-condition>
+}

@@ -1,0 +1,38 @@
+package examples
+
+import (
+	"github.com/romshark/morpheus/internal/href"
+	"github.com/romshark/morpheus/neo"
+)
+
+templ AvatarsClickable() {
+	@neo.Avatars(neo.AvatarsOpts{CollapseAt: neo.Set(5), AriaLabel: neo.Set("Reviewers")}) {
+		@neo.Avatar(neo.AvatarOpts{Src: neo.Set(href.Asset("avatar/avatar_1.svg")), Alt: neo.Set("Diego Vega")})
+		@neo.Avatar(neo.AvatarOpts{Src: neo.Set(href.Asset("avatar/avatar_2.svg")), Alt: neo.Set("Jan O'Sullivan")})
+		@neo.Avatar(neo.AvatarOpts{Src: neo.Set(href.Asset("avatar/avatar_3.svg")), Alt: neo.Set("Evelyn Kone")})
+		@neo.Avatar(neo.AvatarOpts{Src: neo.Set(href.Asset("avatar/avatar_4.svg")), Alt: neo.Set("Samira Khalil")})
+		@neo.Avatar(neo.AvatarOpts{Src: neo.Set(href.Asset("avatar/avatar_5.svg")), Alt: neo.Set("Alice Larsson")})
+		@neo.Avatar(neo.AvatarOpts{Src: neo.Set(href.Asset("avatar/avatar_6.svg")), Alt: neo.Set("Camila Duarte")})
+		@neo.Avatar(neo.AvatarOpts{Src: neo.Set(href.Asset("avatar/avatar_7.svg")), Alt: neo.Set("Theo Becker")})
+		@neo.AvatarsOverflow() {
+			<neo-popover placement="bottom-end" min-fit-width="content">
+				<button type="button" { neo.PopoverTrigger()... }>
+					{ "+" }@neo.AvatarsOverflowCount()
+				</button>
+				<div class="avatars-clickable-panel" { neo.PopoverContent()... }>
+					<strong>Also in this thread</strong>
+					<div class="avatars-clickable-list">
+						<div class="avatars-clickable-row">
+							@neo.AvatarAttrs(neo.AvatarOpts{Src: neo.Set(href.Asset("avatar/avatar_6.svg")), Alt: neo.Set("Camila Duarte")}, templ.Attributes{"class": "avatars-clickable-avatar"})
+							<span>Camila Duarte</span>
+						</div>
+						<div class="avatars-clickable-row">
+							@neo.AvatarAttrs(neo.AvatarOpts{Src: neo.Set(href.Asset("avatar/avatar_7.svg")), Alt: neo.Set("Theo Becker")}, templ.Attributes{"class": "avatars-clickable-avatar"})
+							<span>Theo Becker</span>
+						</div>
+					</div>
+				</div>
+			</neo-popover>
+		}
+	}
+}

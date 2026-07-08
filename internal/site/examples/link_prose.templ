@@ -1,0 +1,17 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ LinkProse() {
+	<p>
+		Open the{ " " }
+		@neo.Link(neo.LinkOpts{Href: neo.Set("#")}) {
+			getting started guide
+		}
+		{ " " }or jump straight to the{ " " }
+		@neo.Link(neo.LinkOpts{Href: neo.Set("#")}) {
+			API reference
+		}
+		.
+	</p>
+}

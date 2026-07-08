@@ -1,0 +1,44 @@
+package examples
+
+import (
+	"strings"
+
+	"github.com/romshark/morpheus/neo"
+)
+
+// popoverPlacementValues lists the twelve side/alignment combinations the
+// placements demo renders, in visual order.
+var popoverPlacementValues = []neo.Placement{
+	"top-start", "top", "top-end",
+	"right-start", "right", "right-end",
+	"bottom-start", "bottom", "bottom-end",
+	"left-start", "left", "left-end",
+}
+
+// popoverPlacementLabel capitalizes the placement value for display.
+func popoverPlacementLabel(p neo.Placement) string {
+	s := string(p)
+	return strings.ToUpper(s[:1]) + s[1:]
+}
+
+templ PopoverPlacements() {
+	<div class="popover-placements-grid">
+		for _, value := range popoverPlacementValues {
+			@neo.PopoverAttrs(neo.PopoverOpts{Placement: neo.Set(value)}, templ.Attributes{
+				"class": "popover-placements-item",
+			}) {
+				<neo-button { neo.PopoverTrigger()... }>{ string(value) }</neo-button>
+				<div
+					class="popover-placements-panel"
+					aria-labelledby={ "demo-place-" + string(value) + "-title" }
+					{ neo.PopoverContent()... }
+				>
+					@neo.Icon("move-diagonal")
+					<span id={ "demo-place-" + string(value) + "-title" }>
+						{ popoverPlacementLabel(value) }
+					</span>
+				</div>
+			}
+		}
+	</div>
+}

@@ -1,0 +1,103 @@
+package neo
+
+type SidebarOpts struct {
+	// Open pins the sidebar open at every viewport; absent gives auto
+	// behaviour (open above OverlayBreakpoint, closed below).
+	Open Attr[bool]
+	Side Attr[Side]
+	// Manual disables auto-open-on-wide.
+	Manual Attr[bool]
+	// Overlay forces fixed-overlay rendering at every width (e.g.
+	// settings drawers).
+	Overlay Attr[bool]
+	// OverlayBreakpoint overrides the default 50rem cutoff per instance:
+	// any CSS length, or a bare number in px.
+	OverlayBreakpoint Attr[CSSUnit]
+	// NoTouchDismiss opts out of the drag-to-close gesture (enabled by
+	// default in overlay mode); renders `touch-dismiss="off"` on the
+	// host.
+	NoTouchDismiss Attr[bool]
+	// TouchDismissThreshold overrides the default close threshold of
+	// half the host's width. Any CSS length is accepted, including px,
+	// rem, and percent.
+	TouchDismissThreshold Attr[CSSUnit]
+	AriaLabel             Attr[string]
+}
+
+// touchDismissAttr returns the value to render for the `touch-dismiss`
+// attribute. Returns "" when no attribute should be rendered
+// (default-on, default threshold).
+func touchDismissAttr(opts SidebarOpts) string {
+	if opts.NoTouchDismiss.Or(false) {
+		return "off"
+	}
+	return opts.TouchDismissThreshold.Or("")
+}
+
+// Sidebar renders <neo-sidebar>: a side-anchored panel that auto-
+// switches between in-flow column (wide) and fixed overlay (narrow).
+// Children typically include `[data-neo-sidebar-header]`,
+// `[data-neo-sidebar-content]`, and `[data-neo-sidebar-footer]` slots.
+templ Sidebar(opts SidebarOpts) {
+	@SidebarAttrs(opts, nil) {
+		{ children... }
+	}
+}
+
+// SidebarAttrs is [Sidebar] with an extra attribute set.
+templ SidebarAttrs(opts SidebarOpts, attrs templ.Attributes) {
+	<neo-sidebar
+		{ opts.Open.Attrs("open")... }
+		{ opts.Side.Attrs("side")... }
+		{ opts.Manual.Attrs("manual")... }
+		{ opts.Overlay.Attrs("overlay")... }
+		{ opts.OverlayBreakpoint.Attrs("overlay-breakpoint")... }
+		if touchDismissAttr(opts) != "" {
+			touch-dismiss={ touchDismissAttr(opts) }
+		}
+		{ opts.AriaLabel.Attrs("aria-label")... }
+		{ attrs... }
+	>
+		{ children... }
+	</neo-sidebar>
+}
+
+// SidebarClose marks an element that collapses the sidebar on click
+// (overlay mode). Spread onto any focusable element.
+func SidebarClose() templ.Attributes {
+	return templ.Attributes{"data-neo-sidebar-close": true}
+}
+
+// SidebarContent marks the scrollable middle region between header and
+// footer. Spread onto the element so the author keeps the right tag
+// (<nav> for a navigation landmark, <div> otherwise).
+func SidebarContent() templ.Attributes {
+	return templ.Attributes{"data-neo-sidebar-content": true}
+}
+
+// Sidebar header / footer slots carrying the kit's spacing presets.
+templ SidebarHeader() {
+	@SidebarHeaderAttrs(nil) {
+		{ children... }
+	}
+}
+
+// SidebarHeaderAttrs is [SidebarHeader] with an extra attribute set.
+templ SidebarHeaderAttrs(attrs templ.Attributes) {
+	<header data-neo-sidebar-header { attrs... }>
+		{ children... }
+	</header>
+}
+
+templ SidebarFooter() {
+	@SidebarFooterAttrs(nil) {
+		{ children... }
+	}
+}
+
+// SidebarFooterAttrs is [SidebarFooter] with an extra attribute set.
+templ SidebarFooterAttrs(attrs templ.Attributes) {
+	<footer data-neo-sidebar-footer { attrs... }>
+		{ children... }
+	</footer>
+}

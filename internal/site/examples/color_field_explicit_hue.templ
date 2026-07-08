@@ -1,0 +1,11 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ ColorFieldExplicitHue() {
+	@neo.ColorField(neo.ColorFieldOpts[float64]{
+		Value:     neo.Set("#f97316"),
+		Hue:       neo.Set(24.0),
+		AriaLabel: neo.Set("Brand color"),
+	})
+}

@@ -1,0 +1,65 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ ContextMenuNested() {
+	@neo.ContextMenuAttrs(neo.ContextMenuOpts{}, templ.Attributes{"class": "cm-workspace"}) {
+		@neo.ContextMenuTriggerAttrs(templ.Attributes{"class": "cm-layer-target"}) {
+			<strong>Workspace</strong>
+			<span>Right-click the blue workspace area.</span>
+			@neo.ContextMenuAttrs(neo.ContextMenuOpts{}, templ.Attributes{"class": "cm-folder"}) {
+				@neo.ContextMenuTriggerAttrs(templ.Attributes{"class": "cm-layer-target"}) {
+					<strong>Docs folder</strong>
+					<span>Right-click the green folder block.</span>
+					@neo.ContextMenuAttrs(neo.ContextMenuOpts{}, templ.Attributes{"class": "cm-file"}) {
+						<button type="button" data-neo-contextmenu-trigger class="cm-layer-target">
+							<strong>readme.md</strong>
+							<span>Right-click the amber file chip.</span>
+						</button>
+						@neo.Menu(neo.MenuOpts{}) {
+							@neo.MenuItem(neo.MenuItemOpts{Value: neo.Set("preview-file")}) {
+								Preview file
+							}
+							@neo.MenuItem(neo.MenuItemOpts{Value: neo.Set("copy-path")}) {
+								Copy path
+							}
+						}
+					}
+				}
+				@neo.Menu(neo.MenuOpts{}) {
+					@neo.MenuItem(neo.MenuItemOpts{Value: neo.Set("open-folder")}) {
+						Open folder
+					}
+					@neo.MenuItem(neo.MenuItemOpts{Value: neo.Set("rename-folder")}) {
+						Rename folder
+					}
+					@neo.MenuItem(neo.MenuItemOpts{Value: neo.Set("duplicate-folder")}) {
+						Duplicate folder
+					}
+					<hr/>
+					@neo.MenuItem(neo.MenuItemOpts{Value: neo.Set("share-folder")}) {
+						Share folder
+					}
+				}
+			}
+		}
+		@neo.Menu(neo.MenuOpts{}) {
+			@neo.MenuItem(neo.MenuItemOpts{Value: neo.Set("new-file")}) {
+				New file
+			}
+			@neo.MenuItem(neo.MenuItemOpts{Value: neo.Set("new-folder")}) {
+				New folder
+			}
+			@neo.MenuItem(neo.MenuItemOpts{Value: neo.Set("sync-workspace")}) {
+				Sync workspace
+			}
+			@neo.MenuItem(neo.MenuItemOpts{Value: neo.Set("workspace-settings")}) {
+				Workspace settings
+			}
+			<hr/>
+			@neo.MenuItem(neo.MenuItemOpts{Value: neo.Set("archive-workspace")}) {
+				Archive workspace
+			}
+		}
+	}
+}

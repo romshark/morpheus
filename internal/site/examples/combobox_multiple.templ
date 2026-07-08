@@ -1,0 +1,56 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ ComboboxMultiple() {
+	@neo.Combobox(neo.ComboboxOpts{
+		Multiple:          neo.Set(true),
+		Value:             neo.Set("go,rust"),
+		AriaLabel:         neo.Set("Languages"),
+		Placeholder:       neo.Set("Pick languages"),
+		SearchPlaceholder: neo.Set("Search languages…"),
+	}) {
+		@neo.OptGroup(neo.OptGroupOpts{Label: neo.Set("Systems")}) {
+			@neo.Option(neo.OptionOpts{Value: neo.Set("c")}) {
+				C
+			}
+			@neo.Option(neo.OptionOpts{Value: neo.Set("cpp"), Label: neo.Set("C++")}) {
+				C++
+			}
+			@neo.Option(neo.OptionOpts{Value: neo.Set("rust")}) {
+				Rust
+			}
+			@neo.Option(neo.OptionOpts{Value: neo.Set("zig")}) {
+				Zig
+			}
+		}
+		@neo.OptGroup(neo.OptGroupOpts{Label: neo.Set("Application")}) {
+			@neo.Option(neo.OptionOpts{Value: neo.Set("go")}) {
+				Go
+			}
+			@neo.Option(neo.OptionOpts{Value: neo.Set("java")}) {
+				Java
+			}
+			@neo.Option(neo.OptionOpts{Value: neo.Set("kotlin")}) {
+				Kotlin
+			}
+			@neo.Option(neo.OptionOpts{Value: neo.Set("swift")}) {
+				Swift
+			}
+		}
+		@neo.OptGroup(neo.OptGroupOpts{Label: neo.Set("Functional")}) {
+			@neo.Option(neo.OptionOpts{Value: neo.Set("elixir")}) {
+				Elixir
+			}
+			@neo.Option(neo.OptionOpts{Value: neo.Set("haskell")}) {
+				Haskell
+			}
+			@neo.Option(neo.OptionOpts{Value: neo.Set("ocaml"), Label: neo.Set("OCaml")}) {
+				OCaml
+			}
+		}
+		@neo.EmptyResults() {
+			No languages match &#34;@neo.EmptyQuery()&#34;.
+		}
+	}
+}

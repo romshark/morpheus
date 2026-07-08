@@ -1,0 +1,142 @@
+package neo
+
+type ComboboxOpts struct {
+	// Value seeds the initial selection (comma-separated list in
+	// Multiple mode, single option value otherwise). In Multiple mode an
+	// option value must not contain a comma; the separator is unescaped.
+	Value Attr[string]
+	// Name is the form field name. The control is form-associated, so with a
+	// Name set it submits its value in a native <form>. Multiple mode submits
+	// one entry per selected value under the same name, like <select multiple>.
+	Name Attr[string]
+	// Disabled makes the control non-interactive: the trigger drops out of
+	// the tab order and ignores clicks and keys.
+	Disabled Attr[bool]
+	// Size is the control-size step ("sm" | "lg"); empty is the default
+	// size. Shared with the other row controls so they line up.
+	Size Attr[string]
+	// List points at a shared <neo-datalist> by id (like native
+	// <input list>) to source options. An inline datalist or directly
+	// authored options take precedence.
+	List Attr[string]
+	// Placeholder is shown on the trigger when nothing is selected.
+	// Empty falls back to the host default "Select…".
+	Placeholder Attr[string]
+	// SearchPlaceholder is the search input placeholder (default
+	// "Search…").
+	SearchPlaceholder Attr[string]
+	// SearchDebounce coalesces keystrokes for this many ms before
+	// dispatching `neo-combobox-search` (and running the local filter /
+	// live-search loading reset); 0 dispatches on every keystroke.
+	SearchDebounce Attr[int]
+	// Async mirrors [Select] semantics; without it, a
+	// [data-neo-async-placeholder] child triggers lazy-by-default
+	// loading (kit caches options across opens).
+	Async      Attr[bool]
+	LiveSearch Attr[bool]
+	// Multiple switches to multi-select mode (toggling, popover stays
+	// open on activation, comma-joined label list).
+	Multiple Attr[bool]
+	// Clearable lets Backspace/Delete on the focused trigger return to
+	// no selection.
+	Clearable Attr[bool]
+	// Caret overrides the trigger's caret icon name (default
+	// "chevrons-up-down"). Resolved through <neo-icon>, so it follows the
+	// active icon theme. Set("") hides the caret entirely.
+	Caret        Attr[string]
+	AriaLabel    Attr[string]
+	Placement    Attr[Placement]
+	ScreenOffset Attr[CSSUnit]
+	// FollowScroll forwards a popover scroll-follow mode to the inner
+	// popover. Defaults to PopoverFollowScrollUntilTriggerInvisible so
+	// the popover closes once its trigger scrolls off-screen; pass
+	// PopoverFollowScrollAlways to keep it anchored across scrolls, or
+	// PopoverFollowScrollOff to disable.
+	FollowScroll   Attr[PopoverFollowScroll]
+	ClampPlacement Attr[bool]
+	MinFitHeight   Attr[CSSUnit]
+	MinFitWidth    Attr[CSSUnit]
+	MinOpenHeight  Attr[CSSUnit]
+	MinOpenWidth   Attr[CSSUnit]
+	// PopoverFitContent sizes the popover to its option rows instead of
+	// forcing the trigger width. It is still capped by
+	// --neo-popover-max-width and the viewport.
+	PopoverFitContent Attr[bool]
+}
+
+// Combobox renders <neo-combobox>. Children provide the option data:
+// [Option] / [OptGroup] (shared with [Select]), optionally wrapped
+// in a [Datalist]; a [data-neo-async-placeholder] child marks async
+// loading. This wrapper never injects a container: to address the options
+// from a server-driven patch, wrap them in a [Datalist] with
+// id="<host-id>-options" yourself. The browser component owns the
+// trigger/search/listbox in shadow DOM, so patches target the light option
+// data, never the live scroll container.
+templ Combobox(opts ComboboxOpts) {
+	@ComboboxAttrs(opts, nil) {
+		{ children... }
+	}
+}
+
+// ComboboxAttrs is [Combobox] with an extra attribute set.
+templ ComboboxAttrs(opts ComboboxOpts, attrs templ.Attributes) {
+	{{
+		// follow-scroll is always emitted; the wrapper default (close once
+		// the trigger scrolls off-screen) differs from the host's own.
+		followScroll := PopoverFollowScrollUntilTriggerInvisible
+		if v, ok := opts.FollowScroll.Value(); ok {
+			followScroll = v
+		}
+	}}
+	<neo-combobox
+		{ opts.Value.Attrs("value")... }
+		{ opts.Name.Attrs("name")... }
+		{ opts.Disabled.Attrs("disabled")... }
+		{ opts.Size.Attrs("size")... }
+		{ opts.List.Attrs("list")... }
+		{ opts.Placeholder.Attrs("placeholder")... }
+		{ opts.SearchPlaceholder.Attrs("search-placeholder")... }
+		{ opts.SearchDebounce.Attrs("search-debounce")... }
+		{ opts.Async.Attrs("async")... }
+		{ opts.LiveSearch.Attrs("live-search")... }
+		{ opts.Multiple.Attrs("multiple")... }
+		{ opts.Clearable.Attrs("clearable")... }
+		{ opts.Caret.Attrs("caret")... }
+		{ opts.AriaLabel.Attrs("aria-label")... }
+		{ opts.Placement.Attrs("placement")... }
+		{ opts.ScreenOffset.Attrs("screen-offset")... }
+		follow-scroll={ string(followScroll) }
+		{ opts.ClampPlacement.Attrs("clamp-placement")... }
+		{ opts.MinFitHeight.Attrs("min-fit-height")... }
+		{ opts.MinFitWidth.Attrs("min-fit-width")... }
+		{ opts.MinOpenHeight.Attrs("min-open-height")... }
+		{ opts.MinOpenWidth.Attrs("min-open-width")... }
+		{ opts.PopoverFitContent.Attrs("popover-fit-content")... }
+		{ attrs... }
+	>
+		{ children... }
+	</neo-combobox>
+}
+
+// ComboboxEmpty marks its children as the empty-state trigger face:
+// cloned into the trigger when nothing is selected, never shown as a
+// listbox row. Place it as a child of Combobox.
+//
+//	@neo.Combobox(neo.ComboboxOpts{Clearable: neo.Set(true)}) {
+//	    @neo.ComboboxEmpty() {
+//	        <span class="muted">Unassigned</span>
+//	    }
+//	    @neo.Option(neo.OptionOpts{Value: "a"}) { … }
+//	}
+templ ComboboxEmpty() {
+	@ComboboxEmptyAttrs(nil) {
+		{ children... }
+	}
+}
+
+// ComboboxEmptyAttrs is [ComboboxEmpty] with an extra attribute set.
+templ ComboboxEmptyAttrs(attrs templ.Attributes) {
+	<div data-neo-combobox-empty { attrs... }>
+		{ children... }
+	</div>
+}

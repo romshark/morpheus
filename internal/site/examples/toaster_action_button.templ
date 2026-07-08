@@ -1,0 +1,15 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ ToasterActionButton() {
+	@neo.ButtonAttrs(neo.ButtonOpts{Variant: neo.Set(neo.ButtonVariantDanger)}, templ.Attributes{
+		"data-on:click": "@post('/archive', { requestCancellation: 'disabled' })",
+	}) {
+		Archive
+	}
+	@neo.ToasterAttrs(neo.ToasterOpts{
+		Contained: neo.Set(true),
+		Position:  neo.Set(neo.ToasterPositionBottomRight),
+	}, templ.Attributes{"id": "my-toaster"})
+}

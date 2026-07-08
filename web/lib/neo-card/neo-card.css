@@ -1,0 +1,273 @@
+/* -----------------------------------------------------------------------
+ * <neo-card>
+ * -----------------------------------------------------------------------
+ */
+
+:root {
+	--neo-card-bg: var(--btn-bg, transparent);
+	--neo-card-color: var(--page-fg, currentColor);
+	--neo-card-border-color: var(--btn-border, currentColor);
+	--neo-card-border-width: 1px;
+	--neo-card-radius: var(--page-radius, 0.5rem);
+	--neo-card-padding: calc(var(--page-spacing, 0.25rem) * 5);
+	--neo-card-gap: calc(var(--page-spacing, 0.25rem) * 4);
+	--neo-card-shadow: 0 1px 2px rgba(0, 0, 0, 0.06), 0 4px 14px rgba(0, 0, 0, 0.08);
+	--neo-card-title-size: 1.05rem;
+	--neo-card-title-weight: 600;
+	--neo-card-description-color: color-mix(in srgb, var(--page-fg) 65%, transparent);
+	--neo-card-horizontal-media-width: 12rem;
+	--neo-card-horizontal-body-min-width: 12rem;
+	--neo-card-media-default-height: 8rem;
+	/* Keep mirrored with the literal @container condition. */
+	--neo-card-horizontal-collapse: 28rem;
+}
+
+neo-card {
+	/* Marks this stylesheet as loaded so the kit can flag a trimmed CSS-only component. */
+	--neo-loaded: neo-card;
+	/* Host owns paint; inner owns @container-reactive layout. */
+	display: block;
+	background: var(--neo-card-bg);
+	color: var(--neo-card-color);
+	border: var(--neo-card-border-width) solid var(--neo-card-border-color);
+	border-radius: var(--neo-card-radius);
+	/* Clip children to the rounded corners so child backgrounds and
+	 * borders don't poke past the host's border-radius. Consumers that
+	 * need fixed-position descendants (popovers, etc.) escape this
+	 * naturally: fixed-positioning resolves against the viewport, not
+	 * the closest overflow ancestor, as long as no transform/filter/
+	 * contain on an ancestor creates a containing block. Cards that
+	 * specifically need visible overflow can override with
+	 * `overflow: visible`. */
+}
+
+neo-card[orientation="horizontal"] {
+	/* Contained flex items need an explicit inline size. */
+	inline-size: 100%;
+	max-inline-size: 100%;
+	container-type: inline-size;
+}
+
+neo-card > [data-neo-card-inner] {
+	/* Contain negative media margins. */
+	display: flow-root;
+	padding: var(--neo-card-padding);
+}
+
+neo-card > [data-neo-card-inner] > * + * {
+	margin-top: var(--neo-card-gap);
+}
+
+neo-card[variant="outline"] {
+	background: transparent;
+}
+
+neo-card[variant="elevated"] {
+	border-color: transparent;
+	box-shadow: var(--neo-card-shadow);
+}
+
+neo-card [data-neo-card-media] {
+	/* Padding escape for edge-to-edge media. */
+	margin: calc(var(--neo-card-padding) * -1);
+	/* Empty styled placeholders need a box. */
+	min-height: var(--neo-card-media-default-height);
+}
+
+neo-card [data-neo-card-media]:has(> *) {
+	min-height: 0;
+}
+
+neo-card [data-neo-card-media]:first-child {
+	margin-bottom: 0;
+	border-radius: calc(var(--neo-card-radius) - var(--neo-card-border-width))
+		calc(var(--neo-card-radius) - var(--neo-card-border-width)) 0 0;
+}
+
+neo-card [data-neo-card-media]:last-child {
+	margin-top: 0;
+	border-radius: 0 0 calc(var(--neo-card-radius) - var(--neo-card-border-width))
+		calc(var(--neo-card-radius) - var(--neo-card-border-width));
+}
+
+neo-card [data-neo-card-media] > img,
+neo-card [data-neo-card-media] > video {
+	display: block;
+	width: 100%;
+	height: auto;
+}
+
+neo-card [data-neo-card-header] {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-start;
+	gap: calc(var(--page-spacing, 0.25rem) * 2) calc(var(--page-spacing, 0.25rem) * 4);
+}
+
+neo-card [data-neo-card-header] > :where([data-neo-card-title], [data-neo-card-description]) {
+	flex: 0 0 100%;
+}
+
+/* Actions split the header via :has(). */
+neo-card [data-neo-card-header]:has([data-neo-card-actions])
+	> :where([data-neo-card-title], [data-neo-card-description]) {
+	flex: 1 1 auto;
+}
+
+neo-card [data-neo-card-actions] {
+	margin-inline-start: auto;
+	display: flex;
+	gap: calc(var(--page-spacing, 0.25rem) * 2);
+	flex-wrap: wrap;
+}
+
+neo-card [data-neo-card-title] {
+	margin: 0;
+	font-size: var(--neo-card-title-size);
+	font-weight: var(--neo-card-title-weight);
+	line-height: 1.3;
+}
+
+neo-card [data-neo-card-description] {
+	margin: 0;
+	color: var(--neo-card-description-color);
+	line-height: 1.5;
+}
+
+neo-card [data-neo-card-body] {
+	display: block;
+	line-height: 1.5;
+}
+
+neo-card [data-neo-card-footer] {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: flex-end;
+	gap: calc(var(--page-spacing, 0.25rem) * 2);
+}
+
+/* Track minimums remain enforceable until container collapse. */
+neo-card[orientation="horizontal"] > [data-neo-card-inner] {
+	display: grid;
+	grid-template-columns:
+		minmax(var(--neo-card-horizontal-media-width), var(--neo-card-horizontal-media-width))
+		minmax(var(--neo-card-horizontal-body-min-width), 1fr);
+	grid-template-rows: auto minmax(0, 1fr) auto;
+	padding: 0;
+}
+
+neo-card[orientation="horizontal"] > [data-neo-card-inner] > * + * {
+	margin-top: 0;
+}
+
+neo-card[orientation="horizontal"] > [data-neo-card-inner] > [data-neo-card-media] {
+	grid-column: 1;
+	grid-row: 1 / -1;
+	margin: 0;
+	min-height: 0;
+	overflow: hidden;
+	border-radius: calc(var(--neo-card-radius) - var(--neo-card-border-width)) 0 0
+		calc(var(--neo-card-radius) - var(--neo-card-border-width));
+}
+
+neo-card[orientation="horizontal"] > [data-neo-card-inner] > [data-neo-card-media] > img,
+neo-card[orientation="horizontal"] > [data-neo-card-inner] > [data-neo-card-media] > video {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+neo-card[orientation="horizontal"] > [data-neo-card-inner] > [data-neo-card-header] {
+	grid-column: 2;
+	grid-row: 1;
+	margin: 0;
+	padding: var(--neo-card-padding) var(--neo-card-padding) 0 var(--neo-card-padding);
+}
+
+neo-card[orientation="horizontal"] > [data-neo-card-inner] > [data-neo-card-body] {
+	grid-column: 2;
+	grid-row: 2;
+	padding: var(--neo-card-gap) var(--neo-card-padding) 0 var(--neo-card-padding);
+	/* Wide content scrolls instead of shrinking the track. */
+	min-width: var(--neo-card-horizontal-body-min-width);
+	overflow-x: auto;
+}
+
+neo-card[orientation="horizontal"] > [data-neo-card-inner] > [data-neo-card-footer] {
+	grid-column: 2;
+	grid-row: 3;
+	padding: var(--neo-card-gap) var(--neo-card-padding) var(--neo-card-padding) var(--neo-card-padding);
+}
+
+neo-card[orientation="horizontal"]:not(:has(> [data-neo-card-inner] > [data-neo-card-media])) > [data-neo-card-inner] {
+	grid-template-columns: minmax(0, 1fr);
+}
+
+neo-card[orientation="horizontal"]:not(:has(> [data-neo-card-inner] > [data-neo-card-media]))
+	> [data-neo-card-inner]
+	> * {
+	grid-column: 1;
+}
+
+/* First text slot owns top padding. */
+neo-card[orientation="horizontal"]:not(:has(> [data-neo-card-inner] > [data-neo-card-header])) > [data-neo-card-inner]
+	> [data-neo-card-body] {
+	padding-top: var(--neo-card-padding);
+}
+
+neo-card[orientation="horizontal"]:not(:has(> [data-neo-card-inner] > [data-neo-card-header])):not(
+		:has(> [data-neo-card-inner] > [data-neo-card-body])
+	)
+	> [data-neo-card-inner]
+	> [data-neo-card-footer] {
+	padding-top: var(--neo-card-padding);
+}
+
+/* Container queries can only restyle descendants. */
+@container (max-width: 28rem) {
+	neo-card[orientation="horizontal"] > [data-neo-card-inner] {
+		grid-template-columns: minmax(0, 1fr);
+		grid-template-rows: auto auto auto auto;
+	}
+
+	neo-card[orientation="horizontal"] > [data-neo-card-inner] > [data-neo-card-media] {
+		grid-column: 1;
+		grid-row: 1;
+		min-height: var(--neo-card-media-default-height);
+		border-radius: calc(var(--neo-card-radius) - var(--neo-card-border-width))
+			calc(var(--neo-card-radius) - var(--neo-card-border-width)) 0 0;
+	}
+
+	neo-card[orientation="horizontal"] > [data-neo-card-inner] > [data-neo-card-media]:has(> *) {
+		min-height: 0;
+	}
+
+	neo-card[orientation="horizontal"] > [data-neo-card-inner] > [data-neo-card-media] > img,
+	neo-card[orientation="horizontal"] > [data-neo-card-inner] > [data-neo-card-media] > video {
+		/* Avoid cropping tall media in collapsed layout. */
+		width: auto;
+		max-width: 100%;
+		height: auto;
+		max-height: 18rem;
+		object-fit: contain;
+		object-position: center;
+		align-self: center;
+		margin-inline: auto;
+	}
+
+	neo-card[orientation="horizontal"] > [data-neo-card-inner] > [data-neo-card-header] {
+		grid-column: 1;
+		grid-row: 2;
+	}
+
+	neo-card[orientation="horizontal"] > [data-neo-card-inner] > [data-neo-card-body] {
+		grid-column: 1;
+		grid-row: 3;
+	}
+
+	neo-card[orientation="horizontal"] > [data-neo-card-inner] > [data-neo-card-footer] {
+		grid-column: 1;
+		grid-row: 4;
+	}
+}

@@ -1,0 +1,38 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ TreeSingleRoot() {
+	@neo.Tree() {
+		@neo.TreeItem(false) {
+			@neo.TreeLabel() {
+				Documents
+			}
+			@neo.TreeItem(false) {
+				@neo.TreeLabel() {
+					Invoices
+				}
+				@neo.TreeItem(false) {
+					@neo.TreeLabel() {
+						2024-Q4.pdf
+					}
+				}
+				@neo.TreeItem(false) {
+					@neo.TreeLabel() {
+						2025-Q1.pdf
+					}
+				}
+			}
+			@neo.TreeItem(false) {
+				@neo.TreeLabel() {
+					Reports
+				}
+				@neo.TreeItem(false) {
+					@neo.TreeLabel() {
+						Annual.docx
+					}
+				}
+			}
+		}
+	}
+}

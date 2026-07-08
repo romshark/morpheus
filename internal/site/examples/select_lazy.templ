@@ -1,0 +1,25 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ SelectLazy() {
+	@neo.SelectAttrs(neo.SelectOpts{
+		AriaLabel:   neo.Set("Time zone (lazy)"),
+		Placeholder: neo.Set("Pick a time zone"),
+	}, templ.Attributes{
+		"id":                        "demo-lazy-once-select",
+		"data-signals:lazyctl":      "new AbortController()",
+		"data-on:neo-select-load":   "@post('/select/lazy-once/', {requestCancellation: $lazyctl})",
+		"data-on:neo-popover-close": "$lazyctl.abort(); $lazyctl = new AbortController()",
+	}) {
+		@neo.Datalist(neo.DatalistOpts{ID: neo.Set("demo-lazy-once-select-options")}) {
+			<div { neo.AsyncPlaceholder()... }>
+				<neo-skeleton class="select-lazy-skeleton-1"></neo-skeleton>
+				<neo-skeleton class="select-lazy-skeleton-2"></neo-skeleton>
+				<neo-skeleton class="select-lazy-skeleton-3"></neo-skeleton>
+				<neo-skeleton class="select-lazy-skeleton-4"></neo-skeleton>
+				<neo-skeleton class="select-lazy-skeleton-5"></neo-skeleton>
+			</div>
+		}
+	}
+}

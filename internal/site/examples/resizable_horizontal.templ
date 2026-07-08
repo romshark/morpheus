@@ -1,0 +1,20 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ ResizableHorizontal() {
+	@neo.ResizableAttrs(neo.ResizableOpts[float64]{
+		Handles:  neo.Set(neo.ResizableRight),
+		Width:    neo.Set("18rem"),
+		Height:   neo.Set("9rem"),
+		MinWidth: neo.Set("10rem"),
+		MaxWidth: neo.Set("36rem"),
+	}, templ.Attributes{
+		"class": "resizable-demo",
+	}) {
+		<neo-layout column align-items="center" justify-content="center" gap="xs">
+			<strong>Drag the right edge</strong>
+			<span>handles="right"</span>
+		</neo-layout>
+	}
+}

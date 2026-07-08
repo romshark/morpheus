@@ -1,0 +1,108 @@
+/* -----------------------------------------------------------------------
+ * Pre-hydration placeholders
+ * -----------------------------------------------------------------------
+ * Components whose authored markup leaves real work for JS (building
+ * inner structure, hiding inactive panels, lifting children into a popover)
+ * get a `:not(:defined)` placeholder so the host reserves a sensible
+ * box (and shimmer) before the bundle upgrades the element. The selector
+ * auto-disengages the moment the element is upgraded.
+ *
+ * Two timing tweaks keep the placeholder from flashing on fast loads:
+ *
+ *   1. A delay (`--neo-placeholder-delay`) before the placeholder
+ *      becomes visible. A bundle that upgrades within that window never
+ *      shows it at all; the rule is paint-suppressed via opacity:0
+ *      from the `from` keyframe and never gets to opacity:1.
+ *   2. A fade-in over `--neo-placeholder-fade` so the placeholder eases
+ *      in instead of popping when the bundle is slow.
+ *
+ * Components whose base CSS already paints them correctly pre-upgrade
+ * (button, buttongroup, navgroup, input-group, popover, tooltip,
+ * clipcopy, dialog, elastic, resizable, textarea, sidebar) deliberately
+ * have no `:not(:defined)` rule; adding one would only introduce a
+ * flash (and in sidebar's case, swap the themed bg for a skeleton tint).
+ * For dialog the modal is closed pre-upgrade and the trigger is just a
+ * styled <neo-button>; there is nothing visible to placeholder.
+ *
+ * `neo-select:not(:defined)` lives next to its component above; its
+ * placeholder needs the trigger-button styling verbatim and renders the
+ * placeholder text via `attr(placeholder)`, so it stays inline. */
+
+:root {
+	--neo-placeholder-delay: 200ms;
+	--neo-placeholder-fade: 240ms;
+	--neo-placeholder-animation:
+		neo-placeholder-appear var(--neo-placeholder-fade) ease-out var(--neo-placeholder-delay) both,
+		neo-skeleton-pulse var(--neo-skeleton-duration) ease-in-out var(--neo-placeholder-delay) infinite;
+}
+
+@keyframes neo-placeholder-appear {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	:root {
+		--neo-placeholder-animation: neo-placeholder-appear 0s ease-out var(--neo-placeholder-delay) both;
+	}
+}
+
+/* Sized leaf controls: reserve the host's intrinsic box, shimmer. */
+neo-spinner:not(:defined) {
+	display: inline-block;
+	width: 1em;
+	height: 1em;
+	background: var(--neo-skeleton-bg);
+	border-radius: 50%;
+	animation: var(--neo-placeholder-animation);
+	vertical-align: middle;
+}
+
+/* Layer host and sub-elements lifted/managed on upgrade, hidden until
+ * their parent host gathers them. No fade-in: there's nothing to fade,
+ * and these would otherwise leak as plain text. */
+neo-toaster:not(:defined),
+neo-option:not(:defined),
+neo-optgroup:not(:defined) {
+	display: none;
+}
+
+/* Concealed cover veil. The SAME ::after renders before AND after the
+ * bundle upgrades (no `:defined` qualifier), so the box is visually
+ * identical across hydration, no flash; the canvas only layers
+ * animated grain on top. Excluded for blur-content (shows a blurred
+ * shape instead) and when revealed. `visibility: visible` is required
+ * pre-upgrade (the host is hidden then, next rule); harmless after.
+ * z-index 1 keeps it under the canvas (2), over the hidden content.
+ * base `neo-revealable` sets position/radius/--neo-revealable-veil
+ * and matches regardless of :defined, so those resolve here too. */
+neo-revealable:not([open]):not([blur-content]:where(:not([blur-content="false"])))::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	z-index: 1;
+	border-radius: inherit;
+	background: var(--neo-revealable-veil, color-mix(in srgb, currentColor 30%, transparent));
+	visibility: visible;
+}
+
+/* Pre-upgrade only (no wrapper/canvas yet): hide the raw secret from
+ * paint AND the a11y tree while reserving its box (no CLS); the
+ * ::after veil above is the cover. Fails closed if JS never loads. */
+neo-revealable:not(:defined):not([open]):not([blur-content]:where(:not([blur-content="false"]))) {
+	visibility: hidden;
+}
+
+/* blur-content pre-upgrade: no wrapper to blur yet, so blur+dim the
+ * host so the shape teases and matches the post-upgrade look (no
+ * flash). blur-content is the softer "shape only" mode; pre-upgrade
+ * a screen reader can still reach the text; that's the documented
+ * trade-off for showing the shape. */
+neo-revealable:not(:defined):not([open])[blur-content]:where(:not([blur-content="false"])) {
+	filter: blur(var(--neo-revealable-blur));
+	opacity: 0.6;
+}

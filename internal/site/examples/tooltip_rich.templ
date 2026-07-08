@@ -1,0 +1,34 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ TooltipRich() {
+	@neo.TooltipAttrs(neo.TooltipOpts{}, templ.Attributes{"hover-open-delay": "0"}) {
+		@neo.Button(neo.ButtonOpts{}) {
+			Hover me (rich)
+		}
+		<span { neo.TooltipContent()... }>
+			<strong>Heads up:</strong> this action notifies
+			<em>everyone</em> in the channel.
+		</span>
+	}
+	@neo.Tooltip(neo.TooltipOpts{Placement: neo.Set(neo.PlacementTopStart)}) {
+		@neo.Button(neo.ButtonOpts{}) {
+			{ "@evelyn" }
+		}
+		<div { neo.TooltipContent()... }>
+			<div class="tooltip-rich-card">
+				<img
+					src="/static/avatar/avatar_3.svg"
+					alt=""
+					aria-hidden="true"
+					class="tooltip-rich-avatar"
+				/>
+				<div class="tooltip-rich-text">
+					<div class="tooltip-rich-name">Evelyn Kone</div>
+					<div class="tooltip-rich-role">Data Analyst</div>
+				</div>
+			</div>
+		</div>
+	}
+}

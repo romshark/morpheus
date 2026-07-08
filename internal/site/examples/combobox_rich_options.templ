@@ -1,0 +1,116 @@
+package examples
+
+import (
+	"github.com/romshark/morpheus/internal/href"
+	"github.com/romshark/morpheus/neo"
+)
+
+templ ComboboxRichOptions() {
+	@neo.Combobox(neo.ComboboxOpts{
+		Value:             neo.Set("evelyn_kone"),
+		Clearable:         neo.Set(true),
+		AriaLabel:         neo.Set("Project owner"),
+		Placeholder:       neo.Set("Pick an owner"),
+		SearchPlaceholder: neo.Set("Search people…"),
+	}) {
+		@neo.ComboboxEmpty() {
+			<div class="combobox-rich-options-row">
+				<neo-avatar class="combobox-rich-options-avatar" aria-hidden="true">
+					<img src="/static/avatar/placeholder.svg" alt=""/>
+				</neo-avatar>
+				<div class="combobox-rich-options-text">
+					<div class="combobox-rich-options-title">Unassigned</div>
+					<div class="combobox-rich-options-sub">No owner picked yet</div>
+				</div>
+			</div>
+		}
+		@neo.Option(neo.OptionOpts{Value: neo.Set("diego_vega")}) {
+			<div class="combobox-rich-options-row">
+				<neo-avatar class="combobox-rich-options-avatar" aria-hidden="true">
+					<img src={ href.Asset("avatar/avatar_1.svg") } alt=""/>
+				</neo-avatar>
+				<div class="combobox-rich-options-text">
+					<div class="combobox-rich-options-title">Diego Vega</div>
+					<div class="combobox-rich-options-sub">CFO</div>
+				</div>
+			</div>
+		}
+		@neo.Option(neo.OptionOpts{Value: neo.Set("jan_osullivan")}) {
+			<div class="combobox-rich-options-row">
+				<neo-avatar class="combobox-rich-options-avatar" aria-hidden="true">
+					<img src={ href.Asset("avatar/avatar_2.svg") } alt=""/>
+				</neo-avatar>
+				<div class="combobox-rich-options-text">
+					<div class="combobox-rich-options-title">Jan O'Sullivan</div>
+					<div class="combobox-rich-options-sub">Lead Designer</div>
+				</div>
+			</div>
+		}
+		@neo.Option(neo.OptionOpts{Value: neo.Set("evelyn_kone")}) {
+			<div class="combobox-rich-options-row">
+				<neo-avatar class="combobox-rich-options-avatar" aria-hidden="true">
+					<img src={ href.Asset("avatar/avatar_3.svg") } alt=""/>
+				</neo-avatar>
+				<div class="combobox-rich-options-text">
+					<div class="combobox-rich-options-title">Evelyn Kone</div>
+					<div class="combobox-rich-options-sub">Data Analyst</div>
+				</div>
+			</div>
+		}
+		@neo.Option(neo.OptionOpts{Value: neo.Set("samira_khalil")}) {
+			<div class="combobox-rich-options-row">
+				<neo-avatar class="combobox-rich-options-avatar" aria-hidden="true">
+					<img src={ href.Asset("avatar/avatar_4.svg") } alt=""/>
+				</neo-avatar>
+				<div class="combobox-rich-options-text">
+					<div class="combobox-rich-options-title">Samira Khalil</div>
+					<div class="combobox-rich-options-sub">Head of Engineering</div>
+				</div>
+			</div>
+		}
+		@neo.Option(neo.OptionOpts{Value: neo.Set("alice_larsson")}) {
+			<div class="combobox-rich-options-row">
+				<neo-avatar class="combobox-rich-options-avatar" aria-hidden="true">
+					<img src={ href.Asset("avatar/avatar_5.svg") } alt=""/>
+				</neo-avatar>
+				<div class="combobox-rich-options-text">
+					<div class="combobox-rich-options-title">Alice Larsson</div>
+					<div class="combobox-rich-options-sub">Product Manager</div>
+				</div>
+			</div>
+		}
+		@neo.Option(neo.OptionOpts{Value: neo.Set("camila_duarte")}) {
+			<div class="combobox-rich-options-row">
+				<neo-avatar class="combobox-rich-options-avatar" aria-hidden="true">
+					<img src={ href.Asset("avatar/avatar_6.svg") } alt=""/>
+				</neo-avatar>
+				<div class="combobox-rich-options-text">
+					<div class="combobox-rich-options-title">Camila Duarte</div>
+					<div class="combobox-rich-options-sub">DevOps Engineer</div>
+				</div>
+			</div>
+		}
+		@neo.Option(neo.OptionOpts{Value: neo.Set("theo_becker")}) {
+			<div class="combobox-rich-options-row">
+				<neo-avatar class="combobox-rich-options-avatar" aria-hidden="true">
+					<img src={ href.Asset("avatar/avatar_7.svg") } alt=""/>
+				</neo-avatar>
+				<div class="combobox-rich-options-text">
+					<div class="combobox-rich-options-title">Theo Becker</div>
+					<div class="combobox-rich-options-sub">UX Researcher</div>
+				</div>
+			</div>
+		}
+		@neo.Option(neo.OptionOpts{Value: neo.Set("mateusz_wisniewski")}) {
+			<div class="combobox-rich-options-row">
+				<neo-avatar class="combobox-rich-options-avatar" aria-hidden="true">
+					<img src={ href.Asset("avatar/avatar_8.svg") } alt=""/>
+				</neo-avatar>
+				<div class="combobox-rich-options-text">
+					<div class="combobox-rich-options-title">Mateusz Wiśniewski</div>
+					<div class="combobox-rich-options-sub">Fullstack Engineer</div>
+				</div>
+			</div>
+		}
+	}
+}

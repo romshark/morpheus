@@ -1,0 +1,62 @@
+package datastar
+
+import "github.com/romshark/morpheus/neo"
+
+// SidebarAsync renders a <neo-sidebar> wired to a Datastar SSE action
+// that fetches its content slot on every open. The Loading template is
+// wrapped in [data-neo-async-placeholder] so the sidebar can restore it
+// after close; on success the server morphs `<div id="<ID>-body">` in
+// place. When Datastar exhausts its retry budget, Failed is swapped
+// into the same content wrapper.
+//
+// The sidebar has no built-in trigger: wire an outside button to
+// `document.getElementById('<ID>').toggle()`. Any descendant in the
+// Failed template that carries data-neo-popover-async-retry becomes a
+// retry button: a click aborts any in-flight fetch, restores loading,
+// and re-fires the action without closing the sidebar.
+templ SidebarAsync(opts SidebarAsyncOpts) {
+	@neo.SidebarAttrs(opts.SidebarOpts, templ.Attributes{
+		"id":                        opts.ID,
+		"data-signals":              sidebarAsyncSignals(opts),
+		"data-on:neo-sidebar-open":  sidebarAsyncOpen(opts),
+		"data-on:neo-sidebar-close": sidebarAsyncClose(opts),
+		"data-on:datastar-fetch":    sidebarAsyncOnFetch(opts),
+		"data-on:click":             sidebarAsyncRetry(opts),
+	}) {
+		if opts.Header != nil {
+			<header data-neo-sidebar-header>
+				@opts.Header
+			</header>
+		}
+		<div id={ opts.ID + "-body" } data-neo-sidebar-content>
+			<div data-neo-async-placeholder>
+				@opts.Loading
+			</div>
+		</div>
+		if opts.Footer != nil {
+			<footer data-neo-sidebar-footer>
+				@opts.Footer
+			</footer>
+		}
+	}
+	<template id={ opts.ID + "-tpl-loading" }>
+		<div data-neo-async-placeholder>
+			@opts.Loading
+		</div>
+	</template>
+	<template id={ opts.ID + "-tpl-failed" }>
+		@sidebarAsyncFailed(opts.Failed)
+	</template>
+}
+
+// sidebarAsyncFailed renders the user-supplied Failed template, or a
+// minimal built-in callout if none was provided.
+templ sidebarAsyncFailed(failed templ.Component) {
+	if failed != nil {
+		@failed
+	} else {
+		<div class="popover-async-failed" role="alert">
+			Failed to load.
+		</div>
+	}
+}

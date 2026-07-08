@@ -1,0 +1,84 @@
+.sb-fail-shell {
+	display: flex;
+	align-self: stretch;
+	width: 100%;
+	min-height: 22rem;
+	border: 1px solid var(--btn-border);
+	border-radius: var(--page-radius, 0.5rem);
+	overflow: hidden;
+	background: var(--page-bg);
+	container-type: inline-size;
+	container-name: neo-sidebar-shell;
+	contain: paint;
+}
+
+.sb-fail-shell neo-sidebar > [data-neo-sidebar-header] {
+	border-bottom: none;
+}
+
+.sb-fail-shell > neo-sidebar:not([overlay]):not([data-neo-sidebar-overlay]) {
+	height: auto;
+	align-self: stretch;
+}
+
+.sb-fail-shell .sb-main {
+	flex: 1 1 auto;
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+}
+
+.sb-fail-shell .sb-bar {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	padding: 0.75rem;
+	border-bottom: 1px solid var(--btn-border);
+}
+
+.sb-fail-shell .sb-body {
+	flex: 1 1 auto;
+	padding: 1rem;
+	overflow-y: auto;
+}
+
+.sb-fail-shell .sb-body p {
+	margin: 0;
+	color: var(--muted);
+	max-width: 36rem;
+}
+
+.sb-fail-shell #sidebarAsyncDemo-body {
+	display: flex;
+	flex-direction: column;
+	gap: 0.6rem;
+}
+
+.sb-fail-shell #sidebarAsyncDemo-body [data-neo-async-placeholder] {
+	display: contents;
+}
+
+.sb-async-failure-line-55 {
+	width: 55%;
+	height: 0.9rem;
+}
+
+.sb-async-failure-line-80 {
+	width: 80%;
+	height: 0.9rem;
+}
+
+.sb-async-failure-line-70 {
+	width: 70%;
+	height: 0.9rem;
+}
+
+.sb-async-failure-line-85 {
+	width: 85%;
+	height: 0.9rem;
+}
+
+.sb-async-failure-line-65 {
+	width: 65%;
+	height: 0.9rem;
+}

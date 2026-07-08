@@ -1,0 +1,47 @@
+package examples
+
+import (
+	"github.com/romshark/morpheus/datastar"
+	"github.com/romshark/morpheus/neo"
+)
+
+templ DrawerAsyncFailure() {
+	@datastar.DrawerAsync(datastar.DrawerAsyncOpts{
+		DrawerOpts:    neo.DrawerOpts{Side: neo.Set(neo.SideRight)},
+		ID:            "drawerAsyncDemo",
+		URL:           "/drawer/asyncload/",
+		Title:         "Team member",
+		Description:   "Loaded fresh from the server each time you open this drawer.",
+		CloseLabel:    "Close",
+		ExtraPostOpts: "retry: 'auto', retryInterval: 1000, retryScaler: 2, retryMaxWait: 30000, retryMaxCount: 2",
+		Loading:       drawerAsyncFailureLoading(),
+		Failed:        drawerAsyncFailureFailed(),
+	}) {
+		Load profile
+	}
+}
+
+// Wrapped in [data-neo-async-placeholder] by DrawerAsync so the
+// drawer restores it after close and before retry/reopen.
+templ drawerAsyncFailureLoading() {
+	<neo-skeleton class="drawer-async-failure-line-title"></neo-skeleton>
+	<neo-skeleton class="drawer-async-failure-line-sub"></neo-skeleton>
+	<neo-skeleton class="drawer-async-failure-line-90"></neo-skeleton>
+	<neo-skeleton class="drawer-async-failure-line-75"></neo-skeleton>
+	<neo-skeleton class="drawer-async-failure-line-80"></neo-skeleton>
+	<neo-skeleton class="drawer-async-failure-line-70"></neo-skeleton>
+}
+
+// Swapped into <div id="<ID>-body"> once Datastar fires
+// retries-failed. The retry button carries
+// [data-neo-popover-async-retry] so DrawerAsync re-fires the
+// @post action when clicked.
+templ drawerAsyncFailureFailed() {
+	<div class="popover-async-loading popover-async-failed" role="alert">
+		@neo.Icon("triangle-alert")
+		<strong>Couldn't load content.</strong>
+		<neo-button { neo.PopoverAsyncRetry()... }>
+			Retry
+		</neo-button>
+	</div>
+}

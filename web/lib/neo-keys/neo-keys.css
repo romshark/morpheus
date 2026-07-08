@@ -1,0 +1,10 @@
+/* -----------------------------------------------------------------------
+ * <neo-keys>
+ * -----------------------------------------------------------------------
+ * Behaviour-only utility: installs key listeners on a target element,
+ * renders nothing. `display: contents` so an empty marker between
+ * siblings never affects the parent's flex / grid layout. */
+
+neo-keys {
+	display: contents;
+}

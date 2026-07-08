@@ -1,0 +1,115 @@
+package examples
+
+import (
+	"github.com/romshark/morpheus/internal/href"
+	"github.com/romshark/morpheus/neo"
+)
+
+templ SelectRichOptions() {
+	@neo.Select(neo.SelectOpts{
+		Value:       neo.Set("evelyn_kone"),
+		Clearable:   neo.Set(true),
+		AriaLabel:   neo.Set("Project owner"),
+		Placeholder: neo.Set("Pick an owner"),
+	}) {
+		@neo.SelectEmpty() {
+			<div class="select-rich-options-row">
+				<neo-avatar class="select-rich-options-avatar" aria-hidden="true">
+					<img src="/static/avatar/placeholder.svg" alt=""/>
+				</neo-avatar>
+				<div class="select-rich-options-col">
+					<div class="select-rich-options-name">Unassigned</div>
+					<div class="select-rich-options-subtitle">...</div>
+				</div>
+			</div>
+		}
+		@neo.Option(neo.OptionOpts{Value: neo.Set("diego_vega")}) {
+			<div class="select-rich-options-row">
+				<neo-avatar class="select-rich-options-avatar" aria-hidden="true">
+					<img src={ href.Asset("avatar/avatar_1.svg") } alt=""/>
+				</neo-avatar>
+				<div class="select-rich-options-col">
+					<div class="select-rich-options-name">Diego Vega</div>
+					<div class="select-rich-options-subtitle">CFO</div>
+				</div>
+			</div>
+		}
+		@neo.Option(neo.OptionOpts{Value: neo.Set("jan_osullivan")}) {
+			<div class="select-rich-options-row">
+				<neo-avatar class="select-rich-options-avatar" aria-hidden="true">
+					<img src={ href.Asset("avatar/avatar_2.svg") } alt=""/>
+				</neo-avatar>
+				<div class="select-rich-options-col">
+					<div class="select-rich-options-name">Jan O'Sullivan</div>
+					<div class="select-rich-options-subtitle">Lead Designer</div>
+				</div>
+			</div>
+		}
+		@neo.Option(neo.OptionOpts{Value: neo.Set("evelyn_kone")}) {
+			<div class="select-rich-options-row">
+				<neo-avatar class="select-rich-options-avatar" aria-hidden="true">
+					<img src={ href.Asset("avatar/avatar_3.svg") } alt=""/>
+				</neo-avatar>
+				<div class="select-rich-options-col">
+					<div class="select-rich-options-name">Evelyn Kone</div>
+					<div class="select-rich-options-subtitle">Data Analyst</div>
+				</div>
+			</div>
+		}
+		@neo.Option(neo.OptionOpts{Value: neo.Set("samira_khalil")}) {
+			<div class="select-rich-options-row">
+				<neo-avatar class="select-rich-options-avatar" aria-hidden="true">
+					<img src={ href.Asset("avatar/avatar_4.svg") } alt=""/>
+				</neo-avatar>
+				<div class="select-rich-options-col">
+					<div class="select-rich-options-name">Samira Khalil</div>
+					<div class="select-rich-options-subtitle">Head of Engineering</div>
+				</div>
+			</div>
+		}
+		@neo.Option(neo.OptionOpts{Value: neo.Set("alice_larsson")}) {
+			<div class="select-rich-options-row">
+				<neo-avatar class="select-rich-options-avatar" aria-hidden="true">
+					<img src={ href.Asset("avatar/avatar_5.svg") } alt=""/>
+				</neo-avatar>
+				<div class="select-rich-options-col">
+					<div class="select-rich-options-name">Alice Larsson</div>
+					<div class="select-rich-options-subtitle">Product Manager</div>
+				</div>
+			</div>
+		}
+		@neo.Option(neo.OptionOpts{Value: neo.Set("camila_duarte")}) {
+			<div class="select-rich-options-row">
+				<neo-avatar class="select-rich-options-avatar" aria-hidden="true">
+					<img src={ href.Asset("avatar/avatar_6.svg") } alt=""/>
+				</neo-avatar>
+				<div class="select-rich-options-col">
+					<div class="select-rich-options-name">Camila Duarte</div>
+					<div class="select-rich-options-subtitle">DevOps Engineer</div>
+				</div>
+			</div>
+		}
+		@neo.Option(neo.OptionOpts{Value: neo.Set("theo_becker")}) {
+			<div class="select-rich-options-row">
+				<neo-avatar class="select-rich-options-avatar" aria-hidden="true">
+					<img src={ href.Asset("avatar/avatar_7.svg") } alt=""/>
+				</neo-avatar>
+				<div class="select-rich-options-col">
+					<div class="select-rich-options-name">Theo Becker</div>
+					<div class="select-rich-options-subtitle">UX Researcher</div>
+				</div>
+			</div>
+		}
+		@neo.Option(neo.OptionOpts{Value: neo.Set("mateusz_wisniewski")}) {
+			<div class="select-rich-options-row">
+				<neo-avatar class="select-rich-options-avatar" aria-hidden="true">
+					<img src={ href.Asset("avatar/avatar_8.svg") } alt=""/>
+				</neo-avatar>
+				<div class="select-rich-options-col">
+					<div class="select-rich-options-name">Mateusz Wiśniewski</div>
+					<div class="select-rich-options-subtitle">Fullstack Engineer</div>
+				</div>
+			</div>
+		}
+	}
+}

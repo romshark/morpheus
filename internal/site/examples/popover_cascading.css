@@ -1,0 +1,9 @@
+.popover-cascading-panel {
+	min-width: 12rem;
+	padding: 0.25rem;
+}
+
+.popover-cascading-panel-narrow {
+	min-width: 10rem;
+	padding: 0.25rem;
+}

@@ -1,0 +1,8 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ SwitchSmall() {
+	@neo.Switch(neo.SwitchOpts{Size: neo.Set("sm"), AriaLabel: neo.Set("Small off")})
+	@neo.Switch(neo.SwitchOpts{Size: neo.Set("sm"), Checked: neo.Set(true), AriaLabel: neo.Set("Small on")})
+}

@@ -1,0 +1,67 @@
+package neo
+
+type ClipcopyOpts struct {
+	// Value is the literal string copied on click; takes precedence
+	// over For.
+	Value Attr[string]
+	// For is the id of an element whose textContent should be copied.
+	// Useful when the value is already on the page so the copied
+	// payload tracks the rendered content.
+	For Attr[string]
+	// CopiedDuration is in ms; 0 falls back to the kit default
+	// (1500ms). For sticky copied state until next click, pass
+	// `copied-duration="0"` via ClipcopyAttrs (the struct can't
+	// represent it without a three-valued field).
+	CopiedDuration Attr[int]
+}
+
+// Clipcopy wraps a clickable trigger so a click copies a value and the
+// host carries a `copied` attribute for visual feedback. The first child
+// is the trigger; nest `[data-neo-clipcopy-idle]` /
+// `[data-neo-clipcopy-copied]` spans inside it for state-flipped labels.
+templ Clipcopy(opts ClipcopyOpts) {
+	@ClipcopyAttrs(opts, nil) {
+		{ children... }
+	}
+}
+
+// ClipcopyAttrs is [Clipcopy] with an extra attribute set.
+templ ClipcopyAttrs(opts ClipcopyOpts, attrs templ.Attributes) {
+	<neo-clipcopy
+		{ opts.Value.Attrs("value")... }
+		{ opts.For.Attrs("for")... }
+		{ opts.CopiedDuration.Attrs("copied-duration")... }
+		{ attrs... }
+	>
+		{ children... }
+	</neo-clipcopy>
+}
+
+// ClipcopyIdle / ClipcopyCopied mark the two state faces nested inside the
+// trigger. The host swaps them when the `copied` attribute flips. Place
+// both inside the trigger element passed to Clipcopy.
+templ ClipcopyIdle() {
+	@ClipcopyIdleAttrs(nil) {
+		{ children... }
+	}
+}
+
+// ClipcopyIdleAttrs is [ClipcopyIdle] with an extra attribute set.
+templ ClipcopyIdleAttrs(attrs templ.Attributes) {
+	<span data-neo-clipcopy-idle { attrs... }>
+		{ children... }
+	</span>
+}
+
+templ ClipcopyCopied() {
+	@ClipcopyCopiedAttrs(nil) {
+		{ children... }
+	}
+}
+
+// ClipcopyCopiedAttrs is [ClipcopyCopied] with an extra attribute set.
+templ ClipcopyCopiedAttrs(attrs templ.Attributes) {
+	<span data-neo-clipcopy-copied { attrs... }>
+		{ children... }
+	</span>
+}

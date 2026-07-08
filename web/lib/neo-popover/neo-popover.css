@@ -1,0 +1,62 @@
+:root {
+	/* Popover theming. The custom properties cascade into <neo-popover>'s
+	 * shadow root, where the panel styling reads them. Authors override at
+	 * the host (or any ancestor) to retheme one popover or all of them. */
+	--neo-popover-bg: #ffffff;
+	--neo-popover-color: #111827;
+	--neo-popover-border-color: rgba(0, 0, 0, 0.08);
+	--neo-popover-border-width: 1px;
+	--neo-popover-radius: var(--page-radius, 0.25rem);
+	--neo-popover-padding: calc(var(--page-spacing, 0.25rem) * 4);
+	--neo-popover-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+	--neo-popover-min-width: 14rem;
+	--neo-popover-max-width: 22rem;
+	--neo-popover-z-index: 1000;
+	--neo-popover-enter-duration: calc(140ms * var(--neo-duration-scale, 1));
+	/* Minimum margin between the panel and the viewport edges when it is
+	 * clamped to the screen. Overridable per-instance via the
+	 * `screen-offset` attribute on <neo-popover>. */
+	--neo-popover-screen-offset: 8px;
+}
+
+@media (prefers-color-scheme: dark) {
+	:root {
+		--neo-popover-bg: #1f2937;
+		--neo-popover-color: #f3f4f6;
+		--neo-popover-border-color: rgba(255, 255, 255, 0.08);
+		--neo-popover-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+	}
+}
+
+/* High contrast: pin the panel styling to currentColor and thicken to
+ * 2px. These tokens cascade into every popover-family shadow panel
+ * (popover, select/combobox dropdowns, menu, tooltip), and the panels
+ * are out of flow, so a real 2px border here never reflows the page. */
+@media (prefers-contrast: more) {
+	:root {
+		--neo-popover-border-color: currentColor;
+		--neo-popover-border-width: 2px;
+	}
+}
+
+:root[data-pref-contrast-more] {
+	--neo-popover-border-color: currentColor;
+	--neo-popover-border-width: 2px;
+}
+
+neo-popover {
+	display: inline-block;
+}
+
+/* Pre-hydration guard. The popover host's shadow root owns the panel
+ * (styling, position, max-*, visibility gate), but the content div
+ * also lives in light DOM and would render inline next to the trigger
+ * until the bundle upgrades the element. On upgrade the popover
+ * projects it into the shadow panel via manual slot assignment, so the
+ * `:not(:defined)` rule below is the load-bearing piece that prevents
+ * a flash of unstyled inline content between page parse and upgrade.
+ * Auto-disengages once :defined matches; after that the shadow CSS is
+ * the single source of truth for panel visibility. */
+neo-popover:not(:defined) > [data-neo-popover-content] {
+	display: none;
+}

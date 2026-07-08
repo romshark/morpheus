@@ -1,0 +1,60 @@
+package neo
+
+// TypeaheadMatch picks how a navgroup's typeahead buffer matches item
+// labels. Zero value defers to the host default (substring).
+type TypeaheadMatch string
+
+const (
+	TypeaheadMatchDefault   TypeaheadMatch = ""
+	TypeaheadMatchSubstring TypeaheadMatch = "substring"
+	TypeaheadMatchPrefix    TypeaheadMatch = "prefix"
+)
+
+// NavGroupOpts assumes no ARIA role; set role via attrs to fit the
+// semantics.
+type NavGroupOpts struct {
+	// Orientation defaults to horizontal; OrientationVertical and
+	// OrientationGrid are also accepted.
+	Orientation Attr[Orientation]
+	// Columns fixes grid keyboard steps. Omit it for CSS-driven
+	// responsive grids.
+	Columns Attr[int]
+	// Wrap makes focus wrap at the edges.
+	Wrap Attr[bool]
+	// Typeahead lets printable keys focus matching items. Item labels
+	// come from data-neo-navgroup-label, aria-label, label, or text.
+	Typeahead Attr[bool]
+	// TypeaheadTimeout is the idle reset in ms (0 = kit default 500).
+	TypeaheadTimeout Attr[int]
+	TypeaheadMatch   Attr[TypeaheadMatch]
+}
+
+// NavGroup renders <neo-navgroup>, the kit's roving-tabindex keyboard
+// navigation host. Mark each focusable child with `data-neo-navgroup-item`.
+templ NavGroup(opts NavGroupOpts) {
+	@NavGroupAttrs(opts, nil) {
+		{ children... }
+	}
+}
+
+// NavGroupAttrs is [NavGroup] with an extra attribute set.
+templ NavGroupAttrs(opts NavGroupOpts, attrs templ.Attributes) {
+	<neo-navgroup
+		{ opts.Orientation.Attrs("orientation")... }
+		{ opts.Columns.Attrs("columns")... }
+		{ opts.Wrap.Attrs("wrap")... }
+		{ opts.Typeahead.Attrs("typeahead")... }
+		{ opts.TypeaheadTimeout.Attrs("typeahead-timeout")... }
+		{ opts.TypeaheadMatch.Attrs("typeahead-match")... }
+		{ attrs... }
+	>
+		{ children... }
+	</neo-navgroup>
+}
+
+// NavGroupItem marks a focusable child as a roving-tabindex stop. Spread
+// onto each navigable element (button, link, li, custom element); the host
+// moves focus across the marked items with arrow keys.
+func NavGroupItem() templ.Attributes {
+	return templ.Attributes{"data-neo-navgroup-item": true}
+}

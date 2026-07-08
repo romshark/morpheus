@@ -1,0 +1,36 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ TabsUnderline() {
+	<div class="tabs-underline-pg">
+		@neo.TabsAttrs(neo.TabsOpts{Value: neo.Set("overview"), Easing: neo.Set("180ms ease")}, nil) {
+			@neo.TabList("Repository") {
+				@neo.Tab("overview", "overview") {
+					Overview
+				}
+				@neo.Tab("issues", "overview") {
+					Issues
+				}
+				@neo.Tab("pulls", "overview") {
+					Pull requests
+				}
+				@neo.Tab("actions", "overview") {
+					Actions
+				}
+			}
+			@neo.TabPanel("overview", "overview") {
+				<p>README, recent commits, and the CI badge.</p>
+			}
+			@neo.TabPanel("issues", "overview") {
+				<p>The open and closed issue tracker.</p>
+			}
+			@neo.TabPanel("pulls", "overview") {
+				<p>Pending and merged pull requests.</p>
+			}
+			@neo.TabPanel("actions", "overview") {
+				<p>Workflow runs and scheduled jobs.</p>
+			}
+		}
+	</div>
+}

@@ -1,0 +1,19 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ RevealableStyled() {
+	@neo.RevealableAttrs(neo.RevealableOpts{
+		Variant: neo.Set(neo.RevealableVariantMedia),
+	}, templ.Attributes{
+		"class": "revealable-styled-host",
+	}) {
+		<article class="revealable-styled-body">
+			<h4 class="revealable-styled-title">Classified: Operation Nightjar</h4>
+			<p class="revealable-styled-text">
+				Rendezvous at pier 9, 02:00. The asset
+				answers to "Wren".
+			</p>
+		</article>
+	}
+}

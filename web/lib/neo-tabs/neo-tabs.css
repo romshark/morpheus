@@ -1,0 +1,458 @@
+/* -----------------------------------------------------------------------
+ * <neo-tabs>
+ * -----------------------------------------------------------------------
+ * Pill-shaped tablist with a single highlighted tab. The active tab
+ * lifts out of a muted pill background with a subtle shadow. Panels
+ * show one at a time. */
+
+:root {
+	--neo-tabs-list-bg: color-mix(in srgb, var(--page-fg) 6%, transparent);
+	--neo-tabs-list-padding: 0.25rem;
+	--neo-tabs-list-border-width: 2px;
+	--neo-tabs-radius: var(--page-radius, 0.5rem);
+	--neo-tabs-focus-outline-width: 2px;
+	--neo-tabs-focus-outline-offset: 2px;
+	--neo-tabs-tab-radius: max(2px, calc(var(--neo-tabs-radius) - var(--neo-tabs-list-padding)));
+	--neo-tabs-tab-padding-y: 0.4rem;
+	--neo-tabs-tab-padding-x: 0.85rem;
+	--neo-tabs-tab-padding: var(--neo-tabs-tab-padding-y) var(--neo-tabs-tab-padding-x);
+	--neo-tabs-edge-tab-padding-x: var(--neo-tabs-tab-padding-x);
+	--neo-tabs-tab-color: var(--muted, currentColor);
+	--neo-tabs-tab-hover-color: var(--page-fg, currentColor);
+	--neo-tabs-tab-active-bg: var(--page-bg, #ffffff);
+	--neo-tabs-tab-active-color: var(--page-fg, currentColor);
+	--neo-tabs-tab-active-shadow: 0 1px 2px color-mix(in srgb, var(--page-fg) 16%, transparent);
+	--neo-tabs-focus-ring: var(--accent, currentColor);
+	--neo-tabs-panel-padding: 0.85rem 0;
+}
+
+/* min-width: 0 lets the host shrink in flex/grid parents; without
+ * it the tablist's intrinsic tab widths would pin it. */
+neo-tabs {
+	display: block;
+	min-width: 0;
+}
+
+/* `easing` opts into stacked-panel grid layout so panels overlap in
+ * a single cell and can crossfade / animate. minmax(0, 1fr) is the
+ * grid analogue of the base host's min-width: 0. */
+neo-tabs[easing] {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr);
+	grid-template-areas: "tablist" "panels";
+	grid-template-rows: auto 1fr;
+}
+
+neo-tabs[easing] > neo-tablist {
+	grid-area: tablist;
+}
+
+neo-tabs[easing] > neo-tabpanel {
+	grid-area: panels;
+}
+
+/* Crossfade fallback: when no animations are specified, override
+ * the UA `[hidden]` display:none so the panel stays in the grid
+ * cell at opacity 0 and the transition rule fades it. */
+neo-tabs[easing]:not([enter-animation]):not([exit-animation]) > neo-tabpanel[hidden] {
+	display: block;
+	opacity: 0;
+	pointer-events: none;
+}
+
+/* During an exit animation the panel keeps `[data-neo-leaving]` (no
+ * `[hidden]`), so it stays display:block and the head <style>
+ * applies the exit @keyframes via animation. */
+
+/* Built-in @keyframes; author can reference these by name from
+ * `enter-animation` / `exit-animation`. Author-defined keyframes
+ * in their own stylesheet work the same way. The `forward` /
+ * `backward` variants pair with the host's `data-neo-direction`
+ * attribute that the JS sets when the active tab changes. */
+@keyframes neo-tab-fade-in {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+@keyframes neo-tab-fade-out {
+	from {
+		opacity: 1;
+	}
+	to {
+		opacity: 0;
+	}
+}
+@keyframes neo-tab-slide-in-forward {
+	from {
+		opacity: 0;
+		transform: translateX(16%);
+	}
+	to {
+		opacity: 1;
+		transform: translateX(0);
+	}
+}
+@keyframes neo-tab-slide-in-backward {
+	from {
+		opacity: 0;
+		transform: translateX(-16%);
+	}
+	to {
+		opacity: 1;
+		transform: translateX(0);
+	}
+}
+@keyframes neo-tab-slide-out-forward {
+	from {
+		opacity: 1;
+		transform: translateX(0);
+	}
+	to {
+		opacity: 0;
+		transform: translateX(-16%);
+	}
+}
+@keyframes neo-tab-slide-out-backward {
+	from {
+		opacity: 1;
+		transform: translateX(0);
+	}
+	to {
+		opacity: 0;
+		transform: translateX(16%);
+	}
+}
+
+/* Maps `enter-animation`/`exit-animation="neo-tab-slide"` to the
+ * directional keyframe based on `data-neo-direction`. */
+neo-tabs[easing][enter-animation="neo-tab-slide"][data-neo-direction="backward"]
+> neo-tabpanel:not([hidden]):not([data-neo-leaving]) {
+	animation-name: neo-tab-slide-in-backward;
+}
+neo-tabs[easing][exit-animation="neo-tab-slide"][data-neo-direction="backward"] > neo-tabpanel[data-neo-leaving] {
+	animation-name: neo-tab-slide-out-backward;
+}
+neo-tabs[easing][enter-animation="neo-tab-slide"][data-neo-direction="forward"]
+	> neo-tabpanel:not([hidden]):not([data-neo-leaving]) {
+	animation-name: neo-tab-slide-in-forward;
+}
+neo-tabs[easing][exit-animation="neo-tab-slide"][data-neo-direction="forward"] > neo-tabpanel[data-neo-leaving] {
+	animation-name: neo-tab-slide-out-forward;
+}
+
+/* biome-ignore lint/style/noDescendingSpecificity: base sets display/align/background; the higher-specificity neo-tabs[easing] > neo-tablist rule sets grid-area; disjoint, no conflict */
+neo-tablist {
+	display: flex;
+	align-items: center;
+	background: var(--neo-tabs-list-bg);
+	padding: var(--neo-tabs-list-padding);
+	border-radius: var(--neo-tabs-radius);
+	gap: 0.25rem;
+	/* Sizes to content but caps at the host. Overflow scrolls
+	 * horizontally; <neo-tabs> centers the active tab on commit. */
+	width: max-content;
+	max-width: 100%;
+	overflow-x: auto;
+	scrollbar-width: none;
+}
+
+neo-tablist::-webkit-scrollbar {
+	display: none;
+}
+
+/* Vertical orientation: tablist sits on the left and panels fill
+ * the rest of the row. Baked into the kit so authors don't need
+ * inline `display: flex; gap: …` boilerplate per host. */
+neo-tabs[orientation="vertical"] {
+	display: grid;
+	grid-template-columns: auto 1fr;
+	grid-template-areas: "tablist panels";
+	column-gap: 1.5rem;
+	align-items: start;
+}
+
+neo-tabs[orientation="vertical"] > neo-tablist {
+	grid-area: tablist;
+	flex-direction: column;
+	align-items: stretch;
+	min-width: 9rem;
+}
+
+neo-tabs[orientation="vertical"] > neo-tabpanel {
+	grid-area: panels;
+	min-width: 0;
+	/* Match the tablist's outer padding so tab text and panel
+	 * content sit on the same horizontal grid line. */
+	padding: var(--neo-tabs-list-padding) 0;
+}
+
+/* The panel's first child carries the user-agent block-start margin
+ * (e.g. `<h3>`'s 0.83em). Collapse it so the heading aligns with
+ * the first tab instead of floating ~13px below. */
+neo-tabs[orientation="vertical"] > neo-tabpanel > :first-child {
+	margin-top: 0;
+}
+
+neo-tabs[orientation="vertical"] > neo-tabpanel > :last-child {
+	margin-bottom: 0;
+}
+
+neo-tabs[orientation="vertical"] neo-tab {
+	justify-content: flex-start;
+}
+
+/* biome-ignore lint/style/noDescendingSpecificity: base sets justify-content:center; the earlier higher-specificity neo-tabs[orientation="vertical"] neo-tab rule intentionally overrides it to flex-start; specific wins */
+neo-tab {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.4rem;
+	font: inherit;
+	font-size: 0.875rem;
+	font-weight: 500;
+	line-height: 1;
+	padding: var(--neo-tabs-tab-padding);
+	border-radius: var(--neo-tabs-tab-radius);
+	color: var(--neo-tabs-tab-color);
+	cursor: pointer;
+	user-select: none;
+	-webkit-user-select: none;
+	white-space: nowrap;
+	/* `position: relative` so we can lift focused / active tabs in
+	 * the stacking order; without it, a later sibling's background
+	 * paints on top of the previous tab's focus outline. */
+	position: relative;
+	/* No default transition; animation opts in via the host's
+	 * `easing` attribute, which appends a `<style>` rule to <head>
+	 * that adds the transition for tabs of that specific host. */
+	transition: none;
+}
+
+neo-tab:hover {
+	color: var(--neo-tabs-tab-hover-color);
+}
+
+neo-tab[aria-selected="true"] {
+	background: var(--neo-tabs-tab-active-bg);
+	color: var(--neo-tabs-tab-active-color);
+	box-shadow: var(--neo-tabs-tab-active-shadow);
+}
+
+neo-tab:focus {
+	outline: none;
+}
+
+neo-tab:focus-visible {
+	outline: var(--neo-tabs-focus-outline-width) solid var(--neo-tabs-focus-ring);
+	outline-offset: var(--neo-tabs-focus-outline-offset);
+	/* Lift above the active tab's pill so the outline paints on
+	 * top when the focused tab sits adjacent to the active one. */
+	z-index: 1;
+}
+
+neo-tab[aria-disabled="true"],
+neo-tab[disabled]:not([disabled="false"]) {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+/* Disabled overlay sits on a pseudo-element so a per-theme mask can
+ * soften it at the tab's edges without masking the label text. The
+ * pseudo inherits border-radius so the overlay clips to the pill. */
+neo-tab[aria-disabled="true"]::before,
+neo-tab[disabled]:not([disabled="false"])::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	background-image: var(--neo-disabled-overlay);
+	mask-image: var(--neo-disabled-overlay-mask, none);
+	-webkit-mask-image: var(--neo-disabled-overlay-mask, none);
+	pointer-events: none;
+	border-radius: inherit;
+}
+
+/* biome-ignore lint/style/noDescendingSpecificity: base sets display/padding; the higher-specificity neo-tabs[easing] > neo-tabpanel rule sets grid-area; disjoint, no conflict */
+neo-tabpanel {
+	display: block;
+	padding: var(--neo-tabs-panel-padding);
+}
+
+/* biome-ignore lint/style/noDescendingSpecificity: hides the panel; the earlier higher-specificity easing:not([enter-animation]):not([exit-animation]) panel rule intentionally keeps display:block;opacity:0 for the crossfade; specific wins */
+neo-tabpanel[hidden] {
+	display: none;
+}
+
+neo-tabpanel:focus {
+	outline: none;
+}
+
+neo-tabpanel:focus-visible {
+	outline: var(--neo-tabs-focus-outline-width) solid var(--neo-tabs-focus-ring);
+	outline-offset: -2px;
+	border-radius: var(--neo-tabs-tab-radius);
+}
+
+/* Pill bg + active fill collapse against Canvas; spell each role
+ * in system colours. */
+@media (forced-colors: active) {
+	neo-tabs {
+		--neo-tabs-focus-outline-offset: calc(
+			0px -
+			var(--neo-tabs-list-border-width) -
+			var(--neo-tabs-focus-outline-width)
+		);
+		--neo-tabs-tab-radius: max(0px, calc(var(--neo-tabs-radius) - var(--neo-tabs-list-border-width)));
+		--neo-tabs-tab-padding: max(
+				0px,
+				calc(var(--neo-tabs-tab-padding-y) + var(--neo-tabs-list-padding) - var(--neo-tabs-list-border-width))
+			)
+			var(--neo-tabs-tab-padding-x);
+		--neo-tabs-edge-tab-padding-x: max(
+			var(--neo-tabs-tab-padding-x),
+			calc(var(--neo-tabs-tab-padding-x) + var(--neo-tabs-list-padding) - var(--neo-tabs-list-border-width))
+		);
+	}
+	/* biome-ignore lint/style/noDescendingSpecificity: sets background/border/padding; the higher-specificity neo-tabs[easing] > neo-tablist rule sets grid-area; disjoint, no conflict */
+	neo-tablist {
+		background: ButtonFace;
+		border: var(--neo-tabs-list-border-width) solid ButtonText;
+		padding: 0;
+	}
+	/* biome-ignore lint/style/noDescendingSpecificity: sets color; the higher-specificity neo-tabs[orientation="vertical"] neo-tab rule sets justify-content; disjoint, no conflict */
+	neo-tab {
+		color: ButtonText;
+	}
+	neo-tabs:not([orientation="vertical"]) > neo-tablist > neo-tab:first-child {
+		padding-inline-start: var(--neo-tabs-edge-tab-padding-x);
+	}
+	neo-tabs:not([orientation="vertical"]) > neo-tablist > neo-tab:last-child {
+		padding-inline-end: var(--neo-tabs-edge-tab-padding-x);
+	}
+	neo-tab[aria-selected="true"] {
+		background: Highlight;
+		color: HighlightText;
+		box-shadow: none;
+		forced-color-adjust: none;
+	}
+	neo-tabpanel:focus-visible {
+		outline-color: Highlight;
+	}
+	neo-tab:focus-visible,
+	neo-tab[aria-selected="true"]:focus-visible {
+		outline: var(--neo-tabs-focus-outline-width) solid CanvasText;
+		outline-offset: var(--neo-tabs-focus-outline-offset);
+		box-shadow: none;
+	}
+	neo-tab[aria-selected="true"]:focus-visible {
+		outline-color: HighlightText;
+	}
+	neo-tab[aria-disabled="true"],
+	neo-tab[disabled]:not([disabled="false"]) {
+		color: GrayText;
+	}
+}
+
+/* Same shape as forced-colors above, but with theme tokens: once for
+ * the real media query, once for the page-level attribute hook. */
+@media (prefers-contrast: more) {
+	neo-tabs {
+		--neo-tabs-focus-outline-offset: calc(
+			0px -
+			var(--neo-tabs-list-border-width) -
+			var(--neo-tabs-focus-outline-width)
+		);
+		--neo-tabs-tab-radius: max(0px, calc(var(--neo-tabs-radius) - var(--neo-tabs-list-border-width)));
+		--neo-tabs-tab-padding: max(
+				0px,
+				calc(var(--neo-tabs-tab-padding-y) + var(--neo-tabs-list-padding) - var(--neo-tabs-list-border-width))
+			)
+			var(--neo-tabs-tab-padding-x);
+		--neo-tabs-edge-tab-padding-x: max(
+			var(--neo-tabs-tab-padding-x),
+			calc(var(--neo-tabs-tab-padding-x) + var(--neo-tabs-list-padding) - var(--neo-tabs-list-border-width))
+		);
+	}
+	/* biome-ignore lint/style/noDescendingSpecificity: sets background/border/padding; the higher-specificity neo-tabs[easing] > neo-tablist rule sets grid-area; disjoint, no conflict */
+	neo-tablist {
+		background: transparent;
+		border: var(--neo-tabs-list-border-width) solid currentColor;
+		padding: 0;
+	}
+	/* biome-ignore lint/style/noDescendingSpecificity: sets color; the higher-specificity neo-tabs[orientation="vertical"] neo-tab rule sets justify-content; disjoint, no conflict */
+	neo-tab {
+		color: currentColor;
+	}
+	neo-tabs:not([orientation="vertical"]) > neo-tablist > neo-tab:first-child {
+		padding-inline-start: var(--neo-tabs-edge-tab-padding-x);
+	}
+	neo-tabs:not([orientation="vertical"]) > neo-tablist > neo-tab:last-child {
+		padding-inline-end: var(--neo-tabs-edge-tab-padding-x);
+	}
+	neo-tab[aria-selected="true"] {
+		background: var(--accent);
+		color: var(--accent-fg);
+		box-shadow: none;
+	}
+	neo-tab:focus-visible,
+	neo-tab[aria-selected="true"]:focus-visible {
+		outline: var(--neo-tabs-focus-outline-width) solid var(--page-fg, currentColor);
+		outline-offset: var(--neo-tabs-focus-outline-offset);
+		box-shadow: none;
+	}
+	neo-tab[aria-selected="true"]:focus-visible {
+		outline-color: var(--accent-fg);
+	}
+}
+
+/* Same shape as forced-colors above, via the page-level attribute. */
+:root[data-pref-contrast-more] neo-tabs {
+	--neo-tabs-focus-outline-offset: calc(0px - var(--neo-tabs-list-border-width) - var(--neo-tabs-focus-outline-width));
+	--neo-tabs-tab-radius: max(0px, calc(var(--neo-tabs-radius) - var(--neo-tabs-list-border-width)));
+	--neo-tabs-tab-padding: max(
+			0px,
+			calc(var(--neo-tabs-tab-padding-y) + var(--neo-tabs-list-padding) - var(--neo-tabs-list-border-width))
+		)
+		var(--neo-tabs-tab-padding-x);
+	--neo-tabs-edge-tab-padding-x: max(
+		var(--neo-tabs-tab-padding-x),
+		calc(var(--neo-tabs-tab-padding-x) + var(--neo-tabs-list-padding) - var(--neo-tabs-list-border-width))
+	);
+}
+
+:root[data-pref-contrast-more] neo-tablist {
+	background: transparent;
+	border: var(--neo-tabs-list-border-width) solid currentColor;
+	padding: 0;
+}
+
+:root[data-pref-contrast-more] neo-tab {
+	color: currentColor;
+}
+
+:root[data-pref-contrast-more] neo-tabs:not([orientation="vertical"]) > neo-tablist > neo-tab:first-child {
+	padding-inline-start: var(--neo-tabs-edge-tab-padding-x);
+}
+
+:root[data-pref-contrast-more] neo-tabs:not([orientation="vertical"]) > neo-tablist > neo-tab:last-child {
+	padding-inline-end: var(--neo-tabs-edge-tab-padding-x);
+}
+
+:root[data-pref-contrast-more] neo-tab[aria-selected="true"] {
+	background: var(--accent);
+	color: var(--accent-fg);
+	box-shadow: none;
+}
+
+:root[data-pref-contrast-more] neo-tab:focus-visible,
+:root[data-pref-contrast-more] neo-tab[aria-selected="true"]:focus-visible {
+	outline: var(--neo-tabs-focus-outline-width) solid var(--page-fg, currentColor);
+	outline-offset: var(--neo-tabs-focus-outline-offset);
+	box-shadow: none;
+}
+
+:root[data-pref-contrast-more] neo-tab[aria-selected="true"]:focus-visible {
+	outline-color: var(--accent-fg);
+}

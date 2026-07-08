@@ -1,0 +1,19 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ ClipcopyTarget() {
+	@neo.Tooltip(neo.TooltipOpts{Text: neo.Set("Copy API key")}) {
+		@neo.Clipcopy(neo.ClipcopyOpts{For: neo.Set("apikey-target"), CopiedDuration: neo.Set(1500)}) {
+			@neo.ButtonAttrs(neo.ButtonOpts{}, templ.Attributes{"aria-label": "Copy API key"}) {
+				@neo.ClipcopyIdle() {
+					@neo.Icon("clipboard")
+				}
+				@neo.ClipcopyCopied() {
+					@neo.Icon("check")
+				}
+			}
+		}
+	}
+	<code id="apikey-target" class="clipcopy-target-code">sk_live_AbC123DefGhI456JkL789MnO</code>
+}

@@ -1,0 +1,29 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ KbdInsideButtons() {
+	<neo-button>
+		Search
+		@neo.KbdGroup() {
+			@neo.Kbd(neo.KbdOpts{Size: neo.Set("sm")}) {
+				⌘
+			}
+			@neo.Kbd(neo.KbdOpts{Size: neo.Set("sm")}) {
+				K
+			}
+		}
+	</neo-button>
+	<neo-button variant="primary">
+		Save
+		@neo.Kbd(neo.KbdOpts{Size: neo.Set("sm"), Variant: neo.Set("outline")}) {
+			⌘S
+		}
+	</neo-button>
+	<neo-button variant="secondary">
+		Open command palette
+		@neo.Kbd(neo.KbdOpts{Size: neo.Set("sm")}) {
+			⌘
+		}
+	</neo-button>
+}

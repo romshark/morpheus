@@ -1,0 +1,30 @@
+.resizable-demo {
+	display: flex;
+	justify-content: center;
+	border: 1px dashed color-mix(in srgb, var(--accent) 55%, var(--btn-border));
+	border-radius: var(--page-radius, 0.5rem);
+	background: color-mix(in srgb, var(--accent) 6%, var(--btn-bg));
+	box-sizing: border-box;
+}
+
+.resizable-demo strong { color: var(--page-fg); font-weight: 600; }
+
+.resizable-demo span {
+	font-family: ui-monospace, monospace;
+	font-size: 0.8rem;
+	padding: 0.1em 0.4em;
+	border-radius: 0.25rem;
+	background: rgba(127, 127, 127, 0.18);
+}
+
+.resizable-demo [data-neo-resizable-icon] { font-size: 1rem; line-height: 1; }
+
+/* Content styling; the .resizable-* flex container above centers it. */
+.resizable-demo > neo-layout {
+	padding: 1rem;
+	box-sizing: border-box;
+	color: var(--muted);
+	font-size: 0.9rem;
+	text-align: center;
+	pointer-events: none;
+}

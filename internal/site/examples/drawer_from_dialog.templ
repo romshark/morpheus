@@ -1,0 +1,49 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ DrawerFromDialog() {
+	@neo.Dialog(neo.DialogOpts{}) {
+		<neo-button { neo.DialogTrigger()... }>Account settings</neo-button>
+		<dialog>
+			@neo.DialogHeader() {
+				@neo.DialogTitle() {
+					Account settings
+				}
+				@neo.DialogDescription() {
+					Open the advanced panel to manage connected devices
+					without leaving this dialog.
+				}
+			}
+			@neo.DialogFooter() {
+				@neo.Drawer(neo.DrawerOpts{Side: neo.Set(neo.SideRight)}) {
+					<neo-button variant="primary" { neo.DrawerTrigger()... }>
+						Connected devices…
+					</neo-button>
+					<dialog>
+						@neo.DrawerHeader() {
+							@neo.DrawerTitle() {
+								Connected devices
+							}
+							@neo.DrawerDescription() {
+								Opened on top of the dialog; both overlays
+								are open together.
+							}
+						}
+						@neo.DrawerBody() {
+							<ul>
+								<li>MacBook Pro: this device</li>
+								<li>iPhone 15: last active 2h ago</li>
+								<li>iPad Air: last active yesterday</li>
+							</ul>
+						}
+						@neo.DrawerFooter() {
+							<neo-button { neo.DrawerClose()... }>Close</neo-button>
+						}
+					</dialog>
+				}
+				<neo-button { neo.DialogClose()... }>Done</neo-button>
+			}
+		</dialog>
+	}
+}

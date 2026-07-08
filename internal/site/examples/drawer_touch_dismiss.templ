@@ -1,0 +1,56 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ DrawerTouchDismiss() {
+	@neo.Drawer(neo.DrawerOpts{
+		Side:                  neo.Set(neo.SideRight),
+		TouchDismissThreshold: neo.Set("120px"),
+	}) {
+		<neo-button { neo.DrawerTrigger()... }>Open drawer</neo-button>
+		<dialog>
+			@neo.DrawerHeader() {
+				@neo.DrawerTitle() {
+					Filters
+				}
+				@neo.DrawerDescription() {
+					Swipe right past 120px to dismiss.
+				}
+			}
+			@neo.DrawerBody() {
+				@neo.AlertAttrs(neo.AlertOpts{Variant: neo.Set(neo.AlertVariantInfo)}, templ.Attributes{"class": "drawer-touch-dismiss-alert"}) {
+					@neo.AlertIcon() {
+						@neo.Icon("info")
+					}
+					@neo.AlertContent() {
+						@neo.AlertDescription() {
+							This example only works on touch
+							devices. Use a touchscreen or your
+							browser's device-toolbar touch
+							emulation.
+						}
+					}
+				}
+				<p>
+					Try swiping the panel toward
+					its anchored edge. Release
+					past the 120px threshold to
+					close, or short of it to snap
+					back. A fast flick closes
+					regardless of distance.
+				</p>
+				<neo-slider
+					min="0"
+					max="100"
+					value="40"
+					label="Volume"
+					class="drawer-touch-dismiss-slider"
+				></neo-slider>
+			}
+			@neo.DrawerFooter() {
+				<neo-button { neo.DrawerClose()... }>Cancel</neo-button>
+				<neo-button variant="primary" { neo.DrawerClose()... }>Apply</neo-button>
+			}
+		</dialog>
+	}
+}

@@ -1,0 +1,26 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+// PopoverLazyDemo fetches its content from the server on open and
+// aborts the in-flight request on close. The abort controller lives on
+// a Datastar signal named after the host id (so it must be a valid JS
+// identifier); the response morphs into `popoverLazyDemo-body`. Mirrors
+// how a real `r.Context().Done()` short-circuits a live handler.
+templ PopoverLazyDemo() {
+	<neo-popover
+		data-signals="{popoverLazyDemo: new AbortController()}"
+		data-on:neo-popover-open="@post('/popover/loadcontent/', {requestCancellation: $popoverLazyDemo})"
+		data-on:neo-popover-close="$popoverLazyDemo.abort(); $popoverLazyDemo = new AbortController()"
+	>
+		<neo-button { neo.PopoverTrigger()... }>
+			Open lazy-loaded popover
+		</neo-button>
+		<div aria-busy="true" { neo.PopoverContent()... }>
+			<neo-layout id="popoverLazyDemo-body" class="popover-lazy-body" align-items="center" gap="sm">
+				<neo-spinner></neo-spinner>
+				<span>Loading…</span>
+			</neo-layout>
+		</div>
+	</neo-popover>
+}

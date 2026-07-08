@@ -1,0 +1,26 @@
+.radio-pg-card {
+	display: flex;
+	align-items: flex-start;
+	gap: 0.75rem;
+	padding: 0.75rem;
+	border: 1px solid color-mix(in srgb, var(--page-fg) 12%, transparent);
+	border-radius: var(--page-radius, 0.5rem);
+	cursor: pointer;
+	transition: border-color 120ms ease, background 120ms ease;
+}
+
+.radio-pg-card:hover {
+	border-color: color-mix(in srgb, var(--page-fg) 22%, transparent);
+}
+
+.radio-pg-card > neo-radio { margin-top: 0.15rem; }
+
+.radio-pg-card > div { flex: 1 1 auto; min-width: 0; }
+
+.radio-pg-card > div > div:first-child { font-weight: 600; }
+
+.radio-pg-card > div > div:last-child {
+	margin-top: 0.15rem;
+	font-size: 0.85em;
+	color: var(--muted);
+}

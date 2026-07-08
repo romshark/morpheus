@@ -1,0 +1,10 @@
+<neo-slider
+  data-signals="{slider_value: '40'}"
+  min="0" max="100" step="1"
+  data-attr:value="$slider_value"
+  data-on:neo-slider-input="$slider_value = Number(evt.detail.value)"
+  label="Volume" unit="%"
+>
+  <span data-neo-slider-mark="0">empty</span>
+  <span data-neo-slider-mark="100">full</span>
+</neo-slider>

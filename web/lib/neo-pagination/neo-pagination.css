@@ -1,0 +1,64 @@
+/* -----------------------------------------------------------------------
+ * <neo-pagination>
+ * -----------------------------------------------------------------------
+ * Adaptive page navigation: prev / boundary / window / boundary /
+ * next. Host is a flex row; chips lay out as standalone ghost
+ * <neo-button>s with their own border + radius (gap separates them
+ * rather than seamless dividers from a buttongroup). The active
+ * chip is reflected via `aria-current="page"` on the markup level so
+ * the kit's CSS (and any author override) can fill it without a
+ * stateful class. */
+
+:root {
+	--neo-pagination-gap: calc(var(--page-spacing, 0.25rem) * 1);
+	--neo-pagination-page-min: 2.25rem;
+	--neo-pagination-active-bg: var(--accent, currentColor);
+	--neo-pagination-active-color: var(--accent-fg, var(--page-bg, #fff));
+	/* Darker fills for hover/:active, mirroring the filled neo-button
+	 * variants. The chip is a ghost <neo-button>, so without these the
+	 * ghost hover bg wins and leaves accent-fg text on a near-page-bg
+	 * surface: the low-contrast bug the button variants already fixed. */
+	--neo-pagination-active-hover-bg: color-mix(in srgb, var(--neo-pagination-active-bg), #000 12%);
+	--neo-pagination-active-active-bg: color-mix(in srgb, var(--neo-pagination-active-hover-bg), #000 8%);
+}
+
+neo-pagination {
+	display: flex;
+	flex-wrap: nowrap;
+	align-items: center;
+	gap: var(--neo-pagination-gap);
+	min-width: 0;
+}
+
+neo-pagination > [data-neo-pagination-page] {
+	min-width: var(--neo-pagination-page-min);
+	justify-content: center;
+}
+
+neo-pagination > [data-neo-pagination-page][aria-current="page"] {
+	background: var(--neo-pagination-active-bg);
+	color: var(--neo-pagination-active-color);
+	border-color: transparent;
+	&:hover {
+		background: var(--neo-pagination-active-hover-bg);
+		color: var(--neo-pagination-active-color);
+	}
+	&:active {
+		/* Re-pin colour: the ghost :active rule also matches and would
+		 * otherwise leak --neo-button-ghost-color onto the fill. */
+		background: var(--neo-pagination-active-active-bg);
+		color: var(--neo-pagination-active-color);
+	}
+}
+
+/* Inert text node, not a button, just a glyph at the same
+ * vertical metric as the chips. min-width matches a page chip so the
+ * row's rhythm doesn't jump when an ellipsis takes a slot. */
+neo-pagination > [data-neo-pagination-ellipsis] {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: var(--neo-pagination-page-min);
+	color: var(--muted, currentColor);
+	user-select: none;
+}

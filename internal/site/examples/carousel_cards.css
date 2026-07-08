@@ -1,0 +1,54 @@
+.cx-vessels { width: 100%; }
+
+.cx-vessels neo-carousel-track { padding: 2rem; }
+
+.cx-vessels::part(dots) { margin-bottom: 0.5rem; }
+
+.cx-vessel {
+	height: 100%;
+	transition:
+		transform 220ms var(--neo-easing, ease-out),
+		box-shadow 220ms var(--neo-easing, ease-out);
+}
+
+.cx-vessel-media {
+	aspect-ratio: 4 / 5;
+	overflow: hidden;
+	background: #000;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.cx-vessel-media img {
+	max-width: 100%;
+	max-height: 100%;
+	width: auto;
+	height: auto;
+	object-fit: contain;
+	object-position: center;
+	display: block;
+	filter: saturate(0.65);
+	transition: filter 320ms var(--neo-easing, ease-out);
+}
+
+.cx-vessel-footer { font-size: 0.82rem; color: var(--muted); }
+
+.cx-vessel-footer a {
+	color: inherit;
+	text-decoration: none;
+	border-bottom: 1px dotted currentColor;
+}
+
+.cx-vessel-footer a:hover { color: var(--accent); }
+
+neo-carousel-slide[data-neo-carousel-slide-visibility="full"] > .cx-vessel {
+	transform: translateY(-0.4rem);
+	box-shadow:
+		0 12px 28px -12px rgba(0, 0, 0, 0.35),
+		0 4px 10px -4px rgba(0, 0, 0, 0.2);
+}
+
+neo-carousel-slide[data-neo-carousel-slide-visibility="full"] .cx-vessel-media img {
+	filter: saturate(1);
+}

@@ -1,0 +1,228 @@
+package site
+
+templ ComponentDocs(doc ComponentDoc) {
+	if len(doc.Attributes) > 0 {
+		@apiSection(docSectionID(doc.Prefix, "attributes"), "Attributes", "parentheses")
+		@docAttributes(doc.Attributes)
+	}
+	if len(doc.Slots) > 0 {
+		@apiSection(docSectionID(doc.Prefix, "slots"), "Slots", "chevrons-left-right-ellipsis")
+		@docSlots(doc.Slots)
+	}
+	if len(doc.Events) > 0 {
+		@apiSection(docSectionID(doc.Prefix, "events"), "Events", "message-square-more")
+		@docEvents(doc.Events)
+	}
+	if len(doc.Parts) > 0 {
+		@apiSection(docSectionID(doc.Prefix, "parts"), "Parts", "component")
+		@docParts(doc.Parts)
+	}
+	if len(doc.CSSProps) > 0 {
+		@apiSection(docSectionID(doc.Prefix, "css-variables"), "CSS variables", "braces")
+		@docCSSProps(doc.CSSProps)
+	}
+}
+
+// apiSection is the anchored h3 used for the Attributes / Slots /
+// Events subsections inside ComponentDocs. Carries both `.anchor-h3`
+// (hover-revealed deep link) and `.api-heading` (sizing + spacing).
+templ apiSection(id, label, icon string) {
+	<h3 id={ id } class="anchor-h3 api-heading">
+		<neo-icon name={ icon }></neo-icon>
+		{ label }
+		<a
+			href={ templ.SafeURL("#" + id) }
+			class="anchor-h3-link"
+			aria-label="Permalink to this section"
+		>#</a>
+	</h3>
+}
+
+templ docAttributes(items []DocAttribute) {
+	<table class="api-table">
+		<thead>
+			<tr>
+				<th scope="col">Name</th>
+				<th scope="col">Type</th>
+				<th scope="col">Default</th>
+				<th scope="col">Description</th>
+			</tr>
+		</thead>
+		<tbody>
+			for _, a := range items {
+				<tr>
+					<th scope="row" data-label="Name"><code>{ a.Name }</code></th>
+					<td data-label="Type">
+						<span class="api-type">
+							@docCodeOrDash(a.Type)
+							if a.Reflected {
+								@docReflectedBadge()
+							}
+							if a.Observed {
+								@docObservedBadge()
+							}
+						</span>
+					</td>
+					<td data-label="Default">
+						@docCodeOrDash(a.Default)
+					</td>
+					<td data-label="Description">
+						@docDesc(a.Description)
+					</td>
+				</tr>
+			}
+		</tbody>
+	</table>
+}
+
+templ docSlots(items []DocSlot) {
+	<table class="api-table">
+		<thead>
+			<tr>
+				<th scope="col">Name</th>
+				<th scope="col">Description</th>
+			</tr>
+		</thead>
+		<tbody>
+			for _, s := range items {
+				<tr>
+					<th scope="row" data-label="Name">
+						@docSlotName(s.Name)
+					</th>
+					<td data-label="Description">
+						@docDesc(s.Description)
+					</td>
+				</tr>
+			}
+		</tbody>
+	</table>
+}
+
+templ docEvents(items []DocEvent) {
+	<table class="api-table">
+		<thead>
+			<tr>
+				<th scope="col">Name</th>
+				<th scope="col">Detail</th>
+				<th scope="col">Bubbles</th>
+				<th scope="col">Description</th>
+			</tr>
+		</thead>
+		<tbody>
+			for _, e := range items {
+				<tr>
+					<th scope="row" data-label="Name">
+						if e.URL != "" {
+							@EventLink(e.Name, e.URL)
+						} else {
+							<code>{ e.Name }</code>
+						}
+					</th>
+					<td data-label="Detail">
+						@docCodeOrDash(e.Detail)
+					</td>
+					<td data-label="Bubbles">
+						if e.Bubbles {
+							yes
+						} else {
+							no
+						}
+					</td>
+					<td data-label="Description">
+						@docDesc(e.Description)
+					</td>
+				</tr>
+			}
+		</tbody>
+	</table>
+}
+
+templ docParts(items []DocPart) {
+	<table class="api-table">
+		<thead>
+			<tr>
+				<th scope="col">Name</th>
+				<th scope="col">Description</th>
+			</tr>
+		</thead>
+		<tbody>
+			for _, p := range items {
+				<tr>
+					<th scope="row" data-label="Name"><code>{ "::part(" + p.Name + ")" }</code></th>
+					<td data-label="Description">
+						@docDesc(p.Description)
+					</td>
+				</tr>
+			}
+		</tbody>
+	</table>
+}
+
+templ docCSSProps(items []DocCSSProp) {
+	<table class="api-table">
+		<thead>
+			<tr>
+				<th scope="col">Name</th>
+				<th scope="col">Default</th>
+				<th scope="col">Description</th>
+			</tr>
+		</thead>
+		<tbody>
+			for _, p := range items {
+				<tr>
+					<th scope="row" data-label="Name"><code>{ p.Name }</code></th>
+					<td data-label="Default">
+						@docCodeOrDash(p.Default)
+					</td>
+					<td data-label="Description">
+						@docDesc(p.Description)
+					</td>
+				</tr>
+			}
+		</tbody>
+	</table>
+}
+
+templ docCodeOrDash(s string) {
+	if s == "" {
+		none
+	} else {
+		<code>{ s }</code>
+	}
+}
+
+// docReflectedBadge marks an attribute the component writes back to the
+// DOM as its state changes (internal -> attribute). docObservedBadge marks
+// one the component reacts to when changed from outside (attribute ->
+// internal). neo-tooltip carries the fuller explanation on hover.
+templ docReflectedBadge() {
+	<neo-tooltip text="Reflected: the component writes this attribute back to the DOM as its state changes.">
+		<neo-badge variant="outline" class="api-flag">
+			<neo-icon name="arrow-left-right" aria-hidden="true"></neo-icon>
+			reflected
+		</neo-badge>
+	</neo-tooltip>
+}
+
+templ docObservedBadge() {
+	<neo-tooltip text="Observed: the component reacts to external changes to this attribute (author, morph, or framework binding).">
+		<neo-badge variant="outline" class="api-flag">
+			<neo-icon name="eye" aria-hidden="true"></neo-icon>
+			observed
+		</neo-badge>
+	</neo-tooltip>
+}
+
+templ docSlotName(name string) {
+	if name == "" || name == "default" {
+		{ "default" }
+	} else {
+		<code>{ name }</code>
+	}
+}
+
+templ docDesc(c templ.Component) {
+	if c != nil {
+		@c
+	}
+}

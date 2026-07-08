@@ -1,0 +1,34 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ CardComposed() {
+	@neo.Card(neo.CardOpts{Variant: neo.Set(neo.CardVariantElevated)}) {
+		@neo.CardHeader() {
+			@neo.CardTitle() {
+				Production deploy
+			}
+			@neo.CardDescription() {
+				Promotes the latest green build from staging.
+			}
+			@neo.CardActions() {
+				@neo.Button(neo.ButtonOpts{Variant: neo.Set(neo.ButtonVariantGhost)}) {
+					Logs
+				}
+			}
+		}
+		@neo.CardBody() {
+			Last deployed 14 minutes ago by you. 23
+			commits since the previous release.
+			Review the changelog before shipping.
+		}
+		@neo.CardFooter() {
+			@neo.Button(neo.ButtonOpts{}) {
+				Cancel
+			}
+			@neo.Button(neo.ButtonOpts{Variant: neo.Set(neo.ButtonVariantPrimary)}) {
+				Deploy
+			}
+		}
+	}
+}

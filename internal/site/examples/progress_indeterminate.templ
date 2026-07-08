@@ -1,0 +1,13 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ ProgressIndeterminate() {
+	@neo.Progress(neo.ProgressOpts[float64]{
+		Min:           neo.Set(0.0),
+		Max:           neo.Set(100.0),
+		Label:         neo.Set("Connecting…"),
+		HideValue:     neo.Set(true),
+		Indeterminate: neo.Set(true),
+	})
+}

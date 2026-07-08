@@ -1,0 +1,19 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ ProgressVertical() {
+	@neo.Progress(neo.ProgressOpts[float64]{
+		Min:      neo.Set(0.0),
+		Max:      neo.Set(100.0),
+		Value:    neo.Set(55.0),
+		Label:    neo.Set("Battery"),
+		Unit:     neo.Set("%"),
+		Vertical: neo.Set(true),
+		Marks: []neo.ProgressMark{
+			{Value: 0, Label: "Empty"},
+			{Value: 50, Label: "Half"},
+			{Value: 100, Label: "Full"},
+		},
+	})
+}

@@ -1,0 +1,20 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ RadioGroupDisabled() {
+	@neo.RadioGroup(neo.RadioGroupOpts{Value: neo.Set("auto"), Disabled: neo.Set(true), AriaLabel: neo.Set("Theme")}) {
+		<label class="radio-pg-row">
+			@neo.Radio(neo.RadioOpts{Value: neo.Set("light")})
+			<span>Light</span>
+		</label>
+		<label class="radio-pg-row">
+			@neo.Radio(neo.RadioOpts{Value: neo.Set("dark")})
+			<span>Dark</span>
+		</label>
+		<label class="radio-pg-row">
+			@neo.Radio(neo.RadioOpts{Value: neo.Set("auto")})
+			<span>Match system</span>
+		</label>
+	}
+}

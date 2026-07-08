@@ -1,0 +1,16 @@
+package neo
+
+// TextInput renders <neo-textinput>. The native field lives in the
+// component's shadow root, so the host carries the options/passthrough
+// attributes and the light DOM stays empty; the field appears on upgrade.
+templ TextInput(opts TextInputOpts) {
+	@TextInputAttrs(opts, nil)
+}
+
+// TextInputAttrs is [TextInput] plus an escape hatch: attrs carries
+// native passthrough and arbitrary attributes (style, aria-*, data-* /
+// Datastar bindings) and overrides any colliding typed field.
+templ TextInputAttrs(opts TextInputOpts, attrs templ.Attributes) {
+	{{ merged := textInputMergedAttrs(opts, attrs) }}
+	<neo-textinput { merged... }></neo-textinput>
+}

@@ -1,0 +1,43 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ ComboboxFormSubmission() {
+	<form id="combobox-form-demo" class="combobox-form">
+		@neo.Combobox(neo.ComboboxOpts{
+			Name:        neo.Set("regions"),
+			Multiple:    neo.Set(true),
+			Value:       neo.Set("sydney,tokyo"),
+			AriaLabel:   neo.Set("Deployment regions"),
+			Placeholder: neo.Set("Deployment regions"),
+		}) {
+			@neo.Option(neo.OptionOpts{Value: neo.Set("sydney")}) {
+				Sydney
+			}
+			@neo.Option(neo.OptionOpts{Value: neo.Set("frankfurt")}) {
+				Frankfurt
+			}
+			@neo.Option(neo.OptionOpts{Value: neo.Set("tokyo")}) {
+				Tokyo
+			}
+			@neo.Option(neo.OptionOpts{Value: neo.Set("oregon")}) {
+				Oregon
+			}
+		}
+		<button type="submit" class="combobox-form-submit">
+			Submit
+		</button>
+		<output id="combobox-form-output" class="combobox-form-output">Submit to see the posted values.</output>
+	</form>
+	<script>
+		(() => {
+			const form = document.getElementById('combobox-form-demo');
+			const out = document.getElementById('combobox-form-output');
+			form.addEventListener('submit', (e) => {
+				e.preventDefault();
+				const entries = [...new FormData(form)].map(([k, v]) => k + '=' + v);
+				out.textContent = entries.length ? entries.join(' & ') : '(nothing submitted)';
+			});
+		})();
+	</script>
+}

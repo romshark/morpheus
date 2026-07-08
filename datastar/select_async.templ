@@ -1,0 +1,56 @@
+package datastar
+
+import "github.com/romshark/morpheus/neo"
+
+// SelectAsync renders a <neo-select async> wired to a Datastar SSE
+// action that fetches its option fragment on every open. On a
+// successful response the server is expected to morph
+// `<neo-datalist id="<ID>-options">` into the listbox; the select kit
+// hides the loading clone automatically once options arrive. When
+// Datastar exhausts its retry budget the Failed template is written
+// into the visible loading clone, while the source loading slot stays
+// untouched for the next retry/reopen.
+//
+// Any descendant in the Failed template that carries
+// data-neo-popover-async-retry becomes a retry button: a click aborts
+// any in-flight fetch and calls the select's reload(), which re-enters
+// the loading state and re-fires the load action without closing the
+// select.
+//
+// SelectAsync requires Datastar's retry mode to be anything other
+// than `never` for the failure swap to fire; `never` short-circuits
+// before Datastar emits `retries-failed`.
+templ SelectAsync(opts SelectAsyncOpts) {
+	@neo.SelectAttrs(selectAsyncNeoOpts(opts), templ.Attributes{
+		"id":                        opts.ID,
+		"data-signals":              selectAsyncSignals(opts),
+		"data-on:neo-select-load":   selectAsyncOpen(opts),
+		"data-on:neo-popover-close": selectAsyncClose(opts),
+		"data-on:datastar-fetch":    selectAsyncOnFetch(opts),
+		"data-on:click":             selectAsyncRetry(opts),
+	}) {
+		// The morph target for the server's option fragment. The kit
+		// clones this placeholder into the listbox on open; a successful
+		// response morphs this datalist's contents into the options.
+		@neo.Datalist(neo.DatalistOpts{ID: neo.Set(opts.ID + "-options")}) {
+			<div { neo.AsyncPlaceholder()... }>
+				@opts.Loading
+			</div>
+		}
+	}
+	<template id={ opts.ID + "-tpl-failed" }>
+		@selectAsyncFailed(opts.Failed)
+	</template>
+}
+
+// selectAsyncFailed renders the user-supplied Failed template, or a
+// minimal built-in callout if none was provided.
+templ selectAsyncFailed(failed templ.Component) {
+	if failed != nil {
+		@failed
+	} else {
+		<div class="popover-async-failed" role="alert">
+			Failed to load.
+		</div>
+	}
+}

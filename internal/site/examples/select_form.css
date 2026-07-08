@@ -1,0 +1,22 @@
+.select-form-row {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.75rem;
+}
+
+.select-form-submit {
+	font: inherit;
+	padding: 0.45rem 0.9rem;
+	border-radius: var(--page-radius, 0.5rem);
+	border: 1px solid var(--neo-button-border-color, rgba(0, 0, 0, 0.16));
+	background: var(--accent, #2563eb);
+	color: #fff;
+	cursor: pointer;
+}
+
+.select-form-output {
+	width: 100%;
+	font-family: var(--font-mono, ui-monospace, monospace);
+	color: var(--muted);
+}

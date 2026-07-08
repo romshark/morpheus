@@ -1,0 +1,56 @@
+package neo
+
+type AvatarsOpts struct {
+	// CollapseAt is the maximum number of authored avatars to show before
+	// the remainder are folded into the +N overflow circle. Zero means no
+	// authored cap; the host still collapses when horizontal space runs out.
+	CollapseAt Attr[int]
+	// OverflowCount adds server-known people that are not present as avatar
+	// children. The generated +N circle shows hidden children plus this count.
+	OverflowCount Attr[int]
+
+	AriaLabel Attr[string]
+}
+
+// Avatars renders <neo-avatars>, an overlapping row of avatar images.
+// Children stay in light DOM so server patches can replace, append, or remove
+// avatars directly; the host only toggles visibility and maintains the +N
+// overflow circle. Add a direct <template data-neo-avatars-overflow> child to
+// replace the generated overflow circle with custom content such as a popover
+// trigger; descendants marked data-neo-avatars-overflow-count receive the
+// current hidden count.
+templ Avatars(opts AvatarsOpts) {
+	@AvatarsAttrs(opts, nil) {
+		{ children... }
+	}
+}
+
+// AvatarsAttrs is [Avatars] with an extra attribute set.
+templ AvatarsAttrs(opts AvatarsOpts, attrs templ.Attributes) {
+	<neo-avatars
+		{ opts.CollapseAt.Attrs("collapse-at")... }
+		{ opts.OverflowCount.Attrs("overflow-count")... }
+		{ opts.AriaLabel.Attrs("aria-label")... }
+		{ attrs... }
+	>
+		{ children... }
+	</neo-avatars>
+}
+
+// AvatarsOverflow declares custom content for the +N overflow circle: the
+// host clones this <template data-neo-avatars-overflow> in place of the
+// generated circle (e.g. a popover trigger). Mark a descendant with
+// AvatarsOverflowCount to show the hidden count. Place it as a direct
+// child of Avatars.
+templ AvatarsOverflow() {
+	<template data-neo-avatars-overflow>
+		{ children... }
+	</template>
+}
+
+// AvatarsOverflowCount renders the [data-neo-avatars-overflow-count]
+// placeholder the host fills with the current hidden count. Use inside
+// AvatarsOverflow.
+templ AvatarsOverflowCount() {
+	<span data-neo-avatars-overflow-count></span>
+}

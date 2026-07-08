@@ -1,0 +1,2716 @@
+/* Landing-page-only styles. */
+
+/* Override the docs-app's `body { overflow: hidden }`; landing scrolls as one page. */
+.landing-body {
+	position: relative;
+	overflow-x: hidden;
+	overflow-y: auto;
+	--landing-surface-bg: color-mix(in srgb, var(--page-bg) 98%, var(--page-fg));
+	--landing-code-gutter-bg: color-mix(
+		in srgb,
+		var(--page-bg) 98%,
+		var(--page-fg)
+	);
+	background: var(--page-bg);
+	color: var(--page-fg);
+	font-family: var(--page-font-family);
+}
+
+:root.dark .landing-body {
+	--landing-surface-bg: color-mix(in srgb, var(--page-bg) 92%, var(--page-fg));
+	--landing-code-gutter-bg: color-mix(
+		in srgb,
+		var(--page-bg) 94%,
+		var(--page-fg)
+	);
+}
+
+.landing-main {
+	position: relative;
+	z-index: 1;
+	max-width: 80rem;
+	margin: 0 auto;
+	padding: 2rem 1.5rem 4rem;
+	display: flex;
+	flex-direction: column;
+	gap: 2rem;
+}
+
+matrix-rain {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: 100vh;
+	z-index: 0;
+	pointer-events: none;
+	opacity: 0.55;
+}
+
+.theme-matrix matrix-rain {
+	opacity: 0.4;
+}
+
+/* Decorative, hidden under reduced-motion. The component also tears
+ * down its render loop in JS; CSS covers SSR / no-JS. */
+@media (prefers-reduced-motion: reduce) {
+	matrix-rain {
+		display: none;
+	}
+}
+
+:root[data-pref-reduced-motion] matrix-rain {
+	display: none;
+}
+
+/* Visuals live in Shadow DOM; only the host colour leaks for the
+ * theme accent. Pre-upgrade, hide all but the first slotted child so
+ * the host paints at its real size, avoiding the FOUC stack of every
+ * candidate word. */
+glitch-cycle-text {
+	color: var(--accent);
+}
+
+glitch-cycle-text:not(:defined) > * + * {
+	display: none;
+}
+
+.landing-hero {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	text-align: center;
+	gap: 1.25rem;
+	max-width: 100%;
+	overflow-x: clip;
+	padding: 4rem 0 3rem;
+}
+
+.landing-brand {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.3rem;
+	line-height: 1;
+}
+
+.landing-brand-meta {
+	display: inline-flex;
+	align-items: baseline;
+	gap: 0.5rem;
+}
+
+/* Reserve the line-height the component's shadow forces (1.15, to clear
+ * descenders) pre-hydration too. Otherwise the host inherits the hero's
+ * 1.05, then grows ~5px when <glitch-cycle-text> upgrades, nudging the
+ * whole page down. */
+glitch-cycle-text {
+	line-height: 1.15;
+}
+
+.landing-brand-name {
+	--glitch-text-width: max-content;
+	font-size: clamp(2.25rem, 13vw, 4rem);
+	font-weight: 900;
+	color: var(--accent);
+}
+
+.landing-brand-version {
+	color: var(--muted);
+	font-size: 1rem;
+	font-weight: 600;
+	letter-spacing: 0.05em;
+}
+
+.landing-brand-stage {
+	color: var(--accent);
+	font-size: 1rem;
+	font-weight: 700;
+	letter-spacing: 0.05em;
+}
+
+.landing-slogan {
+	margin: 0;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.1rem;
+	max-width: 100%;
+	overflow-x: clip;
+	/* clamp lower-bound has to fit "Framework Agnostic" at ~344px;
+	 * `nowrap` inside the shadow DOM rules out a fallback wrap. */
+	font-size: clamp(1.4rem, 7vw, 3.25rem);
+	line-height: 1.05;
+	letter-spacing: -0.02em;
+}
+
+.landing-slogan-cycle {
+	max-width: 100%;
+	overflow: hidden;
+	font-weight: 700;
+	/* Kit default (17ch) clips the longest phrase; hug the text and let
+	 * the slogan's `max-width: 100%` be the only constraint. */
+	--glitch-text-width: max-content;
+}
+
+.landing-slogan-tail {
+	display: block;
+	font-weight: 700;
+	letter-spacing: 0.04em;
+	border-bottom: 4px solid var(--accent);
+	padding-bottom: 0.15rem;
+}
+
+.landing-actions {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 0.75rem;
+	margin-top: 0.5rem;
+}
+
+.landing-cta {
+	gap: 0.5rem !important;
+	--neo-button-padding: 0.75rem 1rem;
+	--neo-button-radius: var(--page-radius, 0.5rem);
+}
+
+.landing-how {
+	display: flex;
+	flex-direction: column;
+	gap: 1.5rem;
+	padding: 2rem 0;
+
+	& h2 {
+		margin: 0;
+		color: var(--page-fg);
+		font-size: clamp(1.65rem, 3vw, 2.35rem);
+		line-height: 1.08;
+	}
+}
+
+.landing-how-copy {
+	max-width: 42rem;
+	margin: 0 auto;
+	text-align: center;
+
+	& p:last-child {
+		margin: 1rem 0 0;
+		color: var(--muted);
+		font-size: 1rem;
+		line-height: 1.7;
+	}
+}
+
+.landing-how-live {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.4rem;
+}
+
+.landing-how-hint {
+	margin: 0;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4rem;
+	color: var(--muted);
+	font-size: 0.85rem;
+	line-height: 1.3;
+
+	& neo-icon {
+		width: 1em;
+		height: 1em;
+		/* No arrow-down in the icon set; rotate arrow-right. */
+		transform: rotate(90deg);
+	}
+}
+
+.landing-open-alpha-makers {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.75rem;
+	margin-top: 1.25rem;
+	color: var(--page-fg);
+	font-weight: 600;
+}
+
+.landing-open-alpha-maker-links {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 0.8rem;
+
+	& a {
+		gap: 0.5rem;
+		--neo-button-padding: 0.4rem 0.6rem;
+		background: var(--neo-button-ghost-bg);
+		&:hover,
+		&:focus-visible {
+			background: var(--neo-button-ghost-hover-bg);
+		}
+	}
+
+	& img {
+		width: 2rem;
+		height: 2rem;
+		border-radius: 999px;
+		object-fit: cover;
+	}
+}
+
+.landing-custom-grid {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	align-items: start;
+	gap: 0.85rem;
+	width: 100%;
+}
+
+/* On the inner of an elevated <neo-card>. Attribute selector bumps
+ * specificity past the kit's `neo-card > [data-neo-card-inner]`. */
+.landing-custom-example[data-neo-card-inner] {
+	--neo-card-padding: 0;
+	min-width: 0;
+	width: 100%;
+	max-width: 100%;
+	box-sizing: border-box;
+	margin: 0;
+	display: grid;
+	grid-template-rows: auto auto auto;
+	overflow: hidden;
+
+	& > header {
+		min-width: 0;
+		width: 100%;
+		max-width: 100%;
+		box-sizing: border-box;
+		padding: 0.65rem 0.75rem;
+		border-bottom: 1px solid color-mix(in srgb, var(--page-fg) 10%, transparent);
+		overflow-wrap: anywhere;
+
+		& > div {
+			display: flex;
+			flex-direction: column;
+			gap: 0.2rem;
+			min-width: 0;
+			width: 100%;
+			max-width: 100%;
+		}
+
+		& strong {
+			display: block;
+			color: var(--page-fg);
+			font-size: 0.9rem;
+			line-height: 1.25;
+			min-width: 0;
+			max-width: 100%;
+			white-space: normal;
+		}
+
+		& span {
+			display: block;
+			color: var(--muted);
+			font-size: 0.8rem;
+			line-height: 1.45;
+			min-width: 0;
+			max-width: 100%;
+			white-space: normal;
+		}
+	}
+}
+
+.landing-custom-preview {
+	display: flex;
+	align-items: center;
+	min-width: 0;
+	width: 100%;
+	min-height: 5.25rem;
+	overflow: hidden;
+}
+
+.landing-custom-preview-tabs {
+	--neo-tabs-list-padding: 0.2rem;
+	--neo-tabs-tab-padding-y: 0.32rem;
+	--neo-tabs-tab-padding-x: 0.65rem;
+	--neo-tabs-panel-padding: 0;
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) auto;
+	grid-template-areas:
+		"tablist toggle"
+		"panels panels";
+	column-gap: 0.75rem;
+	min-width: 0;
+	width: 100%;
+	max-width: 100%;
+
+	& > neo-tablist {
+		grid-area: tablist;
+		font-size: 0.8rem;
+		margin: 1rem 0.75rem 0;
+		min-width: 0;
+	}
+
+	& > neo-tabpanel {
+		grid-area: panels;
+		min-width: 0;
+		max-width: 100%;
+		box-sizing: border-box;
+	}
+}
+
+.landing-custom-code-toggle {
+	grid-area: toggle;
+	align-self: start;
+	margin: 1rem 0.75rem 0 0;
+	border-color: transparent;
+	background: transparent;
+	color: var(--muted);
+	opacity: 0.7;
+	white-space: nowrap;
+
+	&:hover,
+	&:focus-visible {
+		opacity: 1;
+	}
+
+	&[pressed],
+	&[aria-pressed="true"] {
+		border-color: color-mix(in srgb, var(--page-fg) 12%, transparent);
+		background: color-mix(in srgb, var(--page-fg) 5%, transparent);
+		color: var(--muted);
+		box-shadow: none;
+		opacity: 0.9;
+	}
+}
+
+.landing-custom-code-elastic {
+	min-width: 0;
+	max-width: 100%;
+}
+
+.landing-custom-code {
+	min-width: 0;
+	width: 100%;
+	max-width: 100%;
+	border-top: 1px solid color-mix(in srgb, var(--page-fg) 10%, transparent);
+	overflow: hidden;
+	contain: inline-size;
+}
+
+.landing-custom-demo-row,
+.landing-custom-token-demo {
+	display: inline-flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.75rem;
+	min-width: 0;
+	padding: 0 0.75rem;
+}
+
+.landing-custom-token-demo {
+	--neo-button-primary-bg: #0f766e;
+	--neo-button-primary-color: white;
+	--neo-button-primary-hover-bg: #115e59;
+	--neo-spinner-size: 1.15rem;
+	color: #0f766e;
+}
+
+.landing-custom-breadcrumb {
+	min-width: 0;
+	margin: 0 0.75rem;
+}
+
+.landing-custom-preview-tabs > neo-tabpanel > .landing-custom-demo-frame > neo-badge {
+	margin: 0 0.75rem;
+}
+
+.landing-custom-demo-frame {
+	display: flex;
+	align-items: center;
+	min-width: 0;
+	width: 100%;
+	box-sizing: border-box;
+	min-height: 3.5rem;
+}
+
+.landing-custom-demo-inner {
+	min-width: 0;
+	width: 100%;
+	box-sizing: border-box;
+	padding: 1rem;
+	min-height: 5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+@media (max-width: 58rem) {
+	.landing-custom-demo-frame {
+		min-height: 0;
+	}
+}
+
+/* "Rich Options" example: a shipping-speed combobox. The option body
+ * is a full row (icon + name + price, optional badge, description); the
+ * compact trigger face is icon + name + a price delta. */
+.landing-custom-demo-inner > neo-combobox {
+	--neo-combobox-min-width: 15rem;
+}
+
+.ship-row {
+	display: flex;
+	align-items: flex-start;
+	gap: 0.6rem;
+	width: 100%;
+	min-width: 0;
+}
+
+.ship-icon {
+	flex: 0 0 auto;
+	width: 1.35rem;
+	height: 1.35rem;
+	margin-top: 0.15rem;
+	color: var(--muted);
+}
+
+.ship-body {
+	flex: 1 1 auto;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 0.25rem;
+	text-align: left;
+}
+
+.ship-head {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 0.75rem;
+}
+
+.ship-name {
+	font-weight: 600;
+}
+
+.ship-price {
+	flex: 0 0 auto;
+	color: var(--muted);
+	font-variant-numeric: tabular-nums;
+}
+
+.ship-desc {
+	margin: 0;
+	font-size: 0.85em;
+	color: var(--muted);
+	line-height: 1.35;
+	white-space: normal;
+}
+
+.ship-body > neo-badge {
+	align-self: flex-start;
+}
+
+/* Trigger face: icon + name + delta on one line. */
+.ship-face-icon {
+	flex: 0 0 auto;
+	width: 1.1rem;
+	height: 1.1rem;
+}
+
+.ship-delta {
+	color: var(--muted);
+	font-variant-numeric: tabular-nums;
+}
+
+/* Selected row: --muted lacks contrast on the accent fill, so flip the
+ * price/description/icon to the selected fill's fg. */
+neo-option[role="option"][aria-selected="true"] .ship-price,
+neo-option[role="option"][aria-selected="true"] .ship-desc,
+neo-option[role="option"][aria-selected="true"] .ship-icon {
+	color: var(--neo-select-option-selected-color);
+}
+
+.landing-custom-example site-codemirror {
+	display: block;
+	min-width: 0;
+	width: 100%;
+	max-width: 100%;
+	font-size: 0.72rem;
+	background: color-mix(in srgb, var(--page-fg) 6%, transparent);
+	overflow: hidden;
+
+	& .site-codemirror-host {
+		min-width: 0;
+		width: 100%;
+		max-width: 100%;
+		overflow: hidden;
+	}
+
+	& .cm-editor {
+		width: 100%;
+		min-width: 0;
+		max-height: 16rem;
+		background: transparent;
+		font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+		font-size: inherit;
+
+		&.cm-focused {
+			outline: none;
+		}
+	}
+
+	& .cm-scroller {
+		font-family: inherit;
+		line-height: 1.5;
+		overflow-x: auto;
+	}
+
+	& .cm-content {
+		min-width: max-content;
+	}
+
+	& .cm-gutters {
+		z-index: 2;
+		background: var(--landing-code-gutter-bg);
+		border-right: 1px solid color-mix(in srgb, var(--page-fg) 12%, transparent);
+	}
+}
+
+@media (max-width: 58rem) {
+	.landing-custom-grid {
+		grid-template-columns: 1fr;
+	}
+}
+
+.landing-a11y-features {
+	list-style: none;
+	margin: 0 auto;
+	padding: 0;
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 1rem 1.75rem;
+	max-width: 56rem;
+	width: 100%;
+
+	& > li {
+		display: flex;
+		align-items: flex-start;
+		gap: 0.7rem;
+		min-width: 0;
+
+		& > neo-icon {
+			flex: 0 0 auto;
+			color: var(--accent);
+			margin-top: 0.2rem;
+		}
+
+		& > div {
+			display: flex;
+			flex-direction: column;
+			gap: 0.15rem;
+			min-width: 0;
+
+			& > strong {
+				color: var(--page-fg);
+				font-size: 1rem;
+				letter-spacing: -0.005em;
+			}
+
+			& > span {
+				color: var(--muted);
+				font-size: 0.92rem;
+				line-height: 1.5;
+			}
+		}
+	}
+}
+
+@media (max-width: 36rem) {
+	.landing-a11y-features {
+		grid-template-columns: 1fr;
+	}
+}
+
+/* Try-it panel host (elevated <neo-card>). Switches mirror
+ * `prefers-reduced-motion` / `prefers-contrast` via Datastar signals,
+ * scoped to this demo. `overflow: visible` lets the form's
+ * position:fixed popover escape; corner-radius is preserved on the
+ * toolbar/footer rules below. */
+.landing-a11y-demo {
+	margin: 0 auto;
+	max-width: 56rem;
+	width: 100%;
+	overflow: visible;
+}
+
+/* Attribute selector bumps specificity past the kit's
+ * `neo-card > [data-neo-card-inner]` defaults. Gap zeroed so the
+ * toolbar's border-bottom is the only separator. */
+.landing-a11y-demo-inner[data-neo-card-inner] {
+	--neo-card-padding: 0;
+	--neo-card-gap: 0;
+	display: flex;
+	flex-direction: column;
+}
+
+/* Toolbar owns its padding so the sidebar below can reach the card's left edge. */
+.landing-a11y-demo-toolbar {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.5rem 1.25rem;
+	padding: 0.6rem 1rem;
+	border-radius: calc(var(--page-radius, 0.5rem) - 1px)
+		calc(var(--page-radius, 0.5rem) - 1px) 0 0;
+	border-bottom: 1px solid
+		color-mix(in srgb, var(--page-fg) 10%, transparent);
+}
+
+.landing-a11y-demo-sidebar-toggle {
+	flex: 0 0 auto;
+}
+
+.landing-a11y-demo-toggles {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.5rem 1.25rem;
+	margin-left: auto;
+}
+
+.landing-a11y-demo-toggle {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	font-size: 0.92rem;
+	color: var(--page-fg);
+	cursor: pointer;
+}
+
+/* Mirror of the toolbar switches inside the drawer (shared Datastar
+ * signals). Specificity matches the kit's
+ * `neo-sidebar > [data-neo-sidebar-footer]` flex rule. */
+.landing-a11y-demo-nav > .landing-a11y-demo-nav-toggles {
+	display: none;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 0.5rem;
+	padding: 0.6rem;
+	font-size: 0.85rem;
+}
+
+@media (max-width: 440px) {
+	.landing-a11y-demo-toolbar > .landing-a11y-demo-toggles {
+		display: none;
+	}
+
+	.landing-a11y-demo-nav > .landing-a11y-demo-nav-toggles {
+		display: flex;
+	}
+}
+
+/* No outer padding; the sidebar (left) and pane (right) own their
+ * insets so the sidebar reaches the card's left edge. */
+.landing-a11y-demo-samples {
+	display: block;
+}
+
+.landing-a11y-demo-header {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 0.5rem 1rem;
+
+	& h3 {
+		margin: 0;
+		font-size: 1rem;
+		letter-spacing: -0.005em;
+	}
+}
+
+.landing-a11y-demo-status {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4rem;
+	color: var(--muted);
+	font-size: 0.85rem;
+
+	& neo-spinner {
+		--neo-spinner-size: 0.85rem;
+	}
+}
+
+/* Sidebar + pane row. Pre-upgrade we keep the sidebar in-flow to avoid
+ * the kit's mobile fallback briefly fixing it to the viewport before
+ * JS applies our per-instance breakpoint. */
+.landing-a11y-demo-body {
+	display: flex;
+	align-items: stretch;
+	min-width: 0;
+	container-type: inline-size;
+	container-name: neo-sidebar-shell;
+	border-radius: 0 0 calc(var(--page-radius, 0.5rem) - 1px)
+		calc(var(--page-radius, 0.5rem) - 1px);
+	/* Containing block + clip for the overlay-mode drawer (absolutely
+	 * positioned below). The form's position:fixed popover still
+	 * resolves to the viewport. */
+	position: relative;
+	overflow: hidden;
+}
+
+/* Anchor the overlay drawer to the demo body, not the viewport. */
+neo-sidebar.landing-a11y-demo-nav[data-neo-sidebar-overlay] {
+	position: absolute;
+}
+
+.landing-a11y-demo-body > [data-neo-sidebar-backdrop] {
+	position: absolute;
+}
+
+/* Narrow the kit's 16rem default; the demo body is cramped vs. a
+ * real shell. `height: auto` lets the flex row's default
+ * `align-items: stretch` size the sidebar to the pane; the kit's
+ * `height: 100%` resolves to content height in a content-driven
+ * parent and visibly clips. */
+.landing-a11y-demo-nav {
+	--neo-sidebar-width: 10rem;
+	--neo-sidebar-padding: 0.4rem;
+	font-size: 0.9rem;
+	height: auto;
+	border-bottom-left-radius: calc(var(--page-radius, 0.5rem) - 1px);
+}
+
+neo-sidebar.landing-a11y-demo-nav:not(:defined) {
+	position: static;
+	width: var(--neo-sidebar-width);
+	max-width: var(--neo-sidebar-width);
+	flex-shrink: 0;
+	transform: none;
+	border-right: 1px solid var(--neo-sidebar-border-color);
+}
+
+.landing-a11y-demo-nav-active > [data-neo-tree-label] {
+	background: color-mix(in srgb, var(--accent) 18%, transparent);
+	color: var(--page-fg);
+    border-radius: 1rem;
+    padding: 0 0 0 0.5rem;
+}
+
+.landing-a11y-demo-pane {
+	flex: 1 1 auto;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 0.85rem;
+	padding: 0.85rem 1rem 1rem;
+	border-bottom-right-radius: calc(var(--page-radius, 0.5rem) - 1px);
+}
+
+.landing-a11y-demo-row {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-end;
+	gap: 0.65rem 1rem;
+}
+
+.landing-a11y-demo-prefs {
+	list-style: none;
+	margin: 0;
+	padding: 0.85rem 0 0;
+	display: flex;
+	flex-direction: column;
+	gap: 0.6rem;
+	border-top: 1px solid color-mix(in srgb, var(--page-fg) 10%, transparent);
+}
+
+.landing-a11y-demo-pref {
+	display: flex;
+	align-items: center;
+	gap: 0.85rem;
+}
+
+.landing-a11y-demo-pref-text {
+	display: flex;
+	flex-direction: column;
+	gap: 0.1rem;
+	flex: 1;
+	min-width: 0;
+
+	& > strong {
+		font-size: 0.92rem;
+		color: var(--page-fg);
+		letter-spacing: -0.005em;
+	}
+
+	& > span {
+		color: var(--muted);
+		font-size: 0.82rem;
+		line-height: 1.4;
+	}
+}
+
+.landing-a11y-demo-pref-control {
+	flex: 0 0 auto;
+}
+
+.landing-a11y-demo-pref-radios {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.85rem;
+
+	& label {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.4rem;
+		font-size: 0.88rem;
+		color: var(--page-fg);
+		cursor: pointer;
+	}
+}
+
+.landing-a11y-demo-field {
+	display: flex;
+	flex-direction: column;
+	gap: 0.25rem;
+	flex: 1 1 12rem;
+	min-width: 0;
+	font-size: 0.85rem;
+	color: var(--muted);
+
+	/* Stretch the input-group / select host to the field column. */
+	& > neo-input-group,
+	& > neo-select {
+		width: 100%;
+	}
+}
+
+.landing-a11y-demo-help {
+	flex: 0 0 auto;
+}
+
+/* Pref-simulation visuals are driven by the kit's
+ * `:root[data-pref-*]` hooks; only the popover content styling is local. */
+.landing-a11y-demo-popover {
+	max-width: 16rem;
+	font-size: 0.9rem;
+	line-height: 1.5;
+
+	& > p {
+		margin: 0;
+	}
+}
+
+.landing-how-input-group {
+	width: min(16rem, 100%);
+
+	/* Select trigger lives in shadow; reach it via --neo-button-* tokens. */
+	& > neo-select {
+		flex: 1 1 auto;
+		min-width: 0;
+		/* Override :host { height: 2rem } so the host fits the group's
+		 * border-box content area (2rem − 2×border). */
+		height: 100%;
+		/* Clip the trigger's square hover-bg to the host's rounded
+		 * left corners (granted by the group's :first-child rule). */
+		overflow: hidden;
+		--neo-select-min-width: 0;
+		--neo-button-border-color: transparent;
+		--neo-button-radius: 0;
+		--neo-button-bg: transparent;
+	}
+}
+
+.landing-how-stages {
+	grid-column: 1 / -1;
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 0.85rem;
+
+	/* Inner of an elevated <neo-card>. Attribute selector beats the
+	 * kit's `neo-card > [data-neo-card-inner]`; neo-layout handles the
+	 * vertical stack while the explicit width keeps it card-sized. */
+	& .lf-stage[data-neo-card-inner] {
+		--neo-card-padding: 0;
+		--neo-card-gap: 0;
+		box-sizing: border-box;
+		min-width: 0;
+		width: 100%;
+		max-width: 100%;
+		margin: 0;
+		overflow: hidden;
+	}
+
+	& .lf-stage-layout {
+		min-width: 0;
+		width: 100%;
+		max-width: 100%;
+		overflow: hidden;
+	}
+
+	/* Dim non-current stages; hover restores. Targets the host so the
+	 * shadow dims with the content. `:has(neo-badge)` probes for the
+	 * (current) badge, the only neo-badge inside a stage. */
+	& > neo-card {
+		/* Grid items default to min-width:auto; without this the
+		 * card can't shrink under the code block's intrinsic width. */
+		min-width: 0;
+		max-width: 100%;
+		transition: opacity 200ms ease;
+
+		&:not(:has(neo-badge)) {
+			opacity: 0.55;
+
+			&:hover,
+			&:focus-within {
+				opacity: 1;
+			}
+		}
+	}
+
+	& figcaption {
+		box-sizing: border-box;
+		min-width: 0;
+		max-width: 100%;
+		padding: 1rem;
+		border-top: 1px solid color-mix(in srgb, var(--page-fg) 10%, transparent);
+		color: var(--page-fg);
+		font-size: 0.82rem;
+		font-weight: 700;
+
+		& neo-badge {
+			flex: 0 0 auto;
+			margin-left: 0;
+			vertical-align: baseline;
+		}
+	}
+
+	& site-codemirror {
+		display: block;
+		min-width: 0;
+		/* Reserve height so a fat-morph swap (cm-editor → authored
+		 * <template display:none> → MutationObserver remount) doesn't
+		 * collapse the box. Sized for the longest docs (14 lines @ 0.76rem). */
+		min-height: 13rem;
+		font-size: 0.76rem;
+		background: color-mix(in srgb, var(--page-fg) 6%, transparent);
+
+		& .cm-editor {
+			max-height: 18rem;
+			background: transparent;
+			font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+			font-size: inherit;
+
+			&.cm-focused {
+				outline: none;
+			}
+		}
+
+		& .cm-scroller {
+			font-family: inherit;
+			line-height: 1.5;
+		}
+
+		& .cm-gutters {
+			z-index: 2;
+			background: var(--landing-code-gutter-bg);
+			border-right: 1px solid color-mix(in srgb, var(--page-fg) 12%, transparent);
+		}
+	}
+}
+
+/* Host is an elevated <neo-card>; constrain width and center it. */
+.landing-templ-source {
+	margin: 0;
+	width: min(38rem, 100%);
+	max-width: 38rem;
+	align-self: center;
+	overflow: hidden;
+
+	/* Children own their padding; figcaption's border-bottom is the only separator. */
+	& > [data-neo-card-inner] {
+		--neo-card-padding: 0;
+		--neo-card-gap: 0;
+		margin: 0;
+	}
+
+	& figcaption {
+		padding: 0.55rem 0.7rem;
+		border-bottom: 1px solid color-mix(in srgb, var(--page-fg) 10%, transparent);
+		color: var(--page-fg);
+		font-size: 0.82rem;
+		font-weight: 700;
+	}
+
+	& site-codemirror {
+		display: flex;
+		flex-direction: column;
+		min-width: 0;
+		font-size: 0.76rem;
+		background: color-mix(in srgb, var(--page-fg) 6%, transparent);
+
+		& .cm-editor {
+			flex: 1;
+			min-height: 0;
+			background: transparent;
+			font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+			font-size: inherit;
+
+			&.cm-focused {
+				outline: none;
+			}
+		}
+
+		& .cm-scroller {
+			font-family: inherit;
+			line-height: 1.5;
+			overflow: visible;
+		}
+
+		& .cm-gutters {
+			z-index: 2;
+			background: var(--landing-code-gutter-bg);
+			border-right: 1px solid color-mix(in srgb, var(--page-fg) 12%, transparent);
+		}
+	}
+}
+
+.lf-stage-title {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	gap: 0.35rem 0.4rem;
+	min-width: 0;
+	line-height: 1.35;
+}
+
+.lf-stage-title > span {
+	min-width: 0;
+	overflow-wrap: anywhere;
+}
+
+.lf-stage-desc {
+	display: block;
+	margin-top: 0.25rem;
+	color: var(--muted);
+	font-size: 0.78rem;
+	font-weight: 400;
+	line-height: 1.4;
+}
+
+@media (max-width: 46rem) {
+	.landing-how {
+		gap: 1.25rem;
+	}
+
+	.landing-how-stages {
+		/* minmax(0,…), not the 1fr shorthand: a bare 1fr is
+		 * minmax(auto,1fr), whose min-content track lets the wide
+		 * CodeMirror block overflow the viewport on mobile. */
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	/* The hard break strands an orphan on narrow viewports; let prose flow. */
+	.landing-how-copy br {
+		display: none;
+	}
+}
+
+/* Full-bleed band: negative side margins extend the border-top to the
+ * viewport. The inner mirrors .landing-main's max-width + horizontal
+ * padding so content edges align with sections above. */
+.landing-footer {
+	margin-left: calc(50% - 50vw);
+	margin-right: calc(50% - 50vw);
+	padding: 1.25rem 0 0;
+	border-top: 1px solid color-mix(in srgb, var(--page-fg) 12%, transparent);
+	color: var(--muted);
+	font-size: 0.9rem;
+}
+
+.landing-footer-inner {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1rem;
+	max-width: 80rem;
+	margin: 0 auto;
+	padding: 0 1.5rem;
+}
+
+.landing-footer-brand {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	gap: 0.5rem;
+
+	& strong {
+		color: var(--page-fg);
+	}
+}
+
+.landing-footer-links {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.85rem;
+
+	& a[data-neo-link] {
+		width: 2rem;
+		height: 2rem;
+		border-radius: 999px;
+		color: inherit;
+		&:hover,
+		&:focus-visible {
+			background: color-mix(in srgb, var(--page-fg) 8%, transparent);
+			color: var(--page-fg);
+		}
+	}
+
+	& neo-icon {
+		width: 1.05rem;
+		height: 1.05rem;
+	}
+}
+
+.landing-showcase {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	align-items: flex-start;
+	gap: 1rem;
+}
+
+.lf-col {
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+	min-width: 0;
+}
+
+.lf-col-1 {
+	flex: 1 1 17rem;
+}
+
+.lf-col-2 {
+	flex: 1.18 1 19rem;
+}
+
+/* grow >= 1 so the wrapped column claims the full row width;
+ * grow < 1 distributes only (sum * free), leaving a dead strip. */
+.lf-col-3 {
+	flex: 1 1 15rem;
+}
+
+/* Below 56rem: CSS-columns masonry. `.lf-col` becomes `display: contents`
+ * so cards are the column-flow items; `break-inside: avoid` keeps each
+ * card whole; margin-bottom replaces the wrappers' flex gap. */
+@media (max-width: 56rem) {
+	.landing-showcase {
+		display: block;
+		columns: 2;
+		column-gap: 1rem;
+	}
+
+	.lf-col {
+		display: contents;
+	}
+
+	.lf-card {
+		break-inside: avoid;
+		margin-bottom: 1rem;
+	}
+
+	/* Swap to short "EQ" title so the preset buttongroup keeps its row.
+	 * Qualifier beats the later `.lf-eq-title-short { display: none }`. */
+	.lf-eq-head .lf-eq-title-long {
+		display: none;
+	}
+
+	.lf-eq-head .lf-eq-title-short {
+		display: inline;
+	}
+}
+
+@media (max-width: 36rem) {
+	.landing-showcase {
+		columns: 1;
+	}
+}
+
+.lf-card {
+	--neo-card-padding: 0.95rem 1rem 1.05rem;
+	--neo-card-gap: 0.7rem;
+	min-width: 0;
+	box-shadow: 0 1px 0 color-mix(in srgb, var(--btn-border) 60%, transparent);
+	/* Avatar-row moat defaults to --page-bg; on a card surface that
+	 * reads as a hole. Re-point to the card's bg so the moat blends. */
+	--neo-avatars-border-color: var(--neo-card-bg);
+
+	& > [data-neo-card-inner] {
+		display: flex;
+		flex-direction: column;
+		gap: var(--neo-card-gap);
+		min-width: 0;
+
+		& > * + * {
+			margin-top: 0;
+		}
+	}
+
+	& h4 {
+		margin: 0;
+		font-size: 0.95rem;
+		letter-spacing: 0.02em;
+	}
+}
+
+.lf-checkrow {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	font-size: 0.92rem;
+	color: var(--page-fg);
+}
+
+.lf-checkrow-inline {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+}
+
+.lf-spread {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 0.5rem;
+	width: 100%;
+}
+
+.lf-avatar {
+	--neo-avatar-size: 2rem;
+	width: 2rem;
+	height: 2rem;
+	border-radius: var(--neo-avatar-radius, 50%);
+	flex: none;
+	background: color-mix(in srgb, var(--accent) 18%, transparent);
+}
+
+.lf-music > [data-neo-card-inner] {
+	gap: 0.5rem;
+}
+
+.lf-music-meta {
+	display: flex;
+	align-items: center;
+	gap: 0.6rem;
+	font-size: 0.9rem;
+}
+
+.lf-music-meta-text {
+	display: flex;
+	flex-direction: column;
+	gap: 0.1rem;
+	flex: 1;
+	min-width: 0;
+
+	& span {
+		color: var(--muted);
+		font-size: 0.82rem;
+	}
+}
+
+/* 3-col grid (spacer · play-group · volume) keeps the play group
+ * optically centered while the volume anchors flush right. */
+.lf-music-controls {
+	display: grid;
+	grid-template-columns: 1fr auto 1fr;
+	align-items: center;
+	gap: 0.35rem;
+}
+
+/* Extra breathing room above the controls. The card-inner reset
+ * (.lf-card > [data-neo-card-inner] > * + * { margin-top: 0 }) zeroes
+ * sibling margins in favor of gap and outspecifies a bare
+ * .lf-music-controls, so qualify the selector to win the cascade; this
+ * margin stacks on the 0.5rem flex gap. */
+.lf-music > [data-neo-card-inner] > .lf-music-controls {
+	margin-top: 1rem;
+}
+
+.lf-music-volume {
+	justify-self: end;
+}
+
+.lf-music-volume-popover {
+	display: flex;
+	align-items: center;
+	gap: 0.6rem;
+	--neo-popover-min-width: 0;
+}
+
+.lf-music-volume-slider {
+	width: 9rem;
+	flex: 0 0 auto;
+}
+
+/* Lucide hearts ship with fill="none" + stroke; CSS fill overrides
+ * the presentation attribute. */
+.lf-music-liked {
+	color: #ec4899;
+
+	& neo-icon::part(svg) {
+		fill: currentColor;
+	}
+}
+
+.lf-chat-header {
+	display: flex;
+	align-items: center;
+	container-type: inline-size;
+	gap: clamp(0.35rem, 2cqi, 0.6rem);
+
+	& > .lf-avatar {
+		--neo-avatar-size: clamp(1.35rem, 9cqi, 2rem);
+		width: var(--neo-avatar-size);
+		height: var(--neo-avatar-size);
+	}
+
+	& > neo-avatars {
+		--neo-avatars-overlap: clamp(0.25rem, 1.6cqi, 0.45rem);
+		--neo-avatars-overflow-font-size: clamp(0.62rem, 2.5cqi, 0.8125rem);
+		flex: 1 1 auto;
+		width: auto;
+		height: 2rem;
+		justify-content: flex-end;
+		min-width: 0;
+		margin-inline-start: 0.1rem;
+	}
+}
+
+.lf-chat-who {
+	display: flex;
+	flex-direction: column;
+	flex: 0 0 max-content;
+	min-width: max-content;
+	white-space: nowrap;
+
+	& span {
+		color: var(--muted);
+		font-size: 0.78rem;
+	}
+}
+
+/* Authored overflow for the chat-participant avatars. The +N circle is a
+ * neo-popover trigger supplied via <template data-neo-avatars-overflow>;
+ * neo-avatars only clones it and writes the hidden count. The panel lists
+ * every participant, so size it to content instead of the kit's
+ * chat-card-width default. */
+.lf-chat neo-popover[data-neo-avatars-overflow] {
+	--neo-popover-min-width: 0;
+}
+
+.lf-chat-roster {
+	display: flex;
+	flex-direction: column;
+	gap: 0.6rem;
+	max-width: 15rem;
+}
+
+.lf-chat-roster-title {
+	color: var(--muted);
+	font-size: 0.78rem;
+	font-weight: 600;
+}
+
+.lf-chat-roster-list {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+}
+
+.lf-chat-roster-item {
+	display: flex;
+	align-items: center;
+	gap: 0.55rem;
+	min-width: 0;
+}
+
+.lf-chat-roster-avatar {
+	--neo-avatar-size: 1.6rem;
+	flex: 0 0 auto;
+	width: 1.6rem;
+	height: 1.6rem;
+}
+
+.lf-chat-roster-name {
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	font-size: 0.9rem;
+	font-weight: 500;
+}
+
+.lf-chat-bubbles {
+	display: flex;
+	flex-direction: column;
+	gap: 0.35rem;
+	/* Cap height; appends push older bubbles off the top rather than
+	 * growing the card. The send handler scrolls to the new message. */
+	max-height: 11rem;
+	overflow-y: auto;
+	padding-right: 0.25rem;
+	scrollbar-width: thin;
+	overscroll-behavior: contain;
+}
+
+.lf-bubble {
+	max-width: 80%;
+	padding: 0.4rem 0.65rem;
+	border-radius: 0.5rem;
+	font-size: 0.9rem;
+	line-height: 1.3;
+}
+
+.lf-bubble-them {
+	align-self: flex-start;
+	background: color-mix(in srgb, var(--page-fg) 8%, transparent);
+}
+
+.lf-bubble-me {
+	align-self: flex-end;
+	background: var(--accent);
+	color: var(--accent-fg);
+}
+
+/* High contrast: give bubbles the same 2px currentColor edge the kit
+ * controls get. A box-shadow ring, not a border; the bubbles carry no
+ * border otherwise, so a real one would reflow them on every toggle. */
+@media (prefers-contrast: more) {
+	.lf-bubble {
+		box-shadow: inset 0 0 0 2px currentColor;
+	}
+}
+
+:root[data-pref-contrast-more] .lf-bubble {
+	box-shadow: inset 0 0 0 2px currentColor;
+}
+
+.lf-chat-input {
+	display: flex;
+	width: 100%;
+	margin-top: 0.2rem;
+}
+
+.lf-search-input {
+	width: 100%;
+}
+
+/* Tighten the kit's default text-input padding; the row reads as
+ * one palette strip alongside the search icon and ⌘I help button. */
+.lf-search-input > neo-textinput > input {
+	padding: 0.25rem 0.5rem;
+}
+
+/* Force block; neo-popover defaults to inline-block, which would
+ * shrink the wrapped input-group to content. Keep the original gap
+ * between the search control and the release list. */
+.lf-search-popover {
+	display: block;
+	margin-bottom: 0.6rem;
+}
+
+.lf-search-help-trigger {
+	white-space: nowrap;
+}
+
+.lf-search-popover-content {
+	max-width: 18rem;
+
+	& > p {
+		margin: 0;
+	}
+}
+
+.lf-search-results {
+	display: flex;
+	flex-direction: column;
+	gap: 0.15rem;
+}
+
+.lf-search-item {
+	display: flex;
+	min-width: 0;
+}
+
+/* Row layout (icon · label · trailing kbd) instead of the kit's
+ * centred ghost-button. */
+.lf-search-row {
+	width: 100%;
+	justify-content: flex-start;
+	gap: 0.6rem;
+	padding: 0.4rem 0.55rem;
+	font-size: 0.92rem;
+
+	& > span {
+		flex: 1;
+		min-width: 0;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		text-align: left;
+	}
+}
+
+/* The drag grip is a direct <span> of the row but must not take the
+ * label's `flex: 1` / ellipsis treatment. */
+.lf-search-row > .lf-search-grip {
+	flex: 0 0 auto;
+	width: auto;
+	font-size: 0.95rem;
+	opacity: 0.55;
+}
+
+.lf-search-row > .lf-search-grip:hover {
+	opacity: 1;
+}
+
+.lf-search-row-active {
+	background: color-mix(in srgb, var(--accent) 18%, transparent);
+}
+
+.lf-search-pager {
+	justify-content: center;
+	margin-top: 0.25rem;
+}
+
+.lf-pricing-head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.5rem;
+}
+
+.lf-pricing-price {
+	display: flex;
+	align-items: baseline;
+	gap: 0.4rem;
+
+	& strong {
+		font-size: 2.2rem;
+		letter-spacing: -0.02em;
+	}
+
+	& span {
+		color: var(--muted);
+		font-size: 0.85rem;
+	}
+}
+
+/* Card-shaped radios. <neo-radio> sits inside the <label>, so the
+ * whole card is the click target. `data-selected` mirrors the
+ * Datastar signal, single source of truth for the highlight. */
+.lf-pricing-plans {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+}
+
+.lf-pricing-plan {
+	display: flex;
+	align-items: flex-start;
+	gap: 0.7rem;
+	padding: 0.7rem 0.85rem;
+	border: 1px solid var(--btn-border);
+	border-radius: var(--page-radius, 0.5rem);
+	background: color-mix(in srgb, var(--page-bg) 96%, var(--page-fg));
+	cursor: pointer;
+	/* No-op until contrast-more; then an inset ring thickens the edge
+	 * (matching the kit's controls) without the reflow a 2px border
+	 * would cause on this content-sized card. */
+	box-shadow: var(--neo-contrast-ring);
+	transition:
+		border-color 120ms ease,
+		background-color 120ms ease;
+
+	&:hover {
+		border-color: color-mix(in srgb, var(--accent) 55%, var(--btn-border));
+	}
+
+	&[data-selected] {
+		border-color: var(--accent);
+		background: color-mix(in srgb, var(--accent) 10%, var(--page-bg));
+	}
+
+	& > neo-radio {
+		flex: 0 0 auto;
+		margin-top: 0.15rem;
+	}
+}
+
+/* The neo-radio inside reads as a 2px currentColor stroke in
+ * contrast-more; match the card with a 1px border + inset ring (set
+ * via --neo-contrast-ring on the base rule) so the strokes line up
+ * without the card growing and reflowing the column. Selected keeps the
+ * accent on both border and ring. */
+@media (prefers-contrast: more) {
+	.lf-pricing-plan {
+		border-color: currentColor;
+	}
+	.lf-pricing-plan[data-selected] {
+		border-color: var(--accent);
+		--neo-contrast-ring: inset 0 0 0 1px var(--accent);
+	}
+}
+
+:root[data-pref-contrast-more] .lf-pricing-plan {
+	border-color: currentColor;
+}
+
+:root[data-pref-contrast-more] .lf-pricing-plan[data-selected] {
+	border-color: var(--accent);
+	--neo-contrast-ring: inset 0 0 0 1px var(--accent);
+}
+
+.lf-pricing-plan-body {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+	min-width: 0;
+	flex: 1;
+}
+
+.lf-pricing-plan-head {
+	display: flex;
+	align-items: baseline;
+	flex-wrap: wrap;
+	gap: 0.4rem;
+
+	& > strong {
+		font-size: 1.05rem;
+		letter-spacing: 0.01em;
+	}
+
+	/* Push price to the row end regardless of whether the badge is present. */
+	& > span {
+		margin-left: auto;
+		font-size: 0.95rem;
+		font-weight: 600;
+		color: var(--page-fg);
+
+		& > small {
+			color: var(--muted);
+			font-size: 0.78rem;
+			font-weight: 500;
+		}
+	}
+}
+
+.lf-pricing-plan-features {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 0.3rem;
+	font-size: 0.88rem;
+	color: color-mix(in srgb, var(--page-fg) 88%, var(--muted));
+
+	& li {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+
+		& neo-icon {
+			color: var(--accent);
+			flex: 0 0 auto;
+		}
+	}
+}
+
+.lf-pricing-promo {
+	width: 100%;
+
+	& > span {
+		font-size: 0.7rem;
+		letter-spacing: 0.05em;
+	}
+
+	& > neo-textinput {
+		flex: 1 1 auto;
+		min-width: 0;
+
+		& > input {
+			width: 100%;
+		}
+	}
+}
+
+/* Clip both card and resizable: a horizontal shrink-drag stacks
+ * three async observers (textarea host, kit's auto-resize-height,
+ * article's auto-grow): a one-frame skew can paint the textarea
+ * past the container. Resize handles live at right:0 / bottom:0 so
+ * `overflow: hidden` doesn't crop them. */
+.lf-card.lf-notes {
+	overflow: hidden;
+}
+
+.lf-notes-resizable {
+	width: 100%;
+	overflow: hidden;
+}
+
+.lf-notes-inner {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+	height: 100%;
+	overflow: auto;
+	/* Reserve gutter so a corner-handle drag can't oscillate the
+	 * content width by a scrollbar tick across frames (scrollbar
+	 * flicker → rewrap → auto-grow → release → repeat). */
+	scrollbar-gutter: stable;
+
+	/* Lock children to intrinsic size; default `flex-shrink: 1` would
+	 * squeeze them and suppress overflow. */
+	& > * {
+		flex: none;
+	}
+
+	/* Sticky breadcrumb stays visible when the resizable shrinks below
+	 * the textarea's height (or the focused textarea scrolls itself). */
+	& > neo-breadcrumb {
+		position: sticky;
+		top: 0;
+		background: var(--btn-bg);
+		z-index: 1;
+	}
+}
+
+.lf-notes-textarea {
+	width: 100%;
+	/* Flex `min-width: auto` resolves to the textarea's min-content
+	 * and blocks horizontal shrink past it; pin to 0 to track `width: 100%`. */
+	min-width: 0;
+	padding-right: 1rem;
+	padding-bottom: 1rem;
+	padding-left: .25rem;
+
+	/* Native <textarea> width defaults to `cols`; fill the host instead. */
+	& > textarea {
+		width: 100%;
+		min-width: 0;
+	}
+}
+
+.lf-login-form {
+	display: flex;
+	flex-direction: column;
+	gap: 0.55rem;
+}
+
+.lf-signup-email > .lf-signup-domain {
+	/* TLD <neo-select> as an input-group addon. Trigger lives in
+	 * shadow; neutralize its styling via --neo-button-* tokens. */
+	flex: 0 0 auto;
+	background: var(--neo-input-group-addon-bg);
+	border-left: 1px solid var(--neo-textarea-border-color);
+	height: 100%;
+	overflow: hidden;
+	--neo-select-min-width: 0;
+	--neo-button-border-color: transparent;
+	--neo-button-radius: 0;
+	--neo-button-bg: transparent;
+}
+
+.lf-event > [data-neo-card-inner] {
+	gap: 0.6rem;
+}
+
+.lf-event-date {
+	display: inline-flex;
+	flex-direction: column;
+	align-items: center;
+	width: 3.2rem;
+	padding: 0.35rem 0;
+	border-radius: 0.4rem;
+	background: color-mix(in srgb, var(--accent) 16%, transparent);
+	color: var(--accent);
+	flex: none;
+}
+
+.lf-event-month {
+	font-size: 0.7rem;
+	font-weight: 700;
+	letter-spacing: 0.12em;
+}
+
+.lf-event-day {
+	font-size: 1.4rem;
+	font-weight: 700;
+	line-height: 1;
+}
+
+.lf-event-head {
+	display: flex;
+	align-items: center;
+	gap: 0.7rem;
+}
+
+.lf-event-head-text {
+	display: flex;
+	flex-direction: column;
+	gap: 0.2rem;
+	flex: 1;
+	min-width: 0;
+	font-size: 0.92rem;
+
+	& > span {
+		color: var(--muted);
+		font-size: 0.82rem;
+	}
+}
+
+.lf-event-invitees {
+	list-style: none;
+	margin: 0.2rem 0 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 0.4rem;
+}
+
+.lf-event-invitee {
+	display: flex;
+	align-items: center;
+	gap: 0.55rem;
+	font-size: 0.9rem;
+}
+
+.lf-event-invitee-avatar {
+	width: 1.7rem;
+	height: 1.7rem;
+}
+
+.lf-event-invitee-name {
+	flex: 1;
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+/* Equal widths so all RSVP triggers line up. Token alone isn't
+ * enough: the inline-block host shrinks to its trigger's content,
+ * and the trigger's min-width only kicks in below 7rem. */
+.lf-event-invitee-rsvp {
+	--neo-select-min-width: 8rem;
+	width: 8rem;
+}
+
+.lf-logs > [data-neo-card-inner] {
+	gap: 0.55rem;
+}
+
+.lf-logs-head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.5rem;
+}
+
+.lf-logs-head-title {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	min-width: 0;
+}
+
+.lf-logs-tail {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.3rem;
+	color: var(--muted);
+	font-size: 0.78rem;
+
+	& neo-spinner {
+		--neo-spinner-size: 0.8rem;
+	}
+}
+
+.lf-logs-severity {
+	font-size: 0.85rem;
+	flex-wrap: wrap;
+	gap: 0.25rem 0.85rem;
+}
+
+.lf-logs-severity-row {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.35rem;
+	cursor: pointer;
+}
+
+.lf-logs-window {
+	width: 100%;
+}
+
+.lf-logs-list {
+	list-style: none;
+	margin: 0;
+	padding: 0.4rem 0.5rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.2rem;
+	font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+	font-size: 0.78rem;
+	line-height: 1.4;
+	background: color-mix(in srgb, var(--page-fg) 5%, transparent);
+	border-radius: 0.4rem;
+	max-height: 9rem;
+	overflow: auto;
+}
+
+.lf-logs-row {
+	display: grid;
+	grid-template-columns: auto auto 1fr;
+	gap: 0.4rem;
+	align-items: baseline;
+	min-width: 0;
+}
+
+.lf-logs-time {
+	color: var(--muted);
+}
+
+/* Background tints with currentColor → tag inherits severity hue. */
+.lf-logs-tag {
+	text-transform: uppercase;
+	font-size: 0.66rem;
+	font-weight: 700;
+	letter-spacing: 0.05em;
+	min-width: 2.6rem;
+	text-align: center;
+	border-radius: 0.2rem;
+	padding: 0.05rem 0.3rem;
+	background: color-mix(in srgb, currentColor 14%, transparent);
+}
+
+.lf-logs-tag-info {
+	color: var(--accent);
+}
+
+.lf-logs-tag-warn {
+	color: #d97706;
+}
+
+.lf-logs-tag-error {
+	color: #dc2626;
+}
+
+.lf-logs-msg {
+	color: var(--page-fg);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.lf-logs-empty {
+	font-style: italic;
+	color: var(--muted);
+}
+
+.lf-logs-share {
+	align-self: flex-start;
+}
+
+.lf-stats > [data-neo-card-inner] {
+	gap: 0.4rem;
+}
+
+.lf-stats-head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.5rem;
+}
+
+.lf-stats-label {
+	font-size: 0.85rem;
+	color: var(--muted);
+}
+
+.lf-stats-value {
+	display: flex;
+	align-items: baseline;
+	gap: 0.5rem;
+
+	& strong {
+		font-size: 2rem;
+		letter-spacing: -0.02em;
+	}
+
+	& span {
+		color: var(--muted);
+		font-size: 0.85rem;
+	}
+}
+
+.lf-stats-foot {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	font-size: 0.82rem;
+	color: var(--muted);
+}
+
+.lf-pulse {
+	display: inline-block;
+	width: 0.55rem;
+	height: 0.55rem;
+	border-radius: 50%;
+	background: #22c55e;
+	box-shadow: 0 0 0 0 currentColor;
+	animation: lf-pulse 1.6s infinite;
+	color: #22c55e;
+}
+
+@keyframes lf-pulse {
+	0% {
+		box-shadow: 0 0 0 0 color-mix(in srgb, currentColor 60%, transparent);
+	}
+	70% {
+		box-shadow: 0 0 0 0.5rem transparent;
+	}
+	100% {
+		box-shadow: 0 0 0 0 transparent;
+	}
+}
+
+.lf-carousel {
+	/* Single-value padding required: the kit's [data-neo-card-media]
+	 * escape `margin: calc(var(--neo-card-padding) * -1)` only
+	 * resolves for one length. */
+	--neo-card-padding: 0.85rem;
+	--neo-card-title-size: 0.95rem;
+}
+
+.lf-carousel-media {
+	/* Aspect-ratio gives the carousel a definite box to scroll inside;
+	 * the kit's neo-carousel-track is otherwise content-sized and a
+	 * height: 100% slide chain has nothing to resolve against. */
+	aspect-ratio: 16 / 10;
+	position: relative;
+
+	/* Stretch the carousel host to fill the media box; the kit
+	 * guarantees `neo-carousel-track` fills the host, and the slide
+	 * inherits the cross-axis stretch from the flex row default,
+	 * so the <img> just needs `height: 100%` to cover. */
+	& > neo-carousel {
+		width: 100%;
+		height: 100%;
+	}
+
+	& neo-carousel-slide > img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		object-position: center 28%;
+		display: block;
+	}
+
+	/* Float the dots over the bottom edge of the image. The carousel
+	 * host is `position: relative`, so absolute positioning anchors to
+	 * it. Padding zeroed so the inline 0.4rem bottom is the only
+	 * insetting. Dots themselves get a higher-contrast palette so they
+	 * read on a busy illustration. */
+	& neo-carousel::part(dots) {
+		position: absolute;
+		inset-inline: 0;
+		bottom: 0.4rem;
+		padding: 0;
+		z-index: 1;
+		--neo-carousel-dot-bg: rgba(255, 255, 255, 0.55);
+		--neo-carousel-dot-active-bg: #fff;
+	}
+
+	& neo-carousel::part(dot) {
+		box-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+		/* Override the kit's transition list so the active-state
+		 * width change animates smoothly alongside the colour swap. */
+		transition:
+			width 180ms var(--neo-easing, ease-out),
+			background-color 160ms var(--neo-easing, ease-out);
+	}
+
+	/* Active dot reads as a pill: twice the inactive width, same
+	 * height, same border-radius (the radius is already large enough
+	 * to round both ends). Drop the kit's scale(1.15); the width
+	 * pop signals the active dot now. The kit mirrors aria-current into a
+	 * `dot-current` named part because ::part() doesn't accept
+	 * attribute selectors. */
+	& neo-carousel::part(dot-current) {
+		width: calc(var(--neo-carousel-dot-size) * 2);
+		transform: none;
+	}
+}
+
+/* Compact alert sizing for any alert dropped into a landing card. */
+.lf-card neo-alert {
+	--neo-alert-padding-y: 0.65rem;
+	--neo-alert-padding-x: 0.7rem;
+	--neo-alert-title-size: 0.84rem;
+	--neo-alert-title-line-height: 1.25;
+	--neo-alert-icon-size: 1rem;
+	--neo-alert-icon-margin-top: 0.16rem;
+	font-size: 0.82rem;
+}
+
+/* Popover host is inline-block by default; block so the trigger fills
+ * the card width. The wrapper makes card-inner a single child, so the
+ * header/body column gap moves to .lf-skel-body. */
+.lf-skel > [data-neo-card-inner] > neo-popover {
+	display: block;
+}
+
+/* .lf-skel-* are <neo-layout>; display, flex-direction, and align-items
+ * come from its attributes. These add only what an attribute can't:
+ * off-scale gaps and flex-item sizing. */
+.lf-skel-body {
+	gap: 0.85rem;
+}
+
+.lf-skel-head {
+	gap: 0.7rem;
+}
+
+.lf-skel-lines {
+	gap: 0.45rem;
+	flex: 1;
+	min-width: 0;
+}
+
+/* Keep the "never loading" message on one line in the popover panel. */
+.lf-skel-tip {
+	white-space: nowrap;
+}
+
+.lf-tree-head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.5rem;
+}
+
+.lf-tree-head-title {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.45rem;
+	min-width: 0;
+
+	& > strong {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+}
+
+.lf-tree-head-actions {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.15rem;
+	flex: 0 0 auto;
+}
+
+/* Bump popover min-width so long file paths don't truncate; the
+ * combobox chain below stretches to fill the panel. */
+.lf-tree-search-content {
+	min-width: min(22rem, 90vw);
+
+	& neo-combobox {
+		width: 100%;
+	}
+}
+
+.lf-tree-icon {
+	flex: 0 0 auto;
+	color: var(--muted);
+	margin-right: 0.1rem;
+}
+
+.lf-tree-icon-folder {
+	color: var(--accent, currentColor);
+}
+
+/* Row actions hidden at rest; badges stay visible (state, not actions). */
+.lf-tree-actions {
+	opacity: 0;
+	transition: opacity 120ms ease;
+
+	& > neo-badge {
+		opacity: 1;
+	}
+
+	& > neo-button {
+		--neo-button-padding-inline: 0.3rem;
+		--neo-button-padding-block: 0.2rem;
+	}
+}
+
+/* The row content sits inside a neo-contextmenu trigger (.lf-tree-row)
+ * so right-click mirrors the kebab menu. neo-contextmenu is
+ * display:contents, but the trigger is a real box: it takes over the
+ * label's flex-row role and re-hosts text/actions, since the kit's
+ * [data-neo-tree-label] > * rules no longer reach them through the
+ * extra nesting. Descendant combinator on the hover reveal for the
+ * same reason. */
+.lf-tree .lf-tree-row {
+	display: flex;
+	flex: 1 1 auto;
+	align-items: center;
+	gap: var(--neo-tree-row-gap);
+	min-width: 0;
+}
+
+.lf-tree .lf-tree-row > [data-neo-tree-text] {
+	flex: 1 1 auto;
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.lf-tree .lf-tree-row > [data-neo-tree-actions] {
+	margin-left: auto;
+	display: inline-flex;
+	align-items: center;
+	gap: calc(var(--page-spacing, 0.25rem) * 1);
+	flex: 0 0 auto;
+}
+
+.lf-tree neo-tree-item:hover > [data-neo-tree-label] .lf-tree-actions,
+.lf-tree neo-tree-item:focus-within > [data-neo-tree-label] .lf-tree-actions {
+	opacity: 1;
+}
+
+.lf-theme-head {
+	display: flex;
+	flex-direction: column;
+	gap: 0.15rem;
+
+	& span {
+		color: var(--muted);
+		font-size: 0.82rem;
+	}
+}
+
+.lf-color {
+	--lf-color-hue: 221;
+}
+
+.lf-color > [data-neo-card-inner] {
+	gap: 0.8rem;
+}
+
+.lf-color-head {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 0.75rem;
+
+	& span {
+		font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+		font-size: 0.78rem;
+		color: var(--muted);
+	}
+}
+
+.lf-color-field {
+	--neo-color-field-width: 100%;
+	--neo-color-field-height: 6rem;
+	--neo-color-field-radius: calc(var(--page-radius, 0.5rem) - 1px);
+}
+
+.lf-hue-slider {
+	--neo-slider-track-image: linear-gradient(
+		to right,
+		hsl(0 100% 50%),
+		hsl(60 100% 50%),
+		hsl(120 100% 50%),
+		hsl(180 100% 50%),
+		hsl(240 100% 50%),
+		hsl(300 100% 50%),
+		hsl(360 100% 50%)
+	);
+	--neo-slider-fill-bg: transparent;
+	--neo-slider-thumb-bg: hsl(var(--lf-color-hue) 100% 50%);
+	--neo-slider-thumb-border: var(--page-bg);
+	--neo-slider-thumb-border-width: 2px;
+	--neo-slider-thumb-shadow:
+		0 0 0 1px color-mix(in srgb, var(--page-fg) 35%, transparent),
+		0 2px 7px rgba(0, 0, 0, 0.28);
+	--neo-slider-focus-ring: hsl(var(--lf-color-hue) 100% 45% / 0.35);
+
+	& > [data-neo-slider-track] {
+		border: 1px solid color-mix(in srgb, var(--page-fg) 14%, transparent);
+	}
+}
+
+/* Track recolours live from --lf-color-hue (hue slider + 2D field). */
+.lf-sat-slider {
+	--neo-slider-track-image: linear-gradient(
+		to right,
+		hsl(var(--lf-color-hue) 0% 50%),
+		hsl(var(--lf-color-hue) 100% 50%)
+	);
+	--neo-slider-fill-bg: transparent;
+	--neo-slider-thumb-bg: hsl(var(--lf-color-hue) 100% 50%);
+	--neo-slider-thumb-border: var(--page-bg);
+	--neo-slider-thumb-border-width: 2px;
+	--neo-slider-thumb-shadow:
+		0 0 0 1px color-mix(in srgb, var(--page-fg) 35%, transparent),
+		0 2px 7px rgba(0, 0, 0, 0.28);
+	--neo-slider-focus-ring: hsl(var(--lf-color-hue) 100% 45% / 0.35);
+
+	& > [data-neo-slider-track] {
+		border: 1px solid color-mix(in srgb, var(--page-fg) 14%, transparent);
+	}
+}
+
+/* Select + two toggle addons sharing one input-group styling. The
+ * kit's direct interactive-addon selector can't reach past the
+ * <neo-tooltip> wrapper, so the wrapper owns the seam
+ * and surface while `.lf-theme-pref-toggle` owns the interactive state. */
+.lf-theme-input-group {
+	width: 100%;
+
+	/* Trigger lives in the select's shadow; reach it via --neo-button-*
+	 * tokens (cross the shadow boundary). Input-groups only stretch
+	 * <neo-textinput>/<input>; the select needs flex + height: 100%
+	 * to fill the group's content area. */
+	& > neo-select {
+		flex: 1 1 auto;
+		min-width: 0;
+		/* Override :host { height: 2rem } from the shadow so it fits
+		 * the group's border-box content area (2rem − 2×border). */
+		height: 100%;
+		/* Clip the trigger's square hover-bg to the host's rounded
+		 * left corners (granted by the group's :first-child rule). */
+		overflow: hidden;
+		--neo-select-min-width: 0;
+		--neo-button-border-color: transparent;
+		--neo-button-radius: 0;
+		--neo-button-bg: transparent;
+	}
+
+	& > neo-tooltip {
+		display: inline-flex;
+		flex: 0 0 auto;
+		align-self: stretch;
+		box-sizing: border-box;
+		height: 100%;
+		background: var(--neo-input-group-addon-bg);
+
+		&:not(:first-child) {
+			border-left: var(--neo-textarea-border-width, 1px) solid var(--neo-textarea-border-color);
+		}
+
+		& > .lf-theme-pref-toggle {
+			margin: 0;
+			border: none;
+			border-radius: 0;
+			background: var(--neo-input-group-addon-bg);
+			color: var(--neo-button-color);
+			padding: 0 0.6rem;
+			height: 100%;
+
+			&:hover {
+				background: var(--neo-button-hover-bg);
+			}
+
+			/* Accent-tint pressed state. */
+			&[pressed],
+			&[aria-pressed="true"] {
+				background: color-mix(in srgb, var(--accent) 22%, transparent);
+				color: var(--accent);
+				box-shadow: none;
+			}
+		}
+
+		&:last-child {
+			border-top-right-radius: calc(var(--neo-textarea-radius) - var(--neo-textarea-border-width, 1px));
+			border-bottom-right-radius: calc(var(--neo-textarea-radius) - var(--neo-textarea-border-width, 1px));
+		}
+
+		&:last-child > .lf-theme-pref-toggle {
+			border-top-right-radius: calc(var(--neo-textarea-radius) - var(--neo-textarea-border-width, 1px));
+			border-bottom-right-radius: calc(var(--neo-textarea-radius) - var(--neo-textarea-border-width, 1px));
+		}
+	}
+}
+
+.lf-theme-modes {
+	display: flex;
+	align-self: stretch;
+	width: 100%;
+	max-width: 100%;
+
+	& > neo-button {
+		flex: 1 1 0;
+		justify-content: center;
+		gap: 0.4rem;
+		min-width: 0;
+	}
+}
+
+/* Container query drops the toggle labels on narrow cards;
+ * neo-button won't shrink below its icon + label content. */
+.lf-theme {
+	container-type: inline-size;
+	container-name: lf-theme-card;
+}
+
+@container lf-theme-card (max-width: 22rem) {
+	.lf-theme-modes > neo-button > span {
+		display: none;
+	}
+}
+
+.lf-eq-head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.5rem;
+}
+
+.lf-eq-title-short {
+	display: none;
+}
+
+.lf-eq-bands {
+	display: flex;
+	justify-content: space-between;
+	align-items: flex-end;
+	gap: 0.25rem;
+	padding: 0.4rem 0 0.2rem;
+}
+
+.lf-eq-band {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.4rem;
+	flex: 1;
+	min-width: 0;
+	--neo-slider-vertical-track-length: 6.5rem;
+
+	& neo-slider {
+		width: auto;
+	}
+}
+
+.lf-eq-hz {
+	font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+	font-size: 0.72rem;
+	color: var(--muted);
+	letter-spacing: 0.04em;
+}
+
+.lf-deploy-head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.5rem;
+}
+
+/* Deploy ref picker: <neo-combobox> with a <neo-badge> trigger.
+ * The badge replaces the static "main · 8a3f1c2" chip; clicking it
+ * opens a popover of commits grouped by branch.
+ *
+ * The kit clones the selected option's children verbatim into the
+ * trigger's label slot. We pack every searchable field into each
+ * option row (so the local filter matches branch, hash, message, and
+ * author), then hide the rich parts inside the badge trigger so it
+ * stays compact (branch · hash · caret) while the popover row shows
+ * everything. */
+/* Branch / commit picker. Trigger lives in the combobox shadow;
+ * tokens cross the shadow boundary, so badge-style styling lands via
+ * --neo-button-*. The trigger shows the option's `label` attribute
+ * (compact "branch · hash"); rich rows below live in light DOM. */
+.lf-deploy-ref {
+	flex: 0 0 auto;
+	font-family:
+		ui-monospace, "SFMono-Regular", Menlo, monospace;
+	font-weight: 600;
+	/* Drop the shadow trigger's 12rem min-width so the host shrinks
+	 * to the hash + caret width. */
+	--neo-combobox-min-width: 0;
+	/* Popover width is capped by --neo-popover-max-width, separate from
+	 * the trigger's --neo-combobox-min-width: widen the list so commit
+	 * messages don't truncate, without growing the pill. */
+	--neo-popover-max-width: 28rem;
+	--neo-button-padding: 0.2rem 0.55rem;
+	--neo-button-radius: 999px;
+	--neo-button-bg: color-mix(in srgb, var(--page-fg) 8%, transparent);
+}
+
+/* Rich option rows in the popover. The option is a direct grid
+ * container; its child spans place themselves by class. Slotted
+ * options live in light DOM, so these selectors reach them. */
+neo-combobox.lf-deploy-ref neo-option[role="option"] {
+	display: grid;
+	grid-template-columns: auto 1fr auto;
+	grid-template-rows: auto auto;
+	column-gap: 0.6rem;
+	row-gap: 0.1rem;
+	align-items: baseline;
+	padding: 0.45rem 0.6rem;
+}
+
+/* Branch name + separator are redundant with the optgroup header. */
+neo-combobox.lf-deploy-ref .lf-deploy-ref-row-branch,
+neo-combobox.lf-deploy-ref .lf-deploy-ref-row-sep {
+	display: none;
+}
+
+.lf-deploy-ref-row-hash {
+	grid-column: 1;
+	grid-row: 1;
+	font-family:
+		ui-monospace, "SFMono-Regular", Menlo, monospace;
+	font-size: 0.78em;
+	padding: 0.1em 0.4em;
+	border-radius: 0.3rem;
+	background: color-mix(in srgb, var(--page-fg) 8%, transparent);
+	color: var(--page-fg);
+}
+
+.lf-deploy-ref-row-msg {
+	grid-column: 2 / span 2;
+	grid-row: 1;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	font-size: 0.92em;
+}
+
+.lf-deploy-ref-row-meta {
+	grid-column: 1 / span 3;
+	grid-row: 2;
+	display: inline-flex;
+	align-items: baseline;
+	gap: 0.45rem;
+	color: var(--muted);
+	font-size: 0.78em;
+}
+
+.lf-deploy-ref-row-author {
+	color: var(--page-fg);
+	font-weight: 500;
+}
+
+.lf-deploy-ref-row-author::before {
+	content: "@";
+	color: var(--muted);
+	font-weight: 400;
+	margin-right: 0.05rem;
+}
+
+.lf-deploy-ref-row-time::before {
+	content: "·";
+	color: var(--muted);
+	margin-right: 0.45rem;
+}
+
+/* Selected row: keep the hash chip readable against the accent fill. */
+neo-combobox.lf-deploy-ref
+	neo-option[role="option"][aria-selected="true"]
+	.lf-deploy-ref-row-hash {
+	background: color-mix(
+		in srgb,
+		var(--neo-popover-bg) 22%,
+		transparent
+	);
+	color: var(--neo-select-option-selected-color);
+}
+
+neo-combobox.lf-deploy-ref
+	neo-option[role="option"][aria-selected="true"]
+	.lf-deploy-ref-row-meta,
+neo-combobox.lf-deploy-ref
+	neo-option[role="option"][aria-selected="true"]
+	.lf-deploy-ref-row-author {
+	color: var(--neo-select-option-selected-color);
+}
+
+.lf-deploy-row {
+	display: flex;
+	flex-direction: column;
+	gap: 0.3rem;
+	font-size: 0.85rem;
+	color: var(--muted);
+
+	/* <neo-select>/<neo-combobox> hosts are inline-block; stretch them. */
+	& > neo-select,
+	& > neo-combobox {
+		width: 100%;
+	}
+}
+
+.lf-deploy-region-id {
+	color: var(--muted);
+	font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+	font-size: 0.78em;
+	margin-left: 0.4rem;
+}
+
+.lf-deploy-actions {
+	display: flex;
+	gap: 0.5rem;
+	margin-top: 0.2rem;
+}
+
+/* <neo-dialog> is the flex item; stretch it and route width to the trigger. */
+.lf-deploy-actions > .lf-deploy-confirm {
+	flex: 1;
+	display: flex;
+
+	& > neo-button[data-neo-dialog-trigger] {
+		flex: 1;
+	}
+}
+
+.lf-deploy-dryrun {
+	list-style: none;
+	margin: 0 0 0.75rem;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 0.4rem;
+	font-size: 0.92rem;
+
+	& li {
+		display: flex;
+		align-items: center;
+		gap: 0.55rem;
+
+		& > neo-icon {
+			color: #22c55e;
+		}
+
+		&:has(neo-icon[name="triangle-alert"]) > neo-icon {
+			color: #f59e0b;
+		}
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.lf-pulse {
+		animation: none;
+	}
+}

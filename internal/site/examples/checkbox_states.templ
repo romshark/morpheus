@@ -1,0 +1,18 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ CheckboxStates() {
+	<label>
+		@neo.Checkbox(neo.CheckboxOpts{})
+		<span>Unchecked</span>
+	</label>
+	<label>
+		@neo.Checkbox(neo.CheckboxOpts{Checked: neo.Set(true)})
+		<span>Checked</span>
+	</label>
+	<label>
+		@neo.Checkbox(neo.CheckboxOpts{Indeterminate: neo.Set(true)})
+		<span>Indeterminate</span>
+	</label>
+}

@@ -1,0 +1,95 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+// treeBookmarkNode is one node of the bookmarks library. Branches are
+// folders; leaves are bookmarks carrying a star toggle. ID namespaces
+// the per-row signal; Starred seeds its initial state.
+type treeBookmarkNode struct {
+	Label    string
+	ID       string
+	Starred  bool
+	Expanded bool
+	Children []treeBookmarkNode
+}
+
+var treeBookmarkData = []treeBookmarkNode{
+	{Label: "Reading", ID: "reading", Expanded: true, Children: []treeBookmarkNode{
+		{Label: "Frontend Trends 2025", ID: "trends", Starred: true},
+		{Label: "CSS Container Queries", ID: "queries"},
+		{Label: "Modern TypeScript Patterns", ID: "tspat"},
+	}},
+	{Label: "Tools", ID: "tools", Expanded: true, Children: []treeBookmarkNode{
+		{Label: "Excalidraw", ID: "excal", Starred: true},
+		{Label: "Linear", ID: "linear"},
+		{Label: "Notion", ID: "notion"},
+	}},
+	{Label: "References", ID: "refs", Children: []treeBookmarkNode{
+		{Label: "MDN Web Docs", ID: "mdn"},
+		{Label: "TC39 Proposals", ID: "tc39"},
+	}},
+}
+
+// treeBookmarkStarred is the JS literal seeded into a star button's
+// data-signals for the per-row toggle.
+func treeBookmarkStarred(starred bool) string {
+	if starred {
+		return "true"
+	}
+	return "false"
+}
+
+// treeBookmarkItem renders any depth; same-file recursion keeps the
+// embedded source self-contained.
+templ treeBookmarkItem(n treeBookmarkNode) {
+	if len(n.Children) == 0 {
+		@neo.TreeItem(false) {
+			@neo.IconAttrs("more-horizontal", templ.Attributes{"slot": "icon"})
+			@treeBookmarkRow(n, false)
+		}
+	} else {
+		@neo.TreeItem(n.Expanded) {
+			@neo.IconAttrs("menu", templ.Attributes{"slot": "icon"})
+			@treeBookmarkRow(n, true)
+			for _, c := range n.Children {
+				@treeBookmarkItem(c)
+			}
+		}
+	}
+}
+
+templ treeBookmarkRow(n treeBookmarkNode, branch bool) {
+	@neo.TreeLabel() {
+		if branch {
+			@neo.Icon("folder")
+		} else {
+			@neo.Icon("link")
+		}
+		@neo.TreeText() {
+			{ n.Label }
+		}
+		if !branch {
+			@neo.TreeActions() {
+				<neo-button
+					class="bookmark-star"
+					size="sm"
+					aria-label={ "Star " + n.Label }
+					data-signals={ "{bookmark_star_" + n.ID + ": " + treeBookmarkStarred(n.Starred) + "}" }
+					data-on:click={ "$bookmark_star_" + n.ID + " = !$bookmark_star_" + n.ID + "; evt.stopPropagation()" }
+					data-attr:data-neo-active={ "$bookmark_star_" + n.ID }
+					data-attr:aria-pressed={ "$bookmark_star_" + n.ID }
+				>
+					@neo.Icon("star")
+				</neo-button>
+			}
+		}
+	}
+}
+
+templ TreeBookmarks() {
+	@neo.TreeAttrs(templ.Attributes{"aria-label": "Bookmarks"}) {
+		for _, n := range treeBookmarkData {
+			@treeBookmarkItem(n)
+		}
+	}
+}

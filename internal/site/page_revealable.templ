@@ -1,0 +1,162 @@
+package site
+
+import (
+	"github.com/romshark/morpheus/internal/href"
+	"github.com/romshark/morpheus/internal/site/examples"
+)
+
+templ PageRevealable(morpheusVersion string) {
+	@PageDoc(href.PageRevealable(), "Revealable", morpheusVersion) {
+		<section class="demo">
+			@anchoredH2("overview") {
+				Revealable
+			}
+			<p class="intro">
+				Component <code>{ "<neo-revealable>" }</code> is a
+				spoiler that obscures children behind an animated
+				grain veil until the user activates it (click,
+				<neo-kbd>Enter</neo-kbd>, or <neo-kbd>Space</neo-kbd>). Re-conceals
+				after <code>rehide-after</code> ms and whenever the
+				content is patched, important for server-driven UIs
+				so a morph that swaps the secret never flashes it.
+				While concealed the content is <code>inert</code>
+				and <code>aria-hidden</code>, so the secret never
+				leaks to assistive tech and focus can't enter it.
+				Honours <code>{ `prefers-reduced-motion` }</code>.
+			</p>
+			@Playground(PlaygroundOpts{
+				ID:     "revealable-playground",
+				States: revealablePlaygroundStates(),
+			})
+			@anchoredH2("reference") {
+				Reference
+			}
+			@ComponentDocs(revealableDoc)
+		</section>
+		<section class="demo">
+			@anchoredH2("examples") {
+				Examples
+			}
+			@anchoredH3("text-spoiler") {
+				Text spoiler
+			}
+			<p class="demo-note">
+				The default (inline) variant: fine grain in the
+				element's own text colour, sized to the run. Once
+				revealed it stays revealed; set
+				<code>rehide-after</code> to auto-conceal.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     revealableStickyHTML,
+				TemplSource:    revealableStickyTempl,
+			}) {
+				@examples.RevealableSticky()
+			}
+			@anchoredH3("image-spoiler") {
+				Image spoiler
+			}
+			<p class="demo-note">
+				<code>{ `variant="media"` }</code> lays a veil plus
+				sparser particles over a block. Here
+				<code>{ `rehide-after="4000"` }</code> re-covers it 4s
+				after reveal and after all interactions and focus are gone.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     revealableImageHTML,
+				TemplSource:    revealableImageTempl,
+				CSSSource:      revealableImageCSS,
+			}) {
+				@examples.RevealableImage()
+			}
+			@anchoredH3("blurred-image") {
+				Blurred image spoiler
+			}
+			<p class="demo-note">
+				<code>blur-content</code> keeps the image visible
+				but heavily blurred, so the composition teases
+				without giving the subject away, a softer mode than
+				the fully-veiled image above.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     revealableBlurImageHTML,
+				TemplSource:    revealableBlurImageTempl,
+				CSSSource:      revealableBlurImageCSS,
+			}) {
+				@examples.RevealableBlurImage()
+			}
+			@anchoredH3("section-spoiler") {
+				Section spoiler
+			}
+			<p class="demo-note">
+				Any subtree works. <code>blur-content</code> also
+				blurs the hidden block, so the shape teases without
+				giving the text away.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     revealableSectionHTML,
+				TemplSource:    revealableSectionTempl,
+				CSSSource:      revealableSectionCSS,
+			}) {
+				@examples.RevealableSection()
+			}
+			@anchoredH3("custom-styling") {
+				Custom styling
+			}
+			<p class="demo-note">
+				Cover and grain are CSS custom properties, not
+				attributes. Override
+				<code>--neo-revealable-veil</code> (panel
+				background) and
+				<code>--neo-revealable-particle-color</code> (grain)
+				per instance via inline style, or theme-wide.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     revealableStyledHTML,
+				TemplSource:    revealableStyledTempl,
+				CSSSource:      revealableStyledCSS,
+			}) {
+				@examples.RevealableStyled()
+			}
+		</section>
+	}
+}
+
+var revealableDoc = ComponentDoc{
+	Attributes: []DocAttribute{
+		{Name: "open", Type: "boolean", Default: "false", Reflected: true, Observed: true,
+			Description: templ.Raw("Set/remove (or use the <code>open</code> JS property / <code>reveal()</code> / <code>conceal()</code> / <code>toggle()</code>) to control it.")},
+		{Name: "rehide-after", Type: "number", Default: "0", Observed: true,
+			Description: templ.Raw("Milliseconds before auto re-conceal after a reveal. <code>0</code> or absent keeps it revealed until re-activated.")},
+		{Name: "variant", Type: `"inline" | "media"`, Observed: true,
+			Description: templ.Raw("Obscure treatment. Inferred from the host's height when absent (tall &rarr; media, short &rarr; inline).")},
+		{Name: "density", Type: "number", Default: "1", Observed: true,
+			Description: templ.Raw("Particle-count multiplier, clamped 0.3&ndash;3.")},
+		{Name: "blur-content", Type: "boolean", Default: "false", Observed: true,
+			Description: templ.Raw("Media variant only: tease the shape with a heavy blur instead of hiding it outright. No effect on text (already hidden &mdash; blurring it would just waste a composite).")},
+	},
+	Slots: []DocSlot{
+		{Name: "default",
+			Description: templ.Raw("The content to obscure: text, an image, or a whole subtree.")},
+	},
+	Events: []DocEvent{
+		{Name: "neo-revealable-toggle", Detail: "{ open: boolean }", Bubbles: true,
+			Description: templ.Raw("Fires when the content is revealed or concealed; <code>detail.open</code> is the new state. Conceal also fires from the <code>rehide-after</code> timer and the content-patch auto-hide.")},
+	},
+	CSSProps: []DocCSSProp{
+		{Name: "--neo-revealable-radius", Default: "var(--page-radius, 0.375rem)",
+			Description: templ.Raw("Corner radius of the host and cover.")},
+		{Name: "--neo-revealable-blur", Default: "14px",
+			Description: templ.Raw("Blur radius applied to media content while concealed.")},
+		{Name: "--neo-revealable-veil", Default: "color-mix(in srgb, var(--page-fg) 26%, var(--page-bg))",
+			Description: templ.Raw("Frosted cover color.")},
+		{Name: "--neo-revealable-focus-ring", Default: "color-mix(in srgb, var(--accent) 45%, transparent)",
+			Description: templ.Raw("Focus outline color.")},
+		{Name: "--neo-revealable-particle-color", Default: "currentColor",
+			Description: templ.Raw("Grain color painted onto the cover canvas.")},
+	},
+}

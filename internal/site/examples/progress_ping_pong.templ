@@ -1,0 +1,16 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ ProgressPingPong() {
+	@neo.ProgressAttrs(neo.ProgressOpts[float64]{
+		Min:           neo.Set(0.0),
+		Max:           neo.Set(100.0),
+		Value:         neo.Set(60.0),
+		Label:         neo.Set("Scanning…"),
+		HideValue:     neo.Set(true),
+		Indeterminate: neo.Set(true),
+	}, templ.Attributes{
+		"class": "pingpong",
+	})
+}

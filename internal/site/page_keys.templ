@@ -1,0 +1,203 @@
+package site
+
+import (
+	"github.com/romshark/morpheus/internal/href"
+	"github.com/romshark/morpheus/internal/site/examples"
+)
+
+templ PageKeys(morpheusVersion string) {
+	@PageDoc(href.PageKeys(), "Keys", morpheusVersion) {
+		<section class="demo">
+			@anchoredH2("overview") {
+				Keys
+			}
+			<p class="intro">
+				Component <code>{ "<neo-keys>" }</code> is a
+				behavioural utility that binds keyboard shortcuts.
+				While connected it installs a key listener on a
+				target element (its parent by default) and removes
+				it on disconnect. A matched chord dispatches a
+				bubbling <code>neo-keys</code> event. Renders as
+				<code>display: contents</code> and shows nothing.
+			</p>
+			<p>
+				It depends on no framework: configuration arrives
+				through attributes (<code>keys</code>,
+				<code>disabled</code>, <code>target</code>) and
+				activation leaves through the dispatched event. That
+				is the signals-down-to-attributes,
+				events-up-to-expressions shape: a Datastar
+				<code>{ `data-attr:disabled` }</code> arms or disarms
+				a binding and <code>{ `data-on:neo-keys` }</code>
+				runs an expression on a match, with no Datastar code
+				inside the element.
+			</p>
+			@anchoredH2("reference") {
+				Reference
+			}
+			@ComponentDocs(keysDoc)
+			@anchoredH3("expression-syntax") {
+				Expression syntax
+			}
+			<p>
+				A chord is zero or more modifiers plus one key,
+				joined with <code>+</code> (<code>mod+k</code>,
+				<code>shift+?</code>, <code>alt+ArrowDown</code>).
+				Three separators, none overlapping:
+			</p>
+			<table class="api-table">
+				<thead>
+					<tr>
+						<th scope="col">Separator</th>
+						<th scope="col">Meaning</th>
+						<th scope="col">Example</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<th scope="row" data-label="Separator"><code>+</code></th>
+						<td data-label="Meaning">Joins a modifier to a key within one chord.</td>
+						<td data-label="Example"><code>mod+k</code></td>
+					</tr>
+					<tr>
+						<th scope="row" data-label="Separator"><code>,</code></th>
+						<td data-label="Meaning">Sequences chords: press in order within <code>sequence-timeout</code>.</td>
+						<td data-label="Example"><code>g, i</code></td>
+					</tr>
+					<tr>
+						<th scope="row" data-label="Separator"><code>|</code></th>
+						<td data-label="Meaning">Lists alternatives; any one fires.</td>
+						<td data-label="Example"><code>mod+k | ctrl+k</code></td>
+					</tr>
+				</tbody>
+			</table>
+			<p>
+				<code>mod</code> resolves to <code>⌘</code> on Apple
+				platforms and <code>Ctrl</code> elsewhere. A literal
+				comma key is the <code>comma</code> alias, so the
+				separator never collides with a key.
+			</p>
+		</section>
+		<section class="demo">
+			@anchoredH2("examples") {
+				Examples
+			}
+			@anchoredH3("scoped-shortcut") {
+				Scoped shortcut
+			}
+			<p class="demo-note">
+				The listener lives on the panel
+				(the element's parent), so <code>mod+s</code> only
+				fires while focus is inside it. Default
+				<code>prevent</code> swallows the browser's own save
+				dialog. Click away and the shortcut goes quiet.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     keysScopedHTML,
+				TemplSource:    keysScopedTempl,
+			}) {
+				@examples.KeysScoped()
+			}
+			@anchoredH3("sequence") {
+				Sequence
+			}
+			<p class="demo-note">
+				A comma-separated chord list fires only
+				after the steps arrive in order. Two
+				<code>{ "<neo-keys>" }</code> elements share the
+				panel, one per destination, each emitting on its own
+				<code>g</code>-prefixed sequence.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     keysSequenceHTML,
+				TemplSource:    keysSequenceTempl,
+			}) {
+				@examples.KeysSequence()
+			}
+			@anchoredH3("reactive-disable") {
+				Reactive disable
+			}
+			<p class="demo-note">
+				A signal drives
+				<code>{ `data-attr:disabled` }</code>, so toggling
+				it arms or disarms both bindings without re-rendering
+				anything. Each binding lists an arrow and a vim-style
+				alternative (<code>up | k</code>,
+				<code>down | j</code>).
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     keysReactiveHTML,
+				TemplSource:    keysReactiveTempl,
+			}) {
+				@examples.KeysReactive()
+			}
+			@anchoredH3("global-shortcuts") {
+				Global shortcuts
+			}
+			<p class="demo-note">
+				A <code>target</code> of
+				<code>window</code> (or a CSS selector) lifts the
+				binding out of the parent scope so it fires
+				page-wide, even when nothing in the demo is focused.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     keysGlobalHTML,
+				TemplSource:    keysGlobalTempl,
+			}) {
+				@examples.KeysGlobal()
+			}
+			@anchoredH3("trigger-element") {
+				Trigger an element
+			}
+			<p class="demo-note">
+				<code>for</code> names an element id; on a match the
+				shortcut calls <code>click()</code> on it, so a keyboard
+				trigger needs no event handler. Here
+				<code>mod+i</code> opens a popover and
+				<code>mod+o</code> a select.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     keysForHTML,
+				TemplSource:    keysForTempl,
+				CSSSource:      keysForCSS,
+			}) {
+				@examples.KeysFor()
+			}
+		</section>
+	}
+}
+
+var keysDoc = ComponentDoc{
+	Attributes: []DocAttribute{
+		{Name: "keys", Type: "string", Observed: true,
+			Description: templ.Raw("Chord spec. <code>+</code> joins a chord, <code>,</code> sequences steps, <code>|</code> lists alternatives. Required.")},
+		{Name: "target", Type: "string", Default: "parent", Observed: true,
+			Description: templ.Raw("Listener host: <code>parent</code>, <code>window</code>, <code>document</code>, or a CSS selector resolved with <code>querySelector</code>.")},
+		{Name: "for", Type: "string",
+			Description: templ.Raw("ID of an element to activate with <code>click()</code> when the shortcut matches. The <code>neo-keys</code> event is still dispatched.")},
+		{Name: "up", Type: "boolean", Default: "false", Observed: true,
+			Description: templ.Raw("Match on <code>keyup</code> instead of <code>keydown</code>.")},
+		{Name: "repeat", Type: "boolean", Default: "false",
+			Description: templ.Raw("Allow auto-repeat (held key) to fire.")},
+		{Name: "prevent", Type: "true | false", Default: "true",
+			Description: templ.Raw("Call <code>preventDefault()</code> on a match. Set <code>prevent=\"false\"</code> to keep the default action.")},
+		{Name: "stop", Type: "boolean", Default: "false",
+			Description: templ.Raw("Call <code>stopPropagation()</code> on a match.")},
+		{Name: "in-input", Type: "boolean", Default: "false",
+			Description: templ.Raw("Also fire when focus is in a text-entry context. By default bare-key chords are suppressed there; modifier chords fire regardless.")},
+		{Name: "disabled", Type: "boolean", Default: "false",
+			Description: templ.Raw("Binding is inert while set. The reactive enable/disable hook.")},
+		{Name: "sequence-timeout", Type: "number", Default: "1000",
+			Description: templ.Raw("Milliseconds allowed between sequence steps.")},
+	},
+	Events: []DocEvent{
+		{Name: "neo-keys", Bubbles: true,
+			Detail:      "{ combo, key, sequence, originalEvent }",
+			Description: templ.Raw("A chord matched. <code>combo</code> is the matched alternative, <code>key</code> the <code>KeyboardEvent.key</code>, <code>sequence</code> the matched steps, <code>originalEvent</code> the source <code>KeyboardEvent</code>.")},
+	},
+}

@@ -1,0 +1,525 @@
+package site
+
+import (
+	"github.com/romshark/morpheus/internal/href"
+	"github.com/romshark/morpheus/internal/site/examples"
+	"github.com/romshark/morpheus/neo"
+)
+
+templ PageSelect(morpheusVersion string) {
+	@PageDoc(href.PageSelect(), "Select", morpheusVersion) {
+		@selectSimulator()
+		<section class="demo">
+			@anchoredH2("overview") {
+				Select
+			}
+			<p class="intro">
+				Component <code>{ "<neo-select>" }</code> is a
+				single-select dropdown: trigger button, popover
+				panel, and a roving-tabindex listbox of
+				{ " " }
+				@neo.Link(neo.LinkOpts{Href: neo.Set(href.PageOption())}) {
+					<code>{ "<neo-option>" }</code>
+				}
+				{ " " }/{ " " }
+				@neo.Link(neo.LinkOpts{Href: neo.Set(href.PageOptgroup())}) {
+					<code>{ "<neo-optgroup>" }</code>
+				}
+				{ " " }children. The host
+				wires keyboard navigation, type-to-search, and a
+				lazy-by-default / <code>async</code> lifecycle so
+				options can be loaded on first open and cached on
+				subsequent opens. For search and multiple selection, see{ " " }
+				@neo.Link(neo.LinkOpts{Href: neo.Set(href.PageCombobox())}) {
+					Combobox
+				}
+				.
+			</p>
+			@Playground(PlaygroundOpts{
+				ID:     "select-playground",
+				Height: "26rem",
+				States: selectPlaygroundStates(),
+			})
+			@anchoredH2("reference") {
+				Reference
+			}
+			@ComponentDocs(selectDoc)
+		</section>
+		<section class="demo">
+			@anchoredH2("examples") {
+				Examples
+			}
+			@anchoredH3("disabled-options") {
+				Disabled options
+			}
+			<p class="demo-note">
+				Mark an option unavailable with
+				<code>disabled</code>: it renders muted, is
+				skipped by arrow-key navigation, and can't be
+				selected.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "24rem",
+				HTMLSource:     selectDisabledHTML,
+				TemplSource:    selectDisabledTempl,
+			}) {
+				@examples.SelectDisabled()
+			}
+			@anchoredH3("disabled-control") {
+				Disabled control
+			}
+			<p class="demo-note">
+				Set <code>disabled</code> on the host to make the
+				whole control non-interactive: the trigger leaves the
+				tab order, ignores clicks and keys, and renders faded.
+				An open panel closes. Distinct from disabling
+				individual options.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "6rem",
+				HTMLSource:     selectDisabledControlHTML,
+				TemplSource:    selectDisabledControlTempl,
+			}) {
+				@examples.SelectDisabledControl()
+			}
+			@anchoredH3("native-form-submission") {
+				Native form submission
+			}
+			<p class="demo-note">
+				The select is form-associated. Give it a
+				<code>name</code> and it submits its value in a plain
+				<code>{ "<form>" }</code>, no framework binding.
+				Pick a plan and submit to see the posted value.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "20rem",
+				HTMLSource:     selectFormSubmissionHTML,
+				TemplSource:    selectFormSubmissionTempl,
+				CSSSource:      selectFormSubmissionCSS,
+			}) {
+				@examples.SelectFormSubmission()
+			}
+			@anchoredH3("grouped-options-time-zones") {
+				Grouped options (time zones)
+			}
+			<p class="demo-note">
+				Group related options under labeled headers by
+				wrapping them in
+				<code>{ "<neo-optgroup label=\"…\">" }</code>.
+			</p>
+			<ul class="demo-note">
+				<li>
+					The group header is not focusable; arrow
+					keys step across groups.
+				</li>
+				<li>
+					Each option's <code>label</code> gives the
+					trigger clean text even when the option body
+					is rich markup.
+				</li>
+			</ul>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "24rem",
+				HTMLSource:     selectGroupedHTML,
+				TemplSource:    selectGroupedTempl,
+			}) {
+				@examples.SelectGrouped()
+			}
+			@anchoredH3("clearable-with-empty-slot") {
+				Clearable with empty slot
+			}
+			<p class="demo-note">
+				Let the user clear the selection back to an empty
+				state.
+			</p>
+			<ul class="demo-note">
+				<li>
+					<code>clearable</code> makes Backspace or
+					Delete on the trigger drop the selection.
+				</li>
+				<li>
+					Tag an empty
+					<code>{ `<neo-option value="">` }</code> with
+					<code>{ "[data-neo-select-empty]" }</code> to
+					serve as both a selectable “none” row and the
+					trigger face shown once cleared.
+				</li>
+			</ul>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "24rem",
+				HTMLSource:     selectClearableHTML,
+				TemplSource:    selectClearableTempl,
+				CSSSource:      selectClearableCSS,
+			}) {
+				@examples.SelectClearable()
+			}
+			@anchoredH3("rich-options-avatars") {
+				Rich options
+			}
+			<p class="demo-note">
+				Options carry multi-line bodies (avatar, name,
+				title). With no <code>label</code> override, the
+				trigger clones the selected option's body, so it
+				matches the listbox row.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "24rem",
+				HTMLSource:     selectRichOptionsHTML,
+				TemplSource:    selectRichOptionsTempl,
+				CSSSource:      selectRichOptionsCSS,
+			}) {
+				@examples.SelectRichOptions()
+			}
+			@anchoredH3("compact-preview-label-override") {
+				Compact preview (label override)
+			}
+			<p class="demo-note">
+				Show a compact label on the trigger while the
+				list keeps the rich card: set each option's
+				<code>label</code> and the trigger uses it
+				instead of cloning the body.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "24rem",
+				HTMLSource:     selectCompactPreviewHTML,
+				TemplSource:    selectCompactPreviewTempl,
+				CSSSource:      selectCompactPreviewCSS,
+			}) {
+				@examples.SelectCompactPreview()
+			}
+			@anchoredH3("custom-trigger-face") {
+				Custom trigger face
+			}
+			<p class="demo-note">
+				Show a compact custom face on the trigger,
+				distinct from the option's full list row.
+			</p>
+			<ul class="demo-note">
+				<li>
+					A
+					<code>{ "[data-neo-option-trigger]" }</code>
+					child is cloned onto the trigger when its
+					option is selected; the list keeps the full
+					card.
+				</li>
+				<li>
+					It sits between a plain-text
+					<code>label</code> and cloning the whole
+					body, and works the same on
+					<code>{ "<neo-combobox>" }</code>.
+				</li>
+			</ul>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "24rem",
+				HTMLSource:     selectCustomTriggerFaceHTML,
+				TemplSource:    selectCustomTriggerFaceTempl,
+				CSSSource:      selectCustomTriggerFaceCSS,
+			}) {
+				@examples.SelectCustomTriggerFace()
+			}
+			@anchoredH3("long-list") {
+				Long list
+			}
+			<p class="demo-note">
+				A long option list fits between the trigger and
+				the viewport edge and scrolls inside the popover.
+			</p>
+			<ul class="demo-note">
+				<li>
+					Strict placement (the default) keeps the
+					panel anchored and scrolls its content.
+				</li>
+				<li>
+					Set <code>clamp-placement</code> to re-anchor
+					the panel's position so it fits instead.
+				</li>
+			</ul>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "24rem",
+				// Clamps the long list against the viewport, not the frame.
+				Boundary:    BoundaryScopes{NoPositioning: true},
+				HTMLSource:  selectLongListHTML,
+				TemplSource: selectLongListTempl,
+			}) {
+				@examples.SelectLongList()
+			}
+			@anchoredH3("auto-flip-threshold") {
+				Auto-flip threshold
+			}
+			<p class="demo-note">
+				Strict placement flips the panel to the opposite
+				side when its preferred side is too short.
+			</p>
+			<ul class="demo-note">
+				<li>
+					If the slot is shorter than
+					<code>min-fit-height</code> (default
+					<code>content</code>) and the opposite side
+					has more room, the listbox flips there.
+				</li>
+				<li>
+					Here <code>min-fit-height</code> is
+					<code>8rem</code>: when the trigger sits low in
+					the viewport the listbox flips from
+					<code>bottom-start</code> to
+					<code>top-start</code>. Scroll it down to see it.
+				</li>
+			</ul>
+			@demoFrameWith(DemoFrameOpts{
+				// Flip is measured against the viewport slot, not the frame.
+				Boundary:    BoundaryScopes{NoPositioning: true},
+				HTMLSource:  selectAutoFlipHTML,
+				TemplSource: selectAutoFlipTempl,
+			}) {
+				@examples.SelectAutoFlip()
+			}
+		</section>
+		<section class="demo">
+			@anchoredH2("examples-datastar") {
+				Examples: Datastar
+			}
+			@anchoredH3("morphing-during-interaction") {
+				Morphing during interaction
+			}
+			<p class="demo-note">
+				A Datastar fat-morph can replace the option list
+				while the user is interacting; the select
+				reconciles in place.
+			</p>
+			<ul class="demo-note">
+				<li>
+					Options can appear, disappear, or flip to
+					<code>disabled</code> with the popover open.
+				</li>
+				<li>
+					The element stays mounted, the popover stays
+					open, and the selection survives. Autoplay
+					cycles the states below to simulate the
+					morphs.
+				</li>
+			</ul>
+			@Playground(PlaygroundOpts{
+				ID:       "select-morph-playground",
+				Autoplay: true,
+				Height:   "26rem",
+				States:   selectMorphStates(),
+			})
+			@anchoredH3("async-load") {
+				Async load
+			}
+			<p class="demo-note">
+				Fetch options from the server on every open with
+				<code>async</code>.
+			</p>
+			<ul class="demo-note">
+				<li>
+					Each open fires <code>neo-select-load</code>;
+					wire <code>data-on:neo-select-load</code> to
+					post.
+				</li>
+				<li>
+					The server morphs an options fragment into
+					<code>#&lt;host-id&gt;-options</code>; the
+					<code>{ "[data-neo-async-placeholder]" }</code>
+					shows until it arrives.
+				</li>
+				<li>
+					With <code>clearable</code>, Backspace clears
+					the selection and the next open reloads.
+				</li>
+				<li>
+					Flip <code>server unreachable</code> or a
+					4xx/5xx <code>server response status</code> to
+					see the placeholder stay put when the request
+					never lands.
+				</li>
+			</ul>
+			@serverErrorControls()
+			@simDelayHint()
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "24rem",
+				HTMLSource:     selectAsyncSpinnerHTML,
+				TemplSource:    selectAsyncSpinnerTempl,
+				CSSSource:      selectAsyncSpinnerCSS,
+				ScriptSource:   selectAsyncSpinnerScript,
+			}) {
+				@examples.SelectAsyncSpinner()
+			}
+			@anchoredH3("lazy-load") {
+				Lazy load
+			}
+			<p class="demo-note">
+				Fetch options once, on first open, then reuse
+				them.
+			</p>
+			<ul class="demo-note">
+				<li>
+					Add a
+					<code>{ "[data-neo-async-placeholder]" }</code>
+					without <code>async</code>: the first open
+					fires <code>neo-select-load</code>.
+				</li>
+				<li>
+					Loaded options are cached; later opens reuse
+					them with no refetch. The option state is the
+					only source of truth, with no guard signal needed.
+				</li>
+				<li>
+					A server reset that re-emits the placeholder
+					puts the select back into the "needs load"
+					state.
+				</li>
+			</ul>
+			@simDelayHint()
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "24rem",
+				HTMLSource:     selectLazyHTML,
+				TemplSource:    selectLazyTempl,
+				CSSSource:      selectLazyCSS,
+				ScriptSource:   selectLazyScript,
+			}) {
+				@examples.SelectLazy()
+			}
+			@anchoredH3("async-load-with-failure-swap") {
+				Async load with failure swap
+			}
+			<p class="demo-note">
+				Async load that shows a failure state and a retry
+				button when the request keeps failing.
+			</p>
+			<ul class="demo-note">
+				<li>
+					On a failed request Datastar retries per its
+					retry config; after retries are exhausted, a
+					failure template replaces the
+					<code>{ "[data-neo-async-placeholder]" }</code>.
+				</li>
+				<li>
+					A
+					<code>{ "[data-neo-popover-async-retry]" }</code>
+					button re-runs the load without closing the
+					panel.
+				</li>
+				<li>
+					The placeholder stays the source, so reopening
+					shows the loading view again.
+				</li>
+			</ul>
+			@serverErrorControls()
+			@simDelayHint()
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "24rem",
+				TemplSource:    selectAsyncFailureTempl,
+				CSSSource:      selectAsyncFailureCSS,
+			}) {
+				@examples.SelectAsyncFailure()
+			}
+		</section>
+	}
+}
+
+var selectDoc = ComponentDoc{
+	Attributes: []DocAttribute{
+		{Name: "value", Type: "string", Reflected: true, Observed: true,
+			Description: templ.Raw("Selected option value. Empty clears the selection.")},
+		{Name: "name", Type: "string",
+			Description: templ.Raw("Form field name. The control is form-associated: with a <code>name</code> set it submits its value in a native <code>&lt;form&gt;</code> like a <code>&lt;select&gt;</code>, resets with the form, and is barred from submission while disabled.")},
+		{Name: "size", Type: `"sm" | "lg"`,
+			Description: templ.Raw("Control-size step: <code>sm</code> compact, <code>lg</code> large. Omit for the default size.")},
+		{Name: "disabled", Type: "boolean", Default: "false", Observed: true,
+			Description: templ.Raw("Makes the control non-interactive: the trigger drops out of the tab order and ignores clicks and keys, and an open panel closes.")},
+		{Name: "placeholder", Type: "string", Observed: true,
+			Description: templ.Raw("Trigger text when nothing is selected.")},
+		{Name: "list", Type: "string", Observed: true,
+			Description: templ.Raw(`References a shared <a href="` + href.PageDatalist() + `"><code>&lt;neo-datalist&gt;</code></a> by its <code>id</code> (like native <code>&lt;input list&gt;</code>) to source the options. Inline <a href="` + href.PageOption() + `"><code>&lt;neo-option&gt;</code></a> children (or an inline datalist) take precedence.`)},
+		{Name: "async", Type: "boolean", Default: "false",
+			Description: templ.Raw("On every open, clear the listbox, re-show the <code>[data-neo-async-placeholder]</code> slot, and fire <code>neo-select-load</code> so a wired loader re-fetches. Without <code>async</code>, a select with a <code>[data-neo-async-placeholder]</code> child fires <code>neo-select-load</code> only on the first open (options empty) and caches across opens; <code>neo-popover-open</code> is independent, and always fires when the panel opens.")},
+		{Name: "clearable", Type: "boolean", Default: "false",
+			Description: templ.Raw("<code>Backspace</code> / <code>Delete</code> clears the selection.")},
+		{Name: "caret", Type: "string", Default: `"chevrons-up-down"`, Observed: true,
+			Description: templ.Raw(`Name of the trigger's caret icon. Resolved through <a href="` + href.PageIcon() + `"><code>&lt;neo-icon&gt;</code></a>, so it follows the active icon theme. Set <code>caret=&quot;&quot;</code> (empty) to hide the caret entirely.`)},
+		{Name: "typeahead", Type: "true | false", Default: "true",
+			Description: templ.Raw("Type-to-search over the options. With typeahead on, Space feeds the buffer; set <code>typeahead=\"false\"</code> and Space activates the focused option instead.")},
+		{Name: "typeahead-timeout", Type: "number", Default: "500",
+			Description: templ.Raw("Typeahead idle reset duration in milliseconds.")},
+		{Name: "typeahead-match", Type: `"substring" | "prefix"`, Default: `"substring"`,
+			Description: templ.Raw("How the typeahead buffer matches option labels.")},
+		{Name: "placement", Type: "string", Default: `"bottom-start"`, Observed: true,
+			Description: templ.Raw(`Anchor placement of the panel. The listbox positions the panel with the same helper as <a href="` + href.PagePopover() + `"><code>&lt;neo-popover&gt;</code></a>; see its placement values.`)},
+		{Name: "screen-offset", Type: "string", Observed: true,
+			Description: templ.Raw("Viewport edge margin and the panel's scrollable max size.")},
+		{Name: "follow-scroll", Type: `"always" | "until-trigger-invisible"`, Default: "unset", Observed: true,
+			Description: templ.Raw("When absent, close on outside scroll. Set to <code>always</code> to stay anchored during scroll. Set to <code>until-trigger-invisible</code> to close once the trigger leaves the viewport.")},
+		{Name: "clamp-placement", Type: "boolean", Default: "false", Observed: true,
+			Description: templ.Raw("Default is strict placement (panel anchored at the exact point, content scrolls); set this to opt into re-anchoring the panel position so it stays inside the viewport when content would overflow.")},
+		{Name: "min-fit-height", Type: `CSS length | "content"`, Default: `"content"`, Observed: true,
+			Description: templ.Raw("Minimum vertical slot the strict placement requires; below the threshold the panel auto-flips to the opposite primary axis when the other side has more room. <code>content</code> resolves from the panel's scroll height on each positioning pass.")},
+		{Name: "min-fit-width", Type: `CSS length | "content"`, Default: `"content"`, Observed: true,
+			Description: templ.Raw("Same as <code>min-fit-height</code> but for the horizontal axis. <code>content</code> resolves from the panel's scroll width. Use <code>0</code> to disable the horizontal auto-flip.")},
+		{Name: "min-open-height", Type: "CSS length", Default: "2rem", Observed: true,
+			Description: templ.Raw("Minimum usable vertical slot required to remain open after placement and auto-flip. If the bounded slot is smaller, the listbox closes instead of rendering a cramped panel. Use <code>0</code> to disable.")},
+		{Name: "min-open-width", Type: "CSS length", Default: "2rem", Observed: true,
+			Description: templ.Raw("Same as <code>min-open-height</code> but for horizontal space. Use <code>0</code> to disable.")},
+		{Name: "popover-fit-content", Type: "boolean", Default: "false",
+			Description: templ.Raw(`The listbox tracks the trigger width by default; set this to size the panel to the option rows instead (e.g. a glyph-only trigger in a <a href="` + href.PageInputGroup() + `"><code>&lt;neo-input-group&gt;</code></a>). Capped by <code>--neo-popover-max-width</code> and the viewport.`)},
+		{Name: "hover", Type: "boolean", Default: "false",
+			Description: templ.Raw("Open the panel on trigger hover without moving focus; close after the pointer leaves both trigger and panel. Mouse only; touch falls back to click. While set, clicking the trigger always shows the panel instantly and never toggles it shut, so touch and keyboard users keep a way in.")},
+		{Name: "hover-open-delay", Type: "integer (ms)", Default: "100",
+			Description: templ.Raw("Milliseconds the pointer must rest on the trigger before <code>hover</code> opens the panel. Filters incidental cursor crossings. Does not apply to click.")},
+		{Name: "hover-close-delay", Type: "integer (ms)", Default: "200",
+			Description: templ.Raw("Milliseconds to wait after the pointer leaves both trigger and panel before <code>hover</code> closes the panel. Long enough to bridge the gap between them.")},
+	},
+	Slots: []DocSlot{
+		{Name: "default",
+			Description: templ.Raw(`<a href="` + href.PageOption() + `"><code>&lt;neo-option&gt;</code></a> and <a href="` + href.PageOptgroup() + `"><code>&lt;neo-optgroup&gt;</code></a> children. Alternatively, set <code>list</code> to source them from a shared <a href="` + href.PageDatalist() + `"><code>&lt;neo-datalist&gt;</code></a>.`)},
+		{Name: "[data-neo-async-placeholder]",
+			Description: templ.Raw("Custom skeleton shown while options load. Presence of this slot also marks the select as lazy-by-default: the kit shows it on opens with no options, then caches options across opens once they arrive.")},
+		{Name: "[slot=trigger]",
+			Description: templ.Raw("Owns the trigger face. Leave it absent and the kit fills it client-side by cloning the selected option's body (so its CSS styles it and the trigger grows to fit); provide one (e.g. patched from a server) and the kit yields, rendering exactly your content.")},
+		{Name: "[data-neo-option-trigger]",
+			Description: templ.Raw(`Optional per-<a href="` + href.PageOption() + `"><code>&lt;neo-option&gt;</code></a> child: a compact trigger face distinct from the option's rich list row. Hidden in the list; cloned into the trigger when that option is selected. Falls back to the option's <code>label</code> (plain text), then its full body. Shared with <a href="` + href.PageCombobox() + `"><code>&lt;neo-combobox&gt;</code></a>.`)},
+		{Name: "[data-neo-select-empty]",
+			Description: templ.Raw("The empty-state trigger face: its body is cloned into the trigger when nothing is selected.")},
+	},
+	Events: []DocEvent{
+		{Name: "neo-select-change", Detail: "{ value: string | null, label: string | null }", Bubbles: true,
+			Description: templ.Raw("Fires after the selection changes.")},
+		{Name: "neo-select-load", Detail: "none", Bubbles: true,
+			Description: templ.Raw("Fires when options need fetching: every open with <code>async</code>, or a lazy select's first open. Wire a loader to it (e.g. a Datastar <code>@post</code>). Call <code>el.reload()</code> to re-fire it. Distinct from <code>neo-popover-open</code>, which always fires on open.")},
+	},
+	Parts: []DocPart{
+		{Name: "label",
+			Description: templ.Raw("Trigger label showing the current selection.")},
+		{Name: "caret",
+			Description: templ.Raw("Trigger caret icon.")},
+	},
+	CSSProps: []DocCSSProp{
+		{Name: "--neo-select-min-width", Default: "12rem",
+			Description: templ.Raw("Minimum trigger width.")},
+	},
+}
+
+// selectSimulator wires the page's simulated server for the async /
+// lazy / failure-swap examples: the per-demo handler modules under
+// /static/sim/select/ (also surfaced in the Server script tab) plus
+// the inline /select/asyncload/ handler.
+templ selectSimulator() {
+	<template id="demo-assignee-select-alt-options-template">
+		@assigneeOptions("demo-assignee-select-alt-options", assignees)
+	</template>
+	<template id="selectAsyncDemo-options-template">
+		@assigneeOptions("selectAsyncDemo-options", assignees)
+	</template>
+	<script type="module" src="/static/sim/select/lazy.js"></script>
+	<script type="module" src="/static/sim/select/async-spinner.js"></script>
+	<script type="module">
+		import sim from "/static/datasim.js";
+
+		const templateHTML = (id) =>
+			document.getElementById(id).innerHTML.trim();
+
+		sim.post("/select/asyncload/", async (_ctx, sse) => {
+			sse.patchElements(templateHTML("selectAsyncDemo-options-template"));
+		});
+	</script>
+}

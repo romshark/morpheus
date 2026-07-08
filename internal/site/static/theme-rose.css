@@ -1,0 +1,91 @@
+/* theme-rose.css: hot pink on cream / maroon. A bigger absolute
+ * corner radius (1rem) so small surfaces (buttons, inputs, chips)
+ * naturally pill-clamp via CSS's per-element max-radius rule, while
+ * large surfaces (popover, sidebar, textarea) get a fixed, generous
+ * curve without their content area getting eaten by the radius. */
+
+:root.theme-rose {
+	color-scheme: light;
+
+	--accent: #e11d48;
+	--accent-hover: #be123c;
+	--accent-fg: #ffffff;
+
+	--page-fg: #4c0519;
+	--page-bg: #fff1f2;
+	--muted: #9f1239;
+
+	/* Deeper than --accent (#e11d48) for readable link text on the
+	 * pale rose bg. */
+	--link: #be123c;
+	--link-hover: #9f1239;
+	--link-visited: #9d174d;
+
+	--page-radius: 1rem;
+	--page-spacing: 0.28rem;
+
+	/* Editorial serif to match rose's softer, romantic palette.
+	 * `ui-serif` picks the OS's modern serif (New York on Apple,
+	 * Cambria on Windows) before falling back to Georgia. Set on
+	 * the light variant only; dark rose inherits via the cascade. */
+	--page-font-family:
+		ui-serif, Georgia, "Times New Roman", "Noto Serif", serif;
+
+	--btn-bg: #ffffff;
+	--btn-fg: #4c0519;
+	--btn-border: rgba(76, 5, 25, 0.22);
+	--btn-hover-bg: #ffe4e6;
+
+	--danger-bg: #a21caf;
+	--danger-fg: #ffffff;
+	--danger-hover-bg: #86198f;
+
+	--neo-tooltip-bg: rgba(76, 5, 25, 0.94);
+	--neo-tooltip-color: #ffe4e6;
+
+	/* Chunkier spinner stroke to match rose's softer, decorative feel.
+	 * Default is 3 (viewBox units); 5 reads as "soft heavy ring". The
+	 * radius compensates via the morpheus.css `r: calc(...)` rule, so
+	 * the ring still fits the host box. */
+	--neo-spinner-ring-width: 5;
+}
+
+/* Soft rounded square instead of the default pill, fits the theme's
+ * overall 1rem curve. Has to target neo-avatar / neo-avatars directly:
+ * morpheus.css declares --neo-avatar-radius / --neo-avatars-radius on
+ * those hosts, so a :root-level override is shadowed by the element's
+ * own value. The element-targeted rule wins on specificity. */
+:root.theme-rose neo-avatar {
+	--neo-avatar-radius: var(--page-radius);
+}
+:root.theme-rose neo-avatars {
+	--neo-avatars-radius: var(--page-radius);
+}
+
+:root.theme-rose.dark {
+	color-scheme: dark;
+
+	--accent: #fb7185;
+	--accent-hover: #fda4af;
+	--accent-fg: #4c0519;
+
+	--page-fg: #fecdd3;
+	--page-bg: #1f0812;
+	--muted: #fda4af;
+
+	/* Light pink reads well on the dark maroon bg. */
+	--link: #fb7185;
+	--link-hover: #fda4af;
+	--link-visited: #f0abfc;
+
+	--btn-bg: #4c0519;
+	--btn-fg: #fecdd3;
+	--btn-border: rgba(253, 164, 175, 0.22);
+	--btn-hover-bg: #6c0628;
+
+	--danger-bg: #c026d3;
+	--danger-hover-bg: #a21caf;
+
+	--neo-tooltip-bg: rgba(31, 8, 18, 0.95);
+	--neo-tooltip-color: #fecdd3;
+}

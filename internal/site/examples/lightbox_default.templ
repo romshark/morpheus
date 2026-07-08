@@ -1,0 +1,15 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ LightboxDefault() {
+	@neo.Lightbox(neo.LightboxOpts{}) {
+		<button { neo.LightboxTrigger()... } class="lightbox-default-trigger">
+			<img src="/static/cheshire_cat.webp" alt="The Cheshire cat" width="220"/>
+		</button>
+		<div { neo.LightboxContent()... }>
+			<img src="/static/cheshire_cat.webp" alt="The Cheshire cat"/>
+			<button { neo.LightboxClose()... } aria-label="Close">&times;</button>
+		</div>
+	}
+}

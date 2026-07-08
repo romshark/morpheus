@@ -1,0 +1,71 @@
+package neo
+
+type RadioGroupOpts struct {
+	// Value seeds the initially-checked radio's value.
+	Value Attr[string]
+	// Orientation is "" (vertical, default) or "horizontal". A display
+	// attribute: it sets the flex direction only. Arrow keys navigate on
+	// either axis regardless.
+	Orientation Attr[Axis]
+	// Disabled disables every nested radio (per-radio disabled is
+	// honoured independently).
+	Disabled Attr[bool]
+	// AutoActivate selects a radio on focus (arrow keys) rather than
+	// requiring Enter / Space. Off by default (manual activation).
+	AutoActivate Attr[bool]
+	// AriaLabel is the group's accessible name; for a visible label use
+	// aria-labelledby via attrs instead.
+	AriaLabel Attr[string]
+}
+
+// RadioGroup renders <neo-radio-group> with `<neo-radio>` children
+// (use [Radio]). The host owns selection, keyboard nav, and
+// roving-tabindex; each radio is a marker the group reads `value` and
+// `disabled` from.
+templ RadioGroup(opts RadioGroupOpts) {
+	@RadioGroupAttrs(opts, nil) {
+		{ children... }
+	}
+}
+
+// RadioGroupAttrs is [RadioGroup] with an extra attribute set.
+templ RadioGroupAttrs(opts RadioGroupOpts, attrs templ.Attributes) {
+	<neo-radio-group
+		{ opts.Value.Attrs("value")... }
+		{ opts.Orientation.Attrs("orientation")... }
+		{ opts.Disabled.Attrs("disabled")... }
+		{ opts.AutoActivate.Attrs("auto-activate")... }
+		{ opts.AriaLabel.Attrs("aria-label")... }
+		{ attrs... }
+	>
+		{ children... }
+	</neo-radio-group>
+}
+
+type RadioOpts struct {
+	// Value is the option's identity (matched against the group's
+	// value).
+	Value Attr[string]
+	// Disabled marks the option non-selectable; arrow nav skips it.
+	Disabled Attr[bool]
+}
+
+// Radio renders <neo-radio>, used as a child of [RadioGroup]. Wrap
+// the radio + label in a <label> so clicking the label activates the
+// radio (same wrapping-label pattern as <neo-checkbox> / <neo-switch>).
+templ Radio(opts RadioOpts) {
+	@RadioAttrs(opts, nil) {
+		{ children... }
+	}
+}
+
+// RadioAttrs is [Radio] with an extra attribute set.
+templ RadioAttrs(opts RadioOpts, attrs templ.Attributes) {
+	<neo-radio
+		{ opts.Value.Attrs("value")... }
+		{ opts.Disabled.Attrs("disabled")... }
+		{ attrs... }
+	>
+		{ children... }
+	</neo-radio>
+}

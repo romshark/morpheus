@@ -1,0 +1,21 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ ToasterLoadingAsync() {
+	@neo.ButtonAttrs(neo.ButtonOpts{}, templ.Attributes{
+		"data-on:click": "@post('/api/save')",
+	}) {
+		Create
+	}
+	@neo.ButtonAttrs(neo.ButtonOpts{Variant: neo.Set(neo.ButtonVariantPrimary)}, templ.Attributes{
+		"data-on:click": "@post('/api/save/resolve', { requestCancellation: 'disabled' })",
+	}) {
+		Resolve
+	}
+	@neo.ButtonAttrs(neo.ButtonOpts{Variant: neo.Set(neo.ButtonVariantDanger)}, templ.Attributes{
+		"data-on:click": "@post('/api/save/reject', { requestCancellation: 'disabled' })",
+	}) {
+		Reject
+	}
+}

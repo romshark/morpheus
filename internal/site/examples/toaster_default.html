@@ -1,0 +1,47 @@
+<style>
+  .toaster-demo-host {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    width: 100%;
+    height: 100%;
+    align-content: flex-start;
+    align-items: flex-start;
+    justify-content: flex-start;
+  }
+  .toaster-demo-host > neo-toaster[contained] {
+    --neo-toaster-max-height: calc(
+      100% -
+        var(--neo-toaster-padding, 1rem) -
+        var(--neo-toaster-padding, 1rem) +
+        var(--neo-toast-shadow-bleed, 1.5rem) +
+        var(--neo-toast-shadow-bleed, 1.5rem)
+    );
+  }
+</style>
+<div class="toaster-demo-host" id="toaster-playground-default">
+  <neo-button variant="primary" data-on:click="document.getElementById('toaster-playground-toaster').show({ title: 'Profile saved', variant: 'success', duration: 2000 })">
+    Success
+  </neo-button>
+  <neo-button data-on:click="document.getElementById('toaster-playground-toaster').show({ title: 'Update available', description: 'Restart to apply.', variant: 'info' })">
+    Info
+  </neo-button>
+  <neo-button variant="danger" data-on:click="document.getElementById('toaster-playground-toaster').dismiss()">
+    Dismiss all
+  </neo-button>
+  <neo-toaster id="toaster-playground-toaster" contained position="bottom-center">
+    <neo-toast variant="success" duration="2000">
+      <span slot="title">Example Toast</span>
+      <span slot="description">Toast created! Will self-destruct in 2s...</span>
+    </neo-toast>
+    <neo-toast variant="info" duration="4000">
+      <span slot="title">Edit Toasts in the Playground</span>
+      <span slot="description">Edit my contents in the HTML panel below ⬇︎</span>
+    </neo-toast>
+    <neo-toast variant="error">
+      <span slot="title">Error Toast</span>
+      <span slot="description">This one you have to dismiss manually.</span>
+    </neo-toast>
+  </neo-toaster>
+</div>

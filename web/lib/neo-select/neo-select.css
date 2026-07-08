@@ -1,0 +1,134 @@
+/* -----------------------------------------------------------------------
+ * <neo-select>
+ * ----------------------------------------------------------------------- */
+
+:root {
+	--neo-select-min-width: 12rem;
+}
+
+/* No fixed height: the trigger sizes to its intrinsic button box
+ * (--neo-control-height), so a plain select matches a button/input in a
+ * row. The trigger's `height: 100%` resolves to that against the
+ * shrink-wrapped host. */
+neo-select {
+	display: inline-block;
+}
+
+/* A rich trigger holds a multi-line card; the host already follows it
+ * (auto height), so its focus ring wraps the card. Floor it so a
+ * near-empty card isn't shorter than a plain control. */
+neo-select[data-neo-trigger-rich] {
+	min-height: var(--neo-control-height);
+}
+
+/* Pre-hydration: <neo-option> children (or a [data-neo-async-placeholder]
+ * placeholder for async selects) would render as a visible stack before
+ * the bundle moves them. Hide them and stand in with a trigger-shaped
+ * shell that matches the hydrated button exactly (same bg, border,
+ * padding, radius, placeholder text, caret) so there's no flash on
+ * upgrade. CSS `attr()` lets us render the placeholder text without JS. */
+neo-select:not(:defined) {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	min-width: var(--neo-select-min-width);
+	font: inherit;
+	/* Match post-upgrade trigger button's line-height so the host
+	 * doesn't shrink/grow when the customElement upgrades and
+	 * replaces this placeholder render with a real neo-button. */
+	line-height: 1;
+	padding: var(--neo-button-padding);
+	border-radius: var(--neo-button-radius);
+	border: 1px solid var(--neo-button-border-color);
+	background: var(--neo-button-bg);
+	color: var(--neo-button-color);
+	box-sizing: border-box;
+}
+
+neo-select:not(:defined)::before {
+	content: attr(placeholder);
+	flex: 1 1 auto;
+	text-align: left;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	min-width: 0;
+}
+
+neo-select:not(:defined)::after {
+	content: "▾";
+	flex: 0 0 auto;
+	opacity: 0.6;
+	font-size: 0.75em;
+}
+
+neo-select:not(:defined) > * {
+	display: none;
+}
+
+/* A disabled host fades its pre-hydration shell too, matching the hydrated
+ * disabled trigger so it doesn't flash interactive on upgrade. */
+neo-select:not(:defined)[disabled]:not([disabled="false"]) {
+	opacity: 0.55;
+	cursor: not-allowed;
+}
+
+/* Author-provided async placeholders are copied into the shadow
+ * listbox when needed, so the raw light-DOM template should not occupy
+ * host-level layout. Options themselves may be projected through a
+ * shadow slot; do not hide them here or direct-child option usage
+ * becomes invisible inside the opened listbox too. */
+neo-select > [data-neo-async-placeholder] {
+	display: none;
+}
+
+/* Per-option trigger face: rendered only (cloned by the kit) inside the
+ * trigger when its option is selected, never as part of the list row
+ * (shared marker with neo-combobox). */
+neo-select [data-neo-option-trigger] {
+	display: none;
+}
+
+/* Empty-state trigger face: a plain element (not a real
+ * <neo-option value="">) is cloned into the trigger only, so hide it from
+ * the list. An option-form empty marker stays a selectable row. */
+neo-select [data-neo-select-empty]:not(neo-option) {
+	display: none;
+}
+
+/* The kit-managed clone of the current selection, slotted into the
+ * trigger; lays out the cloned option markup. */
+neo-select > [data-neo-select-trigger-view] {
+	display: flex;
+	align-items: center;
+	gap: var(--neo-select-option-gap, 0.5rem);
+	min-width: 0;
+	overflow: hidden;
+}
+
+/* Trigger / label / caret / list markup live in the select's shadow
+ * stylesheet (see neo-select.ts). Descendant selectors here can't
+ * pierce the shadow boundary; compose via --neo-button-* /
+ * --neo-select-* tokens instead. */
+
+/* Loading content is cloned into a light-DOM slot projected into the
+ * shadow listbox. The placeholder owns its padding; a
+ * skeleton placeholder drops it and each row supplies its own margin
+ * to match the option rhythm so the panel height doesn't jump when
+ * options morph in. Author inline styles (e.g. flex-direction:row for
+ * a spinner+label) still win over these defaults. */
+neo-select > [data-neo-select-loading-content] [data-neo-async-placeholder] {
+	display: flex;
+	flex-direction: column;
+	padding: var(--neo-select-option-padding, 0.4rem 0.6rem);
+}
+neo-select > [data-neo-select-loading-content] [data-neo-async-placeholder]:has(neo-skeleton) {
+	padding: 0;
+}
+neo-select > [data-neo-select-loading-content] neo-skeleton {
+	display: block;
+	height: 1lh;
+	/* Matches --neo-select-option-padding */
+	margin: 0.4rem 0.6rem;
+	border-radius: var(--neo-select-option-radius, var(--neo-button-radius, 0.5rem));
+}

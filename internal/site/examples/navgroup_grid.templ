@@ -1,0 +1,24 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ NavgroupGrid() {
+	@neo.NavGroupAttrs(neo.NavGroupOpts{
+		Orientation: neo.Set(neo.OrientationGrid),
+		Columns:     neo.Set(3),
+		Wrap:        neo.Set(true),
+	}, templ.Attributes{
+		"class":      "navgroup-grid-pad",
+		"role":       "grid",
+		"aria-label": "Number pad",
+	}) {
+		for _, n := range []string{"1", "2", "3", "4", "5", "6", "7", "8", "9"} {
+			@neo.ButtonAttrs(neo.ButtonOpts{}, templ.Attributes{
+				"class":                  "navgroup-grid-key",
+				"data-neo-navgroup-item": true,
+			}) {
+				{ n }
+			}
+		}
+	}
+}

@@ -1,0 +1,42 @@
+.lightbox-content-panel {
+	box-sizing: border-box;
+	width: min(90vw, 28rem);
+	background: var(--page-bg, #fff);
+	color: var(--page-fg, #111);
+	border-radius: 0.75rem;
+	padding: 1.5rem;
+	box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+}
+
+.lightbox-content-header {
+	display: flex;
+	align-items: start;
+	justify-content: space-between;
+	gap: 1rem;
+	margin-bottom: 1rem;
+}
+
+.lightbox-content-title {
+	margin: 0;
+	font-size: 1.125rem;
+}
+
+.lightbox-content-close {
+	border: 0;
+	background: none;
+	font-size: 1.4rem;
+	line-height: 1;
+	cursor: pointer;
+	color: inherit;
+}
+
+.lightbox-content-list {
+	display: grid;
+	grid-template-columns: auto 1fr;
+	gap: 0.5rem 1rem;
+	margin: 0;
+}
+
+.lightbox-content-dd {
+	margin: 0;
+}

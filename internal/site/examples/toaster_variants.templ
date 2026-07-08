@@ -1,0 +1,26 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ ToasterVariants() {
+	@neo.ButtonAttrs(neo.ButtonOpts{Variant: neo.Set(neo.ButtonVariantPrimary)}, templ.Attributes{
+		"data-on:click": "NeoToast.success('Profile saved')",
+	}) {
+		Success
+	}
+	@neo.ButtonAttrs(neo.ButtonOpts{Variant: neo.Set(neo.ButtonVariantDanger)}, templ.Attributes{
+		"data-on:click": "NeoToast.error('Network error', { description: 'Server unreachable.' })",
+	}) {
+		Error
+	}
+	@neo.ButtonAttrs(neo.ButtonOpts{Variant: neo.Set(neo.ButtonVariantSecondary)}, templ.Attributes{
+		"data-on:click": "NeoToast.warning('Low disk space', { description: 'Less than 5% free.' })",
+	}) {
+		Warning
+	}
+	@neo.ButtonAttrs(neo.ButtonOpts{}, templ.Attributes{
+		"data-on:click": "NeoToast.info('Update available', { description: 'Restart to apply.' })",
+	}) {
+		Info
+	}
+}

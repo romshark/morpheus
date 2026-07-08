@@ -1,0 +1,11 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ TextInputDisabled() {
+	@neo.TextInput(neo.TextInputOpts{
+		Mask:     neo.Set("#### #### #### ####"),
+		Value:    neo.Set("4242 4242 4242 4242"),
+		Disabled: neo.Set(true),
+	})
+}

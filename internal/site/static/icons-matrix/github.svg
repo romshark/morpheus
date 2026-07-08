@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+  <!-- Octocat-ish silhouette in pixel blocks. Outer head 12x10 with
+       chiseled corners, two eye dots, a smile, and a short legs/tail
+       drop. -->
+  <rect x="6"  y="3" width="12" height="2"/>
+  <rect x="4"  y="5" width="2"  height="2"/>
+  <rect x="6"  y="5" width="12" height="2"/>
+  <rect x="18" y="5" width="2"  height="2"/>
+  <rect x="3"  y="7" width="3"  height="2"/>
+  <rect x="6"  y="7" width="12" height="2"/>
+  <rect x="18" y="7" width="3"  height="2"/>
+  <rect x="3"  y="9" width="3"  height="2"/>
+  <rect x="6"  y="9" width="2"  height="2"/>
+  <rect x="10" y="9" width="4"  height="2"/>
+  <rect x="16" y="9" width="2"  height="2"/>
+  <rect x="18" y="9" width="3"  height="2"/>
+  <rect x="3"  y="11" width="18" height="2"/>
+  <rect x="4"  y="13" width="16" height="2"/>
+  <rect x="6"  y="15" width="2"  height="2"/>
+  <rect x="10" y="15" width="4"  height="2"/>
+  <rect x="16" y="15" width="2"  height="2"/>
+  <rect x="6"  y="17" width="2"  height="2"/>
+  <rect x="11" y="17" width="2"  height="2"/>
+  <rect x="16" y="17" width="2"  height="2"/>
+  <rect x="6"  y="19" width="2"  height="2"/>
+  <rect x="11" y="19" width="2"  height="2"/>
+  <rect x="16" y="19" width="2"  height="2"/>
+</svg>

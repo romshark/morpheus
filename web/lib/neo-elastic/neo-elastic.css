@@ -1,0 +1,33 @@
+/* -----------------------------------------------------------------------
+ * <neo-elastic>
+ * -----------------------------------------------------------------------
+ * Container that smoothly animates its height when the content inside
+ * its slot changes natural size. The JS pins the wrapper's measured
+ * height onto the host (`element.style.height = "<px>"`); this CSS
+ * rule provides the transition. Riding the kit's --neo-easing /
+ * --neo-duration-scale makes the same component animate as a
+ * smooth swing by default and as a stepped snap under a theme
+ * that overrides those tokens. */
+
+:root {
+	--neo-elastic-duration: calc(300ms * var(--neo-duration-scale, 1));
+}
+
+neo-elastic {
+	box-sizing: content-box;
+	display: block;
+	overflow: hidden;
+	transition: height var(--neo-elastic-duration) var(--neo-easing, ease);
+}
+
+/* The inner wrapper must be a block formatting context, otherwise
+ * a child's `margin-top` (e.g. a `<ul>` with default top margin)
+ * collapses *through* the wrapper to the host. The host's
+ * `overflow: hidden` then re-traps the margin visually but it's
+ * not part of `wrapper.offsetHeight`, so the JS measurement is
+ * short by exactly that margin and the bottom of the content gets
+ * clipped. `display: flow-root` is the modern, side-effect-free
+ * way to establish the BFC. */
+neo-elastic > [data-neo-elastic-content] {
+	display: flow-root;
+}

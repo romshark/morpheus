@@ -1,0 +1,11 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ RatingHalf() {
+	@neo.Rating(neo.RatingOpts{
+		Label:     neo.Set("Difficulty"),
+		Value:     neo.Set(2.5),
+		Precision: neo.Set(0.5),
+	})
+}

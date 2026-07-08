@@ -1,0 +1,33 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ DialogCustomSurface() {
+	@neo.DialogAttrs(neo.DialogOpts{}, templ.Attributes{
+		"class": "dialog-custom-surface",
+	}) {
+		<neo-button { neo.DialogTrigger()... }>Open frost glass</neo-button>
+		<dialog>
+			@neo.DialogHeader() {
+				@neo.DialogTitle() {
+					Frost glass surface
+				}
+				@neo.DialogDescription() {
+					Two stacked blurs: the
+					<code>::backdrop</code> frosts the
+					page behind the modal at 6px (with a
+					soft 18% black tint), and the dialog
+					surface adds another 22px on top of
+					its own 42% dark wash. The page reads
+					through both layers as a deep frosted
+					scene: soft outside the dialog,
+					denser within.
+				}
+			}
+			@neo.DialogFooter() {
+				<neo-button { neo.DialogClose()... }>Close</neo-button>
+				<neo-button variant="primary" { neo.DialogClose()... }>OK</neo-button>
+			}
+		</dialog>
+	}
+}

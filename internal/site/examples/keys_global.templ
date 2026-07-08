@@ -1,0 +1,17 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ KeysGlobal() {
+	<div class="keys-demo" data-signals="{keys_global: 0}">
+		<p class="keys-demo-hint">
+			Press
+			<neo-kbd-group><neo-kbd key="mod"></neo-kbd><neo-kbd key="enter"></neo-kbd></neo-kbd-group>
+			anywhere on the page, no focus needed.
+		</p>
+		<p>Fired <strong data-text="$keys_global"></strong> times.</p>
+		@neo.KeysAttrs(neo.KeysOpts{Keys: neo.Set("mod+enter"), Target: neo.Set("window")}, templ.Attributes{
+			"data-on:neo-keys": "$keys_global++",
+		})
+	</div>
+}

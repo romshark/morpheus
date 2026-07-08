@@ -1,0 +1,36 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ TabsCustomAnimation() {
+	@neo.Tabs(neo.TabsOpts{
+		Value:          neo.Set("general"),
+		Easing:         neo.Set("1s cubic-bezier(0.32, 0.72, 0, 1)"),
+		EnterAnimation: neo.Set("tabs-tilt"),
+		ExitAnimation:  neo.Set("tabs-tilt"),
+	}) {
+		<neo-tablist aria-label="Preferences (zoom)">
+			@neo.Tab("general", "general") {
+				General
+			}
+			@neo.Tab("appearance", "general") {
+				Appearance
+			}
+			@neo.Tab("advanced", "general") {
+				Advanced
+			}
+		</neo-tablist>
+		@neo.TabPanel("general", "general") {
+			<h3>General</h3>
+			<p>Display name, timezone, language.</p>
+		}
+		@neo.TabPanel("appearance", "general") {
+			<h3>Appearance</h3>
+			<p>Theme, density, accent color.</p>
+		}
+		@neo.TabPanel("advanced", "general") {
+			<h3>Advanced</h3>
+			<p>Feature flags and developer options.</p>
+		}
+	}
+}

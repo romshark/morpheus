@@ -1,0 +1,28 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ SortablePlaceholder() {
+	@neo.SortableAttrs(neo.SortableOpts{Orientation: neo.Set(neo.OrientationVertical)}, templ.Attributes{
+		"class": "sortable-placeholder",
+	}) {
+		@neo.SortablePlaceholder() {
+			<div class="sortable-placeholder-drop">
+				@neo.Icon("corner-down-right")
+				<span>Drop here</span>
+			</div>
+		}
+		@neo.SortableItem("alpha") {
+			Alpha
+		}
+		@neo.SortableItem("bravo") {
+			Bravo
+		}
+		@neo.SortableItem("charlie") {
+			Charlie
+		}
+		@neo.SortableItem("delta") {
+			Delta
+		}
+	}
+}

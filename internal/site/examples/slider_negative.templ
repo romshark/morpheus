@@ -1,0 +1,13 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ SliderNegative() {
+	@neo.Slider(neo.SliderOpts[float64]{
+		Min:   neo.Set(-50.0),
+		Max:   neo.Set(50.0),
+		Step:  neo.Set(1.0),
+		Value: neo.Set(-10.0),
+		Label: neo.Set("Pan"),
+	})
+}

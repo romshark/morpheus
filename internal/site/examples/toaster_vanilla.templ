@@ -1,0 +1,30 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ ToasterVanilla() {
+	<div class="toaster-demo-host" id="vanilla-toast-demo">
+		@neo.ButtonAttrs(neo.ButtonOpts{Variant: neo.Set(neo.ButtonVariantPrimary)}, templ.Attributes{
+			"id": "vanilla-toast-btn",
+		}) {
+			Show toast
+		}
+		@neo.ToasterAttrs(neo.ToasterOpts{
+			Contained: neo.Set(true),
+			Position:  neo.Set(neo.ToasterPositionBottomRight),
+		}, templ.Attributes{"id": "vanilla-toast-toaster"})
+	</div>
+	<script>
+		(() => {
+			const toaster = document.getElementById('vanilla-toast-toaster');
+			const btn = document.getElementById('vanilla-toast-btn');
+			let n = 0;
+			btn.addEventListener('click', () => {
+				toaster.show({
+					title: 'Hello from vanilla JS',
+					description: `Toast #${++n}`,
+				});
+			});
+		})();
+	</script>
+}

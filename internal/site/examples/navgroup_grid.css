@@ -1,0 +1,9 @@
+.navgroup-grid-pad {
+	--neo-navgroup-gap: 0.25rem;
+}
+
+.navgroup-grid-key {
+	font-variant-numeric: tabular-nums;
+	min-width: 2.75rem;
+	padding: 0.6rem 0;
+}

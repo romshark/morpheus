@@ -1,0 +1,150 @@
+/* -----------------------------------------------------------------------
+ * <neo-dialog>
+ * -----------------------------------------------------------------------
+ * Modal dialog wrapping a native <dialog>. The host owns the trigger /
+ * close wiring; the browser owns the modal lifecycle (top layer, focus
+ * trap, scroll lock, Esc). Backgrounds, surface tint, and overlay
+ * opacity are all driven by `--neo-dialog-*` tokens defined here and
+ * overridden per-theme in theme-*.css, so flipping the theme picker in
+ * the settings sidebar repaints the dialog the same way it repaints
+ * every other surface.
+ *
+ * `<dialog>::backdrop` styles only the overlay layer; the dialog box
+ * itself is the host. We animate both via `display`/`overlay` discrete
+ * transitions plus `@starting-style`, the same modern-CSS recipe as
+ * the popover block at the top of the file. */
+
+:root {
+	/* Surface tokens derive from the page palette so swapping themes in
+	 * the settings sidebar repaints the dialog without per-theme
+	 * overrides. Any theme that wants a distinct dialog look (a tinted
+	 * surface, a heavier overlay) can still override these tokens. */
+	--neo-dialog-bg: var(--page-bg, #ffffff);
+	--neo-dialog-color: var(--page-fg, #111827);
+	--neo-dialog-border-color: var(--btn-border, rgba(0, 0, 0, 0.08));
+	--neo-dialog-border-width: 1px;
+	--neo-dialog-radius: calc(var(--page-radius, 0.25rem) * 1.5);
+	--neo-dialog-padding: calc(var(--page-spacing, 0.25rem) * 6);
+	--neo-dialog-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+	--neo-dialog-min-width: 18rem;
+	--neo-dialog-max-width: 32rem;
+	--neo-dialog-screen-offset: 1rem;
+	--neo-dialog-enter-duration: calc(180ms * var(--neo-duration-scale, 1));
+	/* Backdrop: a dimming wash over the page behind the modal. Fixed
+	 * dark rgba (not theme-derived) because most modal conventions
+	 * dim the page regardless of mode. Deriving from --page-fg would
+	 * flip to a *bright* overlay in dark mode (page-fg goes light),
+	 * which reads as the page going washed-out instead of dimmed.
+	 * Themes that want a tinted or lighter overlay still override
+	 * this single token. */
+	--neo-dialog-overlay-bg: rgba(0, 0, 0, 0.55);
+	--neo-dialog-overlay-blur: 0px;
+	/* Surface blur: applied as backdrop-filter on the dialog box
+	 * itself. With a translucent --neo-dialog-bg this produces a
+	 * "frosted glass" look (the page behind the dialog blurs through
+	 * the surface). Default 0 = no blur, so themes that paint a
+	 * solid surface aren't paying for a no-op filter. */
+	--neo-dialog-blur: 0px;
+}
+
+neo-dialog {
+	display: contents;
+}
+
+/* The actual modal panel. Native <dialog> handles top-layer rendering,
+ * focus trap, scroll lock, and Esc. We only style the surface and
+ * its open/close animation. */
+neo-dialog > dialog {
+	box-sizing: border-box;
+	margin: auto;
+	padding: var(--neo-dialog-padding);
+	background: var(--neo-dialog-bg);
+	color: var(--neo-dialog-color);
+	border: var(--neo-dialog-border-width) solid var(--neo-dialog-border-color);
+	border-radius: var(--neo-dialog-radius);
+	box-shadow: var(--neo-dialog-shadow);
+	backdrop-filter: blur(var(--neo-dialog-blur));
+	-webkit-backdrop-filter: blur(var(--neo-dialog-blur));
+	min-width: var(--neo-dialog-min-width);
+	max-width: min(var(--neo-dialog-max-width), calc(100vw - 2 * var(--neo-dialog-screen-offset)));
+	max-height: calc(100dvh - 2 * var(--neo-dialog-screen-offset));
+	overflow: auto;
+	overscroll-behavior: contain;
+
+	opacity: 0;
+	transform: translateY(-8px) scale(0.97);
+	transition:
+		opacity var(--neo-dialog-enter-duration) var(--neo-easing, ease-out),
+		transform var(--neo-dialog-enter-duration) var(--neo-easing, ease-out),
+		display var(--neo-dialog-enter-duration) allow-discrete,
+		overlay var(--neo-dialog-enter-duration) allow-discrete;
+}
+
+neo-dialog > dialog[open] {
+	opacity: 1;
+	transform: translateY(0) scale(1);
+}
+
+@starting-style {
+	neo-dialog > dialog[open] {
+		opacity: 0;
+		transform: translateY(-8px) scale(0.97);
+	}
+}
+
+neo-dialog > dialog::backdrop {
+	background: var(--neo-dialog-overlay-bg);
+	backdrop-filter: blur(var(--neo-dialog-overlay-blur));
+	-webkit-backdrop-filter: blur(var(--neo-dialog-overlay-blur));
+	opacity: 0;
+	transition:
+		opacity var(--neo-dialog-enter-duration) var(--neo-easing, ease-out),
+		display var(--neo-dialog-enter-duration) allow-discrete,
+		overlay var(--neo-dialog-enter-duration) allow-discrete;
+}
+
+neo-dialog > dialog[open]::backdrop {
+	opacity: 1;
+}
+
+@starting-style {
+	neo-dialog > dialog[open]::backdrop {
+		opacity: 0;
+	}
+}
+
+/* Optional structural slots, purely for spacing rhythm. Authors who
+ * want a different layout (split header, image hero, …) can ignore
+ * these and style their own children. */
+neo-dialog [data-neo-dialog-header] {
+	display: flex;
+	flex-direction: column;
+	gap: 0.35rem;
+	margin-bottom: calc(var(--page-spacing, 0.25rem) * 4);
+}
+
+neo-dialog [data-neo-dialog-title] {
+	margin: 0;
+	font-size: 1.125rem;
+	font-weight: 600;
+	line-height: 1.3;
+}
+
+neo-dialog [data-neo-dialog-description] {
+	margin: 0;
+	color: var(--muted, currentColor);
+	line-height: 1.5;
+}
+
+neo-dialog [data-neo-dialog-body] {
+	display: block;
+	margin-block: calc(var(--page-spacing, 0.25rem) * 4) calc(var(--page-spacing, 0.25rem) * 4);
+}
+
+neo-dialog [data-neo-dialog-footer] {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: flex-end;
+	gap: calc(var(--page-spacing, 0.25rem) * 2);
+	margin-top: calc(var(--page-spacing, 0.25rem) * 4);
+}

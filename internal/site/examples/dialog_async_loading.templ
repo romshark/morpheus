@@ -1,0 +1,37 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+// dialog_async_html seeds the demo simulator's response; a real app drops
+// it and lets the server return the body for /dialog/async-load.
+templ DialogAsyncLoading() {
+	@neo.DialogAttrs(neo.DialogOpts{}, templ.Attributes{
+		"data-signals":             `{dialog_async_ctrl: new AbortController(), dialog_async_html: '<h3>Roman Scharkov</h3><p class="dialog-async-meta">Creator of Morpheus · <code>roman.scharkov@example.com</code></p><p>Builds Morpheus, the server-driven web component kit this site is built with.</p><h3>Daniel Scharkov</h3><p class="dialog-async-meta">Co-maker of Morpheus · <code>daniel.scharkov@example.com</code></p><p>Works on Morpheus with his brother Roman; the two ship it together.</p>'}`,
+		"data-on:neo-dialog-open":  "@post('/dialog/async-load', { requestCancellation: $dialog_async_ctrl })",
+		"data-on:neo-dialog-close": "$dialog_async_ctrl.abort(); $dialog_async_ctrl = new AbortController()",
+	}) {
+		<neo-button { neo.DialogTrigger()... }>Load profile</neo-button>
+		<dialog>
+			@neo.DialogHeader() {
+				@neo.DialogTitle() {
+					Team members
+				}
+				@neo.DialogDescription() {
+					Loaded fresh from the server each time you open this dialog.
+				}
+			}
+			<neo-layout id="dialog-async-body" class="dialog-async-slot" column>
+				<neo-layout class="dialog-async-skeleton" column { neo.AsyncPlaceholder()... }>
+					<neo-skeleton class="dialog-async-loading-title"></neo-skeleton>
+					<neo-skeleton class="dialog-async-loading-meta"></neo-skeleton>
+					<neo-skeleton class="dialog-async-loading-line-1"></neo-skeleton>
+					<neo-skeleton class="dialog-async-loading-line-2"></neo-skeleton>
+					<neo-skeleton class="dialog-async-loading-line-3"></neo-skeleton>
+				</neo-layout>
+			</neo-layout>
+			@neo.DialogFooter() {
+				<neo-button { neo.DialogClose()... }>Close</neo-button>
+			}
+		</dialog>
+	}
+}

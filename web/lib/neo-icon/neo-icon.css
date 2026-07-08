@@ -1,0 +1,46 @@
+/* -----------------------------------------------------------------------
+ * <neo-icon>
+ * -----------------------------------------------------------------------
+ * Loads /static/icons/<name>.svg and inlines it into the host so that
+ * `stroke="currentColor"` / `fill="currentColor"` inside the SVG resolve
+ * against the host's `color` and icons pick up text color for free.
+ * Override the directory globally with --neo-icon-base on :root (or
+ * any ancestor), or per-instance with the `base` attribute. Size with
+ * --neo-icon-size or plain width/height.
+ */
+
+:root {
+	--neo-icon-base: "/static/icons";
+	--neo-icon-size: 1em;
+}
+
+neo-icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	/* `--neo-icon-size` is the *content* size of the SVG glyph, so any
+	 * padding the host wears (e.g. the input group's 0 0.6rem icon
+	 * padding) sits outside that, so content-box is required. The site
+	 * sets `* { box-sizing: border-box }` globally; without this
+	 * override the icon's 1em becomes the outer box, padding eats
+	 * into it, and the SVG collapses to a 0-wide sliver. */
+	box-sizing: content-box;
+	width: var(--neo-icon-size);
+	height: var(--neo-icon-size);
+	vertical-align: -0.125em;
+	flex-shrink: 0;
+	line-height: 0;
+}
+
+/* An icon with no `name` (or `name=""`) has nothing to render. Hide
+ * the host so it doesn't reserve a 1em box that visibly disappears
+ * later when something (Datastar's `data-show`, the JS render(),
+ * or just a name being removed) settles on the empty state. The
+ * Datastar-driven icon in page_button.templ is the trigger case:
+ * pre-Datastar the host occupies space, post-Datastar `data-show`
+ * hides it, and on slow networks that gap is visible as the button
+ * shrinking. */
+neo-icon:not([name]),
+neo-icon[name=""] {
+	display: none;
+}

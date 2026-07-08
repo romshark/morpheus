@@ -1,0 +1,36 @@
+package neo
+
+// AsyncPlaceholder marks the loading-state region of an async component
+// (Select, Combobox, Popover, Drawer, Sidebar). The host shows it while a
+// load is in flight and restores it before a retry. Spread onto the
+// element so the author keeps its tag (div, neo-layout, template).
+func AsyncPlaceholder() templ.Attributes {
+	return templ.Attributes{"data-neo-async-placeholder": true}
+}
+
+// EmptyResults marks the no-matches region of an option list (Select,
+// Combobox, suggest TextInput). The host shows it when the search yields
+// nothing. Nest an EmptyQuery to echo the current query.
+templ EmptyResults() {
+	@EmptyResultsAttrs(nil) {
+		{ children... }
+	}
+}
+
+// EmptyResultsAttrs is [EmptyResults] with an extra attribute set.
+templ EmptyResultsAttrs(attrs templ.Attributes) {
+	<div data-neo-empty-results { attrs... }>
+		{ children... }
+	</div>
+}
+
+// EmptyQuery is the span the host fills with the current search text.
+// Place it inside EmptyResults; it takes no children of its own.
+templ EmptyQuery() {
+	@EmptyQueryAttrs(nil)
+}
+
+// EmptyQueryAttrs is [EmptyQuery] with an extra attribute set.
+templ EmptyQueryAttrs(attrs templ.Attributes) {
+	<span data-neo-empty-query { attrs... }></span>
+}

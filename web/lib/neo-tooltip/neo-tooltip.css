@@ -1,0 +1,67 @@
+/* -----------------------------------------------------------------------
+ * <neo-tooltip>
+ * -----------------------------------------------------------------------
+ * Built on the same positioning primitives as <neo-popover> but styled
+ * as a small, borderless pill and rendered with `pointer-events: none` so
+ * it never steals hover or clicks from the trigger.
+ *
+ * tooltip-pill.css mirrors these rules keyed off [data-neo-tooltip-host]
+ * for shadow hosts driven by TooltipController; keep the two in sync. */
+
+:root {
+	--neo-tooltip-bg: color-mix(in srgb, var(--page-fg) 92%, transparent);
+	--neo-tooltip-color: var(--page-bg);
+	--neo-tooltip-radius: var(--page-radius, 0.25rem);
+	--neo-tooltip-padding: calc(var(--page-spacing, 0.25rem) * 1.25) calc(var(--page-spacing, 0.25rem) * 2.25);
+	--neo-tooltip-font-size: 0.8rem;
+	--neo-tooltip-max-width: 18rem;
+	--neo-tooltip-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.25);
+	--neo-tooltip-z-index: 1100;
+	--neo-tooltip-enter-duration: calc(120ms * var(--neo-duration-scale, 1));
+	--neo-tooltip-screen-offset: 8px;
+}
+
+neo-tooltip {
+	display: contents;
+}
+
+neo-tooltip > [data-neo-tooltip-content] {
+	position: fixed;
+	top: 0;
+	left: 0;
+	pointer-events: none;
+	background: var(--neo-tooltip-bg);
+	color: var(--neo-tooltip-color);
+	padding: var(--neo-tooltip-padding);
+	border-radius: var(--neo-tooltip-radius);
+	font-size: var(--neo-tooltip-font-size);
+	line-height: 1.35;
+	max-width: min(var(--neo-tooltip-max-width), calc(100vw - 2 * var(--neo-tooltip-screen-offset)));
+	box-shadow: var(--neo-tooltip-shadow);
+	z-index: var(--neo-tooltip-z-index);
+	opacity: 1;
+	transform: translateY(0);
+	transition:
+		opacity var(--neo-tooltip-enter-duration) var(--neo-easing, ease-out),
+		transform var(--neo-tooltip-enter-duration) var(--neo-easing, ease-out),
+		display var(--neo-tooltip-enter-duration) allow-discrete;
+}
+
+neo-tooltip:not([open]) > [data-neo-tooltip-content] {
+	display: none;
+	opacity: 0;
+	transform: translateY(-3px);
+}
+
+@starting-style {
+	neo-tooltip[open] > [data-neo-tooltip-content] {
+		opacity: 0;
+		transform: translateY(-3px);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	neo-tooltip > [data-neo-tooltip-content] {
+		transition: none;
+	}
+}

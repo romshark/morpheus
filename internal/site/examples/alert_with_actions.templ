@@ -1,0 +1,27 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ AlertWithActions() {
+	@neo.Alert(neo.AlertOpts{Variant: neo.Set(neo.AlertVariantInfo)}) {
+		@neo.AlertIcon() {
+			@neo.Icon("info")
+		}
+		@neo.AlertContent() {
+			@neo.AlertTitle(3) {
+				Billing details needed
+			}
+			@neo.AlertDescription() {
+				Add a payment method before the next invoice date.
+			}
+			@neo.AlertActions() {
+				@neo.Button(neo.ButtonOpts{Variant: neo.Set(neo.ButtonVariantPrimary)}) {
+					Update billing
+				}
+				@neo.Button(neo.ButtonOpts{Variant: neo.Set(neo.ButtonVariantGhost)}) {
+					Dismiss
+				}
+			}
+		}
+	}
+}

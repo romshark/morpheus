@@ -1,0 +1,80 @@
+package site
+
+import (
+	"github.com/romshark/morpheus/internal/href"
+	"github.com/romshark/morpheus/internal/site/examples"
+	"github.com/romshark/morpheus/neo"
+)
+
+templ PageAvatar(morpheusVersion string) {
+	@PageDoc(href.PageAvatar(), "Avatar", morpheusVersion) {
+		<section class="demo">
+			@anchoredH2("overview") {
+				Avatar
+			}
+			<p class="intro">
+				Component <code>{ "<neo-avatar>" }</code> is a
+				style-only frame for one avatar image or fallback.
+				Shares shape tokens with{ " " }
+				@neo.Link(neo.LinkOpts{Href: neo.Set(href.PageAvatars())}) {
+					Avatars
+				}
+				{ " " }so a theme
+				renders standalone avatars and avatar groups round,
+				square, or hexagonal together.
+			</p>
+			@Playground(PlaygroundOpts{
+				ID:     "avatar-playground",
+				States: avatarPlaygroundStates(),
+			})
+			@anchoredH2("reference") {
+				Reference
+			}
+			@ComponentDocs(avatarDoc)
+		</section>
+		<section class="demo">
+			@anchoredH2("examples") {
+				Examples
+			}
+			@anchoredH3("image") {
+				Image
+			}
+			<p class="demo-note">
+				Set <code>src</code> plus an <code>alt</code> to cover
+				the common portrait case. The image is cropped to the
+				frame with <code>object-fit: cover</code>.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				Width:          "8rem",
+				Height:         "8rem",
+				StageClass:     "avatar-demo-stage",
+				StageMinHeight: "6rem",
+				StageMaxHeight: "20rem",
+				HTMLSource:     avatarImageHTML,
+				TemplSource:    avatarImageTempl,
+			}) {
+				@examples.AvatarImage()
+			}
+			@anchoredH3("fallback") {
+				Fallback
+			}
+			<p class="demo-note">
+				Omit <code>src</code> and give the default slot
+				initials, an icon, or another compact placeholder.
+				Add an <code>aria-label</code> when the fallback text
+				is abbreviated.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				Width:          "16rem",
+				Height:         "6rem",
+				StageClass:     "avatar-demo-stage",
+				StageMinHeight: "6rem",
+				StageMaxHeight: "16rem",
+				HTMLSource:     avatarFallbackHTML,
+				TemplSource:    avatarFallbackTempl,
+			}) {
+				@examples.AvatarFallback()
+			}
+		</section>
+	}
+}

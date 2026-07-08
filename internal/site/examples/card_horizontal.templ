@@ -1,0 +1,34 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ CardHorizontal() {
+	@neo.Card(neo.CardOpts{Variant: neo.Set(neo.CardVariantElevated), Orientation: neo.Set(neo.AxisHorizontal)}) {
+		@neo.CardMedia() {
+			<img
+				src="https://collectionapi.metmuseum.org/api/collection/v1/iiif/500938/1020113/main-image"
+				alt="Torban, 19th century, Ukrainian"
+			/>
+		}
+		@neo.CardBody() {
+			<table class="card-pg-spec">
+				<tbody>
+					<tr><th scope="row">Title</th><td>Torban</td></tr>
+					<tr><th scope="row">Date</th><td>19th century</td></tr>
+					<tr><th scope="row">Geography</th><td>Ukraine</td></tr>
+					<tr><th scope="row">Culture</th><td>Ukrainian</td></tr>
+					<tr><th scope="row">Medium</th><td>Wood and wire</td></tr>
+					<tr><th scope="row">Dimensions</th><td>Length 118.1 cm, Width 36.8 cm, Height 17 cm</td></tr>
+					<tr><th scope="row">Classification</th><td>Chordophone-Lute-plucked</td></tr>
+					<tr><th scope="row">Credit Line</th><td>The Crosby Brown Collection of Musical Instruments, 1889</td></tr>
+					<tr><th scope="row">Object Number</th><td>89.4.310</td></tr>
+				</tbody>
+			</table>
+		}
+		@neo.CardFooterAttrs(templ.Attributes{"class": "card-horizontal-footer"}) {
+			<a class="card-pg-link" href="https://www.metmuseum.org/art/collection/search/500938">
+				See source →
+			</a>
+		}
+	}
+}

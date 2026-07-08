@@ -1,0 +1,18 @@
+<neo-tooltip text="Copy to clipboard">
+  <neo-clipcopy
+    data-signals="{clipcopy_value: 'npm install morpheus'}"
+    data-attr:value="$clipcopy_value"
+    copied-duration="1500"
+  >
+    <neo-button>
+      <span data-neo-clipcopy-idle>
+        <neo-icon name="clipboard"></neo-icon>
+        Copy install command
+      </span>
+      <span data-neo-clipcopy-copied>
+        <neo-icon name="check"></neo-icon>
+        Copied
+      </span>
+    </neo-button>
+  </neo-clipcopy>
+</neo-tooltip>

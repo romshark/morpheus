@@ -1,0 +1,34 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ TabsAutoActivate() {
+	@neo.Tabs(neo.TabsOpts{Value: neo.Set("day"), AutoActivate: neo.Set(true)}) {
+		<neo-tablist aria-label="Time range">
+			@neo.Tab("day", "day") {
+				Day
+			}
+			@neo.Tab("week", "day") {
+				Week
+			}
+			@neo.Tab("month", "day") {
+				Month
+			}
+			@neo.Tab("year", "day") {
+				Year
+			}
+		</neo-tablist>
+		@neo.TabPanel("day", "day") {
+			<p>Activity over the last 24 hours.</p>
+		}
+		@neo.TabPanel("week", "day") {
+			<p>Activity over the last 7 days.</p>
+		}
+		@neo.TabPanel("month", "day") {
+			<p>Activity over the last 30 days.</p>
+		}
+		@neo.TabPanel("year", "day") {
+			<p>Activity over the last 365 days.</p>
+		}
+	}
+}

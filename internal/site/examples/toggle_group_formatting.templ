@@ -1,0 +1,25 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ ToggleGroupFormatting() {
+	@neo.ToggleGroup(neo.ToggleGroupOpts{
+		AriaLabel: neo.Set("Text formatting"),
+	}) {
+		@neo.ToggleAttrs(neo.ToggleOpts{Value: neo.Set("bold")}, templ.Attributes{
+			"aria-label": "Bold",
+		}) {
+			B
+		}
+		@neo.ToggleAttrs(neo.ToggleOpts{Value: neo.Set("italic"), Pressed: neo.Set(true)}, templ.Attributes{
+			"aria-label": "Italic",
+		}) {
+			<em>I</em>
+		}
+		@neo.ToggleAttrs(neo.ToggleOpts{Value: neo.Set("underline")}, templ.Attributes{
+			"aria-label": "Underline",
+		}) {
+			<u>U</u>
+		}
+	}
+}

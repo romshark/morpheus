@@ -1,0 +1,27 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ LinkVariants() {
+	@neo.Link(neo.LinkOpts{Href: neo.Set("#")}) {
+		Inline link
+	}
+	@neo.Link(neo.LinkOpts{Href: neo.Set("#"), Variant: neo.Set(neo.LinkVariantButtonDefault)}) {
+		Button default
+	}
+	@neo.Link(neo.LinkOpts{Href: neo.Set("#"), Variant: neo.Set(neo.LinkVariantButtonPrimary)}) {
+		Primary
+	}
+	@neo.Link(neo.LinkOpts{Href: neo.Set("#"), Variant: neo.Set(neo.LinkVariantButtonSecondary)}) {
+		Secondary
+	}
+	@neo.Link(neo.LinkOpts{Href: neo.Set("#"), Variant: neo.Set(neo.LinkVariantButtonGhost)}) {
+		Ghost
+	}
+	@neo.Link(neo.LinkOpts{Href: neo.Set("#"), Variant: neo.Set(neo.LinkVariantButtonDanger)}) {
+		Danger
+	}
+	@neo.Link(neo.LinkOpts{Href: neo.Set("#"), Disabled: neo.Set(true)}) {
+		Disabled
+	}
+}

@@ -1,0 +1,26 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ ComboboxLazy() {
+	@neo.ComboboxAttrs(neo.ComboboxOpts{
+		AriaLabel:         neo.Set("Repository"),
+		Placeholder:       neo.Set("Pick a repository"),
+		SearchPlaceholder: neo.Set("Search repositories…"),
+	}, templ.Attributes{
+		"id":                        "demo-lazy-once-combobox",
+		"data-signals:cmblazyctl":   "new AbortController()",
+		"data-on:neo-combobox-load": "@post('/combobox/lazy-once/', {requestCancellation: $cmblazyctl})",
+		"data-on:neo-popover-close": "$cmblazyctl.abort(); $cmblazyctl = new AbortController()",
+	}) {
+		@neo.Datalist(neo.DatalistOpts{ID: neo.Set("demo-lazy-once-combobox-options")}) {
+			<div
+				class="combobox-lazy-placeholder"
+				{ neo.AsyncPlaceholder()... }
+			>
+				<neo-spinner></neo-spinner>
+				Loading…
+			</div>
+		}
+	}
+}

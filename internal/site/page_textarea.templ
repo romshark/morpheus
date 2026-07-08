@@ -1,0 +1,152 @@
+package site
+
+import (
+	"github.com/romshark/morpheus/internal/href"
+	"github.com/romshark/morpheus/internal/site/examples"
+)
+
+templ PageTextarea(morpheusVersion string) {
+	@PageDoc(href.PageTextarea(), "Textarea", morpheusVersion) {
+		<section class="demo">
+			@anchoredH2("overview") {
+				Textarea
+			}
+			<p class="intro">
+				Component <code>{ `<neo-textarea>` }</code> is a
+				native <code>{ `<textarea>` }</code> (kept in the
+				element's shadow root) with declarative manual-resize
+				handles and auto-grow on either axis. Native textarea
+				attributes (<code>rows</code>, <code>placeholder</code>,
+				<code>maxlength</code>, <code>value</code>, …) go on
+				the host and are forwarded to the field; the field
+				stays fully native (form participation, IME, selection).
+				Because it lives in the shadow, a fat morph can
+				re-render the host without disturbing the live field.
+			</p>
+			@Playground(PlaygroundOpts{
+				ID:     "textarea-playground",
+				States: textareaPlaygroundStates(),
+			})
+			@anchoredH2("reference") {
+				Reference
+			}
+			@ComponentDocs(textareaDoc)
+		</section>
+		<section class="demo">
+			@anchoredH2("examples") {
+				Examples
+			}
+			@anchoredH3("disabled") {
+				Disabled
+			}
+			<p class="demo-note">
+				<code>disabled</code> on the host disables the
+				native field in the shadow root and applies the
+				disabled surface state to the host.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     textareaDisabledHTML,
+				TemplSource:    textareaDisabledTempl,
+			}) {
+				@examples.TextareaDisabled()
+			}
+			@anchoredH3("manual-resize") {
+				Manual resize
+			}
+			<p class="demo-note">
+				<code>scale-vertical</code> and
+				<code>scale-horizontal</code> on the host show the
+				native resize handle on that axis. Without either,
+				the field is fixed at its <code>rows</code>-derived
+				size.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     textareaManualResizeHTML,
+				TemplSource:    textareaManualResizeTempl,
+			}) {
+				@examples.TextareaManualResize()
+			}
+			@anchoredH3("auto-grow-height") {
+				Auto-grow height
+			}
+			<p class="demo-note">
+				Bare <code>auto-resize-height</code> grows to fit
+				the content with no upper bound;
+				<code>{ `auto-resize-height="12rem"` }</code>
+				caps the growth and reveals the scrollbar past
+				that.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     textareaAutoGrowHeightHTML,
+				TemplSource:    textareaAutoGrowHeightTempl,
+			}) {
+				@examples.TextareaAutoGrowHeight()
+			}
+			@anchoredH3("auto-grow-width") {
+				Auto-grow width
+			}
+			<p class="demo-note">
+				<code>auto-resize-width</code> stops the field from
+				wrapping and grows it horizontally to the natural
+				longest line, capped here at 20rem. Combine with
+				<code>auto-resize-height</code> to get a textarea
+				that snaps in both axes.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     textareaAutoGrowWidthHTML,
+				TemplSource:    textareaAutoGrowWidthTempl,
+			}) {
+				@examples.TextareaAutoGrowWidth()
+			}
+		</section>
+	}
+}
+
+var textareaDoc = ComponentDoc{
+	Attributes: []DocAttribute{
+		{Name: "value", Type: "string", Observed: true,
+			Description: templ.Raw("Field value, not the light-DOM text content. Writes update the field live unless it has focus. <code>value=\"\"</code> clears; an absent attribute leaves the current value untouched.")},
+		{Name: "disabled", Type: "boolean", Default: "false", Observed: true,
+			Description: templ.Raw("Disable the field. The host shows the disabled state and forwards it to the native field.")},
+		{Name: "size", Type: `"sm" | "lg"`,
+			Description: templ.Raw("Control-size step: <code>sm</code> compact, <code>lg</code> large. Omit for the default size.")},
+		{Name: "scale-horizontal", Type: "boolean", Default: "false", Observed: true,
+			Description: templ.Raw("Show a manual resize handle on the X axis.")},
+		{Name: "scale-vertical", Type: "boolean", Default: "false", Observed: true,
+			Description: templ.Raw("Show a manual resize handle on the Y axis.")},
+		{Name: "auto-resize-width", Type: "boolean | length", Default: "false", Observed: true,
+			Description: templ.Raw("Auto-grow the field on the X axis. Bare attribute grows without limit; a CSS length value caps the width.")},
+		{Name: "auto-resize-height", Type: "boolean | length", Default: "false", Observed: true,
+			Description: templ.Raw("Auto-grow the field on the Y axis. Bare attribute grows without limit; a CSS length value caps the height.")},
+		{Name: "(native passthrough)", Type: "none",
+			Description: templ.Raw("<code>rows</code>, <code>cols</code>, <code>placeholder</code>, <code>maxlength</code>, <code>readonly</code>, <code>disabled</code>, <code>required</code>, <code>wrap</code>, <code>aria-*</code>, … are forwarded to the field. <code>name</code> submits via the form-associated host.")},
+	},
+	Events: []DocEvent{
+		{Name: "input", URL: W3CEventURL("input"), Bubbles: true,
+			Description: templ.Raw("Standard input event, bubbling from the native field. The host adds no custom events; listen for the native ones.")},
+		{Name: "change", URL: W3CEventURL("change"), Bubbles: true,
+			Description: templ.Raw("Standard change event, bubbling from the native field.")},
+	},
+	CSSProps: []DocCSSProp{
+		{Name: "--neo-textarea-bg", Default: "var(--neo-button-bg)",
+			Description: templ.Raw("Field background.")},
+		{Name: "--neo-textarea-color", Default: "var(--neo-button-color)",
+			Description: templ.Raw("Field text color.")},
+		{Name: "--neo-textarea-border-color", Default: "var(--neo-button-border-color)",
+			Description: templ.Raw("Border color.")},
+		{Name: "--neo-textarea-radius", Default: "var(--neo-button-radius)",
+			Description: templ.Raw("Corner radius.")},
+		{Name: "--neo-textarea-padding", Default: "calc(var(--page-spacing, 0.25rem) * 2) calc(var(--page-spacing, 0.25rem) * 3)",
+			Description: templ.Raw("Inner padding.")},
+		{Name: "--neo-textarea-focus-ring", Default: "var(--neo-button-focus-ring)",
+			Description: templ.Raw("Focus ring.")},
+		{Name: "--neo-textarea-min-width", Default: "16rem",
+			Description: templ.Raw("Minimum field width.")},
+		{Name: "--neo-textarea-min-height", Default: "4rem",
+			Description: templ.Raw("Minimum field height.")},
+	},
+}

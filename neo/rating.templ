@@ -1,0 +1,78 @@
+package neo
+
+// Rating prerenders <neo-rating> with the same symbol markup and ARIA
+// the JS host would build on connect, so the control paints once with
+// no upgrade flicker. The host's reconcile() adopts the prerendered
+// [data-neo-rating-symbols] subtree when its shape matches (symbol
+// count == max, same icon) instead of rebuilding it.
+templ Rating(opts RatingOpts) {
+	@RatingAttrs(opts, nil)
+}
+
+// RatingAttrs is [Rating] with an extra attribute set.
+templ RatingAttrs(opts RatingOpts, attrs templ.Attributes) {
+	<neo-rating
+		role="slider"
+		if opts.Value.IsSet() {
+			value={ opts.valueStr() }
+		}
+		if opts.Max.IsSet() {
+			max={ opts.maxStr() }
+		}
+		if opts.Precision.IsSet() {
+			precision={ opts.precisionStr() }
+		}
+		{ opts.Icon.Attrs("icon")... }
+		{ opts.Label.Attrs("label")... }
+		{ opts.Size.Attrs("size")... }
+		aria-orientation="horizontal"
+		aria-valuemin="0"
+		aria-valuemax={ opts.maxStr() }
+		aria-valuenow={ opts.valueStr() }
+		aria-valuetext={ opts.valueText() }
+		if opts.ariaLabel() != "" {
+			aria-label={ opts.ariaLabel() }
+		}
+		if opts.Disabled.Or(false) {
+			disabled
+			aria-disabled="true"
+			tabindex="-1"
+		}
+		else
+		if opts.Readonly.Or(false) {
+			readonly
+			aria-readonly="true"
+			tabindex="-1"
+		} else {
+			tabindex="0"
+		}
+		{ attrs... }
+	>
+		@ratingSymbols(opts)
+	</neo-rating>
+}
+
+// ratingSymbols emits the decorative symbol row. The host carries the
+// slider semantics, so the row is aria-hidden. Each symbol stacks
+// empty, candidate, and committed layers; the candidate layer starts
+// at zero width and is driven by hover/drag in the JS host.
+templ ratingSymbols(opts RatingOpts) {
+	<div data-neo-rating-symbols aria-hidden="true">
+		for _, i := range opts.symbolIndices() {
+			<span data-neo-rating-symbol>
+				<span data-neo-rating-empty>
+					@Icon(opts.icon())
+				</span>
+				<span data-neo-rating-preview style="width: 0%">
+					@Icon(opts.icon())
+				</span>
+				<span
+					data-neo-rating-full
+					style={ "width: " + formatPct(opts.symbolPct(i)) }
+				>
+					@Icon(opts.icon())
+				</span>
+			</span>
+		}
+	</div>
+}

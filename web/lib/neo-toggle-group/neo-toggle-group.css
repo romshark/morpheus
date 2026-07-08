@@ -1,0 +1,103 @@
+/* -----------------------------------------------------------------------
+ * <neo-toggle-group>
+ * -----------------------------------------------------------------------
+ * Same segmented-pill styling as <neo-buttongroup>: overlap 1px borders
+ * on adjacent children, round only the outer corners, lift hovered /
+ * pressed children so their full border paints over neighbours. */
+
+neo-toggle-group {
+	display: inline-flex;
+}
+
+neo-toggle-group > neo-toggle {
+	border-radius: 0;
+	position: relative;
+	/* The group border/separators already define the composed control.
+	 * Child contrast rings would appear as stray inner white/gray seams. */
+	--neo-contrast-ring: 0 0 0 0 transparent;
+}
+
+neo-toggle-group > * + * {
+	margin-left: -1px;
+}
+
+neo-toggle-group > neo-toggle:first-child {
+	border-top-left-radius: var(--neo-button-radius);
+	border-bottom-left-radius: var(--neo-button-radius);
+}
+
+neo-toggle-group > neo-toggle:last-child {
+	border-top-right-radius: var(--neo-button-radius);
+	border-bottom-right-radius: var(--neo-button-radius);
+}
+
+neo-toggle-group > neo-toggle:hover,
+neo-toggle-group > neo-toggle:focus-visible {
+	z-index: 1;
+}
+
+neo-toggle-group > neo-toggle[pressed]:not([pressed="false" i]),
+neo-toggle-group > neo-toggle[aria-pressed="true"] {
+	border-color: var(--neo-button-border-color);
+	box-shadow: none;
+	z-index: 2;
+}
+
+/* Variant pressed states set their own transparent border on standalone
+ * toggles. In a group, keep the shared segmented border visible and
+ * consistent regardless of the pressed toggle's variant. */
+neo-toggle-group > neo-toggle[variant][pressed]:not([pressed="false" i]),
+neo-toggle-group > neo-toggle[variant][aria-pressed="true"] {
+	border-color: var(--neo-button-border-color);
+}
+
+neo-toggle-group[orientation="vertical"] {
+	flex-direction: column;
+}
+
+neo-toggle-group[orientation="vertical"] > * + * {
+	margin-left: 0;
+	margin-top: -1px;
+}
+
+neo-toggle-group[orientation="vertical"] > neo-toggle:first-child {
+	border-radius: var(--neo-button-radius) var(--neo-button-radius) 0 0;
+}
+
+neo-toggle-group[orientation="vertical"] > neo-toggle:last-child {
+	border-radius: 0 0 var(--neo-button-radius) var(--neo-button-radius);
+}
+
+neo-toggle-group[orientation="vertical"] > neo-toggle:not(:first-child):not(:last-child) {
+	border-radius: 0;
+}
+
+/* High contrast: thicken to a 2px edge with box-shadow, never a wider
+ * border or a wider overlap, both of which reflow on toggle. An outset ring on
+ * the host doubles the outer frame; an inset shadow on each non-last
+ * segment doubles the shared divider. Both are layout-free. */
+@media (prefers-contrast: more) {
+	neo-toggle-group {
+		border-radius: var(--neo-button-radius);
+		box-shadow: 0 0 0 1px var(--neo-button-color);
+	}
+	neo-toggle-group > neo-toggle:not(:last-child) {
+		box-shadow: inset -1px 0 0 var(--neo-button-color);
+	}
+	neo-toggle-group[orientation="vertical"] > neo-toggle:not(:last-child) {
+		box-shadow: inset 0 -1px 0 var(--neo-button-color);
+	}
+}
+
+:root[data-pref-contrast-more] neo-toggle-group {
+	border-radius: var(--neo-button-radius);
+	box-shadow: 0 0 0 1px var(--neo-button-color);
+}
+
+:root[data-pref-contrast-more] neo-toggle-group > neo-toggle:not(:last-child) {
+	box-shadow: inset -1px 0 0 var(--neo-button-color);
+}
+
+:root[data-pref-contrast-more] neo-toggle-group[orientation="vertical"] > neo-toggle:not(:last-child) {
+	box-shadow: inset 0 -1px 0 var(--neo-button-color);
+}

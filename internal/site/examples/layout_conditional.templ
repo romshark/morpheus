@@ -1,0 +1,39 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ LayoutConditional() {
+	@neo.LayoutAttrs(
+		neo.LayoutOpts{
+			Direction:      neo.Set(neo.Row),
+			AlignItems:     neo.Set(neo.AlignItemsCenter),
+			JustifyContent: neo.Set(neo.JustifyContentSpaceBetween),
+			Gap:            neo.Set(neo.GapSm),
+			Container:      neo.Set(true),
+		},
+		neo.Item(neo.ItemOpts{Width: neo.Set(neo.ItemSizeFull), MinWidth0: neo.Set(true)}),
+	) {
+		<strong>Projects</strong>
+		<span { neo.Item(neo.ItemOpts{HideBelow: neo.Set(neo.CollapseSm)})... }>
+			3 active projects
+		</span>
+		<span { neo.Item(neo.ItemOpts{ShowBelow: neo.Set(neo.CollapseSm)})... }>
+			3 active
+		</span>
+		@neo.ButtonAttrs(
+			neo.ButtonOpts{Variant: neo.Set(neo.ButtonVariantPrimary)},
+			neo.Item(neo.ItemOpts{HideBelow: neo.Set(neo.CollapseSm)}),
+		) {
+			Create project
+		}
+		@neo.ButtonAttrs(
+			neo.ButtonOpts{Variant: neo.Set(neo.ButtonVariantPrimary)},
+			templ.Attributes{
+				"aria-label":     "Create project",
+				"neo-show-below": "sm",
+			},
+		) {
+			@neo.Icon("plus")
+		}
+	}
+}

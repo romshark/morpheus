@@ -1,0 +1,177 @@
+package site
+
+import (
+	"github.com/romshark/morpheus/internal/href"
+	"github.com/romshark/morpheus/internal/site/examples"
+)
+
+templ PageColorField(morpheusVersion string) {
+	@PageDoc(href.PageColorField(), "Color field", morpheusVersion) {
+		<section class="demo">
+			@anchoredH2("overview") {
+				Color field
+			}
+			<p class="intro">
+				Component <code>{ "<neo-color-field>" }</code> is a
+				2D saturation/value picker painted over a base hue,
+				with pointer and arrow-key handle movement. The
+				host reflects <code>value</code> (hex); set
+				<code>hue</code> to fix the base hue, or omit it
+				and the kit derives one from <code>value</code>,
+				so the simplest usage is a single
+				<code>{ `value="#rrggbb"` }</code>.
+			</p>
+			@Playground(PlaygroundOpts{
+				ID:     "color-field-playground",
+				States: colorFieldPlaygroundStates(),
+			})
+			@anchoredH2("reference") {
+				Reference
+			}
+			@ComponentDocs(colorFieldDoc)
+		</section>
+		<section class="demo">
+			@anchoredH2("examples") {
+				Examples
+			}
+			@anchoredH3("derived-hue") {
+				Derived hue
+			}
+			<p class="demo-note">
+				The simplest form. Pass a
+				<code>value</code> hex and the host derives the
+				base hue from it on connect, so a freshly mounted
+				picker shows the handle on the matching point of
+				the saturation/value plane.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     colorFieldDerivedHueHTML,
+				TemplSource:    colorFieldDerivedHueTempl,
+			}) {
+				@examples.ColorFieldDerivedHue()
+			}
+			@anchoredH3("explicit-hue") {
+				Explicit hue
+			}
+			<p class="demo-note">
+				Set <code>hue</code> in degrees
+				to override the derived value. Useful when the
+				selected colour is desaturated (so the derived
+				hue would be ambiguous) or when you want the
+				field's gradient to stay anchored to a brand hue
+				while the handle picks a tint.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     colorFieldExplicitHueHTML,
+				TemplSource:    colorFieldExplicitHueTempl,
+			}) {
+				@examples.ColorFieldExplicitHue()
+			}
+			@anchoredH3("disabled") {
+				Disabled
+			}
+			<p class="demo-note">
+				Pointer events are blocked, the
+				handle is non-interactive, and the host fades to
+				a muted state. The currently-selected colour
+				still reads correctly.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     colorFieldDisabledHTML,
+				TemplSource:    colorFieldDisabledTempl,
+			}) {
+				@examples.ColorFieldDisabled()
+			}
+			@anchoredH3("custom-size") {
+				Custom size
+			}
+			<p class="demo-note">
+				The field reads its dimensions
+				from the
+				<code>{ "--neo-color-field-width" }</code> and
+				<code>{ "--neo-color-field-height" }</code>
+				custom properties, so any inline
+				<code>style</code> or scoped CSS rule resizes
+				the picker without changing markup.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     colorFieldCustomSizeHTML,
+				TemplSource:    colorFieldCustomSizeTempl,
+				CSSSource:      colorFieldCustomSizeCSS,
+			}) {
+				@examples.ColorFieldCustomSize()
+			}
+		</section>
+		<section class="demo">
+			@anchoredH2("examples-datastar") {
+				Examples: Datastar
+			}
+			@anchoredH3("morphing-during-interaction") {
+				Morphing during interaction
+			}
+			<p class="demo-note">
+				A Datastar fat-morph can change
+				<code>value</code>, <code>hue</code>, or
+				<code>disabled</code> mid-interaction.
+			</p>
+			<ul class="demo-note">
+				<li>
+					The host stays mounted and reconciles its
+					handle position and disabled state in place:
+					no re-mount, no lost focus. Autoplay cycles
+					the states below to simulate the morphs.
+				</li>
+				<li>
+					The <code>cf_morph_value</code> signal mirrors
+					the live color (seeded by each morph, updated
+					on <code>neo-color-field-input</code>) and
+					drives the hex readout below the field.
+				</li>
+			</ul>
+			@Playground(PlaygroundOpts{
+				ID:       "color-field-morph-playground",
+				Autoplay: true,
+				States:   colorFieldMorphStates(),
+			})
+		</section>
+	}
+}
+
+var colorFieldDoc = ComponentDoc{
+	Attributes: []DocAttribute{
+		{Name: "value", Type: "string", Default: "#2563eb", Reflected: true, Observed: true,
+			Description: templ.Raw("Selected color as <code>#rrggbb</code>.")},
+		{Name: "hue", Type: "number", Observed: true,
+			Description: templ.Raw("Base hue in degrees. If omitted, the hue is derived from <code>value</code>.")},
+		{Name: "disabled", Type: "boolean", Default: "false", Observed: true,
+			Description: templ.Raw("Disables pointer and keyboard interaction.")},
+		{Name: "aria-label", Type: "string", Default: "Color field",
+			Description: templ.Raw("Accessible label for the 2D field control.")},
+	},
+	Events: []DocEvent{
+		{Name: "neo-color-field-input", Detail: "{ value: string, hue: number, x: number, y: number }", Bubbles: true,
+			Description: templ.Raw("Fires continuously while the handle moves.")},
+		{Name: "neo-color-field-change", Detail: "{ value: string, hue: number, x: number, y: number }", Bubbles: true,
+			Description: templ.Raw("Fires when a drag or keyboard move commits.")},
+	},
+	CSSProps: []DocCSSProp{
+		{Name: "--neo-color-field-width", Default: "14rem",
+			Description: templ.Raw("Field width.")},
+		{Name: "--neo-color-field-height", Default: "9rem",
+			Description: templ.Raw("Field height.")},
+		{Name: "--neo-color-field-radius", Default: "var(--page-radius, 0.5rem)",
+			Description: templ.Raw("Corner radius.")},
+		{Name: "--neo-color-field-handle-size", Default: "1rem",
+			Description: templ.Raw("Handle diameter.")},
+		{Name: "--neo-color-field-border-width", Default: "1px",
+			Description: templ.Raw("Border width.")},
+		{Name: "--neo-color-field-border-color", Default: "color-mix(in srgb, var(--page-fg) 16%, transparent)",
+			Description: templ.Raw("Border color.")},
+		{Name: "--neo-color-field-focus-ring", Default: "var(--accent, currentColor)",
+			Description: templ.Raw("Focus-visible outline color.")},
+	},
+}

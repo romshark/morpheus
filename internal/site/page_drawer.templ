@@ -1,0 +1,386 @@
+package site
+
+import (
+	"github.com/romshark/morpheus/internal/href"
+	"github.com/romshark/morpheus/internal/site/examples"
+	"github.com/romshark/morpheus/neo"
+)
+
+templ PageDrawer(morpheusVersion string) {
+	@PageDoc(href.PageDrawer(), "Drawer", morpheusVersion) {
+		@drawerSimulator()
+		<section class="demo">
+			@anchoredH2("overview") {
+				Drawer
+			}
+			<p class="intro">
+				Component <code>{ "<neo-drawer>" }</code> is a modal
+				side-sheet on the platform
+				<code>{ "<dialog>" }</code>. Same browser-owned
+				modal lifecycle as{ " " }
+				@neo.Link(neo.LinkOpts{Href: neo.Set(href.PageDialog())}) {
+					Dialog
+				}
+				, anchored
+				to one of four viewport edges via <code>side</code>
+				(<code>right</code> default,
+				<code>left</code> / <code>top</code> /
+				<code>bottom</code>) and animated in with a slide
+				transform. Dismiss via backdrop, Esc, or swipe
+				toward the anchored edge; set
+				<code>{ `dismissible="false"` }</code> to force an
+				explicit button choice.
+			</p>
+			@Playground(PlaygroundOpts{
+				ID:     "drawer-playground",
+				Height: "20rem",
+				States: drawerPlaygroundStates(),
+			})
+			@anchoredH2("reference") {
+				Reference
+			}
+			@ComponentDocs(drawerDoc)
+		</section>
+		<section class="demo">
+			@anchoredH2("examples") {
+				Examples
+			}
+			@anchoredH3("sides") {
+				Sides
+			}
+			<p class="demo-note">
+				Same markup, different <code>side</code>. The
+				panel anchors to that edge and slides in along
+				the matching axis; width vs height defaults
+				swap automatically.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     drawerSidesHTML,
+				TemplSource:    drawerSidesTempl,
+			}) {
+				@examples.DrawerSides()
+			}
+			@anchoredH3("frost-glass") {
+				Frost glass
+			}
+			<p class="demo-note">
+				Theme the surface by setting
+				<code>{ `--neo-dialog-*` }</code> tokens inline
+				on the host.
+			</p>
+			<ul class="demo-note">
+				<li>
+					The drawer reuses the dialog's surface
+					tokens, so any recipe that frosts a centred
+					dialog frosts the side sheet too.
+				</li>
+				<li>
+					Here a 22px backdrop blur on the surface plus
+					a 6px overlay blur read through both layers as
+					a deep frosted scene.
+				</li>
+			</ul>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     drawerFrostGlassHTML,
+				TemplSource:    drawerFrostGlassTempl,
+				CSSSource:      drawerFrostGlassCSS,
+			}) {
+				@examples.DrawerFrostGlass()
+			}
+			@anchoredH3("non-dismissible") {
+				Non-dismissible
+			}
+			<p class="demo-note">
+				For must-decide flows where dismissing implicitly
+				would be ambiguous, set
+				<code>{ `dismissible="false"` }</code> on the
+				host: backdrop click and Esc no longer close, so
+				the user must pick a button.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     drawerNonDismissibleHTML,
+				TemplSource:    drawerNonDismissibleTempl,
+			}) {
+				@examples.DrawerNonDismissible()
+			}
+			@anchoredH3("scrolling-body") {
+				Scrolling body
+			}
+			<p class="demo-note">
+				The body region scrolls independently while the
+				header and footer stay pinned, common for a
+				settings drawer with many fields.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     drawerScrollingBodyHTML,
+				TemplSource:    drawerScrollingBodyTempl,
+			}) {
+				@examples.DrawerScrollingBody()
+			}
+			@anchoredH3("touch-dismiss") {
+				Touch-dismiss
+			}
+			<p class="demo-note">
+				Mobile-style drag-to-close, on by default. A
+				single-touch swipe in the closing direction
+				follows the finger; release past the threshold or
+				a fast flick closes, otherwise it snaps back.
+			</p>
+			<ul class="demo-note">
+				<li>
+					Axis follows <code>side</code>: left/right
+					drawers take horizontal swipes, top/bottom
+					vertical.
+				</li>
+				<li>
+					The threshold defaults to half the panel's
+					relevant dimension; pass a CSS length (here
+					<code>{ `touch-dismiss="120px"` }</code>) to
+					pin it, or <code>{ `touch-dismiss="off"` }</code>
+					to opt out.
+				</li>
+				<li>
+					Try the preview on a touchscreen, or with
+					browser device-toolbar touch emulation.
+				</li>
+			</ul>
+			<p class="demo-note">
+				The gesture stands down for descendants that own
+				a same-axis gesture of their own (same-axis
+				scrollable containers, range inputs, sliders,
+				resizable handles, color fields, or any element
+				marked
+				<code>{ `[data-neo-drawer-touch-ignore]` }</code>),
+				and is disabled when
+				<code>{ `dismissible="false"` }</code>. The
+				<code>{ `<neo-slider>` }</code> in the panel
+				below demonstrates this: dragging the slider
+				thumb horizontally never closes the drawer.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     drawerTouchDismissHTML,
+				TemplSource:    drawerTouchDismissTempl,
+				CSSSource:      drawerTouchDismissCSS,
+			}) {
+				@examples.DrawerTouchDismiss()
+			}
+			@anchoredH3("from-dialog") {
+				Opened from a dialog
+			}
+			<p class="demo-note">
+				Open a drawer from inside a dialog. The dialog's
+				<em>Connected devices…</em> button triggers a nested
+				<code>{ "<neo-drawer>" }</code> that slides in over the
+				modal, so both overlays are open together; each keeps the
+				page behind it from scrolling while its own content
+				scrolls. Open the dialog, then click 
+				<em>
+					Connected
+					devices…
+				</em>.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     drawerFromDialogHTML,
+				TemplSource:    drawerFromDialogTempl,
+			}) {
+				@examples.DrawerFromDialog()
+			}
+		</section>
+		<section class="demo">
+			@anchoredH2("examples-datastar") {
+				Examples: Datastar
+			}
+			<p class="demo-note">
+				Load the body on every open. A
+				<code>{ `[data-neo-async-placeholder]` }</code>
+				child holds skeleton bars; opening posts to the
+				server, whose response morph-patches real content
+				in to replace it.
+			</p>
+			<ul class="demo-note">
+				<li>
+					On close the host reinstates the placeholder
+					after the slide-out finishes (so it doesn't
+					flash through the closing panel), so each open
+					shows it again until the next response resolves.
+				</li>
+				<li>
+					The editor below is bound to the
+					<code>drawer_async_html</code> signal the server
+					reads at request time; edit it to change the
+					next response.
+				</li>
+			</ul>
+			@asyncDrawerDemo()
+			@drawerAsyncFailureDemo()
+		</section>
+	}
+}
+
+var drawerDoc = ComponentDoc{
+	Attributes: []DocAttribute{
+		{Name: "open", Type: "boolean", Default: "false", Reflected: true, Observed: true,
+			Description: templ.Raw("Controls drawer visibility.")},
+		{Name: "side", Type: `"right" | "left" | "top" | "bottom"`, Default: "right", Observed: true,
+			Description: templ.Raw("Edge the drawer slides in from.")},
+		{Name: "dismissible", Type: "true | false", Default: "true",
+			Description: templ.Raw("Backdrop click and <code>Esc</code> close the drawer. Set <code>dismissible=\"false\"</code> to require an explicit close.")},
+		{Name: "touch-dismiss", Type: `"off" | CSS length`, Default: "on",
+			Description: templ.Raw("Drag-to-close gesture. " +
+				"On by default; set <code>touch-dismiss=\"off\"</code> " +
+				"(or <code>\"false\"</code> / <code>\"no\"</code> / " +
+				"<code>\"none\"</code>) to disable. The default close " +
+				"threshold is half the panel's relevant dimension along " +
+				"the swipe axis; pass a CSS length (e.g. <code>120</code>, " +
+				"<code>120px</code>, or <code>40%</code>) to pin it explicitly. Touches " +
+				"that start on a same-axis scrollable child or on an " +
+				"element that owns a same-axis gesture (range input, " +
+				"slider, resizable handle, color field, or any " +
+				"<code>[data-neo-drawer-touch-ignore]</code> descendant) " +
+				"are ignored. Disabled when <code>dismissible=\"false\"</code>.")},
+	},
+	Slots: []DocSlot{
+		{Name: "default",
+			Description: templ.Raw("A <code>&lt;dialog&gt;</code> with optional <code>[data-neo-drawer-header]</code>, <code>[data-neo-drawer-body]</code>, <code>[data-neo-drawer-footer]</code> children.")},
+		{Name: "[data-neo-drawer-title]",
+			Description: templ.Raw("Accessible name for the drawer; its id wires the dialog's <code>aria-labelledby</code>.")},
+		{Name: "[data-neo-drawer-description]",
+			Description: templ.Raw("Accessible description; its id wires the dialog's <code>aria-describedby</code>.")},
+		{Name: "[data-neo-drawer-trigger]",
+			Description: templ.Raw("Element that opens the drawer on click.")},
+		{Name: "[data-neo-drawer-close]",
+			Description: templ.Raw("Element that closes the drawer on click (matched via <code>closest</code>, so a descendant works too).")},
+		{Name: "[data-neo-async-placeholder]",
+			Description: templ.Raw("Loading skeleton swapped in while the body morphs in.")},
+	},
+	Events: []DocEvent{
+		{Name: "neo-drawer-open", Bubbles: true,
+			Description: templ.Raw("Fires when the drawer opens.")},
+		{Name: "neo-drawer-close", Bubbles: true,
+			Description: templ.Raw("Fires when the drawer closes.")},
+	},
+	CSSProps: []DocCSSProp{
+		{Name: "--neo-drawer-width", Default: "22rem",
+			Description: templ.Raw("Panel width for the <code>left</code> and <code>right</code> sides.")},
+		{Name: "--neo-drawer-height", Default: "16rem",
+			Description: templ.Raw("Panel height for the <code>top</code> and <code>bottom</code> sides.")},
+		{Name: "--neo-drawer-enter-duration", Default: "calc(220ms * var(--neo-duration-scale, 1))",
+			Description: templ.Raw("Slide and fade transition duration. Surface colors, border, shadow, and padding reuse the <code>--neo-dialog-*</code> tokens.")},
+	},
+}
+
+// asyncDrawerDemo: a drawer whose body is loaded on every open via a
+// Datastar action. The AbortController and the simulator's response
+// HTML are seeded with `data-signals` on the host. The drawer's
+// `[data-neo-async-placeholder]` skeleton is reinstated by the host on
+// close so each open shows the placeholder until the next response
+// resolves.
+templ asyncDrawerDemo() {
+	@anchoredH3("async-loading") {
+		Async loading
+	}
+	@simDelayHint()
+	@demoFrameWith(DemoFrameOpts{
+		Width:          "100%",
+		StageMinHeight: "6rem",
+		StageMaxHeight: "20rem",
+		HTMLSource:     drawerAsyncLoadingHTML,
+		TemplSource:    drawerAsyncLoadingTempl,
+		CSSSource:      drawerAsyncLoadingCSS,
+	}) {
+		@examples.DrawerAsyncLoading()
+	}
+}
+
+templ drawerAsyncFailureDemo() {
+	@anchoredH3("async-load-with-failure-swap") {
+		Async load with failure swap
+	}
+	<p class="demo-note">
+		Async load that shows a failure state and a retry
+		button when the request keeps failing.
+	</p>
+	<ul class="demo-note">
+		<li>
+			The loader lives in the drawer's
+			<code>{ "[data-neo-async-placeholder]" }</code> slot,
+			so close/reopen restores it; on success the server
+			morphs <code>{ "<div id=\"<host-id>-body\">" }</code>
+			in place.
+		</li>
+		<li>
+			Once Datastar exhausts its retry budget, a failure
+			view with a
+			<code>{ "[data-neo-popover-async-retry]" }</code>
+			button replaces the body without closing the drawer.
+		</li>
+		<li>
+			Same failure-swap contract as{ " " }
+			@neo.Link(neo.LinkOpts{Href: neo.Set(href.PagePopover() + "#async-load-with-failure-swap")}) {
+				PopoverAsync
+			}
+			.
+		</li>
+	</ul>
+	@serverErrorControls()
+	@drawerAsyncFailureSimulator()
+	@simDelayHint()
+	@demoFrameWith(DemoFrameOpts{
+		Width:          "100%",
+		StageMinHeight: "6rem",
+		StageMaxHeight: "20rem",
+		TemplSource:    drawerAsyncFailureTempl,
+		CSSSource:      drawerAsyncFailureCSS,
+	}) {
+		@examples.DrawerAsyncFailure()
+	}
+}
+
+templ drawerAsyncFailureSimulator() {
+	<template id="drawerAsyncDemo-success-template">
+		<div id="drawerAsyncDemo-body" class="drawer-async-slot drawer-async-loaded">
+			@templ.Raw(asyncDrawerDefaultHTML)
+		</div>
+	</template>
+}
+
+// drawerSimulator wires /drawer/async-load (the async-loading
+// example) and /drawer/asyncload/ (the failure-swap example).
+templ drawerSimulator() {
+	<script type="module">
+		import sim from "/static/datasim.js";
+
+		const templateHTML = (id) =>
+			document.getElementById(id).innerHTML.trim();
+
+		// Async-loading demo: each drawer open POSTs here. The
+		// simulator reads the response payload off the
+		// `drawer_async_html` signal (seeded on the host) and morphs
+		// it into the drawer body slot.
+		// Datastar matches by id on `#drawer-async-body`, so the
+		// existing wrapper element is updated in place, keeping
+		// the host's saved slot reference valid for restoration on
+		// close.
+		sim.post("/drawer/async-load", async (ctx, sse) => {
+			const s = ctx.signals || {};
+			const html = s.drawer_async_html == null
+				? ""
+				: String(s.drawer_async_html);
+			sse.patchElements(
+				`<div id="drawer-async-body" class="drawer-async-slot drawer-async-loaded">` +
+					html +
+					`</div>`,
+			);
+		});
+
+		sim.post("/drawer/asyncload/", async (_ctx, sse) => {
+			sse.patchElements(templateHTML("drawerAsyncDemo-success-template"));
+		});
+	</script>
+}

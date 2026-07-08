@@ -1,0 +1,286 @@
+/* -----------------------------------------------------------------------
+ * <neo-progress>
+ * -----------------------------------------------------------------------
+ * Read-only sibling of <neo-slider>: same rail / fill / anchor-mark
+ * markup and the same `--neo-slider-*` tokens (so themes apply
+ * automatically), but no thumb, no keyboard interaction, no editable
+ * value display. Header lays out exactly like the slider's header
+ * (label + value + unit) so a row of mixed sliders and progress bars
+ * stays vertically aligned. The track is `role="progressbar"` so AT
+ * announces the value from `aria-valuenow` instead of the slider's
+ * `role="slider"` thumb.
+ *
+ * Shadow-scoped: this file is imported as raw text by neo-progress.ts and
+ * adopted into the host's shadow root via scopeCssToHost() (which rewrites
+ * `neo-progress` selectors to `:host`). It is NOT globally imported, so the
+ * rules only reach the shadow internals. Depends on the `--neo-slider-*`
+ * and `--neo-progress-*` tokens being defined globally above the host (they
+ * inherit across the boundary). See the global block in morpheus.css and
+ * neo-slider.css. A future `prefers-contrast` override must be written
+ * `@media (prefers-contrast: more) :host { … }`, never
+ * `:root[…] neo-progress`: scopeCssToHost can't scope a leading `:root`. */
+
+neo-progress {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+	width: 100%;
+	font-size: inherit;
+	line-height: 1.2;
+}
+
+neo-progress > [data-neo-progress-header] {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 0.5rem;
+}
+
+neo-progress > [data-neo-progress-header] > [data-neo-progress-label] {
+	color: var(--neo-slider-label-color);
+}
+
+neo-progress > [data-neo-progress-header] > [data-neo-progress-output] {
+	display: inline-flex;
+	align-items: baseline;
+	gap: 0.25rem;
+}
+
+neo-progress [data-neo-progress-value] {
+	color: var(--neo-slider-value-color);
+	font-variant-numeric: tabular-nums;
+	min-width: 1ch;
+}
+
+neo-progress [data-neo-progress-unit] {
+	color: var(--neo-slider-unit-color);
+	font-size: 0.85em;
+}
+
+neo-progress > [data-neo-progress-track] {
+	position: relative;
+	height: var(--neo-slider-track-height);
+	/* No thumb to clear, so the track runs edge-to-edge; the small
+	 * inset the slider applies (`margin-inline: thumb-size / 2`)
+	 * would otherwise leave the bar floating away from any flush
+	 * neighbour (label column, mark labels). */
+	/* Layer the track-image over an opaque page-bg backdrop so the rail
+	 * and the anchor borders composite against the same base. See the
+	 * matching `<neo-slider>` rule for the full explanation. */
+	background: var(--neo-slider-track-image) var(--page-bg);
+	border-radius: var(--neo-slider-track-radius);
+	overflow: hidden;
+}
+
+neo-progress[vertical] {
+	display: grid;
+	/* See the matching `<neo-slider>` rule for why col 1 is pinned to
+	 * the rail's length: it stops a wide header from padding col 1
+	 * out and pushing the marks away from the rail. */
+	grid-template-columns: var(--neo-slider-track-height) auto;
+	grid-template-rows: auto minmax(0, 1fr);
+	align-items: stretch;
+	justify-content: start;
+	column-gap: 0.75rem;
+	width: max-content;
+	max-width: 100%;
+}
+
+neo-progress[vertical] > [data-neo-progress-header] {
+	grid-column: 1 / -1;
+	width: 100%;
+}
+
+neo-progress[vertical] > [data-neo-progress-track] {
+	grid-row: 2;
+	align-self: stretch;
+	width: var(--neo-slider-track-height);
+	height: var(--neo-slider-vertical-track-length);
+	min-height: 6rem;
+}
+
+neo-progress > [data-neo-progress-track] > [data-neo-progress-fill] {
+	position: absolute;
+	inset: 0 auto 0 0;
+	background: var(--neo-progress-fill-bg);
+	border-radius: inherit;
+	/* Width / height get set inline in syncValue(); honour the
+	 * caller-supplied easing transition when one is set. */
+	transition: var(--neo-progress-fill-transition, none);
+}
+
+neo-progress[vertical] > [data-neo-progress-track] > [data-neo-progress-fill] {
+	inset: auto 0 0 0;
+}
+
+/* Indeterminate: animate a narrow segment sliding along the rail
+ * instead of painting a determinate fill. The fill width / height
+ * inline styles set by syncValue() get cleared in the indeterminate
+ * branch, so the keyframe rule wins. */
+neo-progress[indeterminate] > [data-neo-progress-track] > [data-neo-progress-fill] {
+	animation: neo-progress-indeterminate var(--neo-progress-indeterminate-duration) linear infinite;
+	/* The host lives in light DOM but the rail is in the shadow, so the
+	 * site's manual `:root[data-pref-reduced-motion]` toggle can't reach
+	 * this rule by descendant selector. It flips this inherited name to
+	 * `none` (see neo-progress.global.css) to stop the animation; the rail
+	 * falls back to its static 35% segment. OS reduced-motion is handled
+	 * directly by the @media block below. */
+	animation-name: var(--neo-progress-indeterminate-name, neo-progress-indeterminate);
+}
+neo-progress[indeterminate]:not([vertical]) > [data-neo-progress-track] > [data-neo-progress-fill] {
+	width: 35%;
+	height: 100%;
+}
+neo-progress[indeterminate][vertical] > [data-neo-progress-track] > [data-neo-progress-fill] {
+	width: 100%;
+	height: 35%;
+}
+
+@keyframes neo-progress-indeterminate {
+	0% {
+		transform: translateX(-100%);
+	}
+	100% {
+		transform: translateX(286%);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	neo-progress[indeterminate] > [data-neo-progress-track] > [data-neo-progress-fill] {
+		animation: none;
+	}
+}
+
+/* Anchor dots: same markup as the slider's, painted at each user-
+ * supplied mark value. Pointer-events off because there's no click
+ * handler; they're purely decorative on a read-only bar. */
+neo-progress > [data-neo-progress-track] > [data-neo-progress-anchor] {
+	position: absolute;
+	top: 50%;
+	left: 0;
+	width: var(--neo-slider-anchor-size);
+	height: var(--neo-slider-anchor-size);
+	box-sizing: border-box;
+	margin-top: calc(var(--neo-slider-anchor-size) / -2);
+	margin-left: calc(var(--neo-slider-anchor-size) / -2);
+	border-radius: var(--neo-slider-anchor-radius);
+	background: var(--neo-slider-anchor-bg);
+	border: 1px solid var(--neo-slider-anchor-border);
+	pointer-events: none;
+}
+
+neo-progress[vertical] > [data-neo-progress-track] > [data-neo-progress-anchor] {
+	top: auto;
+	left: 50%;
+	margin-top: 0;
+	margin-bottom: calc(var(--neo-slider-anchor-size) / -2);
+}
+
+/* Flush at-min/at-max dots inward so the rail's edge aligns with the
+ * dot's outer edge instead of bisecting the dot. Set by the JS render
+ * and the templ prerender. */
+neo-progress > [data-neo-progress-track] > [data-neo-progress-anchor][data-neo-mark-edge="start"] {
+	margin-left: 0;
+}
+neo-progress > [data-neo-progress-track] > [data-neo-progress-anchor][data-neo-mark-edge="end"] {
+	margin-left: calc(var(--neo-slider-anchor-size) * -1);
+}
+neo-progress[vertical] > [data-neo-progress-track] > [data-neo-progress-anchor][data-neo-mark-edge="start"] {
+	margin-left: calc(var(--neo-slider-anchor-size) / -2);
+	margin-bottom: 0;
+}
+neo-progress[vertical] > [data-neo-progress-track] > [data-neo-progress-anchor][data-neo-mark-edge="end"] {
+	margin-left: calc(var(--neo-slider-anchor-size) / -2);
+	margin-bottom: calc(var(--neo-slider-anchor-size) * -1);
+}
+
+neo-progress > [data-neo-progress-track] > [data-neo-progress-anchor][data-neo-active] {
+	background: var(--neo-slider-anchor-active-bg);
+	border-color: var(--neo-slider-anchor-active-border);
+}
+
+neo-progress > [data-neo-progress-marks] {
+	position: relative;
+	height: 1lh;
+	margin-top: var(--neo-slider-marks-margin-top);
+	font-size: var(--neo-slider-mark-label-font-size);
+}
+
+neo-progress > [data-neo-progress-marks] > [data-neo-progress-mark-label] {
+	position: absolute;
+	top: 0;
+	transform: translateX(-50%);
+	color: var(--neo-slider-mark-label-color);
+	white-space: nowrap;
+	cursor: default;
+}
+
+neo-progress
+	> [data-neo-progress-marks]
+	> [data-neo-progress-mark-label][data-neo-mark-overlapping]:not([data-neo-mark-visible]):not(
+		[data-neo-mark-hovered]
+	) {
+	opacity: 0;
+}
+
+neo-progress > [data-neo-progress-marks] > [data-neo-progress-mark-label][data-neo-mark-hovered] {
+	z-index: 1;
+	opacity: 1;
+}
+
+neo-progress > [data-neo-progress-marks] > [data-neo-progress-mark-label][data-neo-mark-hover-suppressed] {
+	opacity: 0;
+}
+
+neo-progress > [data-neo-progress-marks] > [data-neo-progress-mark-label][data-neo-mark-edge="start"] {
+	/* biome-ignore lint/complexity/noImportantStyles: pins the edge mark to the rail end, overriding the JS-set inline left percentage. */
+	left: 0 !important;
+	transform: none;
+}
+neo-progress > [data-neo-progress-marks] > [data-neo-progress-mark-label][data-neo-mark-edge="end"] {
+	/* biome-ignore lint/complexity/noImportantStyles: pins the edge mark to the rail end, overriding the JS-set inline left percentage. */
+	left: auto !important;
+	right: 0;
+	transform: none;
+}
+
+neo-progress[vertical] > [data-neo-progress-marks] {
+	grid-row: 2;
+	margin-top: 0;
+	margin-left: 0.4rem;
+	width: max-content;
+	min-width: 1lh;
+	/* Match the rail's height so absolute-positioned mark labels can
+	 * resolve their `top: <pct>%` against the same coordinate space.
+	 * Without this the marks container shrinks to its content (the
+	 * absolutely-positioned children contribute zero to layout
+	 * height), `top: <pct>%` resolves to 0 for everyone, and every
+	 * label stacks at the top of the row. */
+	height: var(--neo-slider-vertical-track-length);
+	min-height: 6rem;
+}
+
+neo-progress[vertical] > [data-neo-progress-marks] > [data-neo-progress-mark-label] {
+	left: 0;
+	transform: translateY(-50%);
+}
+
+/* Edge-mark alignment for vertical bars: a label centred on `top: 0%`
+ * (max, at the top) or `top: 100%` (min, at the bottom) hangs half
+ * outside the rail's vertical extent. Flush the at-min label's
+ * bottom to the rail's bottom and the at-max label's top to the
+ * rail's top so neither clips. The horizontal versions of these
+ * rules above use `left: 0 !important` / `right: 0` which doesn't
+ * help vertical, hence the override here. */
+neo-progress[vertical] > [data-neo-progress-marks] > [data-neo-progress-mark-label][data-neo-mark-edge="end"] {
+	transform: none;
+	/* biome-ignore lint/complexity/noImportantStyles: resets the horizontal edge rule's left/right for vertical orientation. */
+	right: auto !important;
+}
+neo-progress[vertical] > [data-neo-progress-marks] > [data-neo-progress-mark-label][data-neo-mark-edge="start"] {
+	transform: translateY(-100%);
+}
+
+neo-progress > [data-neo-progress-marks] > [data-neo-progress-mark-label][data-neo-active] {
+	color: var(--neo-slider-mark-label-active-color);
+}

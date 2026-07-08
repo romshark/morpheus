@@ -1,0 +1,22 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ LayoutAlign() {
+	@neo.LayoutAttrs(neo.LayoutOpts{
+		Direction:      neo.Set(neo.Row),
+		AlignItems:     neo.Set(neo.AlignItemsCenter),
+		JustifyContent: neo.Set(neo.JustifyContentSpaceBetween),
+		Gap:            neo.Set(neo.GapMd),
+	}, neo.Item(neo.ItemOpts{Grow: neo.Set(true), AlignSelf: neo.Set(neo.AlignSelfStretch), MinWidth0: neo.Set(true)})) {
+		@neo.Badge(neo.BadgeOpts{Variant: neo.Set(neo.BadgeVariantOutline)}) {
+			Logo
+		}
+		@neo.Badge(neo.BadgeOpts{Variant: neo.Set(neo.BadgeVariantOutline)}) {
+			Nav
+		}
+		@neo.Badge(neo.BadgeOpts{Variant: neo.Set(neo.BadgeVariantOutline)}) {
+			Profile
+		}
+	}
+}

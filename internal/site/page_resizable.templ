@@ -1,0 +1,199 @@
+package site
+
+import (
+	"github.com/romshark/morpheus/internal/href"
+	"github.com/romshark/morpheus/internal/site/examples"
+)
+
+templ PageResizable(morpheusVersion string) {
+	@PageDoc(href.PageResizable(), "Resizable", morpheusVersion) {
+		<section class="demo">
+			@anchoredH2("overview") {
+				Resizable
+			}
+			<p class="intro">
+				Component <code>{ "<neo-resizable>" }</code> is a
+				wrapper that turns any content into a draggable box.
+				The <code>handles</code> attribute picks which edges
+				and corners get a drag handle; clamp the
+				result with <code>min-/max-width</code> and
+				<code>min-/max-height</code>, and snap to a pixel grid
+				with <code>step-horizontal</code> and
+				<code>step-vertical</code>. After the first drag
+				the host owns size as inline styles. Double-click or double-tap a handle to reset its axis back to the natural size.
+			</p>
+			@Playground(PlaygroundOpts{
+				ID:     "resizable-playground",
+				States: resizablePlaygroundStates(),
+			})
+			@anchoredH2("reference") {
+				Reference
+			}
+			@ComponentDocs(resizableDoc)
+		</section>
+		<section class="demo">
+			@anchoredH2("examples") {
+				Examples
+			}
+			@anchoredH3("bottom-right-corner") {
+				Bottom-right corner
+			}
+			<p class="demo-note">
+				The textarea pattern: a single corner handle for when
+				the surrounding layout pins one edge and only the
+				opposite corner should grow.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     resizableCornerHTML,
+				TemplSource:    resizableCornerTempl,
+				CSSSource:      resizableCornerCSS,
+			}) {
+				@examples.ResizableCorner()
+			}
+			@anchoredH3("edges-only") {
+				Edges only
+			}
+			<p class="demo-note">
+				All four edge handles, no corners, so each axis moves
+				independently and the cursor is always single-axis.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     resizableEdgesHTML,
+				TemplSource:    resizableEdgesTempl,
+				CSSSource:      resizableEdgesCSS,
+			}) {
+				@examples.ResizableEdges()
+			}
+			@anchoredH3("all-eight-handles") {
+				All eight handles
+			}
+			<p class="demo-note">
+				Every edge and corner. The corners (NW–SE / NE–SW
+				cursors) sit above the edges so they win on overlap.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     resizableAllHTML,
+				TemplSource:    resizableAllTempl,
+				CSSSource:      resizableAllCSS,
+			}) {
+				@examples.ResizableAll()
+			}
+			@anchoredH3("vertical-only") {
+				Vertical only
+			}
+			<p class="demo-note">
+				A vertical sash. The layout fixes the host's width;
+				only the bottom edge moves, so the cursor stays
+				<code>ns-resize</code>.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     resizableVerticalHTML,
+				TemplSource:    resizableVerticalTempl,
+				CSSSource:      resizableVerticalCSS,
+			}) {
+				@examples.ResizableVertical()
+			}
+			@anchoredH3("horizontal-only") {
+				Horizontal only
+			}
+			<p class="demo-note">
+				A horizontal sash, symmetric to the vertical case: only
+				the right edge moves, cursor stays <code>ew-resize</code>.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     resizableHorizontalHTML,
+				TemplSource:    resizableHorizontalTempl,
+				CSSSource:      resizableHorizontalCSS,
+			}) {
+				@examples.ResizableHorizontal()
+			}
+			@anchoredH3("step-grid") {
+				Step grid
+			}
+			<p class="demo-note">
+				<code>step-horizontal</code> and <code>step-vertical</code>
+				snap each axis to a multiple of their pixel value while
+				dragging, so the box resizes one grid cell at a time
+				instead of continuously. Drag the corner over the grid to
+				see it jump.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     resizableStepHTML,
+				TemplSource:    resizableStepTempl,
+				CSSSource:      resizableStepCSS,
+			}) {
+				@examples.ResizableStep()
+			}
+			@anchoredH3("custom-handle-icon") {
+				Custom handle icon
+			}
+			<p class="demo-note">
+				Drop a child marked
+				<code>{ `data-neo-resizable-icon="<dir>"` }</code> and the
+				host reuses it instead of injecting the default grip.
+				Only the glyph changes; the handle wrapper, positioning,
+				and cursor stay host-owned.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     resizableCustomIconHTML,
+				TemplSource:    resizableCustomIconTempl,
+				CSSSource:      resizableCustomIconCSS,
+			}) {
+				@examples.ResizableCustomIcon()
+			}
+		</section>
+	}
+}
+
+var resizableDoc = ComponentDoc{
+	Attributes: []DocAttribute{
+		{Name: "handles", Type: "string", Observed: true,
+			Description: templ.Raw("Space-separated list: <code>top</code>, <code>bottom</code>, <code>left</code>, <code>right</code>, <code>top-left</code>, <code>top-right</code>, <code>bottom-left</code>, <code>bottom-right</code>.")},
+		{Name: "min-width", Type: "string", Observed: true, Description: templ.Raw("CSS length, mirrored to the inline <code>min-width</code> style. Omit for no minimum (<code>none</code> is invalid for <code>min-*</code>).")},
+		{Name: "max-width", Type: "string", Observed: true, Description: templ.Raw("CSS length or <code>none</code> (no maximum), mirrored to the inline <code>max-width</code> style.")},
+		{Name: "min-height", Type: "string", Observed: true, Description: templ.Raw("CSS length, mirrored to the inline <code>min-height</code> style. Omit for no minimum (<code>none</code> is invalid for <code>min-*</code>).")},
+		{Name: "max-height", Type: "string", Observed: true, Description: templ.Raw("CSS length or <code>none</code> (no maximum), mirrored to the inline <code>max-height</code> style.")},
+		{Name: "width", Type: "string", Observed: true, Description: templ.Raw("Initial width.")},
+		{Name: "height", Type: "string", Observed: true, Description: templ.Raw("Initial height.")},
+		{Name: "step-horizontal", Type: "number", Description: templ.Raw("Snap width to a multiple of this many pixels while dragging. Omit for free resize.")},
+		{Name: "step-vertical", Type: "number", Description: templ.Raw("Snap height to a multiple of this many pixels while dragging. Omit for free resize.")},
+	},
+	Slots: []DocSlot{
+		{Name: "default", Description: templ.Raw("Resizable content.")},
+		{Name: "[data-neo-resizable-icon]",
+			Description: templ.Raw("Custom glyph per direction. The attribute value names the handle (e.g. <code>bottom-right</code>).")},
+	},
+	Events: []DocEvent{
+		{Name: "neo-resizable-start", Bubbles: true,
+			Description: templ.Raw("Fires when a drag begins.")},
+		{Name: "neo-resizable-resize", Detail: "{ width: number, height: number }", Bubbles: true,
+			Description: templ.Raw("Fires on every frame during a drag.")},
+		{Name: "neo-resizable-end", Bubbles: true,
+			Description: templ.Raw("Fires when the drag ends.")},
+	},
+	CSSProps: []DocCSSProp{
+		{Name: "--neo-resizable-handle-color", Default: "var(--muted, currentColor)",
+			Description: templ.Raw("Handle color at rest.")},
+		{Name: "--neo-resizable-handle-hover-color", Default: "var(--page-fg, currentColor)",
+			Description: templ.Raw("Handle color on hover or during a drag.")},
+		{Name: "--neo-resizable-handle-opacity", Default: "0.55",
+			Description: templ.Raw("Handle opacity at rest.")},
+		{Name: "--neo-resizable-handle-hover-opacity", Default: "1",
+			Description: templ.Raw("Handle opacity on hover or during a drag.")},
+		{Name: "--neo-resizable-handle-hover-bg", Default: "color-mix(in srgb, var(--page-fg) 5%, transparent)",
+			Description: templ.Raw("Handle background on hover or during a drag.")},
+		{Name: "--neo-resizable-edge-thickness", Default: "0.5rem",
+			Description: templ.Raw("Hit-area thickness of the edge handles.")},
+		{Name: "--neo-resizable-corner-size", Default: "1rem",
+			Description: templ.Raw("Hit-area size of the corner handles.")},
+		{Name: "--neo-resizable-icon-size", Default: "0.85rem",
+			Description: templ.Raw("Handle glyph size.")},
+	},
+}

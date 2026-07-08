@@ -1,0 +1,9 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ PaginationBoundary() {
+	@neo.Pagination(neo.PaginationOpts{
+		Page: neo.Set(12), Pages: neo.Set(25), BoundaryCount: neo.Set(2),
+	})
+}

@@ -1,0 +1,18 @@
+/* -----------------------------------------------------------------------
+ * <neo-textarea>
+ * -----------------------------------------------------------------------
+ * The field lives in the component's shadow root and is styled there (see
+ * neo-textarea.ts). Only the shared `--neo-textarea-*` design tokens stay
+ * here in the light DOM; they pierce the shadow boundary and are also
+ * consumed by <neo-textinput> and bare <input>s. */
+
+:root {
+	--neo-textarea-bg: var(--neo-button-bg);
+	--neo-textarea-color: var(--neo-button-color);
+	--neo-textarea-border-color: var(--neo-button-border-color);
+	--neo-textarea-radius: var(--neo-button-radius);
+	--neo-textarea-padding: calc(var(--page-spacing, 0.25rem) * 2) calc(var(--page-spacing, 0.25rem) * 3);
+	--neo-textarea-focus-ring: var(--neo-button-focus-ring);
+	--neo-textarea-min-width: 16rem;
+	--neo-textarea-min-height: 4rem;
+}

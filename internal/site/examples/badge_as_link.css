@@ -1,0 +1,10 @@
+.badge-link-demo {
+	text-decoration: none;
+	color: inherit;
+	display: inline-flex;
+	border-radius: var(--neo-badge-radius);
+}
+
+.badge-link-demo:hover neo-badge {
+	filter: brightness(1.05);
+}

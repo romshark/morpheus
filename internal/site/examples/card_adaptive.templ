@@ -1,0 +1,34 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ CardAdaptive() {
+	@neo.Card(neo.CardOpts{Variant: neo.Set(neo.CardVariantElevated), Orientation: neo.Set(neo.AxisHorizontal)}) {
+		@neo.CardMedia() {
+			<video
+				controls
+				preload="metadata"
+				src="https://media.w3.org/2010/05/sintel/trailer.mp4"
+			></video>
+		}
+		@neo.CardHeader() {
+			@neo.CardTitle() {
+				Sintel
+			}
+			@neo.CardDescription() {
+				Blender Open Movie · 2010
+			}
+		}
+		@neo.CardBody() {
+			A short fantasy film by the Blender Foundation, released under
+			Creative Commons BY 3.0. Drag the resize handle on this stage
+			below 28rem to watch the card auto-collapse into a vertical
+			stack, with no viewport reload, no JavaScript, no @media query.
+		}
+		@neo.CardFooterAttrs(templ.Attributes{"class": "card-adaptive-footer"}) {
+			<a class="card-pg-link" target="_blank" href="https://durian.blender.org/">
+				See source →
+			</a>
+		}
+	}
+}

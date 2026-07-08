@@ -1,0 +1,136 @@
+package site
+
+import (
+	"github.com/romshark/morpheus/internal/href"
+	"github.com/romshark/morpheus/internal/site/examples"
+)
+
+templ PageLightbox(morpheusVersion string) {
+	@PageDoc(href.PageLightbox(), "Lightbox", morpheusVersion) {
+		<section class="demo">
+			@anchoredH2("overview") {
+				Lightbox
+			}
+			<p class="intro">
+				Component <code>{ "<neo-lightbox>" }</code> is an
+				overlay that expands arbitrary content from one or
+				more triggers. Mark each opener with
+				<code>[data-neo-lightbox-trigger]</code> and the body
+				with <code>[data-neo-lightbox-content]</code>; the
+				host owns the open / close animation, focus, the
+				backdrop, and <neo-kbd>Esc</neo-kbd> dismissal. By default it
+				rides the top layer to cover the viewport;
+				<code>contained</code> confines the overlay to the host's own box.
+			</p>
+			@Playground(PlaygroundOpts{
+				ID:     "lightbox-playground",
+				States: lightboxPlaygroundStates(),
+			})
+			@anchoredH2("reference") {
+				Reference
+			}
+			@ComponentDocs(lightboxDoc)
+		</section>
+		<section class="demo">
+			@anchoredH2("examples") {
+				Examples
+			}
+			@anchoredH3("image") {
+				Image
+			}
+			<p class="demo-note">
+				A thumbnail opens its full-size image on the top
+				layer over a dimmed backdrop. By default the image
+				zooms out of the thumbnail and shrinks back into it on
+				close (the <code>{ `transition="zoom"` }</code> FLIP).
+				Press the backdrop, the close button, or <neo-kbd>Esc</neo-kbd>
+				to dismiss.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     lightboxDefaultHTML,
+				TemplSource:    lightboxDefaultTempl,
+				CSSSource:      lightboxDefaultCSS,
+			}) {
+				@examples.LightboxDefault()
+			}
+			@anchoredH3("arbitrary-content") {
+				Arbitrary content
+			}
+			<p class="demo-note">
+				The content slot takes any HTML, not just images. This
+				one is a panel with a heading, a description list, and
+				its own close button. A
+				<code>[data-neo-lightbox-title]</code> gives the
+				dialog its accessible name.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     lightboxContentHTML,
+				TemplSource:    lightboxContentTempl,
+				CSSSource:      lightboxContentCSS,
+			}) {
+				@examples.LightboxContent()
+			}
+			@anchoredH3("scoped-to-container") {
+				Scoped to a container
+			}
+			<p class="demo-note">
+				<code>contained</code> confines the
+				overlay to the host's box instead of the viewport, so
+				the panel covers just this card. The host becomes the
+				positioned containing block.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     lightboxContainerHTML,
+				TemplSource:    lightboxContainerTempl,
+			}) {
+				@examples.LightboxContainer()
+			}
+			@anchoredH3("hover-to-open") {
+				Hover to open
+			}
+			<p class="demo-note">
+				With <code>hover</code> the overlay opens on pointer
+				enter and closes after the pointer leaves both trigger
+				and surface. Click still opens it, instantly, for touch
+				and keyboard. Hover the button to see it.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "18rem",
+				HTMLSource:     lightboxHoverHTML,
+				TemplSource:    lightboxHoverTempl,
+				CSSSource:      lightboxHoverCSS,
+			}) {
+				@examples.LightboxHover()
+			}
+		</section>
+		<section class="demo">
+			@anchoredH2("examples-datastar") {
+				Examples: Datastar
+			}
+			@anchoredH3("image-gallery") {
+				Image gallery
+			}
+			<p class="demo-note">
+				Every thumbnail opens the same overlay, which holds a
+				<code>{ "<neo-carousel>" }</code> of the full images. A
+				<code>$gallery_active</code> signal tracks the last
+				thumbnail clicked: each trigger sets it
+				(<code>data-on:click</code>), and the carousel binds to
+				it (<code>data-attr:value</code>) and writes back on
+				navigation, so the photo you click opens first and the
+				signal stays in sync as you swipe.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     lightboxGalleryHTML,
+				TemplSource:    lightboxGalleryTempl,
+				CSSSource:      lightboxGalleryCSS,
+			}) {
+				@examples.LightboxGallery()
+			}
+		</section>
+	}
+}

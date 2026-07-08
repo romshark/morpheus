@@ -1,0 +1,18 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ ToggleSlot() {
+	@neo.ToggleAttrs(neo.ToggleOpts{}, templ.Attributes{
+		"aria-label": "Mute notifications",
+	}) {
+		@neo.ToggleOff() {
+			@neo.Icon("bell")
+			Notifications
+		}
+		@neo.ToggleOn() {
+			@neo.Icon("moon")
+			Muted
+		}
+	}
+}

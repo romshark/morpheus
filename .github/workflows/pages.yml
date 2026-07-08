@@ -1,0 +1,64 @@
+# Build the static demo site and publish it to GitHub Pages.
+#
+# The project repo serves Pages at https://romshark.github.io/morpheus/,
+# a subpath. `make gen BASE=/morpheus` prefixes every root-absolute URL
+# in the generated artifact with /morpheus so assets and links resolve
+# there. See internal/cmd/gen (the -base flag) and the Makefile gen target.
+name: Deploy site to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Serialize deploys; do not cancel an in-progress publish.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache-dependency-path: go.sum
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: web/pnpm-lock.yaml
+
+      - uses: actions/configure-pages@v5
+
+      # make gen runs pnpm install, the esbuild bundle, templ generate,
+      # then internal/cmd/gen. rsync is preinstalled on the runner.
+      - name: Build static site for the /morpheus/ subpath
+        run: make gen BASE=/morpheus
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dst
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

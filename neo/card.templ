@@ -1,0 +1,143 @@
+package neo
+
+// CardVariant picks the surface treatment. Zero value
+// (CardVariantDefault) renders a filled card with a subtle border;
+// CardVariantOutline drops the fill and keeps the border;
+// CardVariantElevated drops the border and adds a soft shadow.
+type CardVariant string
+
+const (
+	CardVariantDefault  CardVariant = ""
+	CardVariantOutline  CardVariant = "outline"
+	CardVariantElevated CardVariant = "elevated"
+)
+
+type CardOpts struct {
+	Variant Attr[CardVariant]
+	// Orientation stacks the card's slots top-to-bottom by default;
+	// AxisHorizontal places the media slot on the left and the remaining
+	// slots in a column on the right (media must be the first child).
+	// Card is CSS-only, so an unsupported raw-HTML value falls back to
+	// the vertical default without a runtime warning.
+	Orientation Attr[Axis]
+}
+
+// Card renders <neo-card>: a surface container with optional
+// data-neo-card-{media,header,title,description,actions,body,footer}
+// slots. No JS; visuals live in morpheus.css. Authors who want a
+// different layout can ignore the slots and style their own
+// children; the slots are just consistent spacing/typography
+// presets.
+templ Card(opts CardOpts) {
+	@CardAttrs(opts, nil) {
+		{ children... }
+	}
+}
+
+// CardAttrs is [Card] with an extra attribute set.
+templ CardAttrs(opts CardOpts, attrs templ.Attributes) {
+	<neo-card
+		{ opts.Variant.Attrs("variant")... }
+		{ opts.Orientation.Attrs("orientation")... }
+		{ attrs... }
+	>
+		<div data-neo-card-inner>
+			{ children... }
+		</div>
+	</neo-card>
+}
+
+// Card content slots. Each renders one data-neo-card-* element (the title
+// is an <h3>, the description a <p>, the rest <div>s) carrying the kit's
+// spacing/typography presets. Place them as children of Card; the Card
+// wrapper supplies the data-neo-card-inner frame, so don't add one.
+templ CardMedia() {
+	@CardMediaAttrs(nil) {
+		{ children... }
+	}
+}
+
+// CardMediaAttrs is [CardMedia] with an extra attribute set.
+templ CardMediaAttrs(attrs templ.Attributes) {
+	<div data-neo-card-media { attrs... }>
+		{ children... }
+	</div>
+}
+
+templ CardHeader() {
+	@CardHeaderAttrs(nil) {
+		{ children... }
+	}
+}
+
+// CardHeaderAttrs is [CardHeader] with an extra attribute set.
+templ CardHeaderAttrs(attrs templ.Attributes) {
+	<div data-neo-card-header { attrs... }>
+		{ children... }
+	</div>
+}
+
+templ CardTitle() {
+	@CardTitleAttrs(nil) {
+		{ children... }
+	}
+}
+
+// CardTitleAttrs is [CardTitle] with an extra attribute set.
+templ CardTitleAttrs(attrs templ.Attributes) {
+	<h3 data-neo-card-title { attrs... }>
+		{ children... }
+	</h3>
+}
+
+templ CardDescription() {
+	@CardDescriptionAttrs(nil) {
+		{ children... }
+	}
+}
+
+// CardDescriptionAttrs is [CardDescription] with an extra attribute set.
+templ CardDescriptionAttrs(attrs templ.Attributes) {
+	<p data-neo-card-description { attrs... }>
+		{ children... }
+	</p>
+}
+
+templ CardActions() {
+	@CardActionsAttrs(nil) {
+		{ children... }
+	}
+}
+
+// CardActionsAttrs is [CardActions] with an extra attribute set.
+templ CardActionsAttrs(attrs templ.Attributes) {
+	<div data-neo-card-actions { attrs... }>
+		{ children... }
+	</div>
+}
+
+templ CardBody() {
+	@CardBodyAttrs(nil) {
+		{ children... }
+	}
+}
+
+// CardBodyAttrs is [CardBody] with an extra attribute set.
+templ CardBodyAttrs(attrs templ.Attributes) {
+	<div data-neo-card-body { attrs... }>
+		{ children... }
+	</div>
+}
+
+templ CardFooter() {
+	@CardFooterAttrs(nil) {
+		{ children... }
+	}
+}
+
+// CardFooterAttrs is [CardFooter] with an extra attribute set.
+templ CardFooterAttrs(attrs templ.Attributes) {
+	<div data-neo-card-footer { attrs... }>
+		{ children... }
+	</div>
+}

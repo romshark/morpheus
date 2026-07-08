@@ -1,0 +1,365 @@
+/* -----------------------------------------------------------------------
+ * <neo-textinput> + native <input> (text-shaped types)
+ * -----------------------------------------------------------------------
+ * Two paths to the same styling: the wrapper adds live formatting on
+ * top; bare <input>s of text-shaped types pick up the same look so
+ * date / color / file keep their native browser UI. Bare inputs are
+ * matched via `:where()` (specificity 0) so page rules win without
+ * override hacks. The type list omits
+ * checkbox/radio/range/submit/reset/button/image/hidden; those have
+ * their own UI grammars.
+ *
+ * Reuses `--neo-textarea-*` tokens so themes track textarea,
+ * textinput, and bare input together. */
+
+:root {
+	--neo-input-min-width: 12rem;
+}
+
+/* Flex stretch fills the wrapper cross-axis. Percent heights on a
+ * replaced <input> ignore a flex-stretched parent whose CSS height is
+ * `auto`; flex layout doesn't. */
+neo-textinput {
+	display: inline-flex;
+	align-items: stretch;
+}
+
+input:where(
+	:not([type]),
+	[type="text"],
+	[type="email"],
+	[type="tel"],
+	[type="url"],
+	[type="search"],
+	[type="password"],
+	[type="number"],
+	[type="date"],
+	[type="datetime-local"],
+	[type="month"],
+	[type="week"],
+	[type="time"]
+) {
+	font: inherit;
+	display: block;
+	box-sizing: border-box;
+	background: var(--neo-textarea-bg);
+	color: var(--neo-textarea-color);
+	/* Width tokenized so neo-input-group can zero it (the field merges
+	 * into the group's shared border instead of drawing its own). */
+	border: var(--neo-textarea-border-width, 1px) solid var(--neo-textarea-border-color);
+	border-radius: var(--neo-textarea-radius);
+	padding: var(--neo-textarea-padding);
+	min-width: var(--neo-input-min-width);
+	/* An <input> floors its content box at the font's normal line height
+	 * (~1.2em), ignoring line-height:1, so it lands ~2px taller than a
+	 * button/select trigger. Pin the height to the shared control height
+	 * so all single-line controls line up. --neo-input-height lets a
+	 * wrapping context (neo-input-group) override it to 100% to fill. */
+	height: var(--neo-input-height, var(--neo-control-height));
+	font-variant-numeric: tabular-nums;
+	/* `<neo-button>` pins line-height: 1; without this an adjacent
+	 * input inherits the body's ~1.5 and lands ~0.5em taller. */
+	line-height: 1;
+	transition: border-color var(--neo-duration-hover, calc(120ms * var(--neo-duration-scale, 1))) var(--neo-easing, ease);
+}
+
+/* The wrapped field lives in the shadow root and is styled there (see the
+ * `input` rules in neo-textinput.ts). The rules below style standalone,
+ * unwrapped <input>s so the two look identical. */
+
+/* Suggestions: a non-selectable "No results" status row (same contract
+ * as <neo-combobox>). Slotted into the popover, styled here in light DOM. */
+neo-textinput [data-neo-empty-results] {
+	padding: var(--neo-select-option-padding, 0.4rem 0.6rem);
+	color: var(--muted);
+	cursor: default;
+}
+
+input:where(
+	:not([type]),
+	[type="text"],
+	[type="email"],
+	[type="tel"],
+	[type="url"],
+	[type="search"],
+	[type="password"],
+	[type="number"],
+	[type="date"],
+	[type="datetime-local"],
+	[type="month"],
+	[type="week"],
+	[type="time"]
+)::placeholder {
+	color: var(--muted);
+	opacity: 1;
+}
+
+input:where(
+	:not([type]),
+	[type="text"],
+	[type="email"],
+	[type="tel"],
+	[type="url"],
+	[type="search"],
+	[type="password"],
+	[type="number"],
+	[type="date"],
+	[type="datetime-local"],
+	[type="month"],
+	[type="week"],
+	[type="time"]
+):focus-visible {
+	/* Tokenized so neo-input-group can drop the per-field ring (the group
+	 * owns the focus outline for the whole control). */
+	outline: var(--neo-textarea-focus-outline, 2px solid var(--neo-textarea-focus-ring));
+	outline-offset: 2px;
+}
+
+input:where(
+	:not([type]),
+	[type="text"],
+	[type="email"],
+	[type="tel"],
+	[type="url"],
+	[type="search"],
+	[type="password"],
+	[type="number"],
+	[type="date"],
+	[type="datetime-local"],
+	[type="month"],
+	[type="week"],
+	[type="time"]
+):disabled,
+input:where(
+	:not([type]),
+	[type="text"],
+	[type="email"],
+	[type="tel"],
+	[type="url"],
+	[type="search"],
+	[type="password"],
+	[type="number"],
+	[type="date"],
+	[type="datetime-local"],
+	[type="month"],
+	[type="week"],
+	[type="time"]
+)[readonly] {
+	opacity: 0.75;
+}
+
+input:where(
+	:not([type]),
+	[type="text"],
+	[type="email"],
+	[type="tel"],
+	[type="url"],
+	[type="search"],
+	[type="password"],
+	[type="number"],
+	[type="date"],
+	[type="datetime-local"],
+	[type="month"],
+	[type="week"],
+	[type="time"]
+):disabled {
+	cursor: not-allowed;
+	opacity: 0.55;
+	background-image: var(--neo-disabled-overlay);
+}
+
+/* `scrollbar-color` inherits, so one :root declaration tints every
+ * scroller. `scrollbar-width` doesn't; element-scoped overrides
+ * (neo-tablist, neo-carousel-track) still win. */
+:root {
+	--scrollbar-thumb: color-mix(in srgb, var(--page-fg) 26%, transparent);
+	--scrollbar-track: transparent;
+	scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+	scrollbar-width: thin;
+}
+
+/* <input type="file"> hosts a browser-rendered ::file-selector-button
+ * plus a "no file chosen" label. Style the button as a kit button
+ * anchored at the field's start; the field's own padding is 0 so the
+ * button sits flush. */
+
+input[type="file"] {
+	font: inherit;
+	box-sizing: border-box;
+	background: var(--neo-textarea-bg);
+	color: var(--neo-textarea-color);
+	border: 1px solid var(--neo-textarea-border-color);
+	border-radius: var(--neo-textarea-radius);
+	min-width: var(--neo-input-min-width);
+	padding: 0;
+	cursor: pointer;
+	/* Clip the inner button's bg against the field's rounded corner;
+	 * otherwise it paints a square edge past the radius. */
+	overflow: hidden;
+	transition: border-color var(--neo-duration-hover, calc(120ms * var(--neo-duration-scale, 1))) var(--neo-easing, ease);
+}
+
+input[type="file"]:focus-visible {
+	outline: 2px solid var(--neo-textarea-focus-ring);
+	outline-offset: 2px;
+}
+
+input[type="file"]:disabled {
+	cursor: not-allowed;
+	opacity: 0.55;
+	background-image: var(--neo-disabled-overlay);
+}
+
+input[type="file"]::file-selector-button {
+	font: inherit;
+	background: var(--neo-button-bg);
+	color: var(--neo-button-color);
+	border: none;
+	/* Separator so the button reads as an attached addon, not part of
+	 * the filename strip. */
+	border-right: 1px solid var(--neo-textarea-border-color);
+	border-radius: 0;
+	padding: var(--neo-textarea-padding);
+	margin: 0 0.75rem 0 0;
+	cursor: pointer;
+	transition: background-color var(--neo-duration-hover, calc(120ms * var(--neo-duration-scale, 1)))
+		var(--neo-easing, ease);
+}
+
+input[type="file"]::file-selector-button:hover {
+	background: var(--neo-button-hover-bg);
+}
+
+input[type="file"]:disabled::file-selector-button {
+	cursor: not-allowed;
+}
+
+/* <input type="color">: kit styling around the browser's color picker.
+ * Narrow fixed width keeps it from stretching across a row of inputs. */
+
+input[type="color"] {
+	font: inherit;
+	box-sizing: border-box;
+	background: var(--neo-textarea-bg);
+	border: 1px solid var(--neo-textarea-border-color);
+	border-radius: var(--neo-textarea-radius);
+	padding: 0;
+	width: 3rem;
+	min-width: 3rem;
+	cursor: pointer;
+	overflow: hidden;
+	transition: border-color var(--neo-duration-hover, calc(120ms * var(--neo-duration-scale, 1))) var(--neo-easing, ease);
+}
+
+input[type="color"]:focus-visible {
+	outline: 2px solid var(--neo-textarea-focus-ring);
+	outline-offset: 2px;
+}
+
+input[type="color"]:disabled {
+	cursor: not-allowed;
+	opacity: 0.55;
+	background-image: var(--neo-disabled-overlay);
+}
+
+/* Inset the swatch so the field's border stays visible around it. */
+input[type="color"]::-webkit-color-swatch-wrapper {
+	padding: 0.2rem;
+}
+
+/* Vendor-prefixed pseudos can't share a selector list; an unrecognised
+ * one invalidates the whole rule, so ::-webkit and ::-moz stay split. */
+input[type="color"]::-webkit-color-swatch {
+	border: 1px solid var(--neo-textarea-border-color);
+	border-radius: calc(var(--neo-textarea-radius) - 2px);
+}
+
+input[type="color"]::-moz-color-swatch {
+	border: 1px solid var(--neo-textarea-border-color);
+	border-radius: calc(var(--neo-textarea-radius) - 2px);
+}
+
+/* <input type="range"> reuses `--neo-slider-*` tokens so themes track
+ * both. No "fill from min to value": native range has no DOM hook for
+ * it, and faking it with a JS-recalculated linear-gradient isn't worth
+ * it for a passive native-styling path; track stays uniform. */
+
+input[type="range"] {
+	-webkit-appearance: none;
+	appearance: none;
+	background: transparent;
+	width: 100%;
+	min-width: var(--neo-input-min-width);
+	/* Tall enough to host the thumb without clipping. */
+	height: calc(var(--neo-slider-thumb-size) + 0.25rem);
+	padding: 0;
+	margin: 0;
+	cursor: pointer;
+}
+
+input[type="range"]:focus {
+	outline: none;
+}
+
+input[type="range"]:disabled {
+	cursor: not-allowed;
+	opacity: 0.55;
+}
+
+/* Per-engine pseudos can't share a selector list. */
+input[type="range"]::-webkit-slider-runnable-track {
+	height: var(--neo-slider-track-height);
+	background: var(--neo-slider-track-bg);
+	border-radius: var(--neo-slider-track-radius);
+}
+
+input[type="range"]::-moz-range-track {
+	height: var(--neo-slider-track-height);
+	background: var(--neo-slider-track-bg);
+	border-radius: var(--neo-slider-track-radius);
+}
+
+input[type="range"]::-webkit-slider-thumb {
+	-webkit-appearance: none;
+	appearance: none;
+	width: var(--neo-slider-thumb-size);
+	height: var(--neo-slider-thumb-size);
+	background: var(--neo-slider-thumb-bg);
+	border: var(--neo-slider-thumb-border-width) solid var(--neo-slider-thumb-border);
+	border-radius: var(--neo-slider-thumb-radius);
+	box-shadow: var(--neo-slider-thumb-shadow);
+	/* Native thumb sits above the track; pull it down by half the
+	 * (thumb − track) overflow to align centerlines. */
+	margin-top: calc((var(--neo-slider-thumb-size) - var(--neo-slider-track-height)) / -2);
+	cursor: grab;
+}
+
+input[type="range"]::-moz-range-thumb {
+	width: var(--neo-slider-thumb-size);
+	height: var(--neo-slider-thumb-size);
+	background: var(--neo-slider-thumb-bg);
+	border: var(--neo-slider-thumb-border-width) solid var(--neo-slider-thumb-border);
+	border-radius: var(--neo-slider-thumb-radius);
+	box-shadow: var(--neo-slider-thumb-shadow);
+	cursor: grab;
+}
+
+input[type="range"]:focus-visible::-webkit-slider-thumb {
+	box-shadow:
+		var(--neo-slider-thumb-shadow),
+		0 0 0 3px var(--neo-slider-focus-ring);
+}
+
+input[type="range"]:focus-visible::-moz-range-thumb {
+	box-shadow:
+		var(--neo-slider-thumb-shadow),
+		0 0 0 3px var(--neo-slider-focus-ring);
+}
+
+input[type="range"]:active::-webkit-slider-thumb {
+	cursor: grabbing;
+}
+
+input[type="range"]:active::-moz-range-thumb {
+	cursor: grabbing;
+}

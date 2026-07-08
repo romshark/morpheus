@@ -1,0 +1,43 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ NavgroupMedia() {
+	@neo.NavGroupAttrs(neo.NavGroupOpts{
+		Orientation: neo.Set(neo.OrientationHorizontal),
+	}, templ.Attributes{
+		"role":       "toolbar",
+		"aria-label": "Media controls",
+	}) {
+		@neo.ButtonAttrs(neo.ButtonOpts{Disabled: neo.Set(true)}, templ.Attributes{
+			"data-neo-navgroup-item": true,
+			"aria-label":             "Previous track",
+		}) {
+			@neo.Icon("skip-back")
+		}
+		@neo.ButtonAttrs(neo.ButtonOpts{}, templ.Attributes{
+			"data-neo-navgroup-item": true,
+			"aria-label":             "Rewind",
+		}) {
+			@neo.Icon("rewind")
+		}
+		@neo.ButtonAttrs(neo.ButtonOpts{}, templ.Attributes{
+			"data-neo-navgroup-item": true,
+			"aria-label":             "Play",
+		}) {
+			@neo.Icon("play")
+		}
+		@neo.ButtonAttrs(neo.ButtonOpts{}, templ.Attributes{
+			"data-neo-navgroup-item": true,
+			"aria-label":             "Fast forward",
+		}) {
+			@neo.Icon("fast-forward")
+		}
+		@neo.ButtonAttrs(neo.ButtonOpts{Disabled: neo.Set(true)}, templ.Attributes{
+			"data-neo-navgroup-item": true,
+			"aria-label":             "Next track",
+		}) {
+			@neo.Icon("skip-forward")
+		}
+	}
+}

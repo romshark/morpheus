@@ -1,0 +1,59 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ SidebarMixedBreakpoints() {
+	<neo-layout class="sb-shell">
+		@neo.SidebarAttrs(neo.SidebarOpts{OverlayBreakpoint: neo.Set("30rem")}, templ.Attributes{"id": "demo-sidebar-nav"}) {
+			@neo.SidebarHeader() {
+				<span>Nav</span>
+			}
+			<nav aria-label="Mixed-breakpoint nav" { neo.SidebarContent()... }>
+				@neo.NavGroupAttrs(neo.NavGroupOpts{Orientation: neo.Set(neo.OrientationVertical), Wrap: neo.Set(true)}, templ.Attributes{"role": "menu", "class": "sb-mixed-breakpoints-menu"}) {
+					@neo.ButtonAttrs(neo.ButtonOpts{}, neo.NavGroupItem()) {
+						@neo.Icon("heart")
+						{ " " }Favorites
+					}
+					@neo.ButtonAttrs(neo.ButtonOpts{}, neo.NavGroupItem()) {
+						@neo.Icon("mail")
+						{ " " }Inbox
+					}
+					@neo.ButtonAttrs(neo.ButtonOpts{}, neo.NavGroupItem()) {
+						@neo.Icon("bell")
+						{ " " }Notifications
+					}
+				}
+			</nav>
+		}
+		<neo-layout class="sb-main" column>
+			<header class="sb-bar">
+				@neo.ButtonAttrs(neo.ButtonOpts{}, templ.Attributes{"aria-label": "Toggle nav", "data-on:click": "document.getElementById('demo-sidebar-nav').toggle()"}) {
+					@neo.Icon("menu")
+				}
+				<strong>Workspace</strong>
+				<span class="sb-mixed-breakpoints-spacer"></span>
+				@neo.ButtonAttrs(neo.ButtonOpts{}, templ.Attributes{"aria-label": "Toggle settings", "data-on:click": "document.getElementById('demo-sidebar-settings').toggle()"}) {
+					@neo.Icon("settings")
+				}
+			</header>
+			<div class="sb-body">
+				<p>
+					Drag the right edge of this frame to shrink it. The nav stays
+					in-flow down to 30rem; the settings drawer flips to overlay
+					below 50rem.
+				</p>
+			</div>
+		</neo-layout>
+		@neo.SidebarAttrs(neo.SidebarOpts{Side: neo.Set(neo.SideRight), OverlayBreakpoint: neo.Set("50rem")}, templ.Attributes{"id": "demo-sidebar-settings"}) {
+			@neo.SidebarHeader() {
+				<span>Settings</span>
+				@neo.ButtonAttrs(neo.ButtonOpts{}, templ.Attributes{"data-neo-sidebar-close": true, "aria-label": "Close settings"}) {
+					@neo.Icon("x")
+				}
+			}
+			<div { neo.SidebarContent()... }>
+				<p>A right-side settings drawer.</p>
+			</div>
+		}
+	</neo-layout>
+}

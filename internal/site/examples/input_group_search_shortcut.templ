@@ -1,0 +1,18 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ InputGroupSearchShortcut() {
+	<neo-input-group>
+		@neo.Icon("search")
+		<input type="search" placeholder="Search…"/>
+		@neo.KbdGroup() {
+			@neo.Kbd(neo.KbdOpts{}) {
+				⌘
+			}
+			@neo.Kbd(neo.KbdOpts{}) {
+				K
+			}
+		}
+	</neo-input-group>
+}

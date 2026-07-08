@@ -1,0 +1,483 @@
+package site
+
+import (
+	"github.com/romshark/morpheus/internal/href"
+	"github.com/romshark/morpheus/internal/site/examples"
+	"github.com/romshark/morpheus/neo"
+)
+
+templ PagePopover(morpheusVersion string) {
+	@PageDoc(href.PagePopover(), "Popover", morpheusVersion) {
+		@popoverSimulator()
+		<section class="demo">
+			@anchoredH2("overview") {
+				Popover
+			}
+			<p class="intro">
+				Component <code>{ "<neo-popover>" }</code> is an
+				anchored floating panel attached to a trigger, with
+				a <code>[data-neo-popover-trigger]</code> child and a
+				<code>[data-neo-popover-content]</code> panel. The
+				host owns positioning, the open/close events,
+				outside-click and <neo-kbd>Esc</neo-kbd> dismissal, and the
+				strict-placement clamp logic.
+			</p>
+			@Playground(PlaygroundOpts{
+				ID:     "popover-playground",
+				Height: "24rem",
+				States: popoverPlaygroundStates(),
+			})
+			@anchoredH2("reference") {
+				Reference
+			}
+			@ComponentDocs(popoverDoc)
+		</section>
+		<section class="demo">
+			@anchoredH2("examples") {
+				Examples
+			}
+			@anchoredH3("placements") {
+				Placements
+			}
+			<p class="demo-note">
+				Twelve combinations: each side
+				(<code>top</code>, <code>right</code>,
+				<code>bottom</code>, <code>left</code>) paired
+				with optional <code>-start</code> or
+				<code>-end</code> alignment. Bare side names
+				center the panel on that edge;
+				<code>bottom-start</code> is the initial value.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "20rem",
+				HTMLSource:     popoverPlacementsHTML,
+				TemplSource:    popoverPlacementsTempl,
+				CSSSource:      popoverPlacementsCSS,
+			}) {
+				@examples.PopoverPlacements()
+			}
+			@anchoredH3("with-actions") {
+				With actions
+			}
+			<p class="demo-note">
+				Pair the popover with a confirm /
+				cancel toolbar inside the content panel. The
+				action buttons carry
+				<code>data-neo-popover-close</code> so picking
+				either dismisses the panel.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "15rem",
+				HTMLSource:     popoverActionsHTML,
+				TemplSource:    popoverActionsTempl,
+				CSSSource:      popoverActionsCSS,
+			}) {
+				@examples.PopoverActions()
+			}
+			@anchoredH3("tall-content-clamps-scrolls") {
+				Tall content (clamps + scrolls)
+			}
+			<p class="demo-note">
+				When the panel is taller than the
+				viewport it clamps to the screen (leaving
+				<code>screen-offset</code> of margin) and scrolls
+				internally rather than overflowing the page.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "6rem",
+				// Clamps the tall panel against the viewport, not the frame.
+				Boundary:    BoundaryScopes{NoPositioning: true},
+				HTMLSource:  popoverTallHTML,
+				TemplSource: popoverTallTempl,
+				CSSSource:   popoverTallCSS,
+			}) {
+				@examples.PopoverTall()
+			}
+			@anchoredH3("strict-placement") {
+				Strict placement
+			}
+			<p class="demo-note">
+				Setting <code>{ `flip="false"` }</code> pins the
+				panel to <code>bottom-start</code> and keeps that
+				side instead of flipping above when the slot runs
+				short. When the bottom slot is shorter than
+				<code>min-fit-height</code>, opening the popover
+				scrolls the trigger into a useful position and shows
+				the panel immediately. Set the
+				<code>clamp-placement</code> attribute to let the
+				panel re-anchor inside the viewport instead. Scroll
+				so the trigger sits near the bottom of the viewport,
+				then open the panel to see it scroll into place.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "6rem",
+				// Scroll recovery is measured against the viewport, not the frame.
+				Boundary:    BoundaryScopes{NoPositioning: true},
+				HTMLSource:  popoverStrictHTML,
+				TemplSource: popoverStrictTempl,
+				CSSSource:   popoverStrictCSS,
+			}) {
+				@examples.PopoverStrict()
+			}
+			@anchoredH3("auto-flip-threshold") {
+				Auto-flip threshold
+			}
+			<p class="demo-note">
+				Strict placement keeps the panel glued to the
+				configured side. When that slot is shorter than
+				<code>min-fit-height</code> (here <code>8rem</code>;
+				default <code>content</code>) and the opposite side
+				has more room, the primary axis flips:
+				<code>bottom-start</code> becomes
+				<code>top-start</code>. Scroll so the trigger sits
+				near the bottom of the viewport, then open the panel
+				to see it flip.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "6rem",
+				// Flip is measured against the viewport slot, not the frame.
+				Boundary:    BoundaryScopes{NoPositioning: true},
+				HTMLSource:  popoverAutoFlipHTML,
+				TemplSource: popoverAutoFlipTempl,
+				CSSSource:   popoverAutoFlipCSS,
+			}) {
+				@examples.PopoverAutoFlip()
+			}
+			@anchoredH3("wide-content-horizontal-clamp") {
+				Wide content (horizontal clamp)
+			}
+			<p class="demo-note">
+				When the panel is wider than the
+				viewport it clamps to the screen (leaving
+				<code>screen-offset</code> of margin) and scrolls
+				horizontally inside the panel. The horizontal
+				clamp mirrors the vertical one.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "6rem",
+				// Clamps the wide panel against the viewport, not the frame.
+				Boundary:    BoundaryScopes{NoPositioning: true},
+				HTMLSource:  popoverWideHTML,
+				TemplSource: popoverWideTempl,
+				CSSSource:   popoverWideCSS,
+			}) {
+				@examples.PopoverWide()
+			}
+			@anchoredH3("hover-to-open") {
+				Hover to open
+			}
+			<p class="demo-note">
+				Set <code>hover</code> on the host
+				and the panel opens when the pointer enters the
+				trigger, closing after the pointer leaves both the
+				trigger and the panel. The
+				<code>hover-open-delay</code> filters incidental
+				cursor crossings; <code>hover-close-delay</code>
+				gives the pointer time to bridge the gap from
+				trigger to panel before the close kicks in. Click
+				still works (instantly, no delay) so touch and
+				keyboard users have a way in; clicking a hover
+				popover never toggles it shut.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "16rem",
+				HTMLSource:     popoverHoverHTML,
+				TemplSource:    popoverHoverTempl,
+				CSSSource:      popoverHoverCSS,
+			}) {
+				@examples.PopoverHover()
+			}
+		</section>
+		<section class="demo">
+			@anchoredH2("examples-datastar") {
+				Examples: Datastar
+			}
+			@anchoredH3("morphing-during-interaction") {
+				Morphing during interaction
+			}
+			<p class="demo-note">
+				A Datastar app can
+				fat-morph the page at any moment, so a
+				<code>{ "<neo-popover>" }</code>'s panel content can
+				change while it is open. Open the popover and watch
+				autoplay push progress into it: the panel stays open
+				and its content reconciles in place because the host
+				element stays mounted across the morph, with no
+				<code>open</code> attribute needed.
+			</p>
+			@Playground(PlaygroundOpts{
+				ID:       "popover-morph-playground",
+				Autoplay: true,
+				Height:   "20rem",
+				States:   popoverMorphStates(),
+			})
+			@anchoredH3("cascading-popovers") {
+				Cascading popovers
+			}
+			<p class="demo-note">
+				Popovers nest naturally.
+				Each child popover lives inside its parent's
+				content panel, so a click inside any open level
+				keeps every ancestor open and a click outside
+				closes the whole chain. <neo-kbd>Esc</neo-kbd> closes
+				one level at a time. Submenu triggers are
+				regular menu items; non-submenu items carry
+				<code>data-neo-popover-close</code> so picking
+				one collapses the entire stack. Hovering a
+				submenu trigger opens it; hovering a sibling
+				closes any open submenu at that level.
+			</p>
+			@cascadingMenuScript()
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "24rem",
+				HTMLSource:     popoverCascadingHTML,
+				TemplSource:    popoverCascadingTempl,
+				CSSSource:      popoverCascadingCSS,
+			}) {
+				@examples.PopoverCascading()
+			}
+			@anchoredH3("lazy-loaded-content") {
+				Lazy-loaded content
+			}
+			<p class="demo-note">
+				A popover whose body is fetched on first open.
+				Wire <code>data-on:neo-popover-open</code> to a
+				loader that morphs the rendered content into the
+				placeholder.
+			</p>
+			<ul class="demo-note">
+				<li>
+					The loader fires once per open; bind
+					<code>requestCancellation</code> to a fresh
+					<code>AbortController</code> so the request can
+					be dropped.
+				</li>
+				<li>
+					<code>neo-popover-close</code> aborts the
+					in-flight request, so closing mid-load leaves
+					no stale content. Open the popover to see it.
+				</li>
+			</ul>
+			@simDelayHint()
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "16rem",
+				HTMLSource:     popoverLazyHTML,
+				TemplSource:    popoverLazyTempl,
+				ScriptSource:   popoverLoadContentScript,
+			}) {
+				@examples.PopoverLazyDemo()
+			}
+			@anchoredH3("async-load-with-failure-swap") {
+				Async load with failure swap
+			}
+			<p class="demo-note">
+				A popover that fetches its body on open, shows a
+				loading placeholder while the request is in
+				flight, and swaps in a failure placeholder once
+				Datastar exhausts its retry budget (it dispatches
+				<code>datastar-fetch</code> with
+				<code>{ "type: 'retries-failed'" }</code>). On
+				success the server morphs the body in place.
+			</p>
+			<p class="demo-note">
+				The demo retries with <code>retry: auto</code>,
+				which covers only network throws. Use the
+				<code>server unreachable</code> control to force
+				one: Datastar exhausts the retry budget, fires
+				<code>retries-failed</code>, and the failure
+				placeholder swaps in. A
+				<code>server response status</code> error is not
+				retried by <code>auto</code>, so the swap falls
+				back to <code>finished</code>-after-error. Also
+				see{ " " }
+				@neo.Link(neo.LinkOpts{Href: neo.Set("https://data-star.dev/reference/actions#options")}) {
+					Datastar action options
+				}
+				.
+			</p>
+			@serverErrorControls()
+			@popoverAsyncSimulator()
+			@simDelayHint()
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "16rem",
+				TemplSource:    popoverAsyncTempl,
+				ScriptSource:   popoverAsyncLoadScript,
+			}) {
+				@examples.PopoverAsyncFailure()
+			}
+		</section>
+	}
+}
+
+// cascadingMenuScript installs the helpers the "Cascading popovers"
+// demo binds: hover opens submenus, ArrowRight enters / ArrowLeft
+// exits, and open lands focus on the first menu item.
+templ cascadingMenuScript() {
+	<script>
+		// Hovering an item closes any open sibling submenu and opens
+		// the hovered one if it is a <neo-popover>.
+		window.__neoMenuHover = function(nav, evt) {
+			let item = evt.target;
+			while (item && item.parentElement !== nav) item = item.parentElement;
+			if (!item) return;
+			for (const child of nav.children) {
+				if (child === item) continue;
+				if (child.tagName === 'NEO-POPOVER' && child.hasAttribute('open')) {
+					child.hide && child.hide();
+				}
+			}
+			if (item.tagName === 'NEO-POPOVER' && !item.hasAttribute('open')) {
+				item.show && item.show();
+			}
+		};
+
+		// ArrowRight opens a submenu trigger (focus via __neoMenuOpen);
+		// ArrowLeft closes and returns focus to the trigger. Other arrows
+		// fall through to navgroup's Up/Down handling.
+		window.__neoMenuKey = function(nav, evt) {
+			const key = evt.key;
+			if (key !== 'ArrowRight' && key !== 'ArrowLeft') return;
+			const focused = document.activeElement;
+			if (!focused || focused.closest('neo-navgroup') !== nav) return;
+			if (key === 'ArrowRight') {
+				const popover = focused.parentElement;
+				if (
+					popover &&
+					popover.tagName === 'NEO-POPOVER' &&
+					focused.matches('[data-neo-popover-trigger]')
+				) {
+					evt.preventDefault();
+					popover.show && popover.show();
+				}
+				return;
+			}
+			// ArrowLeft: only meaningful for nested submenus.
+			const enclosing = nav.closest('neo-popover');
+			if (!enclosing) return;
+			const trigger = enclosing.querySelector(
+				':scope > [data-neo-popover-trigger]',
+			);
+			const triggerNav = trigger && trigger.closest('neo-navgroup');
+			if (trigger && triggerNav && triggerNav !== nav) {
+				evt.preventDefault();
+				enclosing.hide && enclosing.hide();
+				trigger.focus();
+			}
+		};
+
+		// On open, focus the first item of the menu's navgroup. Stop
+		// propagation because `neo-popover-open` bubbles; otherwise the
+		// ancestor's __neoMenuOpen yanks focus out and the submenu's
+		// outside-focus guard hides it on the spot.
+		window.__neoMenuOpen = function(popover, evt) {
+			if (evt && typeof evt.stopPropagation === 'function') {
+				evt.stopPropagation();
+			}
+			requestAnimationFrame(() => {
+				const nav = popover.querySelector(
+					':scope > [data-neo-popover-content] > neo-navgroup',
+				);
+				if (nav && typeof nav.focusItem === 'function') {
+					nav.focusItem(0);
+				}
+			});
+		};
+	</script>
+}
+
+var popoverDoc = ComponentDoc{
+	Attributes: []DocAttribute{
+		{Name: "open", Type: "boolean", Default: "false", Reflected: true, Observed: true, Description: templ.Raw("Controls panel visibility.")},
+		{Name: "trigger-action", Type: `"show" | "hide"`, Default: "toggle",
+			Description: templ.Raw("What clicking the trigger does. Default toggles open and closed; <code>show</code> only opens (for hover-then-click patterns like submenus, where a click must not close an already-open panel); <code>hide</code> only closes.")},
+		{Name: "placement", Type: `"bottom-start" | "bottom" | "bottom-end" | "top-start" | "top" | "top-end" | "left-start" | "left" | "left-end" | "right-start" | "right" | "right-end"`, Default: `"bottom-start"`, Observed: true,
+			Description: templ.Raw("Anchor position relative to the trigger.")},
+		{Name: "screen-offset", Type: "CSS length", Default: "8px", Observed: true,
+			Description: templ.Raw("Margin kept clear of the viewport edges. Mirrors to <code>--neo-popover-screen-offset</code>.")},
+		{Name: "follow-scroll", Type: `"always" | "until-trigger-invisible"`, Default: "unset",
+			Description: templ.Raw("When absent, close on outside scroll. Set to <code>always</code> to stay anchored to the trigger during scroll. Set to <code>until-trigger-invisible</code> to stay anchored until the trigger leaves the viewport, then close.")},
+		{Name: "clamp-placement", Type: "boolean", Default: "false", Observed: true,
+			Description: templ.Raw("Opt out of the default strict placement. The panel position re-anchors to keep itself inside the viewport when content would otherwise overflow, instead of staying glued to the configured side and shrinking <code>max-width</code>/<code>max-height</code>.")},
+		{Name: "min-fit-height", Type: `CSS length | "content"`, Default: `"content"`, Observed: true,
+			Description: templ.Raw("Minimum vertical slot the strict placement requires. If the slot at the configured side is shorter and the opposite side has more room, the panel auto-flips (e.g. <code>bottom-start</code> -> <code>top-start</code>). <code>content</code> resolves from the panel's scroll height on each positioning pass. Mirrors to <code>--neo-popover-min-fit-height</code>.")},
+		{Name: "min-fit-width", Type: `CSS length | "content"`, Default: `"content"`, Observed: true,
+			Description: templ.Raw("Same as <code>min-fit-height</code> but for the horizontal axis (<code>left-*</code>/<code>right-*</code>). <code>content</code> resolves from the panel's scroll width. Use <code>0</code> to disable the horizontal flip. Mirrors to <code>--neo-popover-min-fit-width</code>.")},
+		{Name: "min-open-height", Type: "CSS length", Default: "2rem", Observed: true,
+			Description: templ.Raw("Minimum usable vertical slot required to remain open after placement and auto-flip. If the bounded slot is smaller, the popover closes instead of rendering a cramped panel. Use <code>0</code> to disable. Mirrors to <code>--neo-popover-min-open-height</code>.")},
+		{Name: "min-open-width", Type: "CSS length", Default: "2rem", Observed: true,
+			Description: templ.Raw("Same as <code>min-open-height</code> but for horizontal space. Use <code>0</code> to disable. Mirrors to <code>--neo-popover-min-open-width</code>.")},
+		{Name: "flip", Type: "true | false", Default: "true", Observed: true,
+			Description: templ.Raw("Auto-flip to the opposite side when the <code>min-fit-*</code> threshold is not met. Set <code>flip=\"false\"</code> to pin the panel to the configured primary side; if opening would then make it too cramped, the popover scrolls the trigger into view and opens immediately.")},
+		{Name: "match-trigger-width", Type: "boolean", Default: "false", Observed: true,
+			Description: templ.Raw("Size the panel's border-box width to the trigger's border-box width on every positioning pass. Used by <code>neo-select</code> and <code>neo-combobox</code>.")},
+		{Name: "hover", Type: "boolean", Default: "false",
+			Description: templ.Raw("Open on pointer hover over the trigger; close after the pointer leaves both the trigger and the content. Mouse only; touch falls back to click. While set, clicking the trigger always shows the panel (instantly, no delay) so touch and keyboard users have a way in; click never toggles it shut.")},
+		{Name: "hover-open-delay", Type: "integer (ms)", Default: "100",
+			Description: templ.Raw("Milliseconds the pointer must rest on the trigger before <code>hover</code> opens the panel. Filters out incidental cursor crossings. Does not apply to click.")},
+		{Name: "hover-close-delay", Type: "integer (ms)", Default: "200",
+			Description: templ.Raw("Milliseconds to wait after the pointer leaves both trigger and content before <code>hover</code> closes the panel. Long enough to bridge the gap between trigger and panel without snapping shut.")},
+	},
+	Slots: []DocSlot{
+		{Name: "[data-neo-popover-trigger]",
+			Description: templ.Raw("Click target that opens the popover.")},
+		{Name: "[data-neo-popover-content]",
+			Description: templ.Raw("Floating panel content.")},
+		{Name: "[data-neo-popover-close]",
+			Description: templ.Raw("Element inside the content that closes the popover on click (matched via <code>closest</code>, so a descendant works too).")},
+	},
+	Events: []DocEvent{
+		{Name: "neo-popover-open", Bubbles: true,
+			Description: templ.Raw("Fires when the popover opens.")},
+		{Name: "neo-popover-close", Bubbles: true,
+			Description: templ.Raw("Fires when the popover closes.")},
+		{Name: "neo-popover-position", Detail: "{ placement: string }", Bubbles: true,
+			Description: templ.Raw("Fires after the panel is positioned; <code>placement</code> is the effective placement after any auto-flip or viewport clamp.")},
+	},
+	CSSProps: []DocCSSProp{
+		{Name: "--neo-popover-bg", Default: "#ffffff",
+			Description: templ.Raw("Panel background. Defaults to a dark surface under <code>prefers-color-scheme: dark</code>.")},
+		{Name: "--neo-popover-color", Default: "#111827",
+			Description: templ.Raw("Panel text color. Defaults to a light tone under <code>prefers-color-scheme: dark</code>.")},
+		{Name: "--neo-popover-border-color", Default: "rgba(0, 0, 0, 0.08)",
+			Description: templ.Raw("Panel border color.")},
+		{Name: "--neo-popover-border-width", Default: "1px",
+			Description: templ.Raw("Panel border width.")},
+		{Name: "--neo-popover-radius", Default: "var(--page-radius, 0.25rem)",
+			Description: templ.Raw("Panel corner radius.")},
+		{Name: "--neo-popover-padding", Default: "calc(var(--page-spacing, 0.25rem) * 4)",
+			Description: templ.Raw("Inner padding of the panel.")},
+		{Name: "--neo-popover-shadow", Default: "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
+			Description: templ.Raw("Panel box shadow.")},
+		{Name: "--neo-popover-min-width", Default: "14rem",
+			Description: templ.Raw("Panel minimum width.")},
+		{Name: "--neo-popover-max-width", Default: "22rem",
+			Description: templ.Raw("Panel maximum width.")},
+		{Name: "--neo-popover-z-index", Default: "1000",
+			Description: templ.Raw("Panel stacking order.")},
+		{Name: "--neo-popover-enter-duration", Default: "calc(140ms * var(--neo-duration-scale, 1))",
+			Description: templ.Raw("Open/close transition duration.")},
+		{Name: "--neo-popover-screen-offset", Default: "8px",
+			Description: templ.Raw("Minimum margin kept between the panel and the viewport edges when clamped. Overridable per-instance via the <code>screen-offset</code> attribute.")},
+	},
+}
+
+// popoverSimulator: per-demo handler modules under /static/sim/popover/
+// (also surfaced in each demo's Server script tab) plus the lazy-load
+// content template.
+templ popoverSimulator() {
+	<template id="popoverLazyDemo-template">
+		@popoverLazyContent("popoverLazyDemo")
+	</template>
+	<script type="module" src="/static/sim/popover/loadcontent.js"></script>
+	<script type="module" src="/static/sim/popover/asyncload.js"></script>
+}
+
+// popoverAsyncSimulator stages the success-morph template the
+// PopoverAsync demo expects. The handler is in popoverSimulator;
+// only the <template> lives here so the content id stays close to
+// the demo wiring above.
+templ popoverAsyncSimulator() {
+	<template id="popoverAsyncDemo-success-template">
+		@popoverLazyContent("popoverAsyncDemo")
+	</template>
+}

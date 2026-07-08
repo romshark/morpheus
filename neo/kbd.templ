@@ -1,0 +1,57 @@
+package neo
+
+type KbdOpts struct {
+	// Variant: "" (subtle key chip with bottom shadow) or "outline"
+	// (transparent fill with border).
+	Variant Attr[string]
+	// Size: "" (default) or "sm" (compact).
+	Size Attr[string]
+	// Key renders the platform-correct glyph for a single key (e.g. "mod" →
+	// ⌘ / Ctrl, "enter" → ↵ / Enter). Overrides any children. Compose
+	// multi-key shortcuts from several [Kbd] in a [KbdGroup].
+	Key Attr[string]
+	// UserAgent enables server-side pre-rendering of the Key glyph: pass
+	// the request User-Agent (r.UserAgent()) and the glyph is emitted for
+	// that OS, so it doesn't flash in after the bundle upgrades. The client
+	// then reconciles against the real platform. Leave empty on a
+	// static/CDN site that can't read the request UA.
+	UserAgent Attr[string]
+}
+
+// Kbd renders <neo-kbd>, an inline indicator for one keyboard key.
+// Children are the key glyph or text. Compose multiple keys via [KbdGroup].
+templ Kbd(opts KbdOpts) {
+	@KbdAttrs(opts, nil) {
+		{ children... }
+	}
+}
+
+// KbdAttrs is [Kbd] with an extra attribute set.
+templ KbdAttrs(opts KbdOpts, attrs templ.Attributes) {
+	<neo-kbd
+		{ opts.Variant.Attrs("variant")... }
+		{ opts.Size.Attrs("size")... }
+		{ opts.Key.Attrs("key")... }
+		{ attrs... }
+	>
+		if key, ua := opts.Key.Or(""), opts.UserAgent.Or(""); key != "" && ua != "" {
+			{ formatKey(key, DetectPlatform(ua)) }
+		} else {
+			{ children... }
+		}
+	</neo-kbd>
+}
+
+// KbdGroup wraps multiple [Kbd] children inline with a small gap.
+templ KbdGroup() {
+	@KbdGroupAttrs(nil) {
+		{ children... }
+	}
+}
+
+// KbdGroupAttrs is [KbdGroup] with an extra attribute set.
+templ KbdGroupAttrs(attrs templ.Attributes) {
+	<neo-kbd-group { attrs... }>
+		{ children... }
+	</neo-kbd-group>
+}

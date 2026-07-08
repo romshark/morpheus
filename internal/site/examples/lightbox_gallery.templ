@@ -1,0 +1,49 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ LightboxGallery() {
+	<div data-signals="{gallery_active: '1'}">
+		@neo.LightboxAttrs(neo.LightboxOpts{Transition: neo.Set(neo.LightboxTransitionFade)}, templ.Attributes{
+			"aria-label": "Jar gallery",
+		}) {
+			<ul class="lightbox-gallery-grid">
+				for _, n := range []string{"1", "2", "3", "4", "5", "6"} {
+					<li>
+						<button
+							{ neo.LightboxTrigger()... }
+							data-on:click={ "$gallery_active = '" + n + "'" }
+							class="lightbox-gallery-thumb"
+						>
+							<img src={ "/static/jar_" + n + ".webp" } alt={ "Jar " + n } class="lightbox-gallery-thumb-img"/>
+						</button>
+					</li>
+				}
+			</ul>
+			<div { neo.LightboxContent()... } class="lightbox-gallery-content">
+				@neo.CarouselAttrs(neo.CarouselOpts{Loop: neo.Set(true), Dots: neo.Set(true)}, templ.Attributes{
+					"data-attr:value":             "$gallery_active",
+					"data-on:neo-carousel-change": "$gallery_active = evt.detail.value",
+					"class":                       "lightbox-gallery-carousel",
+				}) {
+					@neo.CarouselTrack() {
+						for _, n := range []string{"1", "2", "3", "4", "5", "6"} {
+							@neo.CarouselSlideAttrs(n, templ.Attributes{
+								"class": "lightbox-gallery-slide",
+							}) {
+								<img src={ "/static/jar_" + n + ".webp" } alt={ "Jar " + n } class="lightbox-gallery-slide-img"/>
+							}
+						}
+					}
+					<button aria-label="Previous image" class="lightbox-gallery-nav lightbox-gallery-nav-prev" { neo.CarouselPrev()... }>&lsaquo;</button>
+					<button aria-label="Next image" class="lightbox-gallery-nav lightbox-gallery-nav-next" { neo.CarouselNext()... }>&rsaquo;</button>
+				}
+				<button
+					{ neo.LightboxClose()... }
+					aria-label="Close gallery"
+					class="lightbox-gallery-close"
+				>&times;</button>
+			</div>
+		}
+	</div>
+}

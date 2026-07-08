@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Icon: volume-2
+  Set: Pixelarticons
+  Author: Gerrit Halfmann (https://github.com/halfmage/pixelarticons)
+  License: MIT (https://github.com/halfmage/pixelarticons/blob/master/LICENSE)
+  Source: https://iconify.design
+-->
+<svg xmlns="http://www.w3.org/2000/svg"
+     xmlns:xlink="http://www.w3.org/1999/xlink"
+     viewBox="0 0 24 24"
+     width="24"
+     height="24">
+  <title>Pixelated Speaker Icon</title>
+  <metadata>
+    <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+             xmlns:dc="http://purl.org/dc/elements/1.1/"
+             xmlns:cc="http://creativecommons.org/ns#">
+      <cc:Work rdf:about="">
+        <dc:title>Pixelated Speaker Icon</dc:title>
+        <dc:description>A pixel-style speaker icon representing sound or audio. Ideal for retro-themed designs, gaming interfaces, or digital media projects.</dc:description>
+        <dc:creator>
+          <cc:Agent>
+            <dc:title>Gerrit Halfmann</dc:title>
+          </cc:Agent>
+        </dc:creator>
+        <dc:source>https://github.com/halfmage/pixelarticons</dc:source>
+        <dc:rights>
+          <cc:Agent>
+            <dc:title>Gerrit Halfmann</dc:title>
+          </cc:Agent>
+        </dc:rights>
+        <cc:license rdf:resource="https://github.com/halfmage/pixelarticons/blob/master/LICENSE"/>
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+        <dc:subject>
+          <rdf:Bag>
+            <rdf:li>pixelated-speaker</rdf:li>
+            <rdf:li>sound-icon</rdf:li>
+            <rdf:li>audio-symbol</rdf:li>
+            <rdf:li>retro-design</rdf:li>
+            <rdf:li>pixel-art</rdf:li>
+            <rdf:li>gaming-icon</rdf:li>
+            <rdf:li>speaker-graphic</rdf:li>
+            <rdf:li>sound-wave-icon</rdf:li>
+            <rdf:li>digital-media</rdf:li>
+            <rdf:li>audio-interface</rdf:li>
+            <rdf:li>retro-gaming</rdf:li>
+            <rdf:li>pixel-sound</rdf:li>
+            <rdf:li>sound-system</rdf:li>
+            <rdf:li>audio-control</rdf:li>
+            <rdf:li>speaker-symbol</rdf:li>
+          </rdf:Bag>
+        </dc:subject>
+      </cc:Work>
+      <cc:License rdf:about="https://github.com/halfmage/pixelarticons/blob/master/LICENSE">
+        <dc:title>MIT (MIT)</dc:title>
+      </cc:License>
+    </rdf:RDF>
+  </metadata>
+  <path fill="currentColor" d="M11 2h2v20h-2v-2H9v-2h2V6H9V4h2zM7 8V6h2v2zm0 8H3V8h4v2H5v4h2zm0 0v2h2v-2zm10-6h-2v4h2zm2-2h2v8h-2zm0 8v2h-4v-2zm0-10v2h-4V6z"/>
+</svg>

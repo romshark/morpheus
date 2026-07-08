@@ -1,0 +1,13 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ InputGroupSearchSubmit() {
+	<neo-input-group>
+		@neo.Icon("search")
+		<input type="search" placeholder="Search…"/>
+		<neo-button aria-label="Submit search">
+			@neo.Icon("arrow-right")
+		</neo-button>
+	</neo-input-group>
+}

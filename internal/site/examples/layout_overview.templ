@@ -1,0 +1,137 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+// One reflowing project card. Only kit pieces, no custom CSS.
+templ layoutOverviewCard(title, owner, status string, variant neo.BadgeVariant) {
+	@neo.CardAttrs(neo.CardOpts{}, templ.Attributes{"neo-flex-grow": "1", "class": "layout-overview-card"}) {
+		@neo.Layout(neo.LayoutOpts{Direction: neo.Set(neo.Column), Gap: neo.Set(neo.GapSm)}) {
+			@neo.Layout(neo.LayoutOpts{
+				Direction:      neo.Set(neo.Row),
+				AlignItems:     neo.Set(neo.AlignItemsCenter),
+				JustifyContent: neo.Set(neo.JustifyContentSpaceBetween),
+				Gap:            neo.Set(neo.GapSm),
+			}) {
+				<strong>{ title }</strong>
+				@neo.Badge(neo.BadgeOpts{Variant: neo.Set(variant)}) {
+					{ status }
+				}
+			}
+			<small>{ owner }</small>
+			@neo.Layout(neo.LayoutOpts{
+				Direction:      neo.Set(neo.Row),
+				AlignItems:     neo.Set(neo.AlignItemsCenter),
+				JustifyContent: neo.Set(neo.JustifyContentSpaceBetween),
+			}) {
+				<small>Updated 2d ago</small>
+				@neo.Button(neo.ButtonOpts{Variant: neo.Set(neo.ButtonVariantGhost)}) {
+					Open
+				}
+			}
+		}
+	}
+}
+
+templ LayoutOverview() {
+	@neo.LayoutAttrs(
+		neo.LayoutOpts{Direction: neo.Set(neo.Column), Gap: neo.Set(neo.GapMd), Container: neo.Set(true)},
+		templ.Attributes{
+			"neo-width":      "100%",
+			"neo-height":     "100%",
+			"neo-min-width":  "0",
+			"neo-min-height": "0",
+			"neo-overflow":   "auto",
+			// Inset the scroll container so a focused child's outline
+			// ring isn't clipped at the scroll edge.
+			"class": "layout-overview-scroll",
+		},
+	) {
+		@neo.Layout(neo.LayoutOpts{Direction: neo.Set(neo.Row), AlignItems: neo.Set(neo.AlignItemsCenter), JustifyContent: neo.Set(neo.JustifyContentSpaceBetween), Gap: neo.Set(neo.GapMd)}) {
+			@neo.Layout(neo.LayoutOpts{Direction: neo.Set(neo.Row), AlignItems: neo.Set(neo.AlignItemsCenter), Gap: neo.Set(neo.GapMd)}) {
+				<strong>Projects</strong>
+				@neo.LayoutAttrs(
+					neo.LayoutOpts{Direction: neo.Set(neo.Row), Gap: neo.Set(neo.GapMd)},
+					neo.Item(neo.ItemOpts{HideBelow: neo.Set(neo.CollapseMd)}),
+				) {
+					<a href="#">Overview</a>
+					<a href="#">Activity</a>
+					<a href="#">Reports</a>
+				}
+			}
+			<neo-input-group { neo.Item(neo.ItemOpts{Grow: neo.Set(true), HideBelow: neo.Set(neo.CollapseSm), MinWidth0: neo.Set(true)})... }>
+				@neo.Icon("search")
+				<neo-textinput placeholder="Search"></neo-textinput>
+			</neo-input-group>
+			@neo.Layout(neo.LayoutOpts{Direction: neo.Set(neo.Row), AlignItems: neo.Set(neo.AlignItemsCenter), Gap: neo.Set(neo.GapSm)}) {
+				@neo.LayoutAttrs(
+					neo.LayoutOpts{Direction: neo.Set(neo.Row), Gap: neo.Set(neo.GapSm)},
+					neo.Item(neo.ItemOpts{HideBelow: neo.Set(neo.CollapseMd)}),
+				) {
+					@neo.Button(neo.ButtonOpts{Variant: neo.Set(neo.ButtonVariantGhost)}) {
+						Filter
+					}
+					@neo.Button(neo.ButtonOpts{Variant: neo.Set(neo.ButtonVariantPrimary)}) {
+						New
+					}
+				}
+				<neo-buttongroup
+					aria-label="Actions"
+					{ neo.Item(neo.ItemOpts{HideBelow: neo.Set(neo.CollapseSm), ShowBelow: neo.Set(neo.CollapseMd)})... }
+				>
+					<neo-button aria-label="New">
+						@neo.Icon("plus")
+					</neo-button>
+					<neo-button aria-label="Menu">
+						@neo.Icon("menu")
+					</neo-button>
+				</neo-buttongroup>
+				<neo-buttongroup aria-label="Actions" { neo.Item(neo.ItemOpts{ShowBelow: neo.Set(neo.CollapseSm)})... }>
+					<neo-button aria-label="Search">
+						@neo.Icon("search")
+					</neo-button>
+					<neo-button aria-label="New">
+						@neo.Icon("plus")
+					</neo-button>
+					<neo-button aria-label="Menu">
+						@neo.Icon("menu")
+					</neo-button>
+				</neo-buttongroup>
+			}
+		}
+		@neo.Layout(neo.LayoutOpts{Direction: neo.Set(neo.Row), AlignItems: neo.Set(neo.AlignItemsCenter), JustifyContent: neo.Set(neo.JustifyContentSpaceBetween), Gap: neo.Set(neo.GapSm)}) {
+			@neo.Layout(neo.LayoutOpts{Direction: neo.Set(neo.Row), Wrap: neo.Set(neo.Wrap), Gap: neo.Set(neo.GapXs)}) {
+				@neo.Badge(neo.BadgeOpts{Variant: neo.Set(neo.BadgeVariantOutline)}) {
+					All
+				}
+				@neo.Badge(neo.BadgeOpts{Variant: neo.Set(neo.BadgeVariantOutline)}) {
+					Active
+				}
+				@neo.Badge(neo.BadgeOpts{Variant: neo.Set(neo.BadgeVariantOutline)}) {
+					Archived
+				}
+			}
+			<small>6 of 18</small>
+		}
+		@neo.LayoutAttrs(
+			neo.LayoutOpts{Direction: neo.Set(neo.Row), Wrap: neo.Set(neo.Wrap), Gap: neo.Set(neo.GapMd), AlignContent: neo.Set(neo.AlignContentFlexStart)},
+			nil,
+		) {
+			@layoutOverviewCard("Apollo", "Alice Chen", "In progress", neo.BadgeVariantPrimary)
+			@layoutOverviewCard("Borealis", "Ben Ortiz", "Blocked", neo.BadgeVariantDanger)
+			@layoutOverviewCard("Cirrus", "Carla Mehta", "In review", neo.BadgeVariantSecondary)
+			@layoutOverviewCard("Delta", "Dev Kumar", "Shipped", neo.BadgeVariantOutline)
+			@layoutOverviewCard("Equinox", "Erin Park", "Planning", neo.BadgeVariantNeutral)
+			@layoutOverviewCard("Zephyr", "Zoe Lang", "Backlog", neo.BadgeVariantNeutral)
+			@layoutOverviewCard("Helios", "Hugo Diaz", "In progress", neo.BadgeVariantPrimary)
+			@layoutOverviewCard("Nimbus", "Nina Petrov", "In review", neo.BadgeVariantSecondary)
+			@layoutOverviewCard("Orion", "Omar Said", "Blocked", neo.BadgeVariantDanger)
+		}
+		@neo.Layout(neo.LayoutOpts{Direction: neo.Set(neo.Row), AlignItems: neo.Set(neo.AlignItemsCenter), Gap: neo.Set(neo.GapSm)}) {
+			<small>Updated just now</small>
+			<span { neo.Item(neo.ItemOpts{Grow: neo.Set(true)})... }></span>
+			@neo.Button(neo.ButtonOpts{Variant: neo.Set(neo.ButtonVariantGhost)}) {
+				Load more
+			}
+		}
+	}
+}

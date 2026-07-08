@@ -1,0 +1,34 @@
+{
+	"private": true,
+	"type": "module",
+	"engines": {
+		"node": ">=24",
+		"pnpm": ">=11"
+	},
+	"scripts": {
+		"preinstall": "npx only-allow pnpm",
+		"build": "NODE_ENV=production node build.ts",
+		"lint": "biome lint",
+		"lint-apply": "biome lint --write",
+		"format": "biome format --write",
+		"check-all": "biome check && tsc --noEmit"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "2.5.1",
+		"@types/node": "26.0.1",
+		"esbuild": "0.28.1",
+		"typescript": "6.0.3"
+	},
+	"dependencies": {
+		"@codemirror/commands": "^6.10.4",
+		"@codemirror/lang-css": "^6.3.1",
+		"@codemirror/lang-go": "^6.0.1",
+		"@codemirror/lang-html": "^6.4.11",
+		"@codemirror/lang-javascript": "^6.2.5",
+		"@codemirror/lang-markdown": "^6.5.0",
+		"@codemirror/language": "^6.12.4",
+		"@codemirror/state": "^6.7.0",
+		"@codemirror/theme-one-dark": "^6.1.3",
+		"@codemirror/view": "^6.43.4"
+	}
+}

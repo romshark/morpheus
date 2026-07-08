@@ -1,0 +1,188 @@
+/* -----------------------------------------------------------------------
+ * <neo-switch>
+ * -----------------------------------------------------------------------
+ * Dimensions:
+ *   default size: track 2rem × 1.15rem, thumb 1rem
+ *   sm           : track 1.5rem × 0.875rem, thumb 0.75rem
+ * The thumb is rendered via ::before so the host is a single element
+ * (no inner DOM); the parent's `display: inline-flex` lays the pseudo-
+ * element out as an anonymous flex item, and a `transform: translateX`
+ * on `[checked]` slides it across the track. */
+
+:root {
+	--neo-switch-width: 2rem;
+	--neo-switch-height: 1.15rem;
+	--neo-switch-thumb-size: 1rem;
+	/* Track is a pill and thumb is a circle by default; themes can
+	 * override these to follow a sharp-cornered aesthetic (setting
+	 * both to 0). Defaulting to `var(--page-radius)` would not
+	 * work: at the kit's 0.625rem default you'd get a half-rounded
+	 * rectangle, which is neither a pill nor a box. */
+	--neo-switch-track-radius: 999px;
+	--neo-switch-thumb-radius: 50%;
+	/* Surfaces the border thickness so the [checked] translate formula
+	 * stays symmetric when high-contrast bumps the border to 2px. */
+	--neo-switch-border-width: 1px;
+	--neo-switch-track-off: var(--btn-border);
+	--neo-switch-track-on: var(--accent);
+	--neo-switch-thumb: var(--btn-bg);
+	--neo-switch-transition-duration: calc(150ms * var(--neo-duration-scale, 1));
+}
+
+neo-switch {
+	display: inline-flex;
+	align-items: center;
+	flex-shrink: 0;
+	box-sizing: border-box;
+	width: var(--neo-switch-width);
+	height: var(--neo-switch-height);
+	border-radius: var(--neo-switch-track-radius);
+	border: var(--neo-switch-border-width) solid transparent;
+	background: var(--neo-switch-track-off);
+	cursor: pointer;
+	user-select: none;
+	-webkit-user-select: none;
+	vertical-align: middle;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+	/* `background` is the off -> on track color (state change), so it
+	 * stays on the switch's own duration. `border-color` and
+	 * `box-shadow` are :focus-visible feedback, so they pull
+	 * `--neo-duration-hover`, which a theme can zero out without
+	 * affecting the toggle motion. */
+	transition:
+		background var(--neo-switch-transition-duration) var(--neo-easing, ease),
+		border-color var(--neo-duration-hover, var(--neo-switch-transition-duration)) var(--neo-easing, ease),
+		box-shadow var(--neo-duration-hover, var(--neo-switch-transition-duration)) var(--neo-easing, ease);
+}
+
+neo-switch::before {
+	content: "";
+	display: block;
+	flex-shrink: 0;
+	width: var(--neo-switch-thumb-size);
+	height: var(--neo-switch-thumb-size);
+	border-radius: var(--neo-switch-thumb-radius);
+	background: var(--neo-switch-thumb);
+	/* Keep both animation endpoints on the same transform path. Starting
+	 * from the implicit `none` can make the browser promote the thumb to
+	 * a composited layer on the first moving frame, which occasionally
+	 * flashes during rapid toggles. */
+	transform: translateX(0);
+	transition: transform var(--neo-switch-transition-duration) var(--neo-easing, ease);
+}
+
+neo-switch[checked] {
+	background: var(--neo-switch-track-on);
+}
+
+/* Place the thumb so the right-edge gap on `[checked]` matches the
+ * left-edge gap when unchecked (= the border width). Inner travel is
+ * (outer-width - 2*border-width - thumb-width). 100% here is the
+ * thumb's own width. */
+neo-switch[checked]::before {
+	transform: translateX(calc(var(--neo-switch-width) - 2 * var(--neo-switch-border-width) - 100%));
+}
+
+neo-switch:focus-visible {
+	outline: none;
+	border-color: var(--accent);
+	box-shadow:
+		0 1px 2px rgba(0, 0, 0, 0.05),
+		0 0 0 3px color-mix(in srgb, var(--accent) 50%, transparent);
+}
+
+neo-switch[disabled]:not([disabled="false"]),
+neo-switch[aria-disabled="true"] {
+	cursor: not-allowed;
+	opacity: 0.5;
+	background-image: var(--neo-disabled-overlay);
+}
+
+neo-switch[size="sm"] {
+	--neo-switch-width: 1.5rem;
+	--neo-switch-height: 0.875rem;
+	--neo-switch-thumb-size: 0.75rem;
+}
+
+/* forced-colors: the UA replaces our colour tokens with system colours, so
+ * the track/thumb collapse to a flat ButtonFace/ButtonText pair that's hard
+ * to read as "off" vs "on". Spell each state in system colours: a visible
+ * 1px ButtonText border, a Highlight track when checked, HighlightText
+ * thumb to keep the inner pill legible against it. GrayText for disabled
+ * so the control still reads when opacity is ignored. */
+@media (forced-colors: active) {
+	neo-switch {
+		background: ButtonFace;
+		border-color: ButtonText;
+		box-shadow: none;
+	}
+	neo-switch::before {
+		background: ButtonText;
+	}
+	neo-switch[checked] {
+		background: Highlight;
+		border-color: Highlight;
+	}
+	neo-switch[checked]::before {
+		background: HighlightText;
+	}
+	neo-switch:focus-visible {
+		outline: 2px solid Highlight;
+		outline-offset: 2px;
+	}
+	neo-switch[disabled]:not([disabled="false"]),
+	neo-switch[aria-disabled="true"] {
+		border-color: GrayText;
+	}
+	neo-switch[disabled]:not([disabled="false"])::before,
+	neo-switch[aria-disabled="true"]::before {
+		background: GrayText;
+	}
+}
+
+/* 2px currentColor border; the thumb extends to the track edge so its
+ * inset ring coincides with that border, not the inner track edge.
+ * Mirrored below for the data-pref simulator hook. */
+@media (prefers-contrast: more) {
+	neo-switch {
+		border-color: currentColor;
+		--neo-switch-border-width: 2px;
+		--neo-switch-thumb-size: var(--neo-switch-height);
+	}
+	neo-switch::before {
+		margin-left: calc(-1 * var(--neo-switch-border-width));
+		box-shadow: inset 0 0 0 2px currentColor;
+	}
+	neo-switch[checked]::before {
+		transform: translateX(calc(var(--neo-switch-width) - 100%));
+	}
+	neo-switch[checked] {
+		border-color: var(--accent);
+	}
+}
+
+:root[data-pref-contrast-more] neo-switch {
+	border-color: currentColor;
+	--neo-switch-border-width: 2px;
+	/* Thumb fills the track edge-to-edge in this mode so its inset
+	 * border lines up with the inner edge of the switch's outer
+	 * border, reading as a single continuous outline. */
+	--neo-switch-thumb-size: var(--neo-switch-height);
+}
+/* Thumb extends into the border region on the left (and right when
+ * checked) so it touches the switch's outer boundary, not the inner
+ * track edge. Negative margin-left shifts the natural position by one
+ * border-width; the [checked] translate below restores the full
+ * outer-width travel. inset box-shadow (not outline) keeps the 2px
+ * thumb border following the circle and coinciding cleanly with the
+ * switch's outer 2px border at the extremes. */
+:root[data-pref-contrast-more] neo-switch::before {
+	margin-left: calc(-1 * var(--neo-switch-border-width));
+	box-shadow: inset 0 0 0 2px currentColor;
+}
+:root[data-pref-contrast-more] neo-switch[checked]::before {
+	transform: translateX(calc(var(--neo-switch-width) - 100%));
+}
+:root[data-pref-contrast-more] neo-switch[checked] {
+	border-color: var(--accent);
+}

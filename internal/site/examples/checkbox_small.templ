@@ -1,0 +1,9 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ CheckboxSmall() {
+	@neo.Checkbox(neo.CheckboxOpts{Size: neo.Set("sm"), AriaLabel: neo.Set("Small unchecked")})
+	@neo.Checkbox(neo.CheckboxOpts{Size: neo.Set("sm"), Checked: neo.Set(true), AriaLabel: neo.Set("Small checked")})
+	@neo.Checkbox(neo.CheckboxOpts{Size: neo.Set("sm"), Indeterminate: neo.Set(true), AriaLabel: neo.Set("Small mixed")})
+}

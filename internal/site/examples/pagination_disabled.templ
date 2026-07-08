@@ -1,0 +1,9 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ PaginationDisabled() {
+	@neo.Pagination(neo.PaginationOpts{
+		Page: neo.Set(5), Pages: neo.Set(25), Disabled: neo.Set(true),
+	})
+}

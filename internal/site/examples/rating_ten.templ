@@ -1,0 +1,11 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ RatingTen() {
+	@neo.Rating(neo.RatingOpts{
+		Label: neo.Set("Score out of 10"),
+		Value: neo.Set(7.0),
+		Max:   neo.Set(10.0),
+	})
+}

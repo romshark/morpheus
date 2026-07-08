@@ -1,0 +1,162 @@
+package site
+
+import "github.com/romshark/morpheus/internal/href"
+
+templ PageFrameworks(morpheusVersion string) {
+	@PageDoc(href.PageFrameworks(), "Frameworks", morpheusVersion) {
+		<script type="module" src="/static/sim/frameworks/accent.js"></script>
+		<section class="demo">
+			@anchoredH2("frameworks") {
+				Frameworks
+			}
+			<p>
+				Morpheus is <strong>framework-agnostic</strong>: its
+				components are standard custom elements that render as
+				plain DOM nodes anywhere. Pass state as attributes, put
+				slotted content between the tags, and subscribe to
+				Morpheus custom events. The same contract works in React,
+				Vue, Svelte, Solid, server-rendered HTML, or plain vanilla JavaScript.
+			</p>
+			<p>
+				The simplest way to use Morpheus is to
+				<a href={ href.PageGettingStarted() }>load the bundle once</a> and
+				write the elements directly in your framework's templates,
+				the same as any other HTML.
+			</p>
+			<p>
+				Morpheus components are designed to be driven by changes to the DOM in a
+				declarative way, and hence don't provide an imperative API surface.
+				Control them through attributes and observe state changes through events.
+				For example:
+			</p>
+			<ul>
+				<li>
+					Turn a <code>{ "<neo-switch>" }</code> on by setting its
+					<code>checked</code> attribute, and react to the user toggling it
+					by listening for the <code>neo-switch-change</code> event.
+				</li>
+				<li>
+					Show a toast by rendering a
+					<code>{ "<neo-toast duration=\"4000\">" }</code> inside the
+					<code>{ "<neo-toaster>" }</code>; it animates in and
+					auto-dismisses after 4 seconds. It emits a
+					<code>neo-toast-close</code> event when the user clicks its
+					close button.
+				</li>
+			</ul>
+			@anchoredH3("datastar-signals") {
+				Datastar (Signals)
+			}
+			<p>
+				The following example utilizes 
+				<a target="_blank" href="https://data-star.dev/guide/reactive_signals/">
+					Reactive Datastar signals
+					@externalLinkIcon()
+				</a>
+				{ " " }drives the components straight from HTML
+				attributes, with no build step and no component wrapper. The
+				example below is an accent-color picker held in two
+				<strong>local signals</strong>; the <code>_</code> prefix
+				keeps them client-only, never serialized to a backend.
+				A <code>data-on:*</code> listener reads the kit's events
+				and <code>data-attr:*</code> bindings push the values back,
+				so the <code>{ "<neo-select>" }</code>, the
+				<code>{ "<neo-color-field>" }</code>, and the readout stay
+				in sync.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "18rem",
+				StageMinWidth:  "20rem",
+				HTMLSource:     datastarLocalHTML,
+			}) {
+				<div class="framework-demo-root">
+					@frameworksRaw(datastarLocalHTML)
+				</div>
+			}
+			@anchoredH3("datastar-server-driven") {
+				Datastar (server-driven)
+			}
+			<p>
+				Morpheus targets <strong>server-driven</strong> UIs just as
+				well. This is the same picker, but no display state lives in
+				the browser: the <code>{ "<neo-select>" }</code> and
+				<code>{ "<neo-color-field>" }</code> post their change, and
+				the server resolves the named-vs-custom logic and
+				<strong>morphs</strong> the whole picker back. The
+				<strong>Server script</strong> tab holds the handler. This
+				page fakes the backend with an in-browser simulator, but the
+				contract (action out, element morph back) is exactly what a
+				real Datastar endpoint emits.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "18rem",
+				StageMinWidth:  "20rem",
+				HTMLSource:     datastarMorphHTML,
+				ScriptSource:   frameworksAccentScript,
+			}) {
+				<div class="framework-demo-root">
+					@frameworksRaw(datastarMorphHTML)
+				</div>
+			}
+			@anchoredH3("htmx") {
+				HTMX
+			}
+			<p>
+				The HTMX implementation should be very similar to the
+				<a href="#datastar-server-driven">server-driven Datastar example</a>.
+			</p>
+			@anchoredH3("react") {
+				React
+			}
+			<p>
+				The following example is powered by 
+				<a target="_blank" href="https://react.dev">
+					React 19.2.7
+					@externalLinkIcon()
+				</a>
+				One piece of React state keeps the <code>{ "<neo-select>" }</code>, the
+				<code>{ "<neo-color-field>" }</code>, and the hex
+				<code>{ "<neo-textinput>" }</code> in sync.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight:   "18rem",
+				StageMinWidth:    "20rem",
+				DefaultTab:       "tsx",
+				HTMLSource:       reactSetupHTML,
+				TSXSource:        reactComponentTSX,
+				TypeScriptSource: reactTypesTS,
+			}) {
+				<div id="framework-demo-root" class="framework-demo-root">
+					<neo-skeleton height="16rem"></neo-skeleton>
+				</div>
+			}
+			<script type="module" src={ href.Asset("react-demo.js") }></script>
+			@anchoredH3("alpine") {
+				Alpine.js
+			}
+			<p>
+				<a target="_blank" href="https://alpinejs.dev">
+					Alpine.js v3.x.x
+					@externalLinkIcon()
+				</a>
+				binds in the markup: <code>x-data</code> holds the color, the option,
+				and the named-vs-custom logic; <code>{ ":value" }</code> pushes that
+				state onto each element and <code>{ "@event" }</code>
+				listeners feed the kit's events back. No build step and no
+				component wrapper: the two-way binding falls out of the
+				declarative bindings.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "18rem",
+				StageMinWidth:  "20rem",
+				DefaultTab:     "html",
+				HTMLSource:     alpineDemoHTML,
+			}) {
+				<div class="framework-demo-root">
+					@frameworksRaw(alpineDemoHTML)
+				</div>
+			}
+			<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+		</section>
+	}
+}

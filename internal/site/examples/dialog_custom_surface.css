@@ -1,0 +1,9 @@
+.dialog-custom-surface {
+	--neo-dialog-bg: rgba(15, 16, 22, 0.42);
+	--neo-dialog-color: #f4f4f5;
+	--neo-dialog-border-color: rgba(255, 255, 255, 0.12);
+	--neo-dialog-blur: 22px;
+	--neo-dialog-overlay-bg: rgba(0, 0, 0, 0.18);
+	--neo-dialog-overlay-blur: 6px;
+	--muted: rgba(244, 244, 245, 0.65);
+}

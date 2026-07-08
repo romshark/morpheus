@@ -1,0 +1,14 @@
+<neo-popover placement="bottom-start" screen-offset="1rem">
+  <neo-button data-neo-popover-trigger>Show upload</neo-button>
+  <div
+    data-neo-popover-content
+    style="display: flex; flex-direction: column; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; min-width: 12rem;"
+  >
+    <neo-spinner
+      indeterminate
+      label="Preparing upload"
+      style="--neo-spinner-size: 3rem; color: var(--accent);"
+    ></neo-spinner>
+    <p style="margin: 0; font-weight: 600;">Preparing…</p>
+  </div>
+</neo-popover>

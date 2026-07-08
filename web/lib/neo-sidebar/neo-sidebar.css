@@ -1,0 +1,384 @@
+/* -----------------------------------------------------------------------
+ * <neo-sidebar>
+ * -----------------------------------------------------------------------
+ * Two layout modes driven by a single breakpoint
+ * (`--neo-sidebar-overlay-breakpoint`, default 50rem):
+ *   • wide: the host is an in-flow column whose width animates to/from
+ *             zero. The parent layout (typically a CSS grid) decides
+ *             what the rest of the page does with the freed space.
+ *   • narrow: the host becomes `position: fixed` and slides in from
+ *              its `side`, paired with a backdrop the JS appends to
+ *              <body>.
+ */
+
+:root {
+	--neo-sidebar-width: 16rem;
+	--neo-sidebar-bg: var(--btn-bg);
+	--neo-sidebar-fg: var(--btn-fg);
+	--neo-sidebar-border-color: var(--btn-border);
+	/* Pixel-snapped: see the same round() rationale on
+	 * --neo-button-padding above. The frame bars (sidebar
+	 * header, app bar) both use --neo-sidebar-padding for their
+	 * vertical padding, so an integer value here keeps the two
+	 * rows' outer heights byte-identical regardless of theme. */
+	--neo-sidebar-padding: round(calc(var(--page-spacing, 0.25rem) * 3), 1px);
+	--neo-sidebar-gap: round(calc(var(--page-spacing, 0.25rem) * 2), 1px);
+	--neo-sidebar-transition-duration: calc(200ms * var(--neo-duration-scale, 1));
+	--neo-sidebar-overlay-breakpoint: 50rem;
+	--neo-sidebar-minimized-width: 3.5rem;
+	--neo-sidebar-z-index: 60;
+	--neo-sidebar-backdrop-bg: rgba(0, 0, 0, 0.45);
+}
+
+neo-sidebar {
+	display: flex;
+	flex-direction: column;
+	box-sizing: border-box;
+	width: var(--neo-sidebar-width);
+	max-width: var(--neo-sidebar-width);
+	/* Pin to the declared width when laid out as a flex item; the
+	 * sidebar is meant to have a fixed column width, and without this
+	 * any sibling content (a main column with overflowing rows, a
+	 * narrow preview canvas, …) makes flexbox squeeze the sidebar
+	 * smaller than its --neo-sidebar-width. Harmless in narrow
+	 * overlay mode because `position: fixed` already takes the host
+	 * out of flex flow there. */
+	flex-shrink: 0;
+	height: 100%;
+	background: var(--neo-sidebar-bg);
+	color: var(--neo-sidebar-fg);
+	border-right: 1px solid var(--neo-sidebar-border-color);
+	overflow: hidden;
+	transition: none;
+}
+
+/* Transitions are intentionally armed only after the custom element has
+ * reconciled its initial open/closed and wide/overlay state. Without this
+ * gate, first upgrade can animate the page frame itself: an auto-open
+ * right sidebar grows from 0 to its full column width on desktop, while
+ * narrow auto sidebars slide away as they settle into overlay-closed. */
+neo-sidebar[data-neo-sidebar-ready] {
+	transition:
+		width var(--neo-sidebar-transition-duration) var(--neo-easing, ease),
+		max-width var(--neo-sidebar-transition-duration) var(--neo-easing, ease),
+		border-color var(--neo-sidebar-transition-duration) var(--neo-easing, ease);
+}
+
+neo-sidebar[side="right"] {
+	border-right: none;
+	border-left: 1px solid var(--neo-sidebar-border-color);
+}
+
+/* Per-instance, single-frame transition suppression used by
+ * neo-sidebar.ts when the host crosses the overlay breakpoint while
+ * already closed. The cascade switch (in-flow ↔ overlay) re-derives
+ * `transform` from a different rule set, and the new transition list
+ * would animate it from the old computed value to the new one, which
+ * a user looking at a closed sidebar reads as "the sidebar I closed
+ * just flickered into view and slid back out". The marker is added
+ * synchronously during the ResizeObserver callback and removed two
+ * frames later, so subsequent open/close toggles animate normally. */
+neo-sidebar[data-neo-mode-snap] {
+	/* biome-ignore lint/complexity/noImportantStyles: suppress transition during the snap-marker frames (see above). */
+	transition: none !important;
+}
+
+/* Wide-mode collapse: closing an upgraded sidebar shrinks its width to
+ * 0 so the in-flow column it occupies releases the freed space. Scoped
+ * to :defined so unupgraded auto sidebars render in their desktop-open
+ * state before JS loads; the component then reflects [open] as soon as
+ * it connects. Skipped in overlay mode (`[overlay]` for author-forced
+ * always-overlay, `[data-neo-sidebar-overlay]` for JS-detected narrow
+ * mode based on the per-instance `overlay-breakpoint`). There the host
+ * is `position: fixed`, the close animation is purely a transform
+ * slide, and shrinking width to 0 would clip the host instantly and
+ * make the slide-out invisible. Gating by the overlay attributes (not
+ * by `@media (max-width: 50rem)` against the viewport) means a sidebar
+ * with a per-instance breakpoint smaller than the default still
+ * collapses correctly when its viewport sits below 50rem; otherwise a
+ * demo opting out of overlay (`overlay-breakpoint="0rem"`) at a 700px
+ * viewport would have toggle-off remove `[open]` with no visible
+ * effect. */
+neo-sidebar:defined:not([open]):not([overlay]:not([overlay="false"])):not([data-neo-sidebar-overlay]) {
+	width: 0;
+	max-width: 0;
+	border-color: transparent;
+}
+
+neo-sidebar:defined:not([open]):not([overlay]:not([overlay="false"])):not([data-neo-sidebar-overlay]):has(
+	> [data-neo-sidebar-minimized]
+) {
+	width: var(--neo-sidebar-minimized-width);
+	max-width: var(--neo-sidebar-minimized-width);
+	border-color: var(--neo-sidebar-border-color);
+}
+
+neo-sidebar:defined:not([open]):not([overlay]:not([overlay="false"])):not([data-neo-sidebar-overlay]):has(
+		> [data-neo-sidebar-minimized]
+	)
+	> [data-neo-sidebar-minimized] {
+	display: flex;
+}
+
+neo-sidebar:defined:not([open]):not([overlay]:not([overlay="false"])):not([data-neo-sidebar-overlay]):has(
+		> [data-neo-sidebar-minimized]
+	)
+	> :is([data-neo-sidebar-header], [data-neo-sidebar-content], [data-neo-sidebar-footer]) {
+	display: none;
+}
+
+neo-sidebar > [data-neo-sidebar-header],
+neo-sidebar > [data-neo-sidebar-content],
+neo-sidebar > [data-neo-sidebar-footer] {
+	flex: 0 0 auto;
+	padding: var(--neo-sidebar-padding);
+	box-sizing: border-box;
+	/* Children of a hidden host shouldn't reflow as the host width
+	 * animates; pinning the width to the open size keeps the
+	 * collapse a clean wipe rather than a multi-line text reflow. */
+	width: var(--neo-sidebar-width);
+}
+
+neo-sidebar > [data-neo-sidebar-header] {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--neo-sidebar-gap);
+	border-bottom: 1px solid var(--neo-sidebar-border-color);
+	font-weight: 600;
+	/* Lock to the same outer height as the page-level app bar
+	 * (defined in style.css). Both rows then use the SAME computed
+	 * value, so the browser can't round them to different used
+	 * values from two independent calc passes, which is what
+	 * caused the 1px diff at sub-pixel-prone base spacings. The
+	 * fallback keeps the natural sizing if the
+	 * variable isn't set (sidebars used outside .app-shell). */
+	height: var(--app-shell-height, auto);
+}
+
+neo-sidebar > [data-neo-sidebar-content] {
+	flex: 1 1 auto;
+	overflow-y: auto;
+	overscroll-behavior: contain;
+}
+
+neo-sidebar > [data-neo-sidebar-footer] {
+	border-top: 1px solid var(--neo-sidebar-border-color);
+	display: flex;
+	align-items: center;
+	gap: var(--neo-sidebar-gap);
+}
+
+/* biome-ignore lint/style/noDescendingSpecificity: base hides the minimized rail; the earlier high-specificity :not([open]):has(> minimized) rule intentionally overrides this display:none to display:flex when collapsed; specific wins */
+neo-sidebar > [data-neo-sidebar-minimized] {
+	display: none;
+	flex: 1 1 auto;
+	flex-direction: column;
+	gap: var(--neo-sidebar-gap);
+	align-items: center;
+	box-sizing: border-box;
+	width: var(--neo-sidebar-minimized-width);
+	padding: var(--neo-sidebar-padding);
+	overflow-y: auto;
+	overscroll-behavior: contain;
+}
+
+[data-neo-sidebar-backdrop] {
+	display: none;
+	position: fixed;
+	inset: 0;
+	background: var(--neo-sidebar-backdrop-bg);
+	opacity: 0;
+	z-index: calc(var(--neo-sidebar-z-index) - 1);
+	/* `display` is in the transition list with `allow-discrete` so the
+	 * fade-out keeps the element painted (display: block) until the
+	 * opacity reaches 0, then flips to `display: none` at the end;
+	 * without that, removing [data-neo-open] would snap the backdrop
+	 * gone immediately and the user would never see the fade. The
+	 * fade-IN is paired with the @starting-style block below: it
+	 * seeds opacity: 0 as the from-state when [data-neo-open] is first
+	 * applied, so the dim animates from transparent rather than
+	 * popping to full opacity. */
+	transition:
+		opacity var(--neo-sidebar-transition-duration) var(--neo-easing, ease),
+		display var(--neo-sidebar-transition-duration) allow-discrete;
+}
+
+/* The backdrop's visibility is JS-driven (neo-sidebar.ts sets
+ * [data-neo-open] iff the host is open AND in overlay mode), so this rule
+ * is unscoped, with no @media / @container query that could fire its own
+ * style change one frame ahead of the JS callback and cause the
+ * backdrop to flash in before fading out on a breakpoint crossing. */
+[data-neo-sidebar-backdrop][data-neo-open] {
+	display: block;
+	opacity: 1;
+}
+
+@starting-style {
+	[data-neo-sidebar-backdrop][data-neo-open] {
+		opacity: 0;
+	}
+}
+
+/* Sidebars with a per-instance `overlay-breakpoint` attribute paint
+ * in-flow pre-hydration. The default 50rem off-screen rule below
+ * still catches them at narrow viewports; between 50rem and the
+ * authored breakpoint they may briefly paint in-flow before the JS
+ * upgrade folds them, accepted in exchange for stable behaviour at
+ * wide viewports where any CSS-vs-JS threshold mismatch (scrollbar
+ * width, sub-pixel rounding, document-tree size differences between
+ * pages) would otherwise produce a visible swap on upgrade. */
+
+/* Pre-hydration overlay default: below 50rem viewport width, an
+ * unupgraded <neo-sidebar> renders in overlay mode (fixed, slid
+ * off-screen) so the page doesn't briefly paint a full-width drawer
+ * over content on mobile while the bundle loads. Once the element
+ * upgrades (`:defined` matches), the JS-driven
+ * [data-neo-sidebar-overlay] attribute below takes over. That's
+ * what lets per-instance `overlay-breakpoint` values actually win
+ * over a hardcoded 50rem here. Without `:not(:defined)` the @media
+ * rule keeps applying post-hydration and overrides any wider-than-
+ * 50rem in-flow decision the JS made (e.g. a left nav with
+ * overlay-breakpoint="30rem" inside a 40rem container would still
+ * be forced into overlay by this rule). */
+@media (max-width: 50rem) {
+	neo-sidebar:not(:defined) {
+		position: fixed;
+		top: 0;
+		bottom: 0;
+		left: 0;
+		z-index: var(--neo-sidebar-z-index);
+		width: var(--neo-sidebar-width);
+		max-width: var(--neo-sidebar-width);
+		transform: translateX(-100%);
+		transition: none;
+		border-right: 1px solid var(--neo-sidebar-border-color);
+	}
+
+	neo-sidebar:not(:defined)[side="right"] {
+		left: auto;
+		right: 0;
+		transform: translateX(100%);
+		border-right: none;
+		border-left: 1px solid var(--neo-sidebar-border-color);
+	}
+
+	neo-sidebar:not(:defined)[open] {
+		transform: translateX(0);
+	}
+}
+
+/* Container-query mirror of the @media block above. Lets a host page
+ * opt the sidebar's overlay decision into being driven by the size of
+ * an ancestor element instead of the viewport. Useful for previews,
+ * iframe-less component playgrounds, or split-view editors that want
+ * the sidebar to behave as if it were on a narrow phone when the
+ * preview pane itself is narrow.
+ *
+ * Opt in by giving an ancestor `container-type: inline-size` and
+ * `container-name: neo-sidebar-shell` (see `.sidebar-preview` in
+ * style.css). With no such ancestor the rules don't match and the
+ * sidebar follows the viewport-driven @media rules.
+ *
+ * Same `:not(:defined)` scoping as @media: pre-hydration default
+ * only. Post-upgrade the JS-driven [data-neo-sidebar-overlay]
+ * attribute is the single source of truth, which lets a sidebar with
+ * `overlay-breakpoint="30rem"` stay in-flow inside a 40rem container
+ * even though @container's hardcoded 50rem threshold would otherwise
+ * push it into overlay. */
+@container neo-sidebar-shell (max-width: 50rem) {
+	neo-sidebar:not(:defined) {
+		position: fixed;
+		top: 0;
+		bottom: 0;
+		left: 0;
+		z-index: var(--neo-sidebar-z-index);
+		width: var(--neo-sidebar-width);
+		max-width: var(--neo-sidebar-width);
+		transform: translateX(-100%);
+		transition: none;
+		border-right: 1px solid var(--neo-sidebar-border-color);
+	}
+
+	neo-sidebar:not(:defined)[side="right"] {
+		left: auto;
+		right: 0;
+		transform: translateX(100%);
+		border-right: none;
+		border-left: 1px solid var(--neo-sidebar-border-color);
+	}
+
+	neo-sidebar:not(:defined)[open] {
+		transform: translateX(0);
+	}
+
+	neo-sidebar:not(:defined):not([open]) {
+		width: var(--neo-sidebar-width);
+		max-width: var(--neo-sidebar-width);
+		border-color: var(--neo-sidebar-border-color);
+	}
+}
+
+/* Two parallel triggers for the always-overlay styling:
+ *   • [overlay]                      : author intent ("always
+ *     overlay regardless of width"). Stable, set in markup.
+ *   • [data-neo-sidebar-overlay]   : JS-driven, set by the
+ *     component when the parent's width sits at/below this
+ *     instance's `overlay-breakpoint` (default 50rem). Lets two
+ *     sidebars on the same page disagree about the threshold;
+ *     the @media / @container queries above can't read per-
+ *     instance values, so the JS-driven attribute does the work
+ *     once the bundle upgrades the elements.
+ *
+ * Both hit the same rules below; specificity is identical so order
+ * doesn't matter, and either being present overrides the wide-
+ * mode collapse rule earlier in this section. */
+
+neo-sidebar[overlay]:not([overlay="false"]),
+neo-sidebar[data-neo-sidebar-overlay] {
+	position: fixed;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	z-index: var(--neo-sidebar-z-index);
+	width: var(--neo-sidebar-width);
+	max-width: var(--neo-sidebar-width);
+	transform: translateX(-100%);
+	transition: none;
+	border-right: 1px solid var(--neo-sidebar-border-color);
+	/* Overlay mode is a fixed-width panel with no minimized collapse,
+	 * so the host-level overflow:hidden serves no layout purpose here.
+	 * It's actively harmful: `transform: translateX(...)` makes the
+	 * host the containing block for `position: fixed` descendants
+	 * (popovers, tooltips), and the host's overflow:hidden then
+	 * clips them inside the sidebar. positionPanel already
+	 * compensates for the containing-block shift, so removing the
+	 * clip lets the panels paint at their correct viewport coords. */
+	overflow: visible;
+}
+
+neo-sidebar[overlay]:not([overlay="false"])[side="right"],
+neo-sidebar[data-neo-sidebar-overlay][side="right"] {
+	left: auto;
+	right: 0;
+	transform: translateX(100%);
+	border-right: none;
+	border-left: 1px solid var(--neo-sidebar-border-color);
+}
+
+neo-sidebar[overlay]:not([overlay="false"])[open],
+neo-sidebar[data-neo-sidebar-overlay][open] {
+	transform: translateX(0);
+}
+
+neo-sidebar[overlay]:not([overlay="false"])[data-neo-sidebar-ready],
+neo-sidebar[data-neo-sidebar-overlay][data-neo-sidebar-ready] {
+	transition: transform var(--neo-sidebar-transition-duration) var(--neo-easing, ease);
+}
+
+neo-sidebar[overlay]:not([overlay="false"]):defined:not([open]),
+neo-sidebar[data-neo-sidebar-overlay]:defined:not([open]) {
+	width: var(--neo-sidebar-width);
+	max-width: var(--neo-sidebar-width);
+	border-color: var(--neo-sidebar-border-color);
+}

@@ -1,0 +1,5 @@
+.keys-for-row {
+	display: flex;
+	gap: 0.5rem;
+	align-items: start;
+}

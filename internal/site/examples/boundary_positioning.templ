@@ -1,0 +1,24 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ BoundaryPositioning() {
+	@neo.Boundary(neo.BoundaryOpts{}) {
+		<div class="boundary-positioning-region">
+			@neo.Popover(neo.PopoverOpts{
+				Placement:    neo.Set(neo.PlacementBottom),
+				FollowScroll: neo.Set(neo.PopoverFollowScrollUntilTriggerInvisible),
+			}) {
+				<neo-button { neo.PopoverTrigger()... }>Filters</neo-button>
+				<div { neo.PopoverContent()... }>
+					<h3 class="boundary-positioning-heading">Filters</h3>
+					<p class="boundary-positioning-body">
+						The panel is clamped to the dashed region instead of the viewport, so it
+						flips above the trigger to stay inside. Drop the <code>positioning</code>
+						token from <code>scope</code> to clamp to the viewport instead.
+					</p>
+				</div>
+			}
+		</div>
+	}
+}

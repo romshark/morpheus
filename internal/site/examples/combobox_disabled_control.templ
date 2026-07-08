@@ -1,0 +1,22 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ ComboboxDisabledControl() {
+	@neo.Combobox(neo.ComboboxOpts{
+		Disabled:    neo.Set(true),
+		Value:       neo.Set("sydney"),
+		AriaLabel:   neo.Set("Home region"),
+		Placeholder: neo.Set("Home region"),
+	}) {
+		@neo.Option(neo.OptionOpts{Value: neo.Set("sydney")}) {
+			Sydney
+		}
+		@neo.Option(neo.OptionOpts{Value: neo.Set("frankfurt")}) {
+			Frankfurt
+		}
+		@neo.Option(neo.OptionOpts{Value: neo.Set("tokyo")}) {
+			Tokyo
+		}
+	}
+}

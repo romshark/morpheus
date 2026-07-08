@@ -1,0 +1,24 @@
+package neo
+
+type AvatarOpts struct {
+	Src Attr[string]
+	Alt Attr[string]
+}
+
+// Avatar renders <neo-avatar>, a style-only avatar frame. Pass Src/Alt for
+// the common image case, or omit Src and provide fallback children.
+templ Avatar(opts AvatarOpts) {
+	@AvatarAttrs(opts, nil) {
+		{ children... }
+	}
+}
+
+// AvatarAttrs is [Avatar] with an extra attribute set.
+templ AvatarAttrs(opts AvatarOpts, attrs templ.Attributes) {
+	<neo-avatar { attrs... }>
+		if opts.Src.Or("") != "" {
+			<img src={ opts.Src.Or("") } alt={ opts.Alt.Or("") }/>
+		}
+		{ children... }
+	</neo-avatar>
+}

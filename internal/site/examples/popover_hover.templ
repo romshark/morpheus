@@ -1,0 +1,30 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ PopoverHover() {
+	@neo.PopoverAttrs(neo.PopoverOpts{
+		Hover:           neo.Set(true),
+		HoverOpenDelay:  neo.Set(150),
+		HoverCloseDelay: neo.Set(300),
+	}, templ.Attributes{
+		"class": "popover-hover-host",
+	}) {
+		<neo-button { neo.PopoverTrigger()... }>
+			Hover or click me
+		</neo-button>
+		<div
+			aria-labelledby="demo-hover-title"
+			{ neo.PopoverContent()... }
+		>
+			<h3 id="demo-hover-title">Hover-opened</h3>
+			<p>
+				Move the pointer away to dismiss. The
+				panel waits
+				<code>hover-close-delay</code> ms first
+				so a short trip through the gap doesn't
+				close it.
+			</p>
+		</div>
+	}
+}

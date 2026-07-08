@@ -1,0 +1,49 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ KbdShortcutTable() {
+	<table class="kbd-shortcut-table">
+		<tbody>
+			<tr>
+				<th scope="row" class="kbd-shortcut-table-label">Open command palette</th>
+				<td class="kbd-shortcut-table-keys">
+					@neo.KbdGroup() {
+						@neo.Kbd(neo.KbdOpts{}) {
+							⌘
+						}
+						@neo.Kbd(neo.KbdOpts{}) {
+							K
+						}
+					}
+				</td>
+			</tr>
+			<tr>
+				<th scope="row" class="kbd-shortcut-table-label">Quick switcher</th>
+				<td class="kbd-shortcut-table-keys">
+					@neo.KbdGroup() {
+						@neo.Kbd(neo.KbdOpts{}) {
+							⌘
+						}
+						@neo.Kbd(neo.KbdOpts{}) {
+							P
+						}
+					}
+				</td>
+			</tr>
+			<tr>
+				<th scope="row" class="kbd-shortcut-table-label-last">Save</th>
+				<td class="kbd-shortcut-table-keys-last">
+					@neo.KbdGroup() {
+						@neo.Kbd(neo.KbdOpts{}) {
+							⌘
+						}
+						@neo.Kbd(neo.KbdOpts{}) {
+							S
+						}
+					}
+				</td>
+			</tr>
+		</tbody>
+	</table>
+}

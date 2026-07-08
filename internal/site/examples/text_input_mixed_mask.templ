@@ -1,0 +1,10 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ TextInputMixedMask() {
+	@neo.TextInput(neo.TextInputOpts{
+		Mask:        neo.Set("UUU-####-A*#"),
+		Placeholder: neo.Set("ABC-1234-D_5"),
+	})
+}

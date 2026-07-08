@@ -1,0 +1,35 @@
+.cx-edge { width: 100%; height: 100%; }
+
+.cx-edge-btn {
+	position: absolute;
+	/* Auto-margin centering, not translateY(-50%): neo-button owns its
+	 * transform for hover/active lift and wins the cascade. */
+	top: 0;
+	bottom: 0;
+	margin-block: auto;
+	z-index: 1;
+	width: 2.25rem;
+	height: 2.25rem;
+	padding: 0;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 999px;
+	background: color-mix(in srgb, var(--page-bg) 88%, transparent);
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18);
+}
+
+.cx-edge-prev { left: 0.5rem; }
+
+.cx-edge-next { right: 0.5rem; }
+
+.cx-slide {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 100%;
+	background: var(--btn-bg);
+	border: 1px solid var(--btn-border);
+	border-radius: var(--page-radius, 0.5rem);
+	font-weight: 600;
+}

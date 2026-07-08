@@ -1,0 +1,26 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ DialogNonDismissible() {
+	@neo.Dialog(neo.DialogOpts{Dismissible: neo.Set(neo.DismissibleOff)}) {
+		<neo-button { neo.DialogTrigger()... }>Delete project</neo-button>
+		<dialog>
+			@neo.DialogHeader() {
+				@neo.DialogTitle() {
+					Delete project?
+				}
+				@neo.DialogDescription() {
+					This will remove all builds, secrets, and members.
+					The project name cannot be reused for 30 days.
+				}
+			}
+			@neo.DialogFooter() {
+				<neo-button { neo.DialogClose()... }>Cancel</neo-button>
+				<neo-button variant="danger" { neo.DialogClose()... }>
+					Delete
+				</neo-button>
+			}
+		</dialog>
+	}
+}

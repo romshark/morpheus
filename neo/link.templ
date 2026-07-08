@@ -1,0 +1,97 @@
+package neo
+
+// LinkVariant is the visual style enum for the kit's styled anchor
+// (`<a data-neo-link>`). The zero value (LinkVariantDefault) renders as
+// a typical inline anchor: accent-coloured underlined text suitable for
+// running prose. The LinkVariantButton* family makes the link adopt
+// <neo-button>'s look exactly, so the same anchor can stand in for a
+// button when the destination is a URL rather than an action. Every
+// button-family value carries the `button-` prefix so CSS can select the
+// whole family by attribute prefix.
+//
+// Why a separate enum (rather than sharing ButtonVariant): the two
+// types disagree on what the zero value should mean. <neo-button>'s
+// zero is its neutral styling; the link's is anchor. Sharing one type
+// would force one component or the other to spell its default
+// explicitly.
+type LinkVariant string
+
+const (
+	LinkVariantDefault         LinkVariant = "default"
+	LinkVariantButtonDefault   LinkVariant = "button-default"
+	LinkVariantButtonPrimary   LinkVariant = "button-primary"
+	LinkVariantButtonSecondary LinkVariant = "button-secondary"
+	LinkVariantButtonGhost     LinkVariant = "button-ghost"
+	LinkVariantButtonDanger    LinkVariant = "button-danger"
+)
+
+// LinkOpts configures the kit's styled anchor. The wrapper renders a
+// plain native <a> carrying `data-neo-link`, the hook the kit's CSS
+// keys on; there is no custom element and no link-specific JS, so
+// behavior is exactly a native link.
+type LinkOpts struct {
+	// Href is the link target. Empty emits an anchor without an `href`
+	// attribute (a placeholder that the browser doesn't treat as a link).
+	Href Attr[string]
+	// Target follows the native `target` semantics ("_blank", "_self",
+	// a named browsing context, …). Modern browsers default to
+	// `rel="noopener"` for `_blank`, but spell it out explicitly when
+	// older targets matter.
+	Target Attr[string]
+	// Rel sets the link-type relationship: a space-separated list of
+	// tokens like "noopener", "noreferrer", "nofollow", "external",
+	// "author". Frequently paired with Target="_blank" on external
+	// links for the cross-origin tab-isolation guarantee.
+	Rel Attr[string]
+	// Download triggers a save-as instead of navigation; the value is
+	// the suggested filename. Empty emits no `download` attribute. For
+	// the bare `download` form (use the server-provided filename),
+	// pass `download=""` via LinkAttrs.
+	Download Attr[string]
+	// HrefLang is the BCP-47 language tag (e.g. "en", "de-CH") of the
+	// linked resource. Hint only; browsers don't act on it, but AT
+	// and translation tools do.
+	HrefLang Attr[string]
+	// ReferrerPolicy controls how much of the current URL is sent in
+	// the Referer header on follow ("no-referrer",
+	// "strict-origin-when-cross-origin", "origin", …). Empty inherits
+	// the document-level policy.
+	ReferrerPolicy Attr[string]
+	// Variant picks the visual style. Zero value (LinkVariantDefault)
+	// renders as a typical inline anchor; the LinkVariantButton*
+	// family renders with the corresponding <neo-button> styling.
+	Variant Attr[LinkVariant]
+	// Disabled doesn't exist natively on <a>; this stamps the standard
+	// inert markers so AT and keyboard nav treat the link as disabled.
+	// The kit's CSS owns the visual state.
+	Disabled Attr[bool]
+}
+
+// Link renders <a data-neo-link>, the kit's styled anchor. Variant
+// selects the inline-anchor look or one of the <neo-button> styles.
+templ Link(opts LinkOpts) {
+	@LinkAttrs(opts, nil) {
+		{ children... }
+	}
+}
+
+// LinkAttrs is [Link] with an extra attribute set.
+templ LinkAttrs(opts LinkOpts, attrs templ.Attributes) {
+	<a
+		data-neo-link
+		{ opts.Href.Attrs("href")... }
+		{ opts.Target.Attrs("target")... }
+		{ opts.Rel.Attrs("rel")... }
+		{ opts.Download.Attrs("download")... }
+		{ opts.HrefLang.Attrs("hreflang")... }
+		{ opts.ReferrerPolicy.Attrs("referrerpolicy")... }
+		{ opts.Variant.Attrs("variant")... }
+		if opts.Disabled.Or(false) {
+			aria-disabled="true"
+			tabindex="-1"
+		}
+		{ attrs... }
+	>
+		{ children... }
+	</a>
+}

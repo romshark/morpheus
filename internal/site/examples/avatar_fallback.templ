@@ -1,0 +1,15 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ AvatarFallback() {
+	@neo.AvatarAttrs(neo.AvatarOpts{}, templ.Attributes{"aria-label": "Diego Vega"}) {
+		DV
+	}
+	@neo.AvatarAttrs(neo.AvatarOpts{}, templ.Attributes{"aria-label": "Samira Khalil"}) {
+		SK
+	}
+	@neo.AvatarAttrs(neo.AvatarOpts{}, templ.Attributes{"aria-label": "Camila Duarte"}) {
+		CD
+	}
+}

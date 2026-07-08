@@ -1,0 +1,18 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ PersistVideo() {
+	@neo.Persist(neo.PersistOpts{
+		Key:   neo.Set("demo-persist-video"),
+		Props: []string{"currentTime", "volume", "muted"},
+		On:    []string{"timeupdate", "volumechange"},
+	}) {
+		<video
+			controls
+			preload="metadata"
+			class="persist-video-demo"
+			src="https://media.w3.org/2010/05/sintel/trailer.mp4"
+		></video>
+	}
+}

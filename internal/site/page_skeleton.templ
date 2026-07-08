@@ -1,0 +1,162 @@
+package site
+
+import (
+	"github.com/romshark/morpheus/internal/href"
+	"github.com/romshark/morpheus/internal/site/examples"
+)
+
+templ PageSkeleton(morpheusVersion string) {
+	@PageDoc(href.PageSkeleton(), "Skeleton", morpheusVersion) {
+		<section class="demo">
+			@anchoredH2("overview") {
+				Skeleton
+			}
+			@anchoredH3("variants") {
+				Variants
+			}
+			<p class="intro">
+				Component <code>{ "<neo-skeleton>" }</code> is a
+				gently-pulsing loading placeholder with optional
+				<code>variant</code> presets (circle, text-height
+				line). No intrinsic size: set width and height in
+				inline style or CSS so the placeholder matches the
+				content that will replace it. By default it fades in
+				after a short delay, so content that resolves quickly
+				never flashes a skeleton; set <code>immediate</code>
+				to show it at once. The pulse honours
+				<code>{ `prefers-reduced-motion` }</code>.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     skeletonVariantsHTML,
+				TemplSource:    skeletonVariantsTempl,
+				CSSSource:      skeletonVariantsCSS,
+			}) {
+				@examples.SkeletonVariants()
+			}
+			@anchoredH2("reference") {
+				Reference
+			}
+			@ComponentDocs(skeletonDoc)
+		</section>
+		<section class="demo">
+			@anchoredH2("examples") {
+				Examples
+			}
+			@anchoredH3("card-placeholder") {
+				Card placeholder
+			}
+			<p class="demo-note">
+				Compose a few skeletons inside a
+				card frame to mimic the shape of a header, hero
+				image, and a stack of body lines. Width percentages
+				on the line skeletons give the row a natural,
+				ragged-right look while the page is still loading.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     skeletonCardHTML,
+				TemplSource:    skeletonCardTempl,
+				CSSSource:      skeletonCardCSS,
+			}) {
+				@examples.SkeletonCard()
+			}
+			@anchoredH3("avatar-row") {
+				Avatar row
+			}
+			<p class="demo-note">
+				The
+				<code>{ `variant="circle"` }</code> preset gives a
+				1:1 round placeholder for an avatar, paired with
+				two stacked line skeletons for the name and a
+				secondary detail. Useful in lists of users or
+				comments while the real data resolves.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     skeletonAvatarRowHTML,
+				TemplSource:    skeletonAvatarRowTempl,
+				CSSSource:      skeletonAvatarRowCSS,
+			}) {
+				@examples.SkeletonAvatarRow()
+			}
+			@anchoredH3("inline-placeholder") {
+				Inline placeholder
+			}
+			<p class="demo-note">
+				The
+				<code>{ `variant="line"` }</code> preset makes a
+				skeleton sit on the text baseline so it can stand
+				in for a word or short phrase mid-sentence. Size it
+				in <code>em</code> units to track the surrounding
+				font size.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     skeletonInlineHTML,
+				TemplSource:    skeletonInlineTempl,
+				CSSSource:      skeletonInlineCSS,
+			}) {
+				@examples.SkeletonInline()
+			}
+		</section>
+		<section class="demo">
+			@anchoredH2("examples-datastar") {
+				Examples: Datastar
+			}
+			@anchoredH3("morphing-during-interaction") {
+				Morphing during interaction
+			}
+			<p class="demo-note">
+				Render the placeholder card on first paint, then
+				fat-morph real content into the same card once the
+				server responds. Autoplay alternates the two
+				states below.
+			</p>
+			<ul class="demo-note">
+				<li>
+					The <code>{ `<div class="skel-card">` }</code>
+					root stays mounted across the morph; only its
+					inner nodes swap, reconciling
+					<strong>Loading</strong> into
+					<strong>Content loaded</strong> and back.
+				</li>
+				<li>
+					A response that lands inside the fade-in delay
+					swaps straight to content with no skeleton
+					flash; add <code>immediate</code> to opt out.
+				</li>
+			</ul>
+			@Playground(PlaygroundOpts{
+				ID:       "skeleton-morph-playground",
+				Autoplay: true,
+				States:   skeletonMorphStates(),
+			})
+		</section>
+	}
+}
+
+var skeletonDoc = ComponentDoc{
+	Attributes: []DocAttribute{
+		{Name: "variant", Type: `"" | "circle" | "line"`,
+			Description: templ.Raw("Visual variant. Empty for a block placeholder, <code>circle</code> for a 1:1 round shape, <code>line</code> for an inline text-height bar. Pulse animation respects <code>prefers-reduced-motion</code>.")},
+		{Name: "immediate", Type: "boolean",
+			Description: templ.Raw("Show the placeholder at once. By default the skeleton fades in after a short delay so content that resolves quickly never flashes a skeleton.")},
+	},
+	CSSProps: []DocCSSProp{
+		{Name: "--neo-skeleton-bg", Default: "color-mix(in srgb, var(--page-fg) 10%, transparent)",
+			Description: templ.Raw("Base placeholder color.")},
+		{Name: "--neo-skeleton-bg-pulse", Default: "color-mix(in srgb, var(--page-fg) 20%, transparent)",
+			Description: templ.Raw("Peak color at the midpoint of the pulse.")},
+		{Name: "--neo-skeleton-radius", Default: "var(--page-radius, 0.25rem)",
+			Description: templ.Raw("Corner radius.")},
+		{Name: "--neo-skeleton-duration", Default: "1.4s",
+			Description: templ.Raw("Pulse animation duration.")},
+		{Name: "--neo-skeleton-default-height", Default: "1rem",
+			Description: templ.Raw("Height of a block placeholder when none is set.")},
+		{Name: "--neo-skeleton-fade-delay", Default: "0.3s",
+			Description: templ.Raw("Anti-flash delay before the skeleton fades in.")},
+		{Name: "--neo-skeleton-fade-duration", Default: "0.4s",
+			Description: templ.Raw("Fade-in duration after the delay.")},
+	},
+}

@@ -1,0 +1,48 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ LightboxContent() {
+	@neo.LightboxAttrs(neo.LightboxOpts{Transition: neo.Set(neo.LightboxTransitionFade)}, templ.Attributes{
+		"aria-label": "Keyboard shortcuts",
+	}) {
+		@neo.ButtonAttrs(neo.ButtonOpts{}, neo.LightboxTrigger()) {
+			Keyboard shortcuts
+		}
+		<div
+			class="lightbox-content-panel"
+			{ neo.LightboxContent()... }
+		>
+			<header class="lightbox-content-header">
+				<h2 { neo.LightboxTitle()... } class="lightbox-content-title">Keyboard shortcuts</h2>
+				<button
+					{ neo.LightboxClose()... }
+					aria-label="Close"
+					class="lightbox-content-close"
+				>&times;</button>
+			</header>
+			<dl class="lightbox-content-list">
+				<dt>
+					@neo.Kbd(neo.KbdOpts{}) {
+						/
+					}
+				</dt>
+				<dd class="lightbox-content-dd">Focus search</dd>
+				<dt>
+					@neo.Kbd(neo.KbdOpts{}) {
+						g
+					}
+					{ " " }
+					@neo.Kbd(neo.KbdOpts{}) {
+						h
+					}
+				</dt>
+				<dd class="lightbox-content-dd">Go home</dd>
+				<dt>
+					@neo.Kbd(neo.KbdOpts{Key: neo.Set("esc")})
+				</dt>
+				<dd class="lightbox-content-dd">Close this dialog</dd>
+			</dl>
+		</div>
+	}
+}

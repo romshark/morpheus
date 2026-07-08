@@ -1,0 +1,3577 @@
+package site
+
+import (
+	"strconv"
+
+	"github.com/romshark/morpheus/internal/href"
+	"github.com/romshark/morpheus/neo"
+)
+
+const lfSelectInitialHTML = `<neo-select
+  id="lf-server-select"
+  placeholder="Pick an option"
+  aria-label="Option picker"
+  data-on:neo-select-load="@post('/lf-select/options/')"
+>
+  <div data-neo-async-placeholder>
+    <neo-spinner></neo-spinner>
+    Loading...
+  </div>
+</neo-select>`
+
+const lfSelectOptionsPatchHTML = `<neo-select
+  id="lf-server-select"
+  placeholder="Pick an option"
+  aria-label="Option picker"
+  data-on:neo-select-load="@post('/lf-select/options/')"
+>
+  <neo-option value="fra">Frankfurt</neo-option>
+  <neo-option value="sfo">San Francisco</neo-option>
+  <neo-option value="nrt">Tokyo</neo-option>
+</neo-select>
+`
+
+// Templ source shown alongside the live combobox in landingTemplWrappers.
+// Kept in sync with the live invocation by hand; copy/paste from the
+// templ block above the constant.
+const lfTemplComboboxSource = `@neo.Combobox(neo.ComboboxOpts{
+  Value:             neo.Set("templ"),
+  AriaLabel:         neo.Set("Templating engine"),
+  Placeholder:       neo.Set("Pick a templating engine"),
+  SearchPlaceholder: neo.Set("Search engines…"),
+}) {
+  @neo.OptGroup(neo.OptGroupOpts{Label: "Go"}) {
+    @neo.Option(neo.OptionOpts{Value: "templ"}) {
+      @neo.Icon("sparkles")
+      <span>templ</span>
+    }
+  }
+  @neo.OptGroup(neo.OptGroupOpts{Label: "Other"}) {
+    @neo.Option(neo.OptionOpts{Value: "jinja2", Disabled: true}) {
+      @neo.Icon("square-function")
+      <span>Jinja2</span>
+    }
+    @neo.Option(neo.OptionOpts{Value: "twig", Disabled: true}) {
+      @neo.Icon("parentheses")
+      <span>Twig</span>
+    }
+  }
+}`
+
+const lfDefaultTokenSource = `<neo-badge variant="primary">billing</neo-badge>
+<neo-button variant="primary">
+  Upgrade plan
+</neo-button>
+<neo-spinner aria-hidden="true"></neo-spinner>`
+
+const lfCustomTokenSource = `<div class="brand-scope">
+  <neo-badge variant="primary">billing</neo-badge>
+  <neo-button variant="primary">
+    Upgrade plan
+  </neo-button>
+  <neo-spinner aria-hidden="true"></neo-spinner>
+</div>
+
+<style>
+  .brand-scope {
+    --neo-button-primary-bg: #0f766e;
+    --neo-button-primary-color: white;
+    --neo-button-primary-hover-bg: #115e59;
+    --neo-spinner-size: 1.15rem;
+    color: #0f766e;
+  }
+</style>`
+
+const lfDefaultSlotSource = `<neo-breadcrumb aria-label="Repository path">
+  <a href="#">repos</a>
+  <span data-neo-breadcrumb-sep aria-hidden="true">/</span>
+  <a href="#">morpheus</a>
+  <span data-neo-breadcrumb-sep aria-hidden="true">/</span>
+  <span aria-current="page">site</span>
+</neo-breadcrumb>`
+
+const lfCustomSlotSource = `<neo-breadcrumb aria-label="Repository path">
+  <a href="#">repos</a>
+  <neo-icon name="chevron-right" data-neo-breadcrumb-sep></neo-icon>
+  <a href="#">morpheus</a>
+  <neo-icon name="chevron-right" data-neo-breadcrumb-sep></neo-icon>
+  <strong>
+    <neo-icon name="file"></neo-icon>
+    site
+  </strong>
+</neo-breadcrumb>`
+
+const lfShippingDefaultSource = `<neo-combobox value="eco" aria-label="Shipping speed"
+              placeholder="Pick a shipping speed">
+  <neo-option value="fst">Fastest</neo-option>
+  <neo-option value="fast">Fast</neo-option>
+  <neo-option value="eco">Eco</neo-option>
+</neo-combobox>`
+
+const lfShippingCustomSource = `<neo-combobox value="eco" aria-label="Shipping speed"
+              placeholder="Pick a shipping speed" caret="chevron-down">
+  <neo-option value="fst">
+    <span data-neo-option-trigger>
+      <neo-icon name="rocket" class="ship-face-icon"></neo-icon>
+      <span class="ship-name">Fastest</span>
+      <span class="ship-delta">+CHF 8.70</span>
+    </span>
+    <div class="ship-row">
+      <neo-icon name="rocket" class="ship-icon"></neo-icon>
+      <div class="ship-body">
+        <div class="ship-head">
+          <span class="ship-name">Fastest</span>
+          <span class="ship-price">CHF 20,-</span>
+        </div>
+        <p class="ship-desc">Will arrive the next day, guaranteed.</p>
+      </div>
+    </div>
+  </neo-option>
+
+  <neo-option value="reg">
+    <span data-neo-option-trigger>
+      <neo-icon name="rabbit" class="ship-face-icon"></neo-icon>
+      <span class="ship-name">Regular</span>
+    </span>
+    <div class="ship-row">
+      <neo-icon name="rabbit" class="ship-icon"></neo-icon>
+      <div class="ship-body">
+        <div class="ship-head">
+          <span class="ship-name">Regular</span>
+          <span class="ship-price">CHF 11,30</span>
+        </div>
+        <neo-badge variant="primary">Popular</neo-badge>
+        <p class="ship-desc">Will arrive in 3-5 working days.</p>
+      </div>
+    </div>
+  </neo-option>
+
+  <neo-option value="eco">
+    <span data-neo-option-trigger>
+      <neo-icon name="sprout" class="ship-face-icon"></neo-icon>
+      <span class="ship-name">Eco</span>
+      <span class="ship-delta">-CHF 2.80</span>
+    </span>
+    <div class="ship-row">
+      <neo-icon name="sprout" class="ship-icon"></neo-icon>
+      <div class="ship-body">
+        <div class="ship-head">
+          <span class="ship-name">Eco</span>
+          <span class="ship-price">CHF 8,50</span>
+        </div>
+        <p class="ship-desc">Delivery might take up to 2 weeks, but you significantly reduce the carbon footprint.</p>
+      </div>
+    </div>
+  </neo-option>
+</neo-combobox>`
+
+const lfDeployDryRunLog = `-> build (cached)               ok
+-> db migrate (2 pending)       ok
+-> rollout to 3 instances       ok
+no destructive operations.`
+
+// lfDeployRefCommit is one row in the deploy card's branch/commit
+// picker. Hash is the short SHA shown in the trigger; the rest is rich
+// content in the popover only.
+type lfDeployRefCommit struct {
+	Hash, Msg, Author, When string
+}
+
+type lfDeployRefBranch struct {
+	Branch  string
+	Commits []lfDeployRefCommit
+}
+
+// lfDeployRefBranches feeds the deploy card's ref picker. The first
+// commit of the first branch is the default selection (kept in sync
+// with the seeded `value=` on <neo-combobox> and the `_lf_deploy_ref`
+// signal).
+var lfDeployRefBranches = []lfDeployRefBranch{
+	{
+		Branch: "main",
+		Commits: []lfDeployRefCommit{
+			{"8a3f1c2", "Replace deploy badge with branch picker", "alice", "12m"},
+			{"2f1d9b4", "Fix popover scroll regression", "alice", "3h"},
+			{"c4a7e10", "Bump dependencies to v2.4.0", "bob", "1d"},
+			{"7e8d3a5", "Add CHANGELOG entry for v2.4.0 release", "carol", "2d"},
+		},
+	},
+	{
+		Branch: "feat/dashboard",
+		Commits: []lfDeployRefCommit{
+			{"7b3e2a8", "Wire toaster to deploy events", "alice", "2h"},
+			{"9e1c4d2", "Initial dashboard scaffold", "carol", "5h"},
+		},
+	},
+	{
+		Branch: "fix/auth-redirect",
+		Commits: []lfDeployRefCommit{
+			{"1f9a02c", "Patch redirect loop on Safari", "dave", "6h"},
+			{"6b4d8f1", "Add regression test for token refresh", "dave", "7h"},
+		},
+	},
+	{
+		Branch: "chore/deps",
+		Commits: []lfDeployRefCommit{
+			{"e3a17c9", "Bump go.mod to 1.24", "bob", "1d"},
+		},
+	},
+}
+
+templ PageIndex(morpheusVersion string) {
+	@LandingPage() {
+		<section class="landing-hero">
+			<neo-layout class="landing-brand" column align-items="center">
+				<glitch-cycle-text
+					class="landing-brand-name"
+					flickering-interval-min="3000"
+					flickering-interval-max="6000"
+					flickering-duration-min="50"
+					flickering-duration-max="200"
+					flickering-intensity-min="0.75"
+					flickering-intensity-max="1.5"
+				>
+					<span>MORPHEUS</span>
+				</glitch-cycle-text>
+				<neo-layout class="landing-brand-meta" inline align-items="baseline" gap="sm">
+					<span class="landing-brand-version">{ morpheusVersion }</span>
+					<span class="landing-brand-stage">Open Alpha</span>
+				</neo-layout>
+			</neo-layout>
+			<h1 class="landing-slogan">
+				<glitch-cycle-text
+					class="landing-slogan-cycle"
+					interval="3000"
+					flickering-interval-min="900"
+					flickering-interval-max="2600"
+					flickering-duration-min="70"
+					flickering-duration-max="220"
+					flickering-intensity-min="0.7"
+					flickering-intensity-max="1.8"
+				>
+					<span>Server-Driven</span>
+					<span>Stylable</span>
+					<span>Customizable</span>
+					<span>Template Friendly</span>
+					<span>Open-Source</span>
+					<span>Framework Agnostic</span>
+				</glitch-cycle-text>
+				<span class="landing-slogan-tail">Web Components</span>
+			</h1>
+			<neo-layout class="landing-actions" wrap justify-content="center">
+				@neo.LinkAttrs(neo.LinkOpts{
+					Href:    neo.Set(href.External(href.PageComponents())),
+					Variant: neo.Set(neo.LinkVariantButtonPrimary),
+				}, templ.Attributes{
+					"class": "landing-cta",
+				}) {
+					Browse components
+					@neo.Icon("arrow-right")
+				}
+				@neo.LinkAttrs(neo.LinkOpts{
+					Href:    neo.Set("https://github.com/romshark/morpheus"),
+					Target:  neo.Set("_blank"),
+					Rel:     neo.Set("noopener"),
+					Variant: neo.Set(neo.LinkVariantButtonDefault),
+				}, templ.Attributes{
+					"class": "landing-cta",
+				}) {
+					@neo.Icon("github")
+					View Source
+				}
+			</neo-layout>
+		</section>
+		@landingShowcase()
+		@landingHowWorks(1)
+		@landingTemplWrappers()
+		@landingAccessibility()
+		@landingCustomization()
+		@landingModularBundle()
+		@landingOpenAlpha(morpheusVersion)
+		@landingFooter(morpheusVersion)
+		<template id="lf-how-section-stage-2">
+			@landingHowWorks(2)
+		</template>
+		<template id="lf-how-section-stage-3">
+			@landingHowWorks(3)
+		</template>
+	}
+}
+
+// landingHowWorks renders the entire "Let the server drive it" section
+// for a given pipeline stage. The same component renders three states:
+//
+//   1: initial / post-reset: placeholder slot inside the select,
+//       Reset disabled, stage 1 marked (current).
+//   2: options loaded: neo-options inside the select, Reset enabled,
+//       stage 2 marked (current).
+//   3: just-reset (placeholder slot again): same shape as stage 1
+//       but stage 3 carries the (current) marker so the docs panel
+//       reflects which morph the server just sent.
+//
+// Each <neo-select-load>/<neo-button-click> action morphs the entire
+// section by id; the initial render is stage 1 and the in-page
+// <template> wrappers above carry stages 2 and 3 as the morph payloads
+// the simulator returns.
+templ landingHowWorks(currentStage int) {
+	<section
+		id="lf-how-section"
+		class="landing-how"
+		aria-labelledby="landing-how-title"
+	>
+		<div class="landing-how-copy">
+			<h2 id="landing-how-title">Let the server drive your UI</h2>
+			<p>
+				Morpheus is designed to be server-side patching friendly.
+				<br/>
+				This demo demonstates how to use <code>neo-select</code> with&nbsp;
+				@neo.Link(neo.LinkOpts{Href: neo.Set("https://data-star.dev"), Target: neo.Set("_blank")}) {
+					Datastar
+				}
+				{ " " }
+				.
+			</p>
+		</div>
+		<div class="landing-how-stages" aria-label="Server-patched select HTML stages">
+			@lfStageFigure("1", "Initial HTML",
+				"Server's first render on GET. Placeholder slot waits to be filled.",
+				lfSelectInitialHTML, currentStage == 1)
+			@lfStageFigure("2", "Morph patch options on neo-select-load",
+				"data-on:neo-select-load calls into an action and the server patches options into the host.",
+				lfSelectOptionsPatchHTML, currentStage == 2)
+			@lfStageFigure("3", "Reset morph patch",
+				"Reset calls into another action that patches the placeholder back in. Next open re-fetches.",
+				lfSelectInitialHTML, currentStage == 3)
+		</div>
+		<neo-layout class="landing-how-live" column align-items="center">
+			<p class="landing-how-hint">
+				<span>Open the dropdown to see the state change</span>
+				@neo.Icon("arrow-right")
+			</p>
+			@neo.InputGroupAttrs(templ.Attributes{
+				"class": "landing-how-input-group",
+			}) {
+				@neo.SelectAttrs(neo.SelectOpts{
+					Clearable:   neo.Set(true),
+					AriaLabel:   neo.Set("Option picker"),
+					Placeholder: neo.Set("Pick an option"),
+				}, templ.Attributes{
+					"id":                             "lf-server-select",
+					"data-signals:lf_select_loadctl": "new AbortController()",
+					"data-on:neo-select-load":        "@post('/lf-select/options/', {requestCancellation: $lf_select_loadctl})",
+					"data-on:neo-popover-close":      "$lf_select_loadctl.abort(); $lf_select_loadctl = new AbortController()",
+				}) {
+					if currentStage == 2 {
+						<neo-option value="fra">Frankfurt</neo-option>
+						<neo-option value="sfo">San Francisco</neo-option>
+						<neo-option value="nrt">Tokyo</neo-option>
+					} else {
+						<div
+							data-neo-async-placeholder
+							style="flex-direction: row; align-items: center; gap: 0.5rem; padding: 0.5rem 0.6rem; color: var(--muted);"
+						>
+							<neo-spinner></neo-spinner>
+							Loading...
+						</div>
+					}
+				}
+				<neo-button
+					id="lf-select-reset"
+					if currentStage != 2 {
+						disabled
+					}
+					data-on:click="@post('/lf-select/reset/', {requestCancellation: 'disabled'})"
+				>
+					Reset
+				</neo-button>
+			}
+		</neo-layout>
+	</section>
+}
+
+templ lfStageFigure(num, title, desc, html string, current bool) {
+	<neo-card variant="elevated" id={ "lf-stage-" + num }>
+		<figure data-neo-card-inner class="lf-stage" neo-width="100%" neo-min-width="0">
+			<neo-layout class="lf-stage-layout" column gap="none" neo-width="100%" neo-min-width="0">
+				<div data-neo-card-media class="lf-stage-media">
+					<site-codemirror language="html" readonly>
+						<template>{ html }</template>
+					</site-codemirror>
+				</div>
+				<figcaption>
+					<span class="lf-stage-title">
+						<span>{ num + ". " + title }</span>
+						if current {
+							@neo.Badge(neo.BadgeOpts{Variant: neo.Set(neo.BadgeVariantPrimary)}) {
+								current
+							}
+						}
+					</span>
+					<span class="lf-stage-desc">{ desc }</span>
+				</figcaption>
+			</neo-layout>
+		</figure>
+	</neo-card>
+}
+
+// landingTemplWrappers shows a live component next to the templ
+// snippet that produced it, the kit's selling point on the Go side.
+templ landingTemplWrappers() {
+	<section
+		class="landing-how"
+		aria-labelledby="landing-templ-title"
+	>
+		<div class="landing-how-copy">
+			<h2 id="landing-templ-title">Type-safe Templ Wrappers.</h2>
+			<p>
+				Each web component ships with a&nbsp;
+				@neo.Link(neo.LinkOpts{Href: neo.Set("https://templ.guide"), Target: neo.Set("_blank")}) {
+					templ
+				}
+				{ " " }wrapper.
+			</p>
+		</div>
+		<neo-layout class="landing-how-live" column align-items="center">
+			@neo.Combobox(neo.ComboboxOpts{
+				Value:             neo.Set("templ"),
+				AriaLabel:         neo.Set("Templating engine"),
+				Placeholder:       neo.Set("Pick a templating engine"),
+				SearchPlaceholder: neo.Set("Search engines…"),
+			}) {
+				@neo.OptGroup(neo.OptGroupOpts{Label: neo.Set("Go")}) {
+					@neo.Option(neo.OptionOpts{Value: neo.Set("templ")}) {
+						<neo-layout class="opt-icon" aria-hidden="true" inline align-items="center" justify-content="center">
+							@neo.Icon("sparkles")
+						</neo-layout>
+						<span>templ</span>
+					}
+				}
+				@neo.OptGroup(neo.OptGroupOpts{Label: neo.Set("Other")}) {
+					@neo.Option(neo.OptionOpts{Value: neo.Set("jinja2"), Disabled: neo.Set(true)}) {
+						<neo-layout class="opt-icon" aria-hidden="true" inline align-items="center" justify-content="center">
+							@neo.Icon("square-function")
+						</neo-layout>
+						<span>Jinja2</span>
+					}
+					@neo.Option(neo.OptionOpts{Value: neo.Set("twig"), Disabled: neo.Set(true)}) {
+						<neo-layout class="opt-icon" aria-hidden="true" inline align-items="center" justify-content="center">
+							@neo.Icon("parentheses")
+						</neo-layout>
+						<span>Twig</span>
+					}
+				}
+			}
+		</neo-layout>
+		<neo-card variant="elevated" class="landing-templ-source">
+			<figure data-neo-card-inner>
+				<figcaption>
+					<span class="lf-stage-title">template.templ</span>
+				</figcaption>
+				<site-codemirror language="go" readonly>
+					<template>{ lfTemplComboboxSource }</template>
+				</site-codemirror>
+			</figure>
+		</neo-card>
+	</section>
+}
+
+templ landingCustomization() {
+	<section
+		class="landing-how landing-custom"
+		aria-labelledby="landing-custom-title"
+	>
+		<div class="landing-how-copy">
+			<h2 id="landing-custom-title">Customizable and Stylable</h2>
+			<p>
+				Use scoped CSS variables, attributes, and light-DOM slots
+				&nbsp;
+				<br/>
+				to customize the look and feel of your UI.
+			</p>
+		</div>
+		<div class="landing-custom-grid" aria-label="Customization examples">
+			@landingCustomExample("Scoped Theme", "One wrapper can brand every component inside it.") {
+				@neo.TabsAttrs(neo.TabsOpts{Value: neo.Set("custom")}, templ.Attributes{
+					"class":        "landing-custom-preview-tabs",
+					"aria-label":   "Scoped theme preview",
+					"data-signals": "{_lf_custom_code_theme: false}",
+				}) {
+					<neo-tablist aria-label="Scoped theme variants">
+						@neo.Tab("default", "custom") {
+							Default
+						}
+						@neo.Tab("custom", "custom") {
+							Custom
+						}
+					</neo-tablist>
+					@landingCustomCodeToggle("_lf_custom_code_theme")
+					@neo.TabPanel("default", "custom") {
+						<neo-layout class="landing-custom-demo-frame" align-items="center">
+							<neo-layout class="landing-custom-demo-inner" align-items="center" justify-content="center">
+								<neo-layout class="landing-custom-demo-row" inline wrap align-items="center">
+									@neo.Badge(neo.BadgeOpts{Variant: neo.Set(neo.BadgeVariantPrimary)}) {
+										billing
+									}
+									@neo.Button(neo.ButtonOpts{Variant: neo.Set(neo.ButtonVariantPrimary)}) {
+										Upgrade plan
+									}
+									<neo-spinner aria-hidden="true"></neo-spinner>
+								</neo-layout>
+							</neo-layout>
+						</neo-layout>
+						@landingCustomCode(lfDefaultTokenSource, "_lf_custom_code_theme")
+					}
+					@neo.TabPanel("custom", "custom") {
+						<neo-layout class="landing-custom-demo-frame" align-items="center">
+							<neo-layout class="landing-custom-demo-inner" align-items="center" justify-content="center">
+								<neo-layout class="landing-custom-token-demo" inline wrap align-items="center">
+									@neo.Badge(neo.BadgeOpts{Variant: neo.Set(neo.BadgeVariantPrimary)}) {
+										billing
+									}
+									@neo.Button(neo.ButtonOpts{Variant: neo.Set(neo.ButtonVariantPrimary)}) {
+										Upgrade plan
+									}
+									<neo-spinner aria-hidden="true"></neo-spinner>
+								</neo-layout>
+							</neo-layout>
+						</neo-layout>
+						@landingCustomCode(lfCustomTokenSource, "_lf_custom_code_theme")
+					}
+				}
+			}
+			@landingCustomExample("Light DOM", "Drop in app-specific separators, labels, and content.") {
+				@neo.TabsAttrs(neo.TabsOpts{Value: neo.Set("custom")}, templ.Attributes{
+					"class":        "landing-custom-preview-tabs",
+					"aria-label":   "Light DOM preview",
+					"data-signals": "{_lf_custom_code_dom: false}",
+				}) {
+					<neo-tablist aria-label="Light DOM variants">
+						@neo.Tab("default", "custom") {
+							Default
+						}
+						@neo.Tab("custom", "custom") {
+							Custom
+						}
+					</neo-tablist>
+					@landingCustomCodeToggle("_lf_custom_code_dom")
+					@neo.TabPanel("default", "custom") {
+						<neo-layout class="landing-custom-demo-frame" align-items="center">
+							<neo-layout class="landing-custom-demo-inner" align-items="center" justify-content="center">
+								<neo-breadcrumb class="landing-custom-breadcrumb" aria-label="Repository path">
+									<a href="#">repos</a>
+									<span data-neo-breadcrumb-sep aria-hidden="true">/</span>
+									<a href="#">morpheus</a>
+									<span data-neo-breadcrumb-sep aria-hidden="true">/</span>
+									<span aria-current="page">site</span>
+								</neo-breadcrumb>
+							</neo-layout>
+						</neo-layout>
+						@landingCustomCode(lfDefaultSlotSource, "_lf_custom_code_dom")
+					}
+					@neo.TabPanel("custom", "custom") {
+						<neo-layout class="landing-custom-demo-frame" align-items="center">
+							<neo-layout class="landing-custom-demo-inner" align-items="center" justify-content="center">
+								<neo-breadcrumb class="landing-custom-breadcrumb" aria-label="Repository path">
+									<a href="#">repos</a>
+									@neo.IconAttrs("chevron-right", templ.Attributes{
+										"data-neo-breadcrumb-sep": "",
+									})
+									<a href="#">morpheus</a>
+									@neo.IconAttrs("chevron-right", templ.Attributes{
+										"data-neo-breadcrumb-sep": "",
+									})
+									<strong>
+										@neo.Icon("file")
+										&nbsp;
+										site
+									</strong>
+								</neo-breadcrumb>
+							</neo-layout>
+						</neo-layout>
+						@landingCustomCode(lfCustomSlotSource, "_lf_custom_code_dom")
+					}
+				}
+			}
+			@landingCustomExample("Rich Options", "Plain text, or rich rows with icons, prices, and a custom trigger face.") {
+				@neo.TabsAttrs(neo.TabsOpts{Value: neo.Set("custom")}, templ.Attributes{
+					"class":        "landing-custom-preview-tabs",
+					"aria-label":   "Combobox options preview",
+					"data-signals": "{_lf_custom_code_options: false}",
+				}) {
+					<neo-tablist aria-label="Combobox option variants">
+						@neo.Tab("default", "custom") {
+							Default
+						}
+						@neo.Tab("custom", "custom") {
+							Custom
+						}
+					</neo-tablist>
+					@landingCustomCodeToggle("_lf_custom_code_options")
+					@neo.TabPanel("default", "custom") {
+						<neo-layout class="landing-custom-demo-frame" align-items="center">
+							<neo-layout class="landing-custom-demo-inner" align-items="center" justify-content="center">
+								@neo.Combobox(neo.ComboboxOpts{
+									Value:       neo.Set("eco"),
+									AriaLabel:   neo.Set("Shipping speed"),
+									Placeholder: neo.Set("Pick a shipping speed"),
+								}) {
+									@neo.Option(neo.OptionOpts{Value: neo.Set("fst")}) {
+										Fastest
+									}
+									@neo.Option(neo.OptionOpts{Value: neo.Set("fast")}) {
+										Fast
+									}
+									@neo.Option(neo.OptionOpts{Value: neo.Set("eco")}) {
+										Eco
+									}
+								}
+							</neo-layout>
+						</neo-layout>
+						@landingCustomCode(lfShippingDefaultSource, "_lf_custom_code_options")
+					}
+					@neo.TabPanel("custom", "custom") {
+						<neo-layout class="landing-custom-demo-frame" align-items="center">
+							<neo-layout class="landing-custom-demo-inner" align-items="center" justify-content="center">
+								@neo.Combobox(neo.ComboboxOpts{
+									Value:       neo.Set("eco"),
+									AriaLabel:   neo.Set("Shipping speed"),
+									Placeholder: neo.Set("Pick a shipping speed"),
+									Caret:       neo.Set("chevron-down"),
+								}) {
+									@shippingOption("fst", "rocket", "Fastest", "CHF 20,-", "Will arrive the next day, guaranteed.", "+CHF 8.70", false)
+									@shippingOption("reg", "rabbit", "Regular", "CHF 11,30", "Will arrive in 3-5 working days.", "", true)
+									@shippingOption("eco", "sprout", "Eco", "CHF 8,50", "Delivery might take up to 2 weeks, but you significantly reduce the carbon footprint.", "-CHF 2.80", false)
+								}
+							</neo-layout>
+						</neo-layout>
+						@landingCustomCode(lfShippingCustomSource, "_lf_custom_code_options")
+					}
+				}
+			}
+		</div>
+	</section>
+}
+
+templ landingModularBundle() {
+	<section
+		class="landing-how landing-modular"
+		aria-labelledby="landing-modular-title"
+	>
+		<div class="landing-how-copy">
+			<h2 id="landing-modular-title">Modular Bundle</h2>
+			<p>
+				Focus the names to see their dependencies.
+			</p>
+		</div>
+		<bundle-graph
+			center-label={ strconv.Itoa(len(bundleSelectableIDs())) + " Components" }
+		>
+			for _, nd := range bundleStandaloneNodes() {
+				<span
+					id={ nd.ID }
+					if nd.DependsOn != "" {
+						depends-on={ nd.DependsOn }
+					}
+					if nd.Disabled {
+						disabled
+					}
+				>{ nd.Name }</span>
+			}
+		</bundle-graph>
+		<script type="module" src={ href.Asset("min/bundlebuilder.min.js") }></script>
+	</section>
+}
+
+templ landingCustomExample(label, desc string) {
+	<neo-card variant="elevated">
+		<div data-neo-card-inner class="landing-custom-example">
+			<header>
+				<div>
+					<strong>{ label }</strong>
+					<span>{ desc }</span>
+				</div>
+			</header>
+			<neo-layout class="landing-custom-preview" align-items="center">
+				{ children... }
+			</neo-layout>
+		</div>
+	</neo-card>
+}
+
+templ landingCustomCodeToggle(signal string) {
+	@neo.ToggleAttrs(neo.ToggleOpts{Variant: neo.Set(neo.ToggleVariantGhost), Size: neo.Set("sm")}, templ.Attributes{
+		"class":                     "landing-custom-code-toggle",
+		"aria-label":                "Show code",
+		"data-attr:aria-label":      "$" + signal + " ? 'Hide code' : 'Show code'",
+		"data-attr:pressed":         "$" + signal,
+		"data-on:neo-toggle-change": "$" + signal + " = evt.detail.pressed",
+	}) {
+		<span data-text={ "$" + signal + " ? 'Hide code' : 'Show code'" }>Show code</span>
+	}
+}
+
+templ landingCustomCode(source, signal string) {
+	@neo.ElasticAttrs(neo.ElasticOpts{}, templ.Attributes{
+		"class": "landing-custom-code-elastic",
+	}) {
+		<div
+			class="landing-custom-code"
+			data-show={ "$" + signal }
+			style="display: none;"
+		>
+			<site-codemirror language="html" readonly>
+				<template>{ source }</template>
+			</site-codemirror>
+		</div>
+	}
+}
+
+// shippingOption renders one rich combobox option for the landing
+// "Rich Options" card: a compact trigger face (icon + name + optional
+// price delta) plus a full list row (icon + name + price, an optional
+// "Popular" badge, and a description).
+templ shippingOption(value, icon, name, price, desc, delta string, popular bool) {
+	@neo.Option(neo.OptionOpts{Value: neo.Set(value)}) {
+		@neo.OptionTrigger() {
+			@neo.IconAttrs(icon, templ.Attributes{"class": "ship-face-icon"})
+			<span class="ship-name">{ name }</span>
+			if delta != "" {
+				<span class="ship-delta">{ delta }</span>
+			}
+		}
+		<div class="ship-row">
+			@neo.IconAttrs(icon, templ.Attributes{"class": "ship-icon"})
+			<div class="ship-body">
+				<div class="ship-head">
+					<span class="ship-name">{ name }</span>
+					<span class="ship-price">{ price }</span>
+				</div>
+				if popular {
+					@neo.Badge(neo.BadgeOpts{Variant: neo.Set(neo.BadgeVariantPrimary)}) {
+						Popular
+					}
+				}
+				<p class="ship-desc">{ desc }</p>
+			</div>
+		</div>
+	}
+}
+
+templ landingOpenAlpha(morpheusVersion string) {
+	<section
+		class="landing-how landing-open-alpha"
+		aria-labelledby="landing-open-alpha-title"
+	>
+		<div class="landing-how-copy">
+			<h2 id="landing-open-alpha-title">Open Alpha</h2>
+			<p>
+				Morpheus { morpheusVersion } is an early access open alpha.
+				<br/>
+				Expect breaking API changes, bugs and unfinished documentation.
+			</p>
+			<neo-layout class="landing-open-alpha-makers" column align-items="center">
+				<span>The Scharkov brothers</span>
+				<neo-layout class="landing-open-alpha-maker-links" wrap justify-content="center">
+					@neo.LinkAttrs(neo.LinkOpts{
+						Href:    neo.Set("https://github.com/romshark/"),
+						Target:  neo.Set("_blank"),
+						Rel:     neo.Set("noopener"),
+						Variant: neo.Set(neo.LinkVariantButtonGhost),
+					}, templ.Attributes{
+						"class": "landing-cta",
+					}) {
+						<img src="https://avatars.githubusercontent.com/u/9574743" alt="" loading="lazy"/>
+						<span>Roman</span>
+					}
+					@neo.LinkAttrs(neo.LinkOpts{
+						Href:    neo.Set("https://github.com/DanielSharkov/"),
+						Target:  neo.Set("_blank"),
+						Rel:     neo.Set("noopener"),
+						Variant: neo.Set(neo.LinkVariantButtonGhost),
+					}, templ.Attributes{
+						"class": "landing-cta",
+					}) {
+						<img src="https://avatars.githubusercontent.com/u/26609752" alt="" loading="lazy"/>
+						<span>Daniel</span>
+					}
+				</neo-layout>
+			</neo-layout>
+		</div>
+		<neo-layout class="landing-actions" wrap justify-content="center">
+			@neo.LinkAttrs(neo.LinkOpts{
+				Href:    neo.Set("https://github.com/romshark/morpheus"),
+				Target:  neo.Set("_blank"),
+				Rel:     neo.Set("noopener"),
+				Variant: neo.Set(neo.LinkVariantButtonPrimary),
+			}, templ.Attributes{
+				"class": "landing-cta",
+			}) {
+				@neo.Icon("github")
+				Contribute
+			}
+			@neo.LinkAttrs(neo.LinkOpts{
+				Href:    neo.Set("https://github.com/romshark/morpheus/issues"),
+				Target:  neo.Set("_blank"),
+				Rel:     neo.Set("noopener"),
+				Variant: neo.Set(neo.LinkVariantButtonDefault),
+			}, templ.Attributes{
+				"class": "landing-cta",
+			}) {
+				@neo.Icon("triangle-alert")
+				File a bug
+			}
+		</neo-layout>
+	</section>
+}
+
+// landingAccessibility highlights the kit's a11y commitments. Mirrors
+// the `landing-how` rhythm: centered copy on top, a 2x2 grid of
+// claims, then a togglable "try it" panel that simulates
+// `prefers-reduced-motion` and `prefers-contrast: more` on a small
+// set of sample components so a sighted visitor can see the effect
+// without changing their OS prefs. The kit also responds to those
+// real OS prefs natively (see the @media blocks in morpheus.css);
+// the simulation is scoped via `data-motion` / `data-contrast` on
+// the demo's samples wrapper so toggling doesn't disturb the rest
+// of the page.
+templ landingAccessibility() {
+	<section
+		class="landing-how landing-a11y"
+		aria-labelledby="landing-a11y-title"
+	>
+		<div class="landing-how-copy">
+			<h2 id="landing-a11y-title">Accessible by Default</h2>
+			<p>
+				Every primitive ships with full keyboard navigation, ARIA roles,
+				managed focus, and screen reader-tested behavior, built in, not bolted on.
+			</p>
+		</div>
+		<ul class="landing-a11y-features" aria-label="Accessibility commitments">
+			<li>
+				@neo.Icon("circle-check")
+				<div>
+					<strong>Full keyboard navigation.</strong>
+					<span>Tab, arrows, Enter, Escape on every interactive surface.</span>
+				</div>
+			</li>
+			<li>
+				@neo.Icon("circle-check")
+				<div>
+					<strong>Managed focus.</strong>
+					<span>Modals trap, popovers restore, skip-links jump.</span>
+				</div>
+			</li>
+			<li>
+				@neo.Icon("circle-check")
+				<div>
+					<strong>Screen reader friendly.</strong>
+					<span>WAI-ARIA roles, labels, and live regions wired in.</span>
+				</div>
+			</li>
+			<li>
+				@neo.Icon("circle-check")
+				<div>
+					<strong>Respects user preferences.</strong>
+					<span>prefers-reduced-motion, prefers-contrast, and prefers-color-scheme.</span>
+				</div>
+			</li>
+		</ul>
+		<neo-card
+			variant="elevated"
+			class="landing-a11y-demo"
+			data-signals="{_lf_a11y_motion: window.neoA11y.saved().motion, _lf_a11y_contrast: window.neoA11y.saved().contrast, _lf_a11y_sidebar_open: true}"
+		>
+			<div data-neo-card-inner class="landing-a11y-demo-inner">
+				<header class="landing-a11y-demo-toolbar">
+					@neo.Tooltip(neo.TooltipOpts{Text: neo.Set("Toggle sidebar"), Placement: neo.Set(neo.PlacementBottomStart)}) {
+						@neo.ButtonAttrs(neo.ButtonOpts{Variant: neo.Set(neo.ButtonVariantGhost)}, templ.Attributes{
+							"class":                   "landing-a11y-demo-sidebar-toggle",
+							"type":                    "button",
+							"aria-label":              "Toggle sidebar",
+							"aria-controls":           "landing-a11y-demo-sidebar",
+							"aria-expanded":           "true",
+							"data-attr:aria-expanded": "$_lf_a11y_sidebar_open",
+							"data-on:click":           "$_lf_a11y_sidebar_open = !$_lf_a11y_sidebar_open",
+						}) {
+							@neo.Icon("menu")
+						}
+					}
+					<neo-layout class="landing-a11y-demo-toggles" role="group" aria-label="Simulate user preferences" wrap align-items="center">
+						<label class="landing-a11y-demo-toggle">
+							@neo.SwitchAttrs(neo.SwitchOpts{Size: neo.Set("sm"), AriaLabel: neo.Set("Simulate reduce motion")}, templ.Attributes{
+								"data-attr:checked":         "$_lf_a11y_motion",
+								"data-on:neo-switch-change": "$_lf_a11y_motion = evt.detail.checked",
+							})
+							<span>Reduce motion</span>
+						</label>
+						<label class="landing-a11y-demo-toggle">
+							@neo.SwitchAttrs(neo.SwitchOpts{Size: neo.Set("sm"), AriaLabel: neo.Set("Simulate higher contrast")}, templ.Attributes{
+								"data-attr:checked":         "$_lf_a11y_contrast",
+								"data-on:neo-switch-change": "$_lf_a11y_contrast = evt.detail.checked",
+							})
+							<span>Higher contrast</span>
+						</label>
+					</neo-layout>
+				</header>
+				<form
+					class="landing-a11y-demo-samples"
+					onsubmit="event.preventDefault()"
+					aria-label="Account preferences (demo)"
+				>
+					<neo-layout class="landing-a11y-demo-body">
+						@neo.SidebarAttrs(neo.SidebarOpts{
+							Open: neo.Set(true),
+							// Below ~600px the 10rem sidebar leaves the form pane
+							// too narrow to lay out its rows, so let the kit's
+							// overlay-drawer mode take over, paired with the
+							// CSS below that re-anchors the drawer (and its
+							// backdrop) to the demo body instead of the viewport
+							// so it slides in from the card's left edge, not the
+							// browser's. The toolbar's "Toggle sidebar" button is
+							// the disclosure for the drawer.
+							OverlayBreakpoint: neo.Set("36rem"),
+							AriaLabel:         neo.Set("Settings categories"),
+						}, templ.Attributes{
+							"id":    "landing-a11y-demo-sidebar",
+							"class": "landing-a11y-demo-nav",
+							// Boolean-false would strip [open] entirely, which the
+							// command contract reads as "no command, keep state"
+							// (never closes). Emit explicit open="true"/"false".
+							"data-attr:open": "$_lf_a11y_sidebar_open ? 'true' : 'false'",
+						}) {
+							<nav data-neo-sidebar-content>
+								@neo.TreeAttrs(templ.Attributes{
+									"aria-label": "Settings categories",
+								}) {
+									@lfA11yNavBranch("Account", true) {
+										@lfA11yNavLeaf("General", true)
+										@lfA11yNavLeaf("Profile", false)
+										@lfA11yNavLeaf("Security", false)
+									}
+									@lfA11yNavBranch("Workspace", false) {
+										@lfA11yNavLeaf("Members", false)
+										@lfA11yNavLeaf("Billing", false)
+									}
+									@neo.TreeItem(false) {
+										@neo.TreeLabel() {
+											<span data-neo-tree-text>Notifications</span>
+										}
+									}
+								}
+							</nav>
+							<div
+								data-neo-sidebar-footer
+								class="landing-a11y-demo-nav-toggles"
+								role="group"
+								aria-label="Simulate user preferences"
+							>
+								<label class="landing-a11y-demo-toggle">
+									@neo.SwitchAttrs(neo.SwitchOpts{Size: neo.Set("sm"), AriaLabel: neo.Set("Simulate reduce motion")}, templ.Attributes{
+										"data-attr:checked":         "$_lf_a11y_motion",
+										"data-on:neo-switch-change": "$_lf_a11y_motion = evt.detail.checked",
+									})
+									<span>Reduce motion</span>
+								</label>
+								<label class="landing-a11y-demo-toggle">
+									@neo.SwitchAttrs(neo.SwitchOpts{Size: neo.Set("sm"), AriaLabel: neo.Set("Simulate higher contrast")}, templ.Attributes{
+										"data-attr:checked":         "$_lf_a11y_contrast",
+										"data-on:neo-switch-change": "$_lf_a11y_contrast = evt.detail.checked",
+									})
+									<span>Higher contrast</span>
+								</label>
+							</div>
+						}
+						<neo-layout class="landing-a11y-demo-pane" column>
+							<header class="landing-a11y-demo-header">
+								<h3>Account preferences</h3>
+								<neo-layout class="landing-a11y-demo-status" aria-live="polite" inline align-items="center">
+									<neo-spinner aria-hidden="true"></neo-spinner>
+									<span>Saving…</span>
+								</neo-layout>
+							</header>
+							<neo-layout class="landing-a11y-demo-row" wrap align-items="flex-end">
+								<label class="landing-a11y-demo-field">
+									<span>Display name</span>
+									<neo-input-group>
+										@neo.Icon("user")
+										<input type="text" value="Evelyn" aria-label="Display name"/>
+									</neo-input-group>
+								</label>
+								<label class="landing-a11y-demo-field">
+									<span>Language</span>
+									@neo.SelectAttrs(neo.SelectOpts{
+										Value:     neo.Set("en"),
+										AriaLabel: neo.Set("Language"),
+									}, templ.Attributes{}) {
+										@neo.Option(neo.OptionOpts{Value: neo.Set("en")}) {
+											English
+										}
+										@neo.Option(neo.OptionOpts{Value: neo.Set("de")}) {
+											Deutsch
+										}
+										@neo.Option(neo.OptionOpts{Value: neo.Set("ja")}) {
+											日本語
+										}
+									}
+								</label>
+								<div class="landing-a11y-demo-help">
+									@neo.Popover(neo.PopoverOpts{
+										Placement:      neo.Set(neo.PlacementTop),
+										ClampPlacement: neo.Set(true),
+									}) {
+										@neo.ButtonAttrs(neo.ButtonOpts{Variant: neo.Set(neo.ButtonVariantGhost)}, templ.Attributes{
+											"data-neo-popover-trigger": "",
+											"type":                     "button",
+											"aria-label":               "About these settings",
+										}) {
+											@neo.Icon("info")
+											<span>Show more details</span>
+										}
+										<div data-neo-popover-content class="landing-a11y-demo-popover">
+											<p>Your display name and language sync across devices and are visible to teammates in your workspace directory.</p>
+										</div>
+									}
+								</div>
+							</neo-layout>
+							<ul class="landing-a11y-demo-prefs">
+								<li class="landing-a11y-demo-pref">
+									<neo-layout class="landing-a11y-demo-pref-text" column>
+										<strong>Email notifications</strong>
+										<span>Weekly summary of mentions and project updates.</span>
+									</neo-layout>
+									@neo.SwitchAttrs(neo.SwitchOpts{
+										Checked:   neo.Set(true),
+										AriaLabel: neo.Set("Email notifications"),
+									}, templ.Attributes{
+										"class": "landing-a11y-demo-pref-control",
+									})
+								</li>
+								<li class="landing-a11y-demo-pref">
+									<neo-layout class="landing-a11y-demo-pref-text" column>
+										<strong>Two-factor authentication</strong>
+										<span>Required when signing in from a new device.</span>
+									</neo-layout>
+									@neo.SwitchAttrs(neo.SwitchOpts{
+										Checked:   neo.Set(false),
+										AriaLabel: neo.Set("Two-factor authentication"),
+									}, templ.Attributes{
+										"class": "landing-a11y-demo-pref-control",
+									})
+								</li>
+								<li class="landing-a11y-demo-pref">
+									<neo-layout class="landing-a11y-demo-pref-text" column>
+										<strong>Profile visibility</strong>
+										<span>Who can find your profile in directories.</span>
+									</neo-layout>
+									@neo.RadioGroupAttrs(neo.RadioGroupOpts{
+										Value:       neo.Set("team"),
+										Orientation: neo.Set(neo.AxisHorizontal),
+										AriaLabel:   neo.Set("Profile visibility"),
+									}, templ.Attributes{
+										"class": "landing-a11y-demo-pref-control landing-a11y-demo-pref-radios",
+									}) {
+										<label>
+											@neo.Radio(neo.RadioOpts{Value: neo.Set("public")})
+											<span>Public</span>
+										</label>
+										<label>
+											@neo.Radio(neo.RadioOpts{Value: neo.Set("team")})
+											<span>Team</span>
+										</label>
+										<label>
+											@neo.Radio(neo.RadioOpts{Value: neo.Set("private")})
+											<span>Private</span>
+										</label>
+									}
+								</li>
+							</ul>
+						</neo-layout>
+					</neo-layout>
+				</form>
+			</div>
+		</neo-card>
+	</section>
+}
+
+// lfA11yLeafAttrs builds the conditional attribute map for an active
+// vs. inactive settings-tree leaf. Inactive returns nil so the row
+// renders with the kit's defaults; active adds `aria-current="page"`
+// and the highlight class.
+func lfA11yLeafAttrs(active bool) templ.Attributes {
+	if !active {
+		return nil
+	}
+	return templ.Attributes{
+		"aria-current": "page",
+		"class":        "landing-a11y-demo-nav-active",
+	}
+}
+
+// lfA11yNavBranch renders one expandable group inside the demo's
+// settings tree: plain text label, no icon (settings rows don't
+// need a folder/file icon) and no per-row actions menu.
+templ lfA11yNavBranch(name string, expanded bool) {
+	@neo.TreeItem(expanded) {
+		@neo.TreeLabel() {
+			<span data-neo-tree-text>{ name }</span>
+		}
+		{ children... }
+	}
+}
+
+// lfA11yNavLeaf renders one selectable row inside the demo's
+// settings tree. The active row gets `aria-current="page"` so screen
+// readers announce it as the focused settings category, plus an
+// `.landing-a11y-demo-nav-active` class for the visual highlight.
+templ lfA11yNavLeaf(name string, active bool) {
+	@neo.TreeItemAttrs(false, lfA11yLeafAttrs(active)) {
+		@neo.TreeLabel() {
+			<span data-neo-tree-text>{ name }</span>
+		}
+	}
+}
+
+templ landingFooter(morpheusVersion string) {
+	<footer class="landing-footer">
+		<div class="landing-footer-inner">
+			<div class="landing-footer-brand">
+				<strong>Morpheus</strong>
+				<span>{ morpheusVersion } · Open Alpha</span>
+			</div>
+			<nav class="landing-footer-links" aria-label="Landing footer">
+				@neo.LinkAttrs(neo.LinkOpts{
+					Href:    neo.Set("https://github.com/romshark/morpheus"),
+					Target:  neo.Set("_blank"),
+					Rel:     neo.Set("noopener"),
+					Variant: neo.Set(neo.LinkVariantButtonGhost),
+				}, templ.Attributes{
+					"aria-label": "Morpheus on GitHub",
+				}) {
+					@neo.Icon("github")
+				}
+			</nav>
+		</div>
+	</footer>
+}
+
+// Three-flex-column masonry of unlabelled UI fragments: snippets that
+// could plausibly come from real apps, no titles or descriptions.
+templ landingShowcase() {
+	<section class="landing-showcase" aria-label="UI fragments">
+		<div class="lf-col lf-col-1">
+			@lfThemeMode()
+			@lfMusicPlayer()
+			@lfPricing()
+			@lfStats()
+			@lfFileTree()
+		</div>
+		<div class="lf-col lf-col-2">
+			@lfChat()
+			@lfSearchPalette()
+			@lfLogs()
+			@lfEqualizer()
+			@lfSettings()
+			@lfCalendarEvent()
+		</div>
+		<div class="lf-col lf-col-3">
+			@lfColorField()
+			@lfSkeleton()
+			@lfDeploy()
+			@lfNotes()
+			@lfCarousel()
+			@lfLogin()
+		</div>
+	</section>
+}
+
+templ lfColorField() {
+	// HSV->hex helper used by the hue and saturation sliders to recompute
+	// the authoritative `_lf_color_value` hex when only one of the three
+	// dimensions has changed. Mirrors the conversion in
+	// web/lib/neo-color-field/neo-color-field.ts so a hex round-trip through this helper
+	// is bit-exact with what the field would emit for the same h/s/v.
+	<script>
+		(function () {
+			if (window.lfHsvToHex) return;
+			function clamp(n) {
+				return Math.min(100, Math.max(0, n));
+			}
+			function hue(n) {
+				if (!Number.isFinite(n)) return 0;
+				return ((n % 360) + 360) % 360;
+			}
+			function byte(n) {
+				return Math.round(Math.min(255, Math.max(0, n)))
+					.toString(16)
+					.padStart(2, "0");
+			}
+			function parseHex(value) {
+				var m = String(value || "").trim().match(/^#?([0-9a-f]{3}|[0-9a-f]{6})$/i);
+				if (!m) return null;
+				var raw = m[1];
+				var hex = raw.length === 3
+					? raw.replace(/./g, function (ch) { return ch + ch; })
+					: raw;
+				return "#" + hex.toLowerCase();
+			}
+			function parseRgb(value) {
+				var m = String(value || "").match(/rgba?\(\s*(\d+(?:\.\d+)?)[,\s]+(\d+(?:\.\d+)?)[,\s]+(\d+(?:\.\d+)?)/);
+				if (!m) return null;
+				return "#" + byte(Number(m[1])) + byte(Number(m[2])) + byte(Number(m[3]));
+			}
+			function oklchToHex(value) {
+				var m = String(value || "").match(/oklch\(\s*([0-9.]+%?)\s+([0-9.]+)\s+([0-9.]+)(?:deg)?/i);
+				if (!m) return null;
+				var L = m[1].indexOf("%") > -1 ? parseFloat(m[1]) / 100 : parseFloat(m[1]);
+				var C = parseFloat(m[2]);
+				var H = parseFloat(m[3]) * Math.PI / 180;
+				var a = C * Math.cos(H);
+				var b = C * Math.sin(H);
+				var l_ = L + 0.3963377774 * a + 0.2158037573 * b;
+				var m_ = L - 0.1055613458 * a - 0.0638541728 * b;
+				var s_ = L - 0.0894841775 * a - 1.2914855480 * b;
+				var l = l_ * l_ * l_;
+				var mm = m_ * m_ * m_;
+				var ss = s_ * s_ * s_;
+				function gamma(n) {
+					return n <= 0.0031308 ? 12.92 * n : 1.055 * Math.pow(n, 1 / 2.4) - 0.055;
+				}
+				return "#" +
+					byte(gamma( 4.0767416621 * l - 3.3077115913 * mm + 0.2309699292 * ss) * 255) +
+					byte(gamma(-1.2684380046 * l + 2.6097574011 * mm - 0.3413193965 * ss) * 255) +
+					byte(gamma(-0.0041960863 * l - 0.7034186147 * mm + 1.7076147010 * ss) * 255);
+			}
+			function hexToHsv(hex) {
+				hex = parseHex(hex) || "#2563eb";
+				var r = parseInt(hex.slice(1, 3), 16) / 255;
+				var g = parseInt(hex.slice(3, 5), 16) / 255;
+				var b = parseInt(hex.slice(5, 7), 16) / 255;
+				var max = Math.max(r, g, b);
+				var min = Math.min(r, g, b);
+				var d = max - min;
+				var h = 0;
+				if (d !== 0) {
+					if (max === r) h = 60 * (((g - b) / d) % 6);
+					else if (max === g) h = 60 * ((b - r) / d + 2);
+					else h = 60 * ((r - g) / d + 4);
+				}
+				return {
+					value: hex,
+					hue: hue(h),
+					sat: max === 0 ? 0 : (d / max) * 100,
+					val: max * 100,
+				};
+			}
+			window.lfHsvToHex = function (h, sPct, vPct) {
+				var s = clamp(sPct) / 100;
+				var v = clamp(vPct) / 100;
+				var c = v * s;
+				var hp = hue(h) / 60;
+				var x = c * (1 - Math.abs((hp % 2) - 1));
+				var r = 0, g = 0, b = 0;
+				if (hp >= 0 && hp < 1) { r = c; g = x; }
+				else if (hp < 2) { r = x; g = c; }
+				else if (hp < 3) { g = c; b = x; }
+				else if (hp < 4) { g = x; b = c; }
+				else if (hp < 5) { r = x; b = c; }
+				else { r = c; b = x; }
+				var m = v - c;
+				return "#" + byte((r + m) * 255) + byte((g + m) * 255) + byte((b + m) * 255);
+			};
+			window.lfColorToHex = function (value) {
+				var hex = parseHex(value) || parseRgb(value) || oklchToHex(value);
+				if (hex) return hex;
+				var canvas = document.createElement("canvas");
+				var ctx = canvas.getContext("2d");
+				if (!ctx) return "#2563eb";
+				ctx.fillStyle = "#010203";
+				ctx.fillStyle = String(value || "");
+				return ctx.fillStyle === "#010203"
+					? "#2563eb"
+					: parseHex(ctx.fillStyle) || parseRgb(ctx.fillStyle) || "#2563eb";
+			};
+			window.lfHexToHsv = hexToHsv;
+			window.lfThemeAccentDetail = function () {
+				var s = document.documentElement.style;
+				s.removeProperty("--accent");
+				s.removeProperty("--accent-hover");
+				s.removeProperty("--accent-fg");
+				var accent = getComputedStyle(document.documentElement)
+					.getPropertyValue("--accent");
+				return hexToHsv(window.lfColorToHex(accent));
+			};
+			window.lfThemeEventKey = function (detail) {
+				var html = document.documentElement;
+				var theme = detail && detail.theme;
+				var mode = detail && detail.mode;
+				var effective = detail && detail.effectiveMode;
+				if (!theme) {
+					theme = window.neoTheme ? window.neoTheme.saved().theme : "default";
+				}
+				if (!mode) {
+					mode = window.neoTheme ? window.neoTheme.saved().mode : "system";
+				}
+				if (!effective) {
+					effective = html.classList.contains("dark") ? "dark" : "light";
+				}
+				return theme + ":" + mode + ":" + effective;
+			};
+		})();
+	</script>
+	<neo-card
+		variant="elevated"
+		id="lf-color-card"
+		class="lf-card lf-color"
+		data-signals="{ _lf_color_value: '#2563eb', _lf_color_hue: 221, _lf_color_sat: 85, _lf_color_val: 92, _lf_color_touched: false }"
+		data-attr:style="'--lf-color-hue: ' + $_lf_color_hue + ';'"
+		data-on:lf-color-reset="
+			$_lf_color_touched = false;
+			$_lf_color_value = evt.detail.value;
+			$_lf_color_hue = evt.detail.hue;
+			$_lf_color_sat = evt.detail.sat;
+			$_lf_color_val = evt.detail.val;
+		"
+		data-effect="
+			if ($_lf_color_touched) {
+				var c = $_lf_color_value;
+				var s = document.documentElement.style;
+				s.setProperty('--accent', c);
+				s.setProperty('--accent-hover', 'color-mix(in srgb, ' + c + ' 85%, black)');
+				var n = parseInt(c.slice(1), 16);
+				var lum = 0.299 * ((n >> 16) & 255) + 0.587 * ((n >> 8) & 255) + 0.114 * (n & 255);
+				s.setProperty('--accent-fg', lum > 140 ? '#000' : '#fff');
+			}
+		"
+	>
+		<div data-neo-card-inner>
+			<neo-layout class="lf-color-head" align-items="baseline" justify-content="space-between">
+				<strong>Color</strong>
+				<span data-text="$_lf_color_value.toUpperCase()">#2563EB</span>
+			</neo-layout>
+			@neo.ColorFieldAttrs(neo.ColorFieldOpts[float64]{
+				Value: neo.Set("#2563eb"), Hue: neo.Set(221.0),
+				AriaLabel: neo.Set("Accent color"),
+			}, templ.Attributes{
+				"class":                          "lf-color-field",
+				"data-attr:value":                "$_lf_color_value",
+				"data-attr:hue":                  "$_lf_color_hue",
+				"data-on:neo-color-field-input":  "$_lf_color_value = evt.detail.value; $_lf_color_hue = evt.detail.hue; $_lf_color_sat = evt.detail.x; $_lf_color_val = 100 - evt.detail.y; $_lf_color_touched = true",
+				"data-on:neo-color-field-change": "$_lf_color_value = evt.detail.value; $_lf_color_hue = evt.detail.hue; $_lf_color_sat = evt.detail.x; $_lf_color_val = 100 - evt.detail.y; $_lf_color_touched = true",
+			})
+			@neo.SliderAttrs(neo.SliderOpts[float64]{
+				Min:         neo.Set(0.0),
+				Max:         neo.Set(359.0),
+				Value:       neo.Set(221.0),
+				Label:       neo.Set("Hue"),
+				Unit:        neo.Set("°"),
+				HideTooltip: neo.Set(true),
+				AriaLabel:   neo.Set("Hue"),
+			}, templ.Attributes{
+				"class":                     "lf-hue-slider",
+				"data-attr:value":           "$_lf_color_hue",
+				"data-on:neo-slider-input":  "$_lf_color_hue = Number(evt.detail.value); $_lf_color_value = window.lfHsvToHex($_lf_color_hue, $_lf_color_sat, $_lf_color_val); $_lf_color_touched = true",
+				"data-on:neo-slider-change": "$_lf_color_hue = Number(evt.detail.value); $_lf_color_value = window.lfHsvToHex($_lf_color_hue, $_lf_color_sat, $_lf_color_val); $_lf_color_touched = true",
+			})
+			@neo.SliderAttrs(neo.SliderOpts[float64]{
+				Min:         neo.Set(0.0),
+				Max:         neo.Set(100.0),
+				Value:       neo.Set(85.0),
+				Label:       neo.Set("Saturation"),
+				Unit:        neo.Set("%"),
+				HideTooltip: neo.Set(true),
+				AriaLabel:   neo.Set("Saturation"),
+			}, templ.Attributes{
+				"class":                     "lf-sat-slider",
+				"data-attr:value":           "$_lf_color_sat",
+				"data-on:neo-slider-input":  "$_lf_color_sat = Number(evt.detail.value); $_lf_color_value = window.lfHsvToHex($_lf_color_hue, $_lf_color_sat, $_lf_color_val); $_lf_color_touched = true",
+				"data-on:neo-slider-change": "$_lf_color_sat = Number(evt.detail.value); $_lf_color_value = window.lfHsvToHex($_lf_color_hue, $_lf_color_sat, $_lf_color_val); $_lf_color_touched = true",
+			})
+		</div>
+	</neo-card>
+	// Sync the picker to the real computed accent, at init and on
+	// every user theme/mode switch. The data-signals seed
+	// (#2563eb / 221 / 85) is a placeholder: the actual theme accent
+	// is only knowable client-side after the theme CSS applies (the
+	// default theme's is achromatic oklch(... 0 0), not blue). The
+	// reset handler keeps touched false, so this corrects the readout
+	// without painting the page; on a theme switch it also drops the
+	// stale inline --accent override (which beats the theme class's
+	// --accent). The init sync waits for window load so Datastar has
+	// wired data-on:lf-color-reset; themeBootstrap's pre-paint
+	// neo-theme-change in <head> fired before this listener existed,
+	// hence the explicit init dispatch instead of relying on it.
+	<script>
+		(function () {
+			function syncPicker() {
+				var card = document.getElementById("lf-color-card");
+				if (!card || !window.lfThemeAccentDetail) return;
+				card.dispatchEvent(new CustomEvent("lf-color-reset", {
+					detail: window.lfThemeAccentDetail(),
+				}));
+			}
+			if (window.lfThemeEventKey) {
+				window.__lf_color_theme_key = window.lfThemeEventKey();
+			}
+			if (document.readyState === "complete") {
+				syncPicker();
+			} else {
+				window.addEventListener("load", syncPicker, { once: true });
+			}
+			document.documentElement.addEventListener(
+				"neo-theme-change",
+				function (evt) {
+					if (!window.lfThemeEventKey) return;
+					var key = window.lfThemeEventKey(evt.detail);
+					if (window.__lf_color_theme_key === key) return;
+					window.__lf_color_theme_key = key;
+					syncPicker();
+				},
+			);
+		})();
+	</script>
+}
+
+templ lfThemeMode() {
+	<neo-card
+		variant="elevated"
+		class="lf-card lf-theme"
+		data-signals="{
+			_lf_theme_name: window.neoTheme.saved().theme,
+			_lf_theme_mode: window.neoTheme.saved().mode,
+			_lf_a11y_motion: window.neoA11y.saved().motion,
+			_lf_a11y_contrast: window.neoA11y.saved().contrast
+		}"
+		data-effect="
+			window.neoTheme.apply($_lf_theme_name, $_lf_theme_mode);
+			document.documentElement.toggleAttribute('data-pref-reduced-motion', $_lf_a11y_motion);
+			document.documentElement.toggleAttribute('data-pref-contrast-more', $_lf_a11y_contrast);
+			try {
+				localStorage.setItem('neo-theme', $_lf_theme_name);
+				localStorage.setItem('neo-mode', $_lf_theme_mode);
+				localStorage.setItem('neo-a11y-motion', $_lf_a11y_motion ? '1' : '0');
+				localStorage.setItem('neo-a11y-contrast', $_lf_a11y_contrast ? '1' : '0');
+			} catch (_) {}
+		"
+	>
+		<div data-neo-card-inner>
+			<neo-layout class="lf-theme-head" column>
+				<strong>Appearance</strong>
+				<span>Pick a palette and a light/dark mode.</span>
+			</neo-layout>
+			@neo.InputGroupAttrs(templ.Attributes{
+				"class": "lf-theme-input-group",
+			}) {
+				@neo.SelectAttrs(neo.SelectOpts{
+					Value: neo.Set("default"), AriaLabel: neo.Set("Theme"),
+					// Pre-hydration placeholder (the kit's `:not(:defined)`
+					// CSS shell renders this via `content: attr(placeholder)`)
+					// so the trigger reads "Default" before the JS bundle
+					// upgrades the element. Avoids a CLS / flash from a
+					// blank trigger. The Datastar `data-attr:value` below
+					// patches in the saved theme name once the signal boots.
+					Placeholder: neo.Set("Default"),
+				}, templ.Attributes{
+					"class":                     "lf-theme-select",
+					"data-attr:value":           "$_lf_theme_name",
+					"data-on:neo-select-change": "$_lf_theme_name = evt.detail.value",
+				}) {
+					@neo.Option(neo.OptionOpts{Value: neo.Set("default")}) {
+						Default
+					}
+					@neo.Option(neo.OptionOpts{Value: neo.Set("sunshine")}) {
+						Sunshine
+					}
+					@neo.Option(neo.OptionOpts{Value: neo.Set("ocean")}) {
+						Ocean
+					}
+					@neo.Option(neo.OptionOpts{Value: neo.Set("matrix")}) {
+						Matrix
+					}
+					@neo.Option(neo.OptionOpts{Value: neo.Set("rose")}) {
+						Rose
+					}
+				}
+				@neo.Tooltip(neo.TooltipOpts{Text: neo.Set("Reduce motion"), Placement: neo.Set(neo.PlacementTop)}) {
+					@neo.ToggleAttrs(neo.ToggleOpts{}, templ.Attributes{
+						"class":                     "lf-theme-pref-toggle",
+						"aria-label":                "Reduce motion",
+						"data-attr:pressed":         "$_lf_a11y_motion",
+						"data-on:neo-toggle-change": "$_lf_a11y_motion = evt.detail.pressed",
+					}) {
+						@neo.Icon("pause")
+					}
+				}
+				@neo.Tooltip(neo.TooltipOpts{Text: neo.Set("Higher contrast"), Placement: neo.Set(neo.PlacementTop)}) {
+					@neo.ToggleAttrs(neo.ToggleOpts{}, templ.Attributes{
+						"class":                     "lf-theme-pref-toggle",
+						"aria-label":                "Higher contrast",
+						"data-attr:pressed":         "$_lf_a11y_contrast",
+						"data-on:neo-toggle-change": "$_lf_a11y_contrast = evt.detail.pressed",
+					}) {
+						@neo.Icon("eye")
+					}
+				}
+			}
+			@neo.ButtonGroupAttrs(neo.ButtonGroupOpts{
+				Value: neo.Set("system"), AriaLabel: neo.Set("Color mode"),
+			}, templ.Attributes{
+				"class":                          "lf-theme-modes",
+				"data-attr:value":                "$_lf_theme_mode",
+				"data-on:neo-buttongroup-change": "$_lf_theme_mode = evt.detail.value",
+			}) {
+				<neo-button value="light" aria-label="Light">
+					@neo.Icon("sun")
+					<span>Light</span>
+				</neo-button>
+				<neo-button value="system" aria-label="System">
+					@neo.Icon("settings")
+					<span>System</span>
+				</neo-button>
+				<neo-button value="dark" aria-label="Dark">
+					@neo.Icon("moon")
+					<span>Dark</span>
+				</neo-button>
+			}
+		</div>
+	</neo-card>
+}
+
+templ lfEqualizer() {
+	<neo-card
+		variant="elevated"
+		class="lf-card lf-eq"
+		data-signals="{
+			_lf_eq_preset: 'studio',
+			_lf_eq_60: 4, _lf_eq_170: 2, _lf_eq_310: -1, _lf_eq_600: 0,
+			_lf_eq_1k: 1, _lf_eq_3k: 3,  _lf_eq_6k: 5,  _lf_eq_12k: 4,
+			_lf_eq_14k: 2, _lf_eq_16k: -2
+		}"
+	>
+		<div data-neo-card-inner>
+			<neo-layout
+				class="lf-eq-head"
+				align-items="center"
+				justify-content="space-between"
+				gap="sm"
+			>
+				<strong class="lf-eq-title-long">Equalizer</strong>
+				<strong class="lf-eq-title-short">EQ</strong>
+				@neo.ButtonGroupAttrs(neo.ButtonGroupOpts{
+					Value:     neo.Set("studio"),
+					AriaLabel: neo.Set("Preset"),
+				}, templ.Attributes{
+					"data-attr:value": "$_lf_eq_preset",
+					// Preset rides in the URL; Datastar drops `_*` signals
+					// from request bodies.
+					"data-on:neo-buttongroup-change": "$_lf_eq_preset = evt.detail.value;" +
+						" @post('/lf-eq/preset/' + evt.detail.value + '/')",
+				}) {
+					<neo-button value="flat">Flat</neo-button>
+					<neo-button value="bass">Bass</neo-button>
+					<neo-button value="studio">Studio</neo-button>
+				}
+			</neo-layout>
+			<neo-layout
+				class="lf-eq-bands"
+				justify-content="space-between"
+				align-items="flex-end"
+				gap="xs"
+			>
+				@lfEqBand("60", "_lf_eq_60")
+				@lfEqBand("170", "_lf_eq_170")
+				@lfEqBand("310", "_lf_eq_310")
+				@lfEqBand("600", "_lf_eq_600")
+				@lfEqBand("1k", "_lf_eq_1k")
+				@lfEqBand("3k", "_lf_eq_3k")
+				@lfEqBand("6k", "_lf_eq_6k")
+				@lfEqBand("12k", "_lf_eq_12k")
+				@lfEqBand("14k", "_lf_eq_14k")
+				@lfEqBand("16k", "_lf_eq_16k")
+			</neo-layout>
+		</div>
+	</neo-card>
+}
+
+// Two-way bound to `signal` so preset patches move the rail and
+// drags update the signal. Easing animates the thumb/fill between
+// commits; without it, signal patches snap.
+templ lfEqBand(hz, signal string) {
+	<neo-layout class="lf-eq-band" column align-items="center">
+		@neo.SliderAttrs(neo.SliderOpts[float64]{
+			Min:         neo.Set(-12.0),
+			Max:         neo.Set(12.0),
+			Vertical:    neo.Set(true),
+			HideValue:   neo.Set(true),
+			HideTooltip: neo.Set(true),
+			StaticMarks: neo.Set(true),
+			Easing:      neo.Set("320ms cubic-bezier(0.25, 1, 0.5, 1)"),
+			AriaLabel:   neo.Set(hz + " Hz gain"),
+			Marks: []neo.SliderMark{
+				{Value: -12},
+				{Value: -6},
+				{Value: 0},
+				{Value: 6},
+				{Value: 12},
+			},
+		}, templ.Attributes{
+			"data-attr:value": "$" + signal,
+			// Manual drag also clears the preset so the buttongroup
+			// stops claiming a preset is active. Signal patches from
+			// the simulator don't fire these events, only user input.
+			"data-on:neo-slider-input": "$" + signal +
+				" = Number(evt.detail.value); $_lf_eq_preset = ''",
+			"data-on:neo-slider-change": "$" + signal +
+				" = Number(evt.detail.value); $_lf_eq_preset = ''",
+		})
+		<span class="lf-eq-hz">{ hz }</span>
+	</neo-layout>
+}
+
+// lfDeployRef renders the deploy card's branch/commit picker. Each
+// option's children carry every searchable field (branch · hash ·
+// message · author · time) so the local filter matches across all of
+// them; the option's `label` attribute is just the short commit hash
+// so the trigger stays compact regardless of branch-name length.
+templ lfDeployRef() {
+	@neo.ComboboxAttrs(neo.ComboboxOpts{
+		Value:             neo.Set("main:8a3f1c2"),
+		AriaLabel:         neo.Set("Deploy ref"),
+		SearchPlaceholder: neo.Set("Search branches, commits, authors…"),
+		Placement:         neo.Set(neo.PlacementBottomEnd),
+		ScreenOffset:      neo.Set("0.5rem"),
+		MinFitWidth:       neo.Set("22rem"),
+		// The trigger is a shrunk pill (--neo-combobox-min-width: 0), so the
+		// list has no width floor; size it to the option rows instead, capped
+		// at --neo-popover-max-width (28rem, set on .lf-deploy-ref).
+		PopoverFitContent: neo.Set(true),
+		FollowScroll:      neo.Set(neo.PopoverFollowScrollUntilTriggerInvisible),
+	}, templ.Attributes{
+		"id":                          "lf-deploy-ref",
+		"class":                       "lf-deploy-ref",
+		"data-on:neo-combobox-change": "$_lf_deploy_ref = evt.detail.value.replace(':', ' · ')",
+	}) {
+		for _, b := range lfDeployRefBranches {
+			@neo.OptGroup(neo.OptGroupOpts{Label: neo.Set(b.Branch)}) {
+				for _, c := range b.Commits {
+					@neo.Option(neo.OptionOpts{
+						Value: neo.Set(b.Branch + ":" + c.Hash),
+						Label: neo.Set(c.Hash),
+					}) {
+						<span class="lf-deploy-ref-row-branch">{ b.Branch }</span>
+						<span class="lf-deploy-ref-row-sep" aria-hidden="true">·</span>
+						<span class="lf-deploy-ref-row-hash">{ c.Hash }</span>
+						<span class="lf-deploy-ref-row-msg">{ c.Msg }</span>
+						<span class="lf-deploy-ref-row-meta">
+							<span class="lf-deploy-ref-row-author">{ c.Author }</span>
+							<span class="lf-deploy-ref-row-time">{ c.When }</span>
+						</span>
+					}
+				}
+			}
+		}
+	}
+}
+
+templ lfDeploy() {
+	// Deploy click handler. Shows a non-expiring loading toast with a
+	// spinner, tags it with HTML id="lf-deploy-toast", then 2s later
+	// renders a fresh <neo-toast id="lf-deploy-toast"> into the
+	// toaster. The toaster's MutationObserver detects the matching
+	// HTML id and patches the existing toast in place, same DOM slot,
+	// preserved data-neo-toast-id and entry duration (0 = persistent),
+	// children/variant swapped for the success state. No flash from a
+	// dismiss-then-show sequence.
+	<script>
+		(function () {
+			if (window.lfDeployToast) return;
+			window.lfDeployToast = function (ref) {
+				ref = ref || "main · 8a3f1c2";
+				NeoToast.loading("Deploying…", {
+					description: ref + " -> Frankfurt (eu-central-1)",
+				});
+				var toaster = document.getElementById("lf-toaster");
+				if (!toaster) return;
+				// show() inserts the new toast at firstChild, so the
+				// loading element we just created is reachable
+				// synchronously. Tag it with an HTML id so the patch
+				// dispatch below can find it.
+				if (toaster.firstElementChild) {
+					toaster.firstElementChild.id = "lf-deploy-toast";
+				}
+				setTimeout(function () {
+					var n = document.createElement("neo-toast");
+					n.id = "lf-deploy-toast";
+					n.setAttribute("variant", "success");
+					var title = document.createElement("span");
+					title.setAttribute("slot", "title");
+					title.textContent = "Deploy finished successfully";
+					n.appendChild(title);
+					var desc = document.createElement("span");
+					desc.setAttribute("slot", "description");
+					desc.textContent = ref + " -> Frankfurt (eu-central-1)";
+					n.appendChild(desc);
+					toaster.appendChild(n);
+				}, 2000);
+			};
+		})();
+	</script>
+	<neo-card
+		variant="elevated"
+		class="lf-card lf-deploy"
+		data-signals="{_lf_deploy_ref: 'main · 8a3f1c2'}"
+	>
+		<div data-neo-card-inner>
+			<neo-layout
+				class="lf-deploy-head"
+				align-items="center"
+				justify-content="space-between"
+				gap="sm"
+			>
+				<strong>Deploy</strong>
+				@lfDeployRef()
+			</neo-layout>
+			<label class="lf-deploy-row">
+				<span>Environment</span>
+				@neo.Select(neo.SelectOpts{
+					Value: neo.Set("production"), AriaLabel: neo.Set("Environment"),
+				}) {
+					@neo.Option(neo.OptionOpts{Value: neo.Set("production")}) {
+						Production
+					}
+					@neo.Option(neo.OptionOpts{Value: neo.Set("staging")}) {
+						Staging
+					}
+					@neo.Option(neo.OptionOpts{Value: neo.Set("preview")}) {
+						Preview
+					}
+				}
+			</label>
+			<label class="lf-deploy-row">
+				<span>Region</span>
+				@neo.Combobox(neo.ComboboxOpts{
+					Value:             neo.Set("fra"),
+					AriaLabel:         neo.Set("Region"),
+					SearchPlaceholder: neo.Set("Search regions…"),
+				}) {
+					@neo.OptGroup(neo.OptGroupOpts{Label: neo.Set("Europe")}) {
+						@neo.Option(neo.OptionOpts{
+							Value: neo.Set("fra"), Label: neo.Set("Frankfurt · eu-central-1"),
+						}) {
+							Frankfurt <span class="lf-deploy-region-id">eu-central-1</span>
+						}
+						@neo.Option(neo.OptionOpts{
+							Value: neo.Set("ams"), Label: neo.Set("Amsterdam · eu-west-3"),
+						}) {
+							Amsterdam <span class="lf-deploy-region-id">eu-west-3</span>
+						}
+						@neo.Option(neo.OptionOpts{
+							Value: neo.Set("lon"), Label: neo.Set("London · eu-west-2"),
+						}) {
+							London <span class="lf-deploy-region-id">eu-west-2</span>
+						}
+					}
+					@neo.OptGroup(neo.OptGroupOpts{Label: neo.Set("Americas")}) {
+						@neo.Option(neo.OptionOpts{
+							Value: neo.Set("iad"), Label: neo.Set("Virginia · us-east-1"),
+						}) {
+							Virginia <span class="lf-deploy-region-id">us-east-1</span>
+						}
+						@neo.Option(neo.OptionOpts{
+							Value: neo.Set("sfo"), Label: neo.Set("San Francisco · us-west-1"),
+						}) {
+							San Francisco <span class="lf-deploy-region-id">us-west-1</span>
+						}
+						@neo.Option(neo.OptionOpts{
+							Value: neo.Set("sao"), Label: neo.Set("São Paulo · sa-east-1"),
+						}) {
+							São Paulo <span class="lf-deploy-region-id">sa-east-1</span>
+						}
+					}
+					@neo.OptGroup(neo.OptGroupOpts{Label: neo.Set("Asia Pacific")}) {
+						@neo.Option(neo.OptionOpts{
+							Value: neo.Set("tyo"), Label: neo.Set("Tokyo · ap-northeast-1"),
+						}) {
+							Tokyo <span class="lf-deploy-region-id">ap-northeast-1</span>
+						}
+						@neo.Option(neo.OptionOpts{
+							Value: neo.Set("syd"), Label: neo.Set("Sydney · ap-southeast-2"),
+						}) {
+							Sydney <span class="lf-deploy-region-id">ap-southeast-2</span>
+						}
+						@neo.Option(neo.OptionOpts{
+							Value: neo.Set("blr"), Label: neo.Set("Bangalore · ap-south-1"),
+						}) {
+							Bangalore <span class="lf-deploy-region-id">ap-south-1</span>
+						}
+					}
+				}
+			</label>
+			<neo-layout class="lf-deploy-actions" gap="sm">
+				<neo-dialog dismissible="false" class="lf-deploy-confirm">
+					<neo-button data-neo-dialog-trigger variant="primary">
+						Deploy
+					</neo-button>
+					<dialog>
+						<header data-neo-dialog-header>
+							<h2 data-neo-dialog-title>Deploy to production?</h2>
+							<p data-neo-dialog-description>
+								Pushing <code data-text="$_lf_deploy_ref">main · 8a3f1c2</code> to
+								Frankfurt (eu-central-1). The running
+								fleet will be replaced.
+							</p>
+						</header>
+						<footer data-neo-dialog-footer>
+							<neo-button data-neo-dialog-close variant="ghost">
+								Abort
+							</neo-button>
+							<neo-button
+								data-neo-dialog-close
+								variant="danger"
+								data-on:click="window.lfDeployToast($_lf_deploy_ref)"
+							>
+								Deploy
+							</neo-button>
+						</footer>
+					</dialog>
+				</neo-dialog>
+				<neo-drawer side="right">
+					<neo-button data-neo-drawer-trigger variant="ghost">
+						Dry run
+					</neo-button>
+					<dialog>
+						<header data-neo-drawer-header>
+							<h2 data-neo-drawer-title>
+								<neo-layout row gap="sm">
+									<span>Dry run</span>
+									@neo.Badge(neo.BadgeOpts{
+										Variant: neo.Set(neo.BadgeVariantPrimary),
+									}) {
+										<span data-text="$_lf_deploy_ref"></span>
+									}
+								</neo-layout>
+							</h2>
+							<p data-neo-drawer-description>
+								What would happen if you deployed to
+								<strong>Frankfurt</strong> right now.
+							</p>
+						</header>
+						<div data-neo-drawer-body>
+							<neo-layout column gap="md">
+								<ul class="lf-deploy-dryrun">
+									<li>
+										@neo.Icon("circle-check")
+										<span>
+											12 files changed&nbsp;
+											@neo.Badge(neo.BadgeOpts{
+												Variant: neo.Set(neo.BadgeVariantSecondary),
+											}) {
+												+245 / -89
+											}
+										</span>
+									</li>
+									<li>
+										@neo.Icon("circle-check")
+										<span>2 database migrations queued</span>
+									</li>
+									<li>
+										@neo.Icon("circle-check")
+										<span>Estimated downtime ~2s, rolling</span>
+									</li>
+									<li>
+										@neo.Icon("triangle-alert")
+										<span>1 secret rotation required</span>
+									</li>
+								</ul>
+								<neo-textarea
+									disabled
+									scale-vertical
+									style="font-family: monospace;"
+									value={ lfDeployDryRunLog }
+								></neo-textarea>
+								@neo.Alert(neo.AlertOpts{
+									Variant: neo.Set(neo.AlertVariantWarning),
+								}) {
+									@neo.AlertContent() {
+										@neo.AlertTitle(2) {
+											@neo.Icon("triangle-alert")
+											Action required!
+										}
+										@neo.AlertDescription() {
+											1 secret rotation required
+										}
+									}
+								}
+								<neo-button disabled>Deploy</neo-button>
+							</neo-layout>
+						</div>
+						<footer data-neo-drawer-footer>
+							<neo-button data-neo-drawer-close>
+								Close
+							</neo-button>
+						</footer>
+					</dialog>
+				</neo-drawer>
+			</neo-layout>
+		</div>
+	</neo-card>
+}
+
+templ lfMusicPlayer() {
+	<neo-card
+		variant="elevated"
+		class="lf-card lf-music"
+		data-signals="{
+			_lf_music_pos: 143,
+			_lf_music_playing: true,
+			_lf_music_liked: false,
+			_lf_music_was_playing: false,
+			_lf_music_volume: 60,
+			_lf_music_vol_before_mute: 0
+		}"
+		data-effect="
+			if (!el.__lf_music_iv) {
+				el.__lf_music_iv = setInterval(() => {
+					if (!$_lf_music_playing) return;
+					const next = $_lf_music_pos + 1;
+					$_lf_music_pos = next > 324 ? 0 : next;
+				}, 1000);
+			}
+		"
+	>
+		<div data-neo-card-inner>
+			<neo-layout class="lf-music-meta" align-items="center">
+				<neo-layout class="lf-music-meta-text" column>
+					<strong>Hypermedia & Data Stars</strong>
+					<span
+						data-text="
+							'Patch It · ' +
+							(($_lf_music_pos / 60) | 0) + ':' +
+							String(($_lf_music_pos % 60) | 0).padStart(2, '0') +
+							' / 5:24'
+						"
+					></span>
+				</neo-layout>
+				<neo-button
+					aria-label="Like"
+					data-attr:aria-pressed="$_lf_music_liked"
+					data-attr:class="$_lf_music_liked ? 'lf-music-liked' : ''"
+					data-on:click="$_lf_music_liked = !$_lf_music_liked"
+				>
+					@neo.Icon("heart")
+				</neo-button>
+			</neo-layout>
+			@neo.SliderAttrs(neo.SliderOpts[float64]{
+				Min:         neo.Set(0.0),
+				Max:         neo.Set(324.0),
+				Value:       neo.Set(143.0),
+				HideValue:   neo.Set(true),
+				HideTooltip: neo.Set(true),
+				AriaLabel:   neo.Set("Playback position"),
+			}, templ.Attributes{
+				"data-attr:value":           "$_lf_music_pos",
+				"data-on:neo-slider-input":  "$_lf_music_pos = Number(evt.detail.value)",
+				"data-on:neo-slider-change": "$_lf_music_pos = Number(evt.detail.value)",
+				// Pause during scrub, resume on release if it was playing.
+				"data-on:pointerdown": "$_lf_music_was_playing = $_lf_music_playing;" +
+					" $_lf_music_playing = false",
+				"data-on:pointerup": "$_lf_music_playing = $_lf_music_was_playing",
+			})
+			<div class="lf-music-controls">
+				<span class="lf-music-controls-spacer" aria-hidden="true"></span>
+				@neo.ButtonGroup(neo.ButtonGroupOpts{AriaLabel: neo.Set("Playback")}) {
+					<neo-button aria-label="Previous">
+						@neo.Icon("skip-back")
+					</neo-button>
+					<neo-button
+						variant="primary"
+						aria-label="Play"
+						data-attr:aria-label="$_lf_music_playing ? 'Pause' : 'Play'"
+						data-on:click="$_lf_music_playing = !$_lf_music_playing"
+					>
+						@neo.IconAttrs("play", templ.Attributes{
+							"data-attr:name": "$_lf_music_playing ? 'pause' : 'play'",
+						})
+					</neo-button>
+					<neo-button aria-label="Next">
+						@neo.Icon("skip-forward")
+					</neo-button>
+				}
+				<neo-popover placement="top-end" class="lf-music-volume">
+					<neo-button
+						data-neo-popover-trigger
+						aria-label="Volume"
+						data-attr:aria-label="$_lf_music_volume === 0 ? 'Volume (muted)' : 'Volume'"
+					>
+						@neo.IconAttrs("volume-2", templ.Attributes{
+							"data-attr:name": "$_lf_music_volume === 0 ? 'volume-x' : 'volume-2'",
+						})
+					</neo-button>
+					<neo-layout
+						data-neo-popover-content
+						class="lf-music-volume-popover"
+						align-items="center"
+					>
+						// Three states keyed off volume + snapshot:
+						//   volume > 0                   -> "Mute",   click saves snapshot + zeroes volume.
+						//   volume == 0 && snapshot > 0  -> "Unmute", click restores snapshot + clears it.
+						//   volume == 0 && snapshot == 0 -> "Muted",  disabled (user dragged to 0 deliberately).
+						// Slider input clears the snapshot so any manual drag
+						// makes the new value authoritative.
+						<neo-button
+							aria-label="Mute"
+							data-attr:aria-label="$_lf_music_volume === 0 ? ($_lf_music_vol_before_mute > 0 ? 'Unmute' : 'Muted') : 'Mute'"
+							data-attr:aria-pressed="$_lf_music_volume === 0"
+							data-attr:disabled="$_lf_music_volume === 0 && $_lf_music_vol_before_mute === 0"
+							data-on:click="
+								if ($_lf_music_volume === 0) {
+									$_lf_music_volume = $_lf_music_vol_before_mute;
+									$_lf_music_vol_before_mute = 0;
+								} else {
+									$_lf_music_vol_before_mute = $_lf_music_volume;
+									$_lf_music_volume = 0;
+								}
+							"
+						>
+							@neo.IconAttrs("volume-2", templ.Attributes{
+								"data-attr:name": "$_lf_music_volume === 0 ? 'volume-x' : 'volume-2'",
+							})
+						</neo-button>
+						@neo.SliderAttrs(neo.SliderOpts[float64]{
+							Min:         neo.Set(0.0),
+							Max:         neo.Set(100.0),
+							Value:       neo.Set(60.0),
+							HideValue:   neo.Set(true),
+							HideTooltip: neo.Set(true),
+							AriaLabel:   neo.Set("Volume"),
+						}, templ.Attributes{
+							"class":                     "lf-music-volume-slider",
+							"data-attr:value":           "$_lf_music_volume",
+							"data-on:neo-slider-input":  "$_lf_music_volume = Number(evt.detail.value); $_lf_music_vol_before_mute = 0",
+							"data-on:neo-slider-change": "$_lf_music_volume = Number(evt.detail.value); $_lf_music_vol_before_mute = 0",
+						})
+					</neo-layout>
+				</neo-popover>
+			</div>
+		</div>
+	</neo-card>
+}
+
+templ lfChat() {
+	// Send handler. Builds an outgoing bubble wrapped in a <neo-tooltip>
+	// whose text is the current local time, appends it to the bubble
+	// list, scrolls the list to the bottom, fires the toast, and clears
+	// the input. Used by both the Enter-key handler on the input and the
+	// click handler on the Send button.
+	<script>
+		(function () {
+			if (window.lfChatSend) return;
+			window.lfChatMenuHTML = [
+				'<neo-menuitem value="reply" data-lf-chat-action="reply">Reply</neo-menuitem>',
+				'<neo-menuitem value="select" data-lf-chat-action="select">Select</neo-menuitem>',
+				'<neo-menuitem value="edit" data-lf-chat-action="edit">Edit</neo-menuitem>',
+				'<neo-menuitem value="forward" data-lf-chat-action="forward">Forward</neo-menuitem>',
+				'<neo-menuitem value="delete" data-lf-chat-action="delete"><neo-icon name="trash-2"></neo-icon>Delete</neo-menuitem>',
+				'<hr/>',
+				'<neo-menuitem value="copy-text" data-lf-chat-action="copy-text">Copy Text</neo-menuitem>',
+				'<neo-menuitem value="copy-link" data-lf-chat-action="copy-link"><neo-icon name="link"></neo-icon>Copy Message Link</neo-menuitem>',
+				'<hr/>',
+				'<neo-menuitem value="report" data-lf-chat-action="report"><neo-icon name="triangle-alert"></neo-icon>Report</neo-menuitem>'
+			].join("");
+			// neo-contextmenu wraps exactly one <neo-menu> child.
+			window.lfChatMenuHTML =
+				"<neo-menu>" + window.lfChatMenuHTML + "</neo-menu>";
+			window.lfChatBubble = function (text, className, time) {
+				var cm = document.createElement("neo-contextmenu");
+				var tip = document.createElement("neo-tooltip");
+				tip.setAttribute("text", time);
+				tip.setAttribute("placement", "top");
+				var bubble = document.createElement("div");
+				bubble.className = className;
+				bubble.textContent = text;
+				// Trigger marker lives on the bubble (the focusable
+				// element), matching the templ lfChatMessage structure.
+				bubble.setAttribute("data-neo-contextmenu-trigger", "");
+				tip.appendChild(bubble);
+				cm.appendChild(tip);
+				cm.insertAdjacentHTML("beforeend", window.lfChatMenuHTML);
+				return cm;
+			};
+			if (!window.__lfChatActionHandler) {
+				window.__lfChatActionHandler = true;
+				document.addEventListener("click", function (evt) {
+					var target = evt.target instanceof Element ? evt.target : null;
+					var item = target?.closest("[data-lf-chat-action]");
+					if (!item) return;
+					var card = item.closest(".lf-chat");
+					if (!card) return;
+					var action = item.getAttribute("data-lf-chat-action");
+					var bubble = item.closest("neo-contextmenu")?.querySelector(".lf-bubble");
+					var text = bubble ? bubble.textContent.trim() : "message";
+					if (action === "delete" || action === "report") {
+						var dialog = card.querySelector(".lf-chat-" + action + "-dialog");
+						if (dialog && typeof dialog.show === "function") dialog.show();
+						return;
+					}
+					if (action === "copy-text" && navigator.clipboard) {
+						navigator.clipboard.writeText(text);
+						NeoToast.success("Copied text", { description: text });
+						return;
+					}
+					if (action === "copy-link" && navigator.clipboard) {
+						navigator.clipboard.writeText(location.href + "#chat-message");
+						NeoToast.success("Copied message link");
+						return;
+					}
+					var title = {
+						reply: "Replying",
+						select: "Message selected",
+						edit: "Editing message",
+						forward: "Forwarding message"
+					}[action] || "Message action";
+					NeoToast.info(title, { description: text });
+				});
+			}
+			window.lfChatSend = function (button, text) {
+				var card = button.closest(".lf-chat");
+				if (!card) return;
+				var list = card.querySelector(".lf-chat-bubbles");
+				// Manual zero-padded HH:MM rather than toLocaleTimeString;
+				// the latter picks up the user's locale, which renders as
+				// "07:07 PM" in en-US and is jarringly inconsistent with
+				// the predefined 24-hour tooltips on the existing bubbles.
+				var now = new Date();
+				var hh = String(now.getHours()).padStart(2, "0");
+				var mm = String(now.getMinutes()).padStart(2, "0");
+				list.appendChild(window.lfChatBubble(
+					text,
+					"lf-bubble lf-bubble-me",
+					hh + ":" + mm
+				));
+				list.scrollTop = list.scrollHeight;
+				NeoToast.success("Reply sent", { description: text });
+			};
+		})();
+	</script>
+	<neo-card
+		variant="elevated"
+		class="lf-card lf-chat"
+		data-signals="{_lf_chat_text: ''}"
+	>
+		<div data-neo-card-inner>
+			<header class="lf-chat-header">
+				@neo.AvatarAttrs(neo.AvatarOpts{
+					Src: neo.Set(href.Asset("avatar/avatar_roman.svg")),
+					Alt: neo.Set(""),
+				}, templ.Attributes{"class": "lf-avatar"})
+				<neo-layout class="lf-chat-who" column>
+					<strong>Roman Scharkov</strong>
+					<span>online</span>
+				</neo-layout>
+				@neo.Avatars(neo.AvatarsOpts{
+					CollapseAt: neo.Set(5),
+					AriaLabel:  neo.Set("Chat participants"),
+				}) {
+					@neo.Avatar(neo.AvatarOpts{
+						Src: neo.Set(href.Asset("avatar/avatar_1.svg")),
+						Alt: neo.Set("Diego Vega"),
+					})
+					@neo.Avatar(neo.AvatarOpts{
+						Src: neo.Set(href.Asset("avatar/avatar_4.svg")),
+						Alt: neo.Set("Samira Khalil"),
+					})
+					@neo.Avatar(neo.AvatarOpts{
+						Src: neo.Set(href.Asset("avatar/avatar_6.svg")),
+						Alt: neo.Set("Camila Duarte"),
+					})
+					@neo.Avatar(neo.AvatarOpts{
+						Src: neo.Set(href.Asset("avatar/avatar_2.svg")),
+						Alt: neo.Set("Jan O'Sullivan"),
+					})
+					@neo.Avatar(neo.AvatarOpts{
+						Src: neo.Set(href.Asset("avatar/avatar_5.svg")),
+						Alt: neo.Set("Alice Larsson"),
+					})
+					@neo.Avatar(neo.AvatarOpts{
+						Src: neo.Set(href.Asset("avatar/avatar_7.svg")),
+						Alt: neo.Set("Theo Becker"),
+					})
+					@neo.Avatar(neo.AvatarOpts{
+						Src: neo.Set(href.Asset("avatar/avatar_8.svg")),
+						Alt: neo.Set("Mateusz Wiśniewski"),
+					})
+					<template data-neo-avatars-overflow>
+						@neo.PopoverAttrs(neo.PopoverOpts{
+							Placement:   neo.Set(neo.PlacementBottomEnd),
+							MinFitWidth: neo.Set("content"),
+						}, nil) {
+							<button type="button" data-neo-popover-trigger aria-label="Show all chat participants">
+								+<span data-neo-avatars-overflow-count></span>
+							</button>
+							<neo-layout data-neo-popover-content class="lf-chat-roster" column>
+								<strong class="lf-chat-roster-title">7 Participants</strong>
+								<neo-layout class="lf-chat-roster-list" role="list" column gap="sm">
+									@lfChatParticipant("avatar/avatar_1.svg", "Diego Vega")
+									@lfChatParticipant("avatar/avatar_4.svg", "Samira Khalil")
+									@lfChatParticipant("avatar/avatar_6.svg", "Camila Duarte")
+									@lfChatParticipant("avatar/avatar_2.svg", "Jan O'Sullivan")
+									@lfChatParticipant("avatar/avatar_5.svg", "Alice Larsson")
+									@lfChatParticipant("avatar/avatar_7.svg", "Theo Becker")
+									@lfChatParticipant("avatar/avatar_8.svg", "Mateusz Wiśniewski")
+								</neo-layout>
+							</neo-layout>
+						}
+					</template>
+				}
+			</header>
+			<neo-layout class="lf-chat-bubbles" column>
+				@lfChatMessage("lf-bubble lf-bubble-them",
+					"14:23",
+					"Check out the context menus! 😉")
+				@lfChatMessage("lf-bubble lf-bubble-me",
+					"14:24",
+					"Right click on messages, right?")
+				@lfChatMessage("lf-bubble lf-bubble-them", "14:25", "yeah 🚀")
+			</neo-layout>
+			@neo.Keys(neo.KeysOpts{
+				Keys:    neo.Set("enter"),
+				Target:  neo.Set("#lf-chat-input-group"),
+				For:     neo.Set("lf-chat-send"),
+				InInput: neo.Set(true),
+			})
+			<neo-input-group id="lf-chat-input-group" class="lf-chat-input">
+				<input placeholder="Reply…" data-bind="_lf_chat_text"/>
+				<neo-button
+					id="lf-chat-send"
+					variant="primary"
+					aria-label="Send"
+					data-attr:disabled="!$_lf_chat_text.trim()"
+					data-on:click="
+					window.lfChatSend(evt.currentTarget, $_lf_chat_text);
+					$_lf_chat_text = '';
+				"
+				>
+					@neo.Icon("arrow-right")
+				</neo-button>
+			</neo-input-group>
+			<neo-dialog dismissible="false" class="lf-chat-delete-dialog">
+				<button type="button" data-neo-dialog-trigger hidden>
+					Delete message
+				</button>
+				<dialog>
+					<header data-neo-dialog-header>
+						<h2 data-neo-dialog-title>Delete this message?</h2>
+						<p data-neo-dialog-description>
+							This removes the selected message from the chat
+							history for everyone in the thread.
+						</p>
+					</header>
+					<footer data-neo-dialog-footer>
+						<neo-button data-neo-dialog-close variant="ghost">
+							Cancel
+						</neo-button>
+						<neo-button
+							data-neo-dialog-close
+							variant="danger"
+							data-on:click="NeoToast.success('Message deleted')"
+						>
+							Delete
+						</neo-button>
+					</footer>
+				</dialog>
+			</neo-dialog>
+			<neo-dialog dismissible="false" class="lf-chat-report-dialog">
+				<button type="button" data-neo-dialog-trigger hidden>
+					Report message
+				</button>
+				<dialog>
+					<header data-neo-dialog-header>
+						<h2 data-neo-dialog-title>Report this message?</h2>
+						<p data-neo-dialog-description>
+							Send this message to moderation for review. The
+							sender will not be notified by this demo.
+						</p>
+					</header>
+					<footer data-neo-dialog-footer>
+						<neo-button data-neo-dialog-close variant="ghost">
+							Cancel
+						</neo-button>
+						<neo-button
+							data-neo-dialog-close
+							variant="danger"
+							data-on:click="NeoToast.warning('Message reported')"
+						>
+							Report
+						</neo-button>
+					</footer>
+				</dialog>
+			</neo-dialog>
+		</div>
+	</neo-card>
+}
+
+templ lfChatMessage(className, time, text string) {
+	@neo.ContextMenu(neo.ContextMenuOpts{}) {
+		@neo.Tooltip(neo.TooltipOpts{
+			Text:      neo.Set(time),
+			Placement: neo.Set(neo.PlacementTop),
+		}) {
+			// Trigger lives on the bubble (the focusable interactive
+			// element), not on the tooltip host; that keeps the
+			// tooltip's aria-describedby and the contextmenu's
+			// role="button" / aria-haspopup on the same element.
+			<div class={ className } data-neo-contextmenu-trigger>
+				{ text }
+			</div>
+		}
+		@neo.Menu(neo.MenuOpts{}) {
+			@lfChatMenuItems()
+		}
+	}
+}
+
+templ lfChatMenuItems() {
+	@neo.MenuItemAttrs(neo.MenuItemOpts{Value: neo.Set("reply")},
+		templ.Attributes{"data-lf-chat-action": "reply"},
+	) {
+		Reply
+	}
+	@neo.MenuItemAttrs(neo.MenuItemOpts{Value: neo.Set("select")},
+		templ.Attributes{"data-lf-chat-action": "select"}) {
+		Select
+	}
+	@neo.MenuItemAttrs(neo.MenuItemOpts{Value: neo.Set("edit")},
+		templ.Attributes{"data-lf-chat-action": "edit"}) {
+		Edit
+	}
+	@neo.MenuItemAttrs(neo.MenuItemOpts{Value: neo.Set("forward")},
+		templ.Attributes{"data-lf-chat-action": "forward"}) {
+		Forward 
+	}
+	@neo.MenuItemAttrs(neo.MenuItemOpts{Value: neo.Set("delete")},
+		templ.Attributes{"data-lf-chat-action": "delete"}) {
+		@neo.Icon("trash-2")
+		Delete
+	}
+	<hr/>
+	@neo.MenuItemAttrs(neo.MenuItemOpts{Value: neo.Set("copy-text")},
+		templ.Attributes{"data-lf-chat-action": "copy-text"}) {
+		Copy Text
+	}
+	@neo.MenuItemAttrs(neo.MenuItemOpts{Value: neo.Set("copy-link")},
+		templ.Attributes{"data-lf-chat-action": "copy-link"}) {
+		@neo.Icon("link")
+		Copy Message Link
+	}
+	<hr/>
+	@neo.MenuItemAttrs(neo.MenuItemOpts{Value: neo.Set("report")},
+		templ.Attributes{"data-lf-chat-action": "report"}) {
+		@neo.Icon("triangle-alert")
+		Report
+	}
+}
+
+templ lfChatParticipant(avatar, name string) {
+	<neo-layout class="lf-chat-roster-item" role="listitem" align-items="center">
+		@neo.AvatarAttrs(neo.AvatarOpts{
+			Src: neo.Set(href.Asset(avatar)),
+			Alt: neo.Set(""),
+		}, templ.Attributes{
+			"class":       "lf-avatar lf-chat-roster-avatar",
+			"aria-hidden": "true",
+		})
+		<span class="lf-chat-roster-name">{ name }</span>
+	</neo-layout>
+}
+
+templ lfSearchPalette() {
+	<neo-card variant="elevated" class="lf-card lf-search">
+		<div data-neo-card-inner>
+			<neo-popover
+				placement="bottom-end"
+				class="lf-search-popover"
+			>
+				@neo.Keys(neo.KeysOpts{
+					Keys:   neo.Set("mod+i"),
+					Target: neo.Set("#lf-search-input-group"),
+					For:    neo.Set("lf-search-help-trigger"),
+				})
+				<neo-input-group id="lf-search-input-group" class="lf-search-input">
+					@neo.IconAttrs("search", templ.Attributes{"aria-hidden": "true"})
+					<neo-textinput { lfSearchAttrs()... }>
+						<neo-datalist id="lf-search-suggestions" slot="suggestions"></neo-datalist>
+					</neo-textinput>
+					<neo-button
+						id="lf-search-help-trigger"
+						class="lf-search-help-trigger"
+						data-neo-popover-trigger
+						aria-label="Keyword help"
+					>
+						@neo.KbdGroup() {
+							@neo.Kbd(neo.KbdOpts{Key: neo.Set("mod")})
+							@neo.Kbd(neo.KbdOpts{Key: neo.Set("i")})
+						}
+					</neo-button>
+				</neo-input-group>
+				<div data-neo-popover-content class="lf-search-popover-content">
+					<p>
+						Type a keyword to surface suggestions: try
+						<strong>release</strong>, <strong>changelog</strong>,
+						<strong>tag</strong>, <strong>pipeline</strong>, or
+						<strong>channel</strong>.
+					</p>
+				</div>
+			</neo-popover>
+			<neo-sortable
+				orientation="vertical"
+				class="lf-search-results"
+				role="group"
+				aria-label="Results"
+				data-on:neo-sortable-end="evt.detail.changed && window.NeoToast && window.NeoToast.success('Release menu reordered', { description: evt.detail.id + ': position ' + (evt.detail.from + 1) + ' → ' + (evt.detail.to + 1) })"
+			>
+				@lfSearchResult("release-notes", "folder", "Open Release Notes", true)
+				@lfSearchResult("release-file", "file", "release-2026.05.txt", false)
+				@lfSearchResult("pipeline-settings", "settings", "Release pipeline settings…", false)
+				@lfSearchResult("releases-channel", "hash", "#releases", false)
+			</neo-sortable>
+			@neo.PaginationAttrs(neo.PaginationOpts{
+				Page: neo.Set(3), Pages: neo.Set(18),
+			}, templ.Attributes{"class": "lf-search-pager"})
+		</div>
+	</neo-card>
+}
+
+templ lfSearchResult(id, icon, label string, active bool) {
+	<div id={ id } class="lf-search-item">
+		<neo-button variant="ghost" class={ lfSearchRowClass(active) }>
+			<span data-neo-sortable-handle class="neo-sortable-handle lf-search-grip">
+				@neo.Icon("grip-vertical")
+			</span>
+			@neo.Icon(icon)
+			<span>{ label }</span>
+			if active {
+				@neo.Kbd(neo.KbdOpts{}) {
+					↵
+				}
+			}
+		</neo-button>
+	</div>
+}
+
+func lfSearchRowClass(active bool) string {
+	if active {
+		return "lf-search-row lf-search-row-active"
+	}
+	return "lf-search-row"
+}
+
+templ lfPricing() {
+	<neo-card
+		variant="elevated"
+		class="lf-card lf-pricing"
+		data-signals="{_lf_pricing_plan: 'pro'}"
+	>
+		<div data-neo-card-inner>
+			<neo-layout
+				class="lf-pricing-head"
+				align-items="center"
+				justify-content="space-between"
+				gap="sm"
+			>
+				<strong>Team</strong>
+				@neo.Tooltip(neo.TooltipOpts{
+					Text:      neo.Set("Picked by 4 of 5 new workspaces last quarter"),
+					Placement: neo.Set(neo.PlacementTop),
+				}) {
+					@neo.Badge(neo.BadgeOpts{Variant: neo.Set(neo.BadgeVariantPrimary)}) {
+						Most popular
+					}
+				}
+			</neo-layout>
+			<neo-layout class="lf-pricing-price" align-items="baseline">
+				<strong data-text="$_lf_pricing_plan === 'ultra' ? '$48' : '$24'">$24</strong><span>/seat · month</span>
+			</neo-layout>
+			@neo.RadioGroupAttrs(neo.RadioGroupOpts{
+				Value:     neo.Set("pro"),
+				AriaLabel: neo.Set("Plan tier"),
+			}, templ.Attributes{
+				"class":                          "lf-pricing-plans",
+				"data-attr:value":                "$_lf_pricing_plan",
+				"data-on:neo-radio-group-change": "$_lf_pricing_plan = evt.detail.value",
+			}) {
+				<label
+					class="lf-pricing-plan"
+					data-attr:data-selected="$_lf_pricing_plan === 'pro'"
+				>
+					@neo.Radio(neo.RadioOpts{Value: neo.Set("pro")})
+					<neo-layout class="lf-pricing-plan-body" column gap="sm">
+						<neo-layout class="lf-pricing-plan-head" wrap align-items="baseline">
+							<strong>Pro</strong>
+							<span>$24 <small>/seat · mo</small></span>
+						</neo-layout>
+						<ul class="lf-pricing-plan-features">
+							<li>
+								@neo.Icon("circle-check")
+								<span>Unlimited projects</span>
+							</li>
+							<li>
+								@neo.Icon("message-square")
+								<span>Shared inbox &amp; mentions</span>
+							</li>
+							<li>
+								@neo.Icon("bell")
+								<span>Priority support</span>
+							</li>
+						</ul>
+					</neo-layout>
+				</label>
+				<label
+					class="lf-pricing-plan"
+					data-attr:data-selected="$_lf_pricing_plan === 'ultra'"
+				>
+					@neo.Radio(neo.RadioOpts{Value: neo.Set("ultra")})
+					<neo-layout class="lf-pricing-plan-body" column gap="sm">
+						<neo-layout class="lf-pricing-plan-head" wrap align-items="baseline">
+							<strong>ULTRA</strong>
+							@neo.Badge(neo.BadgeOpts{Variant: neo.Set(neo.BadgeVariantPrimary)}) {
+								Best value
+							}
+							<span>$48 <small>/seat · mo</small></span>
+						</neo-layout>
+						<ul class="lf-pricing-plan-features">
+							<li>
+								@neo.Icon("sparkles")
+								<span>Everything in Pro</span>
+							</li>
+							<li>
+								@neo.Icon("star")
+								<span>SSO and audit log</span>
+							</li>
+							<li>
+								@neo.Icon("heart")
+								<span>Dedicated success manager</span>
+							</li>
+						</ul>
+					</neo-layout>
+				</label>
+			}
+			<neo-input-group class="lf-pricing-promo">
+				<span>
+					@neo.Tooltip(neo.TooltipOpts{
+						Text:      neo.Set("Got a launch code? Apply it for 20% off the first 3 months"),
+						Placement: neo.Set(neo.PlacementTop),
+					}) {
+						<span tabindex="0">PROMO CODE</span>
+					}
+				</span>
+				<neo-textinput
+					mask="UUUU-####"
+					placeholder="ABCD-1234"
+				>
+					<input/>
+				</neo-textinput>
+			</neo-input-group>
+			@neo.Button(neo.ButtonOpts{Variant: neo.Set(neo.ButtonVariantPrimary)}) {
+				Start 14-day trial
+			}
+		</div>
+	</neo-card>
+}
+
+templ lfNotes() {
+	<neo-card
+		variant="elevated"
+		class="lf-card lf-notes"
+		data-effect="
+				if (!el.__lf_notes_init) {
+					const inner = el.querySelector('.lf-notes-inner');
+					const ta = el.querySelector('neo-textarea');
+					const rs = el.querySelector('neo-resizable');
+					if (!inner || !ta || !rs) return;
+					el.__lf_notes_init = true;
+					let userSet = false;
+					let last = ta.clientHeight;
+				// Once the user drags the resizable, content growth no
+				// longer pushes the resizable taller; instead the inner
+				// scrolls (overflow: auto on .lf-notes-inner). Flip on
+				// resize-start (not -end) so the auto-grow doesn't fight
+				// each pointermove of a corner-handle drag; when both
+				// width and height are pinned per move, an in-flight
+				// auto-grow oscillates the resizable height each frame
+				// against the user's drag, which in turn flickers the
+				// inner's scrollbar and visibly jitters the textarea.
+				rs.addEventListener('neo-resizable-start', () => {
+					userSet = true;
+				});
+				const ro = new ResizeObserver(() => {
+					const cur = ta.clientHeight;
+					if (!userSet && cur > last) {
+						const need = inner.scrollHeight;
+						if (need > rs.clientHeight) {
+							rs.style.height = need + 'px';
+						}
+					}
+					last = cur;
+				});
+				ro.observe(ta);
+			}
+		"
+	>
+		<div data-neo-card-inner>
+			@neo.ResizableAttrs(
+				neo.ResizableOpts[float64]{
+					Handles: neo.Set(neo.ResizableBottom | neo.ResizableRight |
+						neo.ResizableBottomRight),
+					// Breadcrumb (~2rem) + gap + textarea container's
+					// 0.5rem*2 padding + one minimal row of textarea;
+					// floor low enough to feel compact but high enough
+					// that the breadcrumb can never be cropped.
+					MinHeight: neo.Set("11.3rem"),
+					MaxHeight: neo.Set("50rem"),
+					MinWidth:  neo.Set("50%"),
+					MaxWidth:  neo.Set("100%"),
+				},
+				templ.Attributes{"class": "lf-notes-resizable"},
+			) {
+				<div class="lf-notes-inner">
+					@neo.Breadcrumb([]neo.BreadcrumbItem{
+						{Label: "Workspace", Href: "#"},
+						{Label: "Releases", Href: "#"},
+						{Label: "v0.1.0"},
+					})
+					@neo.TextareaAttrs(neo.TextareaOpts{
+						AutoResizeHeight: neo.Set("60rem"),
+						Placeholder:      neo.Set("Release notes for v0.1.0…"),
+						Value:            neo.Set("Switched docs site to morpheus. Bundled @neo-* under one CSS file. Theme toggle now persists across reloads."),
+					}, templ.Attributes{"class": "lf-notes-textarea"})
+				</div>
+			}
+		</div>
+	</neo-card>
+}
+
+templ lfLogin() {
+	<neo-card
+		variant="elevated"
+		class="lf-card lf-login"
+		data-signals="{
+			_lf_login_tab: 'login',
+			_lf_login_email: 'palianytsia@morpheus.dev',
+			_lf_login_password: '1234567',
+			_lf_login_pwshow: false,
+			_lf_signup_email: '',
+			_lf_signup_domain: 'gmail.com',
+			_lf_signup_password: ''
+		}"
+	>
+		<div data-neo-card-inner>
+			@neo.TabsAttrs(neo.TabsOpts{
+				Value:          neo.Set("login"),
+				Easing:         neo.Set("240ms cubic-bezier(0.32, 0.72, 0, 1)"),
+				EnterAnimation: neo.Set("neo-tab-slide"),
+				ExitAnimation:  neo.Set("neo-tab-slide"),
+			}, templ.Attributes{
+				"class":                   "lf-login-tabs",
+				"data-attr:value":         "$_lf_login_tab",
+				"data-on:neo-tabs-change": "$_lf_login_tab = evt.detail.value",
+			}) {
+				<neo-tablist aria-label="Account">
+					@neo.Tab("login", "login") {
+						Login
+					}
+					@neo.Tab("signup", "login") {
+						Sign up
+					}
+				</neo-tablist>
+				@neo.TabPanel("login", "login") {
+					<form
+						class="lf-login-form"
+						onsubmit="event.preventDefault()"
+					>
+						<neo-input-group>
+							@neo.IconAttrs("mail", templ.Attributes{"aria-hidden": "true"})
+							<input
+								type="email"
+								placeholder="you@example.com"
+								autocomplete="email"
+								data-bind="_lf_login_email"
+							/>
+						</neo-input-group>
+						<neo-input-group>
+							<input
+								type="password"
+								placeholder="Password"
+								autocomplete="current-password"
+								data-bind="_lf_login_password"
+								data-attr:type="$_lf_login_pwshow ? 'text' : 'password'"
+							/>
+							<neo-button
+								variant="ghost"
+								data-attr:aria-label="$_lf_login_pwshow ? 'Hide password' : 'Show password'"
+								data-attr:aria-pressed="$_lf_login_pwshow"
+								data-on:click="$_lf_login_pwshow = !$_lf_login_pwshow"
+							>
+								<span data-show="!$_lf_login_pwshow">
+									@neo.Icon("eye")
+								</span>
+								<span data-show="$_lf_login_pwshow">
+									@neo.Icon("eye-closed")
+								</span>
+							</neo-button>
+						</neo-input-group>
+						<neo-layout class="lf-spread" justify-content="space-between" align-items="center" gap="sm">
+							<label class="lf-checkrow-inline">
+								@neo.Checkbox(neo.CheckboxOpts{Checked: neo.Set(true)})
+								<span>Remember me</span>
+							</label>
+							@neo.ButtonAttrs(
+								neo.ButtonOpts{Variant: neo.Set(neo.ButtonVariantGhost)},
+								templ.Attributes{
+									"class":         "lf-login-forgot",
+									"type":          "button",
+									"data-on:click": "NeoToast.info('Use a password manager to avoid forgetting passwords')",
+								},
+							) {
+								Forgot?
+							}
+						</neo-layout>
+						@neo.ButtonAttrs(
+							neo.ButtonOpts{Variant: neo.Set(neo.ButtonVariantPrimary)},
+							templ.Attributes{
+								"type":               "submit",
+								"data-attr:disabled": "!$_lf_login_email.trim() || !$_lf_login_password.trim()",
+								"data-on:click": "NeoToast.success('Welcome back', " +
+									"{description: 'Signed in as ' + $_lf_login_email})",
+							},
+						) {
+							Sign in
+						}
+					</form>
+				}
+				@neo.TabPanel("signup", "login") {
+					<form
+						class="lf-login-form"
+						onsubmit="event.preventDefault()"
+					>
+						@neo.InputGroupAttrs(templ.Attributes{
+							"class": "lf-signup-email",
+						}) {
+							<input
+								type="text"
+								placeholder="you"
+								autocomplete="username"
+								data-bind="_lf_signup_email"
+							/>
+							@neo.SelectAttrs(neo.SelectOpts{
+								AriaLabel:      neo.Set("Email domain"),
+								Placement:      neo.Set(neo.PlacementBottomEnd),
+								ClampPlacement: neo.Set(true),
+							}, templ.Attributes{
+								"class":                     "lf-signup-domain",
+								"data-attr:value":           "$_lf_signup_domain",
+								"data-on:neo-select-change": "$_lf_signup_domain = evt.detail.value",
+							}) {
+								@neo.Option(neo.OptionOpts{Value: neo.Set("gmail.com")}) {
+									{ "@gmail.com" }
+								}
+								@neo.Option(neo.OptionOpts{Value: neo.Set("outlook.com")}) {
+									{ "@outlook.com" }
+								}
+								@neo.Option(neo.OptionOpts{Value: neo.Set("yahoo.com")}) {
+									{ "@yahoo.com" }
+								}
+								@neo.Option(neo.OptionOpts{Value: neo.Set("icloud.com")}) {
+									{ "@icloud.com" }
+								}
+								@neo.Option(neo.OptionOpts{Value: neo.Set("proton.me")}) {
+									{ "@proton.me" }
+								}
+							}
+						}
+						<input
+							type="password"
+							placeholder="Choose a password"
+							autocomplete="new-password"
+							data-bind="_lf_signup_password"
+						/>
+						@neo.ProgressAttrs(neo.ProgressOpts[float64]{
+							Min:       neo.Set(0.0),
+							Max:       neo.Set(100.0),
+							HideValue: neo.Set(true),
+							AriaLabel: neo.Set("Password strength"),
+							Easing:    neo.Set("240ms cubic-bezier(0.25, 1, 0.5, 1)"),
+							Marks: []neo.ProgressMark{
+								{Value: 50, Label: "Sufficient"},
+								{Value: 70, Label: "Good"},
+								{Value: 100, Label: "Excellent"},
+							},
+						}, templ.Attributes{
+							"class": "lf-signup-strength",
+							// 8 chars maps to 50%, so each char is worth 6.25%.
+							// Clamped to [0, 100].
+							"data-attr:value": "Math.min(100, $_lf_signup_password.length * 6.25)",
+						})
+						@neo.ButtonAttrs(
+							neo.ButtonOpts{Variant: neo.Set(neo.ButtonVariantPrimary)},
+							templ.Attributes{
+								"type":               "submit",
+								"data-attr:disabled": "!$_lf_signup_email.trim() || $_lf_signup_password.length < 8",
+								"data-on:click": "NeoToast.success('Account created', " +
+									"{description: 'Welcome, ' + $_lf_signup_email + '@' + $_lf_signup_domain})",
+							},
+						) {
+							Create account
+						}
+					</form>
+				}
+			}
+		</div>
+	</neo-card>
+}
+
+templ lfCalendarEvent() {
+	<neo-card variant="elevated" class="lf-card lf-event">
+		<div data-neo-card-inner>
+			<header class="lf-event-head">
+				<neo-layout class="lf-event-date" inline column align-items="center">
+					<span class="lf-event-month">MAY</span>
+					<span class="lf-event-day">07</span>
+				</neo-layout>
+				<neo-layout class="lf-event-head-text" column>
+					<strong>Design review · Atlas</strong>
+					<span>10:00 to 11:00 · Conference room</span>
+				</neo-layout>
+			</header>
+			<ul class="lf-event-invitees">
+				@lfEventInvitee("avatar_1", "Diego Vega", "going")
+				@lfEventInvitee("avatar_4", "Samira Khalil", "maybe")
+				@lfEventInvitee("avatar_6", "Camila Duarte", "pending")
+				@lfEventInvitee("avatar_2", "Jan O'Sullivan", "declined")
+			</ul>
+		</div>
+	</neo-card>
+}
+
+templ lfEventInvitee(avatar, name, rsvp string) {
+	<li class="lf-event-invitee">
+		<img
+			class="lf-avatar lf-event-invitee-avatar"
+			src={ href.Asset("avatar/" + avatar + ".svg") }
+			alt=""
+		/>
+		<span class="lf-event-invitee-name">{ name }</span>
+		@neo.SelectAttrs(neo.SelectOpts{
+			Value: neo.Set(rsvp), AriaLabel: neo.Set("RSVP for " + name),
+			Placement: neo.Set(neo.PlacementBottomEnd),
+		}, templ.Attributes{"class": "lf-event-invitee-rsvp"}) {
+			@neo.Option(neo.OptionOpts{Value: neo.Set("going")}) {
+				Going
+			}
+			@neo.Option(neo.OptionOpts{Value: neo.Set("maybe")}) {
+				Maybe
+			}
+			@neo.Option(neo.OptionOpts{Value: neo.Set("pending")}) {
+				Pending
+			}
+			@neo.Option(neo.OptionOpts{Value: neo.Set("declined")}) {
+				Declined
+			}
+		}
+	</li>
+}
+
+templ lfSettings() {
+	<neo-card
+		variant="elevated"
+		class="lf-card lf-settings"
+		data-signals="{_lf_settings_sound: true}"
+	>
+		<div data-neo-card-inner>
+			<strong>
+				<neo-icon name="bell"></neo-icon>
+				Notifications
+			</strong>
+			<label class="lf-checkrow lf-spread">
+				<span>Push</span>
+				@neo.Switch(neo.SwitchOpts{
+					Size:      neo.Set("sm"),
+					Checked:   neo.Set(true),
+					AriaLabel: neo.Set("Push notifications"),
+				})
+			</label>
+			<label class="lf-checkrow lf-spread">
+				<span>Mentions only</span>
+				@neo.Switch(neo.SwitchOpts{
+					Size:      neo.Set("sm"),
+					AriaLabel: neo.Set("Mentions only notifications"),
+				})
+			</label>
+			<label class="lf-checkrow lf-spread">
+				<span>Sound</span>
+				@neo.SwitchAttrs(neo.SwitchOpts{
+					Size:      neo.Set("sm"),
+					Checked:   neo.Set(true),
+					AriaLabel: neo.Set("Notification sound"),
+				}, templ.Attributes{
+					"data-attr:checked":         "$_lf_settings_sound",
+					"data-on:neo-switch-change": "$_lf_settings_sound = evt.detail.checked",
+				})
+			</label>
+			@neo.SliderAttrs(neo.SliderOpts[float64]{
+				Min:   neo.Set(0.0),
+				Max:   neo.Set(100.0),
+				Value: neo.Set(68.0),
+				Label: neo.Set("Alert volume"), Unit: neo.Set("%"),
+			}, templ.Attributes{
+				"data-attr:disabled": "!$_lf_settings_sound",
+			})
+		</div>
+	</neo-card>
+}
+
+templ lfSkeleton() {
+	@neo.CardAttrs(
+		neo.CardOpts{Variant: neo.Set(neo.CardVariantElevated)},
+		templ.Attributes{
+			"class":      "lf-card lf-skel",
+			"role":       "status",
+			"aria-busy":  "true",
+			"aria-label": "Loading",
+		},
+	) {
+		@neo.Popover(neo.PopoverOpts{
+			Placement: neo.Set(neo.PlacementBottom),
+			Hover:     neo.Set(true),
+		}) {
+			<neo-layout class="lf-skel-body" column data-neo-popover-trigger>
+				<neo-layout class="lf-skel-head" align-items="center">
+					@neo.SkeletonAttrs(
+						neo.SkeletonOpts{Variant: neo.Set(neo.SkeletonVariantCircle)},
+						templ.Attributes{"style": "width: 2.4rem; height: 2.4rem;"},
+					)
+					<neo-layout class="lf-skel-lines" column>
+						@neo.SkeletonAttrs(neo.SkeletonOpts{}, templ.Attributes{
+							"style": "width: 60%; height: 0.7rem;",
+						})
+						@neo.SkeletonAttrs(neo.SkeletonOpts{}, templ.Attributes{
+							"style": "width: 35%; height: 0.6rem;",
+						})
+					</neo-layout>
+				</neo-layout>
+				@neo.SkeletonAttrs(neo.SkeletonOpts{}, templ.Attributes{
+					"style": "height: 5rem;",
+				})
+			</neo-layout>
+			<neo-layout data-neo-popover-content class="lf-skel-tip" align-items="center" gap="sm">
+				@neo.Spinner()
+				<span>This will never finish loading…</span>
+			</neo-layout>
+		}
+	}
+}
+
+// data-show on each row references the row's own data-level / data-off
+// values via `el.dataset`, so the same expression string works for every
+// row, with no per-row Sprintf needed.
+const lfLogShowExpr = "Number(el.dataset.level) >= Number($_lf_logs_minlevel)" +
+	" && Number(el.dataset.off) >= $_lf_logs_from" +
+	" && Number(el.dataset.off) <= $_lf_logs_to"
+
+// Empty-state predicate: true when none of the hardcoded rows below
+// match the current filter signals. The [level, off] pairs must mirror
+// the @lfLogRow calls in lfLogs.
+const lfLogEmptyExpr = "![[1,-52],[2,-34],[2,-22],[3,-11],[1,-4]].some(" +
+	"r => r[0] >= Number($_lf_logs_minlevel)" +
+	" && r[1] >= $_lf_logs_from && r[1] <= $_lf_logs_to)"
+
+templ lfLogs() {
+	<neo-card
+		variant="elevated"
+		class="lf-card lf-logs"
+		data-signals="{
+			_lf_logs_minlevel: '1',
+			_lf_logs_from: -45,
+			_lf_logs_to: -2,
+			_lf_logs_tailing: true
+		}"
+	>
+		<div data-neo-card-inner>
+			<neo-layout class="lf-logs-head" align-items="center" justify-content="space-between" gap="sm">
+				<neo-layout class="lf-logs-head-title" inline align-items="center" gap="sm">
+					<strong>Activity</strong>
+					<neo-layout class="lf-logs-tail" data-show="$_lf_logs_tailing" inline align-items="center">
+						@neo.Spinner()
+						<span>tailing</span>
+					</neo-layout>
+				</neo-layout>
+				<neo-button
+					size="sm"
+					variant="ghost"
+					aria-label="Toggle live tail"
+					data-attr:aria-pressed="$_lf_logs_tailing"
+					data-on:click="$_lf_logs_tailing = !$_lf_logs_tailing"
+				>
+					@neo.IconAttrs("pause", templ.Attributes{
+						"data-attr:name": "$_lf_logs_tailing ? 'pause' : 'play'",
+					})
+				</neo-button>
+			</neo-layout>
+			@neo.RadioGroupAttrs(neo.RadioGroupOpts{
+				Value: neo.Set("1"), Orientation: neo.Set(neo.AxisHorizontal), AriaLabel: neo.Set("Minimum severity"),
+			}, templ.Attributes{
+				"class":                          "lf-logs-severity",
+				"data-attr:value":                "$_lf_logs_minlevel",
+				"data-on:neo-radio-group-change": "$_lf_logs_minlevel = evt.detail.value",
+			}) {
+				<label class="lf-logs-severity-row">
+					@neo.Radio(neo.RadioOpts{Value: neo.Set("1")})
+					<span>Info+</span>
+				</label>
+				<label class="lf-logs-severity-row">
+					@neo.Radio(neo.RadioOpts{Value: neo.Set("2")})
+					<span>Warn+</span>
+				</label>
+				<label class="lf-logs-severity-row">
+					@neo.Radio(neo.RadioOpts{Value: neo.Set("3")})
+					<span>Error</span>
+				</label>
+			}
+			@neo.SliderRangeAttrs(neo.SliderRangeOpts[float64]{
+				Min:       neo.Set(-60.0),
+				Max:       neo.Set(0.0),
+				ValueMin:  neo.Set(-45.0),
+				ValueMax:  neo.Set(-2.0),
+				Label:     neo.Set("Range"),
+				Unit:      neo.Set("minutes"),
+				Easing:    neo.Set("240ms cubic-bezier(0.25, 1, 0.5, 1)"),
+				AriaLabel: neo.Set("Time window"),
+			}, templ.Attributes{
+				"class":                           "lf-logs-window",
+				"data-attr:value-min":             "$_lf_logs_from",
+				"data-attr:value-max":             "$_lf_logs_to",
+				"data-on:neo-slider-range-input":  "$_lf_logs_from = Number(evt.detail.min); $_lf_logs_to = Number(evt.detail.max)",
+				"data-on:neo-slider-range-change": "$_lf_logs_from = Number(evt.detail.min); $_lf_logs_to = Number(evt.detail.max)",
+			})
+			@neo.Elastic(neo.ElasticOpts{}) {
+				<ul class="lf-logs-list">
+					@lfLogRow("info", "1", "-52", "12:08", "auth: token refreshed for svc-sync")
+					@lfLogRow("warn", "2", "-34", "12:26", "http: slow upstream (820ms · /api/v2/jobs)")
+					@lfLogRow("warn", "2", "-22", "12:38", "cache: miss spike +42% on hot key")
+					@lfLogRow("error", "3", "-11", "12:49", "queue: saturated · 7 dropped")
+					@lfLogRow("info", "1", "-4", "12:56", "deploy: 3 instances ready")
+					<li class="lf-logs-empty" data-show={ lfLogEmptyExpr }>
+						No logs for this range
+					</li>
+				</ul>
+			}
+			@neo.ClipcopyAttrs(neo.ClipcopyOpts{
+				CopiedDuration: neo.Set(1500),
+			}, templ.Attributes{
+				"class":           "lf-logs-share",
+				"data-attr:value": "'/logs?lvl=' + $_lf_logs_minlevel + '&from=' + $_lf_logs_from + 'm&to=' + $_lf_logs_to + 'm'",
+			}) {
+				<neo-button variant="ghost" size="sm">
+					<span data-neo-clipcopy-idle>
+						@neo.Icon("clipboard")
+						<span>Copy share link</span>
+					</span>
+					<span data-neo-clipcopy-copied>
+						@neo.Icon("check")
+						<span>Copied</span>
+					</span>
+				</neo-button>
+			}
+		</div>
+	</neo-card>
+}
+
+templ lfLogRow(severity, level, off, time, msg string) {
+	<li
+		class={ "lf-logs-row lf-logs-" + severity }
+		data-level={ level }
+		data-off={ off }
+		data-show={ lfLogShowExpr }
+	>
+		<span class="lf-logs-time">{ time }</span>
+		<span class={ "lf-logs-tag lf-logs-tag-" + severity }>{ severity }</span>
+		<span class="lf-logs-msg">{ msg }</span>
+	</li>
+}
+
+templ lfStats() {
+	<neo-card
+		variant="elevated"
+		class="lf-card lf-stats"
+		data-signals="{_lf_stats_uptime: 47, _lf_stats_p99: 14}"
+		data-effect="
+			if (!el.__lf_stats_iv) {
+				el.__lf_stats_iv = setInterval(() => {
+					$_lf_stats_uptime = 5 + Math.random() * (100 - 5);
+					$_lf_stats_p99 = 12 + Math.random() * (20 - 12);
+				}, 2500);
+			}
+		"
+	>
+		<div data-neo-card-inner>
+			<neo-layout
+				class="lf-stats-head"
+				align-items="center"
+				justify-content="space-between"
+				gap="sm"
+			>
+				<span class="lf-stats-label">System load · uptime: 30 days</span>
+				@neo.Badge(neo.BadgeOpts{Variant: neo.Set(neo.BadgeVariantPrimary)}) {
+					+0.04%
+				}
+			</neo-layout>
+			<neo-layout class="lf-stats-value" align-items="baseline" gap="sm">
+				<strong data-text="$_lf_stats_uptime.toFixed(2) + '%'">99.97%</strong>
+				<span data-text="Math.round($_lf_stats_p99) + 'ms p99'">14ms p99</span>
+			</neo-layout>
+			@neo.ProgressAttrs(neo.ProgressOpts[float64]{
+				Min:       neo.Set(0.0),
+				Max:       neo.Set(100.0),
+				HideValue: neo.Set(true),
+				Easing:    neo.Set("600ms cubic-bezier(0.25, 1, 0.5, 1)"),
+				AriaLabel: neo.Set("API uptime"),
+			}, templ.Attributes{
+				"data-attr:value": "$_lf_stats_uptime",
+			})
+			<neo-layout class="lf-stats-foot" align-items="center" gap="sm">
+				<span class="lf-pulse"></span>
+				<span>3 regions healthy · 0 incidents</span>
+			</neo-layout>
+		</div>
+	</neo-card>
+}
+
+templ lfCarousel() {
+	<neo-card variant="elevated" class="lf-card lf-carousel">
+		<div data-neo-card-inner>
+			<div data-neo-card-media class="lf-carousel-media">
+				@neo.Carousel(neo.CarouselOpts{
+					Value:     neo.Set("1"),
+					Loop:      neo.Set(true),
+					AriaLabel: neo.Set("Cheshire Cat illustrations"),
+					DragNav:   neo.Set(true),
+					AutoPlay:  neo.Set(3000),
+					Dots:      neo.Set(true),
+				}) {
+					@neo.CarouselTrack() {
+						@neo.CarouselSlide("1") {
+							<img
+								src="/static/cheshire_cat.webp"
+								alt="John Tenniel's hand-coloured proof of the Cheshire Cat in a tree above Alice"
+							/>
+						}
+						@neo.CarouselSlide("2") {
+							<img
+								src="/static/cheshire_cat_2.webp"
+								alt="John Tenniel's Cheshire Cat grinning down from a tree branch"
+							/>
+						}
+					}
+				}
+			</div>
+			<div data-neo-card-header>
+				<h3 data-neo-card-title>Cheshire Cat</h3>
+				<p data-neo-card-description>
+					@neo.Link(neo.LinkOpts{Href: neo.Set("https://en.wikipedia.org/wiki/Cheshire_Cat"), Target: neo.Set("_blank"), Rel: neo.Set("noopener")}) {
+						John Tenniel · circa 1889
+					}
+				</p>
+			</div>
+		</div>
+	</neo-card>
+}
+
+templ lfFileTree() {
+	<neo-card variant="elevated" class="lf-card lf-tree">
+		<div data-neo-card-inner>
+			<neo-layout
+				class="lf-tree-head"
+				align-items="center"
+				justify-content="space-between"
+				gap="sm"
+			>
+				<neo-layout class="lf-tree-head-title" inline align-items="center">
+					@neo.Icon("folder")
+					<strong>Directory</strong>
+					@neo.Badge(neo.BadgeOpts{Variant: neo.Set(neo.BadgeVariantSecondary)}) {
+						12
+					}
+				</neo-layout>
+				<neo-layout class="lf-tree-head-actions" inline align-items="center">
+					<neo-popover placement="bottom-end" class="lf-tree-search">
+						@neo.Tooltip(neo.TooltipOpts{
+							Text: neo.Set("Search files"), Placement: neo.Set(neo.PlacementTop),
+						}) {
+							<neo-button
+								data-neo-popover-trigger
+								size="sm"
+								variant="ghost"
+								aria-label="Search"
+							>
+								@neo.Icon("search")
+							</neo-button>
+						}
+						<div
+							data-neo-popover-content
+							class="lf-tree-search-content"
+						>
+							@neo.Combobox(neo.ComboboxOpts{
+								AriaLabel:         neo.Set("File"),
+								SearchPlaceholder: neo.Set("Search files…"),
+							}) {
+								@neo.OptGroup(neo.OptGroupOpts{Label: neo.Set("src")}) {
+									@neo.Option(neo.OptionOpts{
+										Value: neo.Set("src/components/button.ts"),
+									}) {
+										src/components/button.ts
+									}
+									@neo.Option(neo.OptionOpts{
+										Value: neo.Set("src/components/dialog.ts"),
+									}) {
+										src/components/dialog.ts
+									}
+									@neo.Option(neo.OptionOpts{
+										Value: neo.Set("src/components/tree.ts"),
+									}) {
+										src/components/tree.ts
+									}
+									@neo.Option(neo.OptionOpts{
+										Value: neo.Set("src/index.ts"),
+									}) {
+										src/index.ts
+									}
+								}
+								@neo.OptGroup(neo.OptGroupOpts{Label: neo.Set("assets")}) {
+									@neo.Option(neo.OptionOpts{
+										Value: neo.Set("assets/logo.svg"),
+									}) {
+										assets/logo.svg
+									}
+								}
+								@neo.OptGroup(neo.OptGroupOpts{Label: neo.Set("root")}) {
+									@neo.Option(neo.OptionOpts{
+										Value: neo.Set("README.md"),
+									}) {
+										README.md
+									}
+									@neo.Option(neo.OptionOpts{
+										Value: neo.Set("package.json"),
+									}) {
+										package.json
+									}
+								}
+							}
+						</div>
+					</neo-popover>
+					@neo.Tooltip(neo.TooltipOpts{
+						Text:      neo.Set("Collapse all"),
+						Placement: neo.Set(neo.PlacementTop),
+					}) {
+						<neo-button
+							size="sm"
+							variant="ghost"
+							aria-label="Collapse all"
+							data-on:click="@post('/lf-tree/collapse/')"
+						>
+							@neo.Icon("chevrons-up-down")
+						</neo-button>
+					}
+					<neo-button
+						size="sm"
+						variant="ghost"
+						aria-label="More"
+					>
+						@neo.Icon("more-horizontal")
+						@neo.Menu(neo.MenuOpts{Placement: neo.Set(neo.PlacementBottomEnd)}) {
+							@neo.SubMenu(neo.SubMenuOpts{Label: neo.Set("New")}) {
+								@neo.MenuItem(neo.MenuItemOpts{
+									Value: neo.Set("new-file"), Shortcut: neo.Set("Mod+N"),
+								}) {
+									File
+								}
+								@neo.MenuItem(neo.MenuItemOpts{Value: neo.Set("new-folder")}) {
+									Folder
+								}
+								@neo.MenuItem(neo.MenuItemOpts{Value: neo.Set("new-from-template")}) {
+									From template…
+								}
+							}
+							@neo.MenuItem(neo.MenuItemOpts{
+								Value: neo.Set("rename"), Shortcut: neo.Set("F2"),
+							}) {
+								Rename project
+							}
+							<hr/>
+							@neo.SubMenu(neo.SubMenuOpts{Label: neo.Set("Export as")}) {
+								@neo.MenuItem(neo.MenuItemOpts{Value: neo.Set("export-zip")}) {
+									ZIP archive
+								}
+								@neo.MenuItem(neo.MenuItemOpts{Value: neo.Set("export-json")}) {
+									JSON
+								}
+								@neo.MenuItem(neo.MenuItemOpts{Value: neo.Set("export-md")}) {
+									Markdown bundle
+								}
+							}
+							@neo.SubMenu(neo.SubMenuOpts{Label: neo.Set("Settings")}) {
+								@neo.MenuItem(neo.MenuItemOpts{Value: neo.Set("general")}) {
+									General
+								}
+								@neo.MenuItem(neo.MenuItemOpts{Value: neo.Set("permissions")}) {
+									Permissions
+								}
+								@neo.SubMenu(neo.SubMenuOpts{Label: neo.Set("Integrations")}) {
+									@neo.MenuItem(neo.MenuItemOpts{Value: neo.Set("slack")}) {
+										Slack
+									}
+									@neo.MenuItem(neo.MenuItemOpts{Value: neo.Set("github")}) {
+										GitHub
+									}
+									@neo.MenuItem(neo.MenuItemOpts{Value: neo.Set("linear")}) {
+										Linear
+									}
+								}
+							}
+							<hr/>
+							@neo.MenuItem(neo.MenuItemOpts{Value: neo.Set("archive")}) {
+								Archive
+							}
+							@neo.MenuItem(neo.MenuItemOpts{
+								Value: neo.Set("delete"), Disabled: neo.Set(true),
+							}) {
+								Delete project
+							}
+						}
+					</neo-button>
+				</neo-layout>
+			</neo-layout>
+			@neo.TreeAttrs(templ.Attributes{
+				"id":         "lf-tree",
+				"aria-label": "Project files",
+			}) {
+				@lfTreeFolder("src", false) {
+					@lfTreeFolder("components", true) {
+						@lfTreeFile("button.ts", "M", "secondary")
+						@lfTreeFile("dialog.ts", "", "")
+						@lfTreeFile("tree.ts", "+", "primary")
+					}
+					@lfTreeFolder("lib", false) {
+					}
+					@lfTreeFile("index.ts", "", "")
+				}
+				@lfTreeFolder("assets", true) {
+					@lfTreeFolder("icons", false) {
+					}
+					@lfTreeFile("logo.svg", "", "")
+				}
+				@lfTreeFolder("tests", false) {
+				}
+				@lfTreeFile("README.md", "", "")
+				@lfTreeFile("package.json", "M", "secondary")
+			}
+			@neo.Alert(neo.AlertOpts{Variant: neo.Set(neo.AlertVariantWarning)}) {
+				@neo.AlertIcon() {
+					@neo.Icon("triangle-alert")
+				}
+				@neo.AlertContent() {
+					@neo.AlertTitle(2) {
+						Disk almost full
+					}
+					@neo.AlertDescription() {
+						{ "Workspace storage is at " }
+						@neo.SpinnerProgressAttrs(neo.SpinnerOpts[float64]{
+							Value: neo.Set(87.0),
+						}, templ.Attributes{"aria-hidden": "true"})
+						{ " 87%. Archive old projects or expand the volume soon." }
+					}
+				}
+			}
+		</div>
+	</neo-card>
+}
+
+templ lfTreeFolder(name string, expanded bool) {
+	@neo.TreeItem(expanded) {
+		@neo.TreeLabel() {
+			@neo.ContextMenu(neo.ContextMenuOpts{}) {
+				// display:contents trigger: the row stays the label's
+				// flex child while right-click anywhere on it opens the
+				// same actions as the kebab. tabindex=-1 keeps the tree's
+				// roving focus on neo-tree-item.
+				<neo-layout
+					data-neo-contextmenu-trigger
+					class="lf-tree-row"
+					tabindex="-1"
+					align-items="center"
+				>
+					@neo.IconAttrs("folder", templ.Attributes{
+						"class": "lf-tree-icon lf-tree-icon-folder",
+					})
+					<span data-neo-tree-text>{ name }</span>
+					<neo-layout
+						data-neo-tree-actions
+						class="lf-tree-actions"
+						inline
+						align-items="center"
+					>
+						<neo-button
+							size="sm"
+							variant="ghost"
+							aria-label={ "Add to " + name }
+						>
+							@neo.Icon("file")
+							@neo.Menu(neo.MenuOpts{Placement: neo.Set(neo.PlacementBottomEnd)}) {
+								@neo.MenuItem(neo.MenuItemOpts{
+									Value:    neo.Set("new-file-in-" + name),
+									Shortcut: neo.Set("Mod+N"),
+								}) {
+									New file
+								}
+								@neo.MenuItem(neo.MenuItemOpts{
+									Value: neo.Set("new-folder-in-" + name),
+								}) {
+									New folder
+								}
+								@neo.MenuItem(neo.MenuItemOpts{
+									Value: neo.Set("new-from-template-in-" + name),
+								}) {
+									From template…
+								}
+							}
+						</neo-button>
+						@lfTreeFolderMenu(name)
+					</neo-layout>
+				</neo-layout>
+				@neo.Menu(neo.MenuOpts{}) {
+					@lfTreeFolderMenuItems(name)
+				}
+			}
+		}
+		{ children... }
+	}
+}
+
+templ lfTreeFolderMenu(name string) {
+	<neo-button
+		size="sm"
+		variant="ghost"
+		aria-label={ "More actions for " + name }
+	>
+		@neo.Icon("more-horizontal")
+		@neo.Menu(neo.MenuOpts{Placement: neo.Set(neo.PlacementBottomEnd)}) {
+			@lfTreeFolderMenuItems(name)
+		}
+	</neo-button>
+}
+
+// Shared by the row's kebab menu and its right-click context menu so
+// both surface the identical action set.
+templ lfTreeFolderMenuItems(name string) {
+	@neo.MenuItem(neo.MenuItemOpts{
+		Value: neo.Set("rename-" + name), Shortcut: neo.Set("F2"),
+	}) {
+		Rename…
+	}
+	@neo.MenuItem(neo.MenuItemOpts{Value: neo.Set("duplicate-" + name)}) {
+		Duplicate
+	}
+	@neo.MenuItem(neo.MenuItemOpts{Value: neo.Set("copy-path-" + name)}) {
+		Copy path
+	}
+	<hr/>
+	@neo.MenuItem(neo.MenuItemOpts{Value: neo.Set("collapse-" + name)}) {
+		Collapse all
+	}
+	@neo.MenuItem(neo.MenuItemOpts{Value: neo.Set("reveal-" + name)}) {
+		Reveal in finder
+	}
+	<hr/>
+	@neo.MenuItem(neo.MenuItemOpts{
+		Value: neo.Set("delete-" + name),
+	}) {
+		Delete folder
+	}
+}
+
+templ lfTreeFile(name, status string, statusVariant neo.BadgeVariant) {
+	@neo.TreeItem(false) {
+		@neo.TreeLabel() {
+			@neo.ContextMenu(neo.ContextMenuOpts{}) {
+				<neo-layout
+					data-neo-contextmenu-trigger
+					class="lf-tree-row"
+					tabindex="-1"
+					align-items="center"
+				>
+					@neo.IconAttrs("file", templ.Attributes{
+						"class": "lf-tree-icon lf-tree-icon-file",
+					})
+					<span data-neo-tree-text>{ name }</span>
+					<neo-layout
+						data-neo-tree-actions
+						class="lf-tree-actions"
+						inline
+						align-items="center"
+					>
+						if status != "" {
+							@neo.Badge(neo.BadgeOpts{Variant: neo.Set(statusVariant)}) {
+								{ status }
+							}
+						}
+						@lfTreeFileMenu(name)
+					</neo-layout>
+				</neo-layout>
+				@neo.Menu(neo.MenuOpts{}) {
+					@lfTreeFileMenuItems(name)
+				}
+			}
+		}
+	}
+}
+
+templ lfTreeFileMenu(name string) {
+	<neo-button
+		size="sm"
+		variant="ghost"
+		aria-label={ "More actions for " + name }
+	>
+		@neo.Icon("more-horizontal")
+		@neo.Menu(neo.MenuOpts{Placement: neo.Set(neo.PlacementBottomEnd)}) {
+			@lfTreeFileMenuItems(name)
+		}
+	</neo-button>
+}
+
+// Shared by the row's kebab menu and its right-click context menu so
+// both surface the identical action set.
+templ lfTreeFileMenuItems(name string) {
+	@neo.MenuItem(neo.MenuItemOpts{
+		Value: neo.Set("open-" + name), Shortcut: neo.Set("↵"),
+	}) {
+		Open
+	}
+	@neo.MenuItem(neo.MenuItemOpts{
+		Value: neo.Set("rename-" + name), Shortcut: neo.Set("F2"),
+	}) {
+		Rename…
+	}
+	@neo.MenuItem(neo.MenuItemOpts{Value: neo.Set("duplicate-" + name)}) {
+		Duplicate
+	}
+	@neo.MenuItem(neo.MenuItemOpts{Value: neo.Set("copy-path-" + name)}) {
+		Copy path
+	}
+	<hr/>
+	@neo.MenuItem(neo.MenuItemOpts{Value: neo.Set("download-" + name)}) {
+		Download
+	}
+	<hr/>
+	@neo.MenuItem(neo.MenuItemOpts{
+		Value: neo.Set("delete-" + name),
+	}) {
+		Delete
+	}
+}

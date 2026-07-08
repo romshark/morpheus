@@ -1,0 +1,16 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ TextareaAutoGrowHeight() {
+	@neo.Textarea(neo.TextareaOpts{
+		AutoResizeHeight: neo.Set(""),
+		Placeholder:      neo.Set("Auto-grows vertically as you type…"),
+		Rows:             neo.Set(2),
+	})
+	@neo.Textarea(neo.TextareaOpts{
+		AutoResizeHeight: neo.Set("12rem"),
+		Placeholder:      neo.Set("Auto-grows up to 12rem, then scrolls"),
+		Rows:             neo.Set(2),
+	})
+}

@@ -1,0 +1,14 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ LayoutInline() {
+	<p>
+		Status:{ " " }
+		@neo.Layout(neo.LayoutOpts{Inline: neo.Set(true), AlignItems: neo.Set(neo.AlignItemsCenter), Gap: neo.Set(neo.GapXs)}) {
+			@neo.Icon("circle-check")
+			<span>operational</span>
+		}
+		(all systems go).
+	</p>
+}

@@ -1,0 +1,19 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ SortableWhole() {
+	@neo.SortableAttrs(neo.SortableOpts{
+		Orientation: neo.Set(neo.OrientationVertical),
+	}, templ.Attributes{"class": "sortable-whole"}) {
+		@neo.SortableItem("red") {
+			Red
+		}
+		@neo.SortableItem("green") {
+			Green
+		}
+		@neo.SortableItem("blue") {
+			Blue
+		}
+	}
+}

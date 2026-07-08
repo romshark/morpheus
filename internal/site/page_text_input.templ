@@ -1,0 +1,328 @@
+package site
+
+import (
+	"github.com/romshark/morpheus/internal/href"
+	"github.com/romshark/morpheus/internal/site/examples"
+	"github.com/romshark/morpheus/neo"
+)
+
+templ PageTextInput(morpheusVersion string) {
+	@PageDoc(href.PageTextInput(), "Text input", morpheusVersion) {
+		@textInputSimulator()
+		<section class="demo">
+			@anchoredH2("overview") {
+				Text input
+			}
+			<p class="intro">
+				Component <code>{ `<neo-textinput>` }</code> is a
+				wrapper around a native <code>&lt;input&gt;</code>
+				with live formatting: <code>mask</code>,
+				<code>{ `format="number"` }</code>, and composable
+				transforms like <code>numeric-only</code> and
+				<code>{ `case="upper"` }</code>. Reach for it when
+				the displayed value should differ from the typed
+				one; a bare <code>{ `<input>` }</code> is the right
+				answer otherwise. The native field lives in the
+				element's shadow root, so the light DOM stays empty
+				and a server can re-render the host without
+				disturbing the live field. Slot
+				<code>{ `<neo-option>` }</code> children to add
+				server-driven autocomplete suggestions with built-in
+				keyboard navigation.
+			</p>
+			@Playground(PlaygroundOpts{
+				ID:     "text-input-playground",
+				States: textInputPlaygroundStates(),
+			})
+			@anchoredH2("reference") {
+				Reference
+			}
+			@ComponentDocs(textInputDoc)
+		</section>
+		<section class="demo">
+			@anchoredH2("examples") {
+				Examples
+			}
+			@anchoredH3("card-style-mask") {
+				Card-style mask
+			}
+			<p class="demo-note">
+				In <code>mask</code>, <code>#</code> is a digit
+				slot and the spaces between groups are literal
+				delimiters.
+			</p>
+			<ul class="demo-note">
+				<li>
+					Spaces appear at the right positions as you
+					type.
+				</li>
+				<li>
+					Backspace at a delimiter deletes the
+					preceding digit, so the literal never has to
+					be skipped manually.
+				</li>
+			</ul>
+			@demoFrameWith(DemoFrameOpts{
+				Width:          "26rem",
+				StageMinHeight: "max-content",
+				HTMLSource:     textInputCardMaskHTML,
+				TemplSource:    textInputCardMaskTempl,
+			}) {
+				@examples.TextInputCardMask()
+			}
+			@anchoredH3("mixed-mask") {
+				Mixed mask
+			}
+			<p class="demo-note">
+				A <code>mask</code> can mix letter, digit, and
+				literal slots. Cased slots (<code>U</code>,
+				<code>l</code>, <code>A</code>, <code>a</code>)
+				accept either case and coerce on insert; use
+				<code>X</code> to keep the typed case.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				Width:          "26rem",
+				StageMinHeight: "max-content",
+				HTMLSource:     textInputMixedMaskHTML,
+				TemplSource:    textInputMixedMaskTempl,
+			}) {
+				@examples.TextInputMixedMask()
+			}
+			@anchoredH3("phone") {
+				Phone
+			}
+			<p class="demo-note">
+				Parentheses, space, and dash are all literals
+				in the <code>mask</code>.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				Width:          "26rem",
+				StageMinHeight: "max-content",
+				HTMLSource:     textInputPhoneHTML,
+				TemplSource:    textInputPhoneTempl,
+			}) {
+				@examples.TextInputPhone()
+			}
+			@anchoredH3("date") {
+				Date
+			}
+			<p class="demo-note">
+				A <code>##/##/####</code> mask shapes the digits
+				but doesn't validate calendar logic (Feb 30 is
+				accepted); pair it with the native
+				<code>pattern</code> attribute when stricter
+				checks are needed.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				Width:          "26rem",
+				StageMinHeight: "max-content",
+				HTMLSource:     textInputDateHTML,
+				TemplSource:    textInputDateTempl,
+			}) {
+				@examples.TextInputDate()
+			}
+			@anchoredH3("number") {
+				Number
+			}
+			<p class="demo-note">
+				<code>{ `format="number"` }</code> applies
+				right-anchored thousands grouping with optional
+				decimals. The <code>prefix</code> attribute pins
+				a literal at the start.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				Width:          "26rem",
+				StageMinHeight: "max-content",
+				HTMLSource:     textInputNumberHTML,
+				TemplSource:    textInputNumberTempl,
+			}) {
+				@examples.TextInputNumber()
+			}
+			@anchoredH3("number-eu") {
+				Number (EU)
+			}
+			<p class="demo-note">
+				European notation from the same number format:
+				<code>{ `decimal-mark=","` }</code> with a period
+				<code>thousands-separator</code>.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				Width:          "26rem",
+				StageMinHeight: "max-content",
+				HTMLSource:     textInputNumberEUHTML,
+				TemplSource:    textInputNumberEUTempl,
+			}) {
+				@examples.TextInputNumberEu()
+			}
+			@anchoredH3("disabled") {
+				Disabled
+			}
+			<p class="demo-note">
+				<code>disabled</code> and <code>readonly</code>
+				pass through to the inner field:
+				<code>disabled</code> fades the host and blocks
+				all interaction; <code>readonly</code> leaves the
+				value selectable but immutable.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				Width:          "26rem",
+				StageMinHeight: "max-content",
+				HTMLSource:     textInputDisabledHTML,
+				TemplSource:    textInputDisabledTempl,
+			}) {
+				@examples.TextInputDisabled()
+			}
+		</section>
+		<section class="demo">
+			@anchoredH2("examples-datastar") {
+				Examples: Datastar
+			}
+			@anchoredH3("suggestion-states") {
+				Suggestion states
+			}
+			<p class="demo-note">
+				Slotted suggestions are server state: a Datastar morph
+				can swap the set at any time and the field reconciles in
+				place. Switch states to compare.
+			</p>
+			<ul class="demo-note">
+				<li>
+					<strong>Initial</strong> has no suggestions;
+					<strong>Suggestions</strong>,
+					<strong>Disabled</strong>, and <strong>Rich</strong>
+					morph rows in: plain, with
+					<code>disabled</code> rows, then rich rows (icon plus
+					a short description). The typed value is untouched.
+				</li>
+				<li>
+					<strong>No results</strong> shows a non-selectable
+					<code>[data-neo-empty-results]</code> status row,
+					keeping the popover open with zero options instead of
+					closing.
+				</li>
+				<li>
+					The <code>open</code> attribute forces the popover
+					open so each state shows without focusing the preview;
+					normally suggestions appear on focus.
+				</li>
+			</ul>
+			@Playground(PlaygroundOpts{
+				ID:     "text-input-suggest-playground",
+				Height: "22rem",
+				States: textInputSuggestStates(),
+			})
+			@anchoredH3("autocomplete") {
+				Autocomplete
+			}
+			<p class="demo-note">
+				Slot <code>{ "<neo-option>" }</code> children to turn the
+				field into an autocomplete: free text the user can submit
+				as typed, with server-supplied suggestions and built-in
+				keyboard navigation.
+			</p>
+			<ul class="demo-note">
+				<li>
+					Each debounced keystroke posts the query; the server
+					morphs matching <code>{ "<neo-option>" }</code> rows
+					into the <code>suggestions</code> slot, a
+					<code>[data-neo-empty-results]</code> row when nothing
+					matches, or nothing to close the popover.
+				</li>
+				<li>
+					Focus stays in the field; ArrowDown / ArrowUp move
+					the highlight, Enter or click fills it, Escape
+					closes. Options keep the
+					<code>{ "<neo-option>" }</code> API:
+					<code>value</code>, <code>label</code>,
+					<code>disabled</code>, rich content.
+				</li>
+				<li>
+					Constrain the value to a fixed set instead?{ " " }
+					@neo.Link(neo.LinkOpts{Href: neo.Set(href.PageCombobox())}) {
+						Combobox
+					}
+					{ " " }is the constrained-selection version.
+				</li>
+			</ul>
+			@simDelayHint()
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "22rem",
+				HTMLSource:     textInputAutocompleteHTML,
+				TemplSource:    textInputAutocompleteTempl,
+				CSSSource:      textInputAutocompleteCSS,
+				ScriptSource:   textInputSuggestScript,
+			}) {
+				@examples.TextInputAutocomplete()
+			}
+		</section>
+	}
+}
+
+// textInputSimulator loads the per-demo handler module under
+// /static/sim/textinput/ that powers the Datastar autocomplete example
+// (also surfaced in the demo's Server script tab).
+templ textInputSimulator() {
+	<script type="module" src="/static/sim/textinput/suggest.js"></script>
+}
+
+var textInputDoc = ComponentDoc{
+	Attributes: []DocAttribute{
+		{Name: "name", Type: "string",
+			Description: templ.Raw("Form field name.")},
+		{Name: "type", Type: "string", Default: `"text"`, Observed: true,
+			Description: templ.Raw("Standard <code>&lt;input&gt;</code> type.")},
+		{Name: "value", Type: "string", Observed: true,
+			Description: templ.Raw("Current value. For <code>format=\"number\"</code>, reads and writes the canonical numeric string (sign + digits + <code>.</code>); thousands separators and the localized decimal mark are presentation only.")},
+		{Name: "placeholder", Type: "string", Observed: true,
+			Description: templ.Raw("Hint text shown when empty.")},
+		{Name: "disabled", Type: "boolean", Default: "false", Observed: true,
+			Description: templ.Raw("Non-interactive state.")},
+		{Name: "readonly", Type: "boolean", Default: "false", Observed: true,
+			Description: templ.Raw("Value cannot be edited but stays focusable and submittable.")},
+		{Name: "required", Type: "boolean", Default: "false", Observed: true,
+			Description: templ.Raw("Form validation requires a non-empty value.")},
+		{Name: "size", Type: `"sm" | "lg"`,
+			Description: templ.Raw("Control-size step: <code>sm</code> compact, <code>lg</code> large. Omit for the default size.")},
+		{Name: "mask", Type: "string", Observed: true,
+			Description: templ.Raw("Static template: <code>#</code> digit, <code>U</code> letter→upper, <code>l</code> letter→lower, <code>A</code> alnum→upper, <code>a</code> alnum→lower, <code>X</code> alnum (case preserved), <code>*</code> any char. Other chars are literal. Cased slots accept either case and coerce on insert.")},
+		{Name: "format", Type: `"number"`, Observed: true,
+			Description: templ.Raw("Right-anchored thousands grouping for numeric input.")},
+		{Name: "prefix", Type: "string", Reflected: true, Observed: true, Description: templ.Raw("Leading literal preserved across clears.")},
+		{Name: "decimal-places", Type: "number", Default: "-1", Observed: true,
+			Description: templ.Raw("Decimal-place cap for <code>format=\"number\"</code>; -1 unbounded.")},
+		{Name: "decimal-mark", Type: `"." | ","`, Default: `"."`, Observed: true,
+			Description: templ.Raw("Decimal separator character.")},
+		{Name: "thousands-separator", Type: "string", Default: `","`, Observed: true,
+			Description: templ.Raw("Grouping separator inserted every three digits.")},
+		{Name: "numeric-only", Type: "boolean", Default: "false", Observed: true,
+			Description: templ.Raw("Drop non-digit input.")},
+		{Name: "case", Type: `"upper" | "lower"`, Default: `""`, Observed: true,
+			Description: templ.Raw("Force the displayed value to the given case. Free-form only; ignored when <code>mask</code> is set; use cased mask letters (<code>U</code>, <code>A</code>, <code>l</code>, <code>a</code>) instead. An unsupported value is ignored with a console warning.")},
+		{Name: "submit-raw", Type: "boolean", Default: "false", Observed: true,
+			Description: templ.Raw("Form submission uses the unformatted value. Always on for <code>format=\"number\"</code>; thousands separators never appear in the submitted value.")},
+		{Name: "open", Type: "boolean", Default: "false", Reflected: true, Observed: true,
+			Description: templ.Raw("Suggestions popover state using the shared command contract: <code>open=\"true\"</code> opens, <code>open=\"false\"</code> closes, and an omitted attribute leaves client state unchanged. Client-open state is reflected as bare <code>open</code>, so a fat morph that omits the attribute does not close the popover.")},
+		{Name: "placement", Type: "string", Default: `"bottom-start"`, Observed: true,
+			Description: templ.Raw("Suggestion popover placement relative to the field. The popover honors the same positioning surface as <code>&lt;neo-select&gt;</code> (<code>placement</code>, <code>screen-offset</code>, <code>follow-scroll</code>, <code>clamp-placement</code>, <code>min-fit-height</code>/<code>min-fit-width</code>, <code>min-open-height</code>/<code>min-open-width</code>, <code>popover-fit-content</code>) plus the <code>--neo-popover-*</code> custom properties. Applies only when the <code>suggestions</code> slot is in use.")},
+		{Name: "popover-fit-content", Type: "boolean", Default: "false",
+			Description: templ.Raw("The suggestions panel tracks the field width by default; set this to size the panel to the suggestion rows instead. Capped by <code>--neo-popover-max-width</code> and the viewport. Applies only when the <code>suggestions</code> slot is in use.")},
+		{Name: "list", Type: "string", Observed: true,
+			Description: templ.Raw(`References a shared <a href="` + href.PageDatalist() + `"><code>&lt;neo-datalist&gt;</code></a> by its <code>id</code> (like native <code>&lt;input list&gt;</code>) to source the autocomplete <code>suggestions</code>. Inline suggestion options take precedence.`)},
+	},
+	Slots: []DocSlot{
+		{Name: "suggestions",
+			Description: templ.Raw("Slotted <code>&lt;neo-option&gt;</code> children turn the field into an autocomplete: a listbox of suggestions. The field stays free text: the value is whatever's typed; options are hints. Bare <code>&lt;neo-option&gt;</code> children are assigned to this slot automatically. Same option API as <code>&lt;neo-select&gt;</code> (<code>value</code>, <code>label</code>, <code>disabled</code>, rich content). A <code>[data-neo-empty-results]</code> child is a non-selectable status row that keeps the popover open with zero options (same contract as <code>&lt;neo-combobox&gt;</code>). The server may patch the slot at any time; patching it empty (no options and no status row) closes the popover. The field gains <code>role=\"combobox\"</code> whenever suggestions exist or the popover is open; focus never leaves it (ArrowDown/Up move <code>aria-activedescendant</code>). Alternatively, set <code>list</code> to source these options from a shared datalist.")},
+	},
+	Events: []DocEvent{
+		{Name: "input", URL: W3CEventURL("input"), Bubbles: true,
+			Description: templ.Raw("Standard input event.")},
+		{Name: "change", URL: W3CEventURL("change"), Bubbles: true,
+			Description: templ.Raw("Standard change event.")},
+		{Name: "neo-textinput-input", Detail: "{ value: string, rawValue: string }", Bubbles: true,
+			Description: templ.Raw("Mirrors <code>input</code> with both formatted and raw values in detail.")},
+		{Name: "neo-textinput-change", Detail: "{ value: string, rawValue: string }", Bubbles: true,
+			Description: templ.Raw("Mirrors <code>change</code>.")},
+		{Name: "neo-textinput-select", Detail: "{ value: string, label: string }", Bubbles: true,
+			Description: templ.Raw("A suggestion was committed (click or Enter). <code>value</code> is the option's value, <code>label</code> its visible text.")},
+	},
+}

@@ -1,0 +1,1613 @@
+package site
+
+import "github.com/romshark/morpheus/neo"
+
+// PageDebug: hidden /debug/ harness, full-page fat morph every 2s.
+// Verifies popover-hosted components stay open + keep focus across
+// morph cycles. Simulator + injected trigger carry data-ignore-morph
+// so they survive each patch. Not linked from navigation.
+templ PageDebug(morpheusVersion string) {
+	<!DOCTYPE html>
+	<html lang="en">
+		@pageHead("Debug: periodic full-page fat-morph harness for popover-hosted components.")
+		<body
+			id="debug-body"
+			class="debug-body"
+			data-signals="{_debug_counter: 0, _debug_last: 'never'}"
+		>
+			@debugPage(morpheusVersion)
+			// data-init trigger is injected by the simulator script;
+			// see debugSimulator for the load-order rationale.
+			// Build-time mirror of @debugPage; the morph payload reads
+			// from this template so it can't drift from the initial body.
+			<template id="debug-body-template">
+				@debugPage(morpheusVersion)
+			</template>
+			@debugSimulator()
+			<style>
+				/* Override style.css's site-wide
+				 * `html, body { height: 100vh; overflow: hidden }`:
+				 * no sidebar frame here, the viewport itself scrolls. */
+				html:has(> .debug-body) {
+					height: auto;
+					overflow: auto;
+				}
+				.debug-body {
+					font-family: var(--neo-font-family, system-ui, sans-serif);
+					background: var(--page-bg, #fafafa);
+					color: var(--page-fg, #111);
+					min-height: 100vh;
+					height: auto;
+					overflow: auto;
+					margin: 0;
+				}
+				.debug-bar {
+					position: sticky;
+					top: 0;
+					z-index: 1000;
+					display: flex;
+					align-items: center;
+					gap: 0.75rem;
+					padding: 0.6rem 1rem;
+					background: #111;
+					color: #fff;
+					border-bottom: 2px solid #f0f;
+					font-family: ui-monospace, SFMono-Regular, monospace;
+					font-size: 0.875rem;
+				}
+				.debug-bar-label { opacity: 0.7; }
+				.debug-bar-counter,
+				.debug-bar-last { color: #0ff; }
+				.debug-bar-spacer { flex: 1; }
+				.debug-bar-meta { opacity: 0.6; }
+				.debug-trigger { display: none; }
+				.debug-main {
+					max-width: 60rem;
+					margin: 0 auto;
+					padding: 1.5rem 1rem 4rem;
+					display: grid;
+					gap: 1.5rem;
+				}
+				.debug-card {
+					background: var(--neo-card-bg, #fff);
+					border: 1px solid var(--neo-card-border-color, rgba(0, 0, 0, 0.1));
+					border-radius: 0.5rem;
+					padding: 1rem;
+				}
+				.debug-card h3 {
+					margin: 0 0 0.75rem;
+					font-size: 0.95rem;
+				}
+				.debug-card-row {
+					display: flex;
+					flex-wrap: wrap;
+					gap: 0.75rem;
+					align-items: center;
+				}
+				/* Rich option row: leading icon + two-line text body. */
+				.debug-rich-row {
+					display: inline-flex;
+					align-items: center;
+					gap: 0.6rem;
+					min-width: 0;
+				}
+				.debug-rich-row neo-icon {
+					flex: 0 0 auto;
+					opacity: 0.7;
+				}
+				.debug-rich-row .debug-rich-text {
+					display: flex;
+					flex-direction: column;
+					line-height: 1.15;
+					min-width: 0;
+				}
+				.debug-rich-row .debug-rich-text small {
+					opacity: 0.6;
+					font-size: 0.78em;
+					color: red;
+				}
+			</style>
+		</body>
+	</html>
+}
+
+// debugPage is the morph payload. The #debug-page-root wrapper is the
+// single matching root Datastar's morph reconciles against.
+templ debugPage(morpheusVersion string) {
+	<div id="debug-page-root">
+		<header class="debug-bar" role="status" aria-live="polite">
+			<span class="debug-bar-label">Patches:</span>
+			<strong class="debug-bar-counter" data-text="$_debug_counter">0</strong>
+			<span class="debug-bar-label">Last patch:</span>
+			<strong class="debug-bar-last" data-text="$_debug_last">never</strong>
+			<span class="debug-bar-spacer"></span>
+			<span class="debug-bar-meta">{ morpheusVersion } · /debug/</span>
+		</header>
+		<main class="debug-main">
+			<div class="debug-card">
+				<h3>Popover (manual trigger + content)</h3>
+				<neo-layout class="debug-card-row" wrap align-items="center">
+					@neo.PopoverAttrs(neo.PopoverOpts{}, templ.Attributes{
+						"id": "debug-popover-1",
+					}) {
+						@neo.ButtonAttrs(neo.ButtonOpts{}, templ.Attributes{
+							"data-neo-popover-trigger": true,
+						}) {
+							Open popover
+						}
+						<div data-neo-popover-content>
+							<h4 style="margin: 0 0 0.5rem;">Inside the popover</h4>
+							<p style="margin: 0;">
+								The morph fires every 2 seconds. This panel
+								should stay open through every cycle.
+							</p>
+						</div>
+					}
+				</neo-layout>
+			</div>
+			// Popover whose body is replaced by a targeted patch each
+			// tick. The host is preserved by id; the content div is
+			// matched by id and morphed in place, so the popover should
+			// stay open while heading + list cycle.
+			<div class="debug-card">
+				<h3>Popover (morphing content)</h3>
+				<neo-layout class="debug-card-row" wrap align-items="center">
+					@neo.PopoverAttrs(neo.PopoverOpts{}, templ.Attributes{
+						"id": "debug-popover-2",
+					}) {
+						@neo.ButtonAttrs(neo.ButtonOpts{}, templ.Attributes{
+							"data-neo-popover-trigger": true,
+						}) {
+							Open morphing popover
+						}
+						<div data-neo-popover-content id="debug-popover-2-content">
+							<h4 style="margin: 0 0 0.5rem;">Initial body</h4>
+							<p style="margin: 0;">
+								The morph swaps this body every patch.
+								Open and watch the heading + list cycle.
+							</p>
+						</div>
+					}
+				</neo-layout>
+			</div>
+			// One popover per anchor direction. Open each in turn to
+			// verify auto-flip / clamp logic across the placement enum.
+			<div class="debug-card">
+				<h3>Popover (placement permutations)</h3>
+				<neo-layout class="debug-card-row" wrap align-items="center">
+					for _, p := range []neo.Placement{
+						neo.PlacementTopStart, neo.PlacementTop, neo.PlacementTopEnd,
+						neo.PlacementBottomStart, neo.PlacementBottom, neo.PlacementBottomEnd,
+						neo.PlacementLeft, neo.PlacementRight,
+					} {
+						@neo.PopoverAttrs(neo.PopoverOpts{Placement: neo.Set(p)}, templ.Attributes{
+							"id": "debug-popover-place-" + string(p),
+						}) {
+							@neo.ButtonAttrs(neo.ButtonOpts{}, templ.Attributes{
+								"data-neo-popover-trigger": true,
+							}) {
+								{ string(p) }
+							}
+							<div data-neo-popover-content>
+								<p style="margin: 0;">Placement: <code>{ string(p) }</code>.</p>
+							</div>
+						}
+					}
+				</neo-layout>
+			</div>
+			// Attribute variants: hover, match-trigger-width, clamp,
+			// follow-scroll. One popover per knob so the symptoms are
+			// isolated and the morph still exercises the recovery path
+			// for each.
+			<div class="debug-card">
+				<h3>Popover (attribute variants)</h3>
+				<neo-layout class="debug-card-row" wrap align-items="center">
+					@neo.PopoverAttrs(neo.PopoverOpts{Hover: neo.Set(true)}, templ.Attributes{
+						"id": "debug-popover-hover",
+					}) {
+						@neo.ButtonAttrs(neo.ButtonOpts{}, templ.Attributes{
+							"data-neo-popover-trigger": true,
+						}) {
+							Hover open
+						}
+						<div data-neo-popover-content>
+							<p style="margin: 0;">
+								<code>hover</code>: opens on pointer enter,
+								closes on leave (or click toggles).
+							</p>
+						</div>
+					}
+					@neo.PopoverAttrs(neo.PopoverOpts{MatchTriggerWidth: neo.Set(true)}, templ.Attributes{
+						"id": "debug-popover-match-width",
+					}) {
+						@neo.ButtonAttrs(neo.ButtonOpts{}, templ.Attributes{
+							"data-neo-popover-trigger": true,
+						}) {
+							Match trigger width
+						}
+						<div data-neo-popover-content>
+							<p style="margin: 0;">
+								<code>match-trigger-width</code>: panel inherits the
+								trigger's width even when content would be narrower.
+							</p>
+						</div>
+					}
+					@neo.PopoverAttrs(neo.PopoverOpts{
+						Placement:      neo.Set(neo.PlacementBottomEnd),
+						ClampPlacement: neo.Set(true),
+					}, templ.Attributes{
+						"id": "debug-popover-clamp",
+					}) {
+						@neo.ButtonAttrs(neo.ButtonOpts{}, templ.Attributes{
+							"data-neo-popover-trigger": true,
+						}) {
+							Clamp placement
+						}
+						<div data-neo-popover-content>
+							<p style="margin: 0;">
+								<code>clamp-placement</code>: keeps the panel
+								inside the viewport instead of auto-flipping.
+							</p>
+						</div>
+					}
+					@neo.PopoverAttrs(neo.PopoverOpts{
+						FollowScroll: neo.Set(neo.PopoverFollowScrollAlways),
+					}, templ.Attributes{
+						"id": "debug-popover-follow",
+					}) {
+						@neo.ButtonAttrs(neo.ButtonOpts{}, templ.Attributes{
+							"data-neo-popover-trigger": true,
+						}) {
+							Follow scroll
+						}
+						<div data-neo-popover-content>
+							<p style="margin: 0;">
+								<code>follow-scroll="always"</code>: stays anchored
+								to the trigger across page scrolls.
+							</p>
+						</div>
+					}
+				</neo-layout>
+			</div>
+			// Size-morph stress tests. Each tick the simulator swaps the
+			// content between a tiny and an oversized payload so the
+			// popover has to re-clamp / overflow-scroll on the fly.
+			//   - short/tall: vertical overflow
+			//   - narrow/wide: horizontal overflow (white-space:nowrap)
+			//   - small/big:   both axes at once
+			<div class="debug-card">
+				<h3>Popover (size morph)</h3>
+				<neo-layout class="debug-card-row" wrap align-items="center">
+					@neo.PopoverAttrs(neo.PopoverOpts{}, templ.Attributes{
+						"id": "debug-popover-short-tall",
+					}) {
+						@neo.ButtonAttrs(neo.ButtonOpts{}, templ.Attributes{
+							"data-neo-popover-trigger": true,
+						}) {
+							short ↔ tall
+						}
+						<div data-neo-popover-content id="debug-popover-short-tall-content">
+							<p style="margin: 0;">Initial body, short.</p>
+						</div>
+					}
+					@neo.PopoverAttrs(neo.PopoverOpts{}, templ.Attributes{
+						"id": "debug-popover-narrow-wide",
+					}) {
+						@neo.ButtonAttrs(neo.ButtonOpts{}, templ.Attributes{
+							"data-neo-popover-trigger": true,
+						}) {
+							narrow ↔ wide
+						}
+						<div data-neo-popover-content id="debug-popover-narrow-wide-content">
+							<p style="margin: 0;">Hi.</p>
+						</div>
+					}
+					@neo.PopoverAttrs(neo.PopoverOpts{}, templ.Attributes{
+						"id": "debug-popover-small-big",
+					}) {
+						@neo.ButtonAttrs(neo.ButtonOpts{}, neo.PopoverTrigger()) {
+							small ↔ big
+						}
+						<div
+							id="debug-popover-small-big-content"
+							{ neo.PopoverContent()... }
+						>
+							<p style="margin: 0;">x</p>
+						</div>
+					}
+				</neo-layout>
+			</div>
+			<div class="debug-card">
+				<h3>Select (static options)</h3>
+				<neo-layout class="debug-card-row" wrap align-items="center">
+					@neo.SelectAttrs(neo.SelectOpts{
+						Value:       neo.Set("ams"),
+						AriaLabel:   neo.Set("Region"),
+						Placeholder: neo.Set("Pick a region"),
+					}, templ.Attributes{
+						"id": "debug-select-1",
+					}) {
+						@neo.Option(neo.OptionOpts{Value: neo.Set("ams")}) {
+							Amsterdam
+						}
+						@neo.Option(neo.OptionOpts{Value: neo.Set("fra")}) {
+							Frankfurt
+						}
+						@neo.Option(neo.OptionOpts{Value: neo.Set("sfo")}) {
+							San Francisco
+						}
+						@neo.Option(neo.OptionOpts{Value: neo.Set("nrt")}) {
+							Tokyo
+						}
+					}
+					@neo.SelectAttrs(neo.SelectOpts{
+						AriaLabel:   neo.Set("Status"),
+						Placeholder: neo.Set("Pick a status"),
+						Clearable:   neo.Set(true),
+					}, templ.Attributes{
+						"id": "debug-select-2",
+					}) {
+						@neo.Option(neo.OptionOpts{Value: neo.Set("draft")}) {
+							Draft
+						}
+						@neo.Option(neo.OptionOpts{Value: neo.Set("published")}) {
+							Published
+						}
+						@neo.Option(neo.OptionOpts{Value: neo.Set("archived")}) {
+							Archived
+						}
+					}
+				</neo-layout>
+			</div>
+			<div class="debug-card">
+				<h3>Combobox (with optgroups)</h3>
+				<neo-layout class="debug-card-row" wrap align-items="center">
+					@neo.ComboboxAttrs(neo.ComboboxOpts{
+						Value:             neo.Set("templ"),
+						AriaLabel:         neo.Set("Templating engine"),
+						Placeholder:       neo.Set("Pick an engine"),
+						SearchPlaceholder: neo.Set("Search engines…"),
+					}, templ.Attributes{
+						"id": "debug-combobox-1",
+					}) {
+						@neo.OptGroup(neo.OptGroupOpts{Label: neo.Set("Go")}) {
+							@neo.Option(neo.OptionOpts{Value: neo.Set("templ")}) {
+								templ
+							}
+							@neo.Option(neo.OptionOpts{Value: neo.Set("html-template")}) {
+								html/template
+							}
+						}
+						@neo.OptGroup(neo.OptGroupOpts{Label: neo.Set("JavaScript")}) {
+							@neo.Option(neo.OptionOpts{Value: neo.Set("react")}) {
+								React
+							}
+							@neo.Option(neo.OptionOpts{Value: neo.Set("vue")}) {
+								Vue
+							}
+							@neo.Option(neo.OptionOpts{Value: neo.Set("svelte")}) {
+								Svelte
+							}
+						}
+					}
+				</neo-layout>
+			</div>
+			<div class="debug-card">
+				<h3>Combobox (multi-select)</h3>
+				<neo-layout class="debug-card-row" wrap align-items="center">
+					@neo.ComboboxAttrs(neo.ComboboxOpts{
+						Value:             neo.Set("fra,sfo"),
+						Multiple:          neo.Set(true),
+						AriaLabel:         neo.Set("Regions"),
+						Placeholder:       neo.Set("Pick regions"),
+						SearchPlaceholder: neo.Set("Search regions…"),
+					}, templ.Attributes{
+						"id": "debug-combobox-multi",
+					}) {
+						@neo.OptGroup(neo.OptGroupOpts{Label: neo.Set("Europe")}) {
+							@neo.Option(neo.OptionOpts{
+								Value: neo.Set("fra"), Label: neo.Set("Frankfurt"),
+							}) {
+								Frankfurt
+							}
+							@neo.Option(neo.OptionOpts{
+								Value: neo.Set("ams"), Label: neo.Set("Amsterdam"),
+							}) {
+								Amsterdam
+							}
+							@neo.Option(neo.OptionOpts{
+								Value: neo.Set("lhr"), Label: neo.Set("London"),
+							}) {
+								London
+							}
+						}
+						@neo.OptGroup(neo.OptGroupOpts{Label: neo.Set("Americas")}) {
+							@neo.Option(neo.OptionOpts{
+								Value: neo.Set("sfo"), Label: neo.Set("San Francisco"),
+							}) {
+								San Francisco
+							}
+							@neo.Option(neo.OptionOpts{
+								Value: neo.Set("iad"), Label: neo.Set("Washington DC"),
+							}) {
+								Washington DC
+							}
+						}
+						@neo.OptGroup(neo.OptGroupOpts{Label: neo.Set("Asia / Pacific")}) {
+							@neo.Option(neo.OptionOpts{
+								Value: neo.Set("nrt"), Label: neo.Set("Tokyo"),
+							}) {
+								Tokyo
+							}
+							@neo.Option(neo.OptionOpts{
+								Value: neo.Set("syd"), Label: neo.Set("Sydney"),
+							}) {
+								Sydney
+							}
+						}
+					}
+				</neo-layout>
+			</div>
+			// Rich-content options (static): icon + two-line text per row.
+			// `Label` keeps the trigger to a plain-text name so the rich
+			// markup only renders inside the listbox.
+			<div class="debug-card">
+				<h3>Select & Combobox (rich content, static)</h3>
+				<neo-layout class="debug-card-row" wrap align-items="center">
+					@neo.SelectAttrs(neo.SelectOpts{
+						Value:       neo.Set("prod"),
+						AriaLabel:   neo.Set("Environment"),
+						Placeholder: neo.Set("Pick an environment"),
+					}, templ.Attributes{
+						"id": "debug-rich-select-1",
+					}) {
+						@neo.Option(neo.OptionOpts{Value: neo.Set("prod"), Label: neo.Set("Production")}) {
+							<neo-layout class="debug-rich-row" inline align-items="center">
+								@neo.Icon("circle-check")
+								<neo-layout class="debug-rich-text" column>
+									<strong>Production</strong>
+									<small>12 nodes · healthy</small>
+								</neo-layout>
+							</neo-layout>
+						}
+						@neo.Option(neo.OptionOpts{Value: neo.Set("staging"), Label: neo.Set("Staging")}) {
+							<neo-layout class="debug-rich-row" inline align-items="center">
+								@neo.Icon("triangle-alert")
+								<neo-layout class="debug-rich-text" column>
+									<strong>Staging</strong>
+									<small>4 nodes · 1 warning</small>
+								</neo-layout>
+							</neo-layout>
+						}
+						@neo.Option(neo.OptionOpts{Value: neo.Set("dev"), Label: neo.Set("Development")}) {
+							<neo-layout class="debug-rich-row" inline align-items="center">
+								@neo.Icon("circle-x")
+								<neo-layout class="debug-rich-text" column>
+									<strong>Development</strong>
+									<small>1 node · failing</small>
+								</neo-layout>
+							</neo-layout>
+						}
+					}
+					@neo.ComboboxAttrs(neo.ComboboxOpts{
+						Value:             neo.Set("morpheus"),
+						AriaLabel:         neo.Set("Repository"),
+						Placeholder:       neo.Set("Pick a repo"),
+						SearchPlaceholder: neo.Set("Search repos…"),
+					}, templ.Attributes{
+						"id": "debug-rich-combobox-1",
+					}) {
+						@neo.Option(neo.OptionOpts{Value: neo.Set("morpheus"), Label: neo.Set("morpheus")}) {
+							<neo-layout class="debug-rich-row" inline align-items="center">
+								@neo.Icon("folder")
+								<neo-layout class="debug-rich-text" column>
+									<strong>morpheus</strong>
+									<small>47 PRs · 8 reviewers</small>
+								</neo-layout>
+							</neo-layout>
+						}
+						@neo.Option(neo.OptionOpts{Value: neo.Set("datastar"), Label: neo.Set("datastar")}) {
+							<neo-layout class="debug-rich-row" inline align-items="center">
+								@neo.Icon("sparkles")
+								<neo-layout class="debug-rich-text" column>
+									<strong>datastar</strong>
+									<small>12 PRs · 5 reviewers</small>
+								</neo-layout>
+							</neo-layout>
+						}
+						@neo.Option(neo.OptionOpts{Value: neo.Set("templ"), Label: neo.Set("templ")}) {
+							<neo-layout class="debug-rich-row" inline align-items="center">
+								@neo.Icon("code")
+								<neo-layout class="debug-rich-text" column>
+									<strong>templ</strong>
+									<small>8 PRs · 3 reviewers</small>
+								</neo-layout>
+							</neo-layout>
+						}
+						@neo.Option(neo.OptionOpts{Value: neo.Set("docs"), Label: neo.Set("docs")}) {
+							<neo-layout class="debug-rich-row" inline align-items="center">
+								@neo.Icon("book-open")
+								<neo-layout class="debug-rich-text" column>
+									<strong>docs</strong>
+									<small>2 PRs · 12 reviewers</small>
+								</neo-layout>
+							</neo-layout>
+						}
+					}
+				</neo-layout>
+			</div>
+			<div class="debug-card">
+				<h3>Menu (context-menu host)</h3>
+				<neo-layout class="debug-card-row" wrap align-items="center">
+					<neo-contextmenu id="debug-contextmenu-1">
+						<div
+							data-neo-contextmenu-trigger
+							tabindex="0"
+							style="padding: 0.6rem 1rem; border: 1px dashed #888; border-radius: 0.25rem;"
+						>
+							Right-click me (or Shift+F10)
+						</div>
+						<neo-menu>
+							<neo-menuitem value="copy">Copy</neo-menuitem>
+							<neo-menuitem value="cut">Cut</neo-menuitem>
+							<neo-menuitem value="paste">Paste</neo-menuitem>
+							<hr/>
+							<neo-menuitem value="delete">Delete</neo-menuitem>
+						</neo-menu>
+					</neo-contextmenu>
+				</neo-layout>
+			</div>
+			<div class="debug-card">
+				<h3>Breadcrumb (overflow popover)</h3>
+				<neo-layout class="debug-card-row" style="max-width: 18rem;" wrap align-items="center">
+					@neo.Breadcrumb([]neo.BreadcrumbItem{
+						{Label: "repos", Href: "#"},
+						{Label: "morpheus", Href: "#"},
+						{Label: "internal", Href: "#"},
+						{Label: "site", Href: "#"},
+						{Label: "debug", Href: "#"},
+						{Label: "page_debug.templ"},
+					})
+				</neo-layout>
+			</div>
+			// Option set flips per morph (set A ↔ set B). Tests focus
+			// across option churn and trigger-label degradation when
+			// the selected value vanishes.
+			<div class="debug-card">
+				<h3>Select & Combobox (option set toggles each patch)</h3>
+				<neo-layout class="debug-card-row" wrap align-items="center">
+					@neo.SelectAttrs(neo.SelectOpts{
+						Value:       neo.Set("fra"),
+						AriaLabel:   neo.Set("Toggling region"),
+						Placeholder: neo.Set("Pick a region"),
+					}, templ.Attributes{
+						"id": "debug-toggle-select-1",
+					}) {
+						@neo.Option(neo.OptionOpts{Value: neo.Set("ams")}) {
+							Amsterdam 
+						}
+						@neo.Option(neo.OptionOpts{Value: neo.Set("fra")}) {
+							Frankfurt 
+						}
+						@neo.Option(neo.OptionOpts{Value: neo.Set("sfo")}) {
+							San Francisco 
+						}
+					}
+					@neo.ComboboxAttrs(neo.ComboboxOpts{
+						Value:             neo.Set("react"),
+						AriaLabel:         neo.Set("Toggling engine"),
+						Placeholder:       neo.Set("Pick an engine"),
+						SearchPlaceholder: neo.Set("Search engines…"),
+					}, templ.Attributes{
+						"id": "debug-toggle-combobox-1",
+					}) {
+						@neo.Option(neo.OptionOpts{Value: neo.Set("templ")}) {
+							templ 
+						}
+						@neo.Option(neo.OptionOpts{Value: neo.Set("react")}) {
+							React 
+						}
+						@neo.Option(neo.OptionOpts{Value: neo.Set("vue")}) {
+							Vue
+						}
+					}
+				</neo-layout>
+			</div>
+			// Rich-content options that toggle each patch: same
+			// option-set flip as the plain version above, but each row
+			// carries icon + two-line text. Exercises the rendering of
+			// rich option markup through a server-driven morph.
+			<div class="debug-card">
+				<h3>Select & Combobox (rich content, toggles each patch)</h3>
+				<neo-layout class="debug-card-row" wrap align-items="center">
+					@neo.SelectAttrs(neo.SelectOpts{
+						Value:       neo.Set("staging"),
+						AriaLabel:   neo.Set("Toggling environment"),
+						Placeholder: neo.Set("Pick an environment"),
+					}, templ.Attributes{
+						"id": "debug-rich-toggle-select-1",
+					}) {
+						@neo.Option(neo.OptionOpts{Value: neo.Set("prod"), Label: neo.Set("Production")}) {
+							<neo-layout class="debug-rich-row" inline align-items="center">
+								@neo.Icon("circle-check")
+								<neo-layout class="debug-rich-text" column>
+									<strong>Production</strong>
+									<small>12 nodes · healthy</small>
+								</neo-layout>
+							</neo-layout>
+						}
+						@neo.Option(neo.OptionOpts{Value: neo.Set("staging"), Label: neo.Set("Staging")}) {
+							<neo-layout class="debug-rich-row" inline align-items="center">
+								@neo.Icon("triangle-alert")
+								<neo-layout class="debug-rich-text" column>
+									<strong>Staging</strong>
+									<small>4 nodes · 1 warning</small>
+								</neo-layout>
+							</neo-layout>
+						}
+						@neo.Option(neo.OptionOpts{Value: neo.Set("dev"), Label: neo.Set("Development")}) {
+							<neo-layout class="debug-rich-row" inline align-items="center">
+								@neo.Icon("circle-x")
+								<neo-layout class="debug-rich-text" column>
+									<strong>Development</strong>
+									<small>1 node · failing</small>
+								</neo-layout>
+							</neo-layout>
+						}
+					}
+					@neo.ComboboxAttrs(neo.ComboboxOpts{
+						Value:             neo.Set("morpheus"),
+						AriaLabel:         neo.Set("Toggling repo"),
+						Placeholder:       neo.Set("Pick a repo"),
+						SearchPlaceholder: neo.Set("Search repos…"),
+					}, templ.Attributes{
+						"id": "debug-rich-toggle-combobox-1",
+					}) {
+						@neo.Option(neo.OptionOpts{Value: neo.Set("morpheus"), Label: neo.Set("morpheus")}) {
+							<neo-layout class="debug-rich-row" inline align-items="center">
+								@neo.Icon("folder")
+								<neo-layout class="debug-rich-text" column>
+									<strong>morpheus</strong>
+									<small>47 PRs · 8 reviewers</small>
+								</neo-layout>
+							</neo-layout>
+						}
+						@neo.Option(neo.OptionOpts{Value: neo.Set("datastar"), Label: neo.Set("datastar")}) {
+							<neo-layout class="debug-rich-row" inline align-items="center">
+								@neo.Icon("sparkles")
+								<neo-layout class="debug-rich-text" column>
+									<strong>datastar</strong>
+									<small>12 PRs · 5 reviewers</small>
+								</neo-layout>
+							</neo-layout>
+						}
+						@neo.Option(neo.OptionOpts{Value: neo.Set("templ"), Label: neo.Set("templ")}) {
+							<neo-layout class="debug-rich-row" inline align-items="center">
+								@neo.Icon("code")
+								<neo-layout class="debug-rich-text" column>
+									<strong>templ</strong>
+									<small>8 PRs · 3 reviewers</small>
+								</neo-layout>
+							</neo-layout>
+						}
+					}
+				</neo-layout>
+			</div>
+			// Fixed option set; each option's `disabled` rolled per
+			// morph (~40%). Tests navgroup roving tabindex skipping
+			// options that gain/lose disabled under the cursor.
+			<div class="debug-card">
+				<h3>Select & Combobox (random disabled each patch)</h3>
+				<neo-layout class="debug-card-row" wrap align-items="center">
+					@neo.SelectAttrs(neo.SelectOpts{
+						AriaLabel:   neo.Set("Random disabled region"),
+						Placeholder: neo.Set("Pick a region"),
+					}, templ.Attributes{
+						"id": "debug-random-select-1",
+					}) {
+						@neo.Option(neo.OptionOpts{Value: neo.Set("ams")}) {
+							Amsterdam 
+						}
+						@neo.Option(neo.OptionOpts{Value: neo.Set("fra")}) {
+							Frankfurt 
+						}
+						@neo.Option(neo.OptionOpts{Value: neo.Set("sfo")}) {
+							San Francisco 
+						}
+						@neo.Option(neo.OptionOpts{Value: neo.Set("nrt")}) {
+							Tokyo 
+						}
+						@neo.Option(neo.OptionOpts{Value: neo.Set("syd")}) {
+							Sydney 
+						}
+					}
+					@neo.ComboboxAttrs(neo.ComboboxOpts{
+						AriaLabel:         neo.Set("Random disabled engine"),
+						Placeholder:       neo.Set("Pick an engine"),
+						SearchPlaceholder: neo.Set("Search engines…"),
+					}, templ.Attributes{
+						"id": "debug-random-combobox-1",
+					}) {
+						@neo.Option(neo.OptionOpts{Value: neo.Set("templ")}) {
+							templ 
+						}
+						@neo.Option(neo.OptionOpts{Value: neo.Set("react")}) {
+							React 
+						}
+						@neo.Option(neo.OptionOpts{Value: neo.Set("vue")}) {
+							Vue 
+						}
+						@neo.Option(neo.OptionOpts{Value: neo.Set("svelte")}) {
+							Svelte 
+						}
+						@neo.Option(neo.OptionOpts{Value: neo.Set("html-template")}) {
+							html/template
+						}
+					}
+				</neo-layout>
+			</div>
+			// Sortable (static). Baseline: items never change across
+			// patches. The full-body fat morph reconciles the host's
+			// id-keyed children in place; reorder semantics keep
+			// working because the harness lives in shadow.
+			<div class="debug-card">
+				<h3>Sortable (static)</h3>
+				<neo-layout class="debug-card-row" wrap align-items="center">
+					@neo.SortableAttrs(neo.SortableOpts{}, templ.Attributes{
+						"id": "debug-sortable-static",
+					}) {
+						@neo.SortableItem("debug-sortable-static-design") {
+							@neo.SortableHandle()
+							<span>Design</span>
+						}
+						@neo.SortableItem("debug-sortable-static-build") {
+							@neo.SortableHandle()
+							<span>Build</span>
+						}
+						@neo.SortableItem("debug-sortable-static-test") {
+							@neo.SortableHandle()
+							<span>Test</span>
+						}
+						@neo.SortableItem("debug-sortable-static-ship") {
+							@neo.SortableHandle()
+							<span>Ship</span>
+						}
+					}
+				</neo-layout>
+			</div>
+			// Sortable (order toggle). Same four items, reordered each
+			// tick. Verifies the patch path that reorders by id:
+			// items keep identity, only their position changes.
+			<div class="debug-card">
+				<h3>Sortable (order toggle each patch)</h3>
+				<neo-layout class="debug-card-row" wrap align-items="center">
+					@neo.SortableAttrs(neo.SortableOpts{TolerateReorder: neo.Set(true)}, templ.Attributes{
+						"id": "debug-sortable-order",
+					}) {
+						@neo.SortableItem("debug-sortable-order-design") {
+							@neo.SortableHandle()
+							<span>Design</span>
+						}
+						@neo.SortableItem("debug-sortable-order-build") {
+							@neo.SortableHandle()
+							<span>Build</span>
+						}
+						@neo.SortableItem("debug-sortable-order-test") {
+							@neo.SortableHandle()
+							<span>Test</span>
+						}
+						@neo.SortableItem("debug-sortable-order-ship") {
+							@neo.SortableHandle()
+							<span>Ship</span>
+						}
+					}
+				</neo-layout>
+			</div>
+			// Sortable (item churn). Items themselves swap each tick;
+			// set X ids disjoint from set Y. Verifies insert/remove
+			// reconciliation; no items survive between ticks, so
+			// FLIP target hand-off is exercised. Row pinned at the
+			// 3-item height so a momentary empty state between morph's
+			// remove and add doesn't shove later cards around.
+			<div class="debug-card">
+				<h3>Sortable (items swap each patch)</h3>
+				<neo-layout class="debug-card-row" wrap align-items="center" style="min-height: 10rem;">
+					@neo.SortableAttrs(neo.SortableOpts{}, templ.Attributes{
+						"id": "debug-sortable-items",
+					}) {
+						@neo.SortableItem("debug-sortable-items-alpha") {
+							@neo.SortableHandle()
+							<span>Alpha</span>
+						}
+						@neo.SortableItem("debug-sortable-items-beta") {
+							@neo.SortableHandle()
+							<span>Beta</span>
+						}
+						@neo.SortableItem("debug-sortable-items-gamma") {
+							@neo.SortableHandle()
+							<span>Gamma</span>
+						}
+					}
+				</neo-layout>
+			</div>
+			// Sortable (mixed). Some ids stay across patches (and
+			// reorder), some get added/removed. The realistic
+			// "server pushes a fresh roster" scenario: exercises
+			// reorder + insert + remove in one go. Pinned at the
+			// 4-item max so the row doesn't shrink to 3-item height
+			// every other patch.
+			<div class="debug-card">
+				<h3>Sortable (mixed: reorder + add + remove)</h3>
+				<neo-layout class="debug-card-row" wrap align-items="center" style="min-height: 13rem;">
+					@neo.SortableAttrs(neo.SortableOpts{}, templ.Attributes{
+						"id": "debug-sortable-mixed",
+					}) {
+						@neo.SortableItem("debug-sortable-mixed-pinned-1") {
+							@neo.SortableHandle()
+							<span>Pinned 1</span>
+						}
+						@neo.SortableItem("debug-sortable-mixed-pinned-2") {
+							@neo.SortableHandle()
+							<span>Pinned 2</span>
+						}
+						@neo.SortableItem("debug-sortable-mixed-rotate-a") {
+							@neo.SortableHandle()
+							<span>Rotate A</span>
+						}
+						@neo.SortableItem("debug-sortable-mixed-rotate-b") {
+							@neo.SortableHandle()
+							<span>Rotate B</span>
+						}
+					}
+				</neo-layout>
+			</div>
+			// Tree (static). Items never change across patches. Verifies
+			// the shadow-DOM structure (chevron + animation wrapper)
+			// survives the full-body morph and that nested items
+			// re-attach to slots after their parent's children list
+			// reconciles.
+			<div class="debug-card">
+				<h3>Tree (static)</h3>
+				<neo-layout class="debug-card-row" wrap align-items="center">
+					@neo.TreeAttrs(templ.Attributes{
+						"id":         "debug-tree-static",
+						"aria-label": "Static tree",
+					}) {
+						@neo.TreeItemAttrs(true, templ.Attributes{"id": "debug-tree-static-src"}) {
+							@neo.TreeLabel() {
+								<span>src</span>
+							}
+							@neo.TreeItemAttrs(false, templ.Attributes{"id": "debug-tree-static-app"}) {
+								@neo.TreeLabel() {
+									<span>App.tsx</span>
+								}
+							}
+							@neo.TreeItemAttrs(false, templ.Attributes{"id": "debug-tree-static-main"}) {
+								@neo.TreeLabel() {
+									<span>main.tsx</span>
+								}
+							}
+						}
+						@neo.TreeItemAttrs(false, templ.Attributes{"id": "debug-tree-static-pkg"}) {
+							@neo.TreeLabel() {
+								<span>package.json</span>
+							}
+						}
+					}
+				</neo-layout>
+			</div>
+			// Tree (order toggle). Same id set, reordered each patch;
+			// expanded state should ride through.
+			<div class="debug-card">
+				<h3>Tree (order toggle each patch)</h3>
+				<neo-layout class="debug-card-row" wrap align-items="center">
+					@neo.TreeAttrs(templ.Attributes{
+						"id":         "debug-tree-order",
+						"aria-label": "Order-toggling tree",
+					}) {
+						@neo.TreeItemAttrs(true, templ.Attributes{"id": "debug-tree-order-src"}) {
+							@neo.TreeLabel() {
+								<span>src</span>
+							}
+							@neo.TreeItemAttrs(false, templ.Attributes{"id": "debug-tree-order-app"}) {
+								@neo.TreeLabel() {
+									<span>App.tsx</span>
+								}
+							}
+							@neo.TreeItemAttrs(false, templ.Attributes{"id": "debug-tree-order-main"}) {
+								@neo.TreeLabel() {
+									<span>main.tsx</span>
+								}
+							}
+						}
+						@neo.TreeItemAttrs(false, templ.Attributes{"id": "debug-tree-order-pkg"}) {
+							@neo.TreeLabel() {
+								<span>package.json</span>
+							}
+						}
+						@neo.TreeItemAttrs(false, templ.Attributes{"id": "debug-tree-order-tsc"}) {
+							@neo.TreeLabel() {
+								<span>tsconfig.json</span>
+							}
+						}
+					}
+				</neo-layout>
+			</div>
+			// Tree (swap). Two completely different shapes alternate;
+			// all ids change each tick. Pinned at the 4-visible-item
+			// max so the page below doesn't shift on every patch.
+			<div class="debug-card">
+				<h3>Tree (swap between two trees)</h3>
+				<neo-layout class="debug-card-row" wrap align-items="center" style="min-height: 9rem;">
+					@neo.TreeAttrs(templ.Attributes{
+						"id":         "debug-tree-swap",
+						"aria-label": "Swapping tree",
+					}) {
+						@neo.TreeItemAttrs(true, templ.Attributes{"id": "debug-tree-swap-A-root"}) {
+							@neo.TreeLabel() {
+								<span>animals</span>
+							}
+							@neo.TreeItemAttrs(false, templ.Attributes{"id": "debug-tree-swap-A-cat"}) {
+								@neo.TreeLabel() {
+									<span>cat</span>
+								}
+							}
+							@neo.TreeItemAttrs(false, templ.Attributes{"id": "debug-tree-swap-A-dog"}) {
+								@neo.TreeLabel() {
+									<span>dog</span>
+								}
+							}
+						}
+					}
+				</neo-layout>
+			</div>
+			// Tabs (static). Selection, the active-ink indicator, and the
+			// hidden/shown panel split must ride through the full-body
+			// morph unchanged (this card gets no targeted patch).
+			<div class="debug-card">
+				<h3>Tabs (static)</h3>
+				<neo-layout class="debug-card-row" wrap align-items="center">
+					@neo.TabsAttrs(neo.TabsOpts{Value: neo.Set("overview"), Easing: neo.Set("200ms ease")}, templ.Attributes{
+						"id": "debug-tabs-static",
+					}) {
+						<neo-tablist aria-label="Project sections">
+							@neo.Tab("overview", "overview") {
+								Overview
+							}
+							@neo.Tab("activity", "overview") {
+								Activity
+							}
+							@neo.Tab("settings", "overview") {
+								Settings
+							}
+						</neo-tablist>
+						@neo.TabPanel("overview", "overview") {
+							<p style="margin: 0;">Project overview and status.</p>
+							@neo.Button(neo.ButtonOpts{}) {
+								Okay
+							}
+						}
+						@neo.TabPanel("activity", "overview") {
+							<p style="margin: 0;">Recent activity feed.</p>
+						}
+						@neo.TabPanel("settings", "overview") {
+							<p style="margin: 0;">Project settings.</p>
+						}
+					}
+				</neo-layout>
+			</div>
+			// Tabs (vertical). Same morph coverage with a vertical
+			// tablist, exercising orientation + the arrow-axis swap.
+			<div class="debug-card">
+				<h3>Tabs (vertical)</h3>
+				<neo-layout class="debug-card-row" wrap align-items="center">
+					@neo.TabsAttrs(neo.TabsOpts{Value: neo.Set("general"), Orientation: neo.Set(neo.AxisVertical)}, templ.Attributes{
+						"id": "debug-tabs-vertical",
+					}) {
+						<neo-tablist aria-label="Preferences">
+							@neo.Tab("general", "general") {
+								General
+							}
+							@neo.Tab("appearance", "general") {
+								Appearance
+							}
+							@neo.Tab("advanced", "general") {
+								Advanced
+							}
+						</neo-tablist>
+						@neo.TabPanel("general", "general") {
+							<p style="margin: 0;">General preferences.</p>
+						}
+						@neo.TabPanel("appearance", "general") {
+							<p style="margin: 0;">Theme and appearance.</p>
+						}
+						@neo.TabPanel("advanced", "general") {
+							<p style="margin: 0;">Advanced options.</p>
+						}
+					}
+				</neo-layout>
+			</div>
+			// Tabs (reorder each patch). Same three tab values, rotated
+			// each tick; values keep identity, only their position
+			// changes; focus on the active tab should ride to its new slot.
+			<div class="debug-card">
+				<h3>Tabs (reorder each patch)</h3>
+				<neo-layout class="debug-card-row" wrap align-items="center">
+					@neo.TabsAttrs(neo.TabsOpts{Value: neo.Set("overview")}, templ.Attributes{
+						"id": "debug-tabs-reorder",
+					}) {
+						<neo-tablist aria-label="Reordering tabs">
+							@neo.Tab("overview", "overview") {
+								Overview
+							}
+							@neo.Tab("activity", "overview") {
+								Activity
+							}
+							@neo.Tab("settings", "overview") {
+								Settings
+							}
+						</neo-tablist>
+						@neo.TabPanel("overview", "overview") {
+							<p style="margin: 0;">Overview panel.</p>
+						}
+						@neo.TabPanel("activity", "overview") {
+							<p style="margin: 0;">Activity panel.</p>
+						}
+						@neo.TabPanel("settings", "overview") {
+							<p style="margin: 0;">Settings panel.</p>
+						}
+					}
+				</neo-layout>
+			</div>
+			// Tabs (tabs swap each patch). Two disjoint tab sets alternate;
+			// every tab is removed and a fresh set added each tick; the
+			// active value changes with the set, so a focused tab patched
+			// out must not be resurrected when its set returns.
+			<div class="debug-card">
+				<h3>Tabs (tabs swap each patch)</h3>
+				<neo-layout class="debug-card-row" wrap align-items="center">
+					@neo.TabsAttrs(neo.TabsOpts{Value: neo.Set("alpha")}, templ.Attributes{
+						"id": "debug-tabs-swap",
+					}) {
+						<neo-tablist aria-label="Swapping tabs">
+							@neo.Tab("alpha", "alpha") {
+								Alpha
+							}
+							@neo.Tab("beta", "alpha") {
+								Beta
+							}
+							@neo.Tab("gamma", "alpha") {
+								Gamma
+							}
+						</neo-tablist>
+						@neo.TabPanel("alpha", "alpha") {
+							<p style="margin: 0;">Alpha panel.</p>
+						}
+						@neo.TabPanel("beta", "alpha") {
+							<p style="margin: 0;">Beta panel.</p>
+						}
+						@neo.TabPanel("gamma", "alpha") {
+							<p style="margin: 0;">Gamma panel.</p>
+						}
+					}
+				</neo-layout>
+			</div>
+			// Focus-across-morph coverage: each component below holds a
+			// roving / rebuilt focusable that a fat morph would otherwise
+			// blur to <body>. The full-body morph exercises them every tick.
+			<div class="debug-card">
+				<h3>Radio group</h3>
+				<neo-layout class="debug-card-row" wrap align-items="center">
+					<neo-radio-group id="debug-radio-group" value="email" aria-label="Notify">
+						<label><neo-radio value="email"></neo-radio> <span>Email</span></label>
+						<label><neo-radio value="sms"></neo-radio> <span>SMS</span></label>
+						<label><neo-radio value="push"></neo-radio> <span>Push</span></label>
+					</neo-radio-group>
+				</neo-layout>
+			</div>
+			<div class="debug-card">
+				<h3>Button group (segmented)</h3>
+				<neo-layout class="debug-card-row" wrap align-items="center">
+					<neo-buttongroup id="debug-buttongroup" value="week" aria-label="Range">
+						<neo-button value="day">Day</neo-button>
+						<neo-button value="week">Week</neo-button>
+						<neo-button value="month">Month</neo-button>
+					</neo-buttongroup>
+				</neo-layout>
+			</div>
+			<div class="debug-card">
+				<h3>Toggle group</h3>
+				<neo-layout class="debug-card-row" wrap align-items="center">
+					<neo-toggle-group id="debug-togglegroup" value="bold,italic" aria-label="Format">
+						<neo-toggle value="bold">B</neo-toggle>
+						<neo-toggle value="italic">I</neo-toggle>
+						<neo-toggle value="underline">U</neo-toggle>
+					</neo-toggle-group>
+				</neo-layout>
+			</div>
+			<div class="debug-card">
+				<h3>Navgroup (toolbar)</h3>
+				<neo-layout class="debug-card-row" wrap align-items="center">
+					<neo-navgroup id="debug-navgroup" orientation="horizontal" role="toolbar" aria-label="Format toolbar">
+						<button data-neo-navgroup-item id="debug-navgroup-bold">Bold</button>
+						<button data-neo-navgroup-item id="debug-navgroup-italic">Italic</button>
+						<button data-neo-navgroup-item id="debug-navgroup-underline">Underline</button>
+					</neo-navgroup>
+				</neo-layout>
+			</div>
+			<div class="debug-card">
+				<h3>Slider</h3>
+				<div class="debug-card-row" style="display: block;">
+					<neo-slider id="debug-slider" value="40" min="0" max="100" label="Volume"></neo-slider>
+				</div>
+			</div>
+			<div class="debug-card">
+				<h3>Slider range</h3>
+				<div class="debug-card-row" style="display: block;">
+					<neo-slider-range id="debug-slider-range" value-min="20" value-max="70" min="0" max="100" label="Range"></neo-slider-range>
+				</div>
+			</div>
+			<div class="debug-card">
+				<h3>Pagination</h3>
+				<neo-layout class="debug-card-row" wrap align-items="center">
+					<neo-pagination id="debug-pagination" page="3" pages="10"></neo-pagination>
+				</neo-layout>
+			</div>
+			<div class="debug-card">
+				<h3>Text input</h3>
+				<neo-layout class="debug-card-row" wrap align-items="center">
+					<neo-textinput id="debug-textinput" value="hello" aria-label="Name"></neo-textinput>
+				</neo-layout>
+			</div>
+			<div class="debug-card">
+				<h3>Dialog</h3>
+				<neo-layout class="debug-card-row" wrap align-items="center">
+					<neo-dialog id="debug-dialog">
+						<neo-button data-neo-dialog-trigger>Open dialog</neo-button>
+						<dialog>
+							<h4 data-neo-dialog-title style="margin: 0 0 0.5rem;">Dialog</h4>
+							<input id="debug-dialog-field" type="text" aria-label="Name" placeholder="Name"/>
+							<neo-button data-neo-dialog-close>Close</neo-button>
+						</dialog>
+					</neo-dialog>
+				</neo-layout>
+			</div>
+			<div class="debug-card">
+				<h3>Drawer</h3>
+				<neo-layout class="debug-card-row" wrap align-items="center">
+					<neo-drawer id="debug-drawer" side="right">
+						<neo-button data-neo-drawer-trigger>Open drawer</neo-button>
+						<dialog>
+							<header data-neo-drawer-header>
+								<h2 data-neo-drawer-title style="margin: 0;">Drawer</h2>
+							</header>
+							<div data-neo-drawer-body>
+								<input id="debug-drawer-field" type="text" aria-label="Search" placeholder="Search"/>
+							</div>
+							<footer data-neo-drawer-footer>
+								<neo-button data-neo-drawer-close>Close</neo-button>
+							</footer>
+						</dialog>
+					</neo-drawer>
+				</neo-layout>
+			</div>
+		</main>
+	</div>
+}
+
+// Inline simulator: one long-lived SSE stream emitting a signals+
+// elements patch every 2s, modelling a full-page fat morph of
+// `#debug-page-root`. data-ignore-morph keeps the script alive.
+//
+// The data-init trigger is inserted by this script AFTER sim.post
+// registers; a cached Datastar bundle can otherwise out-race the
+// `import "/static/datasim.js"`, fire @post against the real fetch,
+// and never start the loop. Datastar's MO picks up the late insert.
+templ debugSimulator() {
+	<script type="module" data-ignore-morph>
+		import sim from "/static/datasim.js";
+
+		sim.setLatency(0, 0);
+		sim.setHandlerDelay(0);
+		sim.setUnreachable(false);
+		sim.setErrorResponse("");
+
+		sim.post("/debug/morph/", async (_ctx, sse) => {
+			const tpl = document.getElementById("debug-body-template");
+			const html = tpl ? tpl.innerHTML.trim() : "";
+
+			// Targeted patchElements payload: just the <neo-navgroup>,
+			// so the morph hits options without touching trigger /
+			// popover styling (matches a real `#<host>-options` patch).
+			const optionHTML = (v, label, disabled) =>
+				'<neo-option value="' + v + '" data-neo-value="' + v +
+				'" role="option" tabindex="-1" aria-selected="false"' +
+				' data-neo-navgroup-item' +
+				(disabled ? ' disabled aria-disabled="true"' : '') +
+				'>' + label + '</neo-option>';
+			const navgroupHTML = (id, specs) =>
+				'<neo-navgroup id="' + id +
+				'" orientation="vertical" wrap typeahead>' +
+				specs.map(([v, l, d]) => optionHTML(v, l, !!d)).join('') +
+				'</neo-navgroup>';
+
+			// Rich option HTML: icon + two-line text body, mirrors the
+			// templ structure for the static rich card so morphed-in
+			// rows look identical.
+			const richOptionHTML = (v, name, icon, meta, disabled) =>
+				'<neo-option value="' + v + '" data-neo-value="' + v +
+				'" role="option" tabindex="-1" aria-selected="false"' +
+				' label="' + name + '"' +
+				' data-neo-navgroup-item' +
+				(disabled ? ' disabled aria-disabled="true"' : '') +
+				'><span class="debug-rich-row">' +
+				'<neo-icon name="' + icon + '"></neo-icon>' +
+				'<span class="debug-rich-text">' +
+				'<strong>' + name + '</strong>' +
+				'<small>' + meta + '</small>' +
+				'</span></span></neo-option>';
+			const richNavgroupHTML = (id, specs) =>
+				'<neo-navgroup id="' + id +
+				'" orientation="vertical" wrap typeahead>' +
+				specs.map(([v, name, icon, meta]) =>
+					richOptionHTML(v, name, icon, meta, false)).join('') +
+				'</neo-navgroup>';
+
+			// Toggle set A on odd ticks, B on even. ams / templ stay
+			// in both as a stable pin for the focus-survives test.
+			const toggleA = [
+				['ams', 'Amsterdam'],
+				['fra', 'Frankfurt'],
+				['sfo', 'San Francisco'],
+			];
+			const toggleB = [
+				['ams', 'Amsterdam'],
+				['nrt', 'Tokyo'],
+				['syd', 'Sydney'],
+			];
+			const toggleEnginesA = [
+				['templ', 'templ'],
+				['react', 'React'],
+				['vue', 'Vue'],
+			];
+			const toggleEnginesB = [
+				['templ', 'templ'],
+				['svelte', 'Svelte'],
+				['html-template', 'html/template'],
+			];
+
+			// Fixed set; `disabled` rolled per option per tick.
+			const randomBase = [
+				['ams', 'Amsterdam'],
+				['fra', 'Frankfurt'],
+				['sfo', 'San Francisco'],
+				['nrt', 'Tokyo'],
+				['syd', 'Sydney'],
+			];
+			const randomEnginesBase = [
+				['templ', 'templ'],
+				['react', 'React'],
+				['vue', 'Vue'],
+				['svelte', 'Svelte'],
+				['html-template', 'html/template'],
+			];
+			const rollDisabled = (specs) =>
+				specs.map(([v, l]) => [v, l, Math.random() < 0.4]);
+
+			// Rich toggle sets: same set-flip pattern as the plain
+			// version, structured as [value, name, icon, meta].
+			const richEnvsA = [
+				['prod', 'Production', 'circle-check', '12 nodes · healthy'],
+				['staging', 'Staging', 'triangle-alert', '4 nodes · 1 warning'],
+				['dev', 'Development', 'circle-x', '1 node · failing'],
+			];
+			const richEnvsB = [
+				['prod', 'Production', 'circle-check', '14 nodes · healthy'],
+				['canary', 'Canary', 'sparkles', '2 nodes · 30% rollout'],
+				['eu-prod', 'EU Production', 'circle-check', '6 nodes · healthy'],
+			];
+			const richReposA = [
+				['morpheus', 'morpheus', 'folder', '47 PRs · 8 reviewers'],
+				['datastar', 'datastar', 'sparkles', '12 PRs · 5 reviewers'],
+				['templ', 'templ', 'code', '8 PRs · 3 reviewers'],
+			];
+			const richReposB = [
+				['morpheus', 'morpheus', 'folder', '49 PRs · 8 reviewers'],
+				['docs', 'docs', 'book-open', '2 PRs · 12 reviewers'],
+				['ci', 'ci', 'settings', '5 PRs · 4 reviewers'],
+			];
+
+			// Targeted patch for the morphing-content popover. The
+			// content div is matched by id, children swapped in place;
+			// the host stays put so the open state survives.
+			const popoverContentHTML = (count) => {
+				const isA = count % 2 === 1;
+				const heading =
+					'Patch #' + count + ': set ' + (isA ? 'A' : 'B');
+				const items = isA
+					? ['alpha', 'beta', 'gamma']
+					: ['foo', 'bar', 'baz'];
+				return (
+					'<div data-neo-popover-content id="debug-popover-2-content">' +
+					'<h4 style="margin: 0 0 0.5rem;">' + heading + '</h4>' +
+					'<ul style="margin: 0; padding-left: 1.25rem;">' +
+					items.map((x) => '<li>' + x + '</li>').join('') +
+					'</ul></div>'
+				);
+			};
+
+			// Size-morph payloads. Each toggles between a small and an
+			// oversized body to exercise the popover's overflow + clamp
+			// paths on both axes.
+			const shortTallHTML = (count) => {
+				const tall = count % 2 === 0;
+				if (!tall) {
+					return (
+						'<div data-neo-popover-content id="debug-popover-short-tall-content">' +
+						'<p style="margin: 0;">Short body (patch #' + count + ').</p>' +
+						'</div>'
+					);
+				}
+				const lines = Array.from({ length: 80 }, (_, i) =>
+					'<p style="margin: 0;">Line ' + (i + 1) + ' of 80.</p>',
+				).join('');
+				return (
+					'<div data-neo-popover-content id="debug-popover-short-tall-content">' +
+					'<h4 style="margin: 0 0 0.5rem;">Tall body (patch #' + count + ')</h4>' +
+					lines + '</div>'
+				);
+			};
+			const narrowWideHTML = (count) => {
+				const wide = count % 2 === 0;
+				if (!wide) {
+					return (
+						'<div data-neo-popover-content id="debug-popover-narrow-wide-content">' +
+						'<p style="margin: 0;">Narrow #' + count + '.</p>' +
+						'</div>'
+					);
+				}
+				const longWord = 'wide-'.repeat(40) + 'end';
+				return (
+					'<div data-neo-popover-content id="debug-popover-narrow-wide-content">' +
+					'<p style="margin: 0; white-space: nowrap;">' +
+					longWord + ' (patch #' + count + ')' +
+					'</p></div>'
+				);
+			};
+			const smallBigHTML = (count) => {
+				const big = count % 2 === 0;
+				if (!big) {
+					return (
+						'<div data-neo-popover-content id="debug-popover-small-big-content">' +
+						'<p style="margin: 0;">x (#' + count + ')</p>' +
+						'</div>'
+					);
+				}
+				const longWord = 'big-'.repeat(40) + 'end';
+				const lines = Array.from({ length: 80 }, (_, i) =>
+					'<p style="margin: 0; white-space: nowrap;">Row ' + (i + 1) +
+					': ' + longWord + '</p>',
+				).join('');
+				return (
+					'<div data-neo-popover-content id="debug-popover-small-big-content">' +
+					'<h4 style="margin: 0 0 0.5rem;">Big body (patch #' + count + ')</h4>' +
+					lines + '</div>'
+				);
+			};
+
+			// Sortable payloads. Each emits a full <neo-sortable> with
+			// `data-ignore-morph` removed so the host's children list
+			// reconciles to the new roster: same id = item kept (possibly
+			// reordered); missing id = item removed; new id = item added.
+			// prepareReorderPatch() runs immediately before the patch so
+			// the FLIP captures the pre-morph layout.
+			const sortableItemHTML = (id, label) =>
+				'<div id="' + id + '" data-neo-sortable-item>' +
+				'<span data-neo-sortable-handle aria-hidden="true">' +
+				'<neo-icon name="grip-vertical"></neo-icon>' +
+				'</span>' +
+				'<span>' + label + '</span>' +
+				'</div>';
+			// The order card opts into tolerate-reorder so a patch that
+			// only reshuffles ids doesn't abort an in-flight drag; the
+			// attribute has to survive each patch or the next morph
+			// strips it and the drag aborts on the following tick.
+			const sortableHTML = (id, items, attrs = '') =>
+				'<neo-sortable' + (attrs ? ' ' + attrs : '') + ' id="' + id + '">' +
+				items.map(([itemId, label]) => sortableItemHTML(itemId, label)).join('') +
+				'</neo-sortable>';
+			// Card 2: same items, two alternating orders.
+			const orderA = [
+				['debug-sortable-order-design', 'Design'],
+				['debug-sortable-order-build', 'Build'],
+				['debug-sortable-order-test', 'Test'],
+				['debug-sortable-order-ship', 'Ship'],
+			];
+			const orderB = [
+				['debug-sortable-order-build', 'Build'],
+				['debug-sortable-order-design', 'Design'],
+				['debug-sortable-order-ship', 'Ship'],
+				['debug-sortable-order-test', 'Test'],
+			];
+			// Card 3: items themselves swap each tick, disjoint id sets.
+			const itemsA = [
+				['debug-sortable-items-alpha', 'Alpha'],
+				['debug-sortable-items-beta', 'Beta'],
+				['debug-sortable-items-gamma', 'Gamma'],
+			];
+			const itemsB = [
+				['debug-sortable-items-delta', 'Delta'],
+				['debug-sortable-items-epsilon', 'Epsilon'],
+				['debug-sortable-items-zeta', 'Zeta'],
+			];
+			// Card 4: combination of two pinned ids that survive and reorder;
+			// the rotate-A / rotate-B / rotate-C set churns.
+			const mixedA = [
+				['debug-sortable-mixed-pinned-1', 'Pinned 1'],
+				['debug-sortable-mixed-rotate-a', 'Rotate A'],
+				['debug-sortable-mixed-pinned-2', 'Pinned 2'],
+				['debug-sortable-mixed-rotate-b', 'Rotate B'],
+			];
+			const mixedB = [
+				['debug-sortable-mixed-rotate-c', 'Rotate C'],
+				['debug-sortable-mixed-pinned-2', 'Pinned 2'],
+				['debug-sortable-mixed-pinned-1', 'Pinned 1'],
+			];
+			const patchSortable = (id, items, attrs) => {
+				document.getElementById(id)?.prepareReorderPatch?.();
+				sse.patchElements(sortableHTML(id, items, attrs));
+			};
+
+			// Tree payloads. Each tree is a tiny shape: outer is the
+			// <neo-tree> host with id reused so morph hits the same
+			// element; inner is a recursive renderer for nested items.
+			// Indices align with the static card shapes above so
+			// id-keyed reconciliation has live nodes to match.
+			const treeItemHTML = (id, label, children = '', expanded = false) =>
+				'<neo-tree-item id="' + id + '"' +
+				(expanded ? ' expanded' : '') + '>' +
+				'<div data-neo-tree-label>' + label + '</div>' +
+				children + '</neo-tree-item>';
+			const treeHTML = (hostId, ariaLabel, inner) =>
+				'<neo-tree id="' + hostId + '" aria-label="' + ariaLabel + '">' +
+				inner + '</neo-tree>';
+
+			// Static-tree payload (matches the SSR shape; expected to
+			// be a semantic no-op every tick).
+			const staticTreeInner =
+				treeItemHTML('debug-tree-static-src', 'src',
+					treeItemHTML('debug-tree-static-app', 'App.tsx') +
+					treeItemHTML('debug-tree-static-main', 'main.tsx'),
+					true) +
+				treeItemHTML('debug-tree-static-pkg', 'package.json');
+			const staticTreeHTML = () =>
+				treeHTML('debug-tree-static', 'Static tree', staticTreeInner);
+
+			// Order toggle: same id set, alternating ordering of the
+			// branch's children and the root's siblings.
+			const treeOrderInnerA =
+				treeItemHTML('debug-tree-order-src', 'src',
+					treeItemHTML('debug-tree-order-app', 'App.tsx') +
+					treeItemHTML('debug-tree-order-main', 'main.tsx'),
+					true) +
+				treeItemHTML('debug-tree-order-pkg', 'package.json') +
+				treeItemHTML('debug-tree-order-tsc', 'tsconfig.json');
+			const treeOrderInnerB =
+				treeItemHTML('debug-tree-order-tsc', 'tsconfig.json') +
+				treeItemHTML('debug-tree-order-src', 'src',
+					treeItemHTML('debug-tree-order-main', 'main.tsx') +
+					treeItemHTML('debug-tree-order-app', 'App.tsx'),
+					true) +
+				treeItemHTML('debug-tree-order-pkg', 'package.json');
+
+			// Swap: two completely disjoint trees alternate.
+			const treeSwapInnerA =
+				treeItemHTML('debug-tree-swap-A-root', 'animals',
+					treeItemHTML('debug-tree-swap-A-cat', 'cat') +
+					treeItemHTML('debug-tree-swap-A-dog', 'dog'),
+					true);
+			const treeSwapInnerB =
+				treeItemHTML('debug-tree-swap-B-root', 'planets',
+					treeItemHTML('debug-tree-swap-B-mars', 'mars') +
+					treeItemHTML('debug-tree-swap-B-venus', 'venus') +
+					treeItemHTML('debug-tree-swap-B-earth', 'earth'),
+					true);
+
+			const patchTree = (hostId, ariaLabel, inner) =>
+				sse.patchElements(treeHTML(hostId, ariaLabel, inner));
+
+			// Tabs payloads. tabsHTML rebuilds a <neo-tabs> from a tab set
+			// ([value, label] pairs) + active value, mirroring the SSR
+			// shape (aria-selected/tabindex on tabs, hidden on inactive
+			// panels) so the morph is a clean reconcile.
+			const tabHTML = ([v, label], active) =>
+				'<neo-tab value="' + v + '"' +
+				(v === active ? ' aria-selected="true" tabindex="0"' : ' aria-selected="false" tabindex="-1"') +
+				'>' + label + '</neo-tab>';
+			const tabPanelHTML = ([v, label], active) =>
+				'<neo-tabpanel value="' + v + '"' + (v === active ? '' : ' hidden') +
+				'><p style="margin: 0;">' + label + ' panel.</p></neo-tabpanel>';
+			const tabsHTML = (id, ariaLabel, active, tabs) =>
+				'<neo-tabs id="' + id + '" value="' + active + '">' +
+				'<neo-tablist aria-label="' + ariaLabel + '">' +
+				tabs.map((t) => tabHTML(t, active)).join('') +
+				'</neo-tablist>' +
+				tabs.map((t) => tabPanelHTML(t, active)).join('') +
+				'</neo-tabs>';
+
+			// Reorder: same three values rotated each tick; active
+			// "overview" rides along to its new position.
+			const tabsReorderA = [['overview', 'Overview'], ['activity', 'Activity'], ['settings', 'Settings']];
+			const tabsReorderB = [['activity', 'Activity'], ['settings', 'Settings'], ['overview', 'Overview']];
+			// Swap: two disjoint sets alternate; every tab removed + a
+			// fresh set added each tick. Active is the live set's first value.
+			const tabsSwapA = [['alpha', 'Alpha'], ['beta', 'Beta'], ['gamma', 'Gamma']];
+			const tabsSwapB = [['delta', 'Delta'], ['epsilon', 'Epsilon'], ['zeta', 'Zeta']];
+			const patchTabs = (id, ariaLabel, active, tabs) =>
+				sse.patchElements(tabsHTML(id, ariaLabel, active, tabs));
+
+			let count = 0;
+			while (!sse.signal.aborted) {
+				count++;
+				sse.patchSignals({
+					_debug_counter: count,
+					_debug_last: new Date().toLocaleTimeString(),
+				});
+				if (html) sse.patchElements(html);
+
+				const toggleRegions = (count % 2 === 1) ? toggleA : toggleB;
+				const toggleEngines = (count % 2 === 1) ? toggleEnginesA : toggleEnginesB;
+				sse.patchElements(navgroupHTML('debug-toggle-select-1-options', toggleRegions));
+				sse.patchElements(navgroupHTML('debug-toggle-combobox-1-options', toggleEngines));
+
+				sse.patchElements(navgroupHTML('debug-random-select-1-options', rollDisabled(randomBase)));
+				sse.patchElements(navgroupHTML('debug-random-combobox-1-options', rollDisabled(randomEnginesBase)));
+
+				const richEnvs = (count % 2 === 1) ? richEnvsA : richEnvsB;
+				const richRepos = (count % 2 === 1) ? richReposA : richReposB;
+				sse.patchElements(richNavgroupHTML('debug-rich-toggle-select-1-options', richEnvs));
+				sse.patchElements(richNavgroupHTML('debug-rich-toggle-combobox-1-options', richRepos));
+
+				sse.patchElements(popoverContentHTML(count));
+				sse.patchElements(shortTallHTML(count));
+				sse.patchElements(narrowWideHTML(count));
+				sse.patchElements(smallBigHTML(count));
+
+				const isA = count % 2 === 1;
+				// Sortable card 1 (static) deliberately gets no patch;
+				// the full-body morph already exercises it.
+				patchSortable('debug-sortable-order', isA ? orderA : orderB, 'tolerate-reorder');
+				patchSortable('debug-sortable-items', isA ? itemsA : itemsB);
+				patchSortable('debug-sortable-mixed', isA ? mixedA : mixedB);
+
+				// Tree card 1 (static) gets a no-op patch each tick to
+				// flush the same SSR shape through the morph pipeline.
+				patchTree('debug-tree-static', 'Static tree', staticTreeInner);
+				patchTree('debug-tree-order', 'Order-toggling tree',
+					isA ? treeOrderInnerA : treeOrderInnerB);
+				patchTree('debug-tree-swap', 'Swapping tree',
+					isA ? treeSwapInnerA : treeSwapInnerB);
+
+				patchTabs('debug-tabs-reorder', 'Reordering tabs', 'overview',
+					isA ? tabsReorderA : tabsReorderB);
+				patchTabs('debug-tabs-swap', 'Swapping tabs',
+					isA ? 'alpha' : 'delta', isA ? tabsSwapA : tabsSwapB);
+
+				try {
+					await sse.delay(2000);
+				} catch {
+					return;
+				}
+			}
+		});
+
+		// Inject the data-init trigger after sim.post; Datastar's MO
+		// picks it up; ordering rationale above.
+		const trigger = document.createElement("div");
+		trigger.className = "debug-trigger";
+		trigger.setAttribute("aria-hidden", "true");
+		trigger.setAttribute("data-ignore-morph", "");
+		trigger.setAttribute("data-init", "@post('/debug/morph/')");
+		document.body.appendChild(trigger);
+	</script>
+}

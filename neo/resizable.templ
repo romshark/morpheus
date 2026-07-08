@@ -1,0 +1,36 @@
+package neo
+
+// Resizable prerenders <neo-resizable> with each handle's icon already inlined.
+templ Resizable[N Number](opts ResizableOpts[N]) {
+	@ResizableAttrs(opts, nil) {
+		{ children... }
+	}
+}
+
+// ResizableAttrs is [Resizable] with an extra attribute set.
+templ ResizableAttrs[N Number](opts ResizableOpts[N], attrs templ.Attributes) {
+	{{ handles := opts.Handles.Or(0) }}
+	<neo-resizable
+		handles={ handles.String() }
+		{ resizableMergedAttrs(opts, attrs)... }
+	>
+		{ children... }
+		for _, h := range handles.names() {
+			{{ icon := opts.HandleIcons[h] }}
+			<span data-neo-resizable-handle={ h }>
+				if icon != nil {
+					@icon
+				} else {
+					@IconAttrs(resizableIconByName[h], templ.Attributes{"aria-hidden": "true"})
+				}
+			</span>
+		}
+	</neo-resizable>
+}
+
+// ResizableIcon marks a custom handle glyph with the handle it belongs to
+// (e.g. "bottom-right"), matching a ResizableOpts.HandleIcons key. Spread
+// onto the glyph element passed through HandleIcons.
+func ResizableIcon(handle string) templ.Attributes {
+	return templ.Attributes{"data-neo-resizable-icon": handle}
+}

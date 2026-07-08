@@ -1,0 +1,166 @@
+package site
+
+import (
+	"github.com/romshark/morpheus/internal/href"
+	"github.com/romshark/morpheus/internal/site/examples"
+)
+
+templ PageBoundary(morpheusVersion string) {
+	@PageDoc(href.PageBoundary(), "Boundary", morpheusVersion) {
+		<section class="demo">
+			@anchoredH2("overview") {
+				Boundary
+			}
+			<p class="intro">
+				Component <code>{ "<neo-boundary>" }</code> is a logical scoping
+				region for overlays. An overlay inside it
+				(<a href={ href.PagePopover() }>Popover</a>,
+				<a href={ href.PageMenu() }>Menu</a>,
+				<a href={ href.PageSelect() }>Select</a>,
+				<a href={ href.PageCombobox() }>Combobox</a>, or
+				<a href={ href.PageTextInput() }>Text input</a>
+				suggestions) treats the boundary as its local document and
+				viewport. Its <code>scope</code> attribute is a space-separated token
+				list that defaults to <code>{ `"dismiss positioning"` }</code>:
+				outside clicks and focus no longer dismiss the overlay, and its panel
+				clamps to the region instead of the viewport. Setting <code>scope</code>
+				replaces that default, so add a token to opt into a scope or drop one
+				to turn it off. The <code>scroll</code> token lets independent
+				scrollers outside the region move without closing the overlay;
+				<code>stacking</code> layers the region's overlays inside it rather
+				than the document root. Both are off by default. The element is layout-neutral
+				(<code>{ "display: contents" }</code>) until stacking gives it a box,
+				and never clips a panel. <code>Escape</code> and trigger toggles always
+				close an overlay.
+			</p>
+			@anchoredH2("reference") {
+				Reference
+			}
+			@ComponentDocs(boundaryDoc)
+		</section>
+		<section class="demo">
+			@anchoredH2("examples") {
+				Examples
+			}
+			@anchoredH3("scoped-dismiss") {
+				Scoped dismiss
+			}
+			<p class="demo-note">
+				Two regions, each a <code>{ "<neo-boundary>" }</code>. Open an
+				overlay in one, then click or open something in the other: the
+				first stays open, because each boundary scopes dismiss to itself.
+				Without boundaries, the second interaction would close the first.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "16rem",
+				HTMLSource:     boundaryScopedDismissHTML,
+				TemplSource:    boundaryScopedDismissTempl,
+				CSSSource:      boundaryScopedDismissCSS,
+			}) {
+				@examples.BoundaryScopedDismiss()
+			}
+			@anchoredH3("positioning-containment") {
+				Positioning containment
+			}
+			<p class="demo-note">
+				Open the popover. The panel clamps and flips against the dashed region instead of
+				the viewport. The trigger sits at the region's bottom edge, so
+				the panel flips above it to stay inside. Set
+				<code>{ `scope="dismiss"` }</code> to clamp to the viewport
+				instead.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "16rem",
+				HTMLSource:     boundaryPositioningHTML,
+				TemplSource:    boundaryPositioningTempl,
+				CSSSource:      boundaryPositioningCSS,
+			}) {
+				@examples.BoundaryPositioning()
+			}
+			@anchoredH3("scroll-scope") {
+				Scroll scope
+			}
+			<p class="demo-note">
+				The Account menu is an embedded widget inside a scrollable panel; its
+				boundary adds the <code>scroll</code> token
+				(<code>{ `scope="dismiss positioning scroll"` }</code>). Open the menu,
+				then scroll the panel around it: because that scroller carries the
+				boundary itself, the popover closes instead of floating through the
+				container. Independent scrollers outside the boundary can move without
+				dismissing it.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "18rem",
+				HTMLSource:     boundaryScrollHTML,
+				TemplSource:    boundaryScrollTempl,
+				CSSSource:      boundaryScrollCSS,
+			}) {
+				@examples.BoundaryScroll()
+			}
+			@anchoredH3("stacking-scope") {
+				Stacking scope
+			}
+			<p class="demo-note">
+				Stacking scope is opt-in: the right widget adds the
+				<code>stacking</code> token to establish a local stacking
+				context, so its overlays layer inside the region instead of the
+				document root. Both widgets open the same popover (global
+				<code>{ "z-index: 1000" }</code>) across a host overlay at
+				<code>{ "z-index: 100" }</code>.
+			</p>
+			<ul class="demo-note">
+				<li>
+					Left (default): no stacking context, so the panel outranks the host
+					overlay and paints over it.
+				</li>
+				<li>
+					Right (<code>stacking</code>): the panel is confined to the region's
+					context, so the host overlay paints over it instead.
+				</li>
+			</ul>
+			<p class="demo-note">
+				Open both popovers to compare. Enabling stacking gives the region a
+				box (<code>{ "isolation: isolate" }</code>), the one scope that drops
+				<code>{ "display: contents" }</code>.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "18rem",
+				HTMLSource:     boundaryStackingHTML,
+				TemplSource:    boundaryStackingTempl,
+				CSSSource:      boundaryStackingCSS,
+			}) {
+				@examples.BoundaryStacking()
+			}
+			@anchoredH3("nested") {
+				Nested boundaries
+			}
+			<p class="demo-note">
+				The closest boundary defines the rules; they are not inherited.
+				The inner boundary uses <code>{ `scope="positioning"` }</code> (no dismiss), so its
+				popover closes on any outside click (document scope), even though
+				the outer boundary enables dismiss scoping. A closer boundary
+				that turns a scope off falls back to the document or viewport
+				default, never to the outer boundary. Open the popover, then click outside it to see it close.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "24rem",
+				HTMLSource:     boundaryNestedHTML,
+				TemplSource:    boundaryNestedTempl,
+				CSSSource:      boundaryNestedCSS,
+			}) {
+				@examples.BoundaryNested()
+			}
+		</section>
+	}
+}
+
+var boundaryDoc = ComponentDoc{
+	Attributes: []DocAttribute{
+		{Name: "scope", Type: `"dismiss" | "positioning" | "scroll" | "stacking" (space-separated)`, Default: `"dismiss positioning"`,
+			Description: templ.Raw("Space-separated list of the scopes this region applies. Setting it replaces the default (<code>dismiss positioning</code>) entirely, so list every scope you want; omit a token to fall back to the document / viewport default for it, and <code>scope=\"\"</code> scopes nothing. Tokens: <code>dismiss</code>: a pointer or focus event outside the boundary does not close an overlay inside it (only events inside the boundary but outside the overlay do). <code>positioning</code>: overlay panels clamp and flip against this region's box (the union of the boundary's laid-out descendant rects) instead of the viewport. <code>scroll</code>: a genuinely independent scroll container outside this region can move without closing an embedded overlay; a scroll inside the region, or on an ancestor scroller that carries the region, still dismisses. <code>stacking</code>: the region establishes a local stacking context (<code>isolation: isolate</code>) so its overlays layer inside it, not the document root; this is the one scope that drops <code>display: contents</code> for a box.")},
+	},
+	Slots: []DocSlot{
+		{Name: "default",
+			Description: templ.Raw("The content the boundary scopes. Each overlay inside reads its nearest <code>&lt;neo-boundary&gt;</code> ancestor (via <code>closest(\"neo-boundary\")</code>) and obeys that boundary's scopes only. Rules are not inherited: a closer boundary that turns a scope off falls back to the document or viewport default for that scope, not to an outer boundary. Scoping is purely logical (composed-path containment) and non-visual, so a fixed or top-layer panel still counts as inside through its host even though it paints outside the boundary's box.")},
+	},
+}

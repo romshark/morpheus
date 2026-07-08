@@ -1,0 +1,13 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ SkeletonInline() {
+	<p class="skel-inline">
+		Text with an inline skeleton
+		@neo.SkeletonAttrs(neo.SkeletonOpts{Variant: neo.Set(neo.SkeletonVariantLine)}, templ.Attributes{
+			"class": "skeleton-inline-word",
+		})
+		placeholder mid-sentence.
+	</p>
+}

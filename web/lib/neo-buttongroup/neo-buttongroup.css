@@ -1,0 +1,137 @@
+/* -----------------------------------------------------------------------
+ * <neo-buttongroup>
+ * -----------------------------------------------------------------------
+ * Joins its buttons into a single segmented pill by overlapping their
+ * 1px borders and re-rounding only the outermost corners. With `value`
+ * on the host plus `value` on each button it becomes a radiogroup; the
+ * selected button uses the primary-button colors. */
+
+neo-buttongroup {
+	display: inline-flex;
+}
+
+neo-buttongroup > neo-button {
+	border-radius: 0;
+	position: relative;
+	/* The group border/separators already define the composed control.
+	 * Child contrast rings would appear as stray inner white/gray seams,
+	 * especially on selected dark segments. */
+	--neo-contrast-ring: 0 0 0 0 transparent;
+}
+
+/* Keep every button's full border and overlap adjacent edges. This gives
+ * hover/selection a border to repaint without changing control geometry. */
+neo-buttongroup > * + * {
+	margin-left: -1px;
+}
+
+/* Primary's default `border-color: transparent` would leave no
+ * divider on its right edge, so anchor it to its own bg. */
+neo-buttongroup > neo-button[variant="primary"] {
+	border-color: var(--neo-button-primary-bg);
+}
+
+neo-buttongroup > neo-button[variant="primary"]:hover {
+	border-color: var(--neo-button-primary-hover-bg);
+}
+
+neo-buttongroup > neo-button:only-child {
+	border-radius: var(--neo-button-radius);
+}
+
+neo-buttongroup > neo-button:first-child:not(:last-child) {
+	border-radius: var(--neo-button-radius) 0 0 var(--neo-button-radius);
+}
+
+neo-buttongroup > neo-button:last-child:not(:first-child) {
+	border-radius: 0 var(--neo-button-radius) var(--neo-button-radius) 0;
+}
+
+neo-buttongroup > neo-button:not(:first-child):not(:last-child) {
+	border-radius: 0;
+}
+
+/* Keep lifted hover styling and focus outlines unclipped by neighbours. */
+neo-buttongroup > neo-button:hover,
+neo-buttongroup > neo-button:focus-visible {
+	z-index: 1;
+}
+
+neo-buttongroup > neo-button[aria-checked="true"] {
+	background: var(--neo-button-primary-bg);
+	color: var(--neo-button-primary-color);
+	border-color: var(--neo-button-border-color);
+	z-index: 2;
+}
+
+neo-buttongroup[value] > neo-button[aria-checked="true"]:hover {
+	background: var(--neo-button-primary-hover-bg);
+	color: var(--neo-button-primary-color);
+	border-color: var(--neo-button-border-color);
+	box-shadow: var(--neo-button-shadow);
+	transform: translateY(0);
+}
+
+neo-buttongroup[value] > neo-button[aria-checked="true"]:active {
+	background: var(--neo-button-primary-active-bg);
+	color: var(--neo-button-primary-color);
+	border-color: var(--neo-button-border-color);
+	box-shadow: var(--neo-button-shadow);
+	transform: translateY(0);
+}
+
+/* Vertical orientation: stack, reset left-radius rules, apply top/bottom. */
+neo-buttongroup[orientation="vertical"] {
+	flex-direction: column;
+}
+
+neo-buttongroup[orientation="vertical"] > * + * {
+	margin-left: 0;
+	margin-top: -1px;
+}
+
+neo-buttongroup[orientation="vertical"] > neo-button:first-child {
+	border-radius: var(--neo-button-radius) var(--neo-button-radius) 0 0;
+}
+
+neo-buttongroup[orientation="vertical"] > neo-button:last-child {
+	border-radius: 0 0 var(--neo-button-radius) var(--neo-button-radius);
+}
+
+neo-buttongroup[orientation="vertical"] > neo-button:not(:first-child):not(:last-child) {
+	border-radius: 0;
+}
+
+neo-buttongroup[orientation="vertical"] > neo-button:only-child {
+	border-radius: var(--neo-button-radius);
+}
+
+/* High contrast: thicken to a 2px edge with box-shadow, never a wider
+ * border. A wider border reflows on toggle. An outset ring on the host
+ * doubles the outer frame; an inset shadow on each non-last segment
+ * doubles the shared divider. Both are layout-free. */
+@media (prefers-contrast: more) {
+	neo-buttongroup {
+		border-radius: var(--neo-button-radius);
+		box-shadow: 0 0 0 1px var(--neo-button-color);
+	}
+	neo-buttongroup > neo-button:not(:last-child) {
+		box-shadow: inset -1px 0 0 var(--neo-button-color);
+	}
+	neo-buttongroup[orientation="vertical"] > neo-button:not(:last-child) {
+		box-shadow: inset 0 -1px 0 var(--neo-button-color);
+	}
+}
+
+:root[data-pref-contrast-more] neo-buttongroup {
+	border-radius: var(--neo-button-radius);
+	box-shadow: 0 0 0 1px var(--neo-button-color);
+}
+
+:root[data-pref-contrast-more] neo-buttongroup > neo-button:not(:last-child) {
+	box-shadow: inset -1px 0 0 var(--neo-button-color);
+}
+
+:root[data-pref-contrast-more] neo-buttongroup[orientation="vertical"] > neo-button:not(:last-child) {
+	box-shadow: inset 0 -1px 0 var(--neo-button-color);
+}

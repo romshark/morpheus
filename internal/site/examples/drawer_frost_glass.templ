@@ -1,0 +1,31 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ DrawerFrostGlass() {
+	@neo.DrawerAttrs(neo.DrawerOpts{Side: neo.Set(neo.SideRight)}, templ.Attributes{
+		"class": "drawer-frost-glass-host",
+	}) {
+		<neo-button { neo.DrawerTrigger()... }>Open frost glass</neo-button>
+		<dialog>
+			@neo.DrawerHeader() {
+				@neo.DrawerTitle() {
+					Frost glass surface
+				}
+				@neo.DrawerDescription() {
+					Two stacked blurs: the ::backdrop frosts the page
+					behind the drawer at 6px (with a soft 18% black tint),
+					and the drawer surface adds another 22px on top of
+					its own 42% dark wash.
+				}
+			}
+			@neo.DrawerBody() {
+				<p>Holds up in both light and dark modes. The panel stays dark and the blurred page reads through the glass either way.</p>
+			}
+			@neo.DrawerFooter() {
+				<neo-button { neo.DrawerClose()... }>Close</neo-button>
+				<neo-button variant="primary" { neo.DrawerClose()... }>OK</neo-button>
+			}
+		</dialog>
+	}
+}

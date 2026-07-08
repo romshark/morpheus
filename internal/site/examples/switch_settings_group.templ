@@ -1,0 +1,29 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ SwitchSettingsGroup() {
+	<div class="switch-settings-group">
+		<label class="switch-settings-row">
+			<span class="switch-settings-text">
+				<strong class="switch-settings-title">Auto-update</strong>
+				<small class="switch-settings-desc">Install patch releases automatically.</small>
+			</span>
+			@neo.Switch(neo.SwitchOpts{Checked: neo.Set(true)})
+		</label>
+		<label class="switch-settings-row">
+			<span class="switch-settings-text">
+				<strong class="switch-settings-title">Beta features</strong>
+				<small class="switch-settings-desc">Surface in-development components.</small>
+			</span>
+			@neo.Switch(neo.SwitchOpts{})
+		</label>
+		<label class="switch-settings-row">
+			<span class="switch-settings-text">
+				<strong class="switch-settings-title">Telemetry</strong>
+				<small class="switch-settings-desc">Locked by your organisation.</small>
+			</span>
+			@neo.Switch(neo.SwitchOpts{Checked: neo.Set(true), Disabled: neo.Set(true)})
+		</label>
+	</div>
+}

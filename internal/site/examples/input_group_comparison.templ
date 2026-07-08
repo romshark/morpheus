@@ -1,0 +1,46 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ InputGroupComparison() {
+	<neo-input-group>
+		@neo.TextInput(neo.TextInputOpts{
+			NumericOnly: neo.Set(true),
+			Inputmode:   neo.Set(neo.TextInputInputmodeNumeric),
+			Placeholder: neo.Set("0"),
+		})
+		@neo.SelectAttrs(neo.SelectOpts{
+			Value:             neo.Set("lt"),
+			AriaLabel:         neo.Set("Comparison operator"),
+			Placement:         neo.Set(neo.PlacementBottom),
+			PopoverFitContent: neo.Set(true),
+		}, templ.Attributes{
+			"class": "demo-input-group-select demo-input-group-operator",
+			"hover": true,
+		}) {
+			@neo.Option(neo.OptionOpts{Value: neo.Set("eq")}) {
+				{ "==" }
+			}
+			@neo.Option(neo.OptionOpts{Value: neo.Set("neq")}) {
+				{ "!=" }
+			}
+			@neo.Option(neo.OptionOpts{Value: neo.Set("gt")}) {
+				{ ">" }
+			}
+			@neo.Option(neo.OptionOpts{Value: neo.Set("lt")}) {
+				{ "<" }
+			}
+			@neo.Option(neo.OptionOpts{Value: neo.Set("lte")}) {
+				{ "<=" }
+			}
+			@neo.Option(neo.OptionOpts{Value: neo.Set("gte")}) {
+				{ ">=" }
+			}
+		}
+		@neo.TextInput(neo.TextInputOpts{
+			NumericOnly: neo.Set(true),
+			Inputmode:   neo.Set(neo.TextInputInputmodeNumeric),
+			Placeholder: neo.Set("0"),
+		})
+	</neo-input-group>
+}

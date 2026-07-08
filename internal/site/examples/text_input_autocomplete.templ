@@ -1,0 +1,19 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ TextInputAutocomplete() {
+	<neo-textinput
+		id="city-autocomplete"
+		aria-label="City"
+		placeholder="Search a city…"
+		autocomplete="off"
+		class="text-input-autocomplete-field"
+		data-signals="{city_q: '', city_ctrl: new AbortController()}"
+		data-on:neo-textinput-input__debounce.200ms="$city_q = evt.detail.value; $city_ctrl.abort(); $city_ctrl = new AbortController(); @post('/textinput/suggest/', {requestCancellation: $city_ctrl})"
+	>
+		@neo.DatalistAttrs(neo.DatalistOpts{ID: neo.Set("city-autocomplete-suggestions")}, templ.Attributes{
+			"slot": "suggestions",
+		})
+	</neo-textinput>
+}

@@ -1,0 +1,32 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ LayoutSeparateGaps() {
+	@neo.Layout(neo.LayoutOpts{Direction: neo.Set(neo.Row), Wrap: neo.Set(neo.Wrap), ColumnGap: neo.Set(neo.GapXs), RowGap: neo.Set(neo.GapLg)}) {
+		@neo.Badge(neo.BadgeOpts{Variant: neo.Set(neo.BadgeVariantOutline)}) {
+			design
+		}
+		@neo.Badge(neo.BadgeOpts{Variant: neo.Set(neo.BadgeVariantOutline)}) {
+			frontend
+		}
+		@neo.Badge(neo.BadgeOpts{Variant: neo.Set(neo.BadgeVariantOutline)}) {
+			backend
+		}
+		@neo.Badge(neo.BadgeOpts{Variant: neo.Set(neo.BadgeVariantOutline)}) {
+			infra
+		}
+		@neo.Badge(neo.BadgeOpts{Variant: neo.Set(neo.BadgeVariantOutline)}) {
+			docs
+		}
+		@neo.Badge(neo.BadgeOpts{Variant: neo.Set(neo.BadgeVariantOutline)}) {
+			testing
+		}
+		@neo.Badge(neo.BadgeOpts{Variant: neo.Set(neo.BadgeVariantOutline)}) {
+			release
+		}
+		@neo.Badge(neo.BadgeOpts{Variant: neo.Set(neo.BadgeVariantOutline)}) {
+			staging
+		}
+	}
+}

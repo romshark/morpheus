@@ -1,0 +1,182 @@
+package site
+
+import (
+	"github.com/romshark/morpheus/internal/href"
+	"github.com/romshark/morpheus/internal/site/examples"
+	"github.com/romshark/morpheus/neo"
+)
+
+templ PageNavgroup(morpheusVersion string) {
+	@PageDoc(href.PageNavgroup(), "Navgroup", morpheusVersion) {
+		<section class="demo">
+			@anchoredH2("overview") {
+				Navgroup
+			}
+			<p class="intro">
+				Component <code>{ "<neo-navgroup>" }</code> is a
+				roving-tabindex keyboard navigation host. Arrow keys
+				move focus across children marked
+				<code>data-neo-navgroup-item</code>;
+				<neo-kbd>Tab</neo-kbd> enters and leaves as a single stop.
+				<code>orientation</code> picks the axis (horizontal,
+				vertical, or 2D grid); <code>columns</code> fixes the
+				grid column count; <code>wrap</code> opts into edge
+				wrapping; <code>typeahead</code> opts into focus by
+				printable key. No implicit ARIA role; author
+				<code>role</code> and <code>aria-label</code> to fit
+				the semantics.
+			</p>
+			@neo.AlertAttrs(neo.AlertOpts{Variant: neo.Set(neo.AlertVariantInfo)}, templ.Attributes{"class": "demo-callout"}) {
+				@neo.AlertIcon() {
+					@neo.Icon("info")
+				}
+				@neo.AlertContent() {
+					@neo.AlertTitle(3) {
+						This is keyboard navigation
+					}
+					@neo.AlertDescription() {
+						Focus an item, then the arrow keys&nbsp;
+						@neo.KbdGroup() {
+							@neo.Kbd(neo.KbdOpts{}) {
+								←
+							}
+							@neo.Kbd(neo.KbdOpts{}) {
+								→
+							}
+							@neo.Kbd(neo.KbdOpts{}) {
+								↑
+							}
+							@neo.Kbd(neo.KbdOpts{}) {
+								↓
+							}
+						}
+						&nbsp;plus&nbsp;
+						@neo.Kbd(neo.KbdOpts{}) {
+							Home
+						}
+						&nbsp;/&nbsp;
+						@neo.Kbd(neo.KbdOpts{}) {
+							End
+						}
+						&nbsp;and typeahead. With a pointer the demos
+						are just buttons; the behavior is only
+						observable from the keyboard.
+					}
+				}
+			}
+			@Playground(PlaygroundOpts{
+				ID:     "navgroup-playground",
+				States: navgroupPlaygroundStates(),
+			})
+			@anchoredH2("reference") {
+				Reference
+			}
+			@ComponentDocs(navgroupDoc)
+		</section>
+		<section class="demo">
+			@anchoredH2("examples") {
+				Examples
+			}
+			@anchoredH3("toolbar") {
+				Toolbar
+			}
+			<p class="demo-note">
+				A horizontal row of formatting buttons
+				with <code>wrap</code> on, so arrow keys cycle
+				past either edge. <code>{ `role="toolbar"` }</code> and
+				<code>aria-label</code> turn the group into a
+				single labelled landmark for assistive tech.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     navgroupToolbarHTML,
+				TemplSource:    navgroupToolbarTempl,
+			}) {
+				@examples.NavgroupToolbar()
+			}
+			@anchoredH3("vertical") {
+				Vertical
+			}
+			<p class="demo-note">
+				Same component, axis flipped to
+				match a stacked list. Up/down arrows move focus,
+				<code>wrap</code> keeps the cursor inside the
+				group when it reaches either end.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     navgroupVerticalHTML,
+				TemplSource:    navgroupVerticalTempl,
+			}) {
+				@examples.NavgroupVertical()
+			}
+			@anchoredH3("grid") {
+				Grid
+			}
+			<p class="demo-note">
+				Set <code>{ `orientation="grid"` }</code> with a
+				<code>columns</code> count and arrow keys move in
+				two dimensions. <code>wrap</code> wraps both
+				axes, so a Right at the end of a row jumps to the
+				start of the next row.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     navgroupGridHTML,
+				TemplSource:    navgroupGridTempl,
+				CSSSource:      navgroupGridCSS,
+			}) {
+				@examples.NavgroupGrid()
+			}
+			@anchoredH3("media-controls") {
+				Media controls
+			}
+			<p class="demo-note">
+				Disabled items stay in place so the toolbar's
+				visual order is preserved, but arrow keys skip
+				over them: they're dropped from the roving focus
+				set and can't be activated. Useful for media
+				controls where the available actions change with
+				playback state.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     navgroupMediaHTML,
+				TemplSource:    navgroupMediaTempl,
+			}) {
+				@examples.NavgroupMedia()
+			}
+		</section>
+	}
+}
+
+var navgroupDoc = ComponentDoc{
+	Attributes: []DocAttribute{
+		{Name: "orientation", Type: `"horizontal" | "vertical" | "grid"`, Default: "horizontal", Observed: true,
+			Description: templ.Raw("Layout axis. <code>grid</code> measures rendered columns unless <code>columns</code> is set.")},
+		{Name: "columns", Type: "number", Observed: true,
+			Description: templ.Raw("Optional fixed grid column count.")},
+		{Name: "wrap", Type: "boolean", Default: "false",
+			Description: templ.Raw("Arrow-key focus wraps at the edges.")},
+		{Name: "typeahead", Type: "boolean", Default: "false",
+			Description: templ.Raw("Printable keys focus matching items. Labels are read from <code>data-neo-navgroup-label</code>, <code>aria-label</code>, <code>label</code>, then text content.")},
+		{Name: "typeahead-timeout", Type: "number", Default: "500",
+			Description: templ.Raw("Idle reset duration in milliseconds.")},
+		{Name: "typeahead-match", Type: `"substring" | "prefix"`, Default: `"substring"`,
+			Description: templ.Raw("How the buffered query is matched against item labels.")},
+	},
+	Slots: []DocSlot{
+		{Name: "default",
+			Description: templ.Raw("Children that carry the <code>data-neo-navgroup-item</code> attribute.")},
+	},
+	Events: []DocEvent{
+		{Name: "neo-navgroup-navigate", Detail: "{ index: number, item: HTMLElement }", Bubbles: true,
+			Description: templ.Raw("Fires when roving focus moves to an item via keyboard navigation.")},
+	},
+	CSSProps: []DocCSSProp{
+		{Name: "--neo-navgroup-gap", Default: "calc(var(--page-spacing, 0.25rem) * 2)",
+			Description: templ.Raw("Gap between items.")},
+		{Name: "--neo-navgroup-columns", Default: "1",
+			Description: templ.Raw("Column count in <code>grid</code> orientation. JS mirrors the <code>columns</code> attribute into this property.")},
+	},
+}

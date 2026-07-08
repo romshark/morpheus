@@ -1,0 +1,86 @@
+/* -----------------------------------------------------------------------
+ * <neo-skeleton>
+ * -----------------------------------------------------------------------
+ * A gently pulsing placeholder. Tints are derived from --page-fg via
+ * color-mix so the skeleton reads correctly on every theme without
+ * needing per-theme overrides. Authors size each box with inline
+ * `style="width:…;height:…"` or their own class rules.
+ */
+
+:root {
+	--neo-skeleton-bg: color-mix(in srgb, var(--page-fg) 10%, transparent);
+	--neo-skeleton-bg-pulse: color-mix(in srgb, var(--page-fg) 20%, transparent);
+	--neo-skeleton-radius: var(--page-radius, 0.25rem);
+	--neo-skeleton-duration: 1.4s;
+	--neo-skeleton-default-height: 1rem;
+	/* Anti-flash window: the skeleton stays invisible for the delay, then
+	 * fades in. Content that resolves within the delay never flashes a
+	 * skeleton. `immediate` opts out. */
+	--neo-skeleton-fade-delay: 0.3s;
+	--neo-skeleton-fade-duration: 0.4s;
+}
+
+neo-skeleton {
+	/* Marks this stylesheet as loaded so the kit can flag a trimmed CSS-only component. */
+	--neo-loaded: neo-skeleton;
+	display: block;
+	width: 100%;
+	height: var(--neo-skeleton-default-height);
+	background-color: var(--neo-skeleton-bg);
+	border-radius: var(--neo-skeleton-radius);
+	/* `both` holds opacity at 0 through the delay, so removing the element
+	 * before the delay elapses shows nothing. */
+	animation:
+		neo-skeleton-fade-in var(--neo-skeleton-fade-duration) ease-out var(--neo-skeleton-fade-delay) both,
+		neo-skeleton-pulse var(--neo-skeleton-duration) ease-in-out infinite;
+}
+
+/* Appear instantly, for placeholders shown when a long load is already
+ * known, where the fade would just feel sluggish. */
+neo-skeleton[immediate]:where(:not([immediate="false"])) {
+	animation: neo-skeleton-pulse var(--neo-skeleton-duration) ease-in-out infinite;
+}
+
+neo-skeleton[variant="circle"] {
+	border-radius: 50%;
+	aspect-ratio: 1 / 1;
+	width: auto;
+	height: auto;
+}
+
+neo-skeleton[variant="line"] {
+	display: inline-block;
+	vertical-align: middle;
+	height: 0.85em;
+	width: 6em;
+}
+
+@keyframes neo-skeleton-pulse {
+	0%,
+	100% {
+		background-color: var(--neo-skeleton-bg);
+	}
+	50% {
+		background-color: var(--neo-skeleton-bg-pulse);
+	}
+}
+
+@keyframes neo-skeleton-fade-in {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	/* Drop the looping pulse but keep the delayed fade-in: it's a functional
+	 * anti-flash gate, not decorative motion. */
+	neo-skeleton {
+		animation: neo-skeleton-fade-in var(--neo-skeleton-fade-duration) ease-out var(--neo-skeleton-fade-delay) both;
+	}
+	neo-skeleton[immediate]:where(:not([immediate="false"])) {
+		animation: none;
+	}
+}

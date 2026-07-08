@@ -1,0 +1,16 @@
+package neo
+
+// Textarea renders <neo-textarea>. The native field lives in the
+// component's shadow root, so the host carries the options/passthrough
+// attributes and the light DOM stays empty; the field appears on upgrade.
+templ Textarea(opts TextareaOpts) {
+	@TextareaAttrs(opts, nil)
+}
+
+// TextareaAttrs is [Textarea] plus an escape hatch: attrs carries native
+// passthrough and arbitrary attributes (style, aria-*, data-* / Datastar
+// bindings) and overrides any colliding typed field.
+templ TextareaAttrs(opts TextareaOpts, attrs templ.Attributes) {
+	{{ merged := textareaMergedAttrs(opts, attrs) }}
+	<neo-textarea { merged... }></neo-textarea>
+}

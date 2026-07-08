@@ -1,0 +1,21 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ BreadcrumbSlash() {
+	<neo-breadcrumb aria-label="Breadcrumb">
+		<a href="#">Home</a>
+		@neo.BreadcrumbSep() {
+			/
+		}
+		<a href="#">Workspace</a>
+		@neo.BreadcrumbSep() {
+			/
+		}
+		<a href="#">Settings</a>
+		@neo.BreadcrumbSep() {
+			/
+		}
+		<span aria-current="page">Account</span>
+	</neo-breadcrumb>
+}

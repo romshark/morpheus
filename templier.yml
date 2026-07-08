@@ -1,0 +1,107 @@
+proxy-timeout: 10s
+templier-host: "localhost:9090"
+debounce:
+lint: true
+format: true
+tls:
+
+# Skip pnpm's isolated `web/node_modules` tree. Without this, templier's
+# startup walk follows platform-binary directory symlinks (e.g.
+# @biomejs/cli-darwin-arm64) into os.Open → directory → io.Copy EISDIR
+# and crashes with "registering files from base dir: copying to xxhash:
+# is a directory". doublestar's trailing `/**` matches zero-or-more
+# segments including the preceding separator, so this one pattern
+# covers both the directory itself and every descendant.
+watcher-ignore:
+  - "**/node_modules/**"
+
+log:
+  level: erronly
+  clear-on:
+  print-js-debug-logs: true
+
+app:
+  dir-src-root: .
+  dir-cmd: ./internal/cmd/fileserve
+  dir-work: .
+  host: http://0.0.0.0:8080
+  flags: "-addr 0.0.0.0:8080"
+  exclude:
+    # fileserve has no embedded state — it just hands out dst/ off
+    # disk. Nothing in this repo should ever cause templier to
+    # rebuild and restart it. Excluding everything keeps the binary
+    # lifecycle to a single boot at templier startup; the custom
+    # watchers below run their own pipeline (lint, bundle, minify,
+    # render) and the browser is reloaded via `requires: reload`,
+    # not via a server restart. If you ever do edit
+    # internal/cmd/fileserve/main.go, kill templier and re-run `make watch`.
+    - "**/*"
+
+compiler:
+  gcflags:
+  ldflags:
+  asmflags:
+  trimpath:
+  race:
+  tags:
+  p:
+  msan:
+  env:
+    CGO_ENABLED: 0
+
+custom-watchers:
+  - name: "Check TypeScript & CSS (biome lint + tsc)"
+    cmd: "cd web && pnpm run check-all"
+    include:
+      - "web/**/*.ts"
+      - "web/**/*.css"
+    exclude:
+    fail-on-error: true
+    requires:
+    debounce:
+
+  - name: "Bundle web components (esbuild)"
+    cmd: "cd web && pnpm run build -- --js"
+    include:
+      - "web/**/*.ts"
+    exclude:
+    fail-on-error: true
+    requires:
+    debounce:
+
+  # Watches the unminified CSS sources at the top of internal/site/static/.
+  # The minified outputs land in /min/ at the repo root, matched by the
+  # Render watcher's "min/**/*" include below — no feedback loop because
+  # this watcher's include only matches the sources.
+  - name: "Minify CSS (esbuild)"
+    cmd: "cd web && pnpm run build -- --css"
+    include:
+      - "internal/site/static/*.css"
+      - "web/**/*.css"
+    exclude:
+    fail-on-error: true
+    requires:
+    debounce:
+
+  # Catch-all renderer. Includes internal/site/**/*.go so regenerated
+  # _templ.go files (written by the background `templ generate --watch`)
+  # drive the rebuild; min/**/* picks up the minified CSS+JS outputs
+  # written by the bundle/minify watchers above; excludes the
+  # unminified CSS sources so the cascade comes from /min/*.css.
+  - name: "Render static site (internal/cmd/gen)"
+    cmd: "go run ./internal/cmd/gen -dst dst"
+    include:
+      - "internal/site/**/*.go"
+      - "internal/site/examples/**/*.html"
+      - "internal/site/static/**/*"
+      - "min/**/*"
+      - "internal/cmd/gen/**/*.go"
+      - "internal/cmd/gen/datasim.js"
+      - "internal/href/**/*.go"
+      - "neo/**/*.go"
+      - "datastar/**/*.go"
+    exclude:
+      - "internal/site/static/*.css"
+    fail-on-error: true
+    requires: reload
+    debounce:

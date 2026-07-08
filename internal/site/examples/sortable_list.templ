@@ -1,0 +1,22 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ SortableList() {
+	@neo.SortableAttrs(neo.SortableOpts{
+		Orientation: neo.Set(neo.OrientationVertical),
+	}, templ.Attributes{"class": "sortable-list"}) {
+		@neo.SortableItem("laptop") {
+			@neo.SortableHandle()
+			Laptop
+		}
+		@neo.SortableItem("phone") {
+			@neo.SortableHandle()
+			Phone
+		}
+		@neo.SortableItem("tablet") {
+			@neo.SortableHandle()
+			Tablet
+		}
+	}
+}

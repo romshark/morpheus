@@ -1,0 +1,12 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ TextareaDisabled() {
+	@neo.Textarea(neo.TextareaOpts{
+		Value:       neo.Set("This note is locked while the report is archived."),
+		Rows:        neo.Set(3),
+		Disabled:    neo.Set(true),
+		Placeholder: neo.Set("Disabled textarea"),
+	})
+}

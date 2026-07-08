@@ -1,0 +1,27 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ ContextMenuCustom() {
+	@neo.ContextMenuAttrs(neo.ContextMenuOpts{ClampPlacement: neo.Set(true)}, templ.Attributes{"class": "cm-custom"}) {
+		@neo.ContextMenuTriggerAttrs(templ.Attributes{"class": "cm-card"}) {
+			<strong>invoice-042.pdf</strong>
+			<span>Right-click for file actions</span>
+		}
+		@neo.Menu(neo.MenuOpts{}) {
+			@neo.MenuItem(neo.MenuItemOpts{Value: neo.Set("copy-link")}) {
+				@neo.Icon("link")
+				Copy link
+			}
+			@neo.MenuItem(neo.MenuItemOpts{Value: neo.Set("download")}) {
+				@neo.Icon("clipboard")
+				Copy filename
+			}
+			<hr/>
+			@neo.MenuItem(neo.MenuItemOpts{Value: neo.Set("delete")}) {
+				@neo.Icon("trash-2")
+				Delete
+			}
+		}
+	}
+}

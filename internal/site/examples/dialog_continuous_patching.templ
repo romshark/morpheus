@@ -1,0 +1,37 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ DialogContinuousPatching() {
+	@neo.DialogAttrs(neo.DialogOpts{}, templ.Attributes{
+		"data-signals":             "{dialog_patching_ctrl: new AbortController()}",
+		"data-on:neo-dialog-open":  "@post('/dialog/work-stream', { requestCancellation: $dialog_patching_ctrl })",
+		"data-on:neo-dialog-close": "$dialog_patching_ctrl.abort(); $dialog_patching_ctrl = new AbortController()",
+	}) {
+		<neo-button { neo.DialogTrigger()... }>Run deployment</neo-button>
+		<dialog>
+			@neo.DialogHeader() {
+				@neo.DialogTitle() {
+					Deployment
+				}
+				@neo.DialogDescription() {
+					The server streams progress patches; the
+					body grows inside a
+					<code>{ `<neo-elastic>` }</code> wrapper
+					that animates the height change.
+				}
+			}
+			<neo-layout id="dialog-patching-body" class="dialog-patching-slot" column>
+				<neo-elastic>
+					<div id="dialog-patching-steps">
+						<neo-layout class="dialog-patching-skeleton" column { neo.AsyncPlaceholder()... }>
+							<neo-skeleton class="dialog-continuous-patching-line-1"></neo-skeleton>
+							<neo-skeleton class="dialog-continuous-patching-line-2"></neo-skeleton>
+							<neo-skeleton class="dialog-continuous-patching-line-3"></neo-skeleton>
+						</neo-layout>
+					</div>
+				</neo-elastic>
+			</neo-layout>
+		</dialog>
+	}
+}

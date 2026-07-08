@@ -1,0 +1,26 @@
+.boundary-nested-outer {
+	padding: 2rem;
+	border: 1px dashed var(--muted);
+	border-radius: var(--page-radius);
+}
+
+.boundary-nested-intro {
+	margin: 0 0 1rem;
+	color: var(--muted);
+}
+
+.boundary-nested-inner {
+	min-height: 12rem;
+	padding: 1rem;
+	border: 1px dashed var(--muted);
+	border-radius: var(--page-radius);
+}
+
+.boundary-nested-body {
+	margin: 0;
+}
+
+.boundary-nested-caption {
+	margin-top: 2rem;
+	color: var(--muted);
+}

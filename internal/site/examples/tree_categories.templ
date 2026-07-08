@@ -1,0 +1,65 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+// treeCatNode is one taxonomy node. Branches carry Children; leaves
+// leave it nil.
+type treeCatNode struct {
+	Label    string
+	Expanded bool
+	Children []treeCatNode
+}
+
+var treeCatData = []treeCatNode{
+	{Label: "Animals", Expanded: true, Children: []treeCatNode{
+		{Label: "Mammals", Children: []treeCatNode{
+			{Label: "Carnivores", Children: []treeCatNode{
+				{Label: "Felidae", Children: []treeCatNode{
+					{Label: "Lion"},
+					{Label: "Tiger"},
+					{Label: "Cheetah"},
+				}},
+				{Label: "Canidae", Children: []treeCatNode{
+					{Label: "Wolf"},
+					{Label: "Fox"},
+				}},
+			}},
+			{Label: "Primates", Children: []treeCatNode{
+				{Label: "Hominidae"},
+			}},
+		}},
+		{Label: "Birds", Children: []treeCatNode{
+			{Label: "Raptors"},
+			{Label: "Songbirds"},
+		}},
+	}},
+}
+
+// treeCatItem renders any depth; same-file recursion keeps the embedded
+// source self-contained.
+templ treeCatItem(n treeCatNode) {
+	if len(n.Children) == 0 {
+		@neo.TreeItem(false) {
+			@neo.TreeLabel() {
+				{ n.Label }
+			}
+		}
+	} else {
+		@neo.TreeItem(n.Expanded) {
+			@neo.TreeLabel() {
+				{ n.Label }
+			}
+			for _, c := range n.Children {
+				@treeCatItem(c)
+			}
+		}
+	}
+}
+
+templ TreeCategories() {
+	@neo.Tree() {
+		for _, n := range treeCatData {
+			@treeCatItem(n)
+		}
+	}
+}

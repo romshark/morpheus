@@ -1,0 +1,15 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ SkeletonVariants() {
+	@neo.SkeletonAttrs(neo.SkeletonOpts{}, templ.Attributes{
+		"class": "skeleton-variants-block",
+	})
+	@neo.SkeletonAttrs(neo.SkeletonOpts{Variant: neo.Set(neo.SkeletonVariantLine)}, templ.Attributes{
+		"class": "skeleton-variants-line",
+	})
+	@neo.SkeletonAttrs(neo.SkeletonOpts{Variant: neo.Set(neo.SkeletonVariantCircle)}, templ.Attributes{
+		"class": "skeleton-variants-circle",
+	})
+}

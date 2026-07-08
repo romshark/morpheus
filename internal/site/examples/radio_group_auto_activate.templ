@@ -1,0 +1,20 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ RadioGroupAutoActivate() {
+	@neo.RadioGroup(neo.RadioGroupOpts{Value: neo.Set("email"), AutoActivate: neo.Set(true), AriaLabel: neo.Set("Notification channel")}) {
+		<label class="radio-pg-row">
+			@neo.Radio(neo.RadioOpts{Value: neo.Set("email")})
+			<span>Email</span>
+		</label>
+		<label class="radio-pg-row">
+			@neo.Radio(neo.RadioOpts{Value: neo.Set("sms")})
+			<span>SMS</span>
+		</label>
+		<label class="radio-pg-row">
+			@neo.Radio(neo.RadioOpts{Value: neo.Set("push")})
+			<span>Push notification</span>
+		</label>
+	}
+}

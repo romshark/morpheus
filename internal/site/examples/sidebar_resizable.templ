@@ -1,0 +1,69 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ SidebarResizable() {
+	<neo-layout class="sb-shell">
+		@neo.ResizableAttrs(neo.ResizableOpts[float64]{
+			Handles:  neo.Set(neo.ResizableRight),
+			Width:    neo.Set("14rem"),
+			MinWidth: neo.Set("12rem"),
+			MaxWidth: neo.Set("22rem"),
+		}, templ.Attributes{"class": "sb-resizable-nav"}) {
+			@neo.SidebarAttrs(neo.SidebarOpts{}, templ.Attributes{"id": "demo-sidebar-resize-nav"}) {
+				@neo.SidebarHeader() {
+					<span>Nav</span>
+				}
+				<nav aria-label="Resizable nav" { neo.SidebarContent()... }>
+					@neo.NavGroupAttrs(neo.NavGroupOpts{Orientation: neo.Set(neo.OrientationVertical), Wrap: neo.Set(true)}, templ.Attributes{"role": "menu", "class": "sb-resizable-menu"}) {
+						@neo.ButtonAttrs(neo.ButtonOpts{}, neo.NavGroupItem()) {
+							@neo.Icon("heart")
+							{ " " }Favorites
+						}
+						@neo.ButtonAttrs(neo.ButtonOpts{}, neo.NavGroupItem()) {
+							@neo.Icon("mail")
+							{ " " }Inbox
+						}
+						@neo.ButtonAttrs(neo.ButtonOpts{}, neo.NavGroupItem()) {
+							@neo.Icon("bell")
+							{ " " }Notifications
+						}
+					}
+				</nav>
+			}
+		}
+		<neo-layout class="sb-main" column>
+			<header class="sb-bar">
+				@neo.ButtonAttrs(neo.ButtonOpts{}, templ.Attributes{"aria-label": "Toggle resizable nav", "data-on:click": "document.getElementById('demo-sidebar-resize-nav').toggle()"}) {
+					@neo.Icon("menu")
+				}
+				<strong>Workspace</strong>
+				<span class="sb-resizable-spacer"></span>
+				@neo.ButtonAttrs(neo.ButtonOpts{}, templ.Attributes{"aria-label": "Toggle resizable info", "data-on:click": "document.getElementById('demo-sidebar-resize-info').toggle()"}) {
+					@neo.Icon("info")
+				}
+			</header>
+			<div class="sb-body">
+				<p>
+					Drag the right edge of the left sidebar or the left edge of the
+					right sidebar to resize them, bounded to a readable range.
+				</p>
+			</div>
+		</neo-layout>
+		@neo.ResizableAttrs(neo.ResizableOpts[float64]{
+			Handles:  neo.Set(neo.ResizableLeft),
+			Width:    neo.Set("16rem"),
+			MinWidth: neo.Set("14rem"),
+			MaxWidth: neo.Set("24rem"),
+		}, templ.Attributes{"class": "sb-resizable-info"}) {
+			@neo.SidebarAttrs(neo.SidebarOpts{Side: neo.Set(neo.SideRight)}, templ.Attributes{"id": "demo-sidebar-resize-info"}) {
+				@neo.SidebarHeader() {
+					<span>Info</span>
+				}
+				<div { neo.SidebarContent()... }>
+					<p>A right-side info column. Same resize pattern, handle on the left edge.</p>
+				</div>
+			}
+		}
+	</neo-layout>
+}

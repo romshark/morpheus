@@ -1,0 +1,18 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ BadgeAsLink() {
+	<a href="#" class="badge-link-demo">
+		@neo.Badge(neo.BadgeOpts{Variant: neo.Set(neo.BadgeVariantOutline)}) {
+			Documentation
+			@neo.Icon("link")
+		}
+	</a>
+	<a href="#" class="badge-link-demo">
+		@neo.Badge(neo.BadgeOpts{}) {
+			Changelog
+			@neo.Icon("link")
+		}
+	</a>
+}

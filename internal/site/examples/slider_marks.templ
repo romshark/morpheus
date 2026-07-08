@@ -1,0 +1,21 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ SliderMarks() {
+	@neo.Slider(neo.SliderOpts[float64]{
+		Min:   neo.Set(0.0),
+		Max:   neo.Set(100.0),
+		Step:  neo.Set(5.0),
+		Value: neo.Set(40.0),
+		Label: neo.Set("Quality"),
+		Unit:  neo.Set("%"),
+		Marks: []neo.SliderMark{
+			{Value: 0, Label: "Low"},
+			{Value: 25, Label: "Fair"},
+			{Value: 50, Label: "Good"},
+			{Value: 75, Label: "High"},
+			{Value: 100, Label: "Best"},
+		},
+	})
+}

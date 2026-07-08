@@ -1,0 +1,12 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ ProgressBareRail() {
+	@neo.Progress(neo.ProgressOpts[float64]{
+		Min:       neo.Set(0.0),
+		Max:       neo.Set(100.0),
+		Value:     neo.Set(72.0),
+		HideValue: neo.Set(true),
+	})
+}

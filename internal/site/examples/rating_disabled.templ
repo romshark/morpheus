@@ -1,0 +1,11 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ RatingDisabled() {
+	@neo.Rating(neo.RatingOpts{
+		Label:    neo.Set("Locked rating"),
+		Value:    neo.Set(2.0),
+		Disabled: neo.Set(true),
+	})
+}

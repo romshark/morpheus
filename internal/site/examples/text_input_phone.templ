@@ -1,0 +1,11 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ TextInputPhone() {
+	@neo.TextInput(neo.TextInputOpts{
+		Mask:        neo.Set("(###) ###-####"),
+		Inputmode:   neo.Set(neo.TextInputInputmodeTel),
+		Placeholder: neo.Set("(555) 123-4567"),
+	})
+}

@@ -1,0 +1,240 @@
+package site
+
+import (
+	"github.com/romshark/morpheus/internal/href"
+	"github.com/romshark/morpheus/internal/site/examples"
+)
+
+templ PageSpinner(morpheusVersion string) {
+	@PageDoc(href.PageSpinner(), "Spinner", morpheusVersion) {
+		<section class="demo">
+			@anchoredH2("overview") {
+				Spinner
+			}
+			<p class="intro">
+				Component <code>{ "<neo-spinner>" }</code> is a
+				circular loading indicator with two modes.
+				<strong>Indeterminate</strong> rotates a partial
+				ring during work of unknown duration;
+				<strong>determinate</strong> draws an arc filled to
+				<code>(value − min) / (max − min)</code>, the round
+				counterpart of <code>{ "<neo-progress>" }</code>.
+				Sized off <code>--neo-spinner-size</code> (defaults
+				to <code>1em</code>) and inherits
+				<code>currentColor</code>.
+				The ring lives in an open shadow root; customize its
+				<code>ring</code>, <code>track</code>,
+				<code>arc</code>, and <code>sun</code> parts with
+				<code>::part()</code>.
+			</p>
+			@Playground(PlaygroundOpts{
+				ID:     "spinner-playground",
+				States: spinnerPlaygroundStates(),
+			})
+			@anchoredH2("reference") {
+				Reference
+			}
+			@ComponentDocs(spinnerDoc)
+		</section>
+		<section class="demo">
+			@anchoredH2("examples") {
+				Examples
+			}
+			@anchoredH3("indeterminate") {
+				Indeterminate
+			}
+			<p class="demo-note">
+				A bare <code>{ "<neo-spinner>" }</code> with no
+				<code>value</code> stays decorative and CSS-driven;
+				pair it with adjacent status text.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     spinnerDefaultHTML,
+				TemplSource:    spinnerDefaultTempl,
+				CSSSource:      spinnerDefaultCSS,
+			}) {
+				@examples.SpinnerDefault()
+			}
+			@anchoredH3("determinate") {
+				Determinate (progress ring)
+			}
+			<p class="demo-note">
+				A faint track with a <code>currentColor</code> arc
+				filled by <code>value</code>. No text is drawn on the
+				ring; the value goes to <code>aria-valuenow</code>,
+				and a wrapping <code>{ "<neo-tooltip>" }</code> can
+				surface it visually (see below).
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     spinnerDeterminateHTML,
+				TemplSource:    spinnerDeterminateTempl,
+				CSSSource:      spinnerDeterminateCSS,
+			}) {
+				@examples.SpinnerDeterminate()
+			}
+			@anchoredH3("animated-progress") {
+				Live progression
+			}
+			<p class="demo-note">
+				The ring is just an attribute; drive
+				<code>value</code> from anything (SSE, a
+				<code>fetch</code> progress callback, a timer) and the
+				arc sweeps to it. <code>easing</code> tweens the arc
+				between commits (same syntax as
+				<code>{ "<neo-progress>" }</code>); this one is wired to
+				a 60 ms ticker.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     spinnerAnimatedHTML,
+				TemplSource:    spinnerAnimatedTempl,
+				CSSSource:      spinnerAnimatedCSS,
+			}) {
+				@examples.SpinnerAnimated()
+			}
+			@anchoredH3("labelled-progressbar") {
+				Labelled, with value tooltip
+			}
+			<p class="demo-note">
+				With a <code>label</code> the host reports
+				<code>{ `role="progressbar"` }</code> with
+				<code>aria-valuemin</code> /
+				<code>aria-valuemax</code> /
+				<code>aria-valuenow</code>, so it's a real,
+				announced progress indicator, not just a decorative
+				glyph. <code>Tooltip</code> wraps it in a
+				<code>{ "<neo-tooltip>" }</code> so the value (with
+				<code>Unit</code>) appears on hover or focus, never
+				painted on the ring. Color follows
+				<code>currentColor</code>.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     spinnerLabeledHTML,
+				TemplSource:    spinnerLabeledTempl,
+				CSSSource:      spinnerLabeledCSS,
+			}) {
+				@examples.SpinnerLabeled()
+			}
+			@anchoredH3("sizes") {
+				Sizes
+			}
+			<p class="demo-note">
+				Drive the visual size with the
+				<code>--neo-spinner-size</code> custom property.
+				It defaults to <code>1em</code> so a bare spinner
+				inherits the surrounding line-height naturally;
+				override it inline (or via a wrapper class) to
+				get any other size without touching the markup.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     spinnerSizesHTML,
+				TemplSource:    spinnerSizesTempl,
+				CSSSource:      spinnerSizesCSS,
+			}) {
+				@examples.SpinnerSizes()
+			}
+			@anchoredH3("inherits-parent-color") {
+				Inherits parent color
+			}
+			<p class="demo-note">
+				The spinner's stroke is <code>currentColor</code>,
+				so wrapping it in any element with a
+				<code>color</code> recolours both modes. Theme
+				tokens like <code>var(--accent)</code> work too.
+				Below: an indeterminate spin and three determinate
+				rings at 25%, 66%, 100%, each in a different parent
+				colour.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     spinnerColorHTML,
+				TemplSource:    spinnerColorTempl,
+				CSSSource:      spinnerColorCSS,
+			}) {
+				@examples.SpinnerColor()
+			}
+			<p class="demo-note">
+				Under
+				<code>{ `prefers-reduced-motion: reduce` }</code>, the
+				indeterminate spinner swaps the rotating arc for a
+				static eight-ray <em>sun starburst</em> (the canonical
+				lucide <code>loader</code> glyph). That keeps it
+				visually distinct from a determinate ring sitting at
+				~75%, which is what the frozen 3/4 arc would look
+				like otherwise. The determinate ring keeps its fill
+				and only drops its commit tween, so values jump
+				rather than sweep. The kit's
+				<code>--neo-spinner-duration</code> token sits on its
+				own (not routed through the global
+				<code>--neo-duration-scale</code>) so the spin isn't
+				accidentally killed when other kit motion is dialed
+				down.
+			</p>
+		</section>
+		<section class="demo">
+			@anchoredH2("examples-datastar") {
+				Examples: Datastar
+			}
+			@anchoredH3("morphing-during-interaction") {
+				Morphing during interaction
+			}
+			<p class="demo-note">
+				A Datastar app can fat-morph the page at any moment,
+				switching between unknown progress and
+				server-reported percentages. Each state re-emits only
+				the bare host. The SVG ring lives in the component's
+				shadow root, so the morph leaves the existing arc in
+				place. The
+				<code>easing</code> transition sweeps between
+				determinate values, while the indeterminate state
+				switches the same arc back to its rotating animation.
+				Autoplay cycles through all five states below with no
+				signals or morph hints.
+			</p>
+			@Playground(PlaygroundOpts{
+				ID:       "spinner-morph-playground",
+				Autoplay: true,
+				States:   spinnerMorphStates(),
+			})
+		</section>
+	}
+}
+
+var spinnerDoc = ComponentDoc{
+	Attributes: []DocAttribute{
+		{Name: "value", Type: "number", Reflected: true, Observed: true,
+			Description: templ.Raw("Present (and without <code>indeterminate</code>) ⇒ determinate ring. Clamped to <code>[min, max]</code>.")},
+		{Name: "min", Type: "number", Default: "0", Observed: true,
+			Description: templ.Raw("Lower bound of the determinate range.")},
+		{Name: "max", Type: "number", Default: "100", Observed: true,
+			Description: templ.Raw("Upper bound of the determinate range.")},
+		{Name: "indeterminate", Type: "boolean", Default: "false", Observed: true,
+			Description: templ.Raw("Force the spinning mode even when a <code>value</code> is set. A spinner with neither <code>value</code> nor this attribute is indeterminate by default.")},
+		{Name: "label", Type: "string", Observed: true,
+			Description: templ.Raw("Accessible name. When set (or in determinate mode) the host reports <code>role=\"progressbar\"</code> with the matching <code>aria-value*</code>; a bare unlabelled indeterminate spinner stays decorative.")},
+		{Name: "easing", Type: "string", Observed: true,
+			Description: templ.Raw(`Animate the arc between value commits. Same shorthand as <a href="` + href.PageProgress() + `"><code>&lt;neo-progress&gt;</code></a>'s <code>easing</code>: a bare duration (<code>200ms</code>) pairs with <code>--neo-easing</code>; a full value is used verbatim. Suppressed under reduced motion.`)},
+	},
+	Parts: []DocPart{
+		{Name: "ring", Description: templ.Raw("The SVG element holding the track and arc.")},
+		{Name: "track", Description: templ.Raw("Faint full-circle backing ring.")},
+		{Name: "arc", Description: templ.Raw("The currentColor stroke that spins or fills to the value.")},
+		{Name: "sun", Description: templ.Raw("Static eight-ray starburst shown under reduced motion.")},
+	},
+	CSSProps: []DocCSSProp{
+		{Name: "--neo-spinner-size", Default: "1em",
+			Description: templ.Raw("Outer diameter.")},
+		{Name: "--neo-spinner-duration", Default: "0.8s",
+			Description: templ.Raw("Rotation period in indeterminate mode.")},
+		{Name: "--neo-spinner-ring-width", Default: "3",
+			Description: templ.Raw("Stroke width in the 24-unit viewBox.")},
+		{Name: "--neo-spinner-track-color", Default: "color-mix(in srgb, currentColor 20%, transparent)",
+			Description: templ.Raw("Backing-ring color.")},
+		{Name: "--neo-spinner-arc-transition", Default: "0s linear",
+			Description: templ.Raw("Transition applied to the arc between value commits in determinate mode.")},
+	},
+}

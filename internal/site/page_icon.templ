@@ -1,0 +1,137 @@
+package site
+
+import (
+	"github.com/romshark/morpheus/internal/href"
+	"github.com/romshark/morpheus/internal/site/examples"
+)
+
+templ PageIcon(morpheusVersion string) {
+	@PageDoc(href.PageIcon(), "Icon", morpheusVersion) {
+		<section class="demo">
+			@anchoredH2("overview") {
+				Icon
+			}
+			<p class="intro">
+				Component <code>{ "<neo-icon>" }</code> is an inline
+				SVG icon: the host pulls the configured icon set's
+				SVG body in so
+				<code>{ `stroke="currentColor"` }</code> resolves
+				against the parent's CSS <code>color</code>. Size
+				from <code>{ `--neo-icon-size` }</code> or
+				<code>width</code> / <code>height</code> on the host.
+				A <code>neo-theme-change</code> event re-fetches the
+				glyph so a themed user sees the theme's own SVG, not
+				the one the server inlined.
+			</p>
+			@Playground(PlaygroundOpts{
+				ID:     "icon-playground",
+				States: iconPlaygroundStates(),
+			})
+			@anchoredH2("reference") {
+				Reference
+			}
+			@ComponentDocs(iconDoc)
+		</section>
+		<section class="demo">
+			@anchoredH2("examples") {
+				Examples
+			}
+			@anchoredH3("gallery") {
+				Gallery
+			}
+			<p class="demo-note">
+				A sample of the bundled Lucide set. The full set
+				lives under <code>/static/icons/</code> as one SVG
+				per name; drop new files in and the host picks
+				them up without a rebuild.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     iconGalleryHTML,
+				TemplSource:    iconGalleryTempl,
+			}) {
+				@examples.IconGallery()
+			}
+			@anchoredH3("sizes") {
+				Sizes
+			}
+			<p class="demo-note">
+				The host reads
+				<code>{ `--neo-icon-size` }</code> as its width
+				and height. Set the var inline (or on an
+				ancestor) to scale the glyph without touching
+				the SVG.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     iconSizesHTML,
+				TemplSource:    iconSizesTempl,
+				CSSSource:      iconSizesCSS,
+			}) {
+				@examples.IconSizes()
+			}
+			@anchoredH3("inherits-text-colour") {
+				Inherits text colour
+			}
+			<p class="demo-note">
+				Lucide glyphs use
+				<code>{ `stroke="currentColor"` }</code>, so the icon
+				inherits the parent's CSS <code>color</code>.
+				Wrap the host in any coloured ancestor to retint
+				it without writing variant-specific CSS.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     iconCurrentColorHTML,
+				TemplSource:    iconCurrentColorTempl,
+				CSSSource:      iconCurrentColorCSS,
+			}) {
+				@examples.IconCurrentColor()
+			}
+			@anchoredH3("in-buttons") {
+				In buttons
+			}
+			<p class="demo-note">
+				Drop a
+				<code>{ "<neo-icon>" }</code> as the first child
+				of <code>{ "<neo-button>" }</code>. The button's
+				flex layout supplies the gap, and the icon
+				inherits the button's font colour so it
+				retints with the variant.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     iconInButtonHTML,
+				TemplSource:    iconInButtonTempl,
+			}) {
+				@examples.IconInButton()
+			}
+			@anchoredH3("inline-in-prose") {
+				Inline in prose
+			}
+			<p class="demo-note">
+				The host is
+				<code>display: inline-flex</code> with a
+				<code>1em</code> default size, so it sits on the
+				text baseline and tracks the surrounding font
+				size without nudging the line box.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     iconInlineProseHTML,
+				TemplSource:    iconInlineProseTempl,
+			}) {
+				@examples.IconInlineProse()
+			}
+		</section>
+	}
+}
+
+var iconDoc = ComponentDoc{
+	Attributes: []DocAttribute{
+		{Name: "name", Type: "string", Observed: true,
+			Description: templ.Raw("Icon filename stem in the configured icon set (e.g. <code>heart</code> resolves to <code>/static/icons/heart.svg</code>).")},
+		{Name: "base", Type: "string", Observed: true,
+			Description: templ.Raw("Override the icon directory; defaults to the <code>--neo-icon-base</code> CSS custom property (which itself defaults to <code>/static/icons</code>).")},
+	},
+}

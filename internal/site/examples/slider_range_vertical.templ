@@ -1,0 +1,32 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ SliderRangeVertical() {
+	@neo.SliderRange(neo.SliderRangeOpts[float64]{
+		Min:      neo.Set(-20.0),
+		Max:      neo.Set(40.0),
+		Step:     neo.Set(1.0),
+		ValueMin: neo.Set(5.0),
+		ValueMax: neo.Set(22.0),
+		Label:    neo.Set("Range"),
+		Unit:     neo.Set("°C"),
+		Vertical: neo.Set(true),
+	}) {
+		@neo.SliderMarkAt(-20) {
+			Cold
+		}
+		@neo.SliderMarkAt(0) {
+			Freezing
+		}
+		@neo.SliderMarkAt(20) {
+			Comfort
+		}
+		@neo.SliderMarkAt(30) {
+			Warm
+		}
+		@neo.SliderMarkAt(40) {
+			Hot
+		}
+	}
+}

@@ -1,0 +1,58 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ InputGroupRange() {
+	<neo-input-group>
+		@neo.ToggleAttrs(neo.ToggleOpts{}, templ.Attributes{
+			"class":      "demo-input-group-toggle",
+			"aria-label": "Bound",
+		}) {
+			<span data-bound="min">min</span>
+			<span data-bound="max">max</span>
+		}
+		@neo.TextInput(neo.TextInputOpts{
+			Format:             neo.Set(neo.TextInputFormatNumber),
+			ThousandsSeparator: neo.Set(","),
+			Inputmode:          neo.Set(neo.TextInputInputmodeNumeric),
+		})
+		@neo.SelectAttrs(neo.SelectOpts{
+			Value:     neo.Set("kg"),
+			AriaLabel: neo.Set("Unit"),
+		}, templ.Attributes{
+			"class": "demo-input-group-select",
+		}) {
+			@neo.Option(neo.OptionOpts{Value: neo.Set("mg")}) {
+				mg
+			}
+			@neo.Option(neo.OptionOpts{Value: neo.Set("g")}) {
+				g
+			}
+			@neo.Option(neo.OptionOpts{Value: neo.Set("kg")}) {
+				kg
+			}
+			@neo.Option(neo.OptionOpts{Value: neo.Set("t")}) {
+				t
+			}
+		}
+		@neo.SelectAttrs(neo.SelectOpts{
+			Value:     neo.Set("h"),
+			AriaLabel: neo.Set("Per"),
+		}, templ.Attributes{
+			"class": "demo-input-group-select",
+		}) {
+			@neo.Option(neo.OptionOpts{Value: neo.Set("s")}) {
+				/ second
+			}
+			@neo.Option(neo.OptionOpts{Value: neo.Set("min")}) {
+				/ minute
+			}
+			@neo.Option(neo.OptionOpts{Value: neo.Set("h")}) {
+				/ hour
+			}
+			@neo.Option(neo.OptionOpts{Value: neo.Set("d")}) {
+				/ day
+			}
+		}
+	</neo-input-group>
+}

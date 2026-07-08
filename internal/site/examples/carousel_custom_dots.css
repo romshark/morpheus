@@ -1,0 +1,49 @@
+.cx-bars { width: 100%; height: 100%; }
+
+.cx-bars::part(dots) { gap: 0.25rem; align-items: flex-end; }
+
+.cx-bars::part(dot) {
+	width: 2rem;
+	height: 0.75rem;
+	border-radius: 0;
+	background: transparent;
+	transform: none;
+	display: flex;
+	align-items: flex-end;
+}
+
+.cx-bars::part(dot)::before {
+	content: "";
+	display: block;
+	width: 100%;
+	height: 0.25rem;
+	background: var(--neo-carousel-dot-bg);
+	transition:
+		height 200ms var(--neo-easing, ease-out),
+		background-color 200ms var(--neo-easing, ease-out);
+}
+
+.cx-bars::part(dot-partial)::before {
+	height: 0.5rem;
+	background: color-mix(in srgb, var(--accent) 55%, var(--neo-carousel-dot-bg));
+}
+
+.cx-bars::part(dot-full)::before { height: 0.75rem; background: var(--accent); }
+
+.cx-bars::part(dot):hover::before {
+	height: 0.75rem;
+	background: color-mix(in srgb, var(--accent) 70%, var(--neo-carousel-dot-bg));
+}
+
+.cx-bars::part(dot-full):hover::before { background: var(--accent); }
+
+.cx-slide {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 100%;
+	background: var(--btn-bg);
+	border: 1px solid var(--btn-border);
+	border-radius: var(--page-radius, 0.5rem);
+	font-weight: 600;
+}

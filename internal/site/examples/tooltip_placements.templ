@@ -1,0 +1,27 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+// The twelve placements, grouped by side: bare centers on the edge,
+// -start and -end align to its corners.
+var tooltipPlacements = []neo.Placement{
+	"top-start", "top", "top-end",
+	"right-start", "right", "right-end",
+	"bottom-start", "bottom", "bottom-end",
+	"left-start", "left", "left-end",
+}
+
+templ TooltipPlacements() {
+	<div class="tooltip-placements">
+		for _, p := range tooltipPlacements {
+			@neo.Tooltip(neo.TooltipOpts{
+				Text:      neo.Set(string(p)),
+				Placement: neo.Set(p),
+			}) {
+				@neo.Button(neo.ButtonOpts{}) {
+					{ string(p) }
+				}
+			}
+		}
+	</div>
+}

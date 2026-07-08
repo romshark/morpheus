@@ -1,0 +1,36 @@
+/* Raise the family default so the panel demonstrates horizontal clamp. */
+.popover-wide-host {
+	--neo-popover-max-width: 80rem;
+}
+
+.popover-mega {
+	display: flex;
+	gap: 2rem;
+	margin-top: 0.75rem;
+}
+
+.popover-mega section {
+	flex: 0 0 auto;
+	min-width: 11rem;
+}
+
+.popover-mega h4 {
+	margin: 0 0 0.5rem;
+	font-size: 0.9rem;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	color: var(--muted);
+}
+
+.popover-mega ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 0.25rem;
+}
+
+.popover-mega li {
+	padding: 0.25rem 0;
+}

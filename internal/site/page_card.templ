@@ -1,0 +1,204 @@
+package site
+
+import (
+	"github.com/romshark/morpheus/internal/href"
+	"github.com/romshark/morpheus/internal/site/examples"
+)
+
+templ PageCard(morpheusVersion string) {
+	@PageDoc(href.PageCard(), "Card", morpheusVersion) {
+		<section class="demo">
+			@anchoredH2("overview") {
+				Card
+			}
+			<p class="intro">
+				Component <code>{ "<neo-card>" }</code> is a styled
+				surface container. Wrap content in a single
+				<code>{ `<div data-neo-card-inner>` }</code>: the
+				host paints the border, background, and radius; the
+				inner element carries padding and gap rhythm.
+				Optional <code>{ `data-neo-card-*` }</code> markers
+				cue a header / media / body / footer cadence.
+			</p>
+			@Playground(PlaygroundOpts{
+				ID:     "card-playground",
+				States: cardPlaygroundStates(),
+			})
+			@anchoredH2("reference") {
+				Reference
+			}
+			@ComponentDocs(cardDoc)
+		</section>
+		<section class="demo">
+			@anchoredH2("examples") {
+				Examples
+			}
+			@anchoredH3("variants") {
+				Variants
+			}
+			<p class="demo-note">
+				Three surface treatments via the
+				<code>variant</code> attribute: default (filled +
+				subtle border), <code>outline</code> (border
+				only, no fill), <code>elevated</code> (soft
+				shadow, no border).
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				StageMinWidth:  "18rem",
+				HTMLSource:     cardVariantsHTML,
+				TemplSource:    cardVariantsTempl,
+			}) {
+				@examples.CardVariants()
+			}
+			@anchoredH3("composed") {
+				Composed
+			}
+			<p class="demo-note">
+				A typical composition uses all four structural
+				slots: header (with title, description, and
+				right-aligned actions), body, and a footer row
+				of buttons. The header switches from vertical
+				stack to horizontal row via
+				<code>{ `:has([data-neo-card-actions])` }</code>
+				only when actions are present.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				Width:          "28rem",
+				StageMinWidth:  "18rem",
+				StageMinHeight: "max-content",
+				HTMLSource:     cardComposedHTML,
+				TemplSource:    cardComposedTempl,
+			}) {
+				@examples.CardComposed()
+			}
+			@anchoredH3("media-hero") {
+				Media hero
+			}
+			<p class="demo-note">
+				<code>{ `[data-neo-card-media]` }</code> escapes
+				the card's padding so an image fills it
+				edge-to-edge. The corners that touch the card
+				edge round to match the host's
+				<code>{ `--neo-card-radius` }</code>; the
+				opposite edge stays sharp where it meets the
+				next slot.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				Width:          "20rem",
+				StageMinWidth:  "18rem",
+				StageMinHeight: "max-content",
+				HTMLSource:     cardMediaHeroHTML,
+				TemplSource:    cardMediaHeroTempl,
+				CSSSource:      cardMediaHeroCSS,
+			}) {
+				@examples.CardMediaHero()
+			}
+			@anchoredH3("horizontal") {
+				Horizontal media
+			}
+			<p class="demo-note">
+				<code>{ `orientation="horizontal"` }</code>
+				lays the card out as a row of
+				<code>[data-neo-card-media]</code> on the left
+				and a column of
+				<code>[data-neo-card-header]</code> →
+				<code>[data-neo-card-body]</code> →
+				<code>[data-neo-card-footer]</code> on the right.
+				The media slot fills the left column edge-to-edge
+				and rounds the corners that touch the card's left
+				edge.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				Width:          "36rem",
+				StageMinWidth:  "36rem",
+				StageMinHeight: "8rem",
+				HTMLSource:     cardHorizontalHTML,
+				TemplSource:    cardHorizontalTempl,
+				CSSSource:      cardHorizontalCSS,
+			}) {
+				@examples.CardHorizontal()
+			}
+			@anchoredH3("adaptive") {
+				Adaptive
+			}
+			<p class="demo-note">
+				The same horizontal-mode markup auto-collapses to
+				a vertical stack via an
+				<code>{ `@container` }</code> query keyed on the
+				card's own inline size (default threshold
+				<code>{ `--neo-card-horizontal-collapse: 28rem` }</code>).
+				No <code>{ `@media` }</code> rule and no JavaScript:
+				drag the resize handle below 28rem to see the
+				card adapt to its own width.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				Width:          "36rem",
+				StageMinWidth:  "18rem",
+				StageMinHeight: "max-content",
+				HTMLSource:     cardAdaptiveHTML,
+				TemplSource:    cardAdaptiveTempl,
+				CSSSource:      cardAdaptiveCSS,
+			}) {
+				@examples.CardAdaptive()
+			}
+		</section>
+	}
+}
+
+var cardDoc = ComponentDoc{
+	Attributes: []DocAttribute{
+		{Name: "variant", Type: `"" | "outline" | "elevated"`,
+			Description: templ.Raw("Surface treatment. Empty (default) renders a filled card with a subtle border; <code>outline</code> drops the fill; <code>elevated</code> drops the border and adds a soft shadow.")},
+		{Name: "orientation", Type: `"" | "horizontal"`,
+			Description: templ.Raw("Layout direction. Empty (default) stacks slots top-to-bottom; <code>horizontal</code> places the media slot on the left and stacks header/body/footer in a column on the right. Horizontal cards auto-collapse to vertical when their own inline size drops below 28rem, via a CSS <code>@container</code> query (not viewport).")},
+	},
+	Slots: []DocSlot{
+		{Name: `[data-neo-card-header]`,
+			Description: templ.Raw("Header row. Stacks vertically (title above description); switches to a horizontal row pinning <code>[data-neo-card-actions]</code> to the end when actions are present.")},
+		{Name: `[data-neo-card-title]`,
+			Description: templ.Raw("Card title. Bolder weight, slightly larger size; no default margin.")},
+		{Name: `[data-neo-card-description]`,
+			Description: templ.Raw("Secondary line under the title. Muted color, no default margin.")},
+		{Name: `[data-neo-card-actions]`,
+			Description: templ.Raw("Right-aligned actions inside the header.")},
+		{Name: `[data-neo-card-media]`,
+			Description: templ.Raw("Edge-to-edge media. Escapes the card's padding via negative margins and rounds the corners that touch the card edge when placed first or last.")},
+		{Name: `[data-neo-card-body]`,
+			Description: templ.Raw("Main content. Block layout, default line-height.")},
+		{Name: `[data-neo-card-footer]`,
+			Description: templ.Raw("Footer actions row. Right-aligned, wraps on narrow widths.")},
+	},
+	CSSProps: []DocCSSProp{
+		{Name: "--neo-card-bg", Default: "var(--btn-bg, transparent)",
+			Description: templ.Raw("Card background.")},
+		{Name: "--neo-card-color", Default: "var(--page-fg, currentColor)",
+			Description: templ.Raw("Card text color.")},
+		{Name: "--neo-card-border-color", Default: "var(--btn-border, currentColor)",
+			Description: templ.Raw("Border color.")},
+		{Name: "--neo-card-border-width", Default: "1px",
+			Description: templ.Raw("Border width.")},
+		{Name: "--neo-card-radius", Default: "var(--page-radius, 0.5rem)",
+			Description: templ.Raw("Corner radius.")},
+		{Name: "--neo-card-padding", Default: "calc(var(--page-spacing, 0.25rem) * 5)",
+			Description: templ.Raw("Inner padding.")},
+		{Name: "--neo-card-gap", Default: "calc(var(--page-spacing, 0.25rem) * 4)",
+			Description: templ.Raw("Gap between stacked slots.")},
+		{Name: "--neo-card-shadow", Default: "0 1px 2px rgba(0, 0, 0, 0.06), 0 4px 14px rgba(0, 0, 0, 0.08)",
+			Description: templ.Raw("Box shadow used by the <code>elevated</code> variant.")},
+		{Name: "--neo-card-title-size", Default: "1.05rem",
+			Description: templ.Raw("Title font size.")},
+		{Name: "--neo-card-title-weight", Default: "600",
+			Description: templ.Raw("Title font weight.")},
+		{Name: "--neo-card-description-color", Default: "color-mix(in srgb, var(--page-fg) 65%, transparent)",
+			Description: templ.Raw("Description text color.")},
+		{Name: "--neo-card-horizontal-media-width", Default: "12rem",
+			Description: templ.Raw("Media column width in horizontal orientation.")},
+		{Name: "--neo-card-horizontal-body-min-width", Default: "12rem",
+			Description: templ.Raw("Body minimum width in horizontal orientation.")},
+		{Name: "--neo-card-media-default-height", Default: "8rem",
+			Description: templ.Raw("Default height of the media slot.")},
+		{Name: "--neo-card-horizontal-collapse", Default: "28rem",
+			Description: templ.Raw("Inline-size threshold below which a horizontal card collapses to vertical.")},
+	},
+}

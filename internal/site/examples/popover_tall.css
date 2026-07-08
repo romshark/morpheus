@@ -1,0 +1,22 @@
+.popover-tall-navgroup {
+	width: 100%;
+}
+
+.popover-tall-list {
+	list-style: none;
+	margin: 0.75rem 0 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 0.125rem;
+	width: 100%;
+}
+
+.popover-tall-list li {
+	padding: 0.35rem 0.5rem;
+	border-radius: 0.35rem;
+}
+
+.popover-tall-list li:hover {
+	background: color-mix(in srgb, var(--accent) 16%, transparent);
+}

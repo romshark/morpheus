@@ -1,0 +1,79 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ DrawerSides() {
+	@neo.Drawer(neo.DrawerOpts{Side: neo.Set(neo.SideLeft)}) {
+		<neo-button { neo.DrawerTrigger()... }>Left</neo-button>
+		<dialog>
+			@neo.DrawerHeader() {
+				@neo.DrawerTitle() {
+					Left drawer
+				}
+				@neo.DrawerDescription() {
+					Slides in from the left edge.
+				}
+			}
+			@neo.DrawerBody() {
+				<p>Common pattern for navigation sidebars on small screens.</p>
+			}
+			@neo.DrawerFooter() {
+				<neo-button { neo.DrawerClose()... }>Close</neo-button>
+			}
+		</dialog>
+	}
+	@neo.Drawer(neo.DrawerOpts{Side: neo.Set(neo.SideRight)}) {
+		<neo-button { neo.DrawerTrigger()... }>Right</neo-button>
+		<dialog>
+			@neo.DrawerHeader() {
+				@neo.DrawerTitle() {
+					Right drawer
+				}
+				@neo.DrawerDescription() {
+					The default side.
+				}
+			}
+			@neo.DrawerBody() {
+				<p>Common pattern for settings, filters, and detail panels.</p>
+			}
+			@neo.DrawerFooter() {
+				<neo-button { neo.DrawerClose()... }>Close</neo-button>
+			}
+		</dialog>
+	}
+	@neo.Drawer(neo.DrawerOpts{Side: neo.Set(neo.SideTop)}) {
+		<neo-button { neo.DrawerTrigger()... }>Top</neo-button>
+		<dialog>
+			@neo.DrawerHeader() {
+				@neo.DrawerTitle() {
+					Top drawer
+				}
+			}
+			@neo.DrawerBody() {
+				<p>Slides down from the top, useful for global announcements.</p>
+			}
+			@neo.DrawerFooter() {
+				<neo-button { neo.DrawerClose()... }>Close</neo-button>
+			}
+		</dialog>
+	}
+	@neo.Drawer(neo.DrawerOpts{Side: neo.Set(neo.SideBottom)}) {
+		<neo-button { neo.DrawerTrigger()... }>Bottom</neo-button>
+		<dialog>
+			@neo.DrawerHeader() {
+				@neo.DrawerTitle() {
+					Bottom drawer
+				}
+				@neo.DrawerDescription() {
+					Mobile-style sheet.
+				}
+			}
+			@neo.DrawerBody() {
+				<p>The bottom-sheet idiom from mobile UIs. Actions sit at thumb reach.</p>
+			}
+			@neo.DrawerFooter() {
+				<neo-button { neo.DrawerClose()... }>Close</neo-button>
+			}
+		</dialog>
+	}
+}

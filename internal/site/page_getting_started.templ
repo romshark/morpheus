@@ -1,0 +1,106 @@
+package site
+
+import (
+	"github.com/romshark/morpheus/internal/href"
+	"github.com/romshark/morpheus/neo"
+)
+
+templ PageGettingStarted(morpheusVersion string) {
+	@PageDoc(href.PageGettingStarted(), "Getting started", morpheusVersion) {
+		<section class="demo">
+			@anchoredH2("getting-started") {
+				Getting started
+			}
+			<p class="intro">
+				Morpheus is a server-driven web components UI kit
+				built around Go,{ " " }
+				@neo.Link(neo.LinkOpts{Href: neo.Set("https://templ.guide"), Target: neo.Set("_blank"), Rel: neo.Set("noopener noreferrer")}) {
+					templ
+				}
+				, and{ " " }
+				@neo.Link(neo.LinkOpts{Href: neo.Set("https://data-star.dev"), Target: neo.Set("_blank"), Rel: neo.Set("noopener noreferrer")}) {
+					Datastar
+				}
+				.
+				Components are plain custom elements that emit DOM
+				events and expose attribute hooks, so they will
+				slot into other stacks too, but the path of least
+				resistance, and the one every demo on this site
+				walks, is the one shown below.
+			</p>
+		</section>
+		<section class="demo">
+			@anchoredH2("install") {
+				Install
+			}
+			<p>
+				Two pieces: the static assets the browser loads,
+				and the Go module that gives you templ helpers
+				like <code>neo.Select</code> or
+				<code>datastar.ComboboxAsync</code>.
+			</p>
+			@anchoredH3("static-assets") {
+				Static assets
+			}
+			<p>
+				Grab the minified bundles from{ " " }
+				@neo.Link(neo.LinkOpts{Href: neo.Set("https://github.com/romshark/morpheus/tree/main/min"), Target: neo.Set("_blank"), Rel: neo.Set("noopener noreferrer")}) {
+					<code>/min/</code>
+				}
+				{ " " }in the repo:{ " " }
+				@neo.Link(neo.LinkOpts{Href: neo.Set("https://github.com/romshark/morpheus/blob/main/min/morpheus.css"), Target: neo.Set("_blank"), Rel: neo.Set("noopener noreferrer")}) {
+					<code>morpheus.css</code>
+				}
+				, one theme stylesheet (e.g.{ " " }
+				@neo.Link(neo.LinkOpts{Href: neo.Set("https://github.com/romshark/morpheus/blob/main/min/theme-default.css"), Target: neo.Set("_blank"), Rel: neo.Set("noopener noreferrer")}) {
+					<code>theme-default.css</code>
+				}
+				), and{ " " }
+				@neo.Link(neo.LinkOpts{Href: neo.Set("https://github.com/romshark/morpheus/blob/main/min/bundle.js"), Target: neo.Set("_blank"), Rel: neo.Set("noopener noreferrer")}) {
+					<code>bundle.js</code>
+				}
+				. Then load them in your page head:
+			</p>
+			<div class="theming-source">
+				<site-codemirror language="html" readonly>
+					<template>{ gettingStartedInstallHTML }</template>
+				</site-codemirror>
+			</div>
+			<p>
+				The kit reads <code>:root</code> custom
+				properties of colours and shape: the theme
+				stylesheet (
+				@neo.Link(neo.LinkOpts{Href: neo.Set("https://github.com/romshark/morpheus/blob/main/min/theme-default.css"), Target: neo.Set("_blank"), Rel: neo.Set("noopener noreferrer")}) {
+					<code>theme-default.css</code>
+				}
+				{ " " }ships in light + dark) sets them. See the&nbsp;
+				@neo.Link(neo.LinkOpts{Href: neo.Set(href.PageTheming())}) {
+					Theming
+				}
+				{ " " }page on the full variable list and how to author
+				custom palettes.
+			</p>
+			@anchoredH3("go-module") {
+				Go module
+			}
+			<p>
+				To use the kit in a Go + templ project, add the
+				helper packages to your module:
+			</p>
+			<div class="theming-source">
+				<site-codemirror language="bash" readonly>
+					<template>{ gettingStartedInstallGo }</template>
+				</site-codemirror>
+			</div>
+			<p>
+				<code>neo</code> exposes one templ per component
+				(<code>neo.Select</code>, <code>neo.Combobox</code>,
+				<code>neo.Button</code>, …). <code>datastar</code>
+				wraps the async-aware components
+				(<code>datastar.ComboboxAsync</code>,
+				<code>datastar.PopoverAsync</code>) with the SSE
+				retry protocol pre-wired.
+			</p>
+		</section>
+	}
+}

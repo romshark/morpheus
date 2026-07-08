@@ -1,0 +1,15 @@
+<neo-select
+  id="example-select"
+  data-signals="{select_value: '30d'}"
+  data-attr:value="$select_value"
+  aria-label="Time range"
+  placeholder="Pick a range"
+  typeahead-match="substring"
+>
+  <neo-option value="today">Today</neo-option>
+  <neo-option value="7d">Last 7 days</neo-option>
+  <neo-option value="30d">Last 30 days</neo-option>
+  <neo-option value="quarter">Last 3 months</neo-option>
+  <neo-option value="year">Last year</neo-option>
+  <neo-option value="all">All time</neo-option>
+</neo-select>

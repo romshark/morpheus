@@ -1,0 +1,19 @@
+<div
+  data-signals="{cf_morph_value: '#2563eb'}"
+  style="display: flex; flex-direction: column; gap: 0.75rem; align-items: flex-start;"
+>
+  <neo-color-field
+    value="#2563eb"
+    aria-label="Accent color"
+    data-attr:value="$cf_morph_value"
+    data-on:neo-color-field-input="$cf_morph_value = evt.detail.value"
+  ></neo-color-field>
+  <p style="margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+    <span
+      aria-hidden="true"
+      style="width: 1.25rem; height: 1.25rem; border-radius: 0.25rem; border: 1px solid var(--border); background: #2563eb;"
+      data-attr:style="'width: 1.25rem; height: 1.25rem; border-radius: 0.25rem; border: 1px solid var(--border); background: ' + $cf_morph_value"
+    ></span>
+    <code data-text="$cf_morph_value">#2563eb</code>
+  </p>
+</div>

@@ -1,0 +1,22 @@
+.cx-vert { width: 100%; height: 100%; }
+
+.cx-vert::part(dots) {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	right: 0.5rem;
+	flex-direction: column;
+	padding: 0;
+	z-index: 1;
+}
+
+.cx-slide {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 100%;
+	background: var(--btn-bg);
+	border: 1px solid var(--btn-border);
+	border-radius: var(--page-radius, 0.5rem);
+	font-weight: 600;
+}

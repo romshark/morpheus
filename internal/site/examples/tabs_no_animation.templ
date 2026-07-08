@@ -1,0 +1,35 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ TabsNoAnimation() {
+	@neo.Tabs(neo.TabsOpts{Value: neo.Set("overview")}) {
+		<neo-tablist aria-label="Project (no animation)">
+			@neo.Tab("overview", "overview") {
+				Overview
+			}
+			@neo.Tab("activity", "overview") {
+				Activity
+			}
+			@neo.Tab("reports", "overview") {
+				Reports
+			}
+		</neo-tablist>
+		@neo.TabPanel("overview", "overview") {
+			<h3>Overview</h3>
+			<p>
+				A snapshot of the project: open
+				issues, recent commits, and the CI
+				status.
+			</p>
+		}
+		@neo.TabPanel("activity", "overview") {
+			<h3>Activity</h3>
+			<p>The chronological feed.</p>
+		}
+		@neo.TabPanel("reports", "overview") {
+			<h3>Reports</h3>
+			<p>Aggregated reports by week / month / quarter.</p>
+		}
+	}
+}

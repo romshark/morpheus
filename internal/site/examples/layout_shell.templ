@@ -1,0 +1,55 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ LayoutShell() {
+	@neo.LayoutAttrs(
+		neo.LayoutOpts{Direction: neo.Set(neo.Row), Gap: neo.Set(neo.GapSm)},
+		neo.Item(neo.ItemOpts{
+			Width:      neo.Set(neo.ItemSizeFull),
+			Height:     neo.Set(neo.ItemSizeFull),
+			MinWidth0:  neo.Set(true),
+			MinHeight0: neo.Set(true),
+		}),
+	) {
+		@neo.CardAttrs(
+			neo.CardOpts{Variant: neo.Set(neo.CardVariantOutline)},
+			templ.Attributes{"neo-flex-shrink": "0", "class": "layout-shell-sidebar"},
+		) {
+			@neo.Layout(neo.LayoutOpts{Direction: neo.Set(neo.Column), Gap: neo.Set(neo.GapSm)}) {
+				<strong>Folders</strong>
+				<span>Inbox</span>
+				<span>Drafts</span>
+			}
+		}
+		@neo.LayoutAttrs(
+			neo.LayoutOpts{Direction: neo.Set(neo.Column), Gap: neo.Set(neo.GapSm)},
+			neo.Item(neo.ItemOpts{Grow: neo.Set(true), MinWidth0: neo.Set(true), MinHeight0: neo.Set(true)}),
+		) {
+			@neo.Layout(neo.LayoutOpts{Direction: neo.Set(neo.Row), AlignItems: neo.Set(neo.AlignItemsCenter), Gap: neo.Set(neo.GapSm)}) {
+				<strong { neo.Item(neo.ItemOpts{Grow: neo.Set(true), MinWidth0: neo.Set(true), Truncate: neo.Set(true)})... }>
+					Quarterly planning and launch coordination
+				</strong>
+				@neo.BadgeAttrs(
+					neo.BadgeOpts{Variant: neo.Set(neo.BadgeVariantOutline)},
+					neo.Item(neo.ItemOpts{NoShrink: neo.Set(true)}),
+				) {
+					5 unread
+				}
+			}
+			@neo.CardAttrs(
+				neo.CardOpts{},
+				neo.Item(neo.ItemOpts{Grow: neo.Set(true), MinHeight0: neo.Set(true), Overflow: neo.Set(neo.OverflowAuto)}),
+			) {
+				@neo.Layout(neo.LayoutOpts{Direction: neo.Set(neo.Column), Gap: neo.Set(neo.GapMd)}) {
+					<strong>Launch checklist</strong>
+					<span>Design review notes and final assets</span>
+					<span>Engineering handoff and QA schedule</span>
+					<span>Documentation readiness review</span>
+					<span>Customer announcement draft</span>
+					<span>Post-launch monitoring plan</span>
+				}
+			}
+		}
+	}
+}

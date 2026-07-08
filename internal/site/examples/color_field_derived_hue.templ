@@ -1,0 +1,10 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ ColorFieldDerivedHue() {
+	@neo.ColorField(neo.ColorFieldOpts[float64]{
+		Value:     neo.Set("#2563eb"),
+		AriaLabel: neo.Set("Accent color"),
+	})
+}

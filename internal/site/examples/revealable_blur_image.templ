@@ -1,0 +1,19 @@
+package examples
+
+import (
+	"github.com/romshark/morpheus/internal/href"
+	"github.com/romshark/morpheus/neo"
+)
+
+templ RevealableBlurImage() {
+	@neo.RevealableAttrs(neo.RevealableOpts{
+		Variant:     neo.Set(neo.RevealableVariantMedia),
+		BlurContent: neo.Set(true),
+	}, templ.Attributes{}) {
+		<img
+			src={ href.Asset("avatar/gh_roman.jpg") }
+			alt="Spoiler portrait"
+			class="revealable-blur-image-img"
+		/>
+	}
+}

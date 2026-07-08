@@ -1,0 +1,86 @@
+/* morpheus.css: styles for the UI kit components.
+ *
+ * Components render in the light DOM, so every rule is a plain CSS
+ * selector you can override from your app's stylesheet. Theming is done
+ * entirely through CSS custom properties declared on :root; scope them
+ * to a subtree (e.g. a dark section) by redeclaring on an ancestor.
+ */
+
+:root {
+	/* Shared structural defaults: palette-agnostic vars every theme
+	 * inherits unless it explicitly overrides them. Per-palette colours
+	 * (and any radius/spacing/font tweaks specific to a theme) live in
+	 * the theme-*.css files. */
+
+	/* Base corner radius. Component radii in morpheus.css scale from this
+	 * via calc(var(--page-radius) * <multiplier>), so themes that want
+	 * sharp corners only need to set this to 0. Default 10px. */
+	--page-radius: 0.625rem;
+
+	/* Base spacing unit. Component paddings and gaps in morpheus.css scale
+	 * from this via calc(var(--page-spacing) * <multiplier>), so themes
+	 * can tighten or loosen the whole kit by changing one value. */
+	--page-spacing: 0.25rem;
+
+	/* Default height of single-line interactive controls so a button,
+	 * input, select, and combobox line up in the same row. Equals the
+	 * button/input box: 1em line box (controls pin line-height:1) + the
+	 * shared vertical padding each side + 1px border each side. Tracks
+	 * font-size and --page-spacing; used as a floor for rich/multi-row
+	 * triggers so they never sit shorter than a plain control. */
+	--neo-control-height: calc(1em + 2 * round(calc(var(--page-spacing, 0.25rem) * 2), 1px) + 2px);
+
+	/* Maximum content width of the centered main column (and the app
+	 * bar's inner row, so frame and content stay vertically aligned).
+	 * Below this, .wrap fills the available width with edge padding. */
+	--page-max-width: 64rem;
+
+	/* Base font stack. Components inherit `font: inherit` from the
+	 * body, so themes can swap the look of the entire kit by
+	 * overriding this single var (e.g. substituting a serif
+	 * stack). */
+	--page-font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+	/* Kit-wide disabled-state overlay. Painted as a `background-image`
+	 * on every disabled component (button, switch, textarea, option),
+	 * so themes can layer a hatch / stripe / texture over disabled
+	 * surfaces without the components themselves needing to know about
+	 * it. Defaults to `none` (no overlay); themes that want a visible
+	 * "disabled" texture (e.g. a hatch or stripe pattern) override
+	 * this single var. The component's regular background-color stays
+	 * underneath, so the overlay reads as a tint on top. */
+	--neo-disabled-overlay: none;
+}
+
+/* Control size scale. The single-line and text controls share one box
+ * geometry (font-size plus the --neo-button-padding / --neo-textarea-padding
+ * / --neo-control-height tokens), so a row of them lines up. `size` shifts
+ * that geometry as one step: sm shrinks, lg grows; the default (attribute
+ * absent) is the base. Every step derives from --page-spacing, so a theme's
+ * density change carries through all sizes.
+ *
+ * Scope: the text/box row controls. The small fixed-glyph controls
+ * (checkbox, radio, switch, rating, kbd) carry their own size steps;
+ * <neo-color-field> is a 2D picker sized by its own width/height tokens. */
+:is(neo-button, neo-toggle, neo-textinput, neo-textarea, neo-select, neo-combobox)[size="sm"] {
+	font-size: 0.85em;
+	--neo-button-padding: round(calc(var(--page-spacing, 0.25rem) * 1.25), 1px)
+		round(calc(var(--page-spacing, 0.25rem) * 2.5), 1px);
+	--neo-textarea-padding: calc(var(--page-spacing, 0.25rem) * 1.25) calc(var(--page-spacing, 0.25rem) * 2);
+	--neo-control-height: calc(1em + 2 * round(calc(var(--page-spacing, 0.25rem) * 1.25), 1px) + 2px);
+}
+
+:is(neo-button, neo-toggle, neo-textinput, neo-textarea, neo-select, neo-combobox)[size="lg"] {
+	font-size: 1.15em;
+	--neo-button-padding: round(calc(var(--page-spacing, 0.25rem) * 2.75), 1px)
+		round(calc(var(--page-spacing, 0.25rem) * 4.5), 1px);
+	--neo-textarea-padding: calc(var(--page-spacing, 0.25rem) * 2.75) calc(var(--page-spacing, 0.25rem) * 4);
+	--neo-control-height: calc(1em + 2 * round(calc(var(--page-spacing, 0.25rem) * 2.75), 1px) + 2px);
+}
+
+/* Kit-wide focus-ring baseline. `:where()` is specificity 0 so any
+ * per-component :focus-visible rule wins. */
+:where(button, a[href], [tabindex="0"]):focus-visible {
+	outline: 2px solid var(--accent, currentColor);
+	outline-offset: 2px;
+}

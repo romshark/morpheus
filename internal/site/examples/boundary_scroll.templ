@@ -1,0 +1,27 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ BoundaryScroll() {
+	<div class="boundary-scroll">
+		<p class="boundary-scroll-line">Diego Vega commented on Onboarding flow.</p>
+		<p class="boundary-scroll-line">Evelyn Kone merged Release 2.4.</p>
+		@neo.Boundary(neo.BoundaryOpts{Scopes: neo.Set(neo.BoundaryScopes{Scroll: true})}) {
+			<div class="boundary-scroll-widget">
+				@neo.Popover(neo.PopoverOpts{Placement: neo.Set(neo.PlacementBottomStart)}) {
+					<neo-button { neo.PopoverTrigger()... }>Account</neo-button>
+					<div { neo.PopoverContent()... }>
+						<h3 class="boundary-scroll-heading">Account</h3>
+						<p class="boundary-scroll-line">Signed in as Alice Larsson.</p>
+					</div>
+				}
+				<p class="boundary-scroll-line">An embedded widget, scoped by its own <code>{ "<neo-boundary>" }</code>.</p>
+			</div>
+		}
+		<p class="boundary-scroll-line">Samira Khalil opened Billing audit.</p>
+		<p class="boundary-scroll-line">Theo Becker closed Flaky e2e test.</p>
+		<p class="boundary-scroll-line">Jan O'Sullivan updated Design tokens.</p>
+		<p class="boundary-scroll-line">Alice Larsson archived Q3 planning.</p>
+		<p class="boundary-scroll-line">Maya Lindqvist pinned the Roadmap.</p>
+	</div>
+}

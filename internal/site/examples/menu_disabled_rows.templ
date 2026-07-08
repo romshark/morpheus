@@ -1,0 +1,33 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ MenuDisabledRows() {
+	<neo-button>
+		Edit
+		@neo.Menu(neo.MenuOpts{}) {
+			@neo.MenuItem(neo.MenuItemOpts{Value: neo.Set("undo"), Shortcut: neo.Set("Mod+Z")}) {
+				Undo
+			}
+			@neo.MenuItem(neo.MenuItemOpts{Value: neo.Set("redo"), Shortcut: neo.Set("Mod+Shift+Z"), Disabled: neo.Set(true)}) {
+				Redo
+			}
+			<hr/>
+			@neo.MenuItem(neo.MenuItemOpts{Value: neo.Set("cut"), Shortcut: neo.Set("Mod+X")}) {
+				Cut
+			}
+			@neo.MenuItem(neo.MenuItemOpts{Value: neo.Set("copy"), Shortcut: neo.Set("Mod+C")}) {
+				Copy
+			}
+			@neo.MenuItem(neo.MenuItemOpts{Value: neo.Set("paste"), Shortcut: neo.Set("Mod+V"), Disabled: neo.Set(true)}) {
+				Paste
+			}
+			<hr/>
+			@neo.SubMenu(neo.SubMenuOpts{Label: neo.Set("Find"), Disabled: neo.Set(true)}) {
+				@neo.MenuItem(neo.MenuItemOpts{Value: neo.Set("f1")}) {
+					Find in file…
+				}
+			}
+		}
+	</neo-button>
+}

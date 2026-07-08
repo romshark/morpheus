@@ -1,0 +1,21 @@
+package examples
+
+import (
+	"strconv"
+
+	"github.com/romshark/morpheus/neo"
+)
+
+templ PersistScroll() {
+	@neo.Persist(neo.PersistOpts{
+		Key:   neo.Set("demo-persist-scroll"),
+		Props: []string{"scrollTop"},
+		On:    []string{"scroll"},
+	}) {
+		<div class="persist-scroll-demo">
+			for i := 1; i <= 50; i++ {
+				<p>Line { strconv.Itoa(i) } of fifty. Scroll, leave, return.</p>
+			}
+		</div>
+	}
+}

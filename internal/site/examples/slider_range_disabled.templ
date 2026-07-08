@@ -1,0 +1,16 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ SliderRangeDisabled() {
+	@neo.SliderRange(neo.SliderRangeOpts[float64]{
+		Min:      neo.Set(0.0),
+		Max:      neo.Set(100.0),
+		Step:     neo.Set(1.0),
+		ValueMin: neo.Set(30.0),
+		ValueMax: neo.Set(65.0),
+		Label:    neo.Set("Locked"),
+		Unit:     neo.Set("%"),
+		Disabled: neo.Set(true),
+	})
+}

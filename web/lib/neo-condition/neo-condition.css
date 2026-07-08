@@ -1,0 +1,10 @@
+/* -----------------------------------------------------------------------
+ * <neo-condition>
+ * -----------------------------------------------------------------------
+ * Platform gate. Hidden until the controller resolves the match and
+ * promotes the host to display:contents, so the wrong-platform branch
+ * never flashes (and stays hidden with no JS). */
+
+neo-condition {
+	display: none;
+}

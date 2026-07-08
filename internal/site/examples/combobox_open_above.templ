@@ -1,0 +1,24 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ ComboboxOpenAbove() {
+	@neo.ComboboxAttrs(neo.ComboboxOpts{
+		Value:             neo.Set("tokyo"),
+		AriaLabel:         neo.Set("Time zone"),
+		Placeholder:       neo.Set("Pick a time zone"),
+		SearchPlaceholder: neo.Set("Search time zones…"),
+	}, templ.Attributes{
+		"placement": "top-start",
+	}) {
+		@neo.Option(neo.OptionOpts{Value: neo.Set("london")}) {
+			London
+		}
+		@neo.Option(neo.OptionOpts{Value: neo.Set("newyork")}) {
+			New York
+		}
+		@neo.Option(neo.OptionOpts{Value: neo.Set("tokyo")}) {
+			Tokyo
+		}
+	}
+}

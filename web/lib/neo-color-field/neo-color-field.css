@@ -1,0 +1,112 @@
+/* -----------------------------------------------------------------------
+ * <neo-color-field>
+ * -----------------------------------------------------------------------
+ * Two-dimensional saturation/value field. The host is focusable and
+ * owns the current color as a reflected `value`; JS writes x/y/hue
+ * custom properties while CSS paints the field and handle. */
+
+:root {
+	--neo-color-field-width: 14rem;
+	--neo-color-field-height: 9rem;
+	--neo-color-field-radius: var(--page-radius, 0.5rem);
+	--neo-color-field-handle-size: 1rem;
+	--neo-color-field-border-width: 1px;
+	--neo-color-field-border-color: color-mix(in srgb, var(--page-fg) 16%, transparent);
+	--neo-color-field-focus-ring: var(--accent, currentColor);
+}
+
+neo-color-field {
+	--neo-color-field-hue: 221;
+	--neo-color-field-x: 85%;
+	--neo-color-field-y: 8%;
+	display: block;
+	position: relative;
+	box-sizing: border-box;
+	width: var(--neo-color-field-width);
+	max-width: 100%;
+	height: var(--neo-color-field-height);
+	min-height: 6rem;
+	border: var(--neo-color-field-border-width) solid var(--neo-color-field-border-color);
+	border-radius: var(--neo-color-field-radius);
+	box-shadow: var(--neo-color-field-shadow, none);
+	background: var(--page-bg, Canvas);
+	overflow: hidden;
+	touch-action: none;
+	user-select: none;
+	-webkit-user-select: none;
+	cursor: crosshair;
+}
+
+neo-color-field:focus {
+	outline: none;
+}
+
+neo-color-field:focus-visible {
+	outline: 2px solid var(--neo-color-field-focus-ring);
+	outline-offset: 2px;
+}
+
+neo-color-field[disabled]:not([disabled="false"]),
+neo-color-field[aria-disabled="true"] {
+	opacity: 0.55;
+	cursor: not-allowed;
+}
+
+/* Host's overflow:hidden + matching radius clips the gradient to the
+ * inner border edge, no inset gap. */
+neo-color-field > [data-neo-color-field-surface] {
+	position: absolute;
+	inset: 0;
+	border-radius: calc(var(--neo-color-field-radius) - var(--neo-color-field-border-width));
+	background:
+		linear-gradient(to top, #000, transparent),
+		linear-gradient(to right, #fff, hsl(var(--neo-color-field-hue) 100% 50%));
+}
+
+neo-color-field [data-neo-color-field-handle] {
+	position: absolute;
+	left: var(--neo-color-field-x);
+	top: var(--neo-color-field-y);
+	width: var(--neo-color-field-handle-size);
+	height: var(--neo-color-field-handle-size);
+	border: 2px solid #fff;
+	border-radius: 9999px;
+	box-shadow:
+		0 0 0 1px rgba(0, 0, 0, 0.55),
+		0 2px 8px rgba(0, 0, 0, 0.35);
+	transform: translate(-50%, -50%);
+	pointer-events: none;
+}
+
+/* Gradient is replaced with a flat Canvas under forced-colors; pin
+ * border + handle to system colours so the field still reads. */
+@media (forced-colors: active) {
+	neo-color-field {
+		border-color: CanvasText;
+	}
+	neo-color-field [data-neo-color-field-handle] {
+		border-color: CanvasText;
+		background: ButtonFace;
+		box-shadow: none;
+		forced-color-adjust: none;
+	}
+	neo-color-field:focus-visible {
+		outline-color: Highlight;
+	}
+}
+
+/* Match the kit's 2px currentColor outline in contrast-more. The field
+ * is a fixed-size border-box, so the wider border is absorbed and never
+ * shifts layout. A real border here, not the inset ring the auto-sized
+ * controls use. */
+@media (prefers-contrast: more) {
+	neo-color-field {
+		--neo-color-field-border-width: 2px;
+		--neo-color-field-border-color: currentColor;
+	}
+}
+
+:root[data-pref-contrast-more] neo-color-field {
+	--neo-color-field-border-width: 2px;
+	--neo-color-field-border-color: currentColor;
+}

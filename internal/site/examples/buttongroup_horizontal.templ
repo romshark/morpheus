@@ -1,0 +1,19 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ ButtongroupHorizontal() {
+	@neo.ButtonGroup(neo.ButtonGroupOpts{}) {
+		<neo-button>Prev</neo-button>
+		<neo-button>Today</neo-button>
+		<neo-button>Next</neo-button>
+	}
+	@neo.ButtonGroupAttrs(neo.ButtonGroupOpts{Value: neo.Set("week")}, templ.Attributes{
+		"aria-label": "Time range",
+	}) {
+		<neo-button value="day">Day</neo-button>
+		<neo-button value="week">Week</neo-button>
+		<neo-button value="month">Month</neo-button>
+		<neo-button value="year">Year</neo-button>
+	}
+}

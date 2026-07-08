@@ -1,0 +1,110 @@
+/* theme-ocean.css: cyan on near-white / deep navy. Bigger corner
+ * curve and a roomier spacing scale to match the soft, watery feel. */
+
+/* Nunito by Nunito Project Authors, OFL-licensed (see
+ * /static/fonts/nunito-OFL.txt). Rounded humanist sans whose soft
+ * terminals echo ocean's large --page-radius. One variable latin file
+ * covers the 400–900 weights the site uses, so a single @font-face
+ * serves body and bold. Only fetched when the ocean theme is active
+ * (its --page-font-family below names "Nunito"); `font-display: swap`
+ * paints the rounded fallback during the fetch. */
+@font-face {
+	font-family: "Nunito";
+	src: url("/static/fonts/nunito-latin-variable.woff2") format("woff2");
+	font-weight: 400 900;
+	font-style: normal;
+	font-display: swap;
+}
+
+:root.theme-ocean {
+	color-scheme: light;
+
+	--accent: #0891b2;
+	--accent-hover: #0e7490;
+	--accent-fg: #ffffff;
+
+	--page-fg: #0c4a6e;
+	--page-bg: #f0f9ff;
+	--muted: #64748b;
+
+	/* Deeper than --accent (#0891b2) so link text clears contrast
+	 * on the pale bg; accent stays for fills/focus. */
+	--link: #0369a1;
+	--link-hover: #075985;
+	--link-visited: #5b7c99;
+
+	--page-radius: 0.6rem;
+	--page-spacing: 0.3rem;
+
+	/* Nunito (vendored, see top of file) with a rounded-sans fallback
+	 * chain while the webfont loads. Set on the light variant only;
+	 * dark ocean inherits via the cascade. */
+	--page-font-family:
+		"Nunito", ui-rounded, "SF Pro Rounded", "Segoe UI",
+		system-ui, sans-serif;
+
+	/* Sine-wave hatch on disabled surfaces, same plumbing as
+	 * matrix's stripes, just a different SVG. The accent hex has
+	 * to be inlined (CSS vars don't substitute into url() values),
+	 * so each ocean variant carries its own copy with the right
+	 * shade. The mask softens the pattern at the element's
+	 * horizontal edges so the lines fade in/out rather than
+	 * starting and stopping abruptly. */
+	--neo-disabled-overlay: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='10' viewBox='0 0 24 10'><path d='M0 5 Q 6 0 12 5 T 24 5' stroke='%230891b2' stroke-opacity='0.18' stroke-width='1' fill='none'/></svg>");
+	--neo-disabled-overlay-mask: linear-gradient(
+		to right,
+		transparent 0%,
+		black 18%,
+		black 82%,
+		transparent 100%
+	);
+
+	--btn-bg: #ffffff;
+	--btn-fg: #0c4a6e;
+	--btn-border: rgba(12, 74, 110, 0.22);
+	--btn-hover-bg: #e0f2fe;
+
+	--danger-bg: #dc2626;
+	--danger-fg: #ffffff;
+	--danger-hover-bg: #b91c1c;
+
+	--neo-tooltip-bg: rgba(12, 74, 110, 0.94);
+	--neo-tooltip-color: #f0f9ff;
+}
+
+:root.theme-ocean.dark {
+	color-scheme: dark;
+
+	--accent: #22d3ee;
+	--accent-hover: #67e8f9;
+	--accent-fg: #083344;
+
+	--page-fg: #e0f2fe;
+	--page-bg: #020c17;
+	--muted: #7dd3fc;
+
+	/* Bright cyan reads well on the deep-navy dark bg. */
+	--link: #22d3ee;
+	--link-hover: #67e8f9;
+	--link-visited: #a5d8ec;
+
+	--neo-disabled-overlay: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='10' viewBox='0 0 24 10'><path d='M0 5 Q 6 0 12 5 T 24 5' stroke='%2322d3ee' stroke-opacity='0.20' stroke-width='1' fill='none'/></svg>");
+	--neo-disabled-overlay-mask: linear-gradient(
+		to right,
+		transparent 0%,
+		black 18%,
+		black 82%,
+		transparent 100%
+	);
+
+	--btn-bg: #07263b;
+	--btn-fg: #e0f2fe;
+	--btn-border: rgba(125, 211, 252, 0.18);
+	--btn-hover-bg: #0c3a58;
+
+	--danger-bg: #ef4444;
+	--danger-hover-bg: #dc2626;
+
+	--neo-tooltip-bg: rgba(224, 242, 254, 0.95);
+	--neo-tooltip-color: #020c17;
+}

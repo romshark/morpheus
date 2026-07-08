@@ -1,0 +1,254 @@
+package site
+
+import (
+	"github.com/romshark/morpheus/internal/href"
+	"github.com/romshark/morpheus/internal/site/examples"
+)
+
+templ PageProgress(morpheusVersion string) {
+	@PageDoc(href.PageProgress(), "Progress", morpheusVersion) {
+		@progressDownloadSimulator()
+		<section class="demo">
+			@anchoredH2("overview") {
+				Progress
+			}
+			<p class="intro">
+				Component <code>{ "<neo-progress>" }</code> is the
+				read-only sibling of <code>{ `<neo-slider>` }</code>:
+				same rail, fill, and anchor-mark styling, shared
+				<code>--neo-slider-*</code> tokens, but no thumb,
+				keyboard, or editable readout.
+			</p>
+			@Playground(PlaygroundOpts{
+				ID:     "progress-playground",
+				States: progressPlaygroundStates(),
+			})
+			@anchoredH2("reference") {
+				Reference
+			}
+			@ComponentDocs(progressDoc)
+		</section>
+		<section class="demo">
+			@anchoredH2("examples") {
+				Examples
+			}
+			@anchoredH3("marks-with-labels") {
+				Marks with labels
+			}
+			<p class="demo-note">
+				Same slot convention as the slider:
+				<code>{ `<span data-neo-progress-mark="…">` }</code>
+				children render an anchor dot at the value plus
+				a label beneath. The dot and label flip to their
+				active colour once the bar's value reaches them.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     progressMarksHTML,
+				TemplSource:    progressMarksTempl,
+			}) {
+				@examples.ProgressMarks()
+			}
+			@anchoredH3("dense-mark-labels") {
+				Dense mark labels
+			}
+			<p class="demo-note">
+				Labels that overlap or sit less than
+				<code>1ch</code> apart collapse automatically.
+				Hover a hidden label or its nearby rail position
+				to reveal it. The highest active mark stays
+				visible as the value moves.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				Width:          "20rem",
+				StageMinHeight: "max-content",
+				HTMLSource:     progressDenseMarksHTML,
+				TemplSource:    progressDenseMarksTempl,
+			}) {
+				@examples.ProgressDenseMarks()
+			}
+			@anchoredH3("bare-rail") {
+				Bare rail
+			}
+			<p class="demo-note">
+				Omit <code>label</code> and set
+				<code>hide-value</code> to drop the header
+				entirely. The marks row still hides itself when
+				no mark carries a label, so this collapses to
+				just the bar.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     progressBareRailHTML,
+				TemplSource:    progressBareRailTempl,
+			}) {
+				@examples.ProgressBareRail()
+			}
+			@anchoredH3("indeterminate") {
+				Indeterminate
+			}
+			<p class="demo-note">
+				Set <code>indeterminate</code> and a 35% segment
+				slides along the rail in a loop for
+				unknown-duration tasks. The <code>value</code>
+				attribute is ignored while it's on, and the track
+				drops its <code>aria-valuenow</code> so AT
+				announces it as indeterminate. Honours
+				<code>prefers-reduced-motion</code>.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     progressIndeterminateHTML,
+				TemplSource:    progressIndeterminateTempl,
+			}) {
+				@examples.ProgressIndeterminate()
+			}
+			@anchoredH3("custom-indeterminate-animation") {
+				Custom indeterminate animation
+			}
+			<p class="demo-note">
+				The rail lives in the shadow root, so reach the
+				fill across the boundary with
+				<code>{ `::part(fill)` }</code>, then override
+				<code>animation</code> from a per-instance class to
+				swap the kit's default left-to-right loop for any
+				custom keyframe. This one widens the segment to half
+				the rail and ping-pongs from end to end.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     progressPingPongHTML,
+				TemplSource:    progressPingPongTempl,
+				CSSSource:      progressPingPongCSS,
+			}) {
+				@examples.ProgressPingPong()
+			}
+			@anchoredH3("vertical") {
+				Vertical
+			}
+			<p class="demo-note">
+				Set <code>vertical</code> to rotate the bar. Min
+				sits at the bottom, max at the top. Use it for
+				capacity meters where the height of the fill maps
+				to the quantity.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     progressVerticalHTML,
+				TemplSource:    progressVerticalTempl,
+			}) {
+				@examples.ProgressVertical()
+			}
+		</section>
+		<section class="demo">
+			@anchoredH2("examples-datastar") {
+				Examples: Datastar
+			}
+			@anchoredH3("morphing-during-interaction") {
+				Morphing during interaction
+			}
+			<p class="demo-note">
+				A Datastar app can fat-morph the page at any moment;
+				a server reporting progress just re-emits the bar
+				with a new <code>value</code>. The painted rail lives
+				in the component's shadow root, so a morph of the
+				light host only changes the <code>value</code>
+				attribute and never touches the fill node, letting
+				the <code>easing</code> transition ease the fill to
+				the new value. Autoplay cycles the states below, with no
+				signals or morph hints, and the fill eases backward
+				from 40% to 0% on the wrap just the same.
+			</p>
+			@Playground(PlaygroundOpts{
+				ID:       "progress-morph-playground",
+				Autoplay: true,
+				States:   progressMorphStates(),
+			})
+			@anchoredH3("server-driven-downloads") {
+				Server-driven downloads
+			}
+			<p class="demo-note">
+				Clicking <em>Download</em> opens an SSE connection
+				to <code>/progress/download</code>. Each
+				<code>{ `sse.patchSignals` }</code> bumps the
+				value signal by 25% on a one-second beat; the
+				bar's <code>{ `data-attr:value` }</code> binding
+				renders the change without re-emitting the host.
+				A final patch flips the bar's <code>label</code>
+				through the same signal; its
+				<code>{ `data-attr:label` }</code> binding renders
+				"Done ✓" inside the component's frame; the rail is in
+				the shadow root, so the success state rides the label
+				attribute rather than a separate status row.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     progressDownloadHTML,
+				TemplSource:    progressDownloadTempl,
+				ScriptSource:   progressDownloadScript,
+			}) {
+				@examples.ProgressDownload()
+			}
+		</section>
+	}
+}
+
+var progressDoc = ComponentDoc{
+	Attributes: []DocAttribute{
+		{Name: "value", Type: "number", Reflected: true, Observed: true, Description: templ.Raw("Clamped to [min, max].")},
+		{Name: "min", Type: "number", Default: "0", Observed: true,
+			Description: templ.Raw("Lower bound.")},
+		{Name: "max", Type: "number", Default: "100", Observed: true,
+			Description: templ.Raw("Upper bound.")},
+		{Name: "label", Type: "string", Observed: true, Description: templ.Raw("Plain-text caption.")},
+		{Name: "unit", Type: "string", Observed: true, Description: templ.Raw("Plain-text suffix on the value display.")},
+		{Name: "hide-value", Type: "boolean", Default: "false", Observed: true,
+			Description: templ.Raw("Suppress the value display.")},
+		{Name: "vertical", Type: "boolean", Default: "false", Observed: true,
+			Description: templ.Raw("Switch to vertical orientation.")},
+		{Name: "indeterminate", Type: "boolean", Default: "false", Observed: true,
+			Description: templ.Raw("Looping animation for unknown-duration tasks.")},
+		{Name: "easing", Type: "string", Observed: true, Description: templ.Raw("CSS transition shorthand for the fill animation.")},
+	},
+	Slots: []DocSlot{
+		{Name: "[data-neo-progress-mark]",
+			Description: templ.Raw("Anchor mark at a numeric value, optionally with a label child.")},
+	},
+	Parts: []DocPart{
+		{Name: "header", Description: templ.Raw("Row holding the label, value, and unit.")},
+		{Name: "label", Description: templ.Raw("Label text.")},
+		{Name: "output", Description: templ.Raw("Wrapper around the value and unit.")},
+		{Name: "value", Description: templ.Raw("Value text.")},
+		{Name: "unit", Description: templ.Raw("Unit suffix after the value.")},
+		{Name: "track", Description: templ.Raw("The rail behind the fill.")},
+		{Name: "fill", Description: templ.Raw("Painted progress segment.")},
+		{Name: "marks", Description: templ.Raw("Container for anchor-mark labels below the track.")},
+	},
+	CSSProps: []DocCSSProp{
+		{Name: "--neo-progress-fill-bg", Default: "var(--neo-slider-fill-bg, var(--accent))",
+			Description: templ.Raw("Fill color.")},
+		{Name: "--neo-progress-fill-transition", Default: "none",
+			Description: templ.Raw("Transition applied to the fill when the value changes.")},
+		{Name: "--neo-progress-indeterminate-duration", Default: "calc(1.4s * var(--neo-duration-scale, 1))",
+			Description: templ.Raw("Cycle duration of the indeterminate animation.")},
+	},
+}
+
+// progressDownloadSimulator registers the streaming-patches route for
+// the server-driven download demo: value bumps on a 1-second beat plus a
+// final label flip to "Done", both via signals the host's data-attr
+// bindings render, since the rail now lives in the shadow root.
+templ progressDownloadSimulator() {
+	<script type="module">
+		import sim from "/static/datasim.js";
+
+		sim.post("/progress/download", async (_ctx, sse) => {
+			sse.patchSignals({ dl_value: 0, dl_label: "Uploading…" });
+			for (let pct = 25; pct <= 100; pct += 25) {
+				await sse.delay(1000);
+				sse.patchSignals({ dl_value: pct });
+			}
+			sse.patchSignals({ dl_label: "Done ✓", dl_running: false });
+		});
+	</script>
+}

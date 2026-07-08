@@ -1,0 +1,88 @@
+/* Global half of <neo-spinner>. Structural rules live in the component's
+ * adopted shadow stylesheet; these tokens inherit across the boundary. */
+
+:root {
+	--neo-spinner-size: 1em;
+	--neo-spinner-duration: 0.8s;
+	/* Stroke width in the 24-unit viewBox. */
+	--neo-spinner-ring-width: 3;
+	--neo-spinner-track-color: color-mix(in srgb, currentColor 20%, transparent);
+}
+
+/* The manual accessibility preview cannot select shadow internals, so
+ * switch the shadow rules through inherited tokens. */
+:root[data-pref-reduced-motion] {
+	--neo-spinner-indeterminate-arc-display: none;
+	--neo-spinner-indeterminate-animation: none;
+	--neo-spinner-sun-display: inline;
+	--neo-spinner-manual-arc-transition: none;
+}
+
+/* Shared accessibility preferences historically live beside the spinner
+ * tokens in the kit manifest. Keep them global while spinner structure
+ * moves into shadow DOM. */
+@media (prefers-reduced-motion: reduce) {
+	:root {
+		--neo-duration-scale: 0;
+	}
+}
+
+:root {
+	--neo-contrast-ring: 0 0 0 0 transparent;
+}
+
+neo-badge,
+neo-button,
+neo-textarea > textarea,
+neo-textinput > input,
+input:where(
+	:not([type]),
+	[type="text"],
+	[type="email"],
+	[type="tel"],
+	[type="url"],
+	[type="search"],
+	[type="password"],
+	[type="number"],
+	[type="date"],
+	[type="datetime-local"],
+	[type="month"],
+	[type="week"],
+	[type="time"]
+) {
+	box-shadow: var(--neo-contrast-ring);
+}
+
+@media (prefers-contrast: more) {
+	:root {
+		--neo-button-border-color: currentColor;
+		--neo-textarea-border-color: currentColor;
+		--neo-contrast-ring: inset 0 0 0 1px currentColor;
+		--neo-input-focus-outline: 2px solid currentColor;
+	}
+}
+
+:root[data-pref-reduced-motion] {
+	--neo-duration-scale: 0;
+	--neo-placeholder-animation: neo-placeholder-appear 0s ease-out var(--neo-placeholder-delay) both;
+}
+
+:root[data-pref-reduced-motion] neo-popover > [data-neo-popover-content],
+:root[data-pref-reduced-motion] neo-tooltip > [data-neo-tooltip-content] {
+	transition: none;
+}
+
+:root[data-pref-reduced-motion] neo-toaster > neo-toast {
+	transition-duration: 0.01ms;
+}
+
+:root[data-pref-reduced-motion] neo-skeleton {
+	animation: none;
+}
+
+:root[data-pref-contrast-more] {
+	--neo-button-border-color: currentColor;
+	--neo-textarea-border-color: currentColor;
+	--neo-contrast-ring: inset 0 0 0 1px currentColor;
+	--neo-input-focus-outline: 2px solid currentColor;
+}

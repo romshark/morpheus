@@ -1,0 +1,9 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ CheckboxDisabled() {
+	@neo.Checkbox(neo.CheckboxOpts{Disabled: neo.Set(true), AriaLabel: neo.Set("Disabled unchecked")})
+	@neo.Checkbox(neo.CheckboxOpts{Checked: neo.Set(true), Disabled: neo.Set(true), AriaLabel: neo.Set("Disabled checked")})
+	@neo.Checkbox(neo.CheckboxOpts{Indeterminate: neo.Set(true), Disabled: neo.Set(true), AriaLabel: neo.Set("Disabled mixed")})
+}

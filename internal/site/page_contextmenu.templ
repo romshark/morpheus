@@ -1,0 +1,122 @@
+package site
+
+import (
+	"github.com/romshark/morpheus/internal/href"
+	"github.com/romshark/morpheus/internal/site/examples"
+)
+
+templ PageContextMenu(morpheusVersion string) {
+	@PageDoc(href.PageContextMenu(), "Context menu", morpheusVersion) {
+		<section class="demo">
+			@anchoredH2("overview") {
+				Context menu
+			}
+			<p class="intro">
+				Component <code>{ "<neo-contextmenu>" }</code> is a
+				right-click menu built from the same
+				<code>{ `<neo-menuitem>` }</code> and
+				<code>{ `<neo-submenu>` }</code> rows as&nbsp;
+				@ComponentLink("neo-menu", href.PageMenu())
+				. Mark the focusable element with
+				<code>data-neo-contextmenu-trigger</code>; everything
+				else inside becomes the menu panel. Opens via the
+				keyboard context-menu key and
+				<neo-kbd>Shift</neo-kbd>+<neo-kbd>F10</neo-kbd> as well.
+			</p>
+			@Playground(PlaygroundOpts{
+				ID:     "contextmenu-playground",
+				Height: "30rem",
+				States: contextMenuPlaygroundStates(),
+			})
+			@anchoredH2("reference") {
+				Reference
+			}
+			@ComponentDocs(contextMenuDoc)
+		</section>
+		<section class="demo">
+			@anchoredH2("examples") {
+				Examples
+			}
+			@anchoredH3("simple") {
+				Simple
+			}
+			<p class="demo-note">
+				A context menu wraps one trigger surface and a set
+				of menu rows. The trigger stays in the page; the rows
+				move into the generated floating panel.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "20rem",
+				HTMLSource:     contextMenuSimpleHTML,
+				TemplSource:    contextMenuSimpleTempl,
+				CSSSource:      contextMenuSimpleCSS,
+			}) {
+				@examples.ContextMenuSimple()
+			}
+			@anchoredH3("nested") {
+				Nested
+			}
+			<p class="demo-note">
+				Context menus can be nested inside another trigger
+				surface. Right-clicking the inner target opens its
+				own menu without also opening the parent menu.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "24rem",
+				HTMLSource:     contextMenuNestedHTML,
+				TemplSource:    contextMenuNestedTempl,
+				CSSSource:      contextMenuNestedCSS,
+			}) {
+				@examples.ContextMenuNested()
+			}
+			@anchoredH3("custom-content") {
+				Custom content
+			}
+			<p class="demo-note">
+				The trigger is regular light DOM and the panel
+				uses the same menu CSS variables, so custom target
+				surfaces, icon rows, widths, and danger treatments
+				can be handled with a scoped stylesheet.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "20rem",
+				HTMLSource:     contextMenuCustomHTML,
+				TemplSource:    contextMenuCustomTempl,
+				CSSSource:      contextMenuCustomCSS,
+			}) {
+				@examples.ContextMenuCustom()
+			}
+		</section>
+	}
+}
+
+var contextMenuDoc = ComponentDoc{
+	Attributes: []DocAttribute{
+		{Name: "open", Type: "boolean", Default: "false", Reflected: true, Observed: true,
+			Description: templ.Raw("Open state. Usually controlled by the host after a right-click or keyboard context-menu invocation.")},
+		{Name: "mode", Type: `"auto" | "cascade" | "push"`, Default: `"auto"`, Observed: true,
+			Description: templ.Raw("Nested submenu strategy. Matches <code>neo-menu</code>: cascade on roomy pointers, push on narrow or touch-first contexts.")},
+		{Name: "screen-offset", Type: "CSS length", Default: "8px", Observed: true,
+			Description: templ.Raw("Minimum distance between the panel and viewport edge.")},
+		{Name: "clamp-placement", Type: "boolean", Default: "false", Observed: true,
+			Description: templ.Raw("Allows the panel to re-anchor from the pointer when needed to remain visible.")},
+		{Name: "min-fit-height", Type: `CSS length | "content"`, Default: `"content"`, Observed: true,
+			Description: templ.Raw("Strict-placement flip threshold inherited by submenus.")},
+		{Name: "min-fit-width", Type: `CSS length | "content"`, Default: `"content"`, Observed: true,
+			Description: templ.Raw("Strict-placement flip threshold inherited by submenus.")},
+	},
+	Slots: []DocSlot{
+		{Name: "[data-neo-contextmenu-trigger]",
+			Description: templ.Raw("Required descendant (any depth, but not inside a nested <code>&lt;neo-menu&gt;</code> or <code>&lt;neo-contextmenu&gt;</code>) that receives the <code>contextmenu</code> and keyboard handlers. The first match wins.")},
+		{Name: "<neo-menu>",
+			Description: templ.Raw("Exactly one required <code>&lt;neo-menu&gt;</code> child holding the rows. It supplies all menu behavior; the context menu only opens it at the pointer. Zero or multiple warn in the console.")},
+	},
+	Events: []DocEvent{
+		{Name: "neo-contextmenu-open", Bubbles: true,
+			Description: templ.Raw("Fires when the menu opens.")},
+		{Name: "neo-contextmenu-close", Bubbles: true,
+			Description: templ.Raw("Fires when the menu closes.")},
+		{Name: "neo-menuitem-select", Bubbles: true,
+			Description: templ.Raw("Bubbles from selected child rows with <code>{ value }</code>.")},
+	},
+}

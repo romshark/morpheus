@@ -1,0 +1,11 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ RatingFire() {
+	@neo.RatingAttrs(neo.RatingOpts{
+		Label:     neo.Set("Spice level"),
+		Value:     neo.Set(3.0),
+		Precision: neo.Set(0.5),
+	}, templ.Attributes{"class": "rating-fire"})
+}

@@ -1,0 +1,12 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ ToggleDisabled() {
+	@neo.Toggle(neo.ToggleOpts{Disabled: neo.Set(true)}) {
+		Disabled
+	}
+	@neo.Toggle(neo.ToggleOpts{Pressed: neo.Set(true), Disabled: neo.Set(true)}) {
+		Pressed disabled
+	}
+}

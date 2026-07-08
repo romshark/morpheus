@@ -1,0 +1,26 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ ContextMenuSimple() {
+	@neo.ContextMenu(neo.ContextMenuOpts{}) {
+		@neo.ContextMenuTriggerAttrs(templ.Attributes{"class": "cm-target"}) {
+			Right-click this note
+		}
+		@neo.Menu(neo.MenuOpts{}) {
+			@neo.MenuItem(neo.MenuItemOpts{Value: neo.Set("open")}) {
+				Open
+			}
+			@neo.MenuItem(neo.MenuItemOpts{Value: neo.Set("rename")}) {
+				Rename
+			}
+			@neo.MenuItem(neo.MenuItemOpts{Value: neo.Set("duplicate")}) {
+				Duplicate
+			}
+			<hr/>
+			@neo.MenuItem(neo.MenuItemOpts{Value: neo.Set("delete")}) {
+				Delete
+			}
+		}
+	}
+}

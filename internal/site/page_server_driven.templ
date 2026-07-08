@@ -1,0 +1,275 @@
+package site
+
+import (
+	"github.com/romshark/morpheus/internal/href"
+	"github.com/romshark/morpheus/internal/site/examples"
+	"github.com/romshark/morpheus/neo"
+)
+
+templ PageServerDriven(morpheusVersion string) {
+	@PageDoc(href.PageServerDriven(), "Server-driven architecture", morpheusVersion) {
+		@serverDrivenSimulator()
+		<section class="demo">
+			@anchoredH2("architecture") {
+				Server-driven architecture
+			}
+			<p class="intro">
+				Even though Morpheus is entirely framework and architecture agnostic,
+				its original purpose was to enable easier development of hypermedia web
+				app architectures, where the server owns the truth and the browser gets
+				HTML (morph-)patches and renders them with no additional layers of
+				abstraction; as opposed to <code>JSON -> [vDOM ->] DOM</code>.
+			</p>
+			<p>
+				Morpheus components make it easy to drive your application with just a
+				single HTML template for each page using "fat morph" patches (see
+				<a target="_blank" href="https://data-star.dev/guide/the_tao_of_datastar/">
+					The Tao of Datastar
+				</a>
+				).
+				<br/>
+				<a target="_blank" href="https://data-star.dev/guide/reactive_signals/">
+					Reactive signals
+				</a>
+				also allow you to easily interconnect components on a page.
+			</p>
+			@neo.Alert(neo.AlertOpts{Variant: neo.Set(neo.AlertVariantInfo)}) {
+				@neo.AlertIcon() {
+					@neo.Icon("info")
+				}
+				@neo.AlertContent() {
+					@neo.AlertTitle(3) {
+						Every Morpheus demo uses Datastar
+					}
+					@neo.AlertDescription() {
+						In order to avoid hosting a server and to be able to deliver this
+						site via CDN, we are using
+						<a
+							target="_blank"
+							href="https://github.com/romshark/datastar-simulator"
+						>
+							An in-browser simulator script
+						</a>
+						which hijacks Datastar's <code>fetch</code> requests, executes the
+						JavaScript handler and then fires a Datastar-native
+						{ " " }
+						<a
+							target="_blank"
+							href="https://data-star.dev/reference/sse_events#datastar-patch-elements"
+						>
+							<code>datastar-patch-elements</code>
+						</a>
+						{ " " } event.
+						which is similar to a regular Datastar request handler.
+					}
+				}
+			}
+		</section>
+		<section>
+			@anchoredH3("data-flow") {
+				Data flow
+			}
+			<neo-layout row collapse="md" gap="lg" align-items="center">
+				<ol neo-flex-grow="1" neo-flex-basis="0" neo-min-width="0" neo-width="100%">
+					<li>
+						A component <strong>dispatches an event</strong>
+						(like <code>neo-dialog-open</code>,
+						<code>neo-popover-open</code>, etc.).
+					</li>
+					<li>
+						<strong>Datastar reacts</strong> via the
+						<code>{ `data-on:<event>="@post('/path')"` }</code>
+						<strong>event handlers</strong> and dispatches an action (an HTTP request).
+					</li>
+					<li>
+						The <strong>server then re-renders</strong> the entire page
+						template and <strong>asynchronously streams</strong> the new HTML
+						via a Brotli-compressed
+						<a
+							target="_blank"
+							href="https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events"
+						>
+							SSE stream (Server-Sent Events).
+						</a>
+						Datastar then <strong>morph-patches</strong> that HTML
+						into the live DOM.
+					</li>
+					<li>
+						Morpheus web <strong>components observe changes in the DOM</strong>
+						and <strong>update</strong> their internal state and presentation.
+					</li>
+				</ol>
+				<div style="flex-grow: 2" neo-flex-basis="0" neo-min-width="0" neo-width="100%">
+					@templ.Raw(actionToPatchDiagram)
+				</div>
+			</neo-layout>
+			<neo-layout row collapse="md" gap="lg" align-items="center">
+				<p neo-flex-grow="1" neo-flex-basis="0" neo-min-width="0" neo-width="100%">
+					Typically, a production-grade Datastar application implements a
+					<a target="_blank" href="https://martinfowler.com/bliki/CQRS.html">
+						CQRS (Command Query Responsibility Segregation) architecture.
+					</a>
+					This is an example schema of how approximately this would look when
+					implemented in the Go programming language:
+				</p>
+				<div style="flex-grow: 2" neo-flex-basis="0" neo-min-width="0" neo-width="100%">
+					@templ.Raw(cqrsArchDiagram)
+				</div>
+			</neo-layout>
+			@anchoredH3("command-patches") {
+				Command patches
+			}
+			<p>
+				Many Morpheus components are stateful, and server-side morph patching
+				must only interfere in the user's client-side interactions when the
+				server explicitly wants it to happen. For example, a fat morph of the
+				page must not close a <code>neo-popover</code> after the user opened it,
+				unless the server explicitly needs it to happen.
+			</p>
+			<p>
+				Therefore every Morpheus attribute follows one rule:
+				<b>an absent attribute is not a command.</b> A brand-new element
+				falls back to the attribute's default; an element already in the
+				DOM keeps its current value. Every boolean attribute also accepts
+				an explicit <code>{ `="true"` }</code> or <code>{ `="false"` }</code>,
+				so the server can command either state or stay silent and leave the
+				client's alone.
+			</p>
+			<p>
+				Two kinds of attribute, one rule:
+			</p>
+			<ul>
+				<li>
+					<b>Interactive state</b> the user drives
+					(<code>open</code>, <code>value</code>, <code>checked</code>,
+					<code>pressed</code>, <code>expanded</code>, <code>page</code>):
+					an absent attribute keeps the current client state, so a fat
+					morph that omits it can't reset what the user just did.
+				</li>
+				<li>
+					<b>Configuration</b> the server owns (<code>flip</code>,
+					<code>hover</code>, <code>disabled</code>,
+					<code>clamp-placement</code>): an absent attribute falls back to
+					the default. The client never changes these, so the server stays
+					the source of truth.
+				</li>
+			</ul>
+			<p>
+				The server can still <b>explicitly dictate</b> Datastar to...
+			</p>
+			<ul>
+				<li>
+					close a popover by setting <code>open="false"</code>, or to
+					explicitly open it using <code>open="true"</code>.
+				</li>
+				<li>
+					explicitly set a certain value on a <code>neo-textinput</code>
+					by setting attribute <code>value="specific value"</code>.
+				</li>
+			</ul>
+			<p>
+				Every boolean attribute reads the same three ways. Taking
+				<code>open</code>, which applies to
+				<code>{ "<neo-popover>" }</code>,
+				<code>{ "<neo-menu>" }</code>,
+				<code>{ "<neo-drawer>" }</code>,
+				<code>{ "<neo-sidebar>" }</code>,
+				<code>{ "<neo-contextmenu>" }</code>, and
+				<code>{ "<neo-textinput>" }</code>'s suggestions:
+			</p>
+			<ul>
+				<li>
+					<code>open</code> absent is no command. The component keeps
+					its current state, so a morph that omits <code>open</code>
+					can't disturb it.
+				</li>
+				<li>
+					<code>{ `open="false"` }</code> commands the component to
+					close (case-insensitive).
+				</li>
+				<li>
+					<code>open</code> or <code>{ `open="true"` }</code> commands
+					the component to open.
+				</li>
+			</ul>
+			<p>
+				Switch between the states manually or enable auto-play
+				to see the command patches in effect:
+			</p>
+			@Playground(PlaygroundOpts{
+				ID:     "server-driven-command",
+				Height: "11rem",
+				States: serverDrivenCommandStates(),
+			})
+			<p>
+				Essentially, an absent attribute means "no command", the client may keep
+				its current state until the server genuinely needs to take control.
+			</p>
+			@anchoredH3("loading-indication") {
+				Loading indication
+			}
+			<p>
+				For components like combobox for the contents to be fetched lazily,
+				the initial HTML must contain the placeholder slot
+				<code>{ "[data-neo-async-placeholder]" }</code>, which the combobox
+				displays when it has no options defined yet. The combobox then posts on
+				open; the server streams the options into
+				<code>#&lt;id&gt;-options</code> and the kit swaps the placeholder
+				out. The delay keeps the placeholder visible. Open the combobox
+				to see it.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				Height:         "18rem",
+				TemplSource:    serverDrivenAsyncLoadTempl,
+				CSSSource:      serverDrivenAsyncLoadCSS,
+				ScriptSource:   serverDrivenAsyncLoadScript,
+				DefaultTab:     "script",
+			}) {
+				@examples.ServerDrivenAsyncLoad()
+			}
+			@anchoredH3("error-handling") {
+				Error handling
+			}
+			<p>
+				If the server is temporarily unavailable due to network issues or
+				errors, the UI must provide the user with feedback.
+				Sometimes, that feedback can simply be provided via
+				<a href={ href.PageToaster() }>toasts</a>.
+				Morpheus offers useful template wrappers like for example
+				<code>datastar.ComboboxAsync</code>:
+			</p>
+			<p class="demo-note">
+				In the following example, the server always returns a
+				<code>500 Internal Server Error</code> immediately. Datastar retries
+				on <code>error</code> twice, waiting 1s between attempts; once the
+				retry budget is exhausted, the combobox swaps in a failure state
+				with a retry button.
+				{ " " }
+				<a href={ href.PageCombobox() + "#async-load-with-failure-swap" }>
+					Async load with failure swap
+				</a>
+				shows the same pattern with live retry controls.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				Height:         "15rem",
+				TemplSource:    serverDrivenAsyncFailTempl,
+				CSSSource:      serverDrivenAsyncFailCSS,
+				ScriptSource:   serverDrivenAsyncFailScript,
+				DefaultTab:     "script",
+			}) {
+				@examples.ServerDrivenAsyncFail()
+			}
+		</section>
+	}
+}
+
+// serverDrivenSimulator loads the per-demo handler modules surfaced in
+// each demo's Server script tab. /serverdriven/asyncload delays then
+// streams options (loading-indication demo); /serverdriven/asyncfail
+// always 500s (failure-swap demo).
+templ serverDrivenSimulator() {
+	<script type="module" src="/static/sim/serverdriven/asyncload.js"></script>
+	<script type="module" src="/static/sim/serverdriven/asyncfail.js"></script>
+}

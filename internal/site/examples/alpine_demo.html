@@ -1,0 +1,56 @@
+<div
+  x-data="{
+    named: { red: '#ef4444', green: '#22c55e', blue: '#3b82f6' },
+    color: '#3b82f6',
+    option: 'blue',
+    optionForColor(hex) {
+      const lower = hex.toLowerCase();
+      return Object.keys(this.named).find((k) => this.named[k] === lower) ?? 'custom';
+    },
+    pickOption(value) {
+      this.option = value;
+      if (value in this.named) this.color = this.named[value];
+    },
+    pickColor(value) {
+      this.color = value;
+      this.option = this.optionForColor(value);
+    },
+  }"
+>
+  <neo-card class="framework-demo-card">
+    <div data-neo-card-inner>
+      <neo-layout column gap="md" align-items="center">
+        <h3>Accent color</h3>
+        <neo-layout column gap="md" align-items="center">
+          <neo-select
+            aria-label="Named color"
+            placeholder="Pick a color"
+            :value="option"
+            @neo-select-change="pickOption($event.detail.value)"
+          >
+            <neo-option value="red">Red</neo-option>
+            <neo-option value="green">Green</neo-option>
+            <neo-option value="blue">Blue</neo-option>
+            <neo-option value="custom">Custom</neo-option>
+          </neo-select>
+          <neo-color-field
+            class="framework-demo-field"
+            aria-label="Custom color"
+            :value="color"
+            @neo-color-field-input="pickColor($event.detail.value)"
+          ></neo-color-field>
+        </neo-layout>
+        <neo-layout inline gap="sm" align-items="stretch" class="framework-demo-readout">
+          <span class="framework-demo-swatch" :style="'background: ' + color" aria-hidden="true"></span>
+          <neo-textinput
+            mask="aaaaaa"
+            prefix="#"
+            aria-label="Hex color"
+            :value="color"
+            @neo-textinput-input="pickColor($event.detail.value)"
+          ></neo-textinput>
+        </neo-layout>
+      </neo-layout>
+    </div>
+  </neo-card>
+</div>

@@ -1,0 +1,140 @@
+package neo
+
+type DrawerOpts struct {
+	// Side defaults to SideRight (the host's own default); SideLeft,
+	// SideTop, and SideBottom are also accepted.
+	Side Attr[Side]
+	// Open seeds the drawer's open state.
+	Open Attr[bool]
+	// Dismissible controls whether backdrop click and Escape close the
+	// drawer. Default leaves it dismissible; DismissibleOff locks it open.
+	Dismissible Attr[Dismissible]
+	// NoTouchDismiss opts out of the drag-to-close gesture (enabled by
+	// default); renders `touch-dismiss="off"` on the host.
+	NoTouchDismiss Attr[bool]
+	// TouchDismissThreshold overrides the default close threshold of
+	// half the panel's relevant dimension. Any CSS length is accepted,
+	// including px, rem, and percent.
+	TouchDismissThreshold Attr[CSSUnit]
+}
+
+// drawerTouchDismissAttr returns the value to render for the
+// `touch-dismiss` attribute. Returns "" when no attribute should be
+// rendered (default-on, default threshold).
+func drawerTouchDismissAttr(opts DrawerOpts) string {
+	if opts.NoTouchDismiss.Or(false) {
+		return "off"
+	}
+	return opts.TouchDismissThreshold.Or("")
+}
+
+// Drawer renders <neo-drawer>: a modal side-sheet wrapping a native
+// <dialog>. The host owns trigger/close wiring and ARIA; the browser
+// owns modal lifecycle (top-layer, focus trap, scroll lock, Esc).
+// Children must include a single `<dialog>` and may include any number
+// of `[data-neo-drawer-trigger]` / `[data-neo-drawer-close]` descendants.
+templ Drawer(opts DrawerOpts) {
+	@DrawerAttrs(opts, nil) {
+		{ children... }
+	}
+}
+
+// DrawerAttrs is [Drawer] with an extra attribute set.
+templ DrawerAttrs(opts DrawerOpts, attrs templ.Attributes) {
+	<neo-drawer
+		{ opts.Side.Attrs("side")... }
+		{ opts.Open.Attrs("open")... }
+		if opts.Dismissible.Or(DismissibleDefault) == DismissibleOn {
+			dismissible="true"
+		}
+		if opts.Dismissible.Or(DismissibleDefault) == DismissibleOff {
+			dismissible="false"
+		}
+		if drawerTouchDismissAttr(opts) != "" {
+			touch-dismiss={ drawerTouchDismissAttr(opts) }
+		}
+		{ attrs... }
+	>
+		{ children... }
+	</neo-drawer>
+}
+
+// DrawerTrigger marks the element that opens the drawer on click. Spread
+// onto any focusable element (the host wires aria-haspopup / aria-controls).
+func DrawerTrigger() templ.Attributes {
+	return templ.Attributes{"data-neo-drawer-trigger": true}
+}
+
+// DrawerClose marks any descendant inside the drawer as a close
+// control; clicking it dismisses the drawer.
+func DrawerClose() templ.Attributes {
+	return templ.Attributes{"data-neo-drawer-close": true}
+}
+
+// Drawer layout slots. Each renders one data-neo-drawer-* element with the
+// kit's spacing/typography presets. Place them inside the drawer's
+// <dialog> element.
+templ DrawerHeader() {
+	@DrawerHeaderAttrs(nil) {
+		{ children... }
+	}
+}
+
+// DrawerHeaderAttrs is [DrawerHeader] with an extra attribute set.
+templ DrawerHeaderAttrs(attrs templ.Attributes) {
+	<header data-neo-drawer-header { attrs... }>
+		{ children... }
+	</header>
+}
+
+templ DrawerTitle() {
+	@DrawerTitleAttrs(nil) {
+		{ children... }
+	}
+}
+
+// DrawerTitleAttrs is [DrawerTitle] with an extra attribute set.
+templ DrawerTitleAttrs(attrs templ.Attributes) {
+	<h2 data-neo-drawer-title { attrs... }>
+		{ children... }
+	</h2>
+}
+
+templ DrawerDescription() {
+	@DrawerDescriptionAttrs(nil) {
+		{ children... }
+	}
+}
+
+// DrawerDescriptionAttrs is [DrawerDescription] with an extra attribute set.
+templ DrawerDescriptionAttrs(attrs templ.Attributes) {
+	<p data-neo-drawer-description { attrs... }>
+		{ children... }
+	</p>
+}
+
+templ DrawerBody() {
+	@DrawerBodyAttrs(nil) {
+		{ children... }
+	}
+}
+
+// DrawerBodyAttrs is [DrawerBody] with an extra attribute set.
+templ DrawerBodyAttrs(attrs templ.Attributes) {
+	<div data-neo-drawer-body { attrs... }>
+		{ children... }
+	</div>
+}
+
+templ DrawerFooter() {
+	@DrawerFooterAttrs(nil) {
+		{ children... }
+	}
+}
+
+// DrawerFooterAttrs is [DrawerFooter] with an extra attribute set.
+templ DrawerFooterAttrs(attrs templ.Attributes) {
+	<footer data-neo-drawer-footer { attrs... }>
+		{ children... }
+	</footer>
+}

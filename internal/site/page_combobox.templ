@@ -1,0 +1,545 @@
+package site
+
+import (
+	"github.com/romshark/morpheus/internal/href"
+	"github.com/romshark/morpheus/internal/site/examples"
+	"github.com/romshark/morpheus/neo"
+)
+
+templ PageCombobox(morpheusVersion string) {
+	@PageDoc(href.PageCombobox(), "Combobox", morpheusVersion) {
+		@comboboxSimulator()
+		<section class="demo">
+			@anchoredH2("overview") {
+				Combobox
+			}
+			<p class="intro">
+				Component <code>{ "<neo-combobox>" }</code> is a
+				search-driven sibling of{ " " }
+				@neo.Link(neo.LinkOpts{Href: neo.Set(href.PageSelect())}) {
+					Select
+				}
+				. Trigger,
+				popover, <code>{ "<neo-option>" }</code> /
+				<code>{ "<neo-optgroup>" }</code> children, and the
+				lazy / <code>async</code> lifecycle are identical;
+				the panel adds a pinned, auto-focusing search input
+				that filters the listbox client-side. ArrowDown /
+				ArrowUp bridge between input and listbox at either
+				end.
+			</p>
+			@Playground(PlaygroundOpts{
+				ID:     "combobox-playground",
+				Height: "26rem",
+				States: comboboxPlaygroundStates(),
+			})
+			@anchoredH2("reference") {
+				Reference
+			}
+			@ComponentDocs(comboboxDoc)
+		</section>
+		<section class="demo">
+			@anchoredH2("examples") {
+				Examples
+			}
+			@anchoredH3("disabled-control") {
+				Disabled control
+			}
+			<p class="demo-note">
+				Set <code>disabled</code> on the host to make the
+				whole control non-interactive: the trigger leaves the
+				tab order, ignores clicks and keys, and renders faded.
+				An open panel closes. Distinct from disabling
+				individual options.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				Width:          "20rem",
+				StageMinHeight: "6rem",
+				HTMLSource:     comboboxDisabledControlHTML,
+				TemplSource:    comboboxDisabledControlTempl,
+			}) {
+				@examples.ComboboxDisabledControl()
+			}
+			@anchoredH3("native-form-submission") {
+				Native form submission
+			}
+			<p class="demo-note">
+				The combobox is form-associated. Give it a
+				<code>name</code> and it submits in a plain
+				<code>{ "<form>" }</code>, no framework binding. In
+				<code>multiple</code> mode it posts one entry per
+				selected value under the same name, like
+				<code>{ "<select multiple>" }</code>. Submit to see the
+				posted values.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				Width:          "20rem",
+				StageMinHeight: "26rem",
+				HTMLSource:     comboboxFormSubmissionHTML,
+				TemplSource:    comboboxFormSubmissionTempl,
+				CSSSource:      comboboxFormSubmissionCSS,
+			}) {
+				@examples.ComboboxFormSubmission()
+			}
+			@anchoredH3("grouped-options") {
+				Grouped options
+			}
+			<p class="demo-note">
+				Group related options under labeled headers by
+				wrapping them in
+				<code>{ "<neo-optgroup label=\"…\">" }</code>.
+			</p>
+			<ul class="demo-note">
+				<li>
+					The group header is not focusable; arrow
+					keys step across groups.
+				</li>
+				<li>
+					Each option's <code>label</code> keeps the
+					trigger and search clean text, even when the
+					option body is rich markup.
+				</li>
+				<li>
+					Searching hides a whole group once all its
+					options drop out. Type <em>tokyo</em> to
+					watch the others collapse.
+				</li>
+			</ul>
+			@demoFrameWith(DemoFrameOpts{
+				Width:          "20rem",
+				StageMinHeight: "26rem",
+				HTMLSource:     comboboxGroupedHTML,
+				TemplSource:    comboboxGroupedTempl,
+				CSSSource:      comboboxGroupedCSS,
+			}) {
+				@examples.ComboboxGrouped()
+			}
+			@anchoredH3("multiple-selection") {
+				Multiple selection
+			}
+			<p class="demo-note">
+				Pick several options at once with
+				<code>multiple</code>.
+			</p>
+			<ul class="demo-note">
+				<li>
+					Clicking an option toggles it and keeps the
+					popover open; single-select replaces and
+					closes.
+				</li>
+				<li>
+					<code>value</code> is a comma-separated list
+					and <code>neo-combobox-change</code> carries
+					<code>{ "{values, labels}" }</code>.
+				</li>
+				<li>
+					A
+					<code>{ "[data-neo-empty-results]" }</code>
+					child replaces the no-match row;
+					<code>{ "[data-neo-empty-query]" }</code>
+					inside it echoes the typed text. Type
+					<em>xyz</em> to see it.
+				</li>
+			</ul>
+			@demoFrameWith(DemoFrameOpts{
+				Width:          "20rem",
+				StageMinHeight: "26rem",
+				StageClass:     "demo-combobox-stretch",
+				HTMLSource:     comboboxMultipleHTML,
+				TemplSource:    comboboxMultipleTempl,
+			}) {
+				@examples.ComboboxMultiple()
+			}
+			@anchoredH3("rich-options-avatars") {
+				Rich options
+			}
+			<p class="demo-note">
+				Options carry rich multi-line bodies (avatar,
+				name, title) that also render in the trigger.
+			</p>
+			<ul class="demo-note">
+				<li>
+					The selected option's body is cloned into
+					the trigger, which grows to fit it.
+				</li>
+				<li>
+					Search matches each option's
+					<code>label</code> or text.
+				</li>
+				<li>
+					<code>{ "[data-neo-combobox-empty]" }</code>
+					is the face shown when nothing is selected;
+					<code>clearable</code> lets Backspace or
+					Delete on the trigger clear the selection.
+				</li>
+				<li>
+					A server can swap the trigger face by
+					patching a <code>{ `slot="trigger"` }</code>
+					child.
+				</li>
+			</ul>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "26rem",
+				HTMLSource:     comboboxRichOptionsHTML,
+				TemplSource:    comboboxRichOptionsTempl,
+				CSSSource:      comboboxRichOptionsCSS,
+			}) {
+				@examples.ComboboxRichOptions()
+			}
+			@anchoredH3("custom-trigger-face") {
+				Custom trigger face
+			}
+			<p class="demo-note">
+				Show a compact face on the trigger, separate
+				from the full row in the list.
+			</p>
+			<ul class="demo-note">
+				<li>
+					A
+					<code>{ "[data-neo-option-trigger]" }</code>
+					child is cloned onto the trigger; the rest
+					of the option stays the list row.
+				</li>
+				<li>
+					<code>{ "[data-neo-combobox-empty]" }</code>
+					is the empty face. Press Backspace on the
+					trigger to clear and show it.
+				</li>
+			</ul>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "26rem",
+				HTMLSource:     comboboxCustomTriggerFaceHTML,
+				TemplSource:    comboboxCustomTriggerFaceTempl,
+				CSSSource:      comboboxCustomTriggerFaceCSS,
+			}) {
+				@examples.ComboboxCustomTriggerFace()
+			}
+			@anchoredH3("multi-select-chips") {
+				Multi-select chips
+			}
+			<p class="demo-note">
+				<code>multiple</code> with per-option faces:
+				each pick becomes a chip on the trigger.
+			</p>
+			<ul class="demo-note">
+				<li>
+					A chip uses the option's
+					<code>{ "[data-neo-option-trigger]" }</code>
+					face, or falls back to its text.
+				</li>
+				<li>
+					Chips wrap and the trigger grows. Drag the
+					stage narrower to watch them reflow.
+				</li>
+			</ul>
+			@demoFrameWith(DemoFrameOpts{
+				Width:          "34rem",
+				StageMinWidth:  "16rem",
+				StageMinHeight: "26rem",
+				StageClass:     "demo-combobox-stretch",
+				HTMLSource:     comboboxMultiFaceHTML,
+				TemplSource:    comboboxMultiFaceTempl,
+				CSSSource:      comboboxMultiFaceCSS,
+			}) {
+				@examples.ComboboxMultiFace()
+			}
+			@anchoredH3("open-above") {
+				Open above
+			}
+			<p class="demo-note">
+				Open the panel above the trigger with
+				<code>{ `placement="top-start"` }</code>.
+			</p>
+			<ul class="demo-note">
+				<li>
+					The search input stays pinned next to the
+					trigger (bottom of the panel), even as
+					placement flips.
+				</li>
+				<li>
+					ArrowUp moves to the nearest option (last in
+					the DOM); ArrowDown wraps to the first.
+				</li>
+			</ul>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "26rem",
+				// Sit the trigger at the frame's bottom so the top-start
+				// panel has room to open above it inside the frame.
+				StageAttrs:  templ.Attributes{"style": "align-items: flex-end;"},
+				HTMLSource:  comboboxOpenAboveHTML,
+				TemplSource: comboboxOpenAboveTempl,
+			}) {
+				@examples.ComboboxOpenAbove()
+			}
+		</section>
+		<section class="demo">
+			@anchoredH2("examples-datastar") {
+				Examples: Datastar
+			}
+			@anchoredH3("morphing-during-interaction") {
+				Morphing during interaction
+			}
+			<p class="demo-note">
+				A Datastar fat-morph can replace the option list
+				while the user is interacting; the combobox
+				reconciles in place.
+			</p>
+			<ul class="demo-note">
+				<li>
+					Options can appear, disappear, or flip to
+					<code>disabled</code> with the popover open.
+				</li>
+				<li>
+					The element stays mounted, the popover stays
+					open, and the selection survives. Autoplay
+					cycles the states below to simulate the
+					morphs.
+				</li>
+			</ul>
+			@Playground(PlaygroundOpts{
+				ID:       "combobox-morph-playground",
+				Autoplay: true,
+				Height:   "26rem",
+				States:   comboboxMorphStates(),
+			})
+			@anchoredH3("async-load") {
+				Async load
+			}
+			<p class="demo-note">
+				Fetch options from the server on every open with
+				<code>async</code>.
+			</p>
+			<ul class="demo-note">
+				<li>
+					Each open fires
+					<code>neo-combobox-load</code>; wire
+					<code>data-on:neo-combobox-load</code> to
+					post.
+				</li>
+				<li>
+					The server morphs an options fragment into
+					<code>#&lt;host-id&gt;-options</code>.
+				</li>
+				<li>
+					<code>{ "[data-neo-async-placeholder]" }</code>
+					fills the listbox until options arrive; the
+					search field stays usable.
+				</li>
+			</ul>
+			@simDelayHint()
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "26rem",
+				HTMLSource:     comboboxAsyncHTML,
+				TemplSource:    comboboxAsyncTempl,
+				CSSSource:      comboboxAsyncCSS,
+				ScriptSource:   comboboxAsyncLoadScript,
+			}) {
+				@examples.ComboboxAsync()
+			}
+			@anchoredH3("lazy-load") {
+				Lazy load
+			}
+			<p class="demo-note">
+				Fetch options once, on first open, then reuse
+				them.
+			</p>
+			<ul class="demo-note">
+				<li>
+					Add a
+					<code>{ "[data-neo-async-placeholder]" }</code>
+					without <code>async</code>: the first open
+					fires <code>neo-combobox-load</code>.
+				</li>
+				<li>
+					Loaded options are cached; later opens reuse
+					them with no refetch.
+				</li>
+			</ul>
+			@simDelayHint()
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "26rem",
+				HTMLSource:     comboboxLazyHTML,
+				TemplSource:    comboboxLazyTempl,
+				CSSSource:      comboboxLazyCSS,
+				ScriptSource:   comboboxLazyOnceScript,
+			}) {
+				@examples.ComboboxLazy()
+			}
+			@anchoredH3("live-search-server-driven") {
+				Live search (server-driven)
+			}
+			<p class="demo-note">
+				Let the server filter on every keystroke instead
+				of matching locally, with
+				<code>live-search</code>.
+			</p>
+			<ul class="demo-note">
+				<li>
+					Each keystroke re-shows the placeholder and
+					refetches; wire
+					<code>{ "data-on:neo-combobox-search" }</code>
+					to re-post.
+				</li>
+				<li>
+					The event's <code>{ "event.detail.query" }</code>
+					holds the typed text; copy it into a signal the
+					server reads.
+				</li>
+				<li>
+					The server returns the matching options, or a
+					<code>{ "[data-neo-empty-results]" }</code>
+					child when nothing matches.
+				</li>
+			</ul>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "26rem",
+				HTMLSource:     comboboxLiveSearchHTML,
+				TemplSource:    comboboxLiveSearchTempl,
+				CSSSource:      comboboxLiveSearchCSS,
+				ScriptSource:   comboboxSearchScript,
+			}) {
+				@examples.ComboboxLiveSearch()
+			}
+			@anchoredH3("async-load-with-failure-swap") {
+				Async load with failure swap
+			}
+			<p class="demo-note">
+				Async load that shows a failure state and a retry
+				button when the request keeps failing.
+			</p>
+			<ul class="demo-note">
+				<li>
+					On a failed request Datastar retries per its
+					retry config; after retries are exhausted, a
+					failure template replaces the
+					<code>{ "[data-neo-async-placeholder]" }</code>.
+				</li>
+				<li>
+					A
+					<code>{ "[data-neo-popover-async-retry]" }</code>
+					button re-runs the load without closing the
+					panel.
+				</li>
+				<li>
+					The placeholder stays the source, so reopening
+					shows the loading view again.
+				</li>
+			</ul>
+			@serverErrorControls()
+			@simDelayHint()
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "26rem",
+				TemplSource:    comboboxAsyncFailureTempl,
+				CSSSource:      comboboxAsyncFailureCSS,
+				ScriptSource:   comboboxAsyncFailureScript,
+			}) {
+				@examples.ComboboxAsyncFailure()
+			}
+		</section>
+	}
+}
+
+var comboboxDoc = ComponentDoc{
+	Attributes: []DocAttribute{
+		{Name: "value", Type: "string", Reflected: true, Observed: true,
+			Description: templ.Raw("Selected value(s); comma-separated when <code>multiple</code> is set. In <code>multiple</code> mode an option value must not contain a comma; the separator is unescaped.")},
+		{Name: "name", Type: "string", Observed: true,
+			Description: templ.Raw("Form field name. The control is form-associated: with a <code>name</code> set it submits its value in a native <code>&lt;form&gt;</code>, resets with the form, and is barred from submission while disabled. With <code>multiple</code> it submits one entry per selected value under the same name, like <code>&lt;select multiple&gt;</code>.")},
+		{Name: "size", Type: `"sm" | "lg"`,
+			Description: templ.Raw("Control-size step: <code>sm</code> compact, <code>lg</code> large. Omit for the default size.")},
+		{Name: "disabled", Type: "boolean", Default: "false", Observed: true,
+			Description: templ.Raw("Makes the control non-interactive: the trigger drops out of the tab order and ignores clicks and keys, and an open panel closes.")},
+		{Name: "placeholder", Type: "string", Observed: true,
+			Description: templ.Raw("Trigger text when nothing is selected.")},
+		{Name: "list", Type: "string", Observed: true,
+			Description: templ.Raw(`References a shared <a href="` + href.PageDatalist() + `"><code>&lt;neo-datalist&gt;</code></a> by its <code>id</code> (like native <code>&lt;input list&gt;</code>) to source the options. Inline <code>&lt;neo-option&gt;</code> children (or an inline datalist) take precedence.`)},
+		{Name: "search-placeholder", Type: "string", Default: `"Search…"`, Observed: true,
+			Description: templ.Raw("Hint shown in the search input.")},
+		{Name: "multiple", Type: "boolean", Default: "false", Observed: true,
+			Description: templ.Raw("Allow multi-selection; <code>value</code> becomes a comma-separated list.")},
+		{Name: "clearable", Type: "boolean", Default: "false",
+			Description: templ.Raw("<code>Backspace</code> / <code>Delete</code> on the focused (closed) trigger clears the selection back to the empty state.")},
+		{Name: "caret", Type: "string", Default: `"chevrons-up-down"`, Observed: true,
+			Description: templ.Raw("Name of the trigger's caret icon. Resolved through <code>&lt;neo-icon&gt;</code>, so it follows the active icon theme. Set <code>caret=&quot;&quot;</code> (empty) to hide the caret entirely.")},
+		{Name: "async", Type: "boolean", Default: "false",
+			Description: templ.Raw("On every open, clear the listbox, re-show the <code>[data-neo-async-placeholder]</code> slot, and fire <code>neo-combobox-load</code> so a wired loader re-fetches. Without <code>async</code>, a combobox with a <code>[data-neo-async-placeholder]</code> child fires <code>neo-combobox-load</code> only on the first open (options empty) and caches across opens; <code>neo-popover-open</code> is independent; it always fires when the panel opens.")},
+		{Name: "live-search", Type: "boolean", Default: "false",
+			Description: templ.Raw("Reload options on every keystroke.")},
+		{Name: "search-debounce", Type: "number", Default: "0",
+			Description: templ.Raw("Milliseconds to coalesce keystrokes before running the local filter / live-search loading reset and dispatching <code>neo-combobox-search</code>. <code>0</code> dispatches on every keystroke.")},
+		{Name: "placement", Type: "string", Default: `"bottom-start"`, Observed: true,
+			Description: templ.Raw(`Anchor placement of the panel. The listbox positions the panel with the same helper as <a href="` + href.PagePopover() + `"><code>&lt;neo-popover&gt;</code></a>; see its placement values.`)},
+		{Name: "screen-offset", Type: "string", Observed: true,
+			Description: templ.Raw("Viewport edge margin and the panel's scrollable max size.")},
+		{Name: "follow-scroll", Type: `"always" | "until-trigger-invisible"`, Default: "unset", Observed: true,
+			Description: templ.Raw("When absent, close on outside scroll. Set to <code>always</code> to stay anchored during scroll. Set to <code>until-trigger-invisible</code> to close once the trigger leaves the viewport.")},
+		{Name: "clamp-placement", Type: "boolean", Default: "false", Observed: true,
+			Description: templ.Raw("Default is strict placement (panel anchored at the exact point, content scrolls); set this to opt into re-anchoring the panel position so it stays inside the viewport when content would overflow.")},
+		{Name: "min-fit-height", Type: `CSS length | "content"`, Default: `"content"`, Observed: true,
+			Description: templ.Raw("Minimum vertical slot the strict placement requires; below the threshold the panel auto-flips to the opposite primary axis when the other side has more room. <code>content</code> resolves from the panel's scroll height on each positioning pass.")},
+		{Name: "min-fit-width", Type: `CSS length | "content"`, Default: `"content"`, Observed: true,
+			Description: templ.Raw("Same as <code>min-fit-height</code> but for the horizontal axis. <code>content</code> resolves from the panel's scroll width. Use <code>0</code> to disable the horizontal auto-flip.")},
+		{Name: "min-open-height", Type: "CSS length", Default: "2rem", Observed: true,
+			Description: templ.Raw("Minimum usable vertical slot required to remain open after placement and auto-flip. If the bounded slot is smaller, the listbox closes instead of rendering a cramped panel. Use <code>0</code> to disable.")},
+		{Name: "min-open-width", Type: "CSS length", Default: "2rem", Observed: true,
+			Description: templ.Raw("Same as <code>min-open-height</code> but for horizontal space. Use <code>0</code> to disable.")},
+		{Name: "popover-fit-content", Type: "boolean", Default: "false",
+			Description: templ.Raw("The listbox tracks the trigger width by default; set this to size the panel to the option rows instead. Capped by <code>--neo-popover-max-width</code> and the viewport.")},
+		{Name: "hover", Type: "boolean", Default: "false",
+			Description: templ.Raw("Open the panel on trigger hover without moving focus; close after the pointer leaves both trigger and panel. Mouse only; touch falls back to click. While set, clicking the trigger always shows the panel instantly and never toggles it shut, so touch and keyboard users keep a way in.")},
+		{Name: "hover-open-delay", Type: "integer (ms)", Default: "100",
+			Description: templ.Raw("Milliseconds the pointer must rest on the trigger before <code>hover</code> opens the panel. Filters incidental cursor crossings. Does not apply to click.")},
+		{Name: "hover-close-delay", Type: "integer (ms)", Default: "200",
+			Description: templ.Raw("Milliseconds to wait after the pointer leaves both trigger and panel before <code>hover</code> closes the panel. Long enough to bridge the gap between them.")},
+	},
+	Slots: []DocSlot{
+		{Name: "default",
+			Description: templ.Raw(`<code>&lt;neo-option&gt;</code> and <code>&lt;neo-optgroup&gt;</code> children. Alternatively, set <code>list</code> to source them from a shared <a href="` + href.PageDatalist() + `"><code>&lt;neo-datalist&gt;</code></a>.`)},
+		{Name: "[data-neo-async-placeholder]",
+			Description: templ.Raw("Shown in the listbox whenever there are no options. The kit clones the slot under the search field; when the slot is absent, a default <code>&lt;neo-spinner&gt;</code> stands in.")},
+		{Name: "[slot=trigger]",
+			Description: templ.Raw("Owns the trigger face. Leave it absent and the kit fills it client-side by cloning the selected option's body (so its CSS styles it and the trigger grows to fit); provide one (e.g. patched from a server) and the kit yields, rendering exactly your content.")},
+		{Name: "[data-neo-option-trigger]",
+			Description: templ.Raw("Optional per-<code>&lt;neo-option&gt;</code> child: a compact trigger face distinct from the option's rich list row. Hidden in the list; cloned into the trigger when that option is selected. Falls back to the option's <code>label</code> (plain text), then its full body. Shared with <code>&lt;neo-select&gt;</code>.")},
+		{Name: "[data-neo-combobox-empty]",
+			Description: templ.Raw("The empty-state trigger face, cloned into the trigger when nothing is selected. Hidden in the list.")},
+		{Name: "[data-neo-empty-results]",
+			Description: templ.Raw("Overrides the default <em>No results</em> hint when the listbox ends up empty after filtering or after an external load returned no options. Any <code>[data-neo-empty-query]</code> descendants get their <code>textContent</code> set to the current search input each time the slot is mounted, so authors can render messages like <code>No results for &quot;&lt;span data-neo-empty-query&gt;&lt;/span&gt;&quot;</code>. A response can also ship one inline as an option-list child.")},
+	},
+	Events: []DocEvent{
+		{Name: "neo-combobox-change",
+			Detail:      "{ value, label } or { values, labels }",
+			Bubbles:     true,
+			Description: templ.Raw("Fires after the selection changes. Multiple-mode payload uses array fields.")},
+		{Name: "neo-combobox-search", Detail: "{ query: string }", Bubbles: true,
+			Description: templ.Raw("Fires on every search-input change; <code>detail.query</code> carries the current text. For server-driven live search, copy it into a signal in the handler (the element binds no framework attribute itself).")},
+		{Name: "neo-combobox-load", Detail: "none", Bubbles: true,
+			Description: templ.Raw("Fires when options need fetching: every open with <code>async</code>, or a lazy combobox's first open. Wire a loader to it (e.g. a Datastar <code>@post</code>). Call <code>el.reload()</code> to re-fire it. Distinct from <code>neo-popover-open</code>, which always fires on open.")},
+	},
+	Parts: []DocPart{
+		{Name: "label",
+			Description: templ.Raw("Trigger label showing the current selection.")},
+		{Name: "caret",
+			Description: templ.Raw("Trigger caret icon.")},
+	},
+	CSSProps: []DocCSSProp{
+		{Name: "--neo-combobox-min-width", Default: "var(--neo-select-min-width, 12rem)",
+			Description: templ.Raw("Minimum trigger width.")},
+		{Name: "--neo-combobox-search-padding", Default: "calc(var(--page-spacing, 0.25rem) * 2) calc(var(--page-spacing, 0.25rem) * 2.5)",
+			Description: templ.Raw("Padding around the search field.")},
+		{Name: "--neo-combobox-search-divider", Default: "color-mix(in srgb, var(--page-fg) 10%, transparent)",
+			Description: templ.Raw("Divider color between the search field and the options list.")},
+		{Name: "--neo-combobox-search-divider-width", Default: "1px",
+			Description: templ.Raw("Divider width between the search field and the options list.")},
+	},
+}
+
+// comboboxSimulator loads the per-demo handler modules under
+// /static/sim/combobox/ that power the Datastar examples (also surfaced
+// in each demo's Server script tab).
+templ comboboxSimulator() {
+	<script type="module" src="/static/sim/combobox/async-load.js"></script>
+	<script type="module" src="/static/sim/combobox/asyncload.js"></script>
+	<script type="module" src="/static/sim/combobox/search.js"></script>
+	<script type="module" src="/static/sim/combobox/lazy-once.js"></script>
+}

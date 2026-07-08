@@ -1,0 +1,38 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+// drawer_async_html seeds the demo simulator's response; a real app drops
+// it and lets the server return the body for /drawer/async-load.
+templ DrawerAsyncLoading() {
+	@neo.DrawerAttrs(neo.DrawerOpts{Side: neo.Set(neo.SideRight)}, templ.Attributes{
+		"data-signals":             `{drawer_async_ctrl: new AbortController(), drawer_async_html: '<h3>Roman Scharkov</h3><p class="drawer-async-meta">Creator of Morpheus · <code>roman.scharkov@example.com</code></p><p>Builds Morpheus, the server-driven web component kit this site is built with.</p><h3>Daniel Scharkov</h3><p class="drawer-async-meta">Co-maker of Morpheus · <code>daniel.scharkov@example.com</code></p><p>Works on Morpheus with his brother Roman; the two ship it together.</p>'}`,
+		"data-on:neo-drawer-open":  "@post('/drawer/async-load', { requestCancellation: $drawer_async_ctrl })",
+		"data-on:neo-drawer-close": "$drawer_async_ctrl.abort(); $drawer_async_ctrl = new AbortController()",
+	}) {
+		<neo-button { neo.DrawerTrigger()... }>Load profile</neo-button>
+		<dialog>
+			@neo.DrawerHeader() {
+				@neo.DrawerTitle() {
+					Team members
+				}
+				@neo.DrawerDescription() {
+					Loaded fresh from the server each time you open this drawer.
+				}
+			}
+			<neo-layout id="drawer-async-body" class="drawer-async-slot" column>
+				<neo-layout class="drawer-async-skeleton" column { neo.AsyncPlaceholder()... }>
+					<neo-skeleton class="drawer-async-loading-line-title"></neo-skeleton>
+					<neo-skeleton class="drawer-async-loading-line-sub"></neo-skeleton>
+					<neo-skeleton class="drawer-async-loading-line-90"></neo-skeleton>
+					<neo-skeleton class="drawer-async-loading-line-75"></neo-skeleton>
+					<neo-skeleton class="drawer-async-loading-line-80"></neo-skeleton>
+					<neo-skeleton class="drawer-async-loading-line-70"></neo-skeleton>
+				</neo-layout>
+			</neo-layout>
+			@neo.DrawerFooter() {
+				<neo-button { neo.DrawerClose()... }>Close</neo-button>
+			}
+		</dialog>
+	}
+}

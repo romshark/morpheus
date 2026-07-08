@@ -1,0 +1,32 @@
+package neo
+
+// DatalistOpts configures a <neo-datalist>, a data-only option container
+// read by Select, Combobox, and TextInput (suggestions).
+type DatalistOpts struct {
+	// ID names the datalist. A control opts in with list="<id>" (like
+	// native <input list>). Inline datalists placed inside one control
+	// don't need an id.
+	ID Attr[string]
+}
+
+// Datalist renders <neo-datalist> with [Option] / [OptGroup]
+// children. It is not a rendered or interactive component, only an
+// option-data source, modeled on native <datalist>. Use it inline inside
+// a control, or stand-alone with an ID and point controls at it via their
+// List field. An inline datalist wins over any external datalist a control
+// references.
+templ Datalist(opts DatalistOpts) {
+	@DatalistAttrs(opts, nil) {
+		{ children... }
+	}
+}
+
+// DatalistAttrs is [Datalist] with an extra attribute set.
+templ DatalistAttrs(opts DatalistOpts, attrs templ.Attributes) {
+	<neo-datalist
+		{ opts.ID.Attrs("id")... }
+		{ attrs... }
+	>
+		{ children... }
+	</neo-datalist>
+}

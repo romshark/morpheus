@@ -1,0 +1,21 @@
+.spinner-sizes-row {
+	display: inline-flex;
+	align-items: center;
+	gap: 1.25rem;
+}
+
+.spinner-sizes-xs {
+	--neo-spinner-size: 0.85rem;
+}
+
+.spinner-sizes-sm {
+	--neo-spinner-size: 1.25rem;
+}
+
+.spinner-sizes-md {
+	--neo-spinner-size: 2rem;
+}
+
+.spinner-sizes-lg {
+	--neo-spinner-size: 3rem;
+}

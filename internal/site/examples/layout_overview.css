@@ -1,0 +1,7 @@
+.layout-overview-card {
+	flex-basis: 16rem;
+}
+
+.layout-overview-scroll {
+	padding: var(--neo-space-sm);
+}

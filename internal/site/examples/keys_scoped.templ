@@ -1,0 +1,18 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ KeysScoped() {
+	<div class="keys-demo" tabindex="0" data-signals="{keys_saved: 0}">
+		<p class="keys-demo-hint">
+			Focus this panel, then press
+			<neo-kbd>⌘</neo-kbd> <neo-kbd>S</neo-kbd>
+			(<neo-kbd>Ctrl</neo-kbd> <neo-kbd>S</neo-kbd> elsewhere).
+			Move focus away and the shortcut stops firing.
+		</p>
+		<p>Saved <strong data-text="$keys_saved"></strong> times.</p>
+		@neo.KeysAttrs(neo.KeysOpts{Keys: neo.Set("mod+s")}, templ.Attributes{
+			"data-on:neo-keys": "$keys_saved++",
+		})
+	</div>
+}

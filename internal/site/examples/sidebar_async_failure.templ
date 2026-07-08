@@ -1,0 +1,71 @@
+package examples
+
+import (
+	"github.com/romshark/morpheus/datastar"
+	"github.com/romshark/morpheus/neo"
+)
+
+templ SidebarAsyncFailure() {
+	<neo-layout class="sb-fail-shell">
+		@datastar.SidebarAsync(datastar.SidebarAsyncOpts{
+			SidebarOpts:   neo.SidebarOpts{Manual: neo.Set(true), AriaLabel: neo.Set("Account")},
+			ID:            "sidebarAsyncDemo",
+			URL:           "/sidebar/asyncload/",
+			ExtraPostOpts: "retry: 'auto', retryInterval: 1000, retryScaler: 2, retryMaxWait: 30000, retryMaxCount: 2",
+			Header:        sidebarAsyncFailureHeader(),
+			Footer:        sidebarAsyncFailureFooter(),
+			Loading:       sidebarAsyncFailureLoading(),
+			Failed:        sidebarAsyncFailureFailed(),
+		})
+		<neo-layout class="sb-main" column>
+			<header class="sb-bar">
+				<neo-button aria-label="Toggle sidebar" data-on:click="document.getElementById('sidebarAsyncDemo').toggle()">
+					<neo-icon name="menu"></neo-icon>
+				</neo-button>
+				<strong>Workspace</strong>
+			</header>
+			<div class="sb-body">
+				<p>
+					Open the sidebar from the menu button. Each open posts to
+					the server; on repeated failure the content slot shows a
+					retry callout. Retry re-posts without closing the sidebar.
+				</p>
+			</div>
+		</neo-layout>
+	</neo-layout>
+}
+
+templ sidebarAsyncFailureHeader() {
+	<span>Account</span>
+	<neo-button aria-label="Close sidebar" { neo.SidebarClose()... }>
+		<neo-icon name="x"></neo-icon>
+	</neo-button>
+}
+
+templ sidebarAsyncFailureFooter() {
+	<neo-icon name="moon"></neo-icon>
+	<span>v0.1.0</span>
+}
+
+// Wrapped in [data-neo-async-placeholder] by SidebarAsync so the
+// sidebar restores it after close and before retry/reopen.
+templ sidebarAsyncFailureLoading() {
+	<neo-skeleton immediate class="sb-async-failure-line-55"></neo-skeleton>
+	<neo-skeleton immediate class="sb-async-failure-line-80"></neo-skeleton>
+	<neo-skeleton immediate class="sb-async-failure-line-70"></neo-skeleton>
+	<neo-skeleton immediate class="sb-async-failure-line-85"></neo-skeleton>
+	<neo-skeleton immediate class="sb-async-failure-line-65"></neo-skeleton>
+}
+
+// Swapped into <div id="<ID>-body"> once Datastar fires retries-failed.
+// The retry button carries [data-neo-popover-async-retry] so SidebarAsync
+// re-fires the @post action when clicked.
+templ sidebarAsyncFailureFailed() {
+	<div class="popover-async-loading popover-async-failed" role="alert">
+		@neo.Icon("triangle-alert")
+		<strong>Couldn't load account.</strong>
+		<neo-button { neo.PopoverAsyncRetry()... }>
+			Retry
+		</neo-button>
+	</div>
+}

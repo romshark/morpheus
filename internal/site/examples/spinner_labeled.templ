@@ -1,0 +1,15 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ SpinnerLabeled() {
+	@neo.SpinnerProgressAttrs(neo.SpinnerOpts[float64]{
+		Value:   neo.Set(40.0),
+		Max:     neo.Set(100.0),
+		Label:   neo.Set("Uploading"),
+		Tooltip: neo.Set(true),
+		Unit:    neo.Set("%"),
+	}, templ.Attributes{
+		"class": "spinner-labeled-ring",
+	})
+}

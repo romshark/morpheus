@@ -1,0 +1,107 @@
+package neo
+
+// LightboxTransition selects the entry / exit style. The zero value emits
+// no `transition`, so the component defaults to zoom.
+type LightboxTransition string
+
+const (
+	// LightboxTransitionZoom morphs the surface from the opening trigger's
+	// position and size (a FLIP), and back into it on close. The default.
+	LightboxTransitionZoom LightboxTransition = "zoom"
+	// LightboxTransitionFade is a centered scale + opacity entry.
+	LightboxTransitionFade LightboxTransition = "fade"
+	// LightboxTransitionNone shows the overlay instantly (no surface
+	// animation); the backdrop still fades.
+	LightboxTransitionNone LightboxTransition = "none"
+)
+
+type LightboxOpts struct {
+	// Contained confines the overlay to the host's own box (the host
+	// becomes the positioned containing block). Default renders to the
+	// screen top layer.
+	Contained Attr[bool]
+	// Open seeds the open state.
+	Open Attr[bool]
+	// Hover opens the overlay when the pointer enters a trigger and
+	// closes it after the pointer leaves both trigger and surface. Mouse
+	// only; touch and keyboard fall back to click.
+	Hover Attr[bool]
+	// HoverOpenDelay and HoverCloseDelay are the milliseconds the
+	// component waits before opening / closing on hover. Zero leaves the
+	// attribute off (component defaults: 100ms open, 200ms close).
+	HoverOpenDelay  Attr[int]
+	HoverCloseDelay Attr[int]
+	// Dismissible controls backdrop and Esc dismissal. Default leaves the
+	// overlay dismissible; DismissibleOff locks it open.
+	Dismissible Attr[Dismissible]
+	// Transition picks the entry / exit style. The zero value emits no
+	// attribute, so the component defaults to zoom.
+	Transition Attr[LightboxTransition]
+}
+
+// Lightbox renders <neo-lightbox>. The body must contain one or more
+// trigger children and one content child, marked via the helper splats
+// below:
+//
+//	@neo.Lightbox(neo.LightboxOpts{}) {
+//		<neo-button { neo.LightboxTrigger()... }>Open</neo-button>
+//		<div { neo.LightboxContent()... }>
+//			<img src="/photo.jpg" alt="A photo"/>
+//			<neo-button { neo.LightboxClose()... }>Close</neo-button>
+//		</div>
+//	}
+//
+// The author owns the element types; the helpers add only the
+// data-attribute the JS uses to wire ARIA + open / close handling.
+templ Lightbox(opts LightboxOpts) {
+	@LightboxAttrs(opts, nil) {
+		{ children... }
+	}
+}
+
+// LightboxTrigger marks an element as a lightbox trigger. Repeat it on
+// any number of children; all of them open the same overlay. The JS
+// wires aria-haspopup / aria-expanded / aria-controls and the open
+// handler onto each. Use on any focusable element.
+func LightboxTrigger() templ.Attributes {
+	return templ.Attributes{"data-neo-lightbox-trigger": true}
+}
+
+// LightboxContent marks the element projected into the overlay surface.
+// See Lightbox for a complete example.
+func LightboxContent() templ.Attributes {
+	return templ.Attributes{"data-neo-lightbox-content": true}
+}
+
+// LightboxClose marks any descendant of the content as a close
+// control; clicking it dismisses the overlay.
+func LightboxClose() templ.Attributes {
+	return templ.Attributes{"data-neo-lightbox-close": true}
+}
+
+// LightboxTitle marks the element that names the dialog; the JS points
+// the surface's aria-labelledby at it.
+func LightboxTitle() templ.Attributes {
+	return templ.Attributes{"data-neo-lightbox-title": true}
+}
+
+// LightboxAttrs is [Lightbox] with an extra attribute set.
+templ LightboxAttrs(opts LightboxOpts, attrs templ.Attributes) {
+	<neo-lightbox
+		{ opts.Contained.Attrs("contained")... }
+		{ opts.Open.Attrs("open")... }
+		{ opts.Hover.Attrs("hover")... }
+		{ opts.HoverOpenDelay.Attrs("hover-open-delay")... }
+		{ opts.HoverCloseDelay.Attrs("hover-close-delay")... }
+		if opts.Dismissible.Or(DismissibleDefault) == DismissibleOn {
+			dismissible="true"
+		}
+		if opts.Dismissible.Or(DismissibleDefault) == DismissibleOff {
+			dismissible="false"
+		}
+		{ opts.Transition.Attrs("transition")... }
+		{ attrs... }
+	>
+		{ children... }
+	</neo-lightbox>
+}

@@ -1,0 +1,147 @@
+package site
+
+import (
+	"github.com/romshark/morpheus/internal/href"
+	"github.com/romshark/morpheus/neo"
+)
+
+templ PageProjectStatus(morpheusVersion string) {
+	@PageDoc(href.PageProjectStatus(),
+		"Status & Contribution",
+		morpheusVersion) {
+		<section class="demo">
+			@anchoredH2("status") {
+				Status &amp; Contribution
+			}
+			<p>
+				Morpheus { morpheusVersion } is currently an early access alpha version
+				developed by
+				<a href="https://github.com/romshark">Roman Sharkov</a> and 
+				<a href="https://github.com/DanielSharkov">Daniel Sharkov</a>.
+			</p>
+			@anchoredH2("communities") {
+				Communities
+			}
+			<p>
+				Want to discuss Morpheus, ask questions, or share ideas?
+				Join the discussion in the following communities:
+			</p>
+			<ul>
+				<li>
+					<a href="https://gophers.slack.com/archives/C061C4PMKDJ">
+						Gophers Slack
+					</a>
+					(<code>#templ</code> channel)
+				</li>
+				<li>
+					<a href="https://discord.com/channels/1296224603642925098/1296225503610671224">
+						Datastar Discord
+					</a>
+					(<code>#off-topic</code> channel)
+				</li>
+			</ul>
+			@anchoredH2("open-alpha") {
+				Open Alpha
+			}
+			<ul>
+				<li>
+					<strong>Pre-v1</strong> APIs (component names, attributes,
+					events, CSS variables, etc.) are subject to change.
+					Before the <strong>v1.0.0</strong> release, no backward compatibility
+					guarantee is provided. API change suggestions and feature requests
+					are welcome in{ " " }
+					@neo.Link(neo.LinkOpts{
+						Href: neo.Set("https://github.com/romshark/morpheus/issues"),
+					}) {
+						GitHub issues
+					}
+					. PRs are welcome but should generally be preceded by a discussion in the issues.
+					(see{ " " }
+					@neo.Link(neo.LinkOpts{
+						Href: neo.Set("https://github.com/romshark/morpheus/blob/main/CONTRIBUTING.md"),
+					}) {
+						CONTRIBUTING.md
+					}
+					).
+				</li>
+				<li>
+					<strong>Components are manually tested</strong> before being released.
+					Yet bugs may still be hiding and we kindly ask you to
+					{ " " }
+					@neo.Link(neo.LinkOpts{Href: neo.Set("https://github.com/romshark/morpheus/issues")}) {
+						report them via GitHub issues
+					}
+					.
+				</li>
+				<li>
+					<strong>We provide best effort support.</strong>
+					Commercial support is currently not available.
+				</li>
+			</ul>
+			<p>
+				On our way towards <strong>a stable v1.0.0 release</strong> we aim for a
+				feature-complete, fully documented and battle-tested implementation
+				with optimal performance and modular, size-optimized bundles.
+			</p>
+			@anchoredH2("how-to-help") {
+				How to help
+			}
+			<p>
+				UI systems are notoriously hard to test. Even though the components have
+				already undergone extensive manual testing across keyboard/mouse and
+				touch devices on major browsers (latest versions of Safari, Firefox and
+				Chromium-based browsers), we still need more hands-on testing.
+				The best way to help us is to battle-test Morpheus and report any issues
+				you encounter via{ " " }
+				@neo.Link(neo.LinkOpts{
+					Href: neo.Set("https://github.com/romshark/morpheus/issues"),
+				}) {
+					GitHub issues
+				}
+				.
+			</p>
+			@anchoredH2("ai-use") {
+				AI Use
+			}
+			<p>
+				AI tools were used to help make this project possible but the final
+				product reflects our craft and creative vision.
+				We value your time and hence provide the following quality guarantees:
+			</p>
+			<ul>
+				<li>
+					All design decisions are made by core contributors while AI tools are
+					used to accelerate development only.
+				</li>
+				<li>
+					Components are manually tested before being released.
+					Tests are conducted for keyboard/mouse and touch devices on major
+					browsers (latest versions of Safari, Firefox and
+					Chromium-based browsers). AI is not used for quality control.
+				</li>
+				<li>
+					The most critical pieces of documentation are carefully hand-written.
+				</li>
+				<li>
+					AI generated and AI-assisted documentation and code are reviewed
+					by core contributors on a best-effort basis and will be reviewed
+					fully for the stable v1.0.0 release.
+				</li>
+			</ul>
+			<p>
+				AI-assisted contributions are generally welcome under a few constraints:
+			</p>
+			<ul>
+				<li>
+					Issues and pull requests must be reviewed and understood by
+					the person(s) submitting them.
+				</li>
+				<li>
+					Contributions from automated systems acting on their own,
+					and unreviewed AI-generated contributions, will be declined.
+				</li>
+			</ul>
+			<br/>
+		</section>
+	}
+}

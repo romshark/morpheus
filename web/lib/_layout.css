@@ -1,0 +1,362 @@
+/* -----------------------------------------------------------------------
+ * Neo Layout: <neo-layout>
+ * -----------------------------------------------------------------------
+ * A single CSS-only Flexbox container. Attributes are the flex container
+ * properties, named and valued exactly as in CSS (flex-direction values
+ * are boolean attributes: `row`, `column`, …). Child flex-item behaviour
+ * rides on namespaced `neo-*` attributes so semantic elements stay
+ * semantic. No JS, no Shadow DOM, no media/container queries except the
+ * `collapse` tiers. The spacing scale is the one attribute preset; fixed
+ * widths use the --neo-size-* vars via style, not magic attribute values.
+ */
+
+:root {
+	--neo-space-none: 0;
+	--neo-space-xs: 0.25rem;
+	--neo-space-sm: 0.5rem;
+	--neo-space-md: 1rem;
+	--neo-space-lg: 1.5rem;
+	--neo-space-xl: 2rem;
+	--neo-space-2xl: 3rem;
+
+	--neo-size-sidebar: 16rem;
+	--neo-size-panel: 24rem;
+	--neo-size-content: 48rem;
+}
+
+/* Base: a row by default, like display:flex */
+
+neo-layout {
+	/* Marks this stylesheet as loaded so the kit can flag a trimmed CSS-only component. */
+	--neo-loaded: neo-layout;
+	display: flex;
+	gap: var(--neo-gap, 0);
+	box-sizing: border-box;
+}
+
+neo-layout[inline]:where(:not([inline="false"])) {
+	display: inline-flex;
+}
+
+/* Opt-in query container. `collapse` (below) reacts to the nearest
+ * ancestor container's width, so the responsive region must be wrapped
+ * in a neo-layout[container]:where(:not([container="false"])) (or any element with container-type). This
+ * keeps collapse box-relative: it folds inside a sidebar, drawer, or
+ * resized panel, not just at the viewport. */
+neo-layout[container]:where(:not([container="false"])) {
+	container-type: inline-size;
+}
+
+/* flex-direction: the attribute name is the CSS value */
+
+neo-layout[row]:where(:not([row="false"])) {
+	flex-direction: row;
+}
+neo-layout[row-reverse]:where(:not([row-reverse="false"])) {
+	flex-direction: row-reverse;
+}
+neo-layout[column]:where(:not([column="false"])) {
+	flex-direction: column;
+}
+neo-layout[column-reverse]:where(:not([column-reverse="false"])) {
+	flex-direction: column-reverse;
+}
+
+/* flex-wrap */
+
+neo-layout[nowrap]:where(:not([nowrap="false"])) {
+	flex-wrap: nowrap;
+}
+neo-layout[wrap]:where(:not([wrap="false"])) {
+	flex-wrap: wrap;
+}
+neo-layout[wrap-reverse]:where(:not([wrap-reverse="false"])) {
+	flex-wrap: wrap-reverse;
+}
+
+/* gap: values from the spacing scale */
+
+neo-layout[gap="none"] {
+	--neo-gap: var(--neo-space-none);
+}
+neo-layout[gap="xs"] {
+	--neo-gap: var(--neo-space-xs);
+}
+neo-layout[gap="sm"] {
+	--neo-gap: var(--neo-space-sm);
+}
+neo-layout[gap="md"] {
+	--neo-gap: var(--neo-space-md);
+}
+neo-layout[gap="lg"] {
+	--neo-gap: var(--neo-space-lg);
+}
+neo-layout[gap="xl"] {
+	--neo-gap: var(--neo-space-xl);
+}
+neo-layout[gap="2xl"] {
+	--neo-gap: var(--neo-space-2xl);
+}
+
+neo-layout[column-gap="none"] {
+	column-gap: var(--neo-space-none);
+}
+neo-layout[column-gap="xs"] {
+	column-gap: var(--neo-space-xs);
+}
+neo-layout[column-gap="sm"] {
+	column-gap: var(--neo-space-sm);
+}
+neo-layout[column-gap="md"] {
+	column-gap: var(--neo-space-md);
+}
+neo-layout[column-gap="lg"] {
+	column-gap: var(--neo-space-lg);
+}
+neo-layout[column-gap="xl"] {
+	column-gap: var(--neo-space-xl);
+}
+neo-layout[column-gap="2xl"] {
+	column-gap: var(--neo-space-2xl);
+}
+
+neo-layout[row-gap="none"] {
+	row-gap: var(--neo-space-none);
+}
+neo-layout[row-gap="xs"] {
+	row-gap: var(--neo-space-xs);
+}
+neo-layout[row-gap="sm"] {
+	row-gap: var(--neo-space-sm);
+}
+neo-layout[row-gap="md"] {
+	row-gap: var(--neo-space-md);
+}
+neo-layout[row-gap="lg"] {
+	row-gap: var(--neo-space-lg);
+}
+neo-layout[row-gap="xl"] {
+	row-gap: var(--neo-space-xl);
+}
+neo-layout[row-gap="2xl"] {
+	row-gap: var(--neo-space-2xl);
+}
+
+/* align-items: attribute value is the CSS value */
+
+neo-layout[align-items="flex-start"] {
+	align-items: flex-start;
+}
+neo-layout[align-items="flex-end"] {
+	align-items: flex-end;
+}
+neo-layout[align-items="center"] {
+	align-items: center;
+}
+neo-layout[align-items="stretch"] {
+	align-items: stretch;
+}
+neo-layout[align-items="baseline"] {
+	align-items: baseline;
+}
+
+/* justify-content */
+
+neo-layout[justify-content="flex-start"] {
+	justify-content: flex-start;
+}
+neo-layout[justify-content="flex-end"] {
+	justify-content: flex-end;
+}
+neo-layout[justify-content="center"] {
+	justify-content: center;
+}
+neo-layout[justify-content="space-between"] {
+	justify-content: space-between;
+}
+neo-layout[justify-content="space-around"] {
+	justify-content: space-around;
+}
+neo-layout[justify-content="space-evenly"] {
+	justify-content: space-evenly;
+}
+
+/* align-content (wrapping layouts) */
+
+neo-layout[align-content="flex-start"] {
+	align-content: flex-start;
+}
+neo-layout[align-content="flex-end"] {
+	align-content: flex-end;
+}
+neo-layout[align-content="center"] {
+	align-content: center;
+}
+neo-layout[align-content="space-between"] {
+	align-content: space-between;
+}
+neo-layout[align-content="space-around"] {
+	align-content: space-around;
+}
+neo-layout[align-content="space-evenly"] {
+	align-content: space-evenly;
+}
+neo-layout[align-content="stretch"] {
+	align-content: stretch;
+}
+
+/* min-height: literal CSS values */
+
+neo-layout[min-height="100vh"] {
+	min-height: 100vh;
+}
+neo-layout[min-height="100%"] {
+	min-height: 100%;
+}
+
+/* Child flex-item attributes: neo- + the CSS property */
+
+[neo-flex-grow="0"] {
+	flex-grow: 0;
+}
+[neo-flex-grow="1"] {
+	flex-grow: 1;
+}
+
+[neo-flex-shrink="0"] {
+	flex-shrink: 0;
+}
+[neo-flex-shrink="1"] {
+	flex-shrink: 1;
+}
+
+[neo-flex-basis="0"] {
+	flex-basis: 0;
+}
+[neo-flex-basis="auto"] {
+	flex-basis: auto;
+}
+[neo-flex-basis="100%"] {
+	flex-basis: 100%;
+}
+
+/* Named widths aren't attribute values; set a fixed flex-basis via
+ * style, e.g. style="flex-basis: var(--neo-size-sidebar)". The
+ * --neo-size-* vars (:root) are themeable presets. */
+
+[neo-align-self="flex-start"] {
+	align-self: flex-start;
+}
+[neo-align-self="flex-end"] {
+	align-self: flex-end;
+}
+[neo-align-self="center"] {
+	align-self: center;
+}
+[neo-align-self="stretch"] {
+	align-self: stretch;
+}
+[neo-align-self="baseline"] {
+	align-self: baseline;
+}
+
+[neo-width="100%"] {
+	width: 100%;
+}
+[neo-height="100%"] {
+	height: 100%;
+}
+
+[neo-min-width="0"] {
+	min-width: 0;
+}
+[neo-min-height="0"] {
+	min-height: 0;
+}
+
+[neo-overflow="visible"] {
+	overflow: visible;
+}
+[neo-overflow="hidden"] {
+	overflow: hidden;
+}
+[neo-overflow="scroll"] {
+	overflow: scroll;
+}
+[neo-overflow="auto"] {
+	overflow: auto;
+}
+
+[neo-truncate]:where(:not([neo-truncate="false"])) {
+	min-width: 0;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+
+/* Responsive visibility: container-query based, like collapse, so it
+ * needs a neo-layout[container]:where(:not([container="false"])) ancestor. neo-hide-below hides the child
+ * while the container is narrower than the tier; neo-show-below shows it
+ * only then (hidden at or above the tier). The < / >= ranges partition
+ * exactly at the tier, so a hide/show pair never both vanish. */
+
+/* biome-ignore-start lint/complexity/noImportantStyles: hide/show is a hard
+ * visibility toggle: display:none must beat neo-layout[inline]:where(:not([inline="false"])) (specificity
+ * 0,1,1, above this 0,1,0 attribute selector) and any inline display style,
+ * which only !important can override. */
+@container (width < 40rem) {
+	[neo-hide-below="sm"] {
+		display: none !important;
+	}
+}
+@container (width < 48rem) {
+	[neo-hide-below="md"] {
+		display: none !important;
+	}
+}
+@container (width < 64rem) {
+	[neo-hide-below="lg"] {
+		display: none !important;
+	}
+}
+
+@container (width >= 40rem) {
+	[neo-show-below="sm"] {
+		display: none !important;
+	}
+}
+@container (width >= 48rem) {
+	[neo-show-below="md"] {
+		display: none !important;
+	}
+}
+@container (width >= 64rem) {
+	[neo-show-below="lg"] {
+		display: none !important;
+	}
+}
+/* biome-ignore-end lint/complexity/noImportantStyles: end hide/show opt-out */
+
+/* Responsive collapse: a row folds to a single column when its nearest
+ * ancestor container (a neo-layout[container]:where(:not([container="false"]))) is narrower than the tier.
+ * Container-query based, so it reacts to the element's own available
+ * width rather than the viewport. Last so it wins over an explicit
+ * flex-direction when the query matches. */
+
+@container (max-width: 40rem) {
+	neo-layout[collapse="sm"] {
+		flex-direction: column;
+	}
+}
+
+@container (max-width: 48rem) {
+	neo-layout[collapse="md"] {
+		flex-direction: column;
+	}
+}
+
+@container (max-width: 64rem) {
+	neo-layout[collapse="lg"] {
+		flex-direction: column;
+	}
+}

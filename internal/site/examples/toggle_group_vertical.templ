@@ -1,0 +1,20 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ ToggleGroupVertical() {
+	@neo.ToggleGroup(neo.ToggleGroupOpts{
+		Orientation: neo.Set(neo.AxisVertical),
+		AriaLabel:   neo.Set("Layers"),
+	}) {
+		@neo.Toggle(neo.ToggleOpts{Value: neo.Set("grid")}) {
+			Grid
+		}
+		@neo.Toggle(neo.ToggleOpts{Value: neo.Set("snap"), Pressed: neo.Set(true)}) {
+			Snap
+		}
+		@neo.Toggle(neo.ToggleOpts{Value: neo.Set("rulers")}) {
+			Rulers
+		}
+	}
+}

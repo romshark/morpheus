@@ -1,0 +1,21 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ BadgeVariants() {
+	@neo.Badge(neo.BadgeOpts{}) {
+		Default
+	}
+	@neo.Badge(neo.BadgeOpts{Variant: neo.Set(neo.BadgeVariantPrimary)}) {
+		Primary
+	}
+	@neo.Badge(neo.BadgeOpts{Variant: neo.Set(neo.BadgeVariantSecondary)}) {
+		Secondary
+	}
+	@neo.Badge(neo.BadgeOpts{Variant: neo.Set(neo.BadgeVariantDanger)}) {
+		Danger
+	}
+	@neo.Badge(neo.BadgeOpts{Variant: neo.Set(neo.BadgeVariantOutline)}) {
+		Outline
+	}
+}

@@ -1,0 +1,22 @@
+.spinner-color-row {
+	display: inline-flex;
+	align-items: center;
+	gap: 1.25rem;
+	font-size: 2rem;
+}
+
+.spinner-color-accent {
+	color: var(--accent);
+}
+
+.spinner-color-amber {
+	color: #d97706;
+}
+
+.spinner-color-red {
+	color: #dc2626;
+}
+
+.spinner-color-green {
+	color: #16a34a;
+}

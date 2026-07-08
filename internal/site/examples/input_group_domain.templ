@@ -1,0 +1,31 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ InputGroupDomain() {
+	<neo-input-group>
+		<input type="text" placeholder="username"/>
+		@neo.ComboboxAttrs(neo.ComboboxOpts{
+			Value:     neo.Set("gmail.com"),
+			AriaLabel: neo.Set("Email domain"),
+		}, templ.Attributes{
+			"class": "demo-input-group-combobox",
+		}) {
+			@neo.Option(neo.OptionOpts{Value: neo.Set("gmail.com")}) {
+				{ "@gmail.com" }
+			}
+			@neo.Option(neo.OptionOpts{Value: neo.Set("outlook.com")}) {
+				{ "@outlook.com" }
+			}
+			@neo.Option(neo.OptionOpts{Value: neo.Set("yahoo.com")}) {
+				{ "@yahoo.com" }
+			}
+			@neo.Option(neo.OptionOpts{Value: neo.Set("icloud.com")}) {
+				{ "@icloud.com" }
+			}
+			@neo.Option(neo.OptionOpts{Value: neo.Set("proton.me")}) {
+				{ "@proton.me" }
+			}
+		}
+	</neo-input-group>
+}

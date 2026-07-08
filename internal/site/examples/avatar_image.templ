@@ -1,0 +1,13 @@
+package examples
+
+import (
+	"github.com/romshark/morpheus/internal/href"
+	"github.com/romshark/morpheus/neo"
+)
+
+templ AvatarImage() {
+	@neo.Avatar(neo.AvatarOpts{
+		Src: neo.Set(href.Asset("avatar/gh_daniel.jpg")),
+		Alt: neo.Set("Daniel Scharkov"),
+	})
+}

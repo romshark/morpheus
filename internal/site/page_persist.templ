@@ -1,0 +1,131 @@
+package site
+
+import (
+	"github.com/romshark/morpheus/internal/href"
+	"github.com/romshark/morpheus/internal/site/examples"
+)
+
+templ PagePersist(morpheusVersion string) {
+	@PageDoc(href.PagePersist(), "Persist", morpheusVersion) {
+		<section class="demo">
+			@anchoredH2("overview") {
+				Persist
+			}
+			<p class="intro">
+				Component <code>{ "<neo-persist>" }</code> is a
+				behavioural primitive that snapshots properties of
+				the element it targets (via <code>for</code>, or its first child by default) to
+				<a
+					href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API"
+					target="_blank"
+					rel="noopener noreferrer"
+				>Web Storage</a>
+				on the listed events and restores them on connect.
+				Renders as <code>display: contents</code> so the
+				wrapped child stays a direct flex / grid item of its
+				parent.
+			</p>
+			@anchoredH2("reference") {
+				Reference
+			}
+			@ComponentDocs(persistDoc)
+		</section>
+		<section class="demo">
+			@anchoredH2("examples") {
+				Examples
+			}
+			@anchoredH3("scroll-position-localstorage") {
+				Scroll position (localStorage)
+			}
+			<p class="demo-note">
+				The simplest case. Snapshots
+				<code>scrollTop</code> on every <code>scroll</code>
+				event into <code>localStorage</code> under the
+				configured key, then restores it on the next
+				connect. The site sidebar uses the same wiring.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     persistScrollHTML,
+				TemplSource:    persistScrollTempl,
+			}) {
+				@examples.PersistScroll()
+			}
+			@anchoredH3("textarea-draft-sessionstorage") {
+				Textarea draft (sessionStorage)
+			}
+			<p class="demo-note">
+				Passing <code>session</code>
+				switches the backing store to
+				<code>sessionStorage</code>, scoping the snapshot
+				to the current tab. Type a draft, reload the page,
+				and it comes back; close the tab and it's gone.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     persistTextareaHTML,
+				TemplSource:    persistTextareaTempl,
+			}) {
+				@examples.PersistTextarea()
+			}
+			@anchoredH3("multiple-properties") {
+				Multiple properties
+			}
+			<p class="demo-note">
+				Value plus the user-resized size
+				(<code>{ `style.width` }</code> /
+				<code>{ `style.height` }</code>) on the
+				<code>{ `<neo-textarea>` }</code> host. Property names
+				accept dot paths, so nested fields like
+				<code>{ `style.width` }</code> are snapshotted
+				directly. The childless
+				<code>{ `<neo-persist for="…">` }</code> form
+				targets an existing element by id rather than
+				wrapping it.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     persistMultiHTML,
+				TemplSource:    persistMultiTempl,
+			}) {
+				@examples.PersistMulti()
+			}
+			@anchoredH3("video") {
+				Video
+			}
+			<p class="demo-note">
+				Persists <code>currentTime</code>,
+				<code>volume</code>, and <code>muted</code>, so
+				the player resumes where the viewer left off
+				with the same volume and mute state. Source:
+				<em>Sintel</em> trailer (Blender, CC&nbsp;BY 3.0).
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     persistVideoHTML,
+				TemplSource:    persistVideoTempl,
+			}) {
+				@examples.PersistVideo()
+			}
+		</section>
+	}
+}
+
+var persistDoc = ComponentDoc{
+	Attributes: []DocAttribute{
+		{Name: "key", Type: "string",
+			Description: templ.Raw(`<a data-neo-link href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API" target="_blank" rel="noopener noreferrer">Web Storage</a> key. Required.`)},
+		{Name: "props", Type: "string",
+			Description: templ.Raw("Whitespace-separated property names to persist.")},
+		{Name: "on", Type: "string",
+			Description: templ.Raw("Whitespace-separated events that trigger a snapshot.")},
+		{Name: "for", Type: "string",
+			Description: templ.Raw("Target element id. Defaults to first child.")},
+		{Name: "session", Type: "boolean", Default: "false",
+			Description: templ.Raw("Use <code>sessionStorage</code> instead of <code>localStorage</code>.")},
+	},
+	Slots: []DocSlot{
+		{Name: "default",
+			Description: templ.Raw("Target element. Extras are warned and ignored.")},
+	},
+}

@@ -1,0 +1,20 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ SpinnerDeterminate() {
+	<div class="spinner-determinate-row">
+		<span class="spinner-determinate-item">
+			@neo.SpinnerProgressAttrs(neo.SpinnerOpts[float64]{Value: neo.Set(25.0)}, templ.Attributes{"class": "spinner-determinate-ring"})
+			25%
+		</span>
+		<span class="spinner-determinate-item">
+			@neo.SpinnerProgressAttrs(neo.SpinnerOpts[float64]{Value: neo.Set(60.0)}, templ.Attributes{"class": "spinner-determinate-ring"})
+			60%
+		</span>
+		<span class="spinner-determinate-item">
+			@neo.SpinnerProgressAttrs(neo.SpinnerOpts[float64]{Value: neo.Set(100.0)}, templ.Attributes{"class": "spinner-determinate-ring"})
+			100%
+		</span>
+	</div>
+}

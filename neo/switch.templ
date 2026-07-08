@@ -1,0 +1,37 @@
+package neo
+
+type SwitchOpts struct {
+	Checked   Attr[bool]
+	Disabled  Attr[bool]
+	Size      Attr[string]
+	AriaLabel Attr[string]
+}
+
+// Switch prerenders <neo-switch> with role/aria-checked/tabindex
+// matching the upgraded state, so the host paints once with no flicker.
+templ Switch(opts SwitchOpts) {
+	@SwitchAttrs(opts, nil)
+}
+
+// SwitchAttrs is [Switch] with an extra attribute set.
+templ SwitchAttrs(opts SwitchOpts, attrs templ.Attributes) {
+	<neo-switch
+		role="switch"
+		if opts.Checked.Or(false) {
+			checked
+			aria-checked="true"
+		} else {
+			aria-checked="false"
+		}
+		if opts.Disabled.Or(false) {
+			disabled
+			aria-disabled="true"
+			tabindex="-1"
+		} else {
+			tabindex="0"
+		}
+		{ opts.Size.Attrs("size")... }
+		{ opts.AriaLabel.Attrs("aria-label")... }
+		{ attrs... }
+	></neo-switch>
+}

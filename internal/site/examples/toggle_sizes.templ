@@ -1,0 +1,12 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ ToggleSizes() {
+	@neo.Toggle(neo.ToggleOpts{}) {
+		Default
+	}
+	@neo.Toggle(neo.ToggleOpts{Size: neo.Set("sm")}) {
+		Small
+	}
+}

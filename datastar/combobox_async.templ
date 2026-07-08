@@ -1,0 +1,56 @@
+package datastar
+
+import "github.com/romshark/morpheus/neo"
+
+// ComboboxAsync renders a <neo-combobox async> wired to a Datastar SSE
+// action that fetches its option fragment on every open. On a
+// successful response the server is expected to morph
+// `<neo-datalist id="<ID>-options">` into the listbox; the combobox
+// kit hides the loading clone automatically once options arrive. When
+// Datastar exhausts its retry budget the Failed template is written
+// into the listbox's datalist as a [data-neo-empty-results] child.
+// The kit's mutation observer flips the listbox into empty-results
+// mode, and the kit's CSS suppresses its default "No results" hint
+// when the listbox already carries that attribute deeper down, so the
+// failed template renders verbatim.
+//
+// Any descendant in the Failed template that carries
+// data-neo-popover-async-retry becomes a retry button: a click aborts
+// any in-flight fetch and calls the combobox's reload(), which
+// re-enters the loading state and re-fires the load action without
+// closing the combobox.
+//
+// ComboboxAsync requires Datastar's retry mode to be anything other
+// than `never` for the failure swap to fire; `never` short-circuits
+// before Datastar emits `retries-failed`.
+templ ComboboxAsync(opts ComboboxAsyncOpts) {
+	@neo.ComboboxAttrs(comboboxAsyncNeoOpts(opts), comboboxAsyncAttrs(opts)) {
+		// The morph target for the server's option fragment. The kit
+		// clones this placeholder into the listbox on open; a successful
+		// response morphs this datalist's contents into the options.
+		@neo.Datalist(neo.DatalistOpts{ID: neo.Set(opts.ID + "-options")}) {
+			<div { neo.AsyncPlaceholder()... }>
+				@opts.Loading
+			</div>
+		}
+	}
+	<template id={ opts.ID + "-tpl-failed" }>
+		<div data-neo-empty-results>
+			@comboboxAsyncFailed(opts.Failed)
+		</div>
+	</template>
+}
+
+// comboboxAsyncFailed renders the user-supplied Failed template, or a
+// minimal built-in callout if none was provided. Wrapped by the
+// caller in [data-neo-empty-results] so the kit's CSS suppression of
+// the default "No results" hint applies.
+templ comboboxAsyncFailed(failed templ.Component) {
+	if failed != nil {
+		@failed
+	} else {
+		<div class="popover-async-failed" role="alert">
+			Failed to load.
+		</div>
+	}
+}

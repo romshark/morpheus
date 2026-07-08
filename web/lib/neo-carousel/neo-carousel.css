@@ -1,0 +1,223 @@
+/* -----------------------------------------------------------------------
+ * <neo-carousel>
+ * -----------------------------------------------------------------------
+ * Scroll-snap carousel. The track is a native overflow:auto scroll
+ * container with `scroll-snap-type`. Touch / pointer / wheel scrolling
+ * all run on the compositor. JS only intervenes for prev/next/keyboard
+ * input and active-slide tracking.
+ *
+ * Dot markup lives in the host's shadow stylesheet (see neo-carousel.ts).
+ * Reach it via the token defaults below or via `::part(dots)` /
+ * `::part(dot)`. Light-DOM rules here cover the track + slides (still
+ * authored as <neo-carousel-track> / <neo-carousel-slide>).
+ */
+
+:root {
+	--neo-carousel-spacing: 1rem;
+	--neo-carousel-per-view: 1;
+	--neo-carousel-snap-align: start;
+	--neo-carousel-track-radius: var(--page-radius, 0);
+	--neo-carousel-focus-ring: var(--accent, currentColor);
+	--neo-carousel-dot-size: 0.55rem;
+	--neo-carousel-dot-gap: 0.4rem;
+	--neo-carousel-dot-bg: color-mix(in srgb, var(--page-fg) 25%, transparent);
+	--neo-carousel-dot-active-bg: var(--accent, currentColor);
+	--neo-carousel-dot-radius: 999px;
+	/* Set to 1 to disable [highlight-active] dimming. */
+	--neo-carousel-slide-inactive-opacity: 0.55;
+	--neo-carousel-slide-transition: 200ms var(--neo-easing, ease-out);
+}
+
+neo-carousel[align="center"] {
+	--neo-carousel-snap-align: center;
+}
+
+neo-carousel[align="end"] {
+	--neo-carousel-snap-align: end;
+}
+
+neo-carousel[per-view="1"] {
+	--neo-carousel-per-view: 1;
+}
+neo-carousel[per-view="2"] {
+	--neo-carousel-per-view: 2;
+}
+neo-carousel[per-view="3"] {
+	--neo-carousel-per-view: 3;
+}
+neo-carousel[per-view="4"] {
+	--neo-carousel-per-view: 4;
+}
+neo-carousel[per-view="5"] {
+	--neo-carousel-per-view: 5;
+}
+neo-carousel[per-view="6"] {
+	--neo-carousel-per-view: 6;
+}
+
+neo-carousel-track {
+	/* Percentage h/w resolves to auto when the host is content-sized,
+	 * so this works for both content-sized and definite-sized hosts. */
+	width: 100%;
+	height: 100%;
+	display: flex;
+	gap: var(--neo-carousel-spacing);
+	overflow-x: auto;
+	overflow-y: hidden;
+	scroll-snap-type: x mandatory;
+	scroll-behavior: smooth;
+	/* Inline: contain horizontal chaining so end-of-track flicks don't
+	 * scroll the page sideways. Block: leave default so vertical wheel
+	 * over the carousel still scrolls the page past it. */
+	overscroll-behavior-inline: contain;
+	overscroll-behavior-block: auto;
+	-webkit-overflow-scrolling: touch;
+	scrollbar-width: none;
+	border-radius: var(--neo-carousel-track-radius, inherit);
+}
+
+neo-carousel-track:focus {
+	outline: none;
+}
+
+neo-carousel-track:focus-visible {
+	outline: 2px solid var(--neo-carousel-focus-ring);
+	outline-offset: -4px;
+}
+
+neo-carousel-track::-webkit-scrollbar {
+	display: none;
+}
+
+/* Multi-item layouts: switch to `proximity`. `mandatory` recomputes
+ * the snap target every frame inside macOS momentum decay, which
+ * stutters fast flicks. Per-view=1 keeps `mandatory` so heroes settle
+ * exactly on a slide. */
+neo-carousel[per-view="2"] neo-carousel-track,
+neo-carousel[per-view="3"] neo-carousel-track,
+neo-carousel[per-view="4"] neo-carousel-track,
+neo-carousel[per-view="5"] neo-carousel-track,
+neo-carousel[per-view="6"] neo-carousel-track,
+neo-carousel[per-view="auto"] neo-carousel-track {
+	scroll-snap-type: x proximity;
+}
+
+neo-carousel[orientation="vertical"] neo-carousel-track {
+	flex-direction: column;
+	overflow-x: hidden;
+	overflow-y: auto;
+	scroll-snap-type: y mandatory;
+	overscroll-behavior-inline: auto;
+	overscroll-behavior-block: contain;
+}
+
+neo-carousel[orientation="vertical"][per-view="2"] neo-carousel-track,
+neo-carousel[orientation="vertical"][per-view="3"] neo-carousel-track,
+neo-carousel[orientation="vertical"][per-view="4"] neo-carousel-track,
+neo-carousel[orientation="vertical"][per-view="5"] neo-carousel-track,
+neo-carousel[orientation="vertical"][per-view="6"] neo-carousel-track,
+neo-carousel[orientation="vertical"][per-view="auto"] neo-carousel-track {
+	scroll-snap-type: y proximity;
+}
+
+/* `touch="false"` disables native scrolling; prev/next and keyboard
+ * still drive via scrollTo. `touch-action: none` stops the gesture
+ * from being recognised as a scroll. Default is on, so off is only
+ * the explicit `touch="false"` form. */
+neo-carousel[touch="false"] neo-carousel-track {
+	overflow: hidden;
+	touch-action: none;
+}
+
+neo-carousel[click-nav] > neo-carousel-track > neo-carousel-slide {
+	cursor: pointer;
+}
+
+/* `user-select: none` stops a drag-to-scroll gesture from also
+ * starting a text selection. */
+neo-carousel[drag-nav] > neo-carousel-track {
+	cursor: grab;
+	user-select: none;
+	-webkit-user-select: none;
+}
+neo-carousel[drag-nav] > neo-carousel-track:active {
+	cursor: grabbing;
+}
+
+/* biome-ignore lint/style/noDescendingSpecificity: base sets display/min-width/flex; the higher-specificity neo-carousel[click-nav] slide rule sets cursor; disjoint, no conflict */
+neo-carousel-slide {
+	display: block;
+	min-width: 0;
+	scroll-snap-align: var(--neo-carousel-snap-align);
+	flex: 0 0
+		calc((100% - (var(--neo-carousel-per-view) - 1) * var(--neo-carousel-spacing)) / var(--neo-carousel-per-view));
+}
+
+/* Opt-in via [highlight-active]; styles every slide visibility state
+ * via the same `data-neo-carousel-slide-visibility` marker the kit
+ * writes on every slide. Off-screen (attribute absent) → dimmed;
+ * "partial" / "full" → fade up to fully opaque so any visible card
+ * reads as active. */
+neo-carousel[highlight-active] > neo-carousel-track > neo-carousel-slide {
+	opacity: var(--neo-carousel-slide-inactive-opacity);
+	transition: opacity var(--neo-carousel-slide-transition);
+}
+
+neo-carousel[highlight-active] > neo-carousel-track > neo-carousel-slide[data-neo-carousel-slide-visibility] {
+	opacity: 1;
+}
+
+/* biome-ignore lint/style/noDescendingSpecificity: sets flex; the higher-specificity neo-carousel[click-nav] slide rule sets cursor; disjoint, no conflict */
+neo-carousel[per-view="auto"] neo-carousel-slide {
+	flex: 0 0 auto;
+}
+
+/* flex-basis becomes the cross-axis size once flex-direction flips. */
+/* biome-ignore lint/style/noDescendingSpecificity: sets width/flex; the higher-specificity neo-carousel[click-nav] slide rule sets cursor; disjoint, no conflict */
+neo-carousel[orientation="vertical"] neo-carousel-slide {
+	width: 100%;
+	flex: 0 0
+		calc((100% - (var(--neo-carousel-per-view) - 1) * var(--neo-carousel-spacing)) / var(--neo-carousel-per-view));
+}
+
+/* prefers-reduced-motion: cut the track's CSS-driven smooth-scroll and
+ * the slide opacity fade. The shadow stylesheet handles the dot/sweep
+ * transitions, and the JS animator falls back to instant jumps. */
+@media (prefers-reduced-motion: reduce) {
+	neo-carousel-track {
+		scroll-behavior: auto;
+	}
+	neo-carousel[highlight-active] > neo-carousel-track > neo-carousel-slide {
+		transition: none;
+	}
+}
+
+/* Mirror for the kit's a11y simulator (`:root[data-pref-reduced-motion]`
+ * toggled by the settings panel). */
+:root[data-pref-reduced-motion] neo-carousel-track {
+	scroll-behavior: auto;
+}
+:root[data-pref-reduced-motion] neo-carousel[highlight-active] > neo-carousel-track > neo-carousel-slide {
+	transition: none;
+}
+
+/* aria-disabled="true" is set when no autoplay is configured. */
+[data-neo-carousel-pause][aria-disabled="true"] {
+	opacity: 0.5;
+	pointer-events: none;
+}
+
+/* Pause/play swap slots, gated by the kit-mirrored aria-pressed. */
+[data-neo-carousel-pause][aria-pressed="true"] [data-neo-carousel-when-playing],
+[data-neo-carousel-pause]:not([aria-pressed="true"]) [data-neo-carousel-when-paused] {
+	display: none;
+}
+
+/* `:not(:empty)` so single-child slots (icon- or label-only) are
+ * left to their own layout. */
+[data-neo-carousel-when-playing]:not(:empty),
+[data-neo-carousel-when-paused]:not(:empty) {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4rem;
+}

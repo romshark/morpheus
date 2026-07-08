@@ -1,0 +1,77 @@
+package neo
+
+// BreadcrumbOpts forwards the kit's popover-host attributes onto the
+// overflow <neo-popover>. MinFitHeight / MinFitWidth accept any CSS
+// length or the literal "content".
+type BreadcrumbOpts struct {
+	Placement    Attr[Placement]
+	ScreenOffset Attr[CSSUnit]
+	// FollowScroll forwards a popover scroll-follow mode to the
+	// overflow popover.
+	FollowScroll   Attr[PopoverFollowScroll]
+	ClampPlacement Attr[bool]
+	MinFitHeight   Attr[CSSUnit]
+	MinFitWidth    Attr[CSSUnit]
+	MinOpenHeight  Attr[CSSUnit]
+	MinOpenWidth   Attr[CSSUnit]
+}
+
+// Breadcrumb renders <neo-breadcrumb> with items and chevron separators
+// interleaved as authored slot content. At wide widths every child stays
+// visible; at narrower widths the host folds middle items into an
+// overflow popover. First paint matches the upgraded wide-mode rendering
+// so there's no hydration flash.
+templ Breadcrumb(items []BreadcrumbItem) {
+	@BreadcrumbAttrs(items, nil)
+}
+
+// BreadcrumbAttrs is [Breadcrumb] with an extra attribute set.
+templ BreadcrumbAttrs(items []BreadcrumbItem, attrs templ.Attributes) {
+	@BreadcrumbWith(items, BreadcrumbOpts{}, attrs)
+}
+
+// BreadcrumbWith is [Breadcrumb] with [BreadcrumbOpts] and an extra
+// attribute set.
+templ BreadcrumbWith(items []BreadcrumbItem, opts BreadcrumbOpts, attrs templ.Attributes) {
+	<neo-breadcrumb
+		{ opts.Placement.Attrs("placement")... }
+		{ opts.ScreenOffset.Attrs("screen-offset")... }
+		{ opts.FollowScroll.Attrs("follow-scroll")... }
+		{ opts.ClampPlacement.Attrs("clamp-placement")... }
+		{ opts.MinFitHeight.Attrs("min-fit-height")... }
+		{ opts.MinFitWidth.Attrs("min-fit-width")... }
+		{ opts.MinOpenHeight.Attrs("min-open-height")... }
+		{ opts.MinOpenWidth.Attrs("min-open-width")... }
+		{ attrs... }
+	>
+		for i, it := range items {
+			if it.Href == "" {
+				<span aria-current="page">{ it.Label }</span>
+			} else {
+				<a href={ it.Href }>{ it.Label }</a>
+			}
+			if i < len(items)-1 {
+				@BreadcrumbSep() {
+					@Icon("chevron-right")
+				}
+			}
+		}
+	</neo-breadcrumb>
+}
+
+// BreadcrumbSep renders a separator between manually-authored
+// <neo-breadcrumb> children. BreadcrumbWith inserts a chevron on its own;
+// use this only when hand-authoring children with a different separator.
+// aria-hidden is set so assistive tech skips it.
+templ BreadcrumbSep() {
+	@BreadcrumbSepAttrs(nil) {
+		{ children... }
+	}
+}
+
+// BreadcrumbSepAttrs is [BreadcrumbSep] with an extra attribute set.
+templ BreadcrumbSepAttrs(attrs templ.Attributes) {
+	<span data-neo-breadcrumb-sep aria-hidden="true" { attrs... }>
+		{ children... }
+	</span>
+}

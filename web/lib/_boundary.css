@@ -1,0 +1,38 @@
+/* -----------------------------------------------------------------------
+ * Neo Boundary: <neo-boundary>
+ * -----------------------------------------------------------------------
+ * A logical scoping region for overlay light-dismiss. An overlay inside a
+ * <neo-boundary> (neo-popover, neo-menu, neo-contextmenu, neo-select,
+ * neo-combobox, neo-textinput suggestions) treats it as its dismiss root:
+ * a pointer/focus event outside the boundary's subtree no longer dismisses
+ * the overlay; only events inside it, but outside the overlay, do. Escape
+ * and trigger toggles still close it.
+ *
+ * Layout-neutral (display: contents) and non-clipping, so wrapping a region
+ * never changes layout and a fixed/top-layer panel still escapes it
+ * visually. Scoping is DOM-logical (composed-path containment via
+ * closest("neo-boundary")), not geometric. No JS, no shadow DOM.
+ */
+
+neo-boundary {
+	/* Marks this stylesheet as loaded so the kit can flag a trimmed CSS-only component. */
+	--neo-loaded: neo-boundary;
+	display: contents;
+}
+
+/* Stacking scope (opt-in): establish a local stacking context so overlays
+ * inside the region layer relative to it, not the document root. Overlay
+ * panels carry a global z-index (popover 1000, tooltip 1100, menu 1200);
+ * resolved here they stay confined to the region: an embedded widget's
+ * menu can't paint over the host's modal, and host overlays can't bleed
+ * into the widget.
+ *
+ * A stacking context needs a box, so the region drops display: contents
+ * (the one facet that can't stay layout-neutral). isolation: isolate makes
+ * the context WITHOUT becoming a containing block for the fixed panels, so
+ * their viewport-relative positioning math is unchanged. Opt in by listing
+ * the "stacking" token in scope, matching the JS facet token list. */
+neo-boundary[scope~="stacking" i] {
+	display: block;
+	isolation: isolate;
+}

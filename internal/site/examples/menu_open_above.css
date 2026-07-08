@@ -1,0 +1,5 @@
+.menu-open-above-stage {
+	display: flex;
+	align-items: flex-end;
+	min-height: 11rem;
+}

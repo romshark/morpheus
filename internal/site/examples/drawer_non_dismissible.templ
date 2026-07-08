@@ -1,0 +1,26 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ DrawerNonDismissible() {
+	@neo.Drawer(neo.DrawerOpts{Side: neo.Set(neo.SideRight), Dismissible: neo.Set(neo.DismissibleOff)}) {
+		<neo-button { neo.DrawerTrigger()... }>Confirm subscription</neo-button>
+		<dialog>
+			@neo.DrawerHeader() {
+				@neo.DrawerTitle() {
+					Subscribe to updates?
+				}
+				@neo.DrawerDescription() {
+					Pick one. The dialog can't be dismissed.
+				}
+			}
+			@neo.DrawerBody() {
+				<p>We'll send a weekly digest of feature releases and changelog entries to your account email.</p>
+			}
+			@neo.DrawerFooter() {
+				<neo-button { neo.DrawerClose()... }>No thanks</neo-button>
+				<neo-button variant="primary" { neo.DrawerClose()... }>Subscribe</neo-button>
+			}
+		</dialog>
+	}
+}

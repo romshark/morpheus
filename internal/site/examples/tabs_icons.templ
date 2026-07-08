@@ -1,0 +1,42 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ TabsIcons() {
+	@neo.Tabs(neo.TabsOpts{Value: neo.Set("inbox"), Easing: neo.Set("220ms ease")}) {
+		<neo-tablist aria-label="Mailbox section">
+			@neo.Tab("inbox", "inbox") {
+				@neo.Icon("mail")
+				<span>Inbox</span>
+			}
+			@neo.Tab("messages", "inbox") {
+				@neo.Icon("message-square")
+				<span>Messages</span>
+			}
+			@neo.Tab("notifications", "inbox") {
+				@neo.Icon("bell")
+				<span>Notifications</span>
+			}
+			<neo-tab value="trash" disabled aria-selected="false" tabindex="-1">
+				@neo.Icon("trash-2")
+				<span>Trash</span>
+			</neo-tab>
+		</neo-tablist>
+		@neo.TabPanel("inbox", "inbox") {
+			<h3>Inbox</h3>
+			<p>Your incoming mail, threaded by sender.</p>
+		}
+		@neo.TabPanel("messages", "inbox") {
+			<h3>Messages</h3>
+			<p>Direct messages and chat threads.</p>
+		}
+		@neo.TabPanel("notifications", "inbox") {
+			<h3>Notifications</h3>
+			<p>Per-channel toggles for email, push, and digest.</p>
+		}
+		@neo.TabPanel("trash", "inbox") {
+			<h3>Trash</h3>
+			<p>(unreachable in this demo)</p>
+		}
+	}
+}

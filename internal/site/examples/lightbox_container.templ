@@ -1,0 +1,26 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ LightboxContainer() {
+	@neo.Lightbox(neo.LightboxOpts{Contained: neo.Set(true)}) {
+		<article>
+			<h3>Morpheus Release Notes</h3>
+			<p>Released June 2026.</p>
+			<neo-button { neo.LightboxTrigger()... } variant="primary">
+				View release notes
+			</neo-button>
+		</article>
+		<div { neo.LightboxContent()... }>
+			<header>
+				<h3 { neo.LightboxTitle()... }>Release notes</h3>
+				<button { neo.LightboxClose()... } aria-label="Close">&times;</button>
+			</header>
+			<ul>
+				<li>New <code>{ "<neo-lightbox>" }</code> overlay component.</li>
+				<li>Carousel deep-linking from gallery thumbnails.</li>
+				<li>Reduced-motion and forced-colors passes across the kit.</li>
+			</ul>
+		</div>
+	}
+}

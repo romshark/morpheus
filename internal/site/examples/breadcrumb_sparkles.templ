@@ -1,0 +1,21 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ BreadcrumbSparkles() {
+	<neo-breadcrumb aria-label="Breadcrumb">
+		<a href="#">Home</a>
+		@neo.BreadcrumbSep() {
+			@neo.Icon("sparkles")
+		}
+		<a href="#">Music</a>
+		@neo.BreadcrumbSep() {
+			@neo.Icon("sparkles")
+		}
+		<a href="#">Playlists</a>
+		@neo.BreadcrumbSep() {
+			@neo.Icon("sparkles")
+		}
+		<span aria-current="page">Late Night</span>
+	</neo-breadcrumb>
+}

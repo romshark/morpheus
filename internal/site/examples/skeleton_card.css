@@ -1,0 +1,25 @@
+.skeleton-card-avatar {
+	width: 3rem;
+}
+
+.skeleton-card-name {
+	width: 45%;
+}
+
+.skeleton-card-meta {
+	width: 70%;
+	height: 0.75rem;
+}
+
+.skeleton-card-hero {
+	height: 6rem;
+	margin-top: 0.9rem;
+}
+
+.skeleton-card-body {
+	margin-top: 0.9rem;
+}
+
+.skeleton-card-line-short {
+	width: 70%;
+}

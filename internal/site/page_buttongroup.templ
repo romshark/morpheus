@@ -1,0 +1,112 @@
+package site
+
+import (
+	"github.com/romshark/morpheus/internal/href"
+	"github.com/romshark/morpheus/internal/site/examples"
+)
+
+templ PageButtonGroup(morpheusVersion string) {
+	@PageDoc(href.PageButtonGroup(), "Button group", morpheusVersion) {
+		<section class="demo">
+			@anchoredH2("overview") {
+				Button group
+			}
+			<p class="intro">
+				Component <code>{ "<neo-buttongroup>" }</code> is a
+				segmented row (or column) of
+				<code>{ "<neo-button>" }</code> children. Setting
+				<code>value</code> on the host promotes it into a
+				radiogroup with the matching child as the selected
+				option.
+			</p>
+			<p class="demo-note">
+				Use button group for one selected value. Use&nbsp;
+				@ComponentLink("neo-toggle-group", href.PageToggleGroup())
+				&nbsp;when multiple independent toggles may be on at
+				the same time.
+			</p>
+			@Playground(PlaygroundOpts{
+				ID:     "buttongroup-playground",
+				States: buttongroupPlaygroundStates(),
+			})
+			@anchoredH2("reference") {
+				Reference
+			}
+			@ComponentDocs(buttonGroupDoc)
+		</section>
+		<section class="demo">
+			@anchoredH2("examples") {
+				Examples
+			}
+			@anchoredH3("horizontal") {
+				Horizontal
+			}
+			<p class="demo-note">
+				Two groups: a visual-only row, then a segmented
+				radiogroup.
+			</p>
+			<ul class="demo-note">
+				<li>
+					Without <code>value</code> the buttons share
+					borders only: no selection state, and each is
+					its own tab stop with no arrow-key navigation.
+				</li>
+				<li>
+					Setting <code>value</code> on the host and a
+					matching <code>value</code> on one button makes
+					it a radiogroup: a single roving tab stop where
+					arrow keys and Home / End move focus between
+					buttons. Add <code>auto-activate</code> to commit
+					the selection as focus moves.
+				</li>
+			</ul>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     buttongroupHorizontalHTML,
+				TemplSource:    buttongroupHorizontalTempl,
+			}) {
+				@examples.ButtongroupHorizontal()
+			}
+			@anchoredH3("vertical") {
+				Vertical
+			}
+			<p class="demo-note">
+				Same segmented behaviour stacked in a column;
+				keyboard arrows follow the layout direction.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     buttongroupVerticalHTML,
+				TemplSource:    buttongroupVerticalTempl,
+			}) {
+				@examples.ButtongroupVertical()
+			}
+		</section>
+	}
+}
+
+templ buttonGroupChildrenDesc() {
+	@ComponentLink("neo-button", href.PageButton())
+	&nbsp;children. Mark the active one in segmented mode with a matching
+	<code>value</code>. Use&nbsp;
+	@ComponentLink("neo-toggle-group", href.PageToggleGroup())
+	&nbsp;for multiple independent on/off choices.
+}
+
+var buttonGroupDoc = ComponentDoc{
+	Attributes: []DocAttribute{
+		{Name: "value", Type: "string", Reflected: true, Observed: true,
+			Description: templ.Raw("Selected child value. Switches the host into segmented (radiogroup) mode, giving it a single roving tab stop with arrow-key focus movement. Absent, the buttons are independent tab stops with no selection or arrow navigation.")},
+		{Name: "orientation", Type: `"horizontal" | "vertical"`, Default: "horizontal",
+			Description: templ.Raw("Layout axis.")},
+		{Name: "auto-activate", Type: "boolean",
+			Description: templ.Raw("Arrow keys commit the selection in addition to moving focus.")},
+	},
+	Slots: []DocSlot{
+		{Name: "default", Description: buttonGroupChildrenDesc()},
+	},
+	Events: []DocEvent{
+		{Name: "neo-buttongroup-change", Detail: "{ value: string }", Bubbles: true,
+			Description: templ.Raw("Fires after the selection changes in segmented mode.")},
+	},
+}

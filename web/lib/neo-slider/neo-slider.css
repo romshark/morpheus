@@ -1,0 +1,444 @@
+/* -----------------------------------------------------------------------
+ * <neo-slider>
+ * -----------------------------------------------------------------------
+ * Three-row layout: a header row with the (optional) label on the left
+ * and the editable value + (optional) unit suffix on the right, a flat
+ * track with a coloured fill from `min` up to the current value and a
+ * round thumb at the value position, and an optional mark-labels row
+ * beneath the track. Anchor dots paint on the rail at each mark value;
+ * the dots and the labels both use `left: <pct>%; transform:
+ * translateX(-50%)` so their centres land on the value, keeping the
+ * positioning symmetric at both ends.
+ *
+ * The thumb is wrapped in a <neo-tooltip> so hover / focus / press
+ * pop a value bubble above it. The tooltip host is `display: contents`,
+ * so for layout the thumb is still effectively a direct child of the
+ * track and the rules below select it with a descendant combinator
+ * rather than `>`.
+ *
+ * Shadow-scoped: this file is imported as raw text by neo-slider.ts and
+ * adopted into the host's shadow root via scopeCssToHost() (which rewrites
+ * `neo-slider` selectors to `:host`). It is NOT globally imported, so the
+ * rules only reach the shadow internals. Depends on the `--neo-slider-*`
+ * tokens being defined globally above the host (they inherit across the
+ * boundary); see neo-slider.global.css. Contrast overrides are expressed
+ * as `@media (prefers-contrast: more) :host { … }` setting tokens; the
+ * manual `:root[data-pref-contrast-more]` toggle lives in the global file
+ * because a descendant selector can't cross the shadow boundary. */
+
+neo-slider {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+	width: 100%;
+	font-size: inherit;
+	line-height: 1.2;
+	-webkit-user-select: none;
+	user-select: none;
+}
+
+neo-slider > [data-neo-slider-header] {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 0.5rem;
+}
+
+neo-slider > [data-neo-slider-header] > [data-neo-slider-label] {
+	color: var(--neo-slider-label-color);
+}
+
+neo-slider > [data-neo-slider-header] > [data-neo-slider-output] {
+	display: inline-flex;
+	align-items: baseline;
+	gap: 0.25rem;
+}
+
+neo-slider [data-neo-slider-value] {
+	color: var(--neo-slider-value-color);
+	border-radius: 0.25rem;
+	padding: 0 0.2rem;
+	min-width: 1ch;
+	outline: none;
+	cursor: text;
+	caret-color: var(--accent);
+	font-variant-numeric: tabular-nums;
+	-webkit-user-select: text;
+	user-select: text;
+}
+
+neo-slider [data-neo-slider-value]:focus-visible {
+	box-shadow: 0 0 0 2px var(--neo-slider-focus-ring);
+}
+
+neo-slider [data-neo-slider-unit] {
+	color: var(--neo-slider-unit-color);
+	font-size: 0.85em;
+}
+
+neo-slider > [data-neo-slider-track] {
+	position: relative;
+	height: var(--neo-slider-track-height);
+	margin-inline: calc(var(--neo-slider-thumb-size) / 2);
+	/* Two-layer background: the translucent track-image on top of an
+	 * opaque page-bg backdrop (CSS shorthand only allows one
+	 * background-color, so the rail layer goes through track-image, a
+	 * gradient by default, but it can be any <image>). Anchor dots
+	 * composite their translucent border over their own opaque page-bg
+	 * fill (background-clip: border-box), so without this explicit
+	 * backdrop the rail would composite against whatever the slider's
+	 * parent happens to paint while the anchor border composites against
+	 * page-bg. Same colour, two different backdrops, visibly different
+	 * shades in dark mode. */
+	background: var(--neo-slider-track-image) var(--page-bg);
+	border-radius: var(--neo-slider-track-radius);
+	cursor: pointer;
+	outline: none;
+	/* High-contrast outline ring. Set to a 1px currentColor box-shadow by
+	 * the OS `@media (prefers-contrast: more) :host` block below and by the
+	 * manual `:root[data-pref-contrast-more]` token override in
+	 * neo-slider.global.css; `none` otherwise. */
+	box-shadow: var(--neo-slider-track-shadow, none);
+	/* `touch-action: none` lets a horizontal drag over the track move
+	 * the thumb instead of the page on touch devices. */
+	touch-action: none;
+}
+
+/* Transparent hit-area extension. Pseudo events resolve to the host
+ * track; stays under in-tree children so the thumb/anchors keep their
+ * own hit regions. Main-axis extent unchanged to avoid stray min/max
+ * snaps past the rail ends. */
+neo-slider > [data-neo-slider-track]::before {
+	content: "";
+	position: absolute;
+	inset-inline: 0;
+	inset-block: calc((var(--neo-slider-track-height) - var(--neo-slider-hit-area)) / 2);
+}
+
+neo-slider[vertical] > [data-neo-slider-track]::before {
+	inset-block: 0;
+	inset-inline: calc((var(--neo-slider-track-height) - var(--neo-slider-hit-area)) / 2);
+}
+
+neo-slider[vertical] {
+	display: grid;
+	/* Col 1 is pinned to the rail's width (a length, so it doesn't
+	 * grow). The header spans both cols and is typically wider than
+	 * `track + gap + marks`; with two `auto` cols that excess width
+	 * gets distributed across both, padding col 1 out and pushing the
+	 * marks visibly away from the rail. Pinning col 1 routes all the
+	 * header excess into col 2 (marks) instead, and since the marks
+	 * inside it position with `left: 0`, they stay flush against the
+	 * rail regardless of how long the label is. */
+	grid-template-columns: var(--neo-slider-track-height) auto;
+	grid-template-rows: auto minmax(0, 1fr);
+	align-items: stretch;
+	justify-content: start;
+	column-gap: 0.75rem;
+	width: max-content;
+	max-width: 100%;
+}
+
+neo-slider[vertical] > [data-neo-slider-header] {
+	grid-column: 1 / -1;
+	width: 100%;
+}
+
+neo-slider[vertical] > [data-neo-slider-track] {
+	grid-row: 2;
+	align-self: stretch;
+	width: var(--neo-slider-track-height);
+	height: var(--neo-slider-vertical-track-length);
+	min-height: 6rem;
+	margin-block: calc(var(--neo-slider-thumb-size) / 2);
+	margin-inline: 0;
+}
+
+neo-slider > [data-neo-slider-track] > [data-neo-slider-fill] {
+	position: absolute;
+	inset: 0 auto 0 0;
+	background: var(--neo-slider-fill-bg);
+	border-radius: inherit;
+}
+
+neo-slider[vertical] > [data-neo-slider-track] > [data-neo-slider-fill] {
+	inset: auto 0 0 0;
+}
+
+/* Anchor dots: rendered at each user-supplied mark value. The selector
+ * uses `>` because the dots are direct children of the track (the
+ * tooltip-wrapped thumb is a sibling). The default style is a small
+ * pale circle that flips colours when the mark is at or below the
+ * current value (`[data-neo-active]`). When the author supplies a
+ * <template data-neo-slider-anchor> child, this default is still applied
+ * to the wrapper unless overridden. Set
+ * `--neo-slider-anchor-size: 0` (or restyle [data-neo-slider-anchor])
+ * to suppress the default styling. */
+neo-slider > [data-neo-slider-track] > [data-neo-slider-anchor] {
+	position: absolute;
+	top: 50%;
+	left: 0;
+	width: var(--neo-slider-anchor-size);
+	height: var(--neo-slider-anchor-size);
+	box-sizing: border-box;
+	margin-top: calc(var(--neo-slider-anchor-size) / -2);
+	margin-left: calc(var(--neo-slider-anchor-size) / -2);
+	border-radius: var(--neo-slider-anchor-radius);
+	background: var(--neo-slider-anchor-bg);
+	border: 1px solid var(--neo-slider-anchor-border);
+	cursor: pointer;
+}
+
+neo-slider[vertical] > [data-neo-slider-track] > [data-neo-slider-anchor] {
+	top: auto;
+	left: 50%;
+	margin-top: 0;
+	margin-bottom: calc(var(--neo-slider-anchor-size) / -2);
+}
+
+/* Flush at-min/at-max dots inward so the rail's edge aligns with the
+ * dot's outer edge instead of bisecting the dot. Set by the JS render
+ * and the templ prerender. */
+neo-slider > [data-neo-slider-track] > [data-neo-slider-anchor][data-neo-mark-edge="start"] {
+	margin-left: 0;
+}
+neo-slider > [data-neo-slider-track] > [data-neo-slider-anchor][data-neo-mark-edge="end"] {
+	margin-left: calc(var(--neo-slider-anchor-size) * -1);
+}
+neo-slider[vertical] > [data-neo-slider-track] > [data-neo-slider-anchor][data-neo-mark-edge="start"] {
+	margin-left: calc(var(--neo-slider-anchor-size) / -2);
+	margin-bottom: 0;
+}
+neo-slider[vertical] > [data-neo-slider-track] > [data-neo-slider-anchor][data-neo-mark-edge="end"] {
+	margin-left: calc(var(--neo-slider-anchor-size) / -2);
+	margin-bottom: calc(var(--neo-slider-anchor-size) * -1);
+}
+
+/* `static-marks` makes the dot purely decorative: the click handler
+ * on the host bails out, and we drop pointer-events so a click on the
+ * dot passes through to the rail underneath like any other rail
+ * click. */
+neo-slider[static-marks] > [data-neo-slider-track] > [data-neo-slider-anchor] {
+	pointer-events: none;
+	cursor: default;
+}
+
+neo-slider > [data-neo-slider-track] > [data-neo-slider-anchor][data-neo-active] {
+	background: var(--neo-slider-anchor-active-bg);
+	border-color: var(--neo-slider-anchor-active-border);
+}
+
+/* At 6px the page-bg/accent-border pair collapses against rail/fill;
+ * use solid fills the high-contrast eye can pick out. Active marks
+ * keep a currentColor outline so they read against the accent fill
+ * without dissolving into it. */
+@media (forced-colors: active) {
+	neo-slider > [data-neo-slider-track] > [data-neo-slider-anchor] {
+		background: CanvasText;
+		border-color: CanvasText;
+		forced-color-adjust: none;
+	}
+	neo-slider > [data-neo-slider-track] > [data-neo-slider-anchor][data-neo-active] {
+		background: HighlightText;
+		border-color: CanvasText;
+	}
+}
+
+/* High contrast (OS): set the anchor/track tokens on the host so the
+ * shadow rules pick them up. The manual `:root[data-pref-contrast-more]`
+ * toggle sets the same tokens from neo-slider.global.css (a descendant
+ * selector can't cross the shadow boundary). The track-shadow outlines the
+ * low-contrast empty rail with an outset ring (not a border) so the rail
+ * keeps its size. */
+@media (prefers-contrast: more) {
+	neo-slider {
+		--neo-slider-anchor-bg: currentColor;
+		--neo-slider-anchor-border: currentColor;
+		--neo-slider-anchor-active-bg: var(--accent-fg);
+		--neo-slider-anchor-active-border: currentColor;
+		--neo-slider-track-shadow: 0 0 0 1px currentColor;
+	}
+}
+
+/* Thumb. `display: contents` on the tooltip host means the thumb is
+ * laid out as if it were a direct child of the track (so the
+ * absolutely-positioned thumb anchors to the track), but the selector
+ * has to be a descendant rather than `>`. */
+neo-slider [data-neo-slider-thumb] {
+	position: absolute;
+	top: 50%;
+	left: 0;
+	box-sizing: border-box;
+	width: var(--neo-slider-thumb-size);
+	height: var(--neo-slider-thumb-size);
+	border-radius: var(--neo-slider-thumb-radius);
+	background: var(--neo-slider-thumb-bg);
+	border: var(--neo-slider-thumb-border-width) solid var(--neo-slider-thumb-border);
+	box-shadow: var(--neo-slider-thumb-shadow);
+	transform: translate(var(--neo-slider-thumb-offset-x, -50%), -50%);
+	cursor: grab;
+	outline: none;
+}
+
+neo-slider[vertical] [data-neo-slider-thumb] {
+	top: auto;
+	left: 50%;
+	transform: translate(-50%, var(--neo-slider-thumb-offset-y, 50%));
+}
+
+neo-slider [data-neo-slider-thumb]:focus-visible {
+	box-shadow:
+		var(--neo-slider-thumb-shadow),
+		0 0 0 3px var(--neo-slider-focus-ring);
+}
+
+/* `[easing]` opts the thumb and the rail fill into a CSS transition
+ * on the geometry properties the slider rewrites on every commit
+ * (`left` for the thumb, `width` for the fill). The component writes
+ * `--neo-slider-thumb-transition` from the attribute value on
+ * render. A bare duration like "200ms" gets the kit's default
+ * timing function appended; a full duration + timing-function pair
+ * (e.g. "200ms cubic-bezier(.4,0,.2,1)") is used verbatim.
+ *
+ * `[data-neo-slider-dragging]` is set on the host while a pointer drag
+ * is active and disables the transition so the thumb tracks the
+ * cursor without lag; pointer-driven scrubbing is always immediate
+ * regardless of the easing setting. */
+neo-slider[easing] [data-neo-slider-thumb] {
+	transition:
+		left var(--neo-slider-thumb-transition, 200ms ease),
+		transform var(--neo-slider-thumb-transition, 200ms ease);
+}
+
+neo-slider[easing][vertical] [data-neo-slider-thumb] {
+	transition:
+		bottom var(--neo-slider-thumb-transition, 200ms ease),
+		transform var(--neo-slider-thumb-transition, 200ms ease);
+}
+
+neo-slider[easing] > [data-neo-slider-track] > [data-neo-slider-fill] {
+	transition: width var(--neo-slider-thumb-transition, 200ms ease);
+}
+
+neo-slider[easing][vertical] > [data-neo-slider-track] > [data-neo-slider-fill] {
+	transition: height var(--neo-slider-thumb-transition, 200ms ease);
+}
+
+neo-slider[easing][data-neo-slider-dragging] [data-neo-slider-thumb],
+neo-slider[easing][data-neo-slider-rendering] [data-neo-slider-thumb],
+neo-slider[easing][data-neo-slider-dragging] > [data-neo-slider-track] > [data-neo-slider-fill],
+neo-slider[easing][data-neo-slider-rendering] > [data-neo-slider-track] > [data-neo-slider-fill] {
+	transition: none;
+}
+
+neo-slider [data-neo-slider-thumb]:active {
+	cursor: grabbing;
+}
+
+neo-slider > [data-neo-slider-marks] {
+	position: relative;
+	height: 1lh;
+	margin-top: var(--neo-slider-marks-margin-top);
+	margin-inline: calc(var(--neo-slider-thumb-size) / 2);
+	font-size: var(--neo-slider-mark-label-font-size);
+	color: var(--neo-slider-mark-label-color);
+}
+
+neo-slider[vertical] > [data-neo-slider-marks] {
+	grid-row: 2;
+	width: max-content;
+	min-width: 1lh;
+	height: var(--neo-slider-vertical-track-length);
+	margin-block: calc(var(--neo-slider-thumb-size) / 2);
+	margin-inline: 0;
+}
+
+neo-slider > [data-neo-slider-marks] > [data-neo-slider-mark-label] {
+	position: absolute;
+	top: 0;
+	transform: translateX(-50%);
+	white-space: nowrap;
+	cursor: pointer;
+}
+
+neo-slider
+	> [data-neo-slider-marks]
+	> [data-neo-slider-mark-label][data-neo-mark-overlapping]:not([data-neo-mark-visible]):not([data-neo-mark-hovered]) {
+	opacity: 0;
+}
+
+neo-slider > [data-neo-slider-marks] > [data-neo-slider-mark-label][data-neo-mark-hovered] {
+	z-index: 1;
+	opacity: 1;
+}
+
+neo-slider > [data-neo-slider-marks] > [data-neo-slider-mark-label][data-neo-mark-hover-suppressed] {
+	opacity: 0;
+}
+
+neo-slider[vertical] > [data-neo-slider-marks] > [data-neo-slider-mark-label] {
+	left: 0;
+	transform: translateY(-50%);
+}
+
+/* Flush the at-min / at-max labels to the rail's edges so they don't
+ * clip outside the slider's bounding box. The component tags those
+ * labels with `data-neo-mark-edge="start"` / `"end"` at render time. */
+neo-slider > [data-neo-slider-marks] > [data-neo-slider-mark-label][data-neo-mark-edge="start"] {
+	transform: translateX(0);
+}
+
+neo-slider > [data-neo-slider-marks] > [data-neo-slider-mark-label][data-neo-mark-edge="end"] {
+	transform: translateX(-100%);
+}
+
+neo-slider[vertical] > [data-neo-slider-marks] > [data-neo-slider-mark-label][data-neo-mark-edge="start"] {
+	transform: translateY(-100%);
+}
+
+neo-slider[vertical] > [data-neo-slider-marks] > [data-neo-slider-mark-label][data-neo-mark-edge="end"] {
+	transform: translateY(0);
+}
+
+neo-slider[static-marks] > [data-neo-slider-marks] > [data-neo-slider-mark-label] {
+	cursor: default;
+}
+
+neo-slider > [data-neo-slider-marks] > [data-neo-slider-mark-label][data-neo-active] {
+	color: var(--neo-slider-mark-label-active-color);
+}
+
+neo-slider[disabled]:where(:not([disabled="false"])) {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+/* Force the not-allowed cursor onto every child that normally claims
+ * its own. The track and the anchors paint cursor:pointer, the
+ * thumb claims cursor:grab, the value field claims cursor:text, and
+ * the mark labels claim cursor:pointer. Without these overrides the
+ * host's cursor would be masked the moment the pointer crossed onto
+ * a more-specific child. We don't drop `pointer-events`; the JS
+ * handlers (`onTrackPointerDown`, `onAnchorClick`, …) all early-out
+ * on the `disabled` attribute, so no interaction fires anyway. */
+neo-slider[disabled]:where(:not([disabled="false"])) > [data-neo-slider-track],
+neo-slider[disabled]:where(:not([disabled="false"])) [data-neo-slider-thumb],
+neo-slider[disabled]:where(:not([disabled="false"])) > [data-neo-slider-track] > [data-neo-slider-anchor],
+neo-slider[disabled]:where(:not([disabled="false"])) > [data-neo-slider-marks] > [data-neo-slider-mark-label],
+neo-slider[disabled]:where(:not([disabled="false"])) [data-neo-slider-value] {
+	cursor: not-allowed;
+}
+
+/* Restrict the theme's disabled overlay (e.g. a 45° hatch) to
+ * the rail and the thumb; those are the "no touchy" surfaces. The
+ * host itself stays transparent so the label, value field, and mark
+ * labels read normally (just dimmed by the host's 50% opacity)
+ * instead of sitting behind the stripe pattern. The rail keeps its
+ * track-bg gradient layer underneath the overlay so the bar stays
+ * visible; without it the overlay would paint directly on page-bg. */
+neo-slider[disabled]:where(:not([disabled="false"])) > [data-neo-slider-track] {
+	background-image: var(--neo-disabled-overlay), var(--neo-slider-track-image);
+}
+neo-slider[disabled]:where(:not([disabled="false"])) [data-neo-slider-thumb] {
+	background-image: var(--neo-disabled-overlay);
+}

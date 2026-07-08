@@ -1,0 +1,36 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ ElasticGrowingList() {
+	@neo.LayoutAttrs(
+		neo.LayoutOpts{Direction: neo.Set(neo.Column), AlignItems: neo.Set(neo.AlignItemsFlexStart), Gap: neo.Set(neo.GapNone)},
+		templ.Attributes{"data-signals:elastic_count": "2"},
+	) {
+		@neo.Layout(
+			neo.LayoutOpts{AlignItems: neo.Set(neo.AlignItemsCenter), Gap: neo.Set(neo.GapSm)},
+		) {
+			@neo.ButtonGroup(neo.ButtonGroupOpts{}) {
+				@neo.ButtonAttrs(neo.ButtonOpts{}, templ.Attributes{
+					"data-on:click": "@post('/elastic/list/dec/', { requestCancellation: 'disabled' })",
+					"aria-label":    "Remove an item",
+				}) {
+					&minus;
+				}
+				@neo.ButtonAttrs(neo.ButtonOpts{}, templ.Attributes{
+					"data-on:click": "@post('/elastic/list/inc/', { requestCancellation: 'disabled' })",
+					"aria-label":    "Add an item",
+				}) {
+					+
+				}
+			}
+			<span>Items:&nbsp;<span data-text="$elastic_count">2</span></span>
+		}
+		@neo.Elastic(neo.ElasticOpts{}) {
+			<ul id="elastic-list">
+				<li>First item</li>
+				<li>Second item</li>
+			</ul>
+		}
+	}
+}

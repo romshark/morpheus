@@ -1,0 +1,36 @@
+<neo-card class="framework-demo-card">
+  <div data-neo-card-inner data-signals="{_color: '#3b82f6', _option: 'blue'}">
+    <neo-layout column gap="md" align-items="center">
+      <h3>Accent color</h3>
+      <neo-layout column gap="md" align-items="center">
+        <neo-select
+          aria-label="Named color"
+          placeholder="Pick a color"
+          data-attr:value="$_option"
+          data-on:neo-select-change="$_option = evt.detail.value; $_color = ({red:'#ef4444',green:'#22c55e',blue:'#3b82f6'})[evt.detail.value] ?? $_color"
+        >
+          <neo-option value="red">Red</neo-option>
+          <neo-option value="green">Green</neo-option>
+          <neo-option value="blue">Blue</neo-option>
+          <neo-option value="custom">Custom</neo-option>
+        </neo-select>
+        <neo-color-field
+          class="framework-demo-field"
+          aria-label="Custom color"
+          data-attr:value="$_color"
+          data-on:neo-color-field-input="$_color = evt.detail.value; $_option = ({'#ef4444':'red','#22c55e':'green','#3b82f6':'blue'})[evt.detail.value] ?? 'custom'"
+        ></neo-color-field>
+      </neo-layout>
+      <neo-layout inline gap="sm" align-items="stretch" class="framework-demo-readout">
+        <span class="framework-demo-swatch" data-attr:style="'background: ' + $_color" aria-hidden="true"></span>
+        <neo-textinput
+          mask="aaaaaa"
+          prefix="#"
+          aria-label="Hex color"
+          data-attr:value="$_color"
+          data-on:neo-textinput-input="$_color = evt.detail.value; $_option = ({'#ef4444':'red','#22c55e':'green','#3b82f6':'blue'})[evt.detail.value] ?? 'custom'"
+        ></neo-textinput>
+      </neo-layout>
+    </neo-layout>
+  </div>
+</neo-card>

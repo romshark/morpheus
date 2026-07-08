@@ -1,0 +1,23 @@
+.card-pg-link {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.35em;
+	color: var(--accent, currentColor);
+	font-weight: 600;
+	text-decoration: none;
+}
+
+.card-pg-link:hover {
+	text-decoration: underline;
+	text-underline-offset: 0.2em;
+}
+
+.card-pg-link:focus-visible {
+	outline: 2px solid var(--accent, currentColor);
+	outline-offset: 2px;
+	border-radius: 0.2rem;
+}
+
+.card-adaptive-footer {
+	justify-content: flex-start;
+}

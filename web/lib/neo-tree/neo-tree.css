@@ -1,0 +1,55 @@
+/* -----------------------------------------------------------------------
+ * <neo-tree> + <neo-tree-item>
+ * -----------------------------------------------------------------------
+ * Disclosure tree. Row markup (chevron, animation wrapper) lives in
+ * the item's shadow stylesheet; only the design tokens are exposed
+ * here so themes can re-tune them.
+ *
+ * The grid 0fr -> 1fr trick (in shadow) drives the open/close
+ * animation, no JS height measurement, no max-height fudge. The
+ * kit-wide --neo-easing / --neo-duration-scale flow through
+ * --neo-tree-duration via cascade.
+ */
+
+:root {
+	--neo-tree-row-padding: calc(var(--page-spacing, 0.25rem) * 1.25) calc(var(--page-spacing, 0.25rem) * 2);
+	--neo-tree-row-gap: calc(var(--page-spacing, 0.25rem) * 2);
+	--neo-tree-indent: calc(var(--page-spacing, 0.25rem) * 5);
+	--neo-tree-row-radius: var(--page-radius, 0.25rem);
+	--neo-tree-row-hover-bg: rgba(127, 127, 127, 0.12);
+	--neo-tree-chevron-size: 0.85rem;
+	--neo-tree-duration: calc(200ms * var(--neo-duration-scale, 1));
+}
+
+/* Pre-hydration: nested items would otherwise show as a flat list
+ * while the shadow hasn't installed its slots. */
+neo-tree-item:not(:defined) > neo-tree-item {
+	display: none;
+}
+
+/* Author hooks inside the row. The label is slotted into shadow's
+ * [data-neo-tree-row]; ::slotted reaches into it to size text vs.
+ * actions per the same flow rules the kit's chevron uses. */
+neo-tree-item > [data-neo-tree-label] {
+	display: flex;
+	align-items: center;
+	gap: var(--neo-tree-row-gap);
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+neo-tree-item > [data-neo-tree-label] > [data-neo-tree-text] {
+	flex: 1 1 auto;
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+neo-tree-item > [data-neo-tree-label] > [data-neo-tree-actions] {
+	margin-left: auto;
+	display: inline-flex;
+	align-items: center;
+	gap: calc(var(--page-spacing, 0.25rem) * 1);
+	flex: 0 0 auto;
+}

@@ -1,0 +1,123 @@
+package site
+
+import (
+	"github.com/romshark/morpheus/internal/href"
+	"github.com/romshark/morpheus/internal/site/examples"
+)
+
+templ PageLink(morpheusVersion string) {
+	@PageDoc(href.PageLink(), "Link", morpheusVersion) {
+		<section class="demo">
+			@anchoredH2("overview") {
+				Link
+			}
+			<p class="intro">
+				Component <code>{ `<a data-neo-link>` }</code> is the
+				kit's styled anchor: a plain native <code>{ "<a>" }</code>
+				that behaves exactly like a normal link (focus, keyboard
+				activation, middle-click, <code>:visited</code>); the
+				<code>data-neo-link</code> hook is all the kit's CSS keys
+				on. The default variant reads as an
+				inline prose link; the button variants make the anchor
+				look exactly like&nbsp;
+				@ComponentLink("neo-button", href.PageButton())
+				&nbsp;so it can stand in for a button when the destination
+				is a URL.
+			</p>
+			@Playground(PlaygroundOpts{
+				ID:     "link-playground",
+				States: linkPlaygroundStates(),
+			})
+			@anchoredH2("reference") {
+				Reference
+			}
+			@ComponentDocs(linkDoc)
+		</section>
+		<section class="demo">
+			@anchoredH2("examples") {
+				Examples
+			}
+			@anchoredH3("variants-states") {
+				Variants & states
+			}
+			<p class="demo-note">
+				The inline
+				<code>default</code> anchor, the five button-styled
+				variants (<code>button-default</code>,
+				<code>button-primary</code>, <code>button-secondary</code>,
+				<code>button-ghost</code>, <code>button-danger</code>), and the
+				disabled state.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     linkVariantsHTML,
+				TemplSource:    linkVariantsTempl,
+			}) {
+				@examples.LinkVariants()
+			}
+			@anchoredH3("inline-prose") {
+				Inline in prose
+			}
+			<p class="demo-note">
+				The default variant is tuned to sit inside running
+				text: accent colour, underline, and a focus ring that
+				doesn't disturb the line box.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     linkProseHTML,
+				TemplSource:    linkProseTempl,
+			}) {
+				@examples.LinkProse()
+			}
+			@anchoredH3("call-to-action") {
+				Call to action
+			}
+			<p class="demo-note">
+				A button-styled link makes a navigation read as a
+				primary action. Pair <code>{ `target="_blank"` }</code>
+				with <code>{ `rel="noopener noreferrer"` }</code> on
+				external destinations to get the cross-origin
+				tab-isolation guarantee.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     linkCtaHTML,
+				TemplSource:    linkCtaTempl,
+			}) {
+				@examples.LinkCta()
+			}
+		</section>
+	}
+}
+
+var linkDoc = ComponentDoc{
+	Attributes: []DocAttribute{
+		{Name: "data-neo-link", Type: "boolean",
+			Description: templ.Raw("Styling hook. Marks a native <code>&lt;a&gt;</code> for the kit's link styling; the wrapper adds it automatically, so raw HTML must include it to opt in.")},
+		{Name: "href", Type: "string",
+			Description: templ.Raw("Link target. Omitted attribute renders a placeholder the browser doesn't treat as a link.")},
+		{Name: "variant", Type: `"default" | "button-default" | "button-primary" | "button-secondary" | "button-ghost" | "button-danger"`, Default: `"default"`,
+			Description: templ.Raw("Visual style. <code>default</code> is an inline prose anchor; the rest adopt <code>&lt;neo-button&gt;</code> styling.")},
+		{Name: "target", Type: "string",
+			Description: templ.Raw("Native browsing-context target (<code>_blank</code>, <code>_self</code>, a named context).")},
+		{Name: "rel", Type: "string",
+			Description: templ.Raw("Space-separated link-type tokens (<code>noopener</code>, <code>noreferrer</code>, <code>nofollow</code>, …).")},
+		{Name: "download", Type: "string",
+			Description: templ.Raw("Triggers a save-as instead of navigation; the value is the suggested filename.")},
+		{Name: "hreflang", Type: "string",
+			Description: templ.Raw("BCP-47 language tag of the linked resource. Hint only, consumed by AT and translation tools.")},
+		{Name: "referrerpolicy", Type: "string",
+			Description: templ.Raw("How much of the current URL is sent in the <code>Referer</code> header on follow. Empty inherits the document policy.")},
+		{Name: "aria-disabled", Type: "boolean", Default: "false",
+			Description: templ.Raw("<code>&lt;a&gt;</code> has no native <code>disabled</code>; the wrapper stamps <code>aria-disabled=\"true\"</code> + <code>tabindex=\"-1\"</code> so AT and keyboard nav skip it. The kit's CSS owns the visual state.")},
+	},
+	Slots: []DocSlot{
+		{Name: "default",
+			Description: templ.Raw("Link content: text, a <code>&lt;neo-icon&gt;</code>, or arbitrary markup.")},
+	},
+	Events: []DocEvent{
+		{Name: "click", URL: W3CEventURL("click"), Bubbles: true,
+			Description: templ.Raw("Native anchor activation; also fires on <code>Enter</code>.")},
+	},
+}

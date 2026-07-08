@@ -1,0 +1,29 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ CheckboxSettingsGroup() {
+	<div class="pg-checkbox-group">
+		<label class="pg-checkbox-row">
+			@neo.Checkbox(neo.CheckboxOpts{Checked: neo.Set(true)})
+			<span>
+				<strong>Email notifications</strong>
+				<small>Receive updates about your account.</small>
+			</span>
+		</label>
+		<label class="pg-checkbox-row">
+			@neo.Checkbox(neo.CheckboxOpts{})
+			<span>
+				<strong>Marketing emails</strong>
+				<small>Product news and announcements.</small>
+			</span>
+		</label>
+		<label class="pg-checkbox-row">
+			@neo.Checkbox(neo.CheckboxOpts{Checked: neo.Set(true), Disabled: neo.Set(true)})
+			<span>
+				<strong>Required updates</strong>
+				<small>Locked by your organisation.</small>
+			</span>
+		</label>
+	</div>
+}

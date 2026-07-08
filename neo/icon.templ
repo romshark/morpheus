@@ -1,0 +1,34 @@
+package neo
+
+// Icon renders <neo-icon name="…"> with the SVG body inlined from the
+// configured icon FS, eliminating the upgrade-time fetch flash on first
+// paint. The custom element still upgrades and re-fetches when the
+// theme changes.
+//
+// `data-neo-icon-base` carries the URL prefix the inlined SVG came from;
+// the JS upgrade only adopts the inlined markup when it matches the
+// prefix it'd resolve from --neo-icon-base, so a matrix-themed user
+// re-fetches the right icon set instead of being stuck with the
+// default-theme SVG the server pre-rendered.
+templ Icon(name string) {
+	<neo-icon name={ name } data-neo-icon-base={ IconBase() }>
+		@templ.Raw(loadIconSVG(name))
+	</neo-icon>
+}
+
+// IconAttrs is [Icon] with an extra attribute set.
+templ IconAttrs(name string, attrs templ.Attributes) {
+	<neo-icon name={ name } data-neo-icon-base={ IconBase() } { attrs... }>
+		@templ.Raw(loadIconSVG(name))
+	</neo-icon>
+}
+
+// IconWith renders <neo-icon> with a per-instance `base` override
+// (this element only, vs. the global [SetIconBase]). The SVG is
+// still server-inlined for first paint; the upgrade re-fetches from
+// `base` when it differs from data-neo-icon-base.
+templ IconWith(name, base string) {
+	<neo-icon name={ name } base={ base } data-neo-icon-base={ IconBase() }>
+		@templ.Raw(loadIconSVG(name))
+	</neo-icon>
+}

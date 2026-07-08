@@ -1,0 +1,10 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ CheckboxWithLabel() {
+	<label>
+		@neo.Checkbox(neo.CheckboxOpts{})
+		<span>Accept terms and conditions</span>
+	</label>
+}

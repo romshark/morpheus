@@ -1,0 +1,31 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ ButtonVariants() {
+	@neo.Button(neo.ButtonOpts{}) {
+		Default
+	}
+	@neo.Button(neo.ButtonOpts{Variant: neo.Set(neo.ButtonVariantPrimary)}) {
+		Primary
+	}
+	@neo.Button(neo.ButtonOpts{Variant: neo.Set(neo.ButtonVariantSecondary)}) {
+		Secondary
+	}
+	@neo.Button(neo.ButtonOpts{Variant: neo.Set(neo.ButtonVariantGhost)}) {
+		Ghost
+	}
+	@neo.Button(neo.ButtonOpts{Variant: neo.Set(neo.ButtonVariantDanger)}) {
+		Danger
+	}
+	@neo.Button(neo.ButtonOpts{Variant: neo.Set(neo.ButtonVariantAnchor)}) {
+		Anchor
+	}
+	@neo.Button(neo.ButtonOpts{Disabled: neo.Set(true)}) {
+		Disabled
+	}
+	@neo.Button(neo.ButtonOpts{}) {
+		@neo.Icon("settings")
+		Settings
+	}
+}

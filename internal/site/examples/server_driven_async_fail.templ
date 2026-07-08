@@ -1,0 +1,39 @@
+package examples
+
+import (
+	"github.com/romshark/morpheus/datastar"
+	"github.com/romshark/morpheus/neo"
+)
+
+templ ServerDrivenAsyncFail() {
+	@datastar.ComboboxAsync(datastar.ComboboxAsyncOpts{
+		ComboboxOpts: neo.ComboboxOpts{
+			AriaLabel:   neo.Set("Async Combobox Example"),
+			Placeholder: neo.Set("Open and wait for 2 seconds!"),
+		},
+		ID:            "serverDrivenAsyncFail",
+		URL:           "/serverdriven/asyncfail/",
+		ExtraPostOpts: "retry: 'error', retryInterval: 1000, retryScaler: 1, retryMaxCount: 2",
+		Loading:       serverDrivenAsyncFailLoading(),
+		Failed:        serverDrivenAsyncFailFailed(),
+	})
+}
+
+// Cloned above the listbox while the request is in flight.
+templ serverDrivenAsyncFailLoading() {
+	<div class="server-driven-async-fail-loading">
+		<neo-spinner></neo-spinner>
+		Loading…
+	</div>
+}
+
+// Swapped into the listbox after Datastar exhausts the retry budget.
+templ serverDrivenAsyncFailFailed() {
+	<div class="popover-async-loading popover-async-failed" role="alert">
+		@neo.Icon("triangle-alert")
+		<strong>Couldn't load options.</strong>
+		<neo-button { neo.PopoverAsyncRetry()... }>
+			Retry
+		</neo-button>
+	</div>
+}

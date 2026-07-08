@@ -1,0 +1,27 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ SelectAsyncSpinner() {
+	@neo.SelectAttrs(neo.SelectOpts{
+		Async:       neo.Set(true),
+		Clearable:   neo.Set(true),
+		AriaLabel:   neo.Set("Assignee (clearable)"),
+		Placeholder: neo.Set("Pick an assignee"),
+	}, templ.Attributes{
+		"id":                        "demo-assignee-select-alt",
+		"data-signals:loadctlalt":   "new AbortController()",
+		"data-on:neo-select-load":   "@post('/select/loadassigneesalt/', {requestCancellation: $loadctlalt})",
+		"data-on:neo-popover-close": "$loadctlalt.abort(); $loadctlalt = new AbortController()",
+	}) {
+		@neo.Datalist(neo.DatalistOpts{ID: neo.Set("demo-assignee-select-alt-options")}) {
+			<div
+				class="select-async-spinner-placeholder"
+				{ neo.AsyncPlaceholder()... }
+			>
+				<neo-spinner></neo-spinner>
+				Loading…
+			</div>
+		}
+	}
+}

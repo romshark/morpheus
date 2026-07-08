@@ -1,0 +1,247 @@
+package site
+
+import (
+	"github.com/romshark/morpheus/internal/href"
+	"github.com/romshark/morpheus/internal/site/examples"
+)
+
+templ PagePagination(morpheusVersion string) {
+	@PageDoc(href.PagePagination(), "Pagination", morpheusVersion) {
+		<section class="demo">
+			@anchoredH2("overview") {
+				Pagination
+			}
+			<p class="intro">
+				Component <code>{ "<neo-pagination>" }</code> is
+				adaptive page navigation. Set <code>page</code> and
+				<code>pages</code> attributes and the host builds
+				the Prev / boundary / window /
+				boundary / Next chips, flags the current page with
+				<code>{ `aria-current="page"` }</code>, and dispatches
+				<code>neo-pagination-change</code> on click. A
+				ResizeObserver shrinks the sibling window first, then
+				the boundary count, until the chips fit on a single
+				row.
+			</p>
+			@Playground(PlaygroundOpts{
+				ID:     "pagination-playground",
+				States: paginationPlaygroundStates(),
+			})
+			@anchoredH2("reference") {
+				Reference
+			}
+			@ComponentDocs(paginationDoc)
+		</section>
+		<section class="demo">
+			@anchoredH2("examples") {
+				Examples
+			}
+			@anchoredH3("sibling-count-2") {
+				Sibling count = 2
+			}
+			<p class="demo-note">
+				<code>{ `sibling-count="2"` }</code> reveals two
+				neighbours on each side of the active page rather
+				than one. Useful when users frequently jump ±2
+				pages and a single neighbour reads as too tight.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     paginationSiblingHTML,
+				TemplSource:    paginationSiblingTempl,
+			}) {
+				@examples.PaginationSibling()
+			}
+			@anchoredH3("boundary-count-2") {
+				Boundary count = 2
+			}
+			<p class="demo-note">
+				With <code>{ `boundary-count="2"` }</code> the first
+				and last two pages always render, handy for tables
+				where users habitually jump to "page 1 / 2" or
+				"second-to-last / last".
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     paginationBoundaryHTML,
+				TemplSource:    paginationBoundaryTempl,
+			}) {
+				@examples.PaginationBoundary()
+			}
+			@anchoredH3("first-page") {
+				First page
+			}
+			<p class="demo-note">
+				When the current page sits at or near the
+				boundary, the matching ellipsis collapses and the
+				window snaps flush against the edge run.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     paginationFirstPageHTML,
+				TemplSource:    paginationFirstPageTempl,
+			}) {
+				@examples.PaginationFirstPage()
+			}
+			@anchoredH3("last-page") {
+				Last page
+			}
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     paginationLastPageHTML,
+				TemplSource:    paginationLastPageTempl,
+			}) {
+				@examples.PaginationLastPage()
+			}
+			@anchoredH3("short-run") {
+				Short run
+			}
+			<p class="demo-note">
+				With fewer pages than the configured window plus
+				boundary, the host lays out every page with no
+				ellipses.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     paginationShortRunHTML,
+				TemplSource:    paginationShortRunTempl,
+			}) {
+				@examples.PaginationShortRun()
+			}
+			@anchoredH3("custom-prev-next-slots") {
+				Custom prev / next slots
+			}
+			<p class="demo-note">
+				The host exposes two
+				<code>{ "<template>" }</code> slots,
+				<code>{ "[data-neo-pagination-prev]" }</code> and
+				<code>{ "[data-neo-pagination-next]" }</code>,
+				whose inner HTML becomes the body of the prev /
+				next buttons. Default content is a single chevron
+				icon, so a bare host renders as icon-only.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     paginationCustomSlotsHTML,
+				TemplSource:    paginationCustomSlotsTempl,
+			}) {
+				@examples.PaginationCustomSlots()
+			}
+			@anchoredH3("no-prev-next-buttons") {
+				No prev / next buttons
+			}
+			<p class="demo-note">
+				Pass a
+				<code>{ "<template data-neo-pagination-prev>" }</code>
+				/ <code>{ "<template data-neo-pagination-next>" }</code>
+				with no children and the matching button is
+				omitted entirely: pure page chips, no prev / next
+				rail. Useful when the dataset's prev / next is
+				wired elsewhere (keyboard shortcut, sidebar nav).
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     paginationEmptySlotsHTML,
+				TemplSource:    paginationEmptySlotsTempl,
+			}) {
+				@examples.PaginationEmptySlots()
+			}
+			@anchoredH3("disabled") {
+				Disabled
+			}
+			<p class="demo-note">
+				<code>disabled</code> greys every chip and ignores
+				clicks. Use it while a parent dataset is loading.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     paginationDisabledHTML,
+				TemplSource:    paginationDisabledTempl,
+			}) {
+				@examples.PaginationDisabled()
+			}
+		</section>
+	}
+}
+
+var paginationDoc = ComponentDoc{
+	Attributes: []DocAttribute{
+		{Name: "page", Type: "number", Default: "1", Reflected: true, Observed: true,
+			Description: templ.Raw(
+				"Active page (1-indexed). Two-way bind via " +
+					"<code>data-attr:page</code> " +
+					"<code>data-on:neo-pagination-change</code>.",
+			)},
+		{Name: "pages", Type: "number", Default: "1", Observed: true,
+			Description: templ.Raw(
+				"Total page count. <code>page</code> is clamped to " +
+					"<code>[1, pages]</code> on every render.",
+			)},
+		{Name: "sibling-count", Type: "number", Default: "1", Observed: true,
+			Description: templ.Raw(
+				"Pages shown on each side of the active one. " +
+					"Increase to make ±N navigation cheaper; the " +
+					"adapt loop shrinks this first when the row " +
+					"runs out of room.",
+			)},
+		{Name: "boundary-count", Type: "number", Default: "1", Observed: true,
+			Description: templ.Raw(
+				"Pages pinned at the start and end of the run. The " +
+					"adapt loop shrinks it after the sibling " +
+					"window has bottomed out at 0.",
+			)},
+		{Name: "disabled", Type: "boolean", Default: "false", Observed: true,
+			Description: templ.Raw(
+				"Greys every chip and ignores clicks. Useful while a " +
+					"parent dataset is still loading.",
+			)},
+		{Name: "aria-label", Type: "string", Default: `"Pagination"`,
+			Description: templ.Raw(
+				"Set on the host's <code>role=\"navigation\"</code> " +
+					"so screen readers announce the landmark.",
+			)},
+	},
+	Slots: []DocSlot{
+		{Name: "template[data-neo-pagination-prev]",
+			Description: templ.Raw(
+				"Inner HTML of the prev button. Captured once on " +
+					"connect from a <code>&lt;template&gt;</code> " +
+					"child; the kit re-uses it on every render. " +
+					"Default (no template) is a single " +
+					"<code>chevron-left</code> icon (icon-only " +
+					"button). An <em>empty</em> template " +
+					"(<code>&lt;template " +
+					"data-neo-pagination-prev&gt;&lt;/template&gt;" +
+					"</code>) opts out of the prev button entirely.",
+			)},
+		{Name: "template[data-neo-pagination-next]",
+			Description: templ.Raw(
+				"Same as the prev slot, on the right; default is " +
+					"<code>chevron-right</code>, empty opts out.",
+			)},
+	},
+	Events: []DocEvent{
+		{Name: "neo-pagination-change", Detail: "{ page: number }", Bubbles: true,
+			Description: templ.Raw(
+				"Fires when the user picks a chip or clicks " +
+					"prev / next. <code>page</code> is the new " +
+					"active page; the host has already reflected " +
+					"<code>page=</code> by the time the event " +
+					"dispatches.",
+			)},
+	},
+	CSSProps: []DocCSSProp{
+		{Name: "--neo-pagination-gap", Default: "calc(var(--page-spacing, 0.25rem) * 1)",
+			Description: templ.Raw("Gap between chips.")},
+		{Name: "--neo-pagination-page-min", Default: "2.25rem",
+			Description: templ.Raw("Minimum width and height of a page chip.")},
+		{Name: "--neo-pagination-active-bg", Default: "var(--accent, currentColor)",
+			Description: templ.Raw("Background of the active page chip.")},
+		{Name: "--neo-pagination-active-color", Default: "var(--accent-fg, var(--page-bg, #fff))",
+			Description: templ.Raw("Text color of the active page chip.")},
+		{Name: "--neo-pagination-active-hover-bg", Default: "color-mix(in srgb, var(--neo-pagination-active-bg), #000 12%)",
+			Description: templ.Raw("Active chip background on hover.")},
+		{Name: "--neo-pagination-active-active-bg", Default: "color-mix(in srgb, var(--neo-pagination-active-hover-bg), #000 8%)",
+			Description: templ.Raw("Active chip background while pressed.")},
+	},
+}

@@ -1,0 +1,24 @@
+package neo
+
+// Boundary renders <neo-boundary>: a region that overlays inside it
+// (popover, select, menu, …) treat as their local document and viewport
+// for dismiss, positioning, scroll-follow, and stacking. Children stay in
+// light DOM. Scope which concerns the boundary owns via BoundaryOpts.Scopes.
+templ Boundary(opts BoundaryOpts) {
+	@BoundaryAttrs(opts, nil) {
+		{ children... }
+	}
+}
+
+// BoundaryAttrs is [Boundary] with an extra attribute set.
+templ BoundaryAttrs(opts BoundaryOpts, attrs templ.Attributes) {
+	{{ scope := opts.Scopes.Or(BoundaryScopes{}).scope() }}
+	<neo-boundary
+		if scope != "" {
+			scope={ scope }
+		}
+		{ attrs... }
+	>
+		{ children... }
+	</neo-boundary>
+}

@@ -1,0 +1,15 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ SliderDisabled() {
+	@neo.Slider(neo.SliderOpts[float64]{
+		Min:      neo.Set(0.0),
+		Max:      neo.Set(100.0),
+		Step:     neo.Set(1.0),
+		Value:    neo.Set(65.0),
+		Label:    neo.Set("Volume"),
+		Unit:     neo.Set("%"),
+		Disabled: neo.Set(true),
+	})
+}

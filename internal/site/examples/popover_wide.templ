@@ -1,0 +1,64 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+type popoverMegaSection struct {
+	Title string
+	Items []string
+}
+
+var popoverWideMega = []popoverMegaSection{
+	{"Products", []string{
+		"Dashboard", "Analytics", "Commerce", "CRM", "Billing",
+	}},
+	{"Solutions", []string{
+		"For startups", "For agencies", "For enterprise",
+		"For developers", "For education",
+	}},
+	{"Resources", []string{
+		"Docs", "Guides", "Blog", "Changelog", "API reference",
+	}},
+	{"Templates", []string{
+		"Landing page", "Portfolio", "SaaS starter",
+		"Admin panel", "E-commerce",
+	}},
+	{"Developers", []string{
+		"CLI", "SDK", "REST API", "GraphQL", "Webhooks",
+	}},
+	{"Community", []string{
+		"Forum", "Discord", "GitHub", "Stack Overflow", "YouTube",
+	}},
+}
+
+templ PopoverWide() {
+	@neo.PopoverAttrs(neo.PopoverOpts{
+		ScreenOffset: neo.Set("1.5rem"),
+		MinFitHeight: neo.Set("20rem"),
+	}, templ.Attributes{
+		"class": "popover-wide-host",
+	}) {
+		<neo-button { neo.PopoverTrigger()... }>
+			Wide content (horizontal clamp)
+		</neo-button>
+		<div aria-labelledby="wide-title" { neo.PopoverContent()... }>
+			<h3 id="wide-title">Browse</h3>
+			<p>
+				This panel is wider than the viewport. It clamps to the
+				screen (leaving <code>screen-offset</code> of margin)
+				and scrolls horizontally.
+			</p>
+			<div class="popover-mega">
+				for _, s := range popoverWideMega {
+					<section>
+						<h4>{ s.Title }</h4>
+						<ul>
+							for _, item := range s.Items {
+								<li>{ item }</li>
+							}
+						</ul>
+					</section>
+				}
+			</div>
+		</div>
+	}
+}

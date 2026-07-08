@@ -1,0 +1,19 @@
+.dialog-async-failure-title {
+	width: 50%;
+	height: 1.4rem;
+}
+
+.dialog-async-failure-meta {
+	width: 30%;
+	height: 1rem;
+}
+
+.dialog-async-failure-line-1 {
+	width: 90%;
+	height: 0.85rem;
+}
+
+.dialog-async-failure-line-2 {
+	width: 75%;
+	height: 0.85rem;
+}

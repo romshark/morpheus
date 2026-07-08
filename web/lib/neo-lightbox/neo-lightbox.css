@@ -1,0 +1,58 @@
+/* -----------------------------------------------------------------------
+ * <neo-lightbox>
+ * -----------------------------------------------------------------------
+ * Overlay that expands arbitrary content from one or more triggers. The
+ * overlay, backdrop, and surface live in the host's shadow root (styled
+ * inline there, see neo-lightbox.ts) so the open state and the top-layer
+ * promotion survive a fat morph. These light-DOM rules carry the
+ * themeable tokens, the host box, and the pre-upgrade guard.
+ *
+ * Tokens cascade into the shadow root, where the overlay reads them.
+ * Override at the host (or any ancestor) to retheme one lightbox or all.
+ * Surface defaults are intentionally bare (transparent, no padding) so an
+ * image fills it edge to edge; content that wants a panel brings its own
+ * background / radius, or overrides --neo-lightbox-surface-*. */
+
+:root {
+	--neo-lightbox-overlay-bg: rgba(0, 0, 0, 0.72);
+	--neo-lightbox-overlay-blur: 0px;
+	--neo-lightbox-surface-bg: transparent;
+	--neo-lightbox-color: var(--page-fg, #111827);
+	--neo-lightbox-radius: 0;
+	--neo-lightbox-surface-padding: 0;
+	--neo-lightbox-shadow: none;
+	--neo-lightbox-max-width: 90vw;
+	--neo-lightbox-max-height: 90vh;
+	--neo-lightbox-screen-offset: 1rem;
+	--neo-lightbox-z-index: 50;
+	--neo-lightbox-enter-duration: calc(200ms * var(--neo-duration-scale, 1));
+	--neo-lightbox-enter-scale: 0.94;
+}
+
+@media (prefers-color-scheme: dark) {
+	:root {
+		--neo-lightbox-overlay-bg: rgba(0, 0, 0, 0.8);
+	}
+}
+
+neo-lightbox {
+	display: inline-block;
+}
+
+/* Contained: the host is the positioned containing block the absolute
+ * overlay fills, and clips the backdrop to the host's box. */
+neo-lightbox[contained] {
+	display: block;
+	position: relative;
+	overflow: clip;
+}
+
+neo-lightbox [data-neo-lightbox-trigger] {
+	cursor: pointer;
+}
+
+/* Pre-upgrade guard: hide the content slot until JS adopts it into the
+ * shadow surface, else it flashes inline next to the triggers. */
+neo-lightbox:not(:defined) > [data-neo-lightbox-content] {
+	display: none;
+}

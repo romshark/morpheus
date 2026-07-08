@@ -1,0 +1,12 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ TextareaAutoGrowWidth() {
+	@neo.Textarea(neo.TextareaOpts{
+		AutoResizeWidth:  neo.Set("20rem"),
+		AutoResizeHeight: neo.Set(""),
+		Placeholder:      neo.Set("Grows horizontally up to 20rem"),
+		Rows:             neo.Set(2),
+	})
+}

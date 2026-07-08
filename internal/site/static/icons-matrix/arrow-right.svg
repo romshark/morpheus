@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+  <!-- shaft -->
+  <rect x="2" y="11" width="14" height="2"/>
+  <!-- chevron arrowhead pointing right -->
+  <rect x="14" y="7" width="2" height="2"/>
+  <rect x="16" y="9" width="2" height="2"/>
+  <rect x="18" y="11" width="2" height="2"/>
+  <rect x="16" y="13" width="2" height="2"/>
+  <rect x="14" y="15" width="2" height="2"/>
+</svg>

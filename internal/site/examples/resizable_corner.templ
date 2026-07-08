@@ -1,0 +1,20 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ ResizableCorner() {
+	@neo.ResizableAttrs(neo.ResizableOpts[float64]{
+		Handles:   neo.Set(neo.ResizableBottomRight),
+		Width:     neo.Set("22rem"),
+		Height:    neo.Set("11rem"),
+		MinWidth:  neo.Set("10rem"),
+		MinHeight: neo.Set("6rem"),
+	}, templ.Attributes{
+		"class": "resizable-demo",
+	}) {
+		<neo-layout column align-items="center" justify-content="center" gap="xs">
+			<strong>Drag the corner</strong>
+			<span>handles="bottom-right"</span>
+		</neo-layout>
+	}
+}

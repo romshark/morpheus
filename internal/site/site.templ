@@ -1,0 +1,1261 @@
+package site
+
+import (
+	"github.com/romshark/morpheus/internal/href"
+	"github.com/romshark/morpheus/neo"
+	"strconv"
+)
+
+// pageHead is shared between Page (sidebar frame) and LandingPage
+// (no frame) so theming, fonts, and component upgrades behave
+// identically across the site.
+templ pageHead(description string) {
+	<head>
+		<meta charset="UTF-8"/>
+		@themeBootstrap()
+		@a11yBootstrap()
+		<script type="module" src={ href.Asset("datastar.js") }></script>
+		<title>Morpheus: Web Components UI Kit</title>
+		<meta name="description" content={ description }/>
+		<meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-content"/>
+		<link rel="icon" type="image/svg+xml" href={ href.Asset("favicon.svg") }/>
+		<link rel="stylesheet" href={ href.Asset("min/morpheus.css") }/>
+		if inlineThemeDefaultCSS != "" {
+			// Inline the default palette so first paint needs no extra
+			// request. Bare `:root`; the class-scoped theme sheets below
+			// still override it by specificity. Raw-emitted because templ
+			// treats <style> content as literal text (no @-expressions).
+			@templ.Raw("<style>" + inlineThemeDefaultCSS + "</style>")
+		} else {
+			<link rel="stylesheet" href={ href.Asset("min/theme-default.css") }/>
+		}
+		<link rel="stylesheet" href={ href.Asset("min/theme-sunshine.css") } media="print" onload="this.media='all'"/>
+		<link rel="stylesheet" href={ href.Asset("min/theme-ocean.css") } media="print" onload="this.media='all'"/>
+		<link rel="stylesheet" href={ href.Asset("min/theme-matrix.css") } media="print" onload="this.media='all'"/>
+		<link rel="stylesheet" href={ href.Asset("min/theme-rose.css") } media="print" onload="this.media='all'"/>
+		<noscript>
+			<link rel="stylesheet" href={ href.Asset("min/theme-sunshine.css") }/>
+			<link rel="stylesheet" href={ href.Asset("min/theme-ocean.css") }/>
+			<link rel="stylesheet" href={ href.Asset("min/theme-matrix.css") }/>
+			<link rel="stylesheet" href={ href.Asset("min/theme-rose.css") }/>
+		</noscript>
+		<link rel="stylesheet" href={ href.Asset("min/style.css") }/>
+		<script type="module" defer src={ href.Asset("min/bundle.js") }></script>
+	</head>
+}
+
+// matrixRainThemeBridge keeps the landing page's <matrix-rain> in
+// sync with the theme picker. The component itself is theme-unaware
+// (just reads head/body/dim colour attrs), so this script translates
+// the resolved color mode into a palette and re-applies on every
+// `neo-theme-change`.
+templ matrixRainThemeBridge() {
+	<script>
+		(function () {
+			var rain = document.getElementById("lf-rain");
+			if (!rain) return;
+			var DARK = {
+				head: "#f2fff7",
+				body: "#00ff8a",
+				dim:  "#035c33",
+			};
+			var LIGHT = {
+				head: "#0c2d18",
+				body: "#1f8a4a",
+				dim:  "#a8d9bf",
+			};
+			function apply(mode) {
+				// Matrix is the green-on-black theme: even when the user
+				// is in light mode, force the dark palette so the rain
+				// reads as it does in the films instead of as muddy green
+				// on white.
+				var html = document.documentElement;
+				var darkPalette =
+					mode === "dark" || html.classList.contains("theme-matrix");
+				var p = darkPalette ? DARK : LIGHT;
+				rain.setAttribute("head-color", p.head);
+				rain.setAttribute("body-color", p.body);
+				rain.setAttribute("dim-color",  p.dim);
+			}
+			function current() {
+				return document.documentElement.classList.contains("dark")
+					? "dark"
+					: "light";
+			}
+			apply(current());
+			document.documentElement.addEventListener(
+				"neo-theme-change",
+				function (e) {
+					apply(e.detail && e.detail.effectiveMode || current());
+				},
+			);
+		})();
+	</script>
+}
+
+// LandingPage is the bare marketing-style shell: same head as Page,
+// but no sidebar frame, breadcrumb header, or settings panel.
+templ LandingPage() {
+	<!DOCTYPE html>
+	<html lang="en">
+		@pageHead("Morpheus is a server-driven web components UI kit with accessible, themeable primitives for Go and templ applications.")
+		<link rel="stylesheet" href={ href.Asset("min/landing.css") }/>
+		<body class="landing-body">
+			@narrowOverlay()
+			<matrix-rain
+				id="lf-rain"
+				aria-hidden="true"
+				font-size="18"
+				column-gap="2"
+				density="1"
+				fps="30"
+				speed-min="2"
+				speed-max="3"
+				trail-min="2"
+				trail-max="8"
+				fade-opacity="0.075"
+				glow="11"
+				mutate-rate="0.045"
+				max-fall-ratio=".4"
+				fall-variance=".5"
+			></matrix-rain>
+			@matrixRainThemeBridge()
+			<div class="main-viewport">
+				<main class="landing-main">
+					{ children... }
+				</main>
+			</div>
+			<neo-toaster id="lf-toaster" position="bottom-right"></neo-toaster>
+			<script type="module" defer src={ href.Asset("min/landing.js") }></script>
+			<script type="module" defer src={ href.Asset("min/site_codemirror_loader.js") }></script>
+		</body>
+	</html>
+}
+
+// narrowOverlay is the "widen your screen" guard. CSS-only so it
+// works pre-hydration and on no-JS readers.
+templ narrowOverlay() {
+	<div class="narrow-overlay" role="alertdialog" aria-labelledby="narrow-overlay-title" aria-describedby="narrow-overlay-desc">
+		<div class="narrow-overlay-card">
+			<h2 id="narrow-overlay-title">A wider screen, please</h2>
+			<p id="narrow-overlay-desc">
+				This page features interactive demos and side-by-side code samples that need at least 340 pixels of horizontal space. Please widen your browser window, or rotate your device, to continue.
+			</p>
+		</div>
+	</div>
+}
+
+templ Page(currentPath, title, morpheusVersion string) {
+	<!DOCTYPE html>
+	<html lang="en">
+		@pageHead("Documentation and live examples for the Morpheus " + title + " web component.")
+		<body>
+			<a class="skip-link" href="#app-main">Skip to main content</a>
+			@narrowOverlay()
+			<div class="app-shell" data-signals="{_settings_open: false}">
+				<neo-sidebar id="app-sidebar">
+					<header data-neo-sidebar-header>
+						<neo-layout class="app-brand-row" align-items="baseline">
+							<a href={ href.PageIndex() } class="app-brand">Morpheus</a>
+							<small class="app-brand-version">{ morpheusVersion }</small>
+						</neo-layout>
+					</header>
+					<nav id="app-sidebar-nav" data-neo-sidebar-content aria-label="Site">
+						@siteCommandPalette()
+						<h3 class="app-nav-section">
+							<neo-icon name="book-open"></neo-icon>
+							Sections
+						</h3>
+						<neo-navgroup
+							orientation="vertical"
+							wrap
+							typeahead
+							class="app-nav-group"
+						>
+							for _, link := range SectionLinks {
+								if link.Path == currentPath {
+									@neo.LinkAttrs(neo.LinkOpts{
+										Href:    neo.Set(href.External(link.Path)),
+										Variant: neo.Set(neo.LinkVariantButtonGhost),
+									}, templ.Attributes{
+										"data-neo-navgroup-item": "",
+										"class":                  "app-nav-link app-nav-link-current",
+										"aria-current":           "page",
+									}) {
+										{ link.Label }
+									}
+								} else {
+									@neo.LinkAttrs(neo.LinkOpts{
+										Href:    neo.Set(href.External(link.Path)),
+										Variant: neo.Set(neo.LinkVariantButtonGhost),
+									}, templ.Attributes{
+										"data-neo-navgroup-item": "",
+										"class":                  "app-nav-link",
+									}) {
+										{ link.Label }
+									}
+								}
+							}
+						</neo-navgroup>
+						<h3 class="app-nav-section">
+							<neo-icon name="component"></neo-icon>
+							Components
+						</h3>
+						<neo-navgroup
+							orientation="vertical"
+							wrap
+							typeahead
+							class="app-nav-group"
+						>
+							for _, link := range ComponentLinks {
+								if link.Path == currentPath {
+									@neo.LinkAttrs(neo.LinkOpts{
+										Href:    neo.Set(href.External(link.Path)),
+										Variant: neo.Set(neo.LinkVariantButtonGhost),
+									}, templ.Attributes{
+										"data-neo-navgroup-item": "",
+										"class":                  "app-nav-link app-nav-link-current",
+										"aria-current":           "page",
+									}) {
+										{ link.Label }
+									}
+								} else {
+									@neo.LinkAttrs(neo.LinkOpts{
+										Href:    neo.Set(href.External(link.Path)),
+										Variant: neo.Set(neo.LinkVariantButtonGhost),
+									}, templ.Attributes{
+										"data-neo-navgroup-item": "",
+										"class":                  "app-nav-link",
+									}) {
+										{ link.Label }
+									}
+								}
+							}
+						</neo-navgroup>
+						<h3 class="app-nav-section">
+							<neo-icon name="square-function"></neo-icon>
+							Utility Components
+						</h3>
+						<neo-navgroup
+							orientation="vertical"
+							wrap
+							typeahead
+							class="app-nav-group"
+						>
+							for _, link := range UtilityLinks {
+								if link.Path == currentPath {
+									@neo.LinkAttrs(neo.LinkOpts{
+										Href:    neo.Set(href.External(link.Path)),
+										Variant: neo.Set(neo.LinkVariantButtonGhost),
+									}, templ.Attributes{
+										"data-neo-navgroup-item": "",
+										"class":                  "app-nav-link app-nav-link-current",
+										"aria-current":           "page",
+									}) {
+										{ link.Label }
+									}
+								} else {
+									@neo.LinkAttrs(neo.LinkOpts{
+										Href:    neo.Set(href.External(link.Path)),
+										Variant: neo.Set(neo.LinkVariantButtonGhost),
+									}, templ.Attributes{
+										"data-neo-navgroup-item": "",
+										"class":                  "app-nav-link",
+									}) {
+										{ link.Label }
+									}
+								}
+							}
+						</neo-navgroup>
+						<h3 class="app-nav-section">
+							<neo-icon name="braces"></neo-icon>
+							Data Components
+						</h3>
+						<neo-navgroup
+							orientation="vertical"
+							wrap
+							typeahead
+							class="app-nav-group"
+						>
+							for _, link := range DataLinks {
+								if link.Path == currentPath {
+									@neo.LinkAttrs(neo.LinkOpts{
+										Href:    neo.Set(href.External(link.Path)),
+										Variant: neo.Set(neo.LinkVariantButtonGhost),
+									}, templ.Attributes{
+										"data-neo-navgroup-item": "",
+										"class":                  "app-nav-link app-nav-link-current",
+										"aria-current":           "page",
+									}) {
+										{ link.Label }
+									}
+								} else {
+									@neo.LinkAttrs(neo.LinkOpts{
+										Href:    neo.Set(href.External(link.Path)),
+										Variant: neo.Set(neo.LinkVariantButtonGhost),
+									}, templ.Attributes{
+										"data-neo-navgroup-item": "",
+										"class":                  "app-nav-link",
+									}) {
+										{ link.Label }
+									}
+								}
+							}
+						</neo-navgroup>
+					</nav>
+					<neo-persist
+						for="app-sidebar-nav"
+						key="morpheus-site-nav-scroll"
+						props="scrollTop"
+						on="scroll"
+					></neo-persist>
+					<footer data-neo-sidebar-footer>
+						@neo.Icon("sparkles")
+						<span>{ morpheusVersion }</span>
+						@neo.LinkAttrs(neo.LinkOpts{
+							Href:    neo.Set("https://github.com/romshark/morpheus"),
+							Target:  neo.Set("_blank"),
+							Rel:     neo.Set("noopener"),
+							Variant: neo.Set(neo.LinkVariantButtonGhost),
+						}, templ.Attributes{
+							"class":      "app-brand-github",
+							"aria-label": "GitHub repository",
+							"title":      "GitHub repository",
+						}) {
+							@neo.Icon("github")
+						}
+					</footer>
+				</neo-sidebar>
+				<div class="app-shell-main">
+					<header class="app-bar">
+						<div class="app-bar-inner">
+							<neo-button
+								aria-label="Toggle sidebar"
+								data-on:click="document.getElementById('app-sidebar').toggle()"
+							>
+								@neo.Icon("menu")
+							</neo-button>
+							@neo.BreadcrumbAttrs(
+								pageBreadcrumb(currentPath, title),
+								templ.Attributes{"class": "app-breadcrumb"},
+							)
+							<neo-button
+								aria-label="Toggle settings"
+								aria-controls="app-settings-panel"
+								data-attr:aria-expanded="$_settings_open"
+								data-attr:class="($_sim_unreachable || $_sim_server_error || $_sim_latency_max > 0 || $_sim_delay > 0) ? 'app-settings-warning' : ''"
+								data-on:click="document.getElementById('app-settings-panel').toggle()"
+							>
+								@neo.IconAttrs("settings", templ.Attributes{
+									"data-attr:name": "($_sim_unreachable || $_sim_server_error || $_sim_latency_max > 0 || $_sim_delay > 0) ? 'triangle-alert' : 'settings'",
+								})
+								<span class="app-bar-btn-label">Settings</span>
+							</neo-button>
+							<a
+								class="skip-link"
+								href="#app-settings-panel"
+								data-attr:hidden="!$_settings_open"
+							>Skip to settings panel</a>
+						</div>
+					</header>
+					<div class="main-viewport">
+						<main id="app-main" tabindex="-1">
+							{ children... }
+						</main>
+					</div>
+					<neo-persist
+						for="app-main"
+						key={ "morpheus-wrap-scroll:" + currentPath }
+						props="scrollTop"
+						on="scroll"
+						session
+					></neo-persist>
+				</div>
+				<neo-sidebar
+					id="app-settings-panel"
+					class="app-settings-sidebar"
+					side="right"
+					overlay-breakpoint="70rem"
+					aria-label="Settings"
+					tabindex="-1"
+					data-on:neo-sidebar-open="$_settings_open = true"
+					data-on:neo-sidebar-close="$_settings_open = false"
+				>
+					<header data-neo-sidebar-header>
+						<h2 class="sim-settings-title">
+							Settings
+							<neo-tooltip
+								class="sim-settings-warning"
+								placement="bottom"
+								text=""
+								data-attr:text="$_sim_unreachable ? 'Server unreachable' : $_sim_server_error ? 'Server response: ' + $_sim_server_error : 'Latency simulation on'"
+								data-show="$_sim_unreachable || $_sim_server_error || $_sim_latency_max > 0 || $_sim_delay > 0"
+							>
+								<span
+									role="img"
+									data-attr:aria-label="$_sim_unreachable ? 'Server unreachable' : $_sim_server_error ? 'Server response: ' + $_sim_server_error : 'Latency simulation on'"
+								>
+									@neo.Icon("triangle-alert")
+								</span>
+							</neo-tooltip>
+						</h2>
+						<neo-button
+							data-neo-sidebar-close
+							aria-label="Close settings"
+						>
+							@neo.Icon("x")
+						</neo-button>
+					</header>
+					<div data-neo-sidebar-content>
+						<section class="app-settings-section">
+							<h3>Theme</h3>
+							@siteTheme()
+						</section>
+						<section class="app-settings-section">
+							<h3>Accessibility</h3>
+							@siteA11yPrefs()
+						</section>
+						<section class="app-settings-section">
+							<h3>Playgrounds</h3>
+							@sitePlaygroundPrefs()
+						</section>
+						@datastarSimulatorSettings()
+					</div>
+				</neo-sidebar>
+				<neo-toaster
+					id="app-toaster"
+					position="bottom-right"
+				></neo-toaster>
+			</div>
+			<script type="module" src={ href.Asset("min/site_docs.js") }></script>
+		</body>
+	</html>
+}
+
+// siteCommandPalette is the site-wide ⌘K page jumper. The element (with
+// the dialog) is mounted once in the always-visible app bar, never
+// siteCommandPalette is the site-wide ⌘K page jumper, mounted once in
+// the sidebar above the Sections heading. The full-width trigger is the
+// search button; it shows only while the sidebar is in-flow (desktop /
+// large tablets), so it never appears in the app bar or on phones. The
+// dialog rides along in the sidebar; fine because it only ever opens
+// while the sidebar is visible; ⌘K is guarded for the collapsed case.
+// Rows are baked from the nav link lists at render time; the controller
+// adds fuzzy filtering, ranking, and keyboard navigation. <neo-dialog>
+// supplies the modal lifecycle (top layer, focus trap, scroll lock,
+// Escape-to-close).
+templ siteCommandPalette() {
+	<site-command-palette>
+		<neo-dialog aria-label="Search pages">
+			<neo-button
+				data-neo-dialog-trigger
+				class="site-cmdk-trigger"
+				aria-label="Search pages"
+			>
+				@siteCommandPaletteTriggerContent()
+			</neo-button>
+			<dialog id="site-cmdk-dialog" class="site-cmdk-dialog" aria-label="Search pages">
+				<header data-neo-dialog-header class="site-cmdk-header">
+					@neo.IconAttrs("search", templ.Attributes{
+						"class":           "site-cmdk-search-icon",
+						"neo-flex-shrink": "0",
+					})
+					<input
+						type="text"
+						class="site-cmdk-input"
+						placeholder="Search pages…"
+						aria-label="Search pages"
+						role="combobox"
+						aria-expanded="true"
+						aria-controls="site-cmdk-list"
+						aria-autocomplete="list"
+						autocomplete="off"
+						autocapitalize="off"
+						spellcheck="false"
+						data-site-cmdk-input
+						neo-flex-grow="1"
+						neo-min-width="0"
+					/>
+				</header>
+				// neo-elastic animates the dialog height as rows filter in
+				// and out; the inner list keeps its own scroll past the cap.
+				<neo-elastic>
+					<div
+						id="site-cmdk-list"
+						class="site-cmdk-list"
+						role="listbox"
+						aria-label="Pages"
+						data-site-cmdk-list
+						tabindex="-1"
+					>
+						for i, row := range commandPaletteRows() {
+							@siteCommandPaletteRow(i, row)
+						}
+						<p class="site-cmdk-empty" data-site-cmdk-empty hidden>No pages match your search.</p>
+					</div>
+				</neo-elastic>
+			</dialog>
+		</neo-dialog>
+	</site-command-palette>
+}
+
+// siteCommandPaletteTriggerContent is the trigger's inner markup: search
+// icon, a flex-growing label that pushes the shortcut hint to the
+// trailing edge, and the <neo-kbd> hint (platform-correct glyph, auto-
+// hidden on touch).
+templ siteCommandPaletteTriggerContent() {
+	@neo.IconAttrs("search", templ.Attributes{"neo-flex-shrink": "0"})
+	<span neo-flex-grow="1">Search…</span>
+	@neo.KbdGroupAttrs(templ.Attributes{"neo-flex-shrink": "0"}) {
+		@neo.Kbd(neo.KbdOpts{Key: neo.Set("mod")})
+		@neo.Kbd(neo.KbdOpts{Key: neo.Set("k")})
+	}
+}
+
+// siteCommandPaletteRow is one baked result: a real navigation anchor
+// (works without JS) carrying the searchable label in data-label and a
+// muted section tag. The id feeds aria-activedescendant.
+templ siteCommandPaletteRow(i int, row cmdkRow) {
+	<a
+		id={ "site-cmdk-row-" + strconv.Itoa(i) }
+		href={ templ.SafeURL(row.Path) }
+		class="site-cmdk-row"
+		role="option"
+		tabindex="-1"
+		aria-selected="false"
+		data-site-cmdk-row
+		data-label={ row.Label }
+	>
+		<span class="site-cmdk-row-label" data-site-cmdk-label neo-truncate>{ row.Label }</span>
+		<span class="site-cmdk-row-group" neo-flex-shrink="0">{ row.Group }</span>
+	</a>
+}
+
+// PageDoc wraps Page with docs-specific frame so a single edit
+// ripples to every doc page. Non-doc shells (LandingPage, …) keep
+// using Page directly.
+templ PageDoc(currentPath, title, morpheusVersion string) {
+	@Page(currentPath, title, morpheusVersion) {
+		{ children... }
+	}
+}
+
+// simDelayHint is the callout placed above any async/lazy demo: the
+// loading state is only observable when the in-browser simulator is
+// given network latency or a handler delay.
+templ simDelayHint() {
+	@neo.AlertAttrs(neo.AlertOpts{Variant: neo.Set(neo.AlertVariantInfo)}, templ.Attributes{"class": "demo-callout"}) {
+		@neo.AlertIcon() {
+			@neo.Icon("info")
+		}
+		@neo.AlertContent() {
+			@neo.AlertDescription() {
+				Loading states only show with simulated delay. Raise
+				network latency or handler delay in the Settings panel.
+			}
+		}
+	}
+}
+
+// anchoredH2 is an `<h2>` with a hover/focus-revealed deep link.
+// The id doubles as the URL fragment, so callers should pass a stable
+// kebab-case slug (e.g. "ai-use", not a renumbered counter).
+templ anchoredH2(id string) {
+	<h2 id={ id } class="anchor-h2">
+		{ children... }
+		<a
+			href={ templ.SafeURL("#" + id) }
+			class="anchor-h2-link"
+			aria-label="Permalink to this section"
+		>#</a>
+	</h2>
+}
+
+// anchoredH3 is the h3 sibling of anchoredH2, same hover-revealed
+// deep link, smaller heading. Used for per-example sub-headings on
+// component doc pages.
+templ anchoredH3(id string) {
+	<h3 id={ id } class="anchor-h3">
+		{ children... }
+		<a
+			href={ templ.SafeURL("#" + id) }
+			class="anchor-h3-link"
+			aria-label="Permalink to this section"
+		>#</a>
+	</h3>
+}
+
+// themeBootstrap is the pre-paint script injected before any
+// stylesheet evaluates, so the first frame already uses the user's
+// saved palette (no FOUC). Mode "system" follows
+// `prefers-color-scheme` via matchMedia and re-resolves on OS flips;
+// "light"/"dark" are never overridden. `window.neoTheme.apply` is
+// the single class-flip site so siteTheme's data-effect funnels
+// through it.
+templ themeBootstrap() {
+	<script>
+		(function () {
+			var html = document.documentElement;
+			var mq = window.matchMedia
+				? window.matchMedia("(prefers-color-scheme: dark)")
+				: null;
+
+			function read() {
+				try {
+					return {
+						theme: localStorage.getItem("neo-theme") || "default",
+						mode: localStorage.getItem("neo-mode") || "system",
+					};
+				} catch (_) {
+					return { theme: "default", mode: "system" };
+				}
+			}
+
+			function resolve(mode) {
+				if (mode === "light" || mode === "dark") return mode;
+				return mq && mq.matches ? "dark" : "light";
+			}
+
+			function apply(theme, mode) {
+				var cls = html.classList;
+				for (var i = cls.length - 1; i >= 0; i--) {
+					var c = cls[i];
+					if (c.indexOf("theme-") === 0) cls.remove(c);
+				}
+				if (theme && theme !== "default") cls.add("theme-" + theme);
+				var eff = resolve(mode);
+				cls.toggle("dark", eff === "dark");
+				cls.toggle("light", eff === "light");
+				html.dispatchEvent(new CustomEvent("neo-theme-change", {
+					bubbles: true,
+					detail: { theme: theme, mode: mode, effectiveMode: eff },
+				}));
+			}
+
+			var initial = read();
+			apply(initial.theme, initial.mode);
+
+			if (mq) {
+				var onChange = function () {
+					var s = read();
+					if (s.mode === "system") apply(s.theme, s.mode);
+				};
+				if (mq.addEventListener) mq.addEventListener("change", onChange);
+				else if (mq.addListener) mq.addListener(onChange);
+			}
+
+			window.neoTheme = { apply: apply, saved: read };
+		})();
+	</script>
+}
+
+// a11yBootstrap is the pre-paint sibling of themeBootstrap for
+// reduced-motion / higher-contrast prefs, so the kit's
+// `:root[data-pref-*]` simulation hooks take effect on first paint
+// (no FOUC of animated frame before the saved pref applies).
+templ a11yBootstrap() {
+	<script>
+		(function () {
+			var html = document.documentElement;
+			function read() {
+				var motion = false, contrast = false;
+				try {
+					motion = localStorage.getItem("neo-a11y-motion") === "1";
+					contrast = localStorage.getItem("neo-a11y-contrast") === "1";
+				} catch (_) {}
+				return { motion: motion, contrast: contrast };
+			}
+			var saved = read();
+			html.toggleAttribute("data-pref-reduced-motion", saved.motion);
+			html.toggleAttribute("data-pref-contrast-more", saved.contrast);
+			window.neoA11y = { saved: read };
+		})();
+	</script>
+}
+
+// siteTheme is the doc site's theme picker. The pre-paint script
+// handles OS-driven changes via matchMedia; this data-effect handles
+// user-driven ones; both funnel through `window.neoTheme.apply` so
+// the `neo-theme-change` event (used by <neo-icon> to reload the
+// sprite when themes swap icon sets) fires from one place. Lives in
+// site.templ rather than the kit because the kit ships theming
+// primitives, not a picker; apps wire their own UI.
+templ siteTheme() {
+	<div
+		class="site-theme"
+		data-signals="{
+			_theme: window.neoTheme.saved().theme,
+			_mode: window.neoTheme.saved().mode
+		}"
+		data-effect="
+			window.neoTheme.apply($_theme, $_mode);
+			try { localStorage.setItem('neo-theme', $_theme); localStorage.setItem('neo-mode', $_mode); } catch (_) {}
+		"
+	>
+		@neo.SelectAttrs(neo.SelectOpts{AriaLabel: neo.Set("Theme")}, templ.Attributes{
+			"data-attr:value":           "$_theme",
+			"data-on:neo-select-change": "$_theme = evt.detail.value",
+		}) {
+			@neo.Option(neo.OptionOpts{Value: neo.Set("default")}) {
+				Default
+			}
+			@neo.Option(neo.OptionOpts{Value: neo.Set("sunshine")}) {
+				Sunshine
+			}
+			@neo.Option(neo.OptionOpts{Value: neo.Set("ocean")}) {
+				Ocean
+			}
+			@neo.Option(neo.OptionOpts{Value: neo.Set("matrix")}) {
+				Matrix
+			}
+			@neo.Option(neo.OptionOpts{Value: neo.Set("rose")}) {
+				Rose
+			}
+		}
+		@neo.ButtonGroupAttrs(neo.ButtonGroupOpts{
+			Value: neo.Set("system"), AriaLabel: neo.Set("Color mode"),
+		}, templ.Attributes{
+			"data-attr:value":                "$_mode",
+			"data-on:neo-buttongroup-change": "$_mode = evt.detail.value",
+		}) {
+			<neo-button value="light" aria-label="Light">☀</neo-button>
+			<neo-button value="system" aria-label="System">◐</neo-button>
+			<neo-button value="dark" aria-label="Dark">☾</neo-button>
+		}
+	</div>
+}
+
+// siteA11yPrefs mirrors its signals onto `data-pref-reduced-motion`
+// / `data-pref-contrast-more`, hitting the same code path the kit
+// uses for the real `prefers-reduced-motion` / `prefers-contrast`
+// media queries; just an additional trigger.
+templ siteA11yPrefs() {
+	<div
+		class="site-a11y-prefs"
+		data-signals="{
+			_a11y_motion: window.neoA11y.saved().motion,
+			_a11y_contrast: window.neoA11y.saved().contrast
+		}"
+		data-effect="
+			document.documentElement.toggleAttribute('data-pref-reduced-motion', $_a11y_motion);
+			document.documentElement.toggleAttribute('data-pref-contrast-more', $_a11y_contrast);
+			try {
+				localStorage.setItem('neo-a11y-motion', $_a11y_motion ? '1' : '0');
+				localStorage.setItem('neo-a11y-contrast', $_a11y_contrast ? '1' : '0');
+			} catch (_) {}
+		"
+	>
+		<label class="site-a11y-row">
+			@neo.SwitchAttrs(neo.SwitchOpts{Size: neo.Set("sm"), AriaLabel: neo.Set("Reduced motion")}, templ.Attributes{
+				"data-attr:checked":         "$_a11y_motion",
+				"data-on:neo-switch-change": "$_a11y_motion = evt.detail.checked",
+			})
+			<span>Reduced motion</span>
+		</label>
+		<label class="site-a11y-row">
+			@neo.SwitchAttrs(neo.SwitchOpts{Size: neo.Set("sm"), AriaLabel: neo.Set("High contrast")}, templ.Attributes{
+				"data-attr:checked":         "$_a11y_contrast",
+				"data-on:neo-switch-change": "$_a11y_contrast = evt.detail.checked",
+			})
+			<span>High contrast</span>
+		</label>
+	</div>
+}
+
+// sitePlaygroundPrefs tunes component-doc playgrounds. The autoplay
+// duration is published on window and broadcast via a custom event so
+// every <site-playground> re-arms its running timer; the value persists
+// in localStorage. The seed reads the same key, falling back to 3400ms.
+templ sitePlaygroundPrefs() {
+	<div
+		class="site-playground-prefs"
+		data-signals="{
+			_playground_autoplay_ms: (Number(localStorage.getItem('morpheus-playground-autoplay-ms')) || 3400)
+		}"
+		data-effect="
+			window.morpheusPlaygroundAutoplayMs = $_playground_autoplay_ms;
+			document.dispatchEvent(new CustomEvent('morpheus-playground-config'));
+			try {
+				localStorage.setItem('morpheus-playground-autoplay-ms', String($_playground_autoplay_ms));
+			} catch (_) {}
+		"
+	>
+		<label class="site-playground-prefs-row">
+			<span>Autoplay duration</span>
+			@neo.InputGroupAttrs(templ.Attributes{
+				"class": "site-playground-autoplay-field",
+			}) {
+				@neo.TextInputAttrs(neo.TextInputOpts{
+					NumericOnly: neo.Set(true),
+					Inputmode:   neo.Set(neo.TextInputInputmodeNumeric),
+				}, templ.Attributes{
+					"class":                        "site-playground-autoplay-input",
+					"aria-label":                   "Autoplay duration in milliseconds",
+					"data-attr:value":              "$_playground_autoplay_ms",
+					"data-on:neo-textinput-change": "$_playground_autoplay_ms = Number(evt.detail.value) || 3400",
+				})
+				<span>ms</span>
+			}
+		</label>
+	</div>
+}
+
+// datastarSimulatorSettings exposes internal/cmd/gen/datasim.js on window so
+// Datastar expressions in the settings panel can tune latency and
+// failure modes for every simulated demo.
+templ datastarSimulatorSettings() {
+	<script type="module">
+		import sim from "/static/datasim.js";
+
+		window.sim = sim;
+		window.NeoSim = {
+			apply(opts) {
+				const latencyMin = Math.max(0, Number(opts.latencyMin) || 0);
+				const latencyMax = Math.max(latencyMin, Number(opts.latencyMax) || 0);
+				// 0/0 means "no latency"; datasim's awaitLatency
+				// already short-circuits when latencyMax <= 0, so
+				// we don't need an extra on/off flag.
+				sim.setLatency(latencyMin, latencyMax);
+				sim.setHandlerDelay(Math.max(0, Number(opts.handlerDelay) || 0));
+				sim.setUnreachable(!!opts.unreachable);
+				// Pass the value through unchanged: setErrorResponse
+				// accepts "" / "off" / 0 (disabled) and any HTTP code
+				// >= 400 either as a number or a numeric string.
+				sim.setErrorResponse(opts.serverError);
+				sim.setAccessLog(!!opts.accessLog);
+			},
+		};
+		// Drain a pending apply if Datastar's `data-effect` ran
+		// before this module evaluated (cached-reload path:
+		// Datastar loads from disk fast and runs first; the effect
+		// parks its opts on `window.__pendingNeoSim` so we can
+		// honour the initial slider values once we're loaded).
+		if (window.__pendingNeoSim) {
+			window.NeoSim.apply(window.__pendingNeoSim);
+			delete window.__pendingNeoSim;
+		}
+	</script>
+	<section
+		class="app-settings-section sim-settings"
+		data-signals="{
+			_sim_latency_min: 0,
+			_sim_latency_max: 0,
+			_sim_delay: 0,
+			_sim_unreachable: false,
+			_sim_server_error: '',
+			_sim_access_log: false
+		}"
+		data-effect="
+			const _opts = {
+				latencyMin: $_sim_latency_min,
+				latencyMax: $_sim_latency_max,
+				handlerDelay: $_sim_delay,
+				unreachable: $_sim_unreachable,
+				serverError: $_sim_server_error,
+				accessLog: $_sim_access_log
+			};
+			if (window.NeoSim) window.NeoSim.apply(_opts);
+			else window.__pendingNeoSim = _opts;
+		"
+	>
+		<h3>Server Simulator</h3>
+		<div class="sim-settings-body">
+			<section class="sim-settings-section">
+				<div class="sim-settings-fields">
+					@neo.SliderRangeAttrs(neo.SliderRangeOpts[float64]{
+						Min:      neo.Set(0.0),
+						Max:      neo.Set(2000.0),
+						Step:     neo.Set(10.0),
+						ValueMin: neo.Set(0.0),
+						ValueMax: neo.Set(0.0),
+						Label:    neo.Set("network latency"), Unit: neo.Set("ms"),
+						HideTooltip: neo.Set(true),
+					}, templ.Attributes{
+						"class":                           "sim-settings-slider",
+						"data-attr:value-min":             "$_sim_latency_min",
+						"data-attr:value-max":             "$_sim_latency_max",
+						"data-on:neo-slider-range-input":  "$_sim_latency_min = Number(evt.detail.min); $_sim_latency_max = Number(evt.detail.max)",
+						"data-on:neo-slider-range-change": "$_sim_latency_min = Number(evt.detail.min); $_sim_latency_max = Number(evt.detail.max)",
+					})
+					@simSlider(simSliderArgs{
+						ID:    "sim-handler-delay-slider",
+						Label: "handler delay", Unit: "ms",
+						Min: 0, Max: 2000, Step: 10, Value: 0,
+						Signal: "_sim_delay",
+					})
+					@simToggle("server unreachable", "_sim_unreachable")
+					<label class="sim-settings-stack">
+						<span>server response status</span>
+						@neo.ComboboxAttrs(neo.ComboboxOpts{
+							Value:             neo.Set("200"),
+							Placeholder:       neo.Set("200 OK"),
+							SearchPlaceholder: neo.Set("Search status…"),
+							AriaLabel:         neo.Set("server response status"),
+						}, templ.Attributes{
+							"data-attr:value":             "$_sim_server_error || '200'",
+							"data-attr:disabled":          "$_sim_unreachable",
+							"data-on:neo-combobox-change": "$_sim_server_error = evt.detail.value === '200' ? '' : evt.detail.value",
+						}) {
+							@httpStatusOptions()
+						}
+					</label>
+					@simToggle(
+						"access log (browser console)", "_sim_access_log",
+					)
+				</div>
+			</section>
+		</div>
+	</section>
+}
+
+// serverErrorControls duplicates the simulator's "server unreachable"
+// switch and "server response status" combobox alongside a demo whose
+// failure path the reader is supposed to exercise. Bound to the same
+// global signals as the sidebar copy, so flipping either control
+// updates both rows in sync.
+templ serverErrorControls() {
+	<neo-layout class="server-error-controls" wrap align-items="center">
+		<label class="server-error-control">
+			<span>server unreachable</span>
+			@neo.SwitchAttrs(neo.SwitchOpts{
+				Size:      neo.Set("lg"),
+				AriaLabel: neo.Set("server unreachable"),
+			}, templ.Attributes{
+				"data-attr:checked":         "$_sim_unreachable",
+				"data-on:neo-switch-change": "$_sim_unreachable = evt.detail.checked",
+			})
+		</label>
+		<label class="server-error-control">
+			<span>server response status</span>
+			@neo.ComboboxAttrs(neo.ComboboxOpts{
+				Value:             neo.Set("200"),
+				Placeholder:       neo.Set("200 OK"),
+				SearchPlaceholder: neo.Set("Search status…"),
+				AriaLabel:         neo.Set("server response status"),
+			}, templ.Attributes{
+				"data-attr:value":             "$_sim_server_error || '200'",
+				"data-attr:disabled":          "$_sim_unreachable",
+				"data-on:neo-combobox-change": "$_sim_server_error = evt.detail.value === '200' ? '' : evt.detail.value",
+			}) {
+				@httpStatusOptions()
+			}
+		</label>
+	</neo-layout>
+}
+
+// httpStatusOptions renders the full grouped option set used by the
+// "server response status" combobox in both the sidebar simulator
+// panel and the inline serverErrorControls strip above demos.
+templ httpStatusOptions() {
+	@neo.OptGroup(neo.OptGroupOpts{Label: neo.Set("2xx Success")}) {
+		@httpStatusOption("200", "OK")
+		@httpStatusOption("201", "Created")
+		@httpStatusOption("202", "Accepted")
+		@httpStatusOption("204", "No Content")
+		@httpStatusOption("206", "Partial Content")
+	}
+	@neo.OptGroup(neo.OptGroupOpts{Label: neo.Set("3xx Redirection")}) {
+		@httpStatusOption("301", "Moved Permanently")
+		@httpStatusOption("302", "Found")
+		@httpStatusOption("304", "Not Modified")
+		@httpStatusOption("307", "Temporary Redirect")
+		@httpStatusOption("308", "Permanent Redirect")
+	}
+	@neo.OptGroup(neo.OptGroupOpts{Label: neo.Set("4xx Client Error")}) {
+		@httpStatusOption("400", "Bad Request")
+		@httpStatusOption("401", "Unauthorized")
+		@httpStatusOption("403", "Forbidden")
+		@httpStatusOption("404", "Not Found")
+		@httpStatusOption("405", "Method Not Allowed")
+		@httpStatusOption("408", "Request Timeout")
+		@httpStatusOption("409", "Conflict")
+		@httpStatusOption("410", "Gone")
+		@httpStatusOption("418", "I'm a teapot")
+		@httpStatusOption("422", "Unprocessable Entity")
+		@httpStatusOption("425", "Too Early")
+		@httpStatusOption("429", "Too Many Requests")
+	}
+	@neo.OptGroup(neo.OptGroupOpts{Label: neo.Set("5xx Server Error")}) {
+		@httpStatusOption("500", "Internal Server Error")
+		@httpStatusOption("501", "Not Implemented")
+		@httpStatusOption("502", "Bad Gateway")
+		@httpStatusOption("503", "Service Unavailable")
+		@httpStatusOption("504", "Gateway Timeout")
+		@httpStatusOption("507", "Insufficient Storage")
+		@httpStatusOption("511", "Network Authentication Required")
+	}
+}
+
+// httpStatusOption uses a flat `<code> Reason` Label so the closed
+// combobox stays compact while the open option body shows
+// bold-code + reason.
+templ httpStatusOption(code, reason string) {
+	@neo.Option(neo.OptionOpts{Value: neo.Set(code), Label: neo.Set(code + " " + reason)}) {
+		<strong>{ code }</strong>
+		{ " " + reason }
+	}
+}
+
+// simToggle's signal arg is bare (no leading $; the templ adds it).
+templ simToggle(label, signal string) {
+	<label class="sim-settings-toggle">
+		@neo.SwitchAttrs(neo.SwitchOpts{
+			Size:      neo.Set("sm"),
+			AriaLabel: neo.Set(label),
+		}, templ.Attributes{
+			"data-attr:checked":         "$" + signal,
+			"data-on:neo-switch-change": "$" + signal + " = evt.detail.checked",
+		})
+		<span>{ label }</span>
+	</label>
+}
+
+// simSliderArgs.DisabledExpr is the JS expression bound to
+// data-attr:disabled (e.g. retry knobs that grey out when retries
+// are off).
+type simSliderArgs struct {
+	ID                    string
+	Label, Unit           string
+	Min, Max, Step, Value float64
+	Signal, DisabledExpr  string
+}
+
+templ simSlider(a simSliderArgs) {
+	@neo.SliderAttrs(neo.SliderOpts[float64]{
+		Min:         neo.Set(a.Min),
+		Max:         neo.Set(a.Max),
+		Step:        neo.Set(a.Step),
+		Value:       neo.Set(a.Value),
+		Label:       neo.Set(a.Label),
+		Unit:        neo.Set(a.Unit),
+		HideTooltip: neo.Set(true),
+	}, simSliderAttrs(a))
+}
+
+// assigneeOptions's root id must equal `<host-id>-options` so
+// Datastar's default morph finds and updates the existing navgroup
+// in place; the component's MutationObserver wires each newly-
+// inserted <neo-option>.
+templ assigneeOptions(optionsID string, items []Assignee) {
+	<neo-datalist id={ optionsID }>
+		for _, a := range items {
+			<neo-option value={ a.ID }>{ a.Name }</neo-option>
+		}
+	</neo-datalist>
+}
+
+// popoverLazyContent's root id must equal `<host-id>-body` so
+// Datastar's default morph replaces the placeholder in place.
+templ popoverLazyContent(id string) {
+	<div id={ id + "-body" } class="popover-lazy-body popover-lazy-loaded">
+		<h3>Recent activity</h3>
+		<ul class="popover-lazy-list">
+			for i, m := range members {
+				if i < 4 {
+					<li>
+						<img
+							class="person-avatar"
+							src={ href.Asset(m.Avatar) }
+							alt=""
+							aria-hidden="true"
+						/>
+						<div class="popover-lazy-text">
+							<div class="popover-lazy-name">{ m.Name }</div>
+							<div class="popover-lazy-meta">
+								{ m.Title }
+							</div>
+						</div>
+					</li>
+				}
+			}
+		</ul>
+	</div>
+}
+
+// boundary wraps preview content in a <neo-boundary> so overlays inside
+// treat the region as their local document and viewport. The default scope
+// (dismiss + positioning) renders no attribute; a non-zero BoundaryScopes
+// emits an explicit scope="…" token list. See the Boundary page.
+templ boundary(scopes BoundaryScopes) {
+	<neo-boundary { scopes.attrs()... }>
+		{ children... }
+	</neo-boundary>
+}
+
+// demoFrameWith renders a resizable preview canvas. Dragging the
+// stage smaller leaves the wrapper's dot-grid background visible in
+// the slack, so the dots feel attached to the frame rather than the
+// resized component.
+templ demoFrameWith(opts DemoFrameOpts) {
+	// tabindex="-1": clicks on the slack dot-grid (exposed by dragging
+	// the stage smaller) land here, not page-level #app-main, so Tab
+	// enters the demo. See stageAttrs.
+	<div class="demo-frame" tabindex="-1">
+		@boundary(opts.Boundary) {
+			@neo.ResizableAttrs(neo.ResizableOpts[float64]{Handles: neo.Set(opts.handles())}, opts.stageAttributes()) {
+				// Example styling lives in a sibling .css file (the CSS tab
+				// source). Inject it scoped so @scope roots at this stage,
+				// matching how the playground applies a state's CSS.
+				if opts.CSSSource != "" {
+					@templ.Raw(scopedStyleTag(opts.CSSSource))
+				}
+				{ children... }
+			}
+		}
+		if opts.HTMLSource != "" ||
+			opts.TemplSource != "" ||
+			opts.CSSSource != "" ||
+			opts.TSXSource != "" ||
+			opts.TypeScriptSource != "" ||
+			opts.ScriptSource != "" {
+			@demoTabsFooter(opts)
+		}
+	</div>
+}
+
+// demoTabsFooter only renders tabs whose source is non-empty. The
+// resizable + scroll-body split keeps the bottom drag handle pinned
+// regardless of which tab is active.
+templ demoTabsFooter(opts DemoFrameOpts) {
+	<div class="demo-frame-footer demo-frame-footer-tabbed">
+		@neo.ResizableAttrs(neo.ResizableOpts[float64]{
+			Handles:   neo.Set(neo.ResizableBottom),
+			MinHeight: neo.Set("8rem"),
+			// `max-content` rather than a hardcoded length: the cap
+			// becomes the active tabpanel's natural height. Drag up
+			// stops once everything's visible (no overshoot into
+			// empty space below the codemirror); drag past content
+			// is impossible. CodeMirror's own scroll is the fallback
+			// when the user shrinks below content. When the Hide tab
+			// is active its panel is empty, so max-content collapses
+			// to ~the tablist height, combined with the
+			// `:has(neo-tab[value="hide"]…)` rule in style.css that
+			// drops `min-height` for that case, the footer shrinks
+			// to just the tab strip.
+			MaxHeight: neo.Set("max-content"),
+		}, templ.Attributes{"class": "demo-frame-footer-resize"}) {
+			@neo.TabsAttrs(neo.TabsOpts{
+				Value: neo.Set(demoTabsActive(opts)),
+			}, templ.Attributes{
+				"class": "demo-frame-footer-tabs",
+			}) {
+				<neo-tablist aria-label="Demo details">
+					@neo.Tab("hide", demoTabsActive(opts)) {
+						Hide
+					}
+					if opts.HTMLSource != "" {
+						@neo.Tab("html", demoTabsActive(opts)) {
+							HTML
+						}
+					}
+					if opts.TemplSource != "" {
+						@neo.Tab("templ", demoTabsActive(opts)) {
+							Templ
+						}
+					}
+					if opts.CSSSource != "" {
+						@neo.Tab("css", demoTabsActive(opts)) {
+							CSS
+						}
+					}
+					if opts.TSXSource != "" {
+						@neo.Tab("tsx", demoTabsActive(opts)) {
+							TSX
+						}
+					}
+					if opts.TypeScriptSource != "" {
+						@neo.Tab("typescript", demoTabsActive(opts)) {
+							TypeScript
+						}
+					}
+					if opts.ScriptSource != "" {
+						@neo.Tab("script", demoTabsActive(opts)) {
+							Server script
+						}
+					}
+				</neo-tablist>
+				@neo.TabPanel("hide", demoTabsActive(opts)) {
+					// Intentionally empty. With max-height: max-content
+					// on the resizable, an empty panel collapses the
+					// footer to the tablist's height (see the
+					// `:has(...)` min-height override in style.css).
+				}
+				if opts.HTMLSource != "" {
+					@neo.TabPanel("html", demoTabsActive(opts)) {
+						<div class="demo-frame-footer-body demo-frame-footer-code">
+							@sourceCodeEditor("html", opts.HTMLSource)
+						</div>
+					}
+				}
+				if opts.TemplSource != "" {
+					@neo.TabPanel("templ", demoTabsActive(opts)) {
+						<div class="demo-frame-footer-body demo-frame-footer-code">
+							@sourceCodeEditor("templ", opts.TemplSource)
+						</div>
+					}
+				}
+				if opts.CSSSource != "" {
+					@neo.TabPanel("css", demoTabsActive(opts)) {
+						<div class="demo-frame-footer-body demo-frame-footer-code">
+							@sourceCodeEditor("css", opts.CSSSource)
+						</div>
+					}
+				}
+				if opts.TSXSource != "" {
+					@neo.TabPanel("tsx", demoTabsActive(opts)) {
+						<div class="demo-frame-footer-body demo-frame-footer-code">
+							@sourceCodeEditor("tsx", opts.TSXSource)
+						</div>
+					}
+				}
+				if opts.TypeScriptSource != "" {
+					@neo.TabPanel("typescript", demoTabsActive(opts)) {
+						<div class="demo-frame-footer-body demo-frame-footer-code">
+							@sourceCodeEditor("typescript", opts.TypeScriptSource)
+						</div>
+					}
+				}
+				if opts.ScriptSource != "" {
+					@neo.TabPanel("script", demoTabsActive(opts)) {
+						<div class="demo-frame-footer-body demo-frame-footer-code">
+							@sourceCodeEditor("javascript", opts.ScriptSource)
+						</div>
+					}
+				}
+			}
+		}
+	</div>
+}
+
+templ sourceCodeEditor(language, source string) {
+	<site-codemirror language={ language } readonly lazy>
+		<template>{ source }</template>
+		<pre class="site-codemirror-fallback" aria-hidden="true">{ source }</pre>
+		<div class="site-codemirror-loading" aria-hidden="true">
+			<div class="site-codemirror-loading-chip">
+				<neo-spinner></neo-spinner>
+			</div>
+		</div>
+	</site-codemirror>
+}
+
+templ personCard(title, description, initials, color string) {
+	<neo-layout class="person-card" align-items="center">
+		<div class="person-text">
+			<div class="person-title">{ title }</div>
+			<div class="person-desc">{ description }</div>
+		</div>
+		<svg class="person-avatar" viewBox="0 0 40 40" aria-hidden="true">
+			<circle cx="20" cy="20" r="20" fill={ color }></circle>
+			<text
+				x="20"
+				y="26"
+				text-anchor="middle"
+				font-family="ui-sans-serif, system-ui, sans-serif"
+				font-size="15"
+				font-weight="700"
+				fill="#1c1810"
+			>{ initials }</text>
+		</svg>
+	</neo-layout>
+}

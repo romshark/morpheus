@@ -1,0 +1,151 @@
+/* -----------------------------------------------------------------------
+ * <neo-rating>
+ * -----------------------------------------------------------------------
+ * Stacked-layer symbols: empty (track), preview (hollow candidate),
+ * and full (committed value). Layer widths are clipped per symbol;
+ * overflow:hidden clips the fixed-size inner svg, so a partial value
+ * shows an exact left fraction of the icon. The host carries the
+ * slider semantics (the symbol row is aria-hidden), so the focus
+ * ring goes on the row. */
+
+:root {
+	--neo-rating-symbol-size: 1.5rem;
+	--neo-rating-symbol-gap: 0.15rem;
+	--neo-rating-color: #f59e0b;
+	--neo-rating-preview-color: var(--neo-rating-color);
+	--neo-rating-empty-color: var(--btn-border);
+	--neo-rating-transition-duration: calc(120ms * var(--neo-duration-scale, 1));
+}
+
+neo-rating {
+	display: inline-flex;
+	vertical-align: middle;
+	outline: none;
+	cursor: pointer;
+	/* Allow pointer drag across the symbols without the page scrolling. */
+	touch-action: none;
+	-webkit-user-select: none;
+	user-select: none;
+}
+
+neo-rating > [data-neo-rating-symbols] {
+	display: inline-flex;
+	gap: var(--neo-rating-symbol-gap);
+	border-radius: var(--page-radius, 0.25rem);
+}
+
+neo-rating [data-neo-rating-symbol] {
+	position: relative;
+	display: inline-flex;
+	width: var(--neo-rating-symbol-size);
+	height: var(--neo-rating-symbol-size);
+	line-height: 0;
+}
+
+neo-rating [data-neo-rating-empty],
+neo-rating [data-neo-rating-preview],
+neo-rating [data-neo-rating-full] {
+	position: absolute;
+	inset: 0;
+	display: inline-flex;
+	overflow: hidden;
+}
+
+neo-rating [data-neo-rating-empty] {
+	color: var(--neo-rating-empty-color);
+}
+
+neo-rating [data-neo-rating-full] {
+	width: 0;
+	color: var(--neo-rating-color);
+	transition: width var(--neo-rating-transition-duration) var(--neo-easing, ease);
+}
+
+neo-rating [data-neo-rating-preview] {
+	width: 0;
+	color: var(--neo-rating-preview-color);
+	transition: width var(--neo-rating-transition-duration) var(--neo-easing, ease);
+}
+
+/* The icon svg lives in <neo-icon>'s shadow root, exposed as part="svg";
+ * a bare descendant `svg` selector can't reach it. The full layer fills
+ * solid; the preview layer is the icon's native outline (lucide ships
+ * `fill="none" stroke="currentColor"`). All three layers keep the same
+ * stroke width: a wider preview stroke would poke past the solid fill on
+ * the already-committed stars and read as a hairline border on hover. */
+neo-rating [data-neo-rating-full] neo-icon::part(svg) {
+	fill: currentColor;
+	stroke: currentColor;
+}
+
+neo-rating [data-neo-rating-preview] neo-icon::part(svg) {
+	fill: none;
+	stroke: currentColor;
+}
+
+/* The inner icon must stay the full symbol size so the full layer's
+ * overflow clip reveals an exact fraction (it must not shrink with the
+ * clip width). */
+neo-rating [data-neo-rating-empty] neo-icon,
+neo-rating [data-neo-rating-preview] neo-icon,
+neo-rating [data-neo-rating-full] neo-icon,
+neo-rating [data-neo-rating-empty] svg,
+neo-rating [data-neo-rating-preview] svg,
+neo-rating [data-neo-rating-full] svg {
+	display: block;
+	flex: none;
+	width: var(--neo-rating-symbol-size);
+	height: var(--neo-rating-symbol-size);
+}
+
+/* Match the kit-wide focus baseline (_base.css): a 2px accent outline,
+ * offset 2px. It rides the symbol row so it rounds to the row's radius;
+ * suppress the baseline's own outline on the host so the two don't stack
+ * into a double ring (`:focus-visible` here outranks the baseline). */
+neo-rating:focus-visible {
+	outline: none;
+}
+
+neo-rating:focus-visible > [data-neo-rating-symbols] {
+	outline: 2px solid var(--accent, currentColor);
+	outline-offset: 2px;
+}
+
+neo-rating[size="sm"] {
+	--neo-rating-symbol-size: 1.1rem;
+}
+
+neo-rating[size="lg"] {
+	--neo-rating-symbol-size: 2.25rem;
+}
+
+neo-rating[readonly] {
+	cursor: default;
+}
+
+neo-rating[disabled]:where(:not([disabled="false"])) {
+	cursor: not-allowed;
+	opacity: 0.5;
+	background-image: var(--neo-disabled-overlay);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	neo-rating [data-neo-rating-preview],
+	neo-rating [data-neo-rating-full] {
+		transition: none;
+	}
+}
+
+@media (forced-colors: active) {
+	neo-rating [data-neo-rating-empty] {
+		color: GrayText;
+	}
+	neo-rating [data-neo-rating-preview],
+	neo-rating [data-neo-rating-full] {
+		color: Highlight;
+	}
+	neo-rating:focus-visible > [data-neo-rating-symbols] {
+		outline: 2px solid Highlight;
+		outline-offset: 2px;
+	}
+}

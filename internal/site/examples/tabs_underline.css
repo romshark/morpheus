@@ -1,0 +1,26 @@
+.tabs-underline-pg {
+	--neo-tabs-list-bg: transparent;
+	--neo-tabs-list-padding: 0;
+	--neo-tabs-radius: 0;
+	--neo-tabs-tab-active-bg: transparent;
+	--neo-tabs-tab-active-shadow: none;
+	--neo-tabs-tab-padding-y: 0.6rem;
+	--neo-tabs-tab-padding-x: 1rem;
+}
+
+.tabs-underline-pg neo-tablist {
+	width: 100%;
+	border-bottom: 1px solid var(--btn-border, currentColor);
+	gap: 0.25rem;
+}
+
+.tabs-underline-pg neo-tab {
+	border-radius: 0;
+	border-bottom: 2px solid transparent;
+	margin-bottom: -1px;
+	transition: color 120ms ease, border-color 120ms ease;
+}
+
+.tabs-underline-pg neo-tab[aria-selected="true"] {
+	border-bottom-color: var(--accent, currentColor);
+}

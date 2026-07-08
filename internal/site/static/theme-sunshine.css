@@ -1,0 +1,58 @@
+/* theme-sunshine.css: warm cream / parchment background with a
+ * saturated yellow accent. The kit's original default theme;
+ * preserved as a named option for users who want the sunny look. */
+
+:root.theme-sunshine {
+	color-scheme: light;
+
+	--accent: #fad000;
+	--accent-hover: #ffdf3d;
+	--accent-fg: #1c1810;
+
+	--page-fg: #1c1810;
+	--page-bg: #fefaed;
+	--muted: #776f5a;
+
+	/* The yellow --accent is unreadable as text on the cream bg;
+	 * links use a dark amber instead (underline carries the rest). */
+	--link: #9a6700;
+	--link-hover: #7a5200;
+	--link-visited: #7c5a2f;
+
+	--page-radius: 0.25rem;
+	--page-spacing: 0.2rem;
+
+	--page-font-family: "Trebuchet MS", "Segoe UI", system-ui, sans-serif;
+
+	--btn-bg: #ffffff;
+	--btn-fg: #1c1810;
+	--btn-border: rgba(28, 24, 16, 0.22);
+	--btn-hover-bg: #fff4b8;
+
+	--danger-bg: #d9332e;
+	--danger-fg: #ffffff;
+	--danger-hover-bg: #b0221f;
+
+	--neo-tooltip-bg: rgba(28, 24, 16, 0.92);
+	--neo-tooltip-color: #f4ecd0;
+}
+
+:root.theme-sunshine.dark {
+	color-scheme: dark;
+
+	--page-fg: #f4ecd0;
+	--page-bg: #14110a;
+	--muted: #9f9478;
+
+	/* Bright yellow reads well on the near-black dark bg. */
+	--link: #fad000;
+	--link-hover: #ffdf3d;
+	--link-visited: #d9b85a;
+	--btn-bg: #221e15;
+	--btn-fg: #f4ecd0;
+	--btn-border: rgba(250, 208, 0, 0.18);
+	--btn-hover-bg: #2f2819;
+
+	--neo-tooltip-bg: rgba(244, 236, 208, 0.95);
+	--neo-tooltip-color: #14110a;
+}

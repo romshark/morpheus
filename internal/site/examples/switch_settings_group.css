@@ -1,0 +1,35 @@
+.switch-settings-group {
+	display: flex;
+	flex-direction: column;
+	gap: 0.25rem;
+	width: 100%;
+	max-width: 22rem;
+}
+
+.switch-settings-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1rem;
+	padding: 0.6rem 0.75rem;
+	border: 1px solid var(--btn-border);
+	border-radius: var(--page-radius, 0.5rem);
+	cursor: pointer;
+	background: var(--btn-bg);
+}
+
+.switch-settings-text {
+	display: flex;
+	flex-direction: column;
+	gap: 0.1rem;
+	min-width: 0;
+}
+
+.switch-settings-title {
+	font-weight: 600;
+}
+
+.switch-settings-desc {
+	color: var(--muted);
+	font-size: 0.82rem;
+}

@@ -1,0 +1,45 @@
+/* <neo-optgroup>: a non-focusable section above its grouped options.
+ * The visual header is a CSS ::before that reads the `label` attribute
+ * directly, so a server morph that strips JS-added subtree state can't
+ * make the header flicker out and back in. */
+neo-optgroup {
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	/* Mirror the navgroup's own gap so grouped options don't read as
+	 * tighter than the surrounding ungrouped ones. */
+	gap: var(--neo-navgroup-gap, 0.5rem);
+}
+
+/* Same reason as neo-option[hidden]: the search filter hides whole
+ * groups whose members all dropped out, and the `display: flex` above
+ * would otherwise win over the UA `[hidden]` rule. */
+neo-optgroup[hidden] {
+	display: none;
+}
+
+neo-optgroup[label]::before {
+	content: attr(label);
+	display: block;
+	font-size: 0.7rem;
+	font-weight: 600;
+	letter-spacing: 0.05em;
+	text-transform: uppercase;
+	color: var(--muted);
+	padding: calc(var(--page-spacing, 0.25rem) * 2) calc(var(--page-spacing, 0.25rem) * 2.5)
+		calc(var(--page-spacing, 0.25rem) * 1);
+	user-select: none;
+	-webkit-user-select: none;
+}
+
+/* Trim the leading padding on the first group so the listbox's own
+ * outer padding governs the top inset, and nudge consecutive groups
+ * apart so the second group's header reads as a fresh section. */
+neo-optgroup:first-child[label]::before {
+	padding-top: calc(var(--page-spacing, 0.25rem) * 1);
+}
+
+neo-optgroup + neo-optgroup[label]::before {
+	border-top: 1px solid color-mix(in srgb, var(--page-fg) 8%, transparent);
+	margin-top: calc(var(--page-spacing, 0.25rem) * 1);
+}

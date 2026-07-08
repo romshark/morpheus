@@ -1,0 +1,46 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ SortableGrid() {
+	@neo.SortableAttrs(neo.SortableOpts{
+		Orientation: neo.Set(neo.OrientationGrid),
+	}, templ.Attributes{"class": "sortable-grid"}) {
+		@neo.SortableItem("a") {
+			A
+		}
+		@neo.SortableItem("b") {
+			B
+		}
+		@neo.SortableItem("c") {
+			C
+		}
+		@neo.SortableItem("d") {
+			D
+		}
+		@neo.SortableItem("e") {
+			E
+		}
+		@neo.SortableItem("f") {
+			F
+		}
+		@neo.SortableItem("g") {
+			G
+		}
+		@neo.SortableItem("h") {
+			H
+		}
+		@neo.SortableItem("i") {
+			I
+		}
+		@neo.SortableItem("j") {
+			J
+		}
+		@neo.SortableItem("k") {
+			K
+		}
+		@neo.SortableItem("l") {
+			L
+		}
+	}
+}

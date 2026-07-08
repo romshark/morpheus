@@ -1,0 +1,18 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ PersistMulti() {
+	@neo.TextareaAttrs(neo.TextareaOpts{
+		ScaleHorizontal: neo.Set(true),
+		ScaleVertical:   neo.Set(true),
+		Rows:            neo.Set(6),
+		Placeholder:     neo.Set("Type many lines, then drag the corner…"),
+	}, templ.Attributes{"id": "demo-persist-multi-textarea"})
+	@neo.PersistFor(neo.PersistOpts{
+		For:   neo.Set("demo-persist-multi-textarea"),
+		Key:   neo.Set("demo-persist-multi"),
+		Props: []string{"value", "style.width", "style.height"},
+		On:    []string{"input", "mouseup"},
+	})
+}

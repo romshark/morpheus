@@ -1,0 +1,14 @@
+<neo-elastic style="max-width: 32rem;">
+  <div style="padding: 0.75rem 0; display: flex; flex-direction: column; gap: 0.5rem;">
+    <p style="margin: 0; font-weight: 600;">Release notes</p>
+    <p style="margin: 0;">The server just morphed this card in place.</p>
+    <ul style="margin: 0; padding-left: 1.25rem; display: flex; flex-direction: column; gap: 0.25rem;">
+      <li>Elastic re-measures on every morph.</li>
+      <li>The host animates from the old height to the new one.</li>
+      <li>The element stays mounted, so no reflow flash.</li>
+      <li>Mid-flight morphs just retarget the latest height.</li>
+      <li>Reduced-motion users get the same end state, no animation.</li>
+    </ul>
+    <p style="margin: 0;">Every height change rides the theme's easing and duration.</p>
+  </div>
+</neo-elastic>

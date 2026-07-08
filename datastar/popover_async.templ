@@ -1,0 +1,57 @@
+package datastar
+
+import "github.com/romshark/morpheus/neo"
+
+// PopoverAsync renders a <neo-popover> wired to a Datastar SSE action
+// that fetches its body content on every open. The Loading template
+// shows during the request; on a successful response the server is
+// expected to morph the element with id `<ID>-body` (the wrapper
+// around the placeholder). When Datastar exhausts its retry budget
+// the Failed template is swapped in automatically, listening for
+// `datastar-fetch` with `evt.detail.type === 'retries-failed'`.
+//
+// The trigger label is supplied via children, mirroring neo.Popover.
+// Any descendant in the Loading or Failed template that carries
+// `data-neo-popover-async-retry` becomes a retry button: a click
+// aborts any in-flight fetch, swaps the body back to the loading
+// placeholder, and re-fires the action without closing the popover.
+//
+// PopoverAsync requires Datastar's retry mode to be anything other
+// than `never` for the failure swap to fire; `never` short-circuits
+// before Datastar emits `retries-failed`.
+templ PopoverAsync(opts PopoverAsyncOpts) {
+	@neo.PopoverAttrs(opts.PopoverOpts, templ.Attributes{
+		"data-signals":              popoverAsyncSignals(opts),
+		"data-on:neo-popover-open":  popoverAsyncOpen(opts),
+		"data-on:neo-popover-close": popoverAsyncClose(opts),
+		"data-on:datastar-fetch":    popoverAsyncOnFetch(opts),
+		"data-on:click":             popoverAsyncRetry(opts),
+	}) {
+		<neo-button data-neo-popover-trigger>
+			{ children... }
+		</neo-button>
+		<div data-neo-popover-content aria-busy="true">
+			<div id={ opts.ID + "-body" } class="popover-async-body">
+				@opts.Loading
+			</div>
+		</div>
+	}
+	<template id={ opts.ID + "-tpl-loading" }>
+		@opts.Loading
+	</template>
+	<template id={ opts.ID + "-tpl-failed" }>
+		@popoverAsyncFailed(opts.Failed)
+	</template>
+}
+
+// popoverAsyncFailed renders the user-supplied Failed template, or a
+// minimal built-in callout if none was provided.
+templ popoverAsyncFailed(failed templ.Component) {
+	if failed != nil {
+		@failed
+	} else {
+		<div class="popover-async-failed" role="alert">
+			Failed to load.
+		</div>
+	}
+}

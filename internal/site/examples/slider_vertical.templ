@@ -1,0 +1,21 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ SliderVertical() {
+	@neo.Slider(neo.SliderOpts[float64]{
+		Min:       neo.Set(-20.0),
+		Max:       neo.Set(40.0),
+		Step:      neo.Set(5.0),
+		Value:     neo.Set(15.0),
+		Unit:      neo.Set("°C"),
+		HideValue: neo.Set(true),
+		Vertical:  neo.Set(true),
+		Marks: []neo.SliderMark{
+			{Value: -20, Label: "-20"},
+			{Value: 0, Label: "0"},
+			{Value: 20, Label: "20"},
+			{Value: 40, Label: "40"},
+		},
+	})
+}

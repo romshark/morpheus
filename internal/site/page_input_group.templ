@@ -1,0 +1,195 @@
+package site
+
+import (
+	"github.com/romshark/morpheus/internal/href"
+	"github.com/romshark/morpheus/internal/site/examples"
+)
+
+templ PageInputGroup(morpheusVersion string) {
+	@PageDoc(href.PageInputGroup(), "Input group", morpheusVersion) {
+		<section class="demo">
+			@anchoredH2("overview") {
+				Input group
+			}
+			<p class="intro">
+				Component <code>{ "<neo-input-group>" }</code> is a
+				layout wrapper that flushes leading and trailing
+				addons (text, icons, buttons) against an
+				<code>{ `<input>` }</code> or
+				<code>{ `<neo-textinput>` }</code> under one merged
+				border. DOM order decides placement; the group owns
+				border, radius, and focus ring so the inner field
+				drops its own.
+			</p>
+			@anchoredH2("reference") {
+				Reference
+			}
+			@ComponentDocs(inputGroupDoc)
+		</section>
+		<section class="demo">
+			@anchoredH2("examples") {
+				Examples
+			}
+			@anchoredH3("currency-prefix") {
+				Currency prefix
+			}
+			<p class="demo-note">
+				A direct <code>{ "<span>" }</code> addon gets a
+				muted background while the group
+				keeps one shared outer border. Click the addon
+				and the caret lands in the input.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				Width:          "26rem",
+				StageMinHeight: "max-content",
+				HTMLSource:     inputGroupCurrencyHTML,
+				TemplSource:    inputGroupCurrencyTempl,
+			}) {
+				@examples.InputGroupCurrency()
+			}
+			@anchoredH3("username-domain") {
+				Username + domain
+			}
+			<p class="demo-note">
+				Drop a <code>{ `<neo-combobox>` }</code> in as a
+				trailing addon to let the user pick from a short
+				list of domains. The combobox's trigger adopts
+				the addon background via a small demo-only
+				override.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				Width:          "26rem",
+				Height:         "15rem",
+				StageMinHeight: "max-content",
+				HTMLSource:     inputGroupDomainHTML,
+				TemplSource:    inputGroupDomainTempl,
+			}) {
+				@examples.InputGroupDomain()
+			}
+			@anchoredH3("range-bounds") {
+				Range bounds
+			}
+			<p class="demo-note">
+				Several addons at once: a
+				<code>{ `<neo-toggle>` }</code> flipping
+				between <em>min</em> and <em>max</em> on the
+				left, a stack of
+				<code>{ `<neo-select>` }</code>s on the right
+				(mass unit + rate denominator). The inner input
+				takes the remaining horizontal space.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				Width:          "26rem",
+				Height:         "17rem",
+				StageMinHeight: "max-content",
+				HTMLSource:     inputGroupRangeHTML,
+				TemplSource:    inputGroupRangeTempl,
+			}) {
+				@examples.InputGroupRange()
+			}
+			@anchoredH3("comparison") {
+				Comparison
+			}
+			<p class="demo-note">
+				A <code>{ `<neo-select>` }</code> of comparison
+				operators sits between two number-only
+				<code>{ `<neo-textinput>` }</code> fields, composing
+				one condition. The operator is a fixed glyph-width
+				column that opens on <code>hover</code>; the operands
+				share the rest.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				Width:          "26rem",
+				Height:         "17rem",
+				StageMinHeight: "max-content",
+				HTMLSource:     inputGroupComparisonHTML,
+				TemplSource:    inputGroupComparisonTempl,
+			}) {
+				@examples.InputGroupComparison()
+			}
+			@anchoredH3("search") {
+				Search
+			}
+			<p class="demo-note">
+				A direct <code>{ "<neo-icon>" }</code>
+				addon is recognized automatically and stays flush with no separator, leaving the
+				icon as a subtle inline mark.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				Width:          "26rem",
+				StageMinHeight: "max-content",
+				HTMLSource:     inputGroupSearchIconHTML,
+				TemplSource:    inputGroupSearchIconTempl,
+			}) {
+				@examples.InputGroupSearchIcon()
+			}
+			@anchoredH3("search-with-shortcut") {
+				Search with shortcut
+			}
+			<p class="demo-note">
+				Combine an icon addon with a trailing pair of
+				<code>{ `<neo-kbd>` }</code> chips inside a
+				text addon.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				Width:          "26rem",
+				StageMinHeight: "max-content",
+				HTMLSource:     inputGroupSearchShortcutHTML,
+				TemplSource:    inputGroupSearchShortcutTempl,
+			}) {
+				@examples.InputGroupSearchShortcut()
+			}
+			@anchoredH3("search-with-submit") {
+				Search with submit
+			}
+			<p class="demo-note">
+				Pair an input with an action button (copy,
+				submit, toggle visibility…). A direct
+				<code>{ `<neo-button>` }</code> automatically
+				drops its border and radius so it sits flush.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				Width:          "26rem",
+				StageMinHeight: "max-content",
+				HTMLSource:     inputGroupSearchSubmitHTML,
+				TemplSource:    inputGroupSearchSubmitTempl,
+			}) {
+				@examples.InputGroupSearchSubmit()
+			}
+			@anchoredH3("disabled") {
+				Disabled
+			}
+			<p class="demo-note">
+				When the inner input goes disabled, the group
+				mirrors that to its own
+				<code>aria-disabled</code> and the whole
+				assembly fades together.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				Width:          "26rem",
+				StageMinHeight: "max-content",
+				HTMLSource:     inputGroupDisabledHTML,
+				TemplSource:    inputGroupDisabledTempl,
+			}) {
+				@examples.InputGroupDisabled()
+			}
+		</section>
+	}
+}
+
+var inputGroupDoc = ComponentDoc{
+	Slots: []DocSlot{
+		{Name: "default",
+			Description: templ.Raw("An <code>&lt;input&gt;</code> or <code>&lt;neo-textinput&gt;</code>, paired with optional addons.")},
+		{Name: "neo-icon",
+			Description: templ.Raw("A direct leading or trailing icon addon.")},
+		{Name: "span / neo-kbd / neo-kbd-group",
+			Description: templ.Raw("A direct passive text, unit, or shortcut addon.")},
+	},
+	CSSProps: []DocCSSProp{
+		{Name: "--neo-input-group-addon-padding", Default: "0 0.6rem",
+			Description: templ.Raw("Inline padding of text and button addons.")},
+		{Name: "--neo-input-group-addon-bg", Default: "color-mix(in srgb, var(--page-fg) 4%, transparent)",
+			Description: templ.Raw("Background fill distinguishing addons from the input surface.")},
+	},
+}

@@ -1,0 +1,39 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ LayoutReverse() {
+	@neo.LayoutAttrs(
+		neo.LayoutOpts{Direction: neo.Set(neo.Row), Wrap: neo.Set(neo.Wrap), Gap: neo.Set(neo.GapXl), JustifyContent: neo.Set(neo.JustifyContentCenter), AlignItems: neo.Set(neo.AlignItemsCenter)},
+		neo.Item(neo.ItemOpts{Width: neo.Set(neo.ItemSizeFull), Height: neo.Set(neo.ItemSizeFull), MinWidth0: neo.Set(true), MinHeight0: neo.Set(true)}),
+	) {
+		@neo.Layout(neo.LayoutOpts{Direction: neo.Set(neo.Column), Gap: neo.Set(neo.GapSm)}) {
+			<small>row-reverse</small>
+			@neo.Layout(neo.LayoutOpts{Direction: neo.Set(neo.RowReverse), Gap: neo.Set(neo.GapSm)}) {
+				@neo.Badge(neo.BadgeOpts{Variant: neo.Set(neo.BadgeVariantOutline)}) {
+					1
+				}
+				@neo.Badge(neo.BadgeOpts{Variant: neo.Set(neo.BadgeVariantOutline)}) {
+					2
+				}
+				@neo.Badge(neo.BadgeOpts{Variant: neo.Set(neo.BadgeVariantOutline)}) {
+					3
+				}
+			}
+		}
+		@neo.Layout(neo.LayoutOpts{Direction: neo.Set(neo.Column), Gap: neo.Set(neo.GapSm)}) {
+			<small>column-reverse</small>
+			@neo.Layout(neo.LayoutOpts{Direction: neo.Set(neo.ColumnReverse), Gap: neo.Set(neo.GapSm)}) {
+				@neo.Badge(neo.BadgeOpts{Variant: neo.Set(neo.BadgeVariantOutline)}) {
+					1
+				}
+				@neo.Badge(neo.BadgeOpts{Variant: neo.Set(neo.BadgeVariantOutline)}) {
+					2
+				}
+				@neo.Badge(neo.BadgeOpts{Variant: neo.Set(neo.BadgeVariantOutline)}) {
+					3
+				}
+			}
+		}
+	}
+}

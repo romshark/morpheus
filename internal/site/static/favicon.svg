@@ -1,0 +1,162 @@
+<svg width="900" height="384" viewBox="0 0 900 384" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges" role="img" aria-labelledby="title desc">
+  <title id="title">Pixel art abstract close-up portrait with dark sunglasses</title>
+  <desc id="desc">A blocky pixel-art interpretation of a close-up face with dark skin tones, round black sunglasses, nose, ears, and small bridge hardware.</desc>
+
+  <rect width="900" height="384" fill="#10191b"/>
+
+  <!-- pixel-grid background -->
+  <g opacity=".9">
+    <rect x="0" y="0" width="96" height="384" fill="#142022"/>
+    <rect x="96" y="0" width="96" height="384" fill="#1a2527"/>
+    <rect x="192" y="0" width="96" height="384" fill="#172123"/>
+    <rect x="288" y="0" width="96" height="384" fill="#202b2b"/>
+    <rect x="384" y="0" width="96" height="384" fill="#1e292a"/>
+    <rect x="480" y="0" width="96" height="384" fill="#202b2b"/>
+    <rect x="576" y="0" width="96" height="384" fill="#172123"/>
+    <rect x="672" y="0" width="96" height="384" fill="#1a2527"/>
+    <rect x="768" y="0" width="132" height="384" fill="#142022"/>
+  </g>
+
+  <!-- ears -->
+  <g>
+    <rect x="32" y="96" width="32" height="48" fill="#4b2f2b"/>
+    <rect x="32" y="144" width="48" height="96" fill="#6a443e"/>
+    <rect x="48" y="240" width="48" height="64" fill="#4a302d"/>
+    <rect x="64" y="128" width="32" height="160" fill="#7a514a"/>
+    <rect x="64" y="160" width="16" height="80" fill="#2a2425"/>
+    <rect x="80" y="208" width="16" height="48" fill="#3b2929"/>
+
+    <rect x="836" y="96" width="32" height="48" fill="#5e3934"/>
+    <rect x="820" y="144" width="48" height="96" fill="#8a5a51"/>
+    <rect x="804" y="240" width="48" height="64" fill="#5c3935"/>
+    <rect x="804" y="128" width="32" height="160" fill="#9a655c"/>
+    <rect x="820" y="160" width="16" height="80" fill="#302527"/>
+    <rect x="804" y="208" width="16" height="48" fill="#4a3030"/>
+  </g>
+
+  <!-- face base -->
+  <g>
+    <rect x="96" y="0" width="704" height="384" fill="#5a3d36"/>
+
+    <!-- blocky facial planes -->
+    <rect x="96" y="0" width="96" height="384" fill="#3f302d"/>
+    <rect x="192" y="0" width="96" height="384" fill="#5a3e37"/>
+    <rect x="288" y="0" width="96" height="384" fill="#76554b"/>
+    <rect x="384" y="0" width="128" height="384" fill="#826054"/>
+    <rect x="512" y="0" width="96" height="384" fill="#715047"/>
+    <rect x="608" y="0" width="96" height="384" fill="#563b35"/>
+    <rect x="704" y="0" width="96" height="384" fill="#3f302d"/>
+
+    <!-- forehead texture -->
+    <rect x="160" y="0" width="48" height="32" fill="#665047"/>
+    <rect x="208" y="0" width="64" height="48" fill="#73594f"/>
+    <rect x="272" y="0" width="80" height="32" fill="#8a6d60"/>
+    <rect x="352" y="0" width="96" height="48" fill="#9b7c6d"/>
+    <rect x="448" y="0" width="96" height="40" fill="#8e6f62"/>
+    <rect x="544" y="0" width="80" height="32" fill="#76594f"/>
+    <rect x="624" y="0" width="80" height="40" fill="#5e453e"/>
+
+    <rect x="176" y="48" width="80" height="32" fill="#453632"/>
+    <rect x="256" y="48" width="96" height="32" fill="#6d5148"/>
+    <rect x="352" y="48" width="80" height="32" fill="#8e6e61"/>
+    <rect x="432" y="48" width="80" height="32" fill="#8b6b5f"/>
+    <rect x="512" y="48" width="112" height="32" fill="#62483f"/>
+    <rect x="624" y="48" width="80" height="32" fill="#44342f"/>
+
+    <!-- cheek shadows -->
+    <rect x="128" y="224" width="96" height="64" fill="#3b2e2c"/>
+    <rect x="224" y="240" width="80" height="48" fill="#4f3934"/>
+    <rect x="596" y="240" width="80" height="48" fill="#4b3732"/>
+    <rect x="676" y="224" width="96" height="64" fill="#362b2a"/>
+
+    <rect x="288" y="304" width="80" height="48" fill="#453331"/>
+    <rect x="368" y="320" width="164" height="32" fill="#5a4039"/>
+    <rect x="532" y="304" width="80" height="48" fill="#453331"/>
+  </g>
+
+  <!-- sunglasses: blocky round lenses approximated with rectangles -->
+  <g>
+    <!-- left lens shadow -->
+    <rect x="144" y="96" width="224" height="32" fill="#020303"/>
+    <rect x="128" y="128" width="256" height="64" fill="#010202"/>
+    <rect x="144" y="192" width="224" height="48" fill="#010202"/>
+    <rect x="176" y="240" width="160" height="16" fill="#020303"/>
+
+    <!-- right lens shadow -->
+    <rect x="532" y="96" width="224" height="32" fill="#020303"/>
+    <rect x="516" y="128" width="256" height="64" fill="#010202"/>
+    <rect x="532" y="192" width="224" height="48" fill="#010202"/>
+    <rect x="564" y="240" width="160" height="16" fill="#020303"/>
+
+    <!-- lens edge pixels -->
+    <rect x="144" y="96" width="32" height="32" fill="#0c0c09"/>
+    <rect x="336" y="96" width="32" height="32" fill="#0b0c09"/>
+    <rect x="128" y="128" width="16" height="64" fill="#090908"/>
+    <rect x="368" y="128" width="16" height="64" fill="#090908"/>
+    <rect x="144" y="224" width="32" height="16" fill="#0b0b09"/>
+    <rect x="336" y="224" width="32" height="16" fill="#0b0b09"/>
+
+    <rect x="532" y="96" width="32" height="32" fill="#0c0c09"/>
+    <rect x="724" y="96" width="32" height="32" fill="#0b0c09"/>
+    <rect x="516" y="128" width="16" height="64" fill="#090908"/>
+    <rect x="756" y="128" width="16" height="64" fill="#090908"/>
+    <rect x="532" y="224" width="32" height="16" fill="#0b0b09"/>
+    <rect x="724" y="224" width="32" height="16" fill="#0b0b09"/>
+
+    <!-- highlights -->
+    <rect x="192" y="112" width="16" height="16" fill="#22251d"/>
+    <rect x="256" y="104" width="16" height="16" fill="#24281c"/>
+    <rect x="612" y="80" width="32" height="16" fill="#b4beb1"/>
+    <rect x="644" y="96" width="16" height="16" fill="#5d684e"/>
+    <rect x="692" y="112" width="16" height="80" fill="#3d3413"/>
+  </g>
+
+  <!-- bridge and nose pads -->
+  <g>
+    <rect x="384" y="144" width="32" height="16" fill="#1e2420"/>
+    <rect x="416" y="136" width="32" height="16" fill="#1e2420"/>
+    <rect x="448" y="136" width="32" height="16" fill="#1e2420"/>
+    <rect x="480" y="144" width="32" height="16" fill="#1e2420"/>
+
+    <rect x="384" y="160" width="8" height="24" fill="#847332"/>
+    <rect x="508" y="160" width="8" height="24" fill="#847332"/>
+    <rect x="372" y="156" width="16" height="16" fill="#6f642a"/>
+    <rect x="512" y="156" width="16" height="16" fill="#6f642a"/>
+    <rect x="376" y="160" width="8" height="8" fill="#161914"/>
+    <rect x="516" y="160" width="8" height="8" fill="#161914"/>
+  </g>
+
+  <!-- blocky nose -->
+  <g>
+    <rect x="416" y="160" width="64" height="48" fill="#8f6c60"/>
+    <rect x="400" y="208" width="96" height="48" fill="#7f5c52"/>
+    <rect x="384" y="256" width="128" height="32" fill="#6e4d45"/>
+    <rect x="368" y="288" width="48" height="32" fill="#3b2b29"/>
+    <rect x="416" y="288" width="64" height="32" fill="#7a574d"/>
+    <rect x="480" y="288" width="48" height="32" fill="#3b2b29"/>
+
+    <rect x="432" y="176" width="32" height="96" fill="#a07b6c"/>
+    <rect x="464" y="224" width="16" height="48" fill="#8a665a"/>
+    <rect x="400" y="272" width="24" height="16" fill="#513933"/>
+    <rect x="476" y="272" width="24" height="16" fill="#513933"/>
+  </g>
+
+  <!-- pixel texture marks on skin -->
+  <g opacity=".8">
+    <rect x="176" y="272" width="8" height="8" fill="#2b2423"/>
+    <rect x="224" y="288" width="8" height="8" fill="#2b2423"/>
+    <rect x="272" y="272" width="8" height="8" fill="#352827"/>
+    <rect x="632" y="272" width="8" height="8" fill="#2b2423"/>
+    <rect x="680" y="288" width="8" height="8" fill="#2b2423"/>
+    <rect x="720" y="264" width="8" height="8" fill="#352827"/>
+    <rect x="336" y="64" width="8" height="8" fill="#5a3230"/>
+    <rect x="456" y="40" width="8" height="8" fill="#5a3230"/>
+    <rect x="528" y="64" width="8" height="8" fill="#5a3230"/>
+    <rect x="248" y="48" width="8" height="8" fill="#2d2927"/>
+    <rect x="648" y="48" width="8" height="8" fill="#2d2927"/>
+  </g>
+
+  <!-- cinematic crop -->
+  <rect x="0" y="0" width="900" height="8" fill="#060b0c"/>
+  <rect x="0" y="376" width="900" height="8" fill="#060b0c"/>
+</svg>

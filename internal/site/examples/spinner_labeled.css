@@ -1,0 +1,4 @@
+.spinner-labeled-ring {
+	--neo-spinner-size: 4rem;
+	color: var(--accent);
+}

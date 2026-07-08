@@ -1,0 +1,10 @@
+.radio-pg-density {
+	gap: 0.875rem 1.5rem;
+}
+
+.radio-pg-row {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	cursor: pointer;
+}

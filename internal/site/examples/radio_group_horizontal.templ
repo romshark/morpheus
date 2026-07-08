@@ -1,0 +1,23 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ RadioGroupHorizontal() {
+	@neo.RadioGroupAttrs(
+		neo.RadioGroupOpts{Value: neo.Set("comfortable"), Orientation: neo.Set(neo.AxisHorizontal), AriaLabel: neo.Set("Density")},
+		templ.Attributes{"class": "radio-pg-density"},
+	) {
+		<label class="radio-pg-row">
+			@neo.Radio(neo.RadioOpts{Value: neo.Set("compact")})
+			<span>Compact</span>
+		</label>
+		<label class="radio-pg-row">
+			@neo.Radio(neo.RadioOpts{Value: neo.Set("comfortable")})
+			<span>Comfortable</span>
+		</label>
+		<label class="radio-pg-row">
+			@neo.Radio(neo.RadioOpts{Value: neo.Set("spacious")})
+			<span>Spacious</span>
+		</label>
+	}
+}

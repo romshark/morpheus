@@ -1,0 +1,20 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ ToasterPatchReplace() {
+	@neo.ButtonAttrs(neo.ButtonOpts{}, templ.Attributes{
+		"data-on:click": "@post('/toast/pin', { requestCancellation: 'disabled' })",
+	}) {
+		Pin one
+	}
+	@neo.ButtonAttrs(neo.ButtonOpts{Variant: neo.Set(neo.ButtonVariantPrimary)}, templ.Attributes{
+		"data-on:click": "@post('/toast/replace', { requestCancellation: 'disabled' })",
+	}) {
+		Replace all
+	}
+	@neo.ToasterAttrs(neo.ToasterOpts{
+		Contained: neo.Set(true),
+		Position:  neo.Set(neo.ToasterPositionBottomRight),
+	}, templ.Attributes{"id": "my-toaster"})
+}

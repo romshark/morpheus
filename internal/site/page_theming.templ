@@ -1,0 +1,230 @@
+package site
+
+import (
+	"github.com/romshark/morpheus/internal/href"
+	"github.com/romshark/morpheus/neo"
+)
+
+templ PageTheming(morpheusVersion string) {
+	@PageDoc(href.PageTheming(), "Theming", morpheusVersion) {
+		<section class="demo">
+			@anchoredH2("theming") {
+				Theming
+			}
+			<p class="intro">
+				Themes are plain CSS. Every component reads a small
+				set of <code>:root</code> custom properties; switching
+				theme or mode just toggles a class on
+				<code>&lt;html&gt;</code>.
+			</p>
+			<p class="demo-note">
+				Open the settings sidebar and flip theme or mode:
+				the whole preview updates at once.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+			}) {
+				<neo-layout class="theming-preview" column gap="md">
+					<neo-layout class="theming-preview-row" wrap align-items="center">
+						@neo.Button(neo.ButtonOpts{}) {
+							Default
+						}
+						@neo.Button(neo.ButtonOpts{Variant: neo.Set(neo.ButtonVariantPrimary)}) {
+							Primary
+						}
+						@neo.Button(neo.ButtonOpts{Variant: neo.Set(neo.ButtonVariantSecondary)}) {
+							Secondary
+						}
+						@neo.Button(neo.ButtonOpts{Variant: neo.Set(neo.ButtonVariantDanger)}) {
+							Danger
+						}
+						@neo.Button(neo.ButtonOpts{Variant: neo.Set(neo.ButtonVariantGhost)}) {
+							Ghost
+						}
+					</neo-layout>
+					<neo-layout class="theming-preview-row" wrap align-items="center">
+						@neo.Badge(neo.BadgeOpts{}) {
+							Default
+						}
+						@neo.Badge(neo.BadgeOpts{Variant: neo.Set(neo.BadgeVariantPrimary)}) {
+							Primary
+						}
+						@neo.Badge(neo.BadgeOpts{Variant: neo.Set(neo.BadgeVariantSecondary)}) {
+							Secondary
+						}
+						@neo.Badge(neo.BadgeOpts{Variant: neo.Set(neo.BadgeVariantDanger)}) {
+							Danger
+						}
+						@neo.Badge(neo.BadgeOpts{Variant: neo.Set(neo.BadgeVariantOutline)}) {
+							Outline
+						}
+					</neo-layout>
+					<neo-layout class="theming-preview-row" wrap align-items="center">
+						@neo.Switch(neo.SwitchOpts{
+							Checked:   neo.Set(true),
+							AriaLabel: neo.Set("Enabled"),
+						})
+						@neo.Switch(neo.SwitchOpts{
+							AriaLabel: neo.Set("Disabled toggle"),
+						})
+						@neo.Checkbox(neo.CheckboxOpts{
+							Checked:   neo.Set(true),
+							AriaLabel: neo.Set("Checked"),
+						})
+						@neo.Checkbox(neo.CheckboxOpts{
+							AriaLabel: neo.Set("Unchecked"),
+						})
+						@neo.TextInputAttrs(neo.TextInputOpts{
+							Placeholder: neo.Set("Type something…"),
+						}, templ.Attributes{
+							"style": "width: 14rem;",
+						})
+					</neo-layout>
+					<neo-layout class="theming-preview-row" wrap align-items="center">
+						@neo.Progress(neo.ProgressOpts[float64]{
+							Min:   neo.Set(0.0),
+							Max:   neo.Set(100.0),
+							Value: neo.Set(64.0),
+							Label: neo.Set("Sync"),
+						})
+					</neo-layout>
+				</neo-layout>
+			}
+			<p class="demo-note">
+				Each chip's fill is <code>var(--&lt;name&gt;)</code>,
+				so the grid tracks theme swaps with no JS.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+			}) {
+				<div class="theming-swatches">
+					@themingSwatch("--accent", "var(--accent)")
+					@themingSwatch("--accent-fg", "var(--accent-fg)")
+					@themingSwatch("--page-bg", "var(--page-bg)")
+					@themingSwatch("--page-fg", "var(--page-fg)")
+					@themingSwatch("--muted", "var(--muted)")
+					@themingSwatch("--btn-bg", "var(--btn-bg)")
+					@themingSwatch("--btn-fg", "var(--btn-fg)")
+					@themingSwatch("--btn-border", "var(--btn-border)")
+					@themingSwatch("--btn-hover-bg", "var(--btn-hover-bg)")
+					@themingSwatch("--danger-bg", "var(--danger-bg)")
+					@themingSwatch("--danger-fg", "var(--danger-fg)")
+					@themingSwatch("--danger-hover-bg", "var(--danger-hover-bg)")
+				</div>
+			}
+			@anchoredH3("default-theme") {
+				Default theme
+			}
+			<p>
+				The full default palette as it ships in
+				<code>theme-default.css</code>: every variable a
+				custom theme can override:
+			</p>
+			<div class="theming-source">
+				<site-codemirror language="css" readonly>
+					<template>{ themeDefaultCSS }</template>
+				</site-codemirror>
+			</div>
+			@anchoredH3("how-it-works") {
+				How it works
+			}
+			<p>
+				Two class hooks on <code>&lt;html&gt;</code> drive
+				every visual choice:
+			</p>
+			<ul>
+				<li>
+					<code>theme-&lt;name&gt;</code>: the palette. No
+					<code>theme-*</code> class means the kit's default.
+				</li>
+				<li>
+					<code>light</code> / <code>dark</code>: the colour
+					mode. No class lets <code>prefers-color-scheme</code>
+					pick from the OS, so a no-JS visit still respects
+					dark mode.
+				</li>
+			</ul>
+			<p>
+				Each palette is one file (e.g.
+				<code>theme-ocean.css</code>) with a
+				<code>:root.theme-ocean</code> rule for light and a
+				<code>:root.theme-ocean.dark</code> rule for dark
+				overrides. Structural defaults
+				(<code>--page-radius</code>, <code>--page-spacing</code>,
+				<code>--page-font-family</code>) live in
+				<code>morpheus.css</code>; themes only redeclare what
+				they change.
+			</p>
+			@anchoredH3("switching-at-runtime") {
+				Switching at runtime
+			}
+			<p>
+				No kit-owned theme component; anything that writes
+				the two classes works. This site's picker is a
+				Datastar component holding two signals
+				(<code>{ `$_theme` }</code>, <code>{ `$_mode` }</code>);
+				a <code>data-effect</code> writes the classes to
+				<code>document.documentElement</code> and persists
+				them to <code>localStorage</code>.
+			</p>
+			@anchoredH3("system-mode") {
+				System mode
+			}
+			<p>
+				Mode also accepts <code>{ `"system"` }</code>: the
+				saved value stays <code>{ `"system"` }</code> while
+				<code>&lt;html&gt;</code> wears whichever of
+				<code>light</code> or <code>dark</code> matches the
+				OS. A <code>matchMedia</code> listener re-resolves on
+				OS flips; explicit <code>{ `"light"` }</code> or
+				<code>{ `"dark"` }</code> are never overridden.
+			</p>
+			@anchoredH3("best-practice") {
+				Best practice
+			}
+			<ul>
+				<li>
+					Apply the classes from an inline
+					<code>&lt;script&gt;</code> at the top of
+					<code>&lt;head&gt;</code>, before stylesheets, for no
+					FOUC once your framework hydrates.
+				</li>
+				<li>
+					Keep the default palette on bare <code>:root</code>
+					(no class) so a pre-JS render still looks right.
+				</li>
+				<li>
+					Pair every <code>:root.theme-X</code> with a
+					<code>:root.theme-X.dark</code> that only overrides
+					what dark mode changes. The cascade carries the
+					rest.
+				</li>
+				<li>
+					Touch the structural vars
+					(<code>--page-radius</code>,
+					<code>--page-spacing</code>,
+					<code>--page-font-family</code>) only when a theme
+					wants a different feel.
+				</li>
+				<li>
+					Set <code>color-scheme</code> so native controls
+					and scrollbars match.
+				</li>
+			</ul>
+		</section>
+	}
+}
+
+// themingSwatch renders one token-name + colour-chip cell for the
+// Tokens demo. Colour comes from a CSS variable so the cell follows
+// theme/mode swaps automatically: no JS, no per-theme branching here.
+templ themingSwatch(name, color string) {
+	<neo-layout class="theming-swatch" align-items="center">
+		<span
+			class="theming-swatch-chip"
+			style={ "background:" + color + ";" }
+			aria-hidden="true"
+		></span>
+		<span class="theming-swatch-name">{ name }</span>
+	</neo-layout>
+}

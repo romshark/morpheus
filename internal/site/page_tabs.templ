@@ -1,0 +1,227 @@
+package site
+
+import (
+	"github.com/romshark/morpheus/internal/href"
+	"github.com/romshark/morpheus/internal/site/examples"
+	"github.com/romshark/morpheus/neo"
+)
+
+templ PageTabs(morpheusVersion string) {
+	@PageDoc(href.PageTabs(), "Tabs", morpheusVersion) {
+		<section class="demo">
+			@anchoredH2("overview") {
+				Tabs
+			}
+			<p class="intro">
+				Component <code>{ "<neo-tabs>" }</code> is a tabbed
+				interface: clicking a <code>{ `<neo-tab>` }</code>
+				commits its <code>value</code> to the host, which
+				reveals the matching
+				<code>{ `<neo-tabpanel>` }</code>. Arrow keys move
+				focus across tabs; activation is manual
+				(<neo-kbd>Enter</neo-kbd> or <neo-kbd>Space</neo-kbd> commits).
+				Set <code>auto-activate</code> to opt into the
+				selection-follows-focus pattern.
+			</p>
+			@Playground(PlaygroundOpts{
+				ID:     "tabs-playground",
+				States: tabsPlaygroundStates(),
+			})
+			@anchoredH2("reference") {
+				Reference
+			}
+			@ComponentDocs(tabsDoc)
+		</section>
+		<section class="demo">
+			@anchoredH2("examples") {
+				Examples
+			}
+			@anchoredH3("icons-labels") {
+				Icons + labels
+			}
+			<p class="demo-note">
+				Each <code>{ `<neo-tab>` }</code> accepts
+				arbitrary children. Drop in a
+				<code>{ `<neo-icon>` }</code> next to the
+				label and the tab's flex layout aligns them
+				with the same gap as a
+				<code>{ `<neo-button>` }</code>.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     tabsIconsHTML,
+				TemplSource:    tabsIconsTempl,
+			}) {
+				@examples.TabsIcons()
+			}
+			@anchoredH3("no-animation") {
+				No animation
+			}
+			<p class="demo-note">
+				Omit <code>easing</code> and the panel swap is
+				instant. This is the default; the examples below
+				opt into transitions and keyframe animations.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     tabsNoAnimationHTML,
+				TemplSource:    tabsNoAnimationTempl,
+			}) {
+				@examples.TabsNoAnimation()
+			}
+			@anchoredH3("custom-animation") {
+				Custom animation
+			}
+			<p class="demo-note">
+				Point <code>enter-animation</code> and
+				<code>exit-animation</code> at author-defined
+				<code>{ "@keyframes" }</code>. The
+				<code>tabs-tilt</code> set here branches on the
+				host's <code>data-neo-direction</code> attribute
+				(set when the active tab changes), so the panel
+				rotates and slides in from the side of travel.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     tabsCustomAnimationHTML,
+				TemplSource:    tabsCustomAnimationTempl,
+			}) {
+				@examples.TabsCustomAnimation()
+			}
+			@anchoredH3("custom-styling") {
+				Custom styling
+			}
+			<p class="demo-note">
+				The <code>--neo-tabs-*</code> custom-property
+				family swaps the default pill frame for any visual.
+				Here a scoped <code>&lt;style&gt;</code> block sets
+				those properties to turn the active pill into an
+				accent-coloured underline, GitHub-style. Selection,
+				keyboard navigation, and animation are unchanged.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     tabsUnderlineHTML,
+				TemplSource:    tabsUnderlineTempl,
+				CSSSource:      tabsUnderlineCSS,
+			}) {
+				@examples.TabsUnderline()
+			}
+			@anchoredH3("auto-activate") {
+				Auto-activate
+			}
+			<p class="demo-note">
+				Set <code>auto-activate</code> on the host so
+				arrow keys commit the selection as focus moves,
+				matching the classic WAI-ARIA radiogroup pattern.
+			</p>
+			@neo.AlertAttrs(neo.AlertOpts{Variant: neo.Set(neo.AlertVariantInfo)}, templ.Attributes{"class": "demo-callout"}) {
+				@neo.AlertIcon() {
+					@neo.Icon("info")
+				}
+				@neo.AlertContent() {
+					@neo.AlertDescription() {
+						Only observable with the keyboard: focus a
+						tab, then press&nbsp;
+						@neo.Kbd(neo.KbdOpts{}) {
+							←
+						}
+						&nbsp;/&nbsp;
+						@neo.Kbd(neo.KbdOpts{}) {
+							→
+						}
+						&nbsp;and the panel follows focus. A
+						pointer behaves like a normal tab list.
+					}
+				}
+			}
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     tabsAutoActivateHTML,
+				TemplSource:    tabsAutoActivateTempl,
+			}) {
+				@examples.TabsAutoActivate()
+			}
+			@anchoredH3("vertical") {
+				Vertical
+			}
+			<p class="demo-note">
+				Set <code>{ `orientation="vertical"` }</code> on
+				the host. The tablist stacks, arrow-key axes
+				flip to <neo-kbd>↑</neo-kbd>/<neo-kbd>↓</neo-kbd>, and the
+				<code>aria-orientation</code> hint propagates
+				to the tablist.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     tabsVerticalHTML,
+				TemplSource:    tabsVerticalTempl,
+			}) {
+				@examples.TabsVertical()
+			}
+		</section>
+	}
+}
+
+var tabsDoc = ComponentDoc{
+	Attributes: []DocAttribute{
+		{Name: "value", Type: "string", Reflected: true, Observed: true,
+			Description: templ.Raw("Active tab value.")},
+		{Name: "orientation", Type: `"horizontal" | "vertical"`, Default: "horizontal", Observed: true,
+			Description: templ.Raw("Layout axis.")},
+		{Name: "auto-activate", Type: "boolean", Default: "false",
+			Description: templ.Raw("Arrow keys commit the selection in addition to moving focus.")},
+		{Name: "easing", Type: "string", Observed: true,
+			Description: templ.Raw("CSS transition shorthand for the panel swap.")},
+		{Name: "enter-animation", Type: "string", Observed: true,
+			Description: templ.Raw("<code>@keyframes</code> name for the entering panel.")},
+		{Name: "exit-animation", Type: "string", Observed: true,
+			Description: templ.Raw("<code>@keyframes</code> name for the exiting panel.")},
+	},
+	Slots: []DocSlot{
+		{Name: "default",
+			Description: templ.Raw("<code>&lt;neo-tablist&gt;</code>, <code>&lt;neo-tab&gt;</code>, and <code>&lt;neo-tabpanel&gt;</code> children.")},
+	},
+	Events: []DocEvent{
+		{Name: "neo-tabs-change", Detail: "{ value: string }", Bubbles: true,
+			Description: templ.Raw("Fires after the active tab changes.")},
+	},
+	CSSProps: []DocCSSProp{
+		{Name: "--neo-tabs-list-bg", Default: "color-mix(in srgb, var(--page-fg) 6%, transparent)",
+			Description: templ.Raw("Tablist pill background.")},
+		{Name: "--neo-tabs-list-padding", Default: "0.25rem",
+			Description: templ.Raw("Padding inside the tablist pill.")},
+		{Name: "--neo-tabs-list-border-width", Default: "2px",
+			Description: templ.Raw("Tablist border width in forced-colors and high-contrast modes.")},
+		{Name: "--neo-tabs-radius", Default: "var(--page-radius, 0.5rem)",
+			Description: templ.Raw("Tablist corner radius.")},
+		{Name: "--neo-tabs-focus-outline-width", Default: "2px",
+			Description: templ.Raw("Focus outline width.")},
+		{Name: "--neo-tabs-focus-outline-offset", Default: "2px",
+			Description: templ.Raw("Focus outline offset.")},
+		{Name: "--neo-tabs-tab-radius", Default: "max(2px, calc(var(--neo-tabs-radius) - var(--neo-tabs-list-padding)))",
+			Description: templ.Raw("Tab corner radius.")},
+		{Name: "--neo-tabs-tab-padding-y", Default: "0.4rem",
+			Description: templ.Raw("Tab vertical padding.")},
+		{Name: "--neo-tabs-tab-padding-x", Default: "0.85rem",
+			Description: templ.Raw("Tab horizontal padding.")},
+		{Name: "--neo-tabs-tab-padding", Default: "var(--neo-tabs-tab-padding-y) var(--neo-tabs-tab-padding-x)",
+			Description: templ.Raw("Tab padding shorthand.")},
+		{Name: "--neo-tabs-edge-tab-padding-x", Default: "var(--neo-tabs-tab-padding-x)",
+			Description: templ.Raw("Horizontal padding of the first and last tab in forced-colors and high-contrast modes.")},
+		{Name: "--neo-tabs-tab-color", Default: "var(--muted, currentColor)",
+			Description: templ.Raw("Inactive tab text color.")},
+		{Name: "--neo-tabs-tab-hover-color", Default: "var(--page-fg, currentColor)",
+			Description: templ.Raw("Tab text color on hover.")},
+		{Name: "--neo-tabs-tab-active-bg", Default: "var(--page-bg, #ffffff)",
+			Description: templ.Raw("Active tab background.")},
+		{Name: "--neo-tabs-tab-active-color", Default: "var(--page-fg, currentColor)",
+			Description: templ.Raw("Active tab text color.")},
+		{Name: "--neo-tabs-tab-active-shadow", Default: "0 1px 2px color-mix(in srgb, var(--page-fg) 16%, transparent)",
+			Description: templ.Raw("Active tab shadow.")},
+		{Name: "--neo-tabs-focus-ring", Default: "var(--accent, currentColor)",
+			Description: templ.Raw("Focus outline color.")},
+		{Name: "--neo-tabs-panel-padding", Default: "0.85rem 0",
+			Description: templ.Raw("Panel padding.")},
+	},
+}

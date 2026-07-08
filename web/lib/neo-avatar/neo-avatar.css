@@ -1,0 +1,225 @@
+/* -----------------------------------------------------------------------
+ * <neo-avatar> / <neo-avatars>
+ * -----------------------------------------------------------------------
+ * <neo-avatar> is the visual primitive for one portrait/fallback. It is
+ * intentionally style-only so it can be patched like ordinary light DOM.
+ *
+ * Overlapping avatar rows. Authored children stay in light DOM; the
+ * host only hides overflow children and inserts a generated +N circle
+ * as needed. Corner rounding is intentionally its own token so themes
+ * can choose circles, squircle-ish rounds, or sharper framed portraits
+ * without touching size / overlap tokens.
+ */
+
+:root {
+	--neo-avatar-size: 2.25rem;
+	--neo-avatar-radius: 9999px;
+	--neo-avatar-clip-path: none;
+	--neo-avatar-filter: none;
+	--neo-avatar-bg: color-mix(in srgb, var(--page-fg) 8%, transparent);
+	--neo-avatar-color: var(--page-fg);
+	--neo-avatar-border-width: 0;
+	--neo-avatar-border-color: var(--page-bg, #ffffff);
+	--neo-avatar-font-size: 0.8125rem;
+	--neo-avatar-font-weight: 650;
+	--neo-avatars-overlap: 0.75rem;
+	--neo-avatars-radius: var(--neo-avatar-radius);
+	--neo-avatars-clip-path: var(--neo-avatar-clip-path);
+	--neo-avatars-filter: var(--neo-avatar-filter);
+	--neo-avatars-bg: var(--neo-avatar-bg);
+	--neo-avatars-border-width: 2px;
+	--neo-avatars-border-color: var(--page-bg, #ffffff);
+	--neo-avatars-overflow-bg: color-mix(in srgb, var(--page-fg) 8%, var(--page-bg));
+	--neo-avatars-overflow-color: var(--page-fg);
+	--neo-avatars-overflow-font-size: 0.8125rem;
+	--neo-avatars-overflow-font-weight: 650;
+	--neo-avatars-focus-ring: var(--accent, currentColor);
+}
+
+neo-avatar {
+	/* Marks this stylesheet as loaded so the kit can flag a trimmed CSS-only component. */
+	--neo-loaded: neo-avatar;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex: 0 0 auto;
+	width: var(--neo-avatar-size);
+	height: var(--neo-avatar-size);
+	aspect-ratio: 1 / 1;
+	border-radius: var(--neo-avatar-radius);
+	border: var(--neo-avatar-border-width) solid var(--neo-avatar-border-color);
+	background: var(--neo-avatar-bg);
+	color: var(--neo-avatar-color);
+	box-sizing: border-box;
+	overflow: hidden;
+	position: relative;
+	vertical-align: middle;
+	clip-path: var(--neo-avatar-clip-path);
+	filter: var(--neo-avatar-filter);
+	font-size: var(--neo-avatar-font-size);
+	font-weight: var(--neo-avatar-font-weight);
+	line-height: 1;
+	user-select: none;
+	-webkit-user-select: none;
+}
+
+neo-avatar > img {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+neo-avatars {
+	display: inline-flex;
+	align-items: center;
+	flex-wrap: nowrap;
+	width: fit-content;
+	height: 2.5rem;
+	max-width: 100%;
+	min-width: 0;
+	vertical-align: middle;
+}
+
+neo-avatars > * {
+	flex: 0 0 auto;
+	height: 100%;
+	width: auto;
+	aspect-ratio: 1 / 1;
+	border-radius: var(--neo-avatars-radius);
+	border: var(--neo-avatars-border-width) solid var(--neo-avatars-border-color);
+	background: var(--neo-avatars-bg);
+	box-sizing: border-box;
+	overflow: hidden;
+	position: relative;
+}
+
+neo-avatars > :not(neo-popover, neo-avatar) {
+	clip-path: var(--neo-avatars-clip-path);
+	filter: var(--neo-avatars-filter);
+}
+
+neo-avatars > * + * {
+	margin-inline-start: calc(-1 * var(--neo-avatars-overlap));
+}
+
+neo-avatars > :where(a, button) {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0;
+	color: inherit;
+	text-decoration: none;
+}
+
+neo-avatars > :where(a, button):focus-visible {
+	outline: 2px solid var(--neo-avatars-focus-ring);
+	outline-offset: 2px;
+	z-index: 1;
+}
+
+neo-avatars > :where(img) {
+	display: block;
+	object-fit: cover;
+}
+
+neo-avatars > :where(a, button, span, div) > img {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+neo-avatars > :where(a, button, span, div) > neo-avatar {
+	display: inline-flex;
+	width: 100%;
+	height: 100%;
+	border: 0;
+	background: transparent;
+}
+
+neo-avatars > [data-neo-avatars-hidden] {
+	/* biome-ignore lint/complexity/noImportantStyles: hard hide for JS-marked
+	 * overflow avatars; must beat the avatar's own display and any inline style. */
+	display: none !important;
+}
+
+neo-avatars > [data-neo-avatars-overflow] {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0.2rem;
+	background: var(--neo-avatars-overflow-bg);
+	color: var(--neo-avatars-overflow-color);
+	font-size: var(--neo-avatars-overflow-font-size);
+	font-weight: var(--neo-avatars-overflow-font-weight);
+	line-height: 1;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	user-select: none;
+	-webkit-user-select: none;
+}
+
+neo-avatars > [data-neo-avatars-overflow] :where([data-neo-avatars-overflow-label], [data-neo-avatars-overflow-count]) {
+	display: block;
+	max-width: 100%;
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+neo-avatars > :where(button, a)[data-neo-avatars-overflow] {
+	font: inherit;
+	text-decoration: none;
+	cursor: pointer;
+}
+
+neo-avatars > neo-popover[data-neo-avatars-overflow] {
+	overflow: visible;
+}
+
+neo-avatars > neo-popover[data-neo-avatars-overflow] > [data-neo-popover-content] {
+	z-index: var(--neo-avatars-popover-z-index, 1300);
+}
+
+neo-avatars > neo-popover[data-neo-avatars-overflow] > [data-neo-popover-trigger] {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+	height: 100%;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	border-radius: inherit;
+	background: transparent;
+	color: inherit;
+	font: inherit;
+	line-height: 1;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	cursor: pointer;
+	clip-path: var(--neo-avatars-clip-path);
+	filter: var(--neo-avatars-filter);
+}
+
+/* The 8% chip bg collapses against Canvas; pin it to a high-contrast
+ * fill. The page-bg border is load-bearing for the overlap gap. */
+@media (forced-colors: active) {
+	neo-avatars > [data-neo-avatars-overflow] {
+		background: Highlight;
+		color: HighlightText;
+		forced-color-adjust: none;
+	}
+	neo-avatars > :where(a, button):focus-visible {
+		outline-color: Highlight;
+	}
+}
+
+:root[data-pref-contrast-more] neo-avatars > [data-neo-avatars-overflow] {
+	background: var(--accent);
+	color: var(--accent-fg);
+}

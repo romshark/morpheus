@@ -1,0 +1,22 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ SliderDenseMarks() {
+	@neo.Slider(neo.SliderOpts[float64]{
+		Min:   neo.Set(0.0),
+		Max:   neo.Set(100.0),
+		Step:  neo.Set(1.0),
+		Value: neo.Set(65.0),
+		Label: neo.Set("Project progress"),
+		Unit:  neo.Set("%"),
+		Marks: []neo.SliderMark{
+			{Value: 0, Label: "Backlog"},
+			{Value: 20, Label: "Discovery"},
+			{Value: 40, Label: "Definition"},
+			{Value: 60, Label: "Development"},
+			{Value: 80, Label: "Verification"},
+			{Value: 100, Label: "Released"},
+		},
+	})
+}

@@ -1,0 +1,15 @@
+.spinner-determinate-row {
+	display: inline-flex;
+	align-items: center;
+	gap: 1.5rem;
+}
+
+.spinner-determinate-item {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5em;
+}
+
+.spinner-determinate-ring {
+	--neo-spinner-size: 3rem;
+}

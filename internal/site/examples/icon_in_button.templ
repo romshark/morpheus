@@ -1,0 +1,22 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ IconInButton() {
+	@neo.Button(neo.ButtonOpts{}) {
+		@neo.Icon("check")
+		Save
+	}
+	@neo.Button(neo.ButtonOpts{Variant: neo.Set(neo.ButtonVariantPrimary)}) {
+		@neo.Icon("sparkles")
+		Upgrade
+	}
+	@neo.Button(neo.ButtonOpts{Variant: neo.Set(neo.ButtonVariantDanger)}) {
+		@neo.Icon("trash-2")
+		Delete
+	}
+	@neo.Button(neo.ButtonOpts{Variant: neo.Set(neo.ButtonVariantSecondary)}) {
+		@neo.Icon("settings")
+		Settings
+	}
+}

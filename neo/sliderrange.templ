@@ -1,0 +1,49 @@
+package neo
+
+// SliderRangeOpts is the two-thumb sibling of SliderOpts: same
+// Min/Max/Step grid, but selection is a [ValueMin, ValueMax] interval.
+// Setting a field makes its zero value explicit; otherwise the attribute
+// is omitted and the host falls back to its default (Min=0, Max=100,
+// Step=1, ValueMin=Min, ValueMax=Max).
+type SliderRangeOpts[N Number] struct {
+	Min, Max, Step, ValueMin, ValueMax         Attr[N]
+	Label, Unit, Easing                        Attr[string]
+	HideValue, HideTooltip, Vertical, Disabled Attr[bool]
+	// StaticMarks makes authored marks decorative (no click-to-snap).
+	StaticMarks Attr[bool]
+	AriaLabel   Attr[string]
+}
+
+// SliderRange renders <neo-slider-range>. Unlike Slider, this wrapper
+// does not server-prerender markup; the two-thumb / fill-between
+// layout is built on connect, and there's no JS adopt() path. The
+// kit's `:not(:defined)` placeholder reserves a header + track skeleton
+// so layout doesn't shift on upgrade.
+templ SliderRange[N Number](opts SliderRangeOpts[N]) {
+	@SliderRangeAttrs(opts, nil) {
+		{ children... }
+	}
+}
+
+// SliderRangeAttrs is [SliderRange] with an extra attribute set.
+templ SliderRangeAttrs[N Number](opts SliderRangeOpts[N], attrs templ.Attributes) {
+	<neo-slider-range
+		{ opts.Min.Attrs("min")... }
+		{ opts.Max.Attrs("max")... }
+		{ opts.Step.Attrs("step")... }
+		{ opts.ValueMin.Attrs("value-min")... }
+		{ opts.ValueMax.Attrs("value-max")... }
+		{ opts.Label.Attrs("label")... }
+		{ opts.Unit.Attrs("unit")... }
+		{ opts.HideValue.Attrs("hide-value")... }
+		{ opts.HideTooltip.Attrs("hide-tooltip")... }
+		{ opts.Vertical.Attrs("vertical")... }
+		{ opts.Easing.Attrs("easing")... }
+		{ opts.Disabled.Attrs("disabled")... }
+		{ opts.StaticMarks.Attrs("static-marks")... }
+		{ opts.AriaLabel.Attrs("aria-label")... }
+		{ attrs... }
+	>
+		{ children... }
+	</neo-slider-range>
+}

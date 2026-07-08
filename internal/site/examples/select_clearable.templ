@@ -1,0 +1,49 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ SelectClearable() {
+	@neo.Select(neo.SelectOpts{
+		Clearable:      neo.Set(true),
+		AriaLabel:      neo.Set("Notification channel"),
+		Placeholder:    neo.Set("Choose a channel"),
+		TypeaheadMatch: neo.Set[neo.TypeaheadMatch]("prefix"),
+	}) {
+		@neo.SelectEmpty() {
+			<span class="select-clearable-icon" aria-hidden="true">
+				@neo.Icon("x")
+			</span>
+			<span>No channel</span>
+		}
+		@neo.Option(neo.OptionOpts{Value: neo.Set("sms")}) {
+			<span class="select-clearable-icon" aria-hidden="true">
+				@neo.Icon("message-square")
+			</span>
+			<span>SMS</span>
+		}
+		@neo.Option(neo.OptionOpts{Value: neo.Set("email")}) {
+			<span class="select-clearable-icon" aria-hidden="true">
+				@neo.Icon("mail")
+			</span>
+			<span>Email</span>
+		}
+		@neo.Option(neo.OptionOpts{Value: neo.Set("push")}) {
+			<span class="select-clearable-icon" aria-hidden="true">
+				@neo.Icon("bell")
+			</span>
+			<span>Push notification</span>
+		}
+		@neo.Option(neo.OptionOpts{Value: neo.Set("slack")}) {
+			<span class="select-clearable-icon" aria-hidden="true">
+				@neo.Icon("hash")
+			</span>
+			<span>Slack DM</span>
+		}
+		@neo.Option(neo.OptionOpts{Value: neo.Set("pigeon"), Disabled: neo.Set(true)}) {
+			<span class="select-clearable-icon" aria-hidden="true">
+				@neo.Icon("bird")
+			</span>
+			<span>Carrier pigeon (coming soon)</span>
+		}
+	}
+}

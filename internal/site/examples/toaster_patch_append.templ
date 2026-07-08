@@ -1,0 +1,15 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ ToasterPatchAppend() {
+	@neo.ButtonAttrs(neo.ButtonOpts{}, templ.Attributes{
+		"data-on:click": "@post('/toast/append', { requestCancellation: 'disabled' })",
+	}) {
+		Append toast
+	}
+	@neo.ToasterAttrs(neo.ToasterOpts{
+		Contained: neo.Set(true),
+		Position:  neo.Set(neo.ToasterPositionBottomRight),
+	}, templ.Attributes{"id": "my-toaster"})
+}
