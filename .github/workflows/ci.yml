@@ -51,10 +51,16 @@ jobs:
         run: go test ./...
 
       # Fail if committed *_templ.go drifted from the .templ sources.
+      # git status (not git diff) so a new, uncommitted _templ.go is caught too.
       - name: templ generate is up to date
         run: |
           go run github.com/a-h/templ/cmd/templ@v0.3.1020 generate
-          git diff --exit-code
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "*_templ.go is stale; run 'make templ' and commit:"
+            git status --porcelain
+            git diff
+            exit 1
+          fi
 
   web:
     runs-on: ubuntu-latest
@@ -82,7 +88,14 @@ jobs:
         run: pnpm run check-all
 
       # Fail if the committed /min/ deliverables drifted from the sources.
+      # build.ts (no args) rebuilds every JS bundle and every CSS entry.
+      # git status (not git diff) so a new, uncommitted min/ file is caught too.
       - name: Bundle is up to date
         run: |
           pnpm run build
-          git diff --exit-code ../min
+          if [ -n "$(git status --porcelain ../min)" ]; then
+            echo "min/ is stale; run 'pnpm build' and commit ../min:"
+            git status --porcelain ../min
+            git diff ../min
+            exit 1
+          fi
