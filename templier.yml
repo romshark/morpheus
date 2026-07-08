@@ -87,12 +87,16 @@ custom-watchers:
   # _templ.go files (written by the background `templ generate --watch`)
   # drive the rebuild; min/**/* picks up the minified CSS+JS outputs
   # written by the bundle/minify watchers above; excludes the
-  # unminified CSS sources so the cascade comes from /min/*.css.
+  # unminified CSS sources under static/ so the cascade comes from
+  # /min/*.css. examples/**/*.css are the per-example stylesheets
+  # embedded raw into internal/site via //go:embed; gen re-reads them on
+  # recompile, so a re-render is the whole rebuild (no bundle step).
   - name: "Render static site (internal/cmd/gen)"
     cmd: "go run ./internal/cmd/gen -dst dst"
     include:
       - "internal/site/**/*.go"
       - "internal/site/examples/**/*.html"
+      - "internal/site/examples/**/*.css"
       - "internal/site/static/**/*"
       - "min/**/*"
       - "internal/cmd/gen/**/*.go"
