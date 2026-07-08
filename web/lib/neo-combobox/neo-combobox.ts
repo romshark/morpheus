@@ -3,7 +3,13 @@
 // stay live instead of being cloned.
 
 import { boolAttr } from "../command";
-import { NeoListbox, POPOVER_ATTRS } from "../neo-listbox";
+import {
+	cloneAsyncPlaceholder,
+	cloneTemplateSource,
+	NeoListbox,
+	POPOVER_ATTRS,
+	setHiddenIfChanged,
+} from "../neo-listbox";
 import type { Placement } from "../neo-position";
 import { deepActiveElement } from "../shadow-utils";
 import { joinValues, parseValues } from "../value-list";
@@ -381,7 +387,6 @@ export class NeoCombobox extends NeoListbox {
 	#optionsSlot!: HTMLSlotElement;
 	#loadingEl!: HTMLElement;
 	#emptyResultsEl!: HTMLElement;
-	#suppressSearchInput = false;
 	#searchDebounceTimer: ReturnType<typeof setTimeout> | null = null;
 	#emptyResultsTemplateEl: HTMLElement | null = null;
 	#emptyTriggerTemplateEl: HTMLElement | null = null;
@@ -461,6 +466,7 @@ export class NeoCombobox extends NeoListbox {
 		this.observer?.disconnect();
 		this.observer = null;
 		this.observerPauseDepth = 0;
+		this.ready = false;
 		this.disconnectPanelResize();
 		this.trigger?.removeEventListener("click", this.#onTriggerClick);
 		this.trigger?.removeEventListener("keydown", this.#onTriggerKeyDown);
@@ -486,7 +492,7 @@ export class NeoCombobox extends NeoListbox {
 		window.removeEventListener("scroll", this.onWindowScroll, true);
 		window.visualViewport?.removeEventListener("resize", this.reposition);
 		window.visualViewport?.removeEventListener("scroll", this.reposition);
-		if (this.#searchDebounceTimer !== null) clearTimeout(this.#searchDebounceTimer);
+		this.#clearSearchDebounceTimer();
 		this.#closeCleanupGeneration += 1;
 	}
 
@@ -557,9 +563,9 @@ export class NeoCombobox extends NeoListbox {
 		this.reflectOpen();
 		this.trigger.setAttribute("aria-expanded", "true");
 		this.listEl.hidden = false;
-		this.#suppressSearchInput = true;
+		// Programmatic value writes fire no input event, so no suppression
+		// around this is needed.
 		this.#input.value = "";
-		this.#suppressSearchInput = false;
 		this.#prepareOpenState();
 		this.#syncOptions();
 		this.#applyFilter();
@@ -581,6 +587,7 @@ export class NeoCombobox extends NeoListbox {
 		this.cancelOpenScrollPositioning();
 		this.open = false;
 		this.loading = false;
+		this.#clearSearchDebounceTimer();
 		this.reflectClosed();
 		this.trigger.setAttribute("aria-expanded", "false");
 		this.listEl.hidden = true;
@@ -600,9 +607,7 @@ export class NeoCombobox extends NeoListbox {
 		const generation = ++this.#closeCleanupGeneration;
 		const finish = () => {
 			if (generation !== this.#closeCleanupGeneration || this.open || !this.isConnected) return;
-			this.#suppressSearchInput = true;
 			this.#input.value = "";
-			this.#suppressSearchInput = false;
 			this.#clearFilter();
 			this.#syncOptions();
 		};
@@ -617,7 +622,12 @@ export class NeoCombobox extends NeoListbox {
 	}
 
 	#cacheTemplates() {
-		this.loadingTemplateEl ??= this.#findLightTemplate("[data-neo-async-placeholder]");
+		// Retain the last-seen placeholder when the live one is gone: an async
+		// combobox's first options morph replaces it, but reopen and reload()
+		// still render the author's skeleton from the retained ref. Lifecycle
+		// (lazy trigger, loading done) keys on live presence via
+		// #sourceHasAsyncPlaceholder(), never on this possibly detached ref.
+		this.loadingTemplateEl = this.#findLightTemplate("[data-neo-async-placeholder]") ?? this.loadingTemplateEl;
 		// Re-find each time (not ??=): a morph that replaces the source
 		// container also replaces its descendant template divs, so a cached
 		// ref would otherwise stay on the old detached element.
@@ -671,37 +681,33 @@ export class NeoCombobox extends NeoListbox {
 					options.length === 0 &&
 					!!this.#emptyResultsTemplateEl &&
 					source.contains(this.#emptyResultsTemplateEl));
-			if (source !== this && source.hidden !== hideSource) source.hidden = hideSource;
-			if (this.#loadingEl.hidden === showLoading) this.#loadingEl.hidden = !showLoading;
+			if (source !== this) setHiddenIfChanged(source, hideSource);
+			setHiddenIfChanged(this.#loadingEl, !showLoading);
 			if (showLoading) {
 				// Project the clone through a light-DOM slot so the author's
 				// placeholder (and its light-DOM-styled <neo-skeleton> rows)
 				// render styled instead of unstyled inside the shadow root.
 				this.#ensureLoadingContent().replaceChildren(
-					this.loadingTemplateEl?.cloneNode(true) ?? this.#defaultLoadingNode(),
+					cloneAsyncPlaceholder(this.loadingTemplateEl, () => this.#defaultLoadingNode()),
 				);
 			} else {
 				this.#loadingContent?.remove();
 			}
 			const showEmpty = !showLoading && this.#shownOptions().length === 0;
-			if (this.#emptyResultsEl.hidden === showEmpty) {
-				this.#emptyResultsEl.hidden = !showEmpty;
-			}
+			setHiddenIfChanged(this.#emptyResultsEl, !showEmpty);
 			if (showEmpty) this.#renderEmptyResults();
 		});
 	}
 
+	// Live placeholder presence, checked in the same two scopes
+	// #findLightTemplate reads (host child, source-root child).
 	#sourceHasAsyncPlaceholder(): boolean {
-		return !!this.sourceRoot().querySelector(":scope > [data-neo-async-placeholder]");
+		return !!this.#findLightTemplate("[data-neo-async-placeholder]");
 	}
 
 	#renderEmptyResults() {
 		this.#emptyResultsEl.replaceChildren(
-			...Array.from(
-				(this.#emptyResultsTemplateEl?.cloneNode(true) as HTMLElement | null)?.childNodes ?? [
-					document.createTextNode("No results"),
-				],
-			),
+			...cloneTemplateSource(this.#emptyResultsTemplateEl, () => document.createTextNode("No results")),
 		);
 		for (const q of Array.from(this.#emptyResultsEl.querySelectorAll<HTMLElement>("[data-neo-empty-query]"))) {
 			q.textContent = this.#input.value;
@@ -739,8 +745,10 @@ export class NeoCombobox extends NeoListbox {
 			this.loading = true;
 			return;
 		}
-		const lazy = this.loadingTemplateEl ?? this.#findLightTemplate("[data-neo-async-placeholder]");
-		this.loading = !!lazy && this.optionData().length === 0;
+		// Live presence, not the retained loadingTemplateEl: a morph that
+		// removed the placeholder without delivering options means loading is
+		// done (or was never wanted), not perpetually pending.
+		this.loading = this.#sourceHasAsyncPlaceholder() && this.optionData().length === 0;
 	}
 
 	#dispatchOpen() {
@@ -776,7 +784,8 @@ export class NeoCombobox extends NeoListbox {
 			this.listEl.id = listID;
 			this.trigger.setAttribute("aria-controls", listID);
 		}
-		this.#optionsEl.toggleAttribute("aria-multiselectable", this.isMultiple());
+		if (this.isMultiple()) this.#optionsEl.setAttribute("aria-multiselectable", "true");
+		else this.#optionsEl.removeAttribute("aria-multiselectable");
 	}
 
 	#parseValueAttr(raw: string | null): string[] {
@@ -863,11 +872,18 @@ export class NeoCombobox extends NeoListbox {
 			this.triggerFace.fromSource(this.#emptyTriggerTemplateEl, null);
 			return;
 		}
+		// One option query for all chips; first occurrence wins on duplicate
+		// values, matching find().
+		const optByValue = new Map<string, HTMLElement>();
+		for (const el of this.optionEls()) {
+			const v = el.getAttribute("data-neo-value") ?? "";
+			if (!optByValue.has(v)) optByValue.set(v, el);
+		}
 		const chips = values.map((v) => {
-			const opt = this.optionEls().find((el) => (el.getAttribute("data-neo-value") ?? "") === v) ?? null;
+			const opt = optByValue.get(v) ?? null;
 			const chip = document.createElement("span");
 			chip.setAttribute("data-neo-combobox-trigger-chip", "");
-			const face = opt?.querySelector?.<HTMLElement>(":scope > [data-neo-option-trigger]") ?? null;
+			const face = opt?.querySelector<HTMLElement>(":scope > [data-neo-option-trigger]") ?? null;
 			if (face?.childNodes.length) {
 				chip.append(...Array.from(face.childNodes).map((n) => n.cloneNode(true)));
 			} else {
@@ -925,8 +941,13 @@ export class NeoCombobox extends NeoListbox {
 				: [...current, value]
 			: [value];
 		this.applyingValue = true;
-		if (next.length === 0) this.removeAttribute("value");
-		else this.setAttribute("value", joinValues(next, "neo-combobox"));
+		// Paused: #applyValuesFromAttr below re-renders synchronously; letting
+		// the observer see the host's own value write would re-run the whole
+		// reconcile pass a microtask later for nothing.
+		this.withLightDomObserverPaused(() => {
+			if (next.length === 0) this.removeAttribute("value");
+			else this.setAttribute("value", this.isMultiple() ? joinValues(next, "neo-combobox") : (next[0] ?? ""));
+		});
 		this.applyingValue = false;
 		this.#applyValuesFromAttr();
 
@@ -944,7 +965,9 @@ export class NeoCombobox extends NeoListbox {
 	#clearValue() {
 		const had = this.getAttribute("value");
 		this.applyingValue = true;
-		this.removeAttribute("value");
+		this.withLightDomObserverPaused(() => {
+			this.removeAttribute("value");
+		});
 		this.applyingValue = false;
 		this.#applyValuesFromAttr();
 		if (had === null) return;
@@ -968,12 +991,12 @@ export class NeoCombobox extends NeoListbox {
 	#clearFilter() {
 		this.withLightDomObserverPaused(() => {
 			for (const el of this.optionEls()) {
-				if (el.hidden) el.hidden = false;
+				setHiddenIfChanged(el, false);
 			}
 			for (const group of Array.from(this.sourceRoot().querySelectorAll<HTMLElement>("neo-optgroup"))) {
-				if (group.hidden) group.hidden = false;
+				setHiddenIfChanged(group, false);
 			}
-			if (!this.#emptyResultsEl.hidden) this.#emptyResultsEl.hidden = true;
+			setHiddenIfChanged(this.#emptyResultsEl, true);
 		});
 	}
 
@@ -983,7 +1006,7 @@ export class NeoCombobox extends NeoListbox {
 			const query = this.#input.value.trim().toLowerCase();
 			if (boolAttr(this, "live-search", false)) {
 				const empty = this.#shownOptions().length === 0;
-				if (this.#emptyResultsEl.hidden === empty) this.#emptyResultsEl.hidden = !empty;
+				setHiddenIfChanged(this.#emptyResultsEl, !empty);
 				if (empty) this.#renderEmptyResults();
 				return;
 			}
@@ -993,15 +1016,14 @@ export class NeoCombobox extends NeoListbox {
 				return label.toLowerCase().includes(query);
 			};
 			for (const opt of this.optionEls()) {
-				const nextHidden = !match(opt);
-				if (opt.hidden !== nextHidden) opt.hidden = nextHidden;
+				setHiddenIfChanged(opt, !match(opt));
 			}
 			for (const group of Array.from(this.sourceRoot().querySelectorAll<HTMLElement>("neo-optgroup"))) {
 				const any = Array.from(group.querySelectorAll<HTMLElement>(":scope > neo-option")).some((opt) => !opt.hidden);
-				if (group.hidden === any) group.hidden = !any;
+				setHiddenIfChanged(group, !any);
 			}
 			const empty = this.#shownOptions().length === 0;
-			if (this.#emptyResultsEl.hidden === empty) this.#emptyResultsEl.hidden = !empty;
+			setHiddenIfChanged(this.#emptyResultsEl, !empty);
 			if (empty) this.#renderEmptyResults();
 		});
 	}
@@ -1016,17 +1038,24 @@ export class NeoCombobox extends NeoListbox {
 		}
 		const selected = new Set(this.selectedValues);
 		const target = visible.find((o) => selected.has(o.getAttribute("data-neo-value") ?? "")) ?? visible[0];
-		this.#focusOption(target);
+		this.#focusOption(target, { center: true });
 	}
 
-	#focusOption(el: HTMLElement, opts: { preventScroll?: boolean } = {}) {
+	// `center` puts the row mid-scroller (open-with-selection); the default
+	// nearest-edge scroll is for arrow nav, which must not recenter per press.
+	#focusOption(el: HTMLElement, opts: { preventScroll?: boolean; center?: boolean } = {}) {
 		for (const opt of this.optionEls()) {
 			opt.tabIndex = opt === el ? 0 : -1;
 		}
 		this.#lastFocusedKind = "option";
 		this.lastFocusedOptionValue = el.getAttribute("data-neo-value");
-		el.focus({ preventScroll: !!opts.preventScroll });
-		if (!opts.preventScroll) el.scrollIntoView({ block: "nearest" });
+		el.focus({ preventScroll: !!opts.preventScroll || !!opts.center });
+		if (opts.center) this.centerOptionInScroller(this.#optionsEl, el);
+		else if (!opts.preventScroll) el.scrollIntoView({ block: "nearest" });
+		// Snapshot synchronously: the scroll event lands a task later, so a
+		// morph reconcile arriving first would restore the stale pre-scroll
+		// value and yank the list back to the top.
+		this.#lastOptionsScrollTop = this.#optionsEl.scrollTop;
 	}
 
 	#focusSearch(opts: { preventScroll?: boolean } = {}) {
@@ -1227,11 +1256,7 @@ export class NeoCombobox extends NeoListbox {
 	};
 
 	#onSearchInput = () => {
-		if (this.#suppressSearchInput) return;
-		if (this.#searchDebounceTimer !== null) {
-			clearTimeout(this.#searchDebounceTimer);
-			this.#searchDebounceTimer = null;
-		}
+		this.#clearSearchDebounceTimer();
 		const debounceMs = Math.max(0, parseInt(this.getAttribute("search-debounce") ?? "0", 10) || 0);
 		if (debounceMs > 0) {
 			this.#searchDebounceTimer = setTimeout(() => {
@@ -1242,6 +1267,12 @@ export class NeoCombobox extends NeoListbox {
 		}
 		this.#runSearchInput();
 	};
+
+	#clearSearchDebounceTimer() {
+		if (this.#searchDebounceTimer === null) return;
+		clearTimeout(this.#searchDebounceTimer);
+		this.#searchDebounceTimer = null;
+	}
 
 	#runSearchInput() {
 		if (boolAttr(this, "live-search", false)) {
@@ -1325,6 +1356,13 @@ export class NeoCombobox extends NeoListbox {
 	#isRelevantLightDomMutation(records: MutationRecord[]): boolean {
 		const source = this.sourceRoot();
 		for (const r of records) {
+			if (r.type === "characterData") {
+				const parent = r.target.parentElement;
+				if (parent?.closest("neo-option, neo-optgroup, [data-neo-empty-results], [data-neo-combobox-empty]")) {
+					return true;
+				}
+				continue;
+			}
 			if (r.type === "attributes") {
 				const el = r.target as Element;
 				if (el === source || el === this) return true;
@@ -1360,6 +1398,10 @@ export class NeoCombobox extends NeoListbox {
 	// upward, so it stays pinned closest to the trigger.
 	protected override afterPosition(placement: Placement) {
 		this.listEl.toggleAttribute("data-neo-combobox-above", placement.startsWith("top"));
+	}
+
+	protected override optionsScroller(): HTMLElement {
+		return this.#optionsEl;
 	}
 }
 

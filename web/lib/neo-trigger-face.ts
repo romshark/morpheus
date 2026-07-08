@@ -25,7 +25,8 @@ export class TriggerFace {
 	// option's own body. `value` seeds the fallback text; null uses the
 	// placeholder.
 	fromSource(sourceEl: HTMLElement | null, value: string | null): void {
-		const face = sourceEl?.querySelector?.<HTMLElement>(":scope > [data-neo-option-trigger]") ?? null;
+		const sourceRoot = templateSourceRoot(sourceEl);
+		const face = Array.from(sourceRoot?.children ?? []).find((el) => el.matches("[data-neo-option-trigger]")) ?? null;
 		if (face) {
 			this.clone(face.childNodes);
 			return;
@@ -35,11 +36,11 @@ export class TriggerFace {
 			this.text(label);
 			return;
 		}
-		if (sourceEl && sourceEl.childElementCount > 0) {
-			this.clone(sourceEl.childNodes);
+		if (sourceRoot && sourceRoot.childElementCount > 0) {
+			this.clone(sourceRoot.childNodes);
 			return;
 		}
-		const text = sourceEl?.textContent?.trim();
+		const text = sourceRoot?.textContent?.trim();
 		this.text(text || (value === null ? this.#host.getAttribute("placeholder") || "Select…" : value));
 	}
 
@@ -87,4 +88,8 @@ export class TriggerFace {
 		this.#view = el;
 		return el;
 	}
+}
+
+function templateSourceRoot(sourceEl: HTMLElement | null): HTMLElement | DocumentFragment | null {
+	return sourceEl instanceof HTMLTemplateElement ? sourceEl.content : sourceEl;
 }

@@ -4,7 +4,7 @@
 
 import { boolAttr } from "../command";
 import { NavEngine } from "../nav-engine";
-import { NeoListbox, POPOVER_ATTRS } from "../neo-listbox";
+import { cloneAsyncPlaceholder, NeoListbox, POPOVER_ATTRS, setHiddenIfChanged } from "../neo-listbox";
 import { deepActiveElement } from "../shadow-utils";
 
 const SELECT_SHADOW_TEMPLATE = document.createElement("template");
@@ -321,6 +321,7 @@ export class NeoSelect extends NeoListbox {
 		this.observer?.disconnect();
 		this.observer = null;
 		this.observerPauseDepth = 0;
+		this.ready = false;
 		this.disconnectPanelResize();
 		this.trigger?.removeEventListener("click", this.#onTriggerClick);
 		this.trigger?.removeEventListener("keydown", this.#onTriggerKeyDown);
@@ -423,8 +424,16 @@ export class NeoSelect extends NeoListbox {
 	}
 
 	#cacheTemplates() {
-		this.loadingTemplateEl ??= this.#findLightTemplate("[data-neo-async-placeholder]");
-		this.#emptyTemplateEl ??= this.#findLightTemplate("[data-neo-select-empty]");
+		// Retain the last-seen placeholder when the live one is gone: an async
+		// select's first options morph replaces it, but reopen and reload()
+		// still render the author's skeleton from the retained ref. Lifecycle
+		// (lazy trigger, loading done) keys on live presence via
+		// #sourceHasAsyncPlaceholder(), never on this possibly detached ref.
+		this.loadingTemplateEl = this.#findLightTemplate("[data-neo-async-placeholder]") ?? this.loadingTemplateEl;
+		// Re-find each time (not ??=): a morph that replaces the source
+		// container also replaces its descendant template divs, so a cached
+		// ref would otherwise stay on the old detached element.
+		this.#emptyTemplateEl = this.#findLightTemplate("[data-neo-select-empty]");
 	}
 
 	#findLightTemplate(selector: string): HTMLElement | null {
@@ -457,21 +466,27 @@ export class NeoSelect extends NeoListbox {
 
 			const source = this.sourceRoot();
 			const showLoading = this.loading;
-			if (source !== this && source.hidden !== showLoading) source.hidden = showLoading;
-			if (this.#loadingEl.hidden === showLoading) this.#loadingEl.hidden = !showLoading;
+			if (source !== this) setHiddenIfChanged(source, showLoading);
+			setHiddenIfChanged(this.#loadingEl, !showLoading);
 			const showEmpty = !showLoading && options.length === 0;
-			if (this.#emptyEl.hidden === showEmpty) this.#emptyEl.hidden = !showEmpty;
+			setHiddenIfChanged(this.#emptyEl, !showEmpty);
 			if (showLoading) {
 				// Project the clone through a light-DOM slot so authors can
 				// style and replace the loading content without reaching
 				// into the select's shadow root.
 				this.#ensureLoadingContent().replaceChildren(
-					this.loadingTemplateEl?.cloneNode(true) ?? this.#defaultLoadingNode(),
+					cloneAsyncPlaceholder(this.loadingTemplateEl, () => this.#defaultLoadingNode()),
 				);
 			} else {
 				this.#loadingContent?.remove();
 			}
 		});
+	}
+
+	// Live placeholder presence, checked in the same two scopes
+	// #findLightTemplate reads (host child, source-root child).
+	#sourceHasAsyncPlaceholder(): boolean {
+		return !!this.#findLightTemplate("[data-neo-async-placeholder]");
 	}
 
 	get #loadingContent(): HTMLElement | null {
@@ -505,8 +520,10 @@ export class NeoSelect extends NeoListbox {
 			this.loading = true;
 			return;
 		}
-		const lazy = this.loadingTemplateEl ?? this.#findLightTemplate("[data-neo-async-placeholder]");
-		this.loading = !!lazy && this.optionData().length === 0;
+		// Live presence, not the retained loadingTemplateEl: a morph that
+		// removed the placeholder without delivering options means loading is
+		// done (or was never wanted), not perpetually pending.
+		this.loading = this.#sourceHasAsyncPlaceholder() && this.optionData().length === 0;
 	}
 
 	#dispatchOpen() {
@@ -583,7 +600,12 @@ export class NeoSelect extends NeoListbox {
 		const value = el.getAttribute("data-neo-value") ?? "";
 		const data = this.optionData().find((o) => o.value === value);
 		this.applyingValue = true;
-		this.setAttribute("value", value);
+		// Paused: #applyValueFromAttr below re-renders synchronously; letting
+		// the observer see the host's own value write would re-run the whole
+		// reconcile pass a microtask later for nothing.
+		this.withLightDomObserverPaused(() => {
+			this.setAttribute("value", value);
+		});
 		this.applyingValue = false;
 		this.#applyValueFromAttr();
 		this.dispatchEvent(
@@ -598,7 +620,9 @@ export class NeoSelect extends NeoListbox {
 	#clearValue() {
 		const had = this.getAttribute("value");
 		this.applyingValue = true;
-		this.removeAttribute("value");
+		this.withLightDomObserverPaused(() => {
+			this.removeAttribute("value");
+		});
 		this.applyingValue = false;
 		this.#applyValueFromAttr();
 		if (had !== null) {
@@ -614,7 +638,10 @@ export class NeoSelect extends NeoListbox {
 	#focusInitialOption() {
 		const selected = this.optionEls().find((el) => el.getAttribute("aria-selected") === "true");
 		const target = selected ?? this.optionEls().find((el) => el.getAttribute("aria-disabled") !== "true");
-		target?.focus({ preventScroll: true });
+		if (!target) return;
+		target.focus({ preventScroll: true });
+		// listEl is the select's scroller; open with the selected row centered.
+		this.centerOptionInScroller(this.listEl, target);
 	}
 
 	#focusByDelta(delta: number) {
@@ -727,7 +754,7 @@ export class NeoSelect extends NeoListbox {
 	protected override reconcileOpenCommandPatch(): void {
 		this.withLightDomObserverPaused(() => {
 			this.#cacheTemplates();
-			if (this.loading && this.optionData().length > 0) this.loading = false;
+			if (this.loading && (this.optionData().length > 0 || !this.#sourceHasAsyncPlaceholder())) this.loading = false;
 			this.#syncOptionSlot();
 			this.#syncOptions();
 			this.#applyValueFromAttr();
@@ -751,6 +778,11 @@ export class NeoSelect extends NeoListbox {
 	#isRelevantLightDomMutation(records: MutationRecord[]): boolean {
 		const source = this.sourceRoot();
 		for (const r of records) {
+			if (r.type === "characterData") {
+				const parent = r.target.parentElement;
+				if (parent?.closest("neo-option, neo-optgroup, [data-neo-select-empty]")) return true;
+				continue;
+			}
 			if (r.type === "attributes") {
 				const el = r.target as Element;
 				if (el === source || el === this) return true;

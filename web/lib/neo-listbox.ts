@@ -31,6 +31,33 @@ export function readOptionData(el: HTMLElement): OptionData {
 	};
 }
 
+export function cloneTemplateSource(source: HTMLElement | null, fallback: () => Node): Node[] {
+	const root = source instanceof HTMLTemplateElement ? source.content : source;
+	const nodes = root ? Array.from(root.childNodes).map((n) => n.cloneNode(true)) : [];
+	return nodes.length > 0 ? nodes : [fallback()];
+}
+
+// Instantiate a loading placeholder for the light-DOM loading slot. Unlike
+// cloneTemplateSource, the [data-neo-async-placeholder] marker element itself
+// must land in the clone: the loading-content CSS and author styling key on
+// it. An element source clones wholesale; a <template> source instantiates as
+// a div carrying the template's attributes (marker included) around its
+// content clone.
+export function cloneAsyncPlaceholder(source: HTMLElement | null, fallback: () => HTMLElement): HTMLElement {
+	if (!source) return fallback();
+	if (!(source instanceof HTMLTemplateElement)) return source.cloneNode(true) as HTMLElement;
+	const el = document.createElement("div");
+	for (const name of source.getAttributeNames()) {
+		el.setAttribute(name, source.getAttribute(name) ?? "");
+	}
+	el.appendChild(source.content.cloneNode(true));
+	return el;
+}
+
+export function setHiddenIfChanged(el: HTMLElement, hidden: boolean) {
+	if (el.hidden !== hidden) el.hidden = hidden;
+}
+
 // Shared option wiring for the listbox controls (<neo-select>, <neo-combobox>)
 // and <neo-textinput>'s suggestions. Options are keyed by data-neo-value and
 // never get an `id`, so a fat morph patches them in place instead of replacing
@@ -105,6 +132,7 @@ export abstract class NeoListbox extends HTMLElement {
 	#openCommandScrollHoldUntil = 0;
 	#openScrollPositionFrame: number | null = null;
 	#openScrollPositionUntil = 0;
+	#trackedTriggerRect: DOMRect | null = null;
 
 	protected initTriggerFace() {
 		this.triggerFace = new TriggerFace(this, this.labelEl, `data-neo-${this.ns}-trigger-view`, (fn) =>
@@ -290,6 +318,7 @@ export abstract class NeoListbox extends HTMLElement {
 	}
 
 	protected reflectClosed(): void {
+		this.#trackedTriggerRect = null;
 		if (!this.hasAttribute("open")) return;
 		this.reflectingOpen = true;
 		try {
@@ -390,6 +419,7 @@ export abstract class NeoListbox extends HTMLElement {
 		this.observer?.observe(this, {
 			childList: true,
 			subtree: true,
+			characterData: true,
 			attributes: true,
 			attributeFilter: OPTION_OBSERVE_ATTRS,
 		});
@@ -468,6 +498,9 @@ export abstract class NeoListbox extends HTMLElement {
 	protected onWindowScroll = (e: Event) => {
 		if (!this.open) return;
 		if (e.target instanceof Node && this.listEl.contains(e.target)) return;
+		// Captured scroll sees every document scroller. Listboxes react to
+		// anchor movement, not to unrelated scrollable regions.
+		if (!this.#triggerRectMoved()) return;
 		// Scoped scroll: an independent scroller outside the boundary follows
 		// the trigger instead of dismissing. Scrollers inside the boundary, and
 		// ancestor scrollers that carry it, keep the default behavior.
@@ -497,17 +530,19 @@ export abstract class NeoListbox extends HTMLElement {
 		if (this.open) this.position();
 	};
 
-	// Re-anchor when the panel's own size changes: slotted options grew or
-	// shrank, an icon finished loading, etc. The mutation-driven position()
-	// is synchronous and catches childList swaps; this catches the async
-	// size changes those miss. Observing the panel is safe: position() sets
-	// max-* from the trigger position, not the panel size, so a stable layout
-	// can't feed back into a resize loop.
+	// Re-anchor when the panel's own size changes (slotted options grew or
+	// shrank, an icon finished loading) or the trigger's does (multi-select
+	// chips wrapping onto a new row). The mutation-driven position() is
+	// synchronous and catches childList swaps; this catches the async size
+	// changes those miss. Safe from a resize loop: position() writes only
+	// panel top/left/max-*, derived from the trigger position, so a stable
+	// layout re-triggers neither observation.
 	protected observePanelResize() {
 		this.#resizeObserver ??= new ResizeObserver(() => {
 			if (this.open) this.position();
 		});
 		this.#resizeObserver.observe(this.listEl);
+		this.#resizeObserver.observe(this.trigger);
 	}
 
 	protected disconnectPanelResize() {
@@ -551,8 +586,28 @@ export abstract class NeoListbox extends HTMLElement {
 		return false;
 	}
 
+	// The scrollable box holding the option rows; the panel itself by default.
+	// The combobox overrides this: its panel is a flex column whose inner
+	// options container scrolls.
+	protected optionsScroller(): HTMLElement {
+		return this.listEl;
+	}
+
+	// anchorPopoverResult clears the panel's inline max-* to measure its
+	// natural size. While cleared, the options scroller fits its whole
+	// content, which clamps scrollTop to 0; re-applying max-height does not
+	// bring the scroll back, so every reposition would reset the list to the
+	// top. Snapshot and restore around the pass.
+	#anchorPreservingScroll(opts?: { ignorePositioningBoundary?: boolean }): ReturnType<typeof anchorPopoverResult> {
+		const scroller = this.optionsScroller();
+		const scrollTop = scroller.scrollTop;
+		const result = anchorPopoverResult(this, this.trigger, this.listEl, opts);
+		if (scroller.scrollTop !== scrollTop) scroller.scrollTop = scrollTop;
+		return result;
+	}
+
 	#applyPosition(): boolean {
-		const result = anchorPopoverResult(this, this.trigger, this.listEl);
+		const result = this.#anchorPreservingScroll();
 		if (!result.fitsOpenSize) {
 			return false;
 		}
@@ -561,14 +616,14 @@ export abstract class NeoListbox extends HTMLElement {
 	}
 
 	#applyOpenScrollPosition(): boolean {
-		const result = anchorPopoverResult(this, this.trigger, this.listEl, { ignorePositioningBoundary: true });
+		const result = this.#anchorPreservingScroll({ ignorePositioningBoundary: true });
 		if (result.fitsOpenSize) {
 			this.#applyPositionResult(result);
 			return true;
 		}
 		applyOpenSizeDuringScroll(this.listEl, result);
-		this.listEl.style.visibility = "";
 		this.afterPosition(result.placement);
+		this.#rememberTriggerRect();
 		this.dispatchEvent(
 			new CustomEvent("neo-popover-position", {
 				bubbles: true,
@@ -580,8 +635,8 @@ export abstract class NeoListbox extends HTMLElement {
 
 	#applyPositionResult(result: ReturnType<typeof anchorPopoverResult>): void {
 		this.cancelOpenScrollPositioning();
-		this.listEl.style.visibility = "";
 		this.afterPosition(result.placement);
+		this.#rememberTriggerRect();
 		this.dispatchEvent(
 			new CustomEvent("neo-popover-position", {
 				bubbles: true,
@@ -595,7 +650,6 @@ export abstract class NeoListbox extends HTMLElement {
 			cancelAnimationFrame(this.#openScrollPositionFrame);
 			this.#openScrollPositionFrame = null;
 		}
-		this.listEl.style.visibility = "";
 	}
 
 	#scheduleOpenScrollPositioning(): void {
@@ -603,10 +657,7 @@ export abstract class NeoListbox extends HTMLElement {
 		if (this.#openScrollPositionFrame !== null) return;
 		const tick = () => {
 			this.#openScrollPositionFrame = null;
-			if (!this.open || !this.isConnected) {
-				this.listEl.style.visibility = "";
-				return;
-			}
+			if (!this.open || !this.isConnected) return;
 			if (this.#shouldCloseForHiddenTrigger()) {
 				this.hide();
 				return;
@@ -627,6 +678,16 @@ export abstract class NeoListbox extends HTMLElement {
 	// no-op; the combobox uses it to reorder the search field when opening up.
 	protected afterPosition(_placement: Placement): void {}
 
+	// Center `el` in `scroller` (open-with-selection UX). Not
+	// scrollIntoView({block:"center"}): that would also center every
+	// scrollable ancestor, and a page scroll under an open listbox trips
+	// the scroll-dismiss path.
+	protected centerOptionInScroller(scroller: HTMLElement, el: HTMLElement) {
+		const c = scroller.getBoundingClientRect();
+		const r = el.getBoundingClientRect();
+		scroller.scrollTop += r.top + r.height / 2 - (c.top + c.height / 2);
+	}
+
 	#followScrollMode(): "off" | "always" | "until-trigger-invisible" {
 		const value = this.getAttribute("follow-scroll");
 		if (value === "always" || value === "until-trigger-invisible") return value;
@@ -635,6 +696,17 @@ export abstract class NeoListbox extends HTMLElement {
 
 	#shouldCloseForHiddenTrigger(): boolean {
 		return this.#followScrollMode() === "until-trigger-invisible" && !intersectsVisualViewport(this.trigger);
+	}
+
+	#rememberTriggerRect(): void {
+		this.#trackedTriggerRect = this.trigger.getBoundingClientRect();
+	}
+
+	#triggerRectMoved(): boolean {
+		const now = this.trigger.getBoundingClientRect();
+		const prev = this.#trackedTriggerRect;
+		this.#trackedTriggerRect = now;
+		return !prev || prev.x !== now.x || prev.y !== now.y || prev.width !== now.width || prev.height !== now.height;
 	}
 }
 

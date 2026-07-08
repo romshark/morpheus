@@ -369,23 +369,46 @@ function strictMaxSize(
 	];
 }
 
-/** Resolves a CSS custom property on `host` (or inherited) to pixels via
- *  a throwaway probe. Accepts any CSS length (rem, vh, calc(), etc.). */
+export interface CssLengthSpec {
+	varName: string;
+	fallback: string;
+	/** Resolve a "content" value (or fallback on absence) to the literal
+	 *  "content" instead of probing. */
+	content?: boolean;
+}
+
+/** Resolves CSS custom properties on `host` (or inherited) to pixels via
+ *  throwaway probes: one probe subtree and one forced layout for the whole
+ *  list, instead of an append/measure/remove reflow per property. Accepts
+ *  any CSS length (rem, vh, calc(), etc.). */
+export function resolveCssLengthsPx(host: HTMLElement, specs: CssLengthSpec[]): (number | "content")[] {
+	let styles: CSSStyleDeclaration | null = null;
+	const box = document.createElement("div");
+	box.style.cssText = "position:absolute;visibility:hidden;pointer-events:none;width:0;";
+	const probes = specs.map((spec) => {
+		if (spec.content) {
+			styles ??= getComputedStyle(host);
+			const raw = styles.getPropertyValue(spec.varName).trim().toLowerCase();
+			if (raw === "content" || (raw === "" && spec.fallback.toLowerCase() === "content")) return "content" as const;
+		}
+		const probe = document.createElement("div");
+		probe.style.cssText = `height:var(${spec.varName},${spec.fallback});`;
+		box.appendChild(probe);
+		return probe;
+	});
+	if (box.childElementCount > 0) (host.shadowRoot ?? host).appendChild(box);
+	const out = probes.map((p) => (p === "content" ? p : p.getBoundingClientRect().height));
+	box.remove();
+	return out;
+}
+
+/** Single-property resolveCssLengthsPx. */
 export function resolveCssLengthPx(host: HTMLElement, varName: string, fallback = "8px"): number {
-	const probe = document.createElement("div");
-	probe.style.cssText = `position:absolute;visibility:hidden;pointer-events:none;width:0;height:var(${varName},${fallback});`;
-	const probeRoot = host.shadowRoot ?? host;
-	probeRoot.appendChild(probe);
-	const px = probe.getBoundingClientRect().height;
-	probe.remove();
-	return px;
+	return resolveCssLengthsPx(host, [{ varName, fallback }])[0] as number;
 }
 
 export function resolveCssLengthPxOrContent(host: HTMLElement, varName: string, fallback = "8px"): MinFitValue {
-	const raw = getComputedStyle(host).getPropertyValue(varName).trim();
-	if (raw.toLowerCase() === "content") return "content";
-	if (raw === "" && fallback.toLowerCase() === "content") return "content";
-	return resolveCssLengthPx(host, varName, fallback);
+	return resolveCssLengthsPx(host, [{ varName, fallback, content: true }])[0];
 }
 
 export function resolveOptionalCssLengthPx(host: HTMLElement, varName: string, fallback = "2rem"): number {
@@ -433,11 +456,20 @@ export function anchorPopoverResult(
 	if (minOpenHeightAttr !== null) host.style.setProperty("--neo-popover-min-open-height", minOpenHeightAttr);
 	const minOpenWidthAttr = host.getAttribute("min-open-width");
 	if (minOpenWidthAttr !== null) host.style.setProperty("--neo-popover-min-open-width", minOpenWidthAttr);
-	const edgeOffset = resolveCssLengthPx(host, "--neo-popover-screen-offset", "8px");
-	const minFitHeight = resolveCssLengthPxOrContent(host, "--neo-popover-min-fit-height", "content");
-	const minFitWidth = resolveCssLengthPxOrContent(host, "--neo-popover-min-fit-width", "content");
-	const minOpenHeight = resolveOptionalCssLengthPx(host, "--neo-popover-min-open-height");
-	const minOpenWidth = resolveOptionalCssLengthPx(host, "--neo-popover-min-open-width");
+	// One batched probe pass: position() runs per scroll frame in
+	// follow-scroll mode, and each separate resolve forces its own layout.
+	const lengths = resolveCssLengthsPx(host, [
+		{ varName: "--neo-popover-screen-offset", fallback: "8px" },
+		{ varName: "--neo-popover-min-fit-height", fallback: "content", content: true },
+		{ varName: "--neo-popover-min-fit-width", fallback: "content", content: true },
+		{ varName: "--neo-popover-min-open-height", fallback: "2rem" },
+		{ varName: "--neo-popover-min-open-width", fallback: "2rem" },
+	]);
+	const edgeOffset = lengths[0] as number;
+	const minFitHeight = lengths[1];
+	const minFitWidth = lengths[2];
+	const minOpenHeight = lengths[3] as number;
+	const minOpenWidth = lengths[4] as number;
 	panel.style.boxSizing = "border-box";
 	// popover-fit-content sizes to its own content (CSS width:max-content,
 	// capped by max-width); an inline trigger width here would floor it, so
