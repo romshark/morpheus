@@ -153,23 +153,52 @@ templ PageLayout(morpheusVersion string) {
 			}) {
 				@examples.LayoutCollapse()
 			}
-			@anchoredH3("alignment") {
-				Alignment
+			@anchoredH3("align-items") {
+				align-items
 			}
 			<p class="demo-note">
-				<code>align-items</code> and <code>justify-content</code>
-				take their literal CSS values, so the markup reads like
-				the rule it produces.
+				Demonstrates all possible values for <code>align-items</code>.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
-				Width:          "32rem",
-				Height:         "12rem",
-				StageMinWidth:  "20rem",
-				StageMinHeight: "9rem",
-				HTMLSource:     layoutAlignHTML,
-				TemplSource:    layoutAlignTempl,
+				StageMinWidth:  "13rem",
+				StageMinHeight: "max-content",
+				HTMLSource:     layoutAlignItemsHTML,
+				TemplSource:    layoutAlignItemsTempl,
+				CSSSource:      layoutAlignItemsCSS,
 			}) {
-				@examples.LayoutAlign()
+				@examples.LayoutAlignItems()
+			}
+			@anchoredH3("justify-content") {
+				justify-content
+			}
+			<p class="demo-note">
+				Demonstrates all possible values for <code>justify-content</code>.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				Width:          "40rem",
+				StageMinWidth:  "15rem",
+				StageMinHeight: "max-content",
+				HTMLSource:     layoutJustifyContentHTML,
+				TemplSource:    layoutJustifyContentTempl,
+				CSSSource:      layoutJustifyContentCSS,
+			}) {
+				@examples.LayoutJustifyContent()
+			}
+			@anchoredH3("align-content") {
+				align-content
+			}
+			<p class="demo-note">
+				Demonstrates all possible values for <code>align-content</code>.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinWidth:  "16.5rem",
+				Width:          "16.5rem",
+				StageMinHeight: "max-content",
+				HTMLSource:     layoutAlignContentHTML,
+				TemplSource:    layoutAlignContentTempl,
+				CSSSource:      layoutAlignContentCSS,
+			}) {
+				@examples.LayoutAlignContent()
 			}
 			@anchoredH3("child-attributes") {
 				Child attributes
@@ -282,11 +311,11 @@ var layoutDoc = ComponentDoc{
 		{Name: "nowrap, wrap, wrap-reverse", Type: "boolean",
 			Description: templ.Raw("flex-wrap, as a boolean attribute. Default nowrap.")},
 		{Name: "align-items", Type: `"flex-start" | "flex-end" | "center" | "stretch" | "baseline"`,
-			Description: templ.Raw("Cross-axis alignment.")},
+			Description: templ.Raw("Cross-axis alignment. Its value is the literal CSS keyword, so the attribute reads like the flex rule it emits.")},
 		{Name: "justify-content", Type: `"flex-start" | "flex-end" | "center" | "space-between" | "space-around" | "space-evenly"`,
-			Description: templ.Raw("Main-axis distribution.")},
+			Description: templ.Raw("Main-axis distribution. Its value is the literal CSS keyword, so the attribute reads like the flex rule it emits.")},
 		{Name: "align-content", Type: `"flex-start" | "flex-end" | "center" | "space-between" | "space-around" | "space-evenly" | "stretch"`,
-			Description: templ.Raw("Wrapped-line distribution. Needs <code>wrap</code>.")},
+			Description: templ.Raw("Cross-axis distribution of wrapped lines; takes effect only with <code>wrap</code>. Its value is the literal CSS keyword, so the attribute reads like the flex rule it emits.")},
 		{Name: "gap", Type: layoutGapType,
 			Description: templ.Raw("Spacing between children on both axes. <code>column-gap</code> and <code>row-gap</code> override it per axis.")},
 		{Name: "column-gap", Type: layoutGapType,

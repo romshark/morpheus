@@ -13,7 +13,9 @@ func layoutPlaygroundStates() []PlaygroundState {
 		{Label: "Responsive grid", HTML: layoutGridHTML, CSS: layoutGridCSS},
 		{Label: "Responsive conditional rendering", HTML: layoutConditionalHTML},
 		{Label: "Responsive collapse", HTML: layoutCollapseHTML},
-		{Label: "Alignment", HTML: layoutAlignHTML},
+		{Label: "align-items values", HTML: layoutAlignItemsHTML, CSS: layoutAlignItemsCSS},
+		{Label: "justify-content values", HTML: layoutJustifyContentHTML, CSS: layoutJustifyContentCSS},
+		{Label: "align-content values", HTML: layoutAlignContentHTML, CSS: layoutAlignContentCSS},
 		{Label: "Child attributes", HTML: layoutShellHTML, CSS: layoutShellCSS},
 		{Label: "Spacer", HTML: layoutSpacerHTML},
 		{Label: "Split row and column gaps", HTML: layoutSeparateGapsHTML},
@@ -56,10 +58,29 @@ var layoutConditionalHTML = renderExampleHTML(examples.LayoutConditional())
 //go:embed examples/layout_conditional.templ
 var layoutConditionalTempl string
 
-var layoutAlignHTML = renderExampleHTML(examples.LayoutAlign())
+var layoutAlignItemsHTML = renderExampleHTML(examples.LayoutAlignItems())
 
-//go:embed examples/layout_align.templ
-var layoutAlignTempl string
+//go:embed examples/layout_align_items.templ
+var layoutAlignItemsTempl string
+
+//go:embed examples/layout_align_items.css
+var layoutAlignItemsCSS string
+
+var layoutJustifyContentHTML = renderExampleHTML(examples.LayoutJustifyContent())
+
+//go:embed examples/layout_justify_content.templ
+var layoutJustifyContentTempl string
+
+//go:embed examples/layout_justify_content.css
+var layoutJustifyContentCSS string
+
+var layoutAlignContentHTML = renderExampleHTML(examples.LayoutAlignContent())
+
+//go:embed examples/layout_align_content.templ
+var layoutAlignContentTempl string
+
+//go:embed examples/layout_align_content.css
+var layoutAlignContentCSS string
 
 var layoutShellHTML = renderExampleHTML(examples.LayoutShell())
 

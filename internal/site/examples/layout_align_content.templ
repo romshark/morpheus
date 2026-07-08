@@ -1,0 +1,42 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+// LayoutAlignContent renders a wrapping <neo-layout> for every align-content value.
+templ LayoutAlignContent() {
+	@neo.LayoutAttrs(
+		neo.LayoutOpts{
+			Direction: neo.Set(neo.Column),
+			Wrap:      neo.Set(neo.Wrap),
+			Gap:       neo.Set(neo.GapLg),
+		},
+		neo.Item(neo.ItemOpts{Grow: neo.Set(true)}),
+	) {
+		for _, value := range [...]neo.AlignContent{
+			neo.AlignContentFlexStart,
+			neo.AlignContentFlexEnd,
+			neo.AlignContentCenter,
+			neo.AlignContentSpaceBetween,
+			neo.AlignContentSpaceAround,
+			neo.AlignContentSpaceEvenly,
+			neo.AlignContentStretch,
+		} {
+			@neo.Layout(neo.LayoutOpts{
+				Direction: neo.Set(neo.Column),
+				Gap:       neo.Set(neo.GapXs),
+			}) {
+				<code>{ string(value) }</code>
+				@neo.LayoutAttrs(neo.LayoutOpts{
+					Direction:    neo.Set(neo.Row),
+					Wrap:         neo.Set(neo.Wrap),
+					AlignContent: neo.Set(value),
+					Gap:          neo.Set(neo.GapSm),
+				}, templ.Attributes{"class": "layout-align-content-track"}) {
+					for range 12 {
+						<div class="layout-align-content-box"></div>
+					}
+				}
+			}
+		}
+	}
+}

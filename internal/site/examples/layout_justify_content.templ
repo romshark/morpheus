@@ -1,0 +1,37 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+// LayoutJustifyContent renders a full-width <neo-layout> column for every
+// justify-content value.
+templ LayoutJustifyContent() {
+	@neo.LayoutAttrs(
+		neo.LayoutOpts{Direction: neo.Set(neo.Column), Gap: neo.Set(neo.GapLg)},
+		neo.Item(neo.ItemOpts{Grow: neo.Set(true)}),
+	) {
+		for _, value := range [...]neo.JustifyContent{
+			neo.JustifyContentFlexStart,
+			neo.JustifyContentFlexEnd,
+			neo.JustifyContentCenter,
+			neo.JustifyContentSpaceBetween,
+			neo.JustifyContentSpaceAround,
+			neo.JustifyContentSpaceEvenly,
+		} {
+			@neo.Layout(neo.LayoutOpts{
+				Direction: neo.Set(neo.Column),
+				Gap:       neo.Set(neo.GapXs),
+			}) {
+				<code>{ string(value) }</code>
+				@neo.LayoutAttrs(neo.LayoutOpts{
+					Direction:      neo.Set(neo.Row),
+					JustifyContent: neo.Set(value),
+					Gap:            neo.Set(neo.GapSm),
+				}, templ.Attributes{"class": "layout-justify-track"}) {
+					<div class="layout-justify-box"></div>
+					<div class="layout-justify-box"></div>
+					<div class="layout-justify-box"></div>
+				}
+			}
+		}
+	}
+}

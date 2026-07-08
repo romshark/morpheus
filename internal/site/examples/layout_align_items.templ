@@ -1,0 +1,39 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+// LayoutAlignItems renders a <neo-layout> row for every align-items value.
+templ LayoutAlignItems() {
+	@neo.LayoutAttrs(
+		neo.LayoutOpts{
+			Direction: neo.Set(neo.Row),
+			Gap:       neo.Set(neo.GapLg),
+			Wrap:      neo.Set(neo.Wrap),
+		},
+		neo.Item(neo.ItemOpts{Grow: neo.Set(true)}),
+	) {
+		for _, value := range [...]neo.AlignItems{
+			neo.AlignItemsFlexStart,
+			neo.AlignItemsFlexEnd,
+			neo.AlignItemsCenter,
+			neo.AlignItemsStretch,
+			neo.AlignItemsBaseline,
+		} {
+			@neo.Layout(neo.LayoutOpts{
+				Direction: neo.Set(neo.Column),
+				Gap:       neo.Set(neo.GapXs),
+			}) {
+				<code>{ string(value) }</code>
+				@neo.LayoutAttrs(neo.LayoutOpts{
+					Direction:  neo.Set(neo.Row),
+					AlignItems: neo.Set(value),
+					Gap:        neo.Set(neo.GapSm),
+				}, templ.Attributes{"class": "layout-align-track"}) {
+					<div class="layout-align-box"></div>
+					<div class="layout-align-box"></div>
+					<div class="layout-align-box"></div>
+				}
+			}
+		}
+	}
+}

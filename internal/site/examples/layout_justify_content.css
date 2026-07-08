@@ -1,0 +1,13 @@
+.layout-justify-track {
+	padding: 0.5rem;
+	border: 1px dashed var(--muted);
+	border-radius: var(--page-radius);
+}
+
+.layout-justify-box {
+	width: 2rem;
+	height: 2rem;
+	background: color-mix(in srgb, var(--accent) 15%, transparent);
+	border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+	border-radius: var(--page-radius);
+}

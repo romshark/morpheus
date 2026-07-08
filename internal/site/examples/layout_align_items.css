@@ -1,0 +1,16 @@
+.layout-align-track {
+	height: 5rem;
+	padding: 0.4rem;
+	border: 1px dashed var(--muted);
+	border-radius: var(--page-radius);
+}
+
+.layout-align-box {
+	width: 2rem;
+	min-height: 2rem;
+	background: color-mix(in srgb, var(--accent) 15%, transparent);
+	border: 1px solid --accent;
+	border-radius: var(--page-radius);
+	line-height: 1.2;
+	white-space: nowrap;
+}
