@@ -1,0 +1,88 @@
+# Continuous integration: lint, type-check, build, and test on every push
+# to main and every pull request. Site deployment lives in pages.yml.
+#
+# Two jobs run in parallel. Each also verifies that the checked-in
+# generated artifacts it owns are reproducible:
+#   go  - the *_templ.go files (templ generate)
+#   web - the /min/ bundle and minified CSS (web/build.ts)
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+# Cancel a superseded run for the same ref; the newest commit is what matters.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  go:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache-dependency-path: go.sum
+
+      - name: gofmt
+        run: |
+          unformatted=$(gofmt -l .)
+          if [ -n "$unformatted" ]; then
+            echo "Not gofmt-formatted:"
+            echo "$unformatted"
+            exit 1
+          fi
+
+      - name: go vet
+        run: go vet ./...
+
+      - name: go build
+        run: go build ./...
+
+      - name: go test
+        run: go test ./...
+
+      # Fail if committed *_templ.go drifted from the .templ sources.
+      - name: templ generate is up to date
+        run: |
+          go run github.com/a-h/templ/cmd/templ@v0.3.1020 generate
+          git diff --exit-code
+
+  web:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: web/pnpm-lock.yaml
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      # Biome lint/format check plus tsc --noEmit.
+      - name: Check
+        run: pnpm run check-all
+
+      # Fail if the committed /min/ deliverables drifted from the sources.
+      - name: Bundle is up to date
+        run: |
+          pnpm run build
+          git diff --exit-code ../min
