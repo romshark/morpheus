@@ -1,4 +1,8 @@
 <label style="display:inline-flex;align-items:center;gap:0.6rem;cursor:pointer;">
-  <neo-switch data-signals="{switch_checked: true}" data-attr:checked="$switch_checked"></neo-switch>
+  <neo-switch
+    data-signals="{switch_checked: true}"
+    data-attr:checked="$switch_checked ? 'true' : 'false'"
+    data-on:neo-switch-change="$switch_checked = evt.detail.checked"
+  ></neo-switch>
   <span>Airplane mode</span>
 </label>
