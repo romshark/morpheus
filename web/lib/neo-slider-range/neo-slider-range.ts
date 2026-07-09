@@ -704,7 +704,15 @@ export class NeoSliderRange extends HTMLElement {
 			return;
 		}
 		const trimmed = raw.trim() || "200ms";
-		const value = /\s/.test(trimmed) ? trimmed : `${trimmed} var(--neo-easing, ease)`;
+		// Scale the duration by --neo-duration-scale so reduced motion (the OS
+		// query and the manual `data-pref-reduced-motion` toggle both zero it)
+		// makes the thumb jump. Live var, so a runtime toggle needs no re-run.
+		// A bare duration gets the kit default timing function; a full pair
+		// keeps its own.
+		const m = trimmed.match(/^(\d*\.?\d+(?:ms|s))\s*(.*)$/);
+		const dur = m ? m[1] : "200ms";
+		const fn = m?.[2].trim() ? m[2].trim() : "var(--neo-easing, ease)";
+		const value = `calc(${dur} * var(--neo-duration-scale, 1)) ${fn}`;
 		this.#trackEl.style.setProperty("--neo-slider-thumb-transition", value);
 	}
 
