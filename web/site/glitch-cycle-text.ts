@@ -47,9 +47,19 @@ class GlitchCycleText extends HTMLElement {
 	#flickerDelayTimer: number | undefined;
 	#flickerDurationTimer: number | undefined;
 	#unwatchReducedMotion: (() => void) | null = null;
+	#intersectionObserver: IntersectionObserver;
+	// Whether any part of the title is in the viewport. Off-screen, all timers
+	// and the CSS glitch animations are paused so an invisible hero title isn't
+	// cycling text and flickering behind content the user isn't looking at.
+	#onScreen = true;
 
 	constructor() {
 		super();
+
+		this.#intersectionObserver = new IntersectionObserver((entries) => {
+			this.#onScreen = entries[entries.length - 1].isIntersecting;
+			this.#syncPlayback();
+		});
 
 		const root = this.attachShadow({ mode: "open" });
 		root.innerHTML = `
@@ -158,6 +168,7 @@ class GlitchCycleText extends HTMLElement {
 		window.clearTimeout(this.#scrambleGlitchTimer);
 		window.clearTimeout(this.#flickerDelayTimer);
 		window.clearTimeout(this.#flickerDurationTimer);
+		this.#cycleTimer = undefined;
 
 		this.#words = this.#readWords();
 		this.#intervalDelay = Number(this.getAttribute("interval")) || 2300;
@@ -177,12 +188,9 @@ class GlitchCycleText extends HTMLElement {
 
 		this.#setText(this.#words[0]);
 
-		if (this.#words.length > 1) {
-			this.#cycleTimer = window.setInterval(() => this.#cyclePhrase(), this.#intervalDelay);
-		}
-
-		this.#unwatchReducedMotion = watchReducedMotion(() => this.#applyReducedMotion());
-		this.#applyReducedMotion();
+		this.#intersectionObserver.observe(this);
+		this.#unwatchReducedMotion = watchReducedMotion(() => this.#syncPlayback());
+		this.#syncPlayback();
 	}
 
 	disconnectedCallback() {
@@ -191,18 +199,33 @@ class GlitchCycleText extends HTMLElement {
 		window.clearTimeout(this.#scrambleGlitchTimer);
 		window.clearTimeout(this.#flickerDelayTimer);
 		window.clearTimeout(this.#flickerDurationTimer);
+		this.#intersectionObserver.disconnect();
 		this.#unwatchReducedMotion?.();
 		this.#unwatchReducedMotion = null;
 	}
 
-	// Under reduced motion: swap the phrase with no scramble, skip
-	// flicker bursts, and kill any in-flight scramble/flicker so a
-	// runtime pref flip lands clean.
-	#applyReducedMotion() {
-		if (!prefersReducedMotion()) {
-			this.#scheduleFlicker();
-			return;
+	// Reconcile all animation with visibility and reduced motion. Driven by the
+	// intersection observer (scroll) and reduced-motion changes.
+	//   - Word rotation is content: it runs while on-screen, regardless of
+	//     motion (#cyclePhrase swaps outright under reduced motion).
+	//   - The scramble + flicker are decorative: they additionally require
+	//     motion, and stop off-screen or under reduced motion.
+	#syncPlayback() {
+		if (this.#onScreen && this.#words.length > 1) {
+			if (this.#cycleTimer === undefined) {
+				this.#cycleTimer = window.setInterval(() => this.#cyclePhrase(), this.#intervalDelay);
+			}
+		} else {
+			window.clearInterval(this.#cycleTimer);
+			this.#cycleTimer = undefined;
 		}
+		if (this.#onScreen && !prefersReducedMotion()) this.#scheduleFlicker();
+		else this.#stopDecorative();
+	}
+
+	// Kill any in-flight scramble/flicker and settle to the current word, so a
+	// pause (off-screen) or a reduced-motion flip lands clean.
+	#stopDecorative() {
 		window.clearInterval(this.#scrambleTimer);
 		window.clearTimeout(this.#scrambleGlitchTimer);
 		window.clearTimeout(this.#flickerDelayTimer);

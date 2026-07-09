@@ -84,6 +84,11 @@ class MatrixRain extends HTMLElement {
 	#columns: MatrixColumn[] = [];
 	#lastFrameTime = 0;
 	#resizeObserver: ResizeObserver;
+	#intersectionObserver: IntersectionObserver;
+	// Whether any part of the backdrop is in the viewport. Gates the loop with
+	// reduced motion: a decorative off-screen canvas must not keep a 60fps rAF
+	// loop repainting behind content the user isn't looking at.
+	#onScreen = true;
 	#unwatchReducedMotion: (() => void) | null = null;
 	#animationFrame = 0;
 	#options!: MatrixOptions;
@@ -119,11 +124,19 @@ class MatrixRain extends HTMLElement {
 		this.#canvas = root.querySelector("canvas")!;
 		this.#context = this.#canvas.getContext("2d", { alpha: true })!;
 		this.#resizeObserver = new ResizeObserver(() => this.#resize());
+		// isIntersecting at threshold 0 stays true while any sliver is visible,
+		// so the loop runs a touch past the edge rather than blanking on a
+		// partially-visible backdrop.
+		this.#intersectionObserver = new IntersectionObserver((entries) => {
+			this.#onScreen = entries[entries.length - 1].isIntersecting;
+			this.#syncPlayback();
+		});
 	}
 
 	connectedCallback() {
 		this.#readOptions();
 		this.#resizeObserver.observe(this);
+		this.#intersectionObserver.observe(this);
 		this.#unwatchReducedMotion = watchReducedMotion(() => this.#applyReducedMotion());
 		this.#applyReducedMotion();
 	}
@@ -131,6 +144,7 @@ class MatrixRain extends HTMLElement {
 	disconnectedCallback() {
 		this.#stop();
 		this.#resizeObserver.disconnect();
+		this.#intersectionObserver.disconnect();
 		this.#unwatchReducedMotion?.();
 		this.#unwatchReducedMotion = null;
 	}
@@ -145,7 +159,14 @@ class MatrixRain extends HTMLElement {
 		}
 		this.style.display = "";
 		this.#resize();
-		this.#start();
+		this.#syncPlayback();
+	}
+
+	// Run the loop only while on-screen and motion is allowed; stop otherwise.
+	// Driven by the intersection observer (scroll) and reduced-motion changes.
+	#syncPlayback() {
+		if (this.#onScreen && !prefersReducedMotion()) this.#start();
+		else this.#stop();
 	}
 
 	attributeChangedCallback() {
