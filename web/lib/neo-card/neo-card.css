@@ -72,6 +72,8 @@ neo-card [data-neo-card-media] {
 	margin: calc(var(--neo-card-padding) * -1);
 	/* Empty styled placeholders need a box. */
 	min-height: var(--neo-card-media-default-height);
+	/* Clip children to the :first-child/:last-child rounded corners. */
+	overflow: hidden;
 }
 
 neo-card [data-neo-card-media]:has(> *) {
