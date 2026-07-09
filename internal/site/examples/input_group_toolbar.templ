@@ -1,0 +1,93 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ InputGroupToolbar() {
+	<div class="demo-toolbar-frame">
+		<neo-input-group class="demo-toolbar">
+			<neo-button>
+				File
+				@neo.Menu(neo.MenuOpts{Placement: neo.Set(neo.PlacementBottomStart)}) {
+					@neo.MenuItem(neo.MenuItemOpts{Value: neo.Set("new"), Shortcut: neo.Set("Mod+N")}) {
+						New file
+					}
+					@neo.MenuItem(neo.MenuItemOpts{Value: neo.Set("open"), Shortcut: neo.Set("Mod+O")}) {
+						Open…
+					}
+					@neo.MenuItem(neo.MenuItemOpts{Value: neo.Set("save"), Shortcut: neo.Set("Mod+S")}) {
+						Save
+					}
+					<hr/>
+					@neo.MenuItem(neo.MenuItemOpts{Value: neo.Set("quit"), Shortcut: neo.Set("Mod+Q")}) {
+						Quit
+					}
+				}
+			</neo-button>
+			<neo-button>
+				Edit
+				@neo.Menu(neo.MenuOpts{Placement: neo.Set(neo.PlacementBottomStart)}) {
+					@neo.MenuItem(neo.MenuItemOpts{Value: neo.Set("undo"), Shortcut: neo.Set("Mod+Z")}) {
+						Undo
+					}
+					@neo.MenuItem(neo.MenuItemOpts{Value: neo.Set("redo"), Shortcut: neo.Set("Mod+Shift+Z")}) {
+						Redo
+					}
+					<hr/>
+					@neo.MenuItem(neo.MenuItemOpts{Value: neo.Set("cut"), Shortcut: neo.Set("Mod+X")}) {
+						Cut
+					}
+					@neo.MenuItem(neo.MenuItemOpts{Value: neo.Set("copy"), Shortcut: neo.Set("Mod+C")}) {
+						Copy
+					}
+					@neo.MenuItem(neo.MenuItemOpts{Value: neo.Set("paste"), Shortcut: neo.Set("Mod+V")}) {
+						Paste
+					}
+				}
+			</neo-button>
+			<neo-button>
+				View
+				@neo.Menu(neo.MenuOpts{Placement: neo.Set(neo.PlacementBottomStart)}) {
+					@neo.MenuItem(neo.MenuItemOpts{Value: neo.Set("zoom-in"), Shortcut: neo.Set("Mod+=")}) {
+						Zoom in
+					}
+					@neo.MenuItem(neo.MenuItemOpts{Value: neo.Set("zoom-out"), Shortcut: neo.Set("Mod+-")}) {
+						Zoom out
+					}
+					<hr/>
+					@neo.SubMenu(neo.SubMenuOpts{Label: neo.Set("Appearance")}) {
+						@neo.MenuItem(neo.MenuItemOpts{Value: neo.Set("light")}) {
+							Light
+						}
+						@neo.MenuItem(neo.MenuItemOpts{Value: neo.Set("dark")}) {
+							Dark
+						}
+						@neo.MenuItem(neo.MenuItemOpts{Value: neo.Set("system")}) {
+							System
+						}
+					}
+				}
+			</neo-button>
+			<neo-button>
+				Selection
+				@neo.Menu(neo.MenuOpts{Placement: neo.Set(neo.PlacementBottomStart)}) {
+					@neo.MenuItem(neo.MenuItemOpts{Value: neo.Set("select-all"), Shortcut: neo.Set("Mod+A")}) {
+						Select all
+					}
+					@neo.MenuItem(neo.MenuItemOpts{Value: neo.Set("expand"), Shortcut: neo.Set("Mod+Shift+=")}) {
+						Expand selection
+					}
+					@neo.MenuItem(neo.MenuItemOpts{Value: neo.Set("shrink"), Shortcut: neo.Set("Mod+Shift+-")}) {
+						Shrink selection
+					}
+					<hr/>
+					@neo.MenuItem(neo.MenuItemOpts{Value: neo.Set("copy-up"), Shortcut: neo.Set("Mod+Alt+Up")}) {
+						Copy line up
+					}
+					@neo.MenuItem(neo.MenuItemOpts{Value: neo.Set("copy-down"), Shortcut: neo.Set("Mod+Alt+Down")}) {
+						Copy line down
+					}
+				}
+			</neo-button>
+		</neo-input-group>
+	</div>
+}

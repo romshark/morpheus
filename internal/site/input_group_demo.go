@@ -7,12 +7,30 @@ import (
 )
 
 // One templ source per example under examples/, driving both the live
-// preview (rendered HTML) and the Templ source tab. Input group is a
-// layout primitive whose styling (border, radius, focus ring) wraps an
-// inner `<input>` plus zero-or-more leading/trailing addon children.
-// There's no per-instance live-knob worth toggling, so the page has no
-// live-params playground, only static examples that show how to compose
-// addons around a field.
+// preview (rendered HTML) and the Templ source tab.
+
+// inputGroupPlaygroundStates seeds the playground with the editable
+// Default state plus a curated set of the page's static examples. Only
+// self-contained examples are reused so each state's CSS tab is the full
+// source (the range/comparison/domain demos lean on global classes in
+// style.css and would show an empty CSS tab).
+func inputGroupPlaygroundStates() []PlaygroundState {
+	return []PlaygroundState{
+		{Label: "Default", HTML: inputGroupDefaultHTML, CSS: inputGroupDefaultCSS},
+		{Label: "Currency prefix", HTML: inputGroupCurrencyHTML},
+		{Label: "Search", HTML: inputGroupSearchIconHTML},
+		{Label: "Search with shortcut", HTML: inputGroupSearchShortcutHTML},
+		{Label: "Search with submit", HTML: inputGroupSearchSubmitHTML},
+		{Label: "Toolbar", HTML: inputGroupToolbarHTML, CSS: inputGroupToolbarCSS},
+		{Label: "Disabled", HTML: inputGroupDisabledHTML},
+	}
+}
+
+//go:embed examples/input_group_default.html
+var inputGroupDefaultHTML string
+
+//go:embed examples/input_group_default.css
+var inputGroupDefaultCSS string
 
 var inputGroupCurrencyHTML = renderExampleHTML(examples.InputGroupCurrency())
 
@@ -53,3 +71,11 @@ var inputGroupDisabledHTML = renderExampleHTML(examples.InputGroupDisabled())
 
 //go:embed examples/input_group_disabled.templ
 var inputGroupDisabledTempl string
+
+var inputGroupToolbarHTML = renderExampleHTML(examples.InputGroupToolbar())
+
+//go:embed examples/input_group_toolbar.templ
+var inputGroupToolbarTempl string
+
+//go:embed examples/input_group_toolbar.css
+var inputGroupToolbarCSS string

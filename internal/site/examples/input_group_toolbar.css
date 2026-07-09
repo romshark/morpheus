@@ -1,0 +1,8 @@
+.demo-toolbar-frame {
+	align-self: stretch;
+	display: grid;
+}
+
+.demo-toolbar {
+	box-shadow: var(--neo-card-shadow);
+}

@@ -21,6 +21,10 @@ templ PageInputGroup(morpheusVersion string) {
 				border, radius, and focus ring so the inner field
 				drops its own.
 			</p>
+			@Playground(PlaygroundOpts{
+				ID:     "input-group-playground",
+				States: inputGroupPlaygroundStates(),
+			})
 			@anchoredH2("reference") {
 				Reference
 			}
@@ -155,6 +159,24 @@ templ PageInputGroup(morpheusVersion string) {
 				TemplSource:    inputGroupSearchSubmitTempl,
 			}) {
 				@examples.InputGroupSearchSubmit()
+			}
+			@anchoredH3("toolbar") {
+				Toolbar
+			}
+			<p class="demo-note">
+				A window menubar: each
+				<code>{ `<neo-button>` }</code> opens a
+				<code>{ `<neo-menu>` }</code> dropdown and the group
+				merges them under one border.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinWidth:  "18rem",
+				StageMinHeight: "16rem",
+				HTMLSource:     inputGroupToolbarHTML,
+				TemplSource:    inputGroupToolbarTempl,
+				CSSSource:      inputGroupToolbarCSS,
+			}) {
+				@examples.InputGroupToolbar()
 			}
 			@anchoredH3("disabled") {
 				Disabled
