@@ -2,6 +2,21 @@
 // shadow-DOM-aware event/focus checks and a small CSS scope-rewriter
 // so each component file doesn't reinvent them.
 
+// Set an element's text without orphaning its text node. Mutates the single
+// existing Text child in place (`.data`) instead of `textContent =`, which
+// detaches the old text node and allocates a new one. Callers that rewrite
+// text every animation frame (slider readout, tooltip bubble during a drag)
+// avoid a per-frame text-node allocation; falls back to textContent when the
+// element isn't a lone text node.
+export function setTextInPlace(el: HTMLElement, text: string): void {
+	const first = el.firstChild;
+	if (first !== null && first.nodeType === Node.TEXT_NODE && first.nextSibling === null) {
+		if ((first as Text).data !== text) (first as Text).data = text;
+		return;
+	}
+	if (el.textContent !== text) el.textContent = text;
+}
+
 // Does the event's composed path enter (or originate at) `target`?
 // Equivalent to `target.contains(e.target)` for light DOM, but also
 // crosses shadow boundaries: a click inside a shadow root reports

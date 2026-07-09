@@ -16,7 +16,7 @@ import {
 } from "../neo-marks";
 import tooltipCss from "../neo-tooltip/tooltip-pill.css";
 import { num } from "../num";
-import { scopeCssToHost } from "../shadow-utils";
+import { scopeCssToHost, setTextInPlace } from "../shadow-utils";
 import { TooltipController } from "../tooltip-controller";
 import sliderRangeCss from "./neo-slider-range.css";
 
@@ -44,7 +44,7 @@ const MARK_CFG: MarkRailConfig = {
 
 // The whole module stylesheet, tag selectors rewritten to `:host`,
 // adopted into every instance's shadow root. Built once and shared. The
-// internals live in the shadow so a Datastar fat-morph of the light host
+// internals live in the shadow so a fat morph of the light host
 // can't wipe them. The thumb / fill nodes persist, so an `easing`
 // transition runs on a plain value change instead of snapping after a
 // rebuild. The tooltip pill CSS is adopted here too because both thumbs'
@@ -68,6 +68,9 @@ export class NeoSliderRange extends HTMLElement {
 		ATTR_EASING,
 		ATTR_DISABLED,
 		ATTR_STATIC_MARKS,
+		// Observed so a runtime aria-label change refreshes the derived
+		// min/max accessible names (see #syncAriaMeta).
+		"aria-label",
 	];
 
 	#rendered = false;
@@ -105,6 +108,17 @@ export class NeoSliderRange extends HTMLElement {
 	#dragStartX = 0;
 	#dragStartY = 0;
 	#dragStarted = false;
+	// Track rect captured at drag start; reused each move so a captured pointer
+	// doesn't force a layout flush per frame. Refreshed on scroll/resize.
+	#dragTrackRect: DOMRect | null = null;
+	// Follow-drag baseline: the side whose tooltip follows the thumb, and that
+	// thumb's position (%) when the drag crossed its threshold (see #syncValues).
+	#followSide: Side | null = null;
+	#followBasePct = 0;
+	// Signature of the active-mark band [lo, hi] at the last mark sync; NaN
+	// forces the next #syncMarkActive to run. Reset on re-render.
+	#lastActiveBelowLo = NaN;
+	#lastActiveAtOrBelowHi = NaN;
 	#tooltipTrackFrame: number | null = null;
 	#tooltipTrackStartedAt = 0;
 	#markResizeObserver: ResizeObserver | null = null;
@@ -123,6 +137,12 @@ export class NeoSliderRange extends HTMLElement {
 		// their window listeners here. Idempotent when already connected.
 		this.#tooltipMinCtrl?.connect();
 		this.#tooltipMaxCtrl?.connect();
+		// Rect-invalidators live for the element's lifetime, not per drag, to
+		// avoid churning listener objects each drag. #invalidateDragRect no-ops
+		// unless a drag is active. addEventListener dedupes, so a reconnect
+		// re-adds harmlessly.
+		window.addEventListener("scroll", this.#invalidateDragRect, true);
+		window.addEventListener("resize", this.#invalidateDragRect);
 		this.#syncAll();
 		this.#observeMarkLayout();
 		this.#scheduleMarkLayoutSync();
@@ -136,6 +156,8 @@ export class NeoSliderRange extends HTMLElement {
 
 	disconnectedCallback() {
 		this.#endDrag();
+		window.removeEventListener("scroll", this.#invalidateDragRect, true);
+		window.removeEventListener("resize", this.#invalidateDragRect);
 		this.removeEventListener("focusin", this.#onFocusChange);
 		this.removeEventListener("focusout", this.#onFocusChange);
 		this.#childObserver?.disconnect();
@@ -210,7 +232,9 @@ export class NeoSliderRange extends HTMLElement {
 		if (name === ATTR_LABEL) {
 			this.#syncLabel();
 			this.#syncHeaderVisibility();
-		} else if (name === ATTR_UNIT) this.#syncUnit();
+			this.#syncAriaMeta();
+		} else if (name === "aria-label") this.#syncAriaMeta();
+		else if (name === ATTR_UNIT) this.#syncUnit();
 		else if (name === ATTR_HIDE_VALUE) {
 			this.#syncValueVisibility();
 			this.#syncHeaderVisibility();
@@ -218,6 +242,7 @@ export class NeoSliderRange extends HTMLElement {
 		else if (name === ATTR_VERTICAL) {
 			this.#orderThumbsForOrientation();
 			this.#renderMarks();
+			this.#syncAriaMeta();
 			this.#syncValues();
 		} else if (name === ATTR_EASING) this.#syncEasing();
 		else if (name === ATTR_DISABLED) this.#syncDisabled();
@@ -227,6 +252,7 @@ export class NeoSliderRange extends HTMLElement {
 			this.#valueMaxIntent = this.#clampToRail(this.#valueMaxIntent);
 			this.#reflectValues();
 			this.#renderMarks();
+			this.#syncAriaMeta();
 			this.#syncValues();
 		} else if (name === ATTR_VALUE_MIN || name === ATTR_VALUE_MAX) {
 			// Our own guarded reflect; not a command.
@@ -235,8 +261,20 @@ export class NeoSliderRange extends HTMLElement {
 			// Absent: no command, keep this thumb's value; re-reflect so the
 			// attribute stays the state mirror. Handled per-side, a morph may
 			// strip only one.
-			if (newValue === null) this.#reflectValues();
-			else this.#adoptValueAttr(side);
+			if (newValue === null) {
+				this.#reflectValues();
+				this.#syncValues();
+				return;
+			}
+			// Ignore a write equal to this thumb's current value: a two-way
+			// binding echoes every input back into these attributes, which
+			// would otherwise re-run the sync.
+			const dflt = side === "min" ? this.min : this.max;
+			const parsed = this.#clampToRail(num(newValue, dflt));
+			const cur = side === "min" ? this.#valueMinIntent : this.#valueMaxIntent;
+			if (parsed === cur) return;
+			if (side === "min") this.#valueMinIntent = parsed;
+			else this.#valueMaxIntent = parsed;
 			this.#syncValues();
 		} else this.#syncValues();
 		void newValue;
@@ -394,6 +432,15 @@ export class NeoSliderRange extends HTMLElement {
 		this.#trackEl.addEventListener("pointerdown", this.#onTrackPointerDown);
 		this.#trackEl.addEventListener("pointermove", this.#onTrackMarkPointerMove);
 		this.#trackEl.addEventListener("pointerleave", this.#onTrackMarkPointerLeave);
+		// Drag listeners bound once here, not per pointerdown: each
+		// add/removeEventListener pair allocates a listener object that lives
+		// until GC. All four short-circuit on `#dragPointerId`, so they are
+		// inert until a drag is active. The track lives in the shadow and
+		// persists across morphs, so these survive a reconnect.
+		this.#trackEl.addEventListener("pointermove", this.#onTrackPointerMove);
+		this.#trackEl.addEventListener("pointerup", this.#onTrackPointerUp);
+		this.#trackEl.addEventListener("pointercancel", this.#onTrackPointerCancel);
+		this.#trackEl.addEventListener("lostpointercapture", this.#onTrackLostPointerCapture);
 		// Delegate click from track + marks row instead of N listeners.
 		this.#trackEl.addEventListener("click", this.#onAnchorClick);
 		this.#marksEl.addEventListener("click", this.#onMarkLabelClick);
@@ -431,6 +478,9 @@ export class NeoSliderRange extends HTMLElement {
 	// separately by syncMarkActive.
 	#renderMarks() {
 		if (!this.#trackEl || !this.#marksEl) return;
+		// Dots are rebuilt; force the next #syncMarkActive to re-tag them.
+		this.#lastActiveBelowLo = NaN;
+		this.#lastActiveAtOrBelowHi = NaN;
 		renderMarkRail(this.#marks, this.#trackEl, this.#marksEl, {
 			min: this.min,
 			max: this.max,
@@ -485,6 +535,20 @@ export class NeoSliderRange extends HTMLElement {
 	// "below the value" because that slider's fill starts at min).
 	#syncMarkActive(lo: number, hi: number) {
 		if (!this.#trackEl || !this.#marksEl) return;
+		// The active set is the marks in [lo, hi]; it changes only when lo or hi
+		// crosses a mark. (belowLo, atOrBelowHi) are the band's boundary indices
+		// into the sorted marks, so an unchanged pair means an unchanged set:
+		// skip the querySelectorAll sweep, so a drag between marks does no mark
+		// work. NaN (set on re-render) forces the first sync.
+		let belowLo = 0;
+		let atOrBelowHi = 0;
+		for (const m of this.#marks) {
+			if (m.value < lo) belowLo++;
+			if (m.value <= hi) atOrBelowHi++;
+		}
+		if (belowLo === this.#lastActiveBelowLo && atOrBelowHi === this.#lastActiveAtOrBelowHi) return;
+		this.#lastActiveBelowLo = belowLo;
+		this.#lastActiveAtOrBelowHi = atOrBelowHi;
 		const flip = (el: Element) => {
 			const raw = el.getAttribute("data-neo-mark-value");
 			if (raw === null) return;
@@ -563,12 +627,72 @@ export class NeoSliderRange extends HTMLElement {
 		this.#syncHeaderVisibility();
 		this.#syncEasing();
 		this.#syncDisabled();
+		this.#syncAriaMeta();
 		this.#syncValues();
 	}
 
+	// ARIA that depends on min/max/label/orientation, not the live values.
+	// Kept out of #syncValues so a drag doesn't rewrite eight unchanging
+	// attributes each frame; the relevant attribute handlers and #syncAll call
+	// it. The cross-coupled bounds (min field capped at the max thumb, and vice
+	// versa) DO change per value and stay in #syncValues.
+	#syncAriaMeta() {
+		const orientation = this.#isVertical() ? "vertical" : "horizontal";
+		const min = String(this.min);
+		const max = String(this.max);
+		const labelText = this.getAttribute(ATTR_LABEL) || this.getAttribute("aria-label") || "";
+		const minName = labelText ? `${labelText} minimum` : "Minimum";
+		const maxName = labelText ? `${labelText} maximum` : "Maximum";
+		if (this.#thumbMinEl) {
+			this.#thumbMinEl.setAttribute("aria-orientation", orientation);
+			this.#thumbMinEl.setAttribute("aria-valuemin", min);
+			this.#thumbMinEl.setAttribute("aria-valuemax", max);
+			this.#thumbMinEl.setAttribute("aria-label", minName);
+		}
+		if (this.#thumbMaxEl) {
+			this.#thumbMaxEl.setAttribute("aria-orientation", orientation);
+			this.#thumbMaxEl.setAttribute("aria-valuemin", min);
+			this.#thumbMaxEl.setAttribute("aria-valuemax", max);
+			this.#thumbMaxEl.setAttribute("aria-label", maxName);
+		}
+		if (this.#valueMinEl) {
+			this.#valueMinEl.setAttribute("aria-valuemin", min);
+			this.#valueMinEl.setAttribute("aria-label", minName);
+		}
+		if (this.#valueMaxEl) {
+			this.#valueMaxEl.setAttribute("aria-valuemax", max);
+			this.#valueMaxEl.setAttribute("aria-label", maxName);
+		}
+	}
+
+	#invalidateDragRect = () => {
+		// Bound for the element's lifetime; only a live drag caches a rect to
+		// refresh. Skip the getBoundingClientRect (a forced layout) otherwise.
+		if (this.#dragPointerId === null || !this.#trackEl) return;
+		this.#dragTrackRect = this.#trackEl.getBoundingClientRect();
+	};
+
+	#ctrlFor(side: Side): TooltipController | null {
+		return side === "min" ? this.#tooltipMinCtrl : this.#tooltipMaxCtrl;
+	}
+
+	#valuePct(v: number): number {
+		const span = this.max - this.min;
+		return span > 0 ? ((v - this.min) / span) * 100 : 0;
+	}
+
+	// Start following the dragged thumb's tooltip: place it once, then
+	// #syncValues shifts it by the thumb's delta with no layout read.
+	#beginFollowSide(side: Side) {
+		this.#followSide = side;
+		this.#followBasePct = this.#valuePct(side === "min" ? this.valueMin : this.valueMax);
+		this.#showSide(side);
+		this.#ctrlFor(side)?.beginFollow();
+	}
+
 	// Set the transition var on the shadow track (the common ancestor of
-	// fill + thumbs, so it inherits to all three), NOT the host. A Datastar
-	// fat-morph of the bare light host reconciles its attributes to the
+	// fill + thumbs, so it inherits to all three), NOT the host. A fat
+	// morph of the bare light host reconciles its attributes to the
 	// source, which has no `style`. Putting it on the host would strip the
 	// transition on every morph and snap instead of easing. The shadow tree
 	// is untouched by the morph.
@@ -654,50 +778,23 @@ export class NeoSliderRange extends HTMLElement {
 		// retargets to the host; read focus from the shadow root to avoid
 		// stomping the user's typing.
 		const active = this.shadowRoot?.activeElement;
-		if (this.#valueMinEl && active !== this.#valueMinEl) {
-			this.#valueMinEl.textContent = loFmt;
-		}
-		if (this.#valueMaxEl && active !== this.#valueMaxEl) {
-			this.#valueMaxEl.textContent = hiFmt;
-		}
+		// In-place text update avoids orphaning a text node every drag frame.
+		if (this.#valueMinEl && active !== this.#valueMinEl) setTextInPlace(this.#valueMinEl, loFmt);
+		if (this.#valueMaxEl && active !== this.#valueMaxEl) setTextInPlace(this.#valueMaxEl, hiFmt);
 
-		const orientation = this.#isVertical() ? "vertical" : "horizontal";
-		// Prefer the visible `label`; fall back to the host's `aria-label`
-		// so a slider-range with only an aria-label still names its
-		// controls. Empty falls through to "Minimum"/"Maximum".
-		const labelText = this.getAttribute(ATTR_LABEL) || this.getAttribute("aria-label") || "";
-		const minName = labelText ? `${labelText} minimum` : "Minimum";
-		const maxName = labelText ? `${labelText} maximum` : "Maximum";
-		if (this.#thumbMinEl) {
-			this.#thumbMinEl.setAttribute("aria-orientation", orientation);
-			this.#thumbMinEl.setAttribute("aria-valuemin", String(min));
-			this.#thumbMinEl.setAttribute("aria-valuemax", String(max));
-			this.#thumbMinEl.setAttribute("aria-valuenow", String(lo));
-			this.#thumbMinEl.setAttribute("aria-label", minName);
-		}
-		if (this.#thumbMaxEl) {
-			this.#thumbMaxEl.setAttribute("aria-orientation", orientation);
-			this.#thumbMaxEl.setAttribute("aria-valuemin", String(min));
-			this.#thumbMaxEl.setAttribute("aria-valuemax", String(max));
-			this.#thumbMaxEl.setAttribute("aria-valuenow", String(hi));
-			this.#thumbMaxEl.setAttribute("aria-label", maxName);
-		}
-		// The editable value spans carry role="spinbutton", which is an
-		// input role, so they need their own accessible name plus
-		// aria-valuemin/valuemax/valuenow. The min spinbutton's range is
-		// capped at the current max thumb (and vice versa), mirroring the
-		// edit-commit clamping in onValueBlur.
+		// Value-dependent ARIA only; the static rest (orientation, min/max,
+		// label) is in #syncAriaMeta. The editable spinbutton spans cross-couple
+		// their bounds: the min field's max is the current max thumb and the max
+		// field's min is the current min thumb, mirroring onValueBlur clamping.
+		this.#thumbMinEl?.setAttribute("aria-valuenow", String(lo));
+		this.#thumbMaxEl?.setAttribute("aria-valuenow", String(hi));
 		if (this.#valueMinEl) {
-			this.#valueMinEl.setAttribute("aria-valuemin", String(min));
 			this.#valueMinEl.setAttribute("aria-valuemax", String(hi));
 			this.#valueMinEl.setAttribute("aria-valuenow", String(lo));
-			this.#valueMinEl.setAttribute("aria-label", minName);
 		}
 		if (this.#valueMaxEl) {
 			this.#valueMaxEl.setAttribute("aria-valuemin", String(lo));
-			this.#valueMaxEl.setAttribute("aria-valuemax", String(max));
 			this.#valueMaxEl.setAttribute("aria-valuenow", String(hi));
-			this.#valueMaxEl.setAttribute("aria-label", maxName);
 		}
 
 		const loPct = span > 0 ? ((lo - min) / span) * 100 : 0;
@@ -740,15 +837,27 @@ export class NeoSliderRange extends HTMLElement {
 			}
 		}
 
-		if (this.#tooltipMinCtrl) {
-			this.#tooltipMinCtrl.setText(loFmt);
-			this.#tooltipMinCtrl.reposition();
+		if (this.#dragStarted && this.#dragTrackRect && this.#followSide) {
+			// Follow only the dragged thumb's tooltip by shifting it along the
+			// drag axis from the drag-start baseline; no getBoundingClientRect,
+			// so no forced reflow per frame. The other thumb is static.
+			const side = this.#followSide;
+			const ctrl = this.#ctrlFor(side);
+			ctrl?.setText(side === "min" ? loFmt : hiFmt);
+			const move = (this.#valuePct(side === "min" ? lo : hi) - this.#followBasePct) / 100;
+			if (this.#isVertical()) ctrl?.nudge(0, -move * this.#dragTrackRect.height);
+			else ctrl?.nudge(move * this.#dragTrackRect.width, 0);
+		} else {
+			if (this.#tooltipMinCtrl) {
+				this.#tooltipMinCtrl.setText(loFmt);
+				this.#tooltipMinCtrl.reposition();
+			}
+			if (this.#tooltipMaxCtrl) {
+				this.#tooltipMaxCtrl.setText(hiFmt);
+				this.#tooltipMaxCtrl.reposition();
+			}
+			this.#trackTooltipWhileThumbsMove();
 		}
-		if (this.#tooltipMaxCtrl) {
-			this.#tooltipMaxCtrl.setText(hiFmt);
-			this.#tooltipMaxCtrl.reposition();
-		}
-		this.#trackTooltipWhileThumbsMove();
 
 		this.#syncMarkActive(lo, hi);
 	}
@@ -834,20 +943,25 @@ export class NeoSliderRange extends HTMLElement {
 		}
 
 		const changed = nextLo !== beforeLo || nextHi !== beforeHi;
-		if (changed) {
-			// nextLo/nextHi are already ordered; store the sorted pair and
-			// reflect+render through the single value writer.
-			this.#valueMinIntent = nextLo;
-			this.#valueMaxIntent = nextHi;
-			this.#reflectValues();
-			this.#syncValues();
-		} else {
+		if (!changed) {
 			// No value change, but typed text may diverge from the committed
-			// value (e.g. "9" with min=10), so re-sync.
+			// value (e.g. "9" with min=10), so re-sync. Emit nothing, like a
+			// native input that fires only on an actual change.
 			this.#syncValues();
+			return nextSide;
 		}
+		// nextLo/nextHi are already ordered; store the sorted pair.
+		this.#valueMinIntent = nextLo;
+		this.#valueMaxIntent = nextHi;
+		// Defer attribute reflection during a drag (a light-DOM `value-*` write
+		// restyles any page :has() scope keyed on it); a committed change
+		// settles it, and #endDrag settles the deferred value.
+		if (!this.#dragStarted || kind === "change") this.#reflectValues();
+		this.#syncValues();
+		// `input` is the live mid-drag value; `change` is the committed value
+		// (drag end, mark click, keyboard, field edit). See DESIGN.md Events.
 		this.dispatchEvent(
-			new CustomEvent(`neo-slider-range-${kind}`, {
+			new CustomEvent(kind === "change" ? "neo-slider-range-change" : "neo-slider-range-input", {
 				bubbles: true,
 				detail: { min: nextLo, max: nextHi },
 			}),
@@ -1043,6 +1157,10 @@ export class NeoSliderRange extends HTMLElement {
 	};
 
 	#onTrackMarkPointerMove = (e: PointerEvent) => {
+		// While a pointer is down (drag or click) the mark-hover highlight is
+		// irrelevant; skip it so the per-mark getBoundingClientRect scan doesn't
+		// force a layout flush on every drag move.
+		if (this.#dragPointerId !== null) return;
 		const value = markValueNearPointer(this.#trackEl, MARK_CFG, this.#isVertical(), e.clientX, e.clientY);
 		syncHoveredMarkLabel(this.#marksEl, MARK_CFG, value);
 	};
@@ -1080,6 +1198,9 @@ export class NeoSliderRange extends HTMLElement {
 		// user intent is text editing, not scrubbing.
 		if ((e.target as Element | null)?.closest("[data-neo-slider-value]")) return;
 		e.preventDefault();
+		// Cache the track rect for the whole drag (see #valueAtPointer); set it
+		// before the first #valueAtPointer below.
+		this.#dragTrackRect = this.#trackEl.getBoundingClientRect();
 		const valueAtClick = this.#valueAtPointer(e.clientX, e.clientY);
 		const which = this.#pickThumb(e.target, valueAtClick);
 		this.#dragWhich = which;
@@ -1093,10 +1214,9 @@ export class NeoSliderRange extends HTMLElement {
 		this.#dragStartX = e.clientX;
 		this.#dragStartY = e.clientY;
 		this.#dragStarted = false;
-		this.#trackEl.addEventListener("pointermove", this.#onTrackPointerMove);
-		this.#trackEl.addEventListener("pointerup", this.#onTrackPointerUp);
-		this.#trackEl.addEventListener("pointercancel", this.#onTrackPointerCancel);
-		this.#trackEl.addEventListener("lostpointercapture", this.#onTrackLostPointerCapture);
+		// Drag pointer listeners are bound once in #render; setting the id above
+		// arms them. Scroll/resize rect-invalidators are bound for the element's
+		// lifetime (see connectedCallback). Nothing is attached here.
 		const nextSide = this.#commit(which, valueAtClick, "input");
 		if (nextSide !== which) {
 			this.#dragWhich = nextSide;
@@ -1118,12 +1238,18 @@ export class NeoSliderRange extends HTMLElement {
 			if (delta < 4) return;
 			this.#dragStarted = true;
 			this.setAttribute("data-neo-slider-dragging", "");
+			// Place the dragged tooltip once; #syncValues then follows it.
+			this.#beginFollowSide(this.#dragWhich);
 		}
 		this.#showSide(this.#dragWhich);
 		const nextSide = this.#commit(this.#dragWhich, this.#valueAtPointer(e.clientX, e.clientY), "input");
 		if (nextSide !== this.#dragWhich) {
+			// Thumbs crossed: settle the old tooltip and re-baseline the follow
+			// onto the thumb that now carries the drag.
+			this.#ctrlFor(this.#dragWhich)?.endFollow();
 			this.#dragWhich = nextSide;
 			this.#activateSide(nextSide);
+			if (this.#dragStarted) this.#beginFollowSide(nextSide);
 		}
 	};
 
@@ -1154,21 +1280,29 @@ export class NeoSliderRange extends HTMLElement {
 		} catch {
 			// May already have been released by the platform.
 		}
-		this.#trackEl?.removeEventListener("pointermove", this.#onTrackPointerMove);
-		this.#trackEl?.removeEventListener("pointerup", this.#onTrackPointerUp);
-		this.#trackEl?.removeEventListener("pointercancel", this.#onTrackPointerCancel);
-		this.#trackEl?.removeEventListener("lostpointercapture", this.#onTrackLostPointerCapture);
+		// Listeners stay bound (see #render / connectedCallback); clearing the
+		// pointer id disarms them.
+		const wasFollowing = this.#followSide;
 		this.#dragPointerId = null;
 		this.#dragWhich = null;
 		this.#dragStarted = false;
+		this.#dragTrackRect = null;
+		this.#followSide = null;
+		// Reflect the value deferred during the drag now the flag is clear.
+		this.#reflectValues();
 		this.removeAttribute("data-neo-slider-dragging");
+		// endFollow settles the dragged tooltip's exact placement; reposition
+		// the other so both are correct after the drag.
+		if (wasFollowing) this.#ctrlFor(wasFollowing)?.endFollow();
 		this.#tooltipMinCtrl?.reposition();
 		this.#tooltipMaxCtrl?.reposition();
 	}
 
 	#valueAtPointer(clientX: number, clientY: number): number {
 		if (!this.#trackEl) return this.min;
-		const rect = this.#trackEl.getBoundingClientRect();
+		// Reuse the drag-start rect (refreshed on scroll/resize) so a moving
+		// pointer doesn't force a layout flush every frame.
+		const rect = this.#dragTrackRect ?? this.#trackEl.getBoundingClientRect();
 		const vertical = this.#isVertical();
 		const spanPx = vertical ? rect.height : rect.width;
 		if (spanPx <= 0) return this.min;

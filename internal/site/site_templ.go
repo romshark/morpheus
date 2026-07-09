@@ -3430,7 +3430,7 @@ func demoTabsFooter(opts DemoFrameOpts) templ.Component {
 			// when the user shrinks below content. When the Hide tab
 			// is active its panel is empty, so max-content collapses
 			// to ~the tablist height, combined with the
-			// `:has(neo-tab[value="hide"]…)` rule in style.css that
+			// `:has(neo-tab:first-child…)` rule in style.css that
 			// drops `min-height` for that case, the footer shrinks
 			// to just the tab strip.
 			MaxHeight: neo.Set("max-content"),

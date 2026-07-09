@@ -1203,9 +1203,13 @@ site-codemirror[data-site-codemirror-loading] > .site-codemirror-loading {
 
 /* Hide-tab active collapses to tablist height. !important beats
  * neo-resizable's inline min-height:8rem (only way below the floor);
- * max-height:max-content clamps any previously-dragged height. */
+ * max-height:max-content clamps any previously-dragged height.
+ * Match the hide tab structurally (it renders first) rather than by
+ * `[value="hide"]`: Blink keys :has() attribute-invalidation by name, so a
+ * `value`-argument :has() restyles the whole document on any `value`
+ * mutation anywhere, including every <neo-slider> drag frame. */
 .demo-frame-footer-resize:has(
-		neo-tab[value="hide"][aria-selected="true"]
+		neo-tab:first-child[aria-selected="true"]
 	) {
 	min-height: 0 !important;
 }
@@ -1229,9 +1233,11 @@ site-codemirror[data-site-codemirror-loading] > .site-codemirror-loading {
 		margin: 0.55rem 0.85rem 0;
 	}
 	/* Hide-tab active: add bottom-only inset matching the top so the
- * chip's vertical position doesn't shift during tab toggle. */
+ * chip's vertical position doesn't shift during tab toggle. Structural
+ * match, not `[value="hide"]`, to avoid value-keyed :has() invalidation
+ * (see the .demo-frame-footer-resize rule above). */
 	&:has(
-		neo-tab[value="hide"][aria-selected="true"]
+		neo-tab:first-child[aria-selected="true"]
 	)
 	> neo-tablist {
 		margin-bottom: 0.55rem;

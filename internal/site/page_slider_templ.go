@@ -906,9 +906,9 @@ var sliderDoc = ComponentDoc{
 	},
 	Events: []DocEvent{
 		{Name: "neo-slider-input", Detail: "{ value: number }", Bubbles: true,
-			Description: templ.Raw("Fires on every value change during a pointer drag. Keyboard nav commits via change instead.")},
+			Description: templ.Raw("Fires on every value change during a pointer drag: the live value before commit.")},
 		{Name: "neo-slider-change", Detail: "{ value: number }", Bubbles: true,
-			Description: templ.Raw("Fires on commit (drag end, keyboard, or edit), only if the value changed.")},
+			Description: templ.Raw("Fires on commit (drag end, mark click, keyboard, or edit), only if the value changed. Bind this too for mark clicks and keyboard.")},
 	},
 	Parts: []DocPart{
 		{Name: "header", Description: templ.Raw("Row holding the label, value, and unit.")},

@@ -291,6 +291,11 @@ class SitePlayground extends HTMLElement {
 
 	#renderSignals(): void {
 		const list = this.querySelector<HTMLElement>(".component-playground-signal-list")!;
+		// A preview interaction fires this on every value change. Update the
+		// existing rows in place when the signal set is unchanged, so each
+		// interaction does not recreate every input element (and its event
+		// listeners), which churns the DOM and the JS listener count.
+		if (this.#updateSignalsInPlace(list)) return;
 		list.replaceChildren();
 		for (const [name, value] of this.#signalValues) {
 			const label = document.createElement("label");
@@ -323,6 +328,37 @@ class SitePlayground extends HTMLElement {
 		}
 		// Nothing to patch when the state declares no signals.
 		this.#signalPatch.toggleAttribute("disabled", this.#signalValues.size === 0);
+	}
+
+	// Update the value shown in each existing signal row without recreating
+	// it. Returns false (caller rebuilds) when the row set no longer matches
+	// the signals by name and kind, e.g. a state change adds or drops a signal
+	// or flips a signal between boolean (neo-switch) and text (neo-textinput).
+	#updateSignalsInPlace(list: HTMLElement): boolean {
+		const rows = list.querySelectorAll<HTMLElement>(":scope > label.component-playground-signal");
+		if (rows.length !== this.#signalValues.size) return false;
+		const byName = new Map<string, HTMLElement>();
+		for (const row of rows) {
+			const input = row.querySelector<HTMLElement>("[data-signal]");
+			if (!input) return false;
+			byName.set(input.dataset.signal ?? "", input);
+		}
+		for (const [name, value] of this.#signalValues) {
+			const input = byName.get(name);
+			if (!input) return false;
+			if ((typeof value === "boolean") !== (input.tagName === "NEO-SWITCH")) return false;
+		}
+		for (const [name, value] of this.#signalValues) {
+			const input = byName.get(name);
+			if (!input) continue;
+			if (typeof value === "boolean") {
+				if (input.hasAttribute("checked") !== value) input.toggleAttribute("checked", value);
+			} else {
+				const str = value == null ? "" : String(value);
+				if (input.getAttribute("value") !== str) input.setAttribute("value", str);
+			}
+		}
+		return true;
 	}
 
 	#duplicateDefault(): void {

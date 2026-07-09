@@ -13,6 +13,7 @@
 
 import { openCommand } from "./command";
 import { type Placement, positionPanel, resolveCssLengthPx } from "./neo-position";
+import { setTextInPlace } from "./shadow-utils";
 
 const DEFAULT_OPEN_DELAY_MS = 350;
 const DEFAULT_CLOSE_DELAY_MS = 0;
@@ -27,6 +28,17 @@ export class TooltipController {
 	#closeTimer: number | null = null;
 	#resizeObserver: ResizeObserver | null = null;
 	#childObserver: MutationObserver | null = null;
+	#repositionFrame: number | null = null;
+	// Resolved --neo-tooltip-screen-offset in px, cached per open. A moving
+	// trigger (slider thumb) repositions every frame; re-probing the length
+	// each time inserts/measures/removes a throwaway node and forces a reflow.
+	#edgeOffset: number | null = null;
+	// Follow-drag baseline. During a drag the caller shifts the bubble by the
+	// trigger's delta from where the last real placement put it, so no layout
+	// is read per frame (see beginFollow / nudge / endFollow).
+	#following = false;
+	#baseLeft = 0;
+	#baseTop = 0;
 	#connected = false;
 	#ready = false;
 	// Rendered open state; `open` is its guarded reflection (see command).
@@ -60,6 +72,9 @@ export class TooltipController {
 		if (!this.#connected) return;
 		this.#connected = false;
 		this.#clearTimers();
+		this.#cancelReposition();
+		this.#following = false;
+		this.#edgeOffset = null;
 		this.#unbind();
 		window.removeEventListener("resize", this.#repositionOnAmbientChange);
 		window.removeEventListener("scroll", this.#repositionOnAmbientChange, true);
@@ -109,7 +124,9 @@ export class TooltipController {
 		trigger.addEventListener("keydown", this.#onKeyDown);
 
 		this.#resizeObserver = new ResizeObserver(() => {
-			if (this.#openIntent) this.#position();
+			// A follow drag positions the bubble itself; skip so a text-width
+			// change mid-drag doesn't force a reflow (settled on endFollow).
+			if (this.#openIntent && !this.#following) this.#position();
 		});
 		this.#resizeObserver.observe(content);
 		this.#ready = true;
@@ -179,8 +196,11 @@ export class TooltipController {
 	// Set the bubble text. Mirrors to the host `text` attribute so the host
 	// stays the single source of truth a later #bind() reads from.
 	setText(value: string): void {
+		// Skip redundant writes; update the bubble text in place so a slider
+		// drag doesn't orphan a text node every frame.
+		if (this.#host.getAttribute("text") === value && this.#content?.textContent === value) return;
 		this.#host.setAttribute("text", value);
-		if (this.#content) this.#content.textContent = value;
+		if (this.#content) setTextInPlace(this.#content, value);
 	}
 
 	show(): void {
@@ -193,9 +213,20 @@ export class TooltipController {
 
 	hide(): void {
 		this.#clearOpenTimer();
+		this.#cancelReposition();
+		this.#following = false;
+		// Re-probe --neo-tooltip-screen-offset on the next open in case a
+		// theme or viewport change moved it while closed.
+		this.#edgeOffset = null;
 		if (!this.#openIntent) return;
 		this.#openIntent = false;
 		this.#reflectClose();
+	}
+
+	#cancelReposition(): void {
+		if (this.#repositionFrame === null) return;
+		cancelAnimationFrame(this.#repositionFrame);
+		this.#repositionFrame = null;
 	}
 
 	// State → attribute, guarded so the reflected write isn't read back as a
@@ -223,8 +254,42 @@ export class TooltipController {
 
 	// Public hook for triggers that move while open (e.g. <neo-slider>
 	// thumb): a CSS `left` change fires none of our existing listeners.
+	// Coalesced into one reflow per frame: a drag emits many pointermoves
+	// (and a two-way value binding echoes each back), so a synchronous
+	// #position() per call would relayout the document several times a frame.
 	reposition(): void {
-		if (this.#openIntent) this.#position();
+		if (!this.#openIntent || this.#repositionFrame !== null) return;
+		this.#repositionFrame = requestAnimationFrame(() => {
+			this.#repositionFrame = null;
+			if (this.#openIntent) this.#position();
+		});
+	}
+
+	// Follow-drag protocol for a trigger that moves along one axis (slider
+	// thumb). beginFollow places the bubble once and snapshots that inline
+	// position; nudge(dx, dy) then shifts it by the trigger's pixel delta with
+	// a plain style write and no layout read, so a drag over a heavy page
+	// costs no forced reflow per frame; endFollow settles the exact placement.
+	beginFollow(): void {
+		if (!this.#openIntent) return;
+		this.#cancelReposition();
+		this.#following = false;
+		this.#position();
+		this.#following = true;
+		this.#baseLeft = parseFloat(this.#content?.style.left || "0") || 0;
+		this.#baseTop = parseFloat(this.#content?.style.top || "0") || 0;
+	}
+
+	nudge(dx: number, dy: number): void {
+		if (!this.#following || !this.#content) return;
+		this.#content.style.left = `${this.#baseLeft + dx}px`;
+		this.#content.style.top = `${this.#baseTop + dy}px`;
+	}
+
+	endFollow(): void {
+		if (!this.#following) return;
+		this.#following = false;
+		this.reposition();
 	}
 
 	#findTrigger(content: HTMLElement | null): HTMLElement | null {
@@ -306,7 +371,8 @@ export class TooltipController {
 	#position() {
 		if (!this.#trigger || !this.#content) return;
 		const placement = (this.#host.getAttribute("placement") as Placement | null) ?? "bottom-start";
-		const edgeOffset = resolveCssLengthPx(this.#host, "--neo-tooltip-screen-offset");
+		this.#edgeOffset ??= resolveCssLengthPx(this.#host, "--neo-tooltip-screen-offset");
+		const edgeOffset = this.#edgeOffset;
 		const triggerGap = 6;
 
 		this.#content.style.maxWidth = "";
