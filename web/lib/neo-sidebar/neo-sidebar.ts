@@ -609,27 +609,21 @@ export class NeoSidebar extends HTMLElement {
 	// paint` etc. it resolves to that parent, keeping the overlay
 	// inside without needing an iframe.
 	#ensureBackdrop() {
-		// Reconcile against the DOM, not the cached pointer: the backdrop
-		// lives in the parent, which a morph also reconciles, so it can be
-		// removed/re-emitted while the host stays connected. Reuse the
-		// cached node only if still under the current host; else adopt or
-		// create, drop duplicates. Idempotent when already canonical.
+		// Keep one backdrop, tracked by the cached ref. Recreate it if a
+		// morph stripped it or moved it out of the host. Don't scan the
+		// parent for a backdrop to reuse: a sibling sidebar under the same
+		// parent has its own, and grabbing it would stack a hide() listener
+		// so one click closes both.
 		const host = this.parentElement ?? document.body;
-		const existing = Array.from(host.querySelectorAll<HTMLDivElement>(":scope > [data-neo-sidebar-backdrop]"));
-		let el =
-			this.#backdropEl?.isConnected && this.#backdropEl.parentElement === host
-				? this.#backdropEl
-				: (existing[0] ?? null);
-		if (!el) {
+		let el = this.#backdropEl;
+		if (!el?.isConnected || el.parentElement !== host) {
 			el = document.createElement("div");
 			el.setAttribute("data-neo-sidebar-backdrop", "");
+			el.setAttribute("aria-hidden", "true");
 			host.appendChild(el);
 		}
-		el.setAttribute("aria-hidden", "true");
+		// addEventListener dedups the stable #onBackdropClick ref.
 		el.addEventListener("click", this.#onBackdropClick);
-		for (const dup of existing) {
-			if (dup !== el) dup.remove();
-		}
 		this.#backdropEl = el;
 	}
 
