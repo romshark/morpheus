@@ -1185,6 +1185,15 @@ neo-sidebar.landing-a11y-demo-nav:not(:defined) {
 	gap: 1rem;
 }
 
+/* data-offscreen is set (data-on-intersect on the section) while the showcase
+ * is scrolled off-screen: freeze the light-DOM animations that otherwise keep
+ * repainting there. The carousel pauses via its own `paused` attribute; shadow
+ * spinners stay on. */
+.landing-showcase[data-offscreen] neo-skeleton,
+.landing-showcase[data-offscreen] .lf-pulse {
+	animation-play-state: paused;
+}
+
 .lf-col {
 	display: flex;
 	flex-direction: column;

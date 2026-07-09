@@ -1157,7 +1157,14 @@ templ landingFooter(morpheusVersion string) {
 // Three-flex-column masonry of unlabelled UI fragments: snippets that
 // could plausibly come from real apps, no titles or descriptions.
 templ landingShowcase() {
-	<section class="landing-showcase" aria-label="UI fragments">
+	<section
+		class="landing-showcase"
+		aria-label="UI fragments"
+		data-signals="{_lf_showcase_offscreen: false}"
+		data-on-intersect="$_lf_showcase_offscreen = false"
+		data-on-intersect__exit="$_lf_showcase_offscreen = true"
+		data-attr:data-offscreen="$_lf_showcase_offscreen"
+	>
 		<div class="lf-col lf-col-1">
 			@lfThemeMode()
 			@lfMusicPlayer()
@@ -3148,13 +3155,17 @@ templ lfCarousel() {
 	<neo-card variant="elevated" class="lf-card lf-carousel">
 		<div data-neo-card-inner>
 			<div data-neo-card-media class="lf-carousel-media">
-				@neo.Carousel(neo.CarouselOpts{
+				@neo.CarouselAttrs(neo.CarouselOpts{
 					Value:     neo.Set("1"),
 					Loop:      neo.Set(true),
 					AriaLabel: neo.Set("Cheshire Cat illustrations"),
 					DragNav:   neo.Set(true),
 					AutoPlay:  neo.Set(3000),
 					Dots:      neo.Set(true),
+				}, templ.Attributes{
+					// Pause autoplay while the showcase is scrolled off-screen
+					// (signal toggled by the section's data-on-intersect).
+					"data-attr:paused": "$_lf_showcase_offscreen ? 'true' : 'false'",
 				}) {
 					@neo.CarouselTrack() {
 						@neo.CarouselSlide("1") {
