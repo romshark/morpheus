@@ -180,6 +180,10 @@ export class NeoSlider extends HTMLElement {
 			if (!this.#markSourceChanged(mutations)) return;
 			this.#captureUserContent();
 			this.#renderMarks();
+			// Apply the current value to the fresh dots/labels; a marks-only
+			// morph fires no attribute change, so nothing else runs #syncValue
+			// and the active state would wait until the first interaction.
+			this.#syncValue();
 		});
 		this.#childObserver.observe(this, {
 			childList: true,

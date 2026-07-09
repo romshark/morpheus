@@ -196,6 +196,11 @@ export class NeoSliderRange extends HTMLElement {
 			if (!this.#markSourceChanged(mutations)) return;
 			this.#captureUserContent();
 			this.#renderMarks();
+			// Apply the current values to the fresh dots/labels; a marks-only
+			// morph fires no attribute change, so nothing else runs
+			// #syncValues and the active state would wait until the first
+			// interaction.
+			this.#syncValues();
 		});
 		this.#childObserver.observe(this, {
 			childList: true,
