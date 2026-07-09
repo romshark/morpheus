@@ -1183,6 +1183,11 @@ neo-sidebar.landing-a11y-demo-nav:not(:defined) {
 	flex-wrap: wrap;
 	align-items: flex-start;
 	gap: 1rem;
+	/* Skip paint, layout and style while off-screen. These demo cards
+	 * animate forever (spinner, skeleton, carousel, .lf-pulse dot) and
+	 * would repaint every frame out of view: ~30% CPU at 6x. */
+	content-visibility: auto;
+	contain-intrinsic-size: auto 1000px;
 }
 
 .lf-col {
