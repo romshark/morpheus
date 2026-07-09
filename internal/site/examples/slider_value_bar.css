@@ -1,0 +1,37 @@
+neo-slider.slider-value-bar-pg {
+	position: relative;
+	--neo-slider-track-height: 2rem;
+	--neo-slider-track-radius: 0.4rem;
+	--neo-slider-track-bg: var(--btn-bg);
+	--neo-slider-fill-bg: color-mix(in srgb, var(--accent) 26%, transparent);
+	--neo-slider-track-shadow: inset 0 0 0 1px color-mix(in srgb, var(--page-fg) 14%, transparent);
+}
+
+/* Value + unit centred over the rail instead of in a header row above it.
+   pointer-events: none keeps the whole rail draggable under the readout, so
+   the value is display-only in this styling. */
+neo-slider.slider-value-bar-pg::part(header) {
+	position: absolute;
+	inset: 0;
+	z-index: 1;
+	justify-content: center;
+	align-items: center;
+	pointer-events: none;
+}
+
+neo-slider.slider-value-bar-pg::part(value) {
+	cursor: default;
+	font-size: 0.85rem;
+	color: color-mix(in srgb, var(--page-fg) 90%, transparent);
+}
+
+neo-slider.slider-value-bar-pg::part(unit) {
+	font-size: 0.8em;
+}
+
+/* No thumb marker: the fill's right edge is the position indicator.
+   display: none also drops the thumb from the tab order; the rail still drags
+   with the pointer and the centred value stays keyboard-editable. */
+neo-slider.slider-value-bar-pg::part(thumb) {
+	display: none;
+}

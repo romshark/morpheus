@@ -161,6 +161,44 @@ templ PageSlider(morpheusVersion string) {
 			}) {
 				@examples.SliderStars()
 			}
+			@anchoredH3("value-bar") {
+				Value bar
+			}
+			<p class="demo-note">
+				Restyle the rail into a filled value bar with the
+				readout centred over it, in the style of a Blender
+				number field.
+			</p>
+			<ul class="demo-note">
+				<li>
+					A tall rail comes from
+					<code>--neo-slider-track-height</code>; the fill
+					(<code>--neo-slider-fill-bg</code>) reads as a flat
+					surface over it.
+				</li>
+				<li>
+					<code>::part(header)</code> is positioned
+					absolutely over the rail to centre the value.
+					<code>hide-tooltip</code> drops the now-redundant
+					thumb bubble, and the readout is display-only
+					because the header overlays the rail.
+				</li>
+				<li>
+					<code>::part(thumb)</code> hides the thumb marker
+					so the fill's right edge is the position
+					indicator; the thumb stays as an invisible
+					keyboard target with a focus ring.
+				</li>
+			</ul>
+			@demoFrameWith(DemoFrameOpts{
+				Width:          "26rem",
+				StageMinHeight: "max-content",
+				HTMLSource:     sliderValueBarHTML,
+				TemplSource:    sliderValueBarTempl,
+				CSSSource:      sliderValueBarCSS,
+			}) {
+				@examples.SliderValueBar()
+			}
 			@anchoredH3("static-marks") {
 				Static marks
 			}

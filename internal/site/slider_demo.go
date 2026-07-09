@@ -15,6 +15,7 @@ func sliderPlaygroundStates() []PlaygroundState {
 		{Label: "Decimal step + dots only", HTML: sliderDecimalHTML},
 		{Label: "Custom easing", HTML: sliderEasingHTML},
 		{Label: "Custom anchor + thumb", HTML: sliderStarsHTML, CSS: sliderStarsCSS},
+		{Label: "Value bar", HTML: sliderValueBarHTML, CSS: sliderValueBarCSS},
 		{Label: "Static marks", HTML: sliderStaticMarksHTML},
 		{Label: "Bare rail (no header)", HTML: sliderBareRailHTML},
 		{Label: "Vertical", HTML: sliderVerticalHTML},
@@ -96,6 +97,19 @@ var sliderStarsTempl string
 
 //go:embed examples/slider_stars.css
 var sliderStarsCSS string
+
+// sliderValueBarHTML restyles the rail into a Blender-style value bar. The
+// styling reaches the shadow internals through neo-slider::part(...) and the
+// --neo-slider-* custom properties, so a scoped <style> block carries the
+// rules, namespaced by `.slider-value-bar-pg`. One source drives both the
+// Examples demo and the playground state.
+var sliderValueBarHTML = renderExampleHTML(examples.SliderValueBar())
+
+//go:embed examples/slider_value_bar.templ
+var sliderValueBarTempl string
+
+//go:embed examples/slider_value_bar.css
+var sliderValueBarCSS string
 
 var sliderStaticMarksHTML = renderExampleHTML(examples.SliderStaticMarks())
 

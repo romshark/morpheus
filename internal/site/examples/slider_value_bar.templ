@@ -1,0 +1,15 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ SliderValueBar() {
+	@neo.SliderAttrs(neo.SliderOpts[float64]{
+		Min:         neo.Set(0.0),
+		Max:         neo.Set(100.0),
+		Step:        neo.Set(1.0),
+		Value:       neo.Set(45.0),
+		Unit:        neo.Set("%"),
+		HideTooltip: neo.Set(true),
+		AriaLabel:   neo.Set("Roughness"),
+	}, templ.Attributes{"class": "slider-value-bar-pg"})
+}
