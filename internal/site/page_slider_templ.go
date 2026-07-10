@@ -499,7 +499,7 @@ func PageSlider(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</code> that flips from the muted border colour to a filled accent star once it sits at or below the current value, and the thumb is a slightly larger filled star that glides between them. Stars are clickable like any other anchor, so a tap on the third star sets the rating to 3.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</code> that becomes a filled accent dot once it sits at or below the current value, and the thumb is a larger filled star that glides between them. The cloned glyph lives a shadow boundary too deep for page CSS to restyle, so an active anchor paints its solid dot from the dot's own masked background. Stars are clickable like any other anchor, so a tap on the third star sets the rating to 3.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

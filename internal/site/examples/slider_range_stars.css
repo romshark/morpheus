@@ -1,0 +1,58 @@
+/* neo-slider-range paints its two thumbs and rail anchors into a shadow
+   root; page CSS reaches them only through ::part(...) and the inherited
+   --neo-slider-* / --neo-icon-* custom properties. Both thumbs and every
+   dot clone the <template data-neo-slider-thumb|anchor> glyph, a <neo-icon>
+   that fills with the inherited color and sizes to --neo-icon-size. */
+
+neo-slider-range.slider-range-stars-pg {
+	--neo-slider-anchor-size: 1.1rem;
+	--neo-slider-thumb-size: 1.4rem;
+	/* Drop the default dot fill and border so only the star glyph shows. */
+	--neo-slider-anchor-bg: transparent;
+	--neo-slider-anchor-border: transparent;
+	--neo-slider-anchor-active-bg: transparent;
+	--neo-slider-anchor-active-border: transparent;
+}
+
+/* Rail anchor: a muted outline star. margin-left + translateX re-center
+   every dot on its exact value; the component flushes the min/max dots
+   inward, which would leave an active dot peeking out beside a thumb. */
+neo-slider-range.slider-range-stars-pg::part(anchor) {
+	display: grid;
+	place-items: center;
+	margin-left: 0 !important;
+	transform: translateX(-50%);
+	color: #9ca3af;
+	--neo-icon-size: 1.1rem;
+	transition: color 120ms ease;
+}
+
+/* Active anchor (a mark inside the selected [valueMin, valueMax] band):
+   a filled dot. The cloned outline glyph can't be filled from page CSS
+   (its SVG is a shadow boundary too deep), so the dot paints a solid
+   circle by masking a currentColor background; the circle stays small
+   enough to tuck inside the thumb star that covers the band's endpoints. */
+neo-slider-range.slider-range-stars-pg::part(anchor active) {
+	color: var(--accent);
+	background-color: currentColor;
+	-webkit-mask: radial-gradient(circle at center, #000 0 0.3rem, #0000 0.32rem);
+	mask: radial-gradient(circle at center, #000 0 0.3rem, #0000 0.32rem);
+}
+
+/* Both drag thumbs: a larger filled accent star with no dot chrome. */
+neo-slider-range.slider-range-stars-pg::part(thumb-min),
+neo-slider-range.slider-range-stars-pg::part(thumb-max) {
+	display: grid;
+	place-items: center;
+	background: transparent;
+	border: none;
+	box-shadow: none;
+	color: var(--accent);
+	--neo-icon-size: 1.4rem;
+	cursor: grab;
+}
+
+neo-slider-range.slider-range-stars-pg::part(thumb-min):focus-visible,
+neo-slider-range.slider-range-stars-pg::part(thumb-max):focus-visible {
+	box-shadow: 0 0 0 3px var(--neo-slider-focus-ring);
+}

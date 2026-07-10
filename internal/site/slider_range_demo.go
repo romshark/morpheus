@@ -13,6 +13,7 @@ func sliderRangePlaygroundStates() []PlaygroundState {
 		{Label: "Dense mark labels", HTML: sliderRangeDenseMarksHTML},
 		{Label: "Negative range", HTML: sliderRangeNegativeHTML},
 		{Label: "Custom easing", HTML: sliderRangeEasingHTML},
+		{Label: "Custom anchor + thumb", HTML: sliderRangeStarsHTML, CSS: sliderRangeStarsCSS},
 		{Label: "Vertical temperature", HTML: sliderRangeVerticalHTML},
 		{Label: "Bare rail (no header)", HTML: sliderRangeBareHTML},
 		{Label: "Disabled", HTML: sliderRangeDisabledHTML},
@@ -88,3 +89,11 @@ var sliderRangeDisabledHTML = renderExampleHTML(examples.SliderRangeDisabled())
 
 //go:embed examples/slider_range_disabled.templ
 var sliderRangeDisabledTempl string
+
+var sliderRangeStarsHTML = renderExampleHTML(examples.SliderRangeStars())
+
+//go:embed examples/slider_range_stars.templ
+var sliderRangeStarsTempl string
+
+//go:embed examples/slider_range_stars.css
+var sliderRangeStarsCSS string

@@ -40,6 +40,7 @@ const MARK_CFG: MarkRailConfig = {
 	markAttr: "data-neo-slider-mark",
 	anchorAttr: "data-neo-slider-anchor",
 	markLabelAttr: "data-neo-slider-mark-label",
+	anchorPart: "anchor",
 };
 
 // The whole module stylesheet, tag selectors rewritten to `:host`,
@@ -102,6 +103,10 @@ export class NeoSliderRange extends HTMLElement {
 	#tooltipMaxCtrl: TooltipController | null = null;
 	#marksEl: HTMLElement | null = null;
 	#marks: MarkSpec[] = [];
+	// Glyph templates cloned into every rail dot and into both thumbs,
+	// same as <neo-slider>. Null when the author declares no template.
+	#anchorTemplate: DocumentFragment | null = null;
+	#thumbTemplate: DocumentFragment | null = null;
 	#childObserver: MutationObserver | null = null;
 	#dragPointerId: number | null = null;
 	#dragWhich: Side | null = null;
@@ -475,6 +480,12 @@ export class NeoSliderRange extends HTMLElement {
 	}
 
 	#captureUserContent() {
+		const anchorTmpl = this.querySelector<HTMLTemplateElement>(":scope > template[data-neo-slider-anchor]");
+		this.#anchorTemplate = anchorTmpl ? anchorTmpl.content : null;
+
+		const thumbTmpl = this.querySelector<HTMLTemplateElement>(":scope > template[data-neo-slider-thumb]");
+		this.#thumbTemplate = thumbTmpl ? thumbTmpl.content : null;
+
 		this.#marks = collectMarks(this, MARK_CFG);
 	}
 
@@ -500,6 +511,7 @@ export class NeoSliderRange extends HTMLElement {
 				if (firstThumbHost) track.insertBefore(dot, firstThumbHost);
 				else track.appendChild(dot);
 			},
+			anchorTemplate: this.#anchorTemplate,
 		});
 		this.#observeMarkLayout();
 		this.#scheduleMarkLayoutSync();
@@ -559,8 +571,14 @@ export class NeoSliderRange extends HTMLElement {
 			if (raw === null) return;
 			const mv = Number(raw);
 			if (!Number.isFinite(mv)) return;
-			if (mv >= lo && mv <= hi) el.setAttribute("data-neo-active", "");
+			const active = mv >= lo && mv <= hi;
+			if (active) el.setAttribute("data-neo-active", "");
 			else el.removeAttribute("data-neo-active");
+			// Mirror the active state into the dot's `part` list so page CSS
+			// can target it via `host::part(anchor active)`.
+			if (MARK_CFG.anchorPart && el.hasAttribute(MARK_CFG.anchorAttr)) {
+				el.setAttribute("part", active ? `${MARK_CFG.anchorPart} active` : MARK_CFG.anchorPart);
+			}
 		};
 		this.#trackEl.querySelectorAll(":scope > [data-neo-slider-anchor]").forEach(flip);
 		this.#marksEl.querySelectorAll(":scope > [data-neo-slider-mark-label]").forEach(flip);
@@ -591,6 +609,7 @@ export class NeoSliderRange extends HTMLElement {
 		el.setAttribute(`data-neo-slider-thumb-${side}`, "");
 		el.setAttribute("role", "slider");
 		el.setAttribute("tabindex", "0");
+		if (this.#thumbTemplate) el.appendChild(this.#thumbTemplate.cloneNode(true));
 		el.addEventListener("keydown", (e: Event) => this.#onThumbKeyDown(e as KeyboardEvent, side));
 		el.addEventListener("transitionend", this.#onThumbTransitionEnd);
 		if (side === "min") {

@@ -21,6 +21,11 @@ export interface MarkRailConfig {
 	markAttr: string; // slot input the author writes on the host
 	anchorAttr: string; // rendered dot inside the track
 	markLabelAttr: string; // rendered label inside the marks row
+	// `part` name exposing each shadow dot to page CSS via
+	// `host::part(<name>)`; an active dot also carries an `active` token
+	// (`::part(<name> active)`). Omit to keep the dots unstyleable from
+	// outside (progress does not expose them).
+	anchorPart?: string;
 }
 
 export type ActiveMarkLabelPolicy = "highest" | "extremes";
@@ -108,6 +113,7 @@ export function renderMarks(
 
 		const dot = document.createElement("span");
 		dot.setAttribute(cfg.anchorAttr, "");
+		if (cfg.anchorPart) dot.setAttribute("part", cfg.anchorPart);
 		dot.setAttribute("data-neo-mark-value", String(mark.value));
 		// Tag at-min/at-max dots so CSS can flush them inward; otherwise
 		// the centering transform leaves half the dot outside the rail.
@@ -150,8 +156,14 @@ export function syncMarkActive(trackEl: Element | null, marksEl: Element | null,
 		if (raw === null) return;
 		const mv = Number(raw);
 		if (!Number.isFinite(mv)) return;
-		if (mv <= v) el.setAttribute("data-neo-active", "");
+		const active = mv <= v;
+		if (active) el.setAttribute("data-neo-active", "");
 		else el.removeAttribute("data-neo-active");
+		// Mirror the active state into the dot's `part` list so page CSS
+		// can target it via `host::part(<anchorPart> active)`.
+		if (cfg.anchorPart && el.hasAttribute(cfg.anchorAttr)) {
+			el.setAttribute("part", active ? `${cfg.anchorPart} active` : cfg.anchorPart);
+		}
 	};
 	trackEl.querySelectorAll(`:scope > [${cfg.anchorAttr}]`).forEach(mark);
 	marksEl.querySelectorAll(`:scope > [${cfg.markLabelAttr}]`).forEach(mark);

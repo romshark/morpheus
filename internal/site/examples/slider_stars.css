@@ -1,33 +1,57 @@
-.slider-stars-pg {
+/* neo-slider paints its thumb and rail anchors into a shadow root; page
+   CSS reaches them only through ::part(...) and the inherited
+   --neo-slider-* / --neo-icon-* custom properties. The anchor dots and the
+   thumb clone the <template data-neo-slider-anchor|thumb> glyph, a
+   <neo-icon> that fills with the inherited color and sizes to
+   --neo-icon-size. */
+
+neo-slider.slider-stars-pg {
 	--neo-slider-anchor-size: 1.1rem;
 	--neo-slider-thumb-size: 1.4rem;
+	/* Drop the default dot fill and border so only the star glyph shows. */
+	--neo-slider-anchor-bg: transparent;
+	--neo-slider-anchor-border: transparent;
+	--neo-slider-anchor-active-bg: transparent;
+	--neo-slider-anchor-active-border: transparent;
 }
 
-.slider-stars-pg > [data-neo-slider-track] > [data-neo-slider-anchor],
-.slider-stars-pg > [data-neo-slider-track] > [data-neo-slider-anchor][data-neo-active] {
-	background: transparent;
-	border: none;
-}
-
-.slider-stars-pg > [data-neo-slider-track] > [data-neo-slider-anchor] {
+/* Rail anchor: a muted star that turns accent once the value reaches it.
+   syncMarkActive adds the `active` token to the dot's part list. grid +
+   place-items centers the cloned glyph on the mark; the dot is a plain
+   block otherwise and the inline-flex icon would sit off its baseline.
+   margin-left + translateX re-center every dot on its exact value: the
+   component flushes the min/max dots inward, which would leave the active
+   dot peeking out beside the thumb at the ends. */
+neo-slider.slider-stars-pg::part(anchor) {
+	display: grid;
+	place-items: center;
+	margin-left: 0 !important;
+	transform: translateX(-50%);
 	color: #9ca3af;
 	--neo-icon-size: 1.1rem;
 	transition: color 120ms ease;
 }
 
-.slider-stars-pg > [data-neo-slider-track] > [data-neo-slider-anchor][data-neo-active] {
+/* Active anchor: a filled dot. The cloned outline glyph can't be filled
+   from page CSS (its SVG is a shadow boundary too deep), so the dot paints
+   a solid circle by masking a currentColor background with a radial
+   gradient; the outline star underneath is clipped to the same circle and
+   blends into the fill. The circle stays small enough to tuck inside the
+   thumb star that covers the current mark. */
+neo-slider.slider-stars-pg::part(anchor active) {
 	color: var(--accent);
+	background-color: currentColor;
+	-webkit-mask: radial-gradient(circle at center, #000 0 0.3rem, #0000 0.32rem);
+	mask: radial-gradient(circle at center, #000 0 0.3rem, #0000 0.32rem);
 }
 
-.slider-stars-pg > [data-neo-slider-track] > [data-neo-slider-anchor] neo-icon::part(svg),
-.slider-stars-pg [data-neo-slider-thumb] neo-icon::part(svg) {
-	fill: currentColor;
-	stroke: var(--page-bg);
-	stroke-width: 3px;
-	paint-order: stroke fill;
-}
-
-.slider-stars-pg [data-neo-slider-thumb] {
+/* Drag thumb: a larger accent star with no dot chrome. A page-colored
+   halo around the glyph would need neo-icon::part(svg), which sits a
+   second shadow boundary deep with no exportparts forwarding, so it is
+   not reachable from here. */
+neo-slider.slider-stars-pg::part(thumb) {
+	display: grid;
+	place-items: center;
 	background: transparent;
 	border: none;
 	box-shadow: none;
@@ -36,6 +60,6 @@
 	cursor: grab;
 }
 
-.slider-stars-pg [data-neo-slider-thumb]:focus-visible {
+neo-slider.slider-stars-pg::part(thumb):focus-visible {
 	box-shadow: 0 0 0 3px var(--neo-slider-focus-ring);
 }

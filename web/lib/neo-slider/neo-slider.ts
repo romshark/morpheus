@@ -41,6 +41,7 @@ const MARK_CFG: MarkRailConfig = {
 	markAttr: "data-neo-slider-mark",
 	anchorAttr: "data-neo-slider-anchor",
 	markLabelAttr: "data-neo-slider-mark-label",
+	anchorPart: "anchor",
 };
 
 // The whole module stylesheet, tag selectors rewritten to `:host`,

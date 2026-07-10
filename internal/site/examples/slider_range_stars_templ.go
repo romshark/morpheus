@@ -10,7 +10,7 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import "github.com/romshark/morpheus/neo"
 
-func SliderStars() templ.Component {
+func SliderRangeStars() templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -133,13 +133,14 @@ func SliderStars() templ.Component {
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = neo.SliderAttrs(neo.SliderOpts[float64]{
-			Min:   neo.Set(0.0),
-			Max:   neo.Set(5.0),
-			Step:  neo.Set(1.0),
-			Value: neo.Set(3.0),
-			Label: neo.Set("Rating"),
-		}, templ.Attributes{"class": "slider-stars-pg"}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = neo.SliderRangeAttrs(neo.SliderRangeOpts[float64]{
+			Min:      neo.Set(1.0),
+			Max:      neo.Set(5.0),
+			Step:     neo.Set(1.0),
+			ValueMin: neo.Set(2.0),
+			ValueMax: neo.Set(4.0),
+			Label:    neo.Set("Rating filter"),
+		}, templ.Attributes{"class": "slider-range-stars-pg"}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

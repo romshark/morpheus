@@ -158,6 +158,32 @@ templ PageSliderRange(morpheusVersion string) {
 			}) {
 				@examples.SliderRangeDisabled()
 			}
+			@anchoredH3("custom-anchor-thumb") {
+				Custom anchor + thumb
+			}
+			<p class="demo-note">
+				Like the single slider, a
+				<code>{ `<template data-neo-slider-anchor>` }</code>
+				and
+				<code>{ `<template data-neo-slider-thumb>` }</code>
+				are cloned into every dot and into both thumbs. Here
+				the range picks a span of star ratings: each anchor
+				is an outline <code>{ `<neo-icon name="star">` }</code>
+				that becomes a filled accent dot while it sits inside
+				the selected band, and both thumbs are filled stars.
+				The cloned glyph is a shadow boundary too deep for
+				page CSS to restyle, so an active anchor paints its
+				dot from its own masked background.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				Width:          "26rem",
+				StageMinHeight: "max-content",
+				HTMLSource:     sliderRangeStarsHTML,
+				TemplSource:    sliderRangeStarsTempl,
+				CSSSource:      sliderRangeStarsCSS,
+			}) {
+				@examples.SliderRangeStars()
+			}
 		</section>
 		<section class="demo">
 			@anchoredH2("examples-datastar") {
