@@ -14,7 +14,7 @@ interface SimContext {
 }
 interface SimSSE {
 	patchSignals(signals: Record<string, number>): void;
-	patchElements(html: string): void;
+	patchElements(html: string, opts?: { mode?: string }): void;
 	delay(ms: number): Promise<void>;
 }
 interface Sim {
@@ -94,20 +94,21 @@ sim.post("/lf-select/reset/", async (_ctx, sse) => {
 	sse.patchElements(stageHTML("lf-how-section-stage-3"));
 });
 
-// Collapse-all: clone #lf-tree with `expanded` stripped and patch it
-// back. Morph-by-id preserves per-item state; only the toggled
-// `expanded` changes, which the component animates.
+// Collapse-all: mark open nodes collapsed, then replace (not morph) the tree.
+// neo-tree-item keeps an open node open across a morph, so a morphed
+// expanded="false" re-expands; replacing rebuilds it collapsed. Build via
+// DOMParser, not cloneNode: a cloned upgraded item runs its command handler
+// and strips expanded="false" back off before serialization.
 sim.post("/lf-tree/collapse/", async (_ctx, sse) => {
 	const tree = document.getElementById("lf-tree");
 	if (!tree) return;
-	const clone = tree.cloneNode(true) as HTMLElement;
+	const doc = new DOMParser().parseFromString(tree.outerHTML, "text/html");
+	const clone = doc.getElementById("lf-tree");
+	if (!clone) return;
 	for (const item of clone.querySelectorAll("neo-tree-item[expanded]")) {
-		item.removeAttribute("expanded");
-		if (item.hasAttribute("aria-expanded")) {
-			item.setAttribute("aria-expanded", "false");
-		}
+		item.setAttribute("expanded", "false");
 	}
-	sse.patchElements(clone.outerHTML);
+	sse.patchElements(clone.outerHTML, { mode: "replace" });
 });
 
 // Server-driven suggestions for the search field above the release list.
