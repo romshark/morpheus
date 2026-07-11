@@ -221,6 +221,7 @@ templ PageServerDriven(morpheusVersion string) {
 			@demoFrameWith(DemoFrameOpts{
 				StageMinHeight: "max-content",
 				Height:         "18rem",
+				HTMLSource:     serverDrivenAsyncLoadHTML,
 				TemplSource:    serverDrivenAsyncLoadTempl,
 				CSSSource:      serverDrivenAsyncLoadCSS,
 				ScriptSource:   serverDrivenAsyncLoadScript,
@@ -254,6 +255,7 @@ templ PageServerDriven(morpheusVersion string) {
 			@demoFrameWith(DemoFrameOpts{
 				StageMinHeight: "max-content",
 				Height:         "15rem",
+				HTMLSource:     serverDrivenAsyncFailHTML,
 				TemplSource:    serverDrivenAsyncFailTempl,
 				CSSSource:      serverDrivenAsyncFailCSS,
 				ScriptSource:   serverDrivenAsyncFailScript,

@@ -1,6 +1,10 @@
 package site
 
-import _ "embed"
+import (
+	_ "embed"
+
+	"github.com/romshark/morpheus/internal/site/examples"
+)
 
 // Source strings (HTML + Templ) and embedded sim handlers for the
 // Server-driven page's live demos, surfaced in each demo's "Server
@@ -44,11 +48,15 @@ func serverDrivenCommandStates() []PlaygroundState {
 	}
 }
 
+var serverDrivenAsyncLoadHTML = renderExampleHTML(examples.ServerDrivenAsyncLoad())
+
 //go:embed examples/server_driven_async_load.templ
 var serverDrivenAsyncLoadTempl string
 
 //go:embed examples/server_driven_async_load.css
 var serverDrivenAsyncLoadCSS string
+
+var serverDrivenAsyncFailHTML = renderExampleHTML(examples.ServerDrivenAsyncFail())
 
 //go:embed examples/server_driven_async_fail.templ
 var serverDrivenAsyncFailTempl string

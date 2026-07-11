@@ -504,6 +504,7 @@ func PageServerDriven(morpheusVersion string) templ.Component {
 			templ_7745c5c3_Err = demoFrameWith(DemoFrameOpts{
 				StageMinHeight: "max-content",
 				Height:         "18rem",
+				HTMLSource:     serverDrivenAsyncLoadHTML,
 				TemplSource:    serverDrivenAsyncLoadTempl,
 				CSSSource:      serverDrivenAsyncLoadCSS,
 				ScriptSource:   serverDrivenAsyncLoadScript,
@@ -541,7 +542,7 @@ func PageServerDriven(morpheusVersion string) templ.Component {
 			var templ_7745c5c3_Var28 templ.SafeURL
 			templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinURLErrs(href.PageToaster())
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_server_driven.templ`, Line: 238, Col: 32}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_server_driven.templ`, Line: 239, Col: 32}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var28))
 			if templ_7745c5c3_Err != nil {
@@ -554,7 +555,7 @@ func PageServerDriven(morpheusVersion string) templ.Component {
 			var templ_7745c5c3_Var29 string
 			templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinStringErrs(" ")
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_server_driven.templ`, Line: 248, Col: 9}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_server_driven.templ`, Line: 249, Col: 9}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var29))
 			if templ_7745c5c3_Err != nil {
@@ -567,7 +568,7 @@ func PageServerDriven(morpheusVersion string) templ.Component {
 			var templ_7745c5c3_Var30 templ.SafeURL
 			templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.JoinURLErrs(href.PageCombobox() + "#async-load-with-failure-swap")
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_server_driven.templ`, Line: 249, Col: 67}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_server_driven.templ`, Line: 250, Col: 67}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var30))
 			if templ_7745c5c3_Err != nil {
@@ -598,6 +599,7 @@ func PageServerDriven(morpheusVersion string) templ.Component {
 			templ_7745c5c3_Err = demoFrameWith(DemoFrameOpts{
 				StageMinHeight: "max-content",
 				Height:         "15rem",
+				HTMLSource:     serverDrivenAsyncFailHTML,
 				TemplSource:    serverDrivenAsyncFailTempl,
 				CSSSource:      serverDrivenAsyncFailCSS,
 				ScriptSource:   serverDrivenAsyncFailScript,
