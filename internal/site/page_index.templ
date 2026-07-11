@@ -3052,11 +3052,9 @@ templ lfLogs() {
 				Easing:    neo.Set("240ms cubic-bezier(0.25, 1, 0.5, 1)"),
 				AriaLabel: neo.Set("Time window"),
 			}, templ.Attributes{
-				"class":                           "lf-logs-window",
-				"data-attr:value-min":             "$_lf_logs_from",
-				"data-attr:value-max":             "$_lf_logs_to",
-				"data-on:neo-slider-range-input":  "$_lf_logs_from = Number(evt.detail.min); $_lf_logs_to = Number(evt.detail.max)",
-				"data-on:neo-slider-range-change": "$_lf_logs_from = Number(evt.detail.min); $_lf_logs_to = Number(evt.detail.max)",
+				"class": "lf-logs-window",
+				"data-on:neo-slider-range-input__debounce.50ms": "$_lf_logs_from = Number(evt.detail.min); $_lf_logs_to = Number(evt.detail.max)",
+				"data-on:neo-slider-range-change":               "$_lf_logs_from = Number(evt.detail.min); $_lf_logs_to = Number(evt.detail.max)",
 			})
 			@neo.Elastic(neo.ElasticOpts{}) {
 				<ul class="lf-logs-list">
