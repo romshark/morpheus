@@ -98,6 +98,7 @@ func playgroundSignals(opts PlaygroundOpts) string {
 	value, err := json.Marshal(map[string]string{
 		prefix + "_code":    playgroundInitialHTML(opts.States),
 		prefix + "_signals": "{}",
+		prefix + "_mode":    "",
 	})
 	if err != nil {
 		return "{}"
@@ -108,8 +109,9 @@ func playgroundSignals(opts PlaygroundOpts) string {
 func playgroundPatchElementsHandler(opts PlaygroundOpts) string {
 	prefix := playgroundSignalPrefix(opts.ID)
 	return fmt.Sprintf(
-		"$%s_code = evt.detail.code; @post('/playground/%s/elements/')",
-		prefix, opts.ID,
+		"$%s_code = evt.detail.code; $%s_mode = evt.detail.mode; "+
+			"@post('/playground/%s/elements/')",
+		prefix, prefix, opts.ID,
 	)
 }
 

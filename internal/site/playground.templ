@@ -134,7 +134,8 @@ templ Playground(opts PlaygroundOpts) {
 								<code>{ `<style>@scope { ... }</style>` }</code>
 								and applies to the preview only. Edits change
 								the preview above, applied live while Sync is
-								on, or when you click Patch.
+								on, or when you click Patch or Replace. Patch
+								morphs the preview; Replace swaps it outright.
 							}
 						</div>
 						@neo.TabPanel("html", "html") {
@@ -160,10 +161,17 @@ templ Playground(opts PlaygroundOpts) {
 							})
 							<span>Sync</span>
 						</label>
-						@neo.ButtonAttrs(neo.ButtonOpts{}, templ.Attributes{
-							"class": "component-playground-patch-code",
-						}) {
-							Patch
+						@neo.ButtonGroup(neo.ButtonGroupOpts{}) {
+							@neo.ButtonAttrs(neo.ButtonOpts{}, templ.Attributes{
+								"class": "component-playground-replace-code",
+							}) {
+								Replace
+							}
+							@neo.ButtonAttrs(neo.ButtonOpts{}, templ.Attributes{
+								"class": "component-playground-patch-code",
+							}) {
+								Patch
+							}
 						}
 					</footer>
 				</section>
@@ -332,11 +340,13 @@ templ playgroundSimulator() {
 					.replace(/[^A-Za-z0-9_]/g, "_")
 					.replace(/^[0-9]/, "_");
 				const code = String(ctx.signals?.[prefix + "_code"] ?? "");
+				const mode = String(ctx.signals?.[prefix + "_mode"] ?? "");
 				sse.patchElements(
 					`<div id="${escAttr(id)}-preview"` +
 						` class="component-playground-preview">` +
 						code +
 					`</div>`,
+					mode === "replace" ? { mode: "replace" } : {},
 				);
 			});
 

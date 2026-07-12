@@ -183,12 +183,12 @@ class SitePlayground extends HTMLElement {
 		this.#resetAutoplayTimer();
 	}
 
-	#requestElementsPatch(state: PlaygroundState): void {
+	#requestElementsPatch(state: PlaygroundState, mode = "morph"): void {
 		this.#updateSignalControls(state.code);
 		this.dispatchEvent(
 			new CustomEvent("site-playground-patch-elements", {
 				bubbles: true,
-				detail: { code: this.#previewCode(state) },
+				detail: { code: this.#previewCode(state), mode },
 			}),
 		);
 	}
@@ -525,6 +525,10 @@ class SitePlayground extends HTMLElement {
 		const handle = target?.closest("[data-neo-sortable-handle]");
 		if (item && !editingName && !enable && !handle && item.id !== this.#activeID) {
 			this.#select(item.id, true);
+		}
+		if (target?.closest(".component-playground-replace-code")) {
+			const state = this.#activeState();
+			if (state) this.#requestElementsPatch(state, "replace");
 		}
 		if (target?.closest(".component-playground-patch-code")) {
 			const state = this.#activeState();
