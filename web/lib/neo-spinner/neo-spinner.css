@@ -78,11 +78,18 @@ neo-spinner [data-neo-spinner-arc] {
  * arc's stroke styling so themes that bump --neo-spinner-ring-width
  * thicken the rays too. */
 neo-spinner [data-neo-spinner-sun] {
-	display: var(--neo-spinner-sun-display, none);
+	display: none;
 	fill: none;
 	stroke: currentColor;
 	stroke-width: var(--neo-spinner-ring-width);
 	stroke-linecap: round;
+}
+
+/* Scope the :root-set --neo-spinner-sun-display token to indeterminate
+ * mode, else a determinate spinner shows the sun over its arc. */
+neo-spinner:not([value]) [data-neo-spinner-sun],
+neo-spinner[indeterminate] [data-neo-spinner-sun] {
+	display: var(--neo-spinner-sun-display, none);
 }
 
 /* Determinate: arc tweens to value via stroke-dashoffset. */
