@@ -29,7 +29,15 @@ neo-spinner {
 	flex-shrink: 0;
 }
 
-neo-spinner > svg[data-neo-spinner-ring] {
+/* The composited spin layer (see neo-spinner.ts). Default HTML transform-origin
+ * (50% 50%) rotates the ring about its centre. */
+neo-spinner [data-neo-spinner-spin] {
+	display: block;
+	width: 100%;
+	height: 100%;
+}
+
+neo-spinner svg[data-neo-spinner-ring] {
 	display: block;
 	width: 100%;
 	height: 100%;
@@ -58,10 +66,9 @@ neo-spinner [data-neo-spinner-track] {
 neo-spinner [data-neo-spinner-arc] {
 	stroke: currentColor;
 	stroke-linecap: round;
-	/* SVG <circle> path starts at 3 o'clock; offset by -90° so both
-	 * modes draw clockwise from 12 o'clock. The indeterminate keyframes
-	 * below preserve this base when the animation is off (reduced
-	 * motion) and run a clean 360° sweep -90° → 270° when on. */
+	/* SVG <circle> path starts at 3 o'clock; offset by -90° so both modes
+	 * draw clockwise from 12 o'clock. Static base only; the indeterminate
+	 * spin runs on the [data-neo-spinner-spin] wrapper, not on the arc. */
 	transform: rotate(-90deg);
 	transform-origin: 12px 12px;
 }
@@ -92,15 +99,19 @@ neo-spinner[indeterminate] [data-neo-spinner-track] {
 neo-spinner:not([value]) [data-neo-spinner-arc],
 neo-spinner[indeterminate] [data-neo-spinner-arc] {
 	display: var(--neo-spinner-indeterminate-arc-display, inline);
+}
+
+/* Spin the composited wrapper, never the SVG arc: a transform animation on an
+ * HTML element rasters the ring once and spins the layer on the GPU, whereas the
+ * same animation on an inner SVG element repaints it every frame. */
+neo-spinner:not([value]) [data-neo-spinner-spin],
+neo-spinner[indeterminate] [data-neo-spinner-spin] {
 	animation: var(--neo-spinner-indeterminate-animation, neo-spinner-spin var(--neo-spinner-duration) linear infinite);
 }
 
 @keyframes neo-spinner-spin {
-	from {
-		transform: rotate(-90deg);
-	}
 	to {
-		transform: rotate(270deg);
+		transform: rotate(360deg);
 	}
 }
 
@@ -111,9 +122,12 @@ neo-spinner[indeterminate] [data-neo-spinner-arc] {
 	 * from a determinate value at ~75% (which the frozen 3/4 arc
 	 * would otherwise look like). Determinate: keep the arc but drop
 	 * the commit tween so values jump rather than sweep. */
+	neo-spinner:not([value]) [data-neo-spinner-spin],
+	neo-spinner[indeterminate] [data-neo-spinner-spin] {
+		animation: none;
+	}
 	neo-spinner:not([value]) [data-neo-spinner-arc],
 	neo-spinner[indeterminate] [data-neo-spinner-arc] {
-		animation: none;
 		display: none;
 	}
 	neo-spinner:not([value]) [data-neo-spinner-sun],

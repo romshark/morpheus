@@ -15,6 +15,7 @@ const ATTR_INDETERMINATE = "indeterminate";
 const ATTR_LABEL = "label";
 const ATTR_EASING = "easing";
 
+const SPIN = "data-neo-spinner-spin";
 const RING = "data-neo-spinner-ring";
 const TRACK = "data-neo-spinner-track";
 const ARC = "data-neo-spinner-arc";
@@ -184,7 +185,14 @@ export class NeoSpinner extends HTMLElement {
 		ring.appendChild(track);
 		ring.appendChild(arc);
 		ring.appendChild(sun);
-		root.replaceChildren(ring);
+
+		// Spin this HTML wrapper, not the SVG: a transform animation on an
+		// HTML element composites (raster once, GPU spins it), but on an inner
+		// SVG element it repaints every frame.
+		const spin = document.createElement("div");
+		spin.setAttribute(SPIN, "");
+		spin.appendChild(ring);
+		root.replaceChildren(spin);
 		this.#ringEl = ring;
 		this.#arcEl = arc;
 	}
