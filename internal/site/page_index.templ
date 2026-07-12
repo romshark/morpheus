@@ -1359,11 +1359,15 @@ templ lfColorField() {
 				Value: neo.Set("#2563eb"), Hue: neo.Set(221.0),
 				AriaLabel: neo.Set("Accent color"),
 			}, templ.Attributes{
-				"class":                          "lf-color-field",
-				"data-attr:value":                "$_lf_color_value",
-				"data-attr:hue":                  "$_lf_color_hue",
-				"data-on:neo-color-field-input":  "$_lf_color_value = evt.detail.value; $_lf_color_hue = evt.detail.hue; $_lf_color_sat = evt.detail.x; $_lf_color_val = 100 - evt.detail.y; $_lf_color_touched = true",
-				"data-on:neo-color-field-change": "$_lf_color_value = evt.detail.value; $_lf_color_hue = evt.detail.hue; $_lf_color_sat = evt.detail.x; $_lf_color_val = 100 - evt.detail.y; $_lf_color_touched = true",
+				"class":           "lf-color-field",
+				"data-attr:value": "$_lf_color_value",
+				"data-attr:hue":   "$_lf_color_hue",
+				// Debounce the per-pointermove input: the handler drives a
+				// :root --accent write that invalidates the whole page's style,
+				// so coalesce to the trailing edge. neo-color-field-change fires
+				// on pointerup and stays immediate, committing the final color.
+				"data-on:neo-color-field-input__debounce.30ms": "$_lf_color_value = evt.detail.value; $_lf_color_hue = evt.detail.hue; $_lf_color_sat = evt.detail.x; $_lf_color_val = 100 - evt.detail.y; $_lf_color_touched = true",
+				"data-on:neo-color-field-change":               "$_lf_color_value = evt.detail.value; $_lf_color_hue = evt.detail.hue; $_lf_color_sat = evt.detail.x; $_lf_color_val = 100 - evt.detail.y; $_lf_color_touched = true",
 			})
 			@neo.SliderAttrs(neo.SliderOpts[float64]{
 				Min:         neo.Set(0.0),
@@ -1374,10 +1378,10 @@ templ lfColorField() {
 				HideTooltip: neo.Set(true),
 				AriaLabel:   neo.Set("Hue"),
 			}, templ.Attributes{
-				"class":                     "lf-hue-slider",
-				"data-attr:value":           "$_lf_color_hue",
-				"data-on:neo-slider-input":  "$_lf_color_hue = Number(evt.detail.value); $_lf_color_value = window.lfHsvToHex($_lf_color_hue, $_lf_color_sat, $_lf_color_val); $_lf_color_touched = true",
-				"data-on:neo-slider-change": "$_lf_color_hue = Number(evt.detail.value); $_lf_color_value = window.lfHsvToHex($_lf_color_hue, $_lf_color_sat, $_lf_color_val); $_lf_color_touched = true",
+				"class":           "lf-hue-slider",
+				"data-attr:value": "$_lf_color_hue",
+				"data-on:neo-slider-input__debounce.30ms": "$_lf_color_hue = Number(evt.detail.value); $_lf_color_value = window.lfHsvToHex($_lf_color_hue, $_lf_color_sat, $_lf_color_val); $_lf_color_touched = true",
+				"data-on:neo-slider-change":               "$_lf_color_hue = Number(evt.detail.value); $_lf_color_value = window.lfHsvToHex($_lf_color_hue, $_lf_color_sat, $_lf_color_val); $_lf_color_touched = true",
 			})
 			@neo.SliderAttrs(neo.SliderOpts[float64]{
 				Min:         neo.Set(0.0),
@@ -1388,10 +1392,10 @@ templ lfColorField() {
 				HideTooltip: neo.Set(true),
 				AriaLabel:   neo.Set("Saturation"),
 			}, templ.Attributes{
-				"class":                     "lf-sat-slider",
-				"data-attr:value":           "$_lf_color_sat",
-				"data-on:neo-slider-input":  "$_lf_color_sat = Number(evt.detail.value); $_lf_color_value = window.lfHsvToHex($_lf_color_hue, $_lf_color_sat, $_lf_color_val); $_lf_color_touched = true",
-				"data-on:neo-slider-change": "$_lf_color_sat = Number(evt.detail.value); $_lf_color_value = window.lfHsvToHex($_lf_color_hue, $_lf_color_sat, $_lf_color_val); $_lf_color_touched = true",
+				"class":           "lf-sat-slider",
+				"data-attr:value": "$_lf_color_sat",
+				"data-on:neo-slider-input__debounce.30ms": "$_lf_color_sat = Number(evt.detail.value); $_lf_color_value = window.lfHsvToHex($_lf_color_hue, $_lf_color_sat, $_lf_color_val); $_lf_color_touched = true",
+				"data-on:neo-slider-change":               "$_lf_color_sat = Number(evt.detail.value); $_lf_color_value = window.lfHsvToHex($_lf_color_hue, $_lf_color_sat, $_lf_color_val); $_lf_color_touched = true",
 			})
 		</div>
 	</neo-card>
