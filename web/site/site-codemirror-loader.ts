@@ -71,6 +71,8 @@ function requestLoad(el: Element): void {
 }
 
 function prepareEditor(el: Element): void {
+	// Once defined, the element mounts its editor into its own shadow root and
+	// owns its fallback; a light-DOM fallback here would be a stray node.
 	if (customElements.get("site-codemirror")) return;
 	ensureFallback(el);
 	visibleEditorObserver?.observe(el);

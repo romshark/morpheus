@@ -64,6 +64,21 @@ const LANG: Record<string, () => Extension> = {
 	templ: () => templ(),
 };
 
+// Shared shadow stylesheet for the editor internals; external light-DOM CSS
+// can't reach the shadow. Per-context bits (gutter tint, focus outline) read
+// inherited custom properties the outer <site-codemirror> sets; the defaults
+// keep a bare code sample plain.
+const SHADOW_STYLES = new CSSStyleSheet();
+SHADOW_STYLES.replaceSync(`
+.site-codemirror-host{display:flex;flex-direction:column;flex:1 1 auto;min-height:0;min-width:0}
+.cm-editor{display:flex;flex-direction:column;flex:1 1 auto;min-height:0;min-width:0;background:transparent;font-family:ui-monospace,"SFMono-Regular",Menlo,monospace}
+.cm-editor.cm-focused{outline:var(--site-cm-focus,none);outline-offset:-2px}
+.cm-scroller{overflow:auto;font-family:inherit;line-height:1.5}
+.cm-content{min-width:max-content}
+.cm-gutters{z-index:2;background:var(--site-cm-gutter-bg,transparent);border-right:var(--site-cm-gutter-border,0)}
+:host([disabled]) .cm-editor,:host([disabled]) .cm-content{cursor:not-allowed}
+`);
+
 class SiteCodeMirror extends HTMLElement {
 	static get observedAttributes(): string[] {
 		return ["language", "readonly", "disabled", "lazy", "value"];
@@ -75,6 +90,16 @@ class SiteCodeMirror extends HTMLElement {
 	#_readonly = new Compartment();
 	#_morphObserver: MutationObserver | null = null;
 	#_lazyObserver: MutationObserver | null = null;
+	#_shadow: ShadowRoot;
+
+	constructor() {
+		super();
+		// The editor renders in this shadow root, not light DOM, so a Datastar
+		// fat-morph (it reconciles only light DOM) can't wipe or re-measure it:
+		// no teardown, no reflow from morph churn. Light DOM stays the authored
+		// source (<template>/value/text) plus the pre-load fallback.
+		this.#_shadow = this.attachShadow({ mode: "open" });
+	}
 
 	connectedCallback(): void {
 		if (!this.#_view) {
@@ -85,9 +110,8 @@ class SiteCodeMirror extends HTMLElement {
 			}
 		}
 
-		// A Datastar fat-morph re-emits the authored shape and wipes the
-		// editor DOM; idiomorph can't be told to skip our subtree, so
-		// detect the wipe and rebuild (same contract as <neo-select>).
+		// Mount path for source (<template>/value) patched into light DOM after
+		// connect; #_checkMorph no-ops once a view exists.
 		if (!this.#_morphObserver) {
 			this.#_morphObserver = new MutationObserver(() => this.#_checkMorph());
 		}
@@ -122,17 +146,14 @@ class SiteCodeMirror extends HTMLElement {
 	};
 
 	#_checkMorph(): void {
-		const tpl = this.querySelector(":scope > template");
-		const host = this.querySelector(":scope > .site-codemirror-host");
-		if (!tpl || host) return;
+		// A live view survives light-DOM morphs (it is in the shadow), so only
+		// mount when there is none and a source is present.
+		if (this.#_view) return;
+		const hasSource = this.getAttribute("value") !== null || this.querySelector(":scope > template") !== null;
+		if (!hasSource) return;
 		if (this.#_shouldDeferMount()) {
 			this.#_observeLazyPanel();
 			return;
-		}
-		// Authored shape back without our host = morph wiped it; rebuild.
-		if (this.#_view) {
-			this.#_view.destroy();
-			this.#_view = null;
 		}
 		this.#_mount();
 	}
@@ -143,11 +164,16 @@ class SiteCodeMirror extends HTMLElement {
 		this.#_lazyObserver = null;
 
 		const source = this.#_readSource();
-		this.textContent = "";
+		// Drop the pre-load fallback (<pre>) and loading indicator, but keep a
+		// <template> source in light DOM: it is invisible, morph-stable, and
+		// re-readable. Text/value sources leave nothing to strip.
+		for (const child of Array.from(this.children)) {
+			if (child.tagName !== "TEMPLATE") child.remove();
+		}
 
 		const host = document.createElement("div");
 		host.className = "site-codemirror-host";
-		this.appendChild(host);
+		this.#_shadow.replaceChildren(host);
 
 		this.#_view = new EditorView({
 			state: EditorState.create({
@@ -184,7 +210,18 @@ class SiteCodeMirror extends HTMLElement {
 				],
 			}),
 			parent: host,
+			// Shadow DOM: CodeMirror needs the root to resolve selection and
+			// focus and to inject its StyleModule into this shadow tree.
+			root: this.#_shadow,
 		});
+
+		// Adopt our overrides last: CodeMirror appended its base theme to
+		// adoptedStyleSheets during construction above, so appending after it
+		// keeps our rules winning ties.
+		this.#_shadow.adoptedStyleSheets = [
+			...this.#_shadow.adoptedStyleSheets.filter((s) => s !== SHADOW_STYLES),
+			SHADOW_STYLES,
+		];
 
 		document.documentElement.addEventListener("neo-theme-change", this.#_onThemeChange);
 	}

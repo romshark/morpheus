@@ -1134,10 +1134,8 @@ site-codemirror[disabled] {
 	cursor: not-allowed;
 }
 
-site-codemirror[disabled] .cm-editor,
-site-codemirror[disabled] .cm-content {
-	cursor: not-allowed;
-}
+/* The not-allowed cursor over the editor internals lives in the shadow sheet
+ * (:host([disabled]) .cm-editor). */
 
 site-codemirror {
 	position: relative;
@@ -1266,6 +1264,8 @@ site-codemirror[data-site-codemirror-loading] > .site-codemirror-loading {
 	}
 }
 
+/* Editor internals are styled in the shadow sheet (see site-codemirror.ts);
+ * size the host here and pass the gutter tint in via custom properties. */
 .demo-frame-footer-code site-codemirror {
 	display: flex;
 	flex-direction: column;
@@ -1276,40 +1276,8 @@ site-codemirror[data-site-codemirror-loading] > .site-codemirror-loading {
 	font-size: 0.78rem;
 	background: color-mix(in srgb, var(--page-fg) 4%, transparent);
 	overflow: hidden;
-	& .site-codemirror-host {
-		display: flex;
-		flex-direction: column;
-		flex: 1 1 auto;
-		min-height: 0;
-		min-width: 0;
-	}
-	& .cm-editor {
-		flex: 1 1 auto;
-		min-height: 0;
-		min-width: 0;
-		background: transparent;
-		font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
-		font-size: inherit;
-	}
-	& .cm-editor.cm-focused {
-		outline: none;
-	}
-	/* CodeMirror's default `overflow-x: auto` on cm-scroller computes
- * overflow-y to `auto` (CSS Overflow spec), so vertical scroll
- * kicks in once cm-editor has a bounded height. */
-	& .cm-scroller {
-		overflow-x: auto;
-		font-family: inherit;
-		line-height: 1.5;
-	}
-	& .cm-content {
-		min-width: max-content;
-	}
-	& .cm-gutters {
-		z-index: 2;
-		background: color-mix(in srgb, var(--page-fg) 6%, var(--btn-bg));
-		border-right: 1px solid var(--btn-border);
-	}
+	--site-cm-gutter-bg: color-mix(in srgb, var(--page-fg) 6%, var(--btn-bg));
+	--site-cm-gutter-border: 1px solid var(--btn-border);
 }
 
 /* tabindex="-1" sinks, focused only by stray clicks, never
@@ -1782,37 +1750,20 @@ site-codemirror[data-site-codemirror-loading] > .site-codemirror-loading {
 	}
 }
 
+/* Editor internals are styled in the shadow sheet (see site-codemirror.ts);
+ * size the host here and pass the accent focus ring + gutter tint in via
+ * custom properties. */
 .component-playground-code site-codemirror {
 	display: flex;
+	flex-direction: column;
 	flex: 1 1 auto;
 	min-height: 0;
 	min-width: 0;
 	font-size: 0.8rem;
 	overflow: hidden;
-
-	& .site-codemirror-host,
-	& .cm-editor {
-		display: flex;
-		flex: 1 1 auto;
-		flex-direction: column;
-		min-height: 0;
-		min-width: 0;
-	}
-
-	& .cm-editor.cm-focused {
-		outline: 2px solid var(--accent);
-		outline-offset: -2px;
-	}
-
-	& .cm-scroller {
-		overflow: auto;
-		font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
-	}
-
-	& .cm-gutters {
-		background: color-mix(in srgb, var(--page-fg) 6%, var(--btn-bg));
-		border-right: 1px solid var(--btn-border);
-	}
+	--site-cm-focus: 2px solid var(--accent);
+	--site-cm-gutter-bg: color-mix(in srgb, var(--page-fg) 6%, var(--btn-bg));
+	--site-cm-gutter-border: 1px solid var(--btn-border);
 }
 
 .component-playground-signal-list {
@@ -2937,42 +2888,17 @@ neo-progress:not(:defined) {
 	overflow: hidden;
 	background: color-mix(in srgb, var(--page-fg) 4%, transparent);
 	
+	/* Editor internals are styled in the shadow sheet (see site-codemirror.ts);
+	 * cap the host height here and pass the gutter tint in via custom
+	 * properties. */
 	& site-codemirror {
 		display: flex;
 		flex-direction: column;
 		max-height: 28rem;
 		min-height: 0;
 		font-size: 0.78rem;
-	}
-	
-	& site-codemirror .site-codemirror-host {
-		display: flex;
-		flex-direction: column;
-		flex: 1 1 auto;
-		min-height: 0;
-	}
-	
-	& site-codemirror .cm-editor {
-		flex: 1 1 auto;
-		min-height: 0;
-		background: transparent;
-		font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
-		font-size: inherit;
-	}
-	
-	& site-codemirror .cm-editor.cm-focused {
-		outline: none;
-	}
-	
-	& site-codemirror .cm-scroller {
-		font-family: inherit;
-		line-height: 1.5;
-	}
-	
-	& site-codemirror .cm-gutters {
-		z-index: 2;
-		background: color-mix(in srgb, var(--page-fg) 6%, var(--btn-bg));
-		border-right: 1px solid var(--btn-border);
+		--site-cm-gutter-bg: color-mix(in srgb, var(--page-fg) 6%, var(--btn-bg));
+		--site-cm-gutter-border: 1px solid var(--btn-border);
 	}
 }
 
