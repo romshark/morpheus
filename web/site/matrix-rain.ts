@@ -321,9 +321,15 @@ class MatrixRain extends HTMLElement {
 
 	#drawFrame() {
 		this.#fadePreviousFrame();
-		this.#context.font = `${this.#options.fontSize}px "Roboto Mono", "SFMono-Regular", Consolas, monospace`;
-		this.#context.textAlign = "center";
-		this.#context.textBaseline = "top";
+		const ctx = this.#context;
+		ctx.font = `${this.#options.fontSize}px "Roboto Mono", "SFMono-Regular", Consolas, monospace`;
+		ctx.textAlign = "center";
+		ctx.textBaseline = "top";
+		// shadowColor and filter are constant across the frame; set once here,
+		// not per glyph. filter keeps its "none" default unless blur is set.
+		ctx.shadowColor = this.#options.bodyColor;
+		const blurred = this.#options.blur > 0;
+		if (blurred) ctx.filter = `blur(${this.#options.blur}px)`;
 
 		this.#columns.forEach((column) => {
 			if (!column.active) {
@@ -333,6 +339,12 @@ class MatrixRain extends HTMLElement {
 			this.#advanceColumn(column);
 			this.#drawColumn(column);
 		});
+
+		// The last glyph leaves globalAlpha/shadowBlur set; clear them so the
+		// next frame's fade (a plain erase) isn't dimmed or blurred.
+		ctx.globalAlpha = 1;
+		ctx.shadowBlur = 0;
+		if (blurred) ctx.filter = "none";
 	}
 
 	#advanceColumn(column: MatrixColumn) {
@@ -357,7 +369,11 @@ class MatrixRain extends HTMLElement {
 		}
 	}
 
+	// Per-glyph varying state only; constant state and the post-loop reset
+	// live in #drawFrame.
 	#drawColumn(column: MatrixColumn) {
+		const ctx = this.#context;
+
 		for (const [row, char] of column.cells) {
 			let glyph = char;
 
@@ -377,18 +393,10 @@ class MatrixRain extends HTMLElement {
 			const alpha = Math.max(0, 1 - age);
 			const isHead = distance === 0;
 
-			this.#context.save();
-			this.#context.globalAlpha = isHead ? 1 : alpha * 0.72;
-			this.#context.fillStyle = isHead
-				? this.#options.headColor
-				: age > 0.72
-					? this.#options.dimColor
-					: this.#options.bodyColor;
-			this.#context.shadowColor = this.#options.bodyColor;
-			this.#context.shadowBlur = isHead ? this.#options.glow * 1.4 : this.#options.glow * alpha;
-			this.#context.filter = this.#options.blur > 0 ? `blur(${this.#options.blur}px)` : "none";
-			this.#context.fillText(glyph, column.x, y);
-			this.#context.restore();
+			ctx.globalAlpha = isHead ? 1 : alpha * 0.72;
+			ctx.fillStyle = isHead ? this.#options.headColor : age > 0.72 ? this.#options.dimColor : this.#options.bodyColor;
+			ctx.shadowBlur = isHead ? this.#options.glow * 1.4 : this.#options.glow * alpha;
+			ctx.fillText(glyph, column.x, y);
 		}
 	}
 }
