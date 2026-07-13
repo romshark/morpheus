@@ -56,12 +56,16 @@ func (w *cacheControlResponseWriter) Write(p []byte) (int, error) {
 	return w.ResponseWriter.Write(p)
 }
 
+// setCacheControl sets cache headers for this local preview server; production
+// runs on GitHub Pages, so these never reach users. The /static/min/ bundles
+// keep stable names, so a long cache would pin an old bundle and hide
+// rebuilds. no-cache makes the browser recheck, so a rebuild shows up.
 func setCacheControl(h http.Header, status int, urlPath string) {
 	if status < 200 || status >= 400 || h.Get("Cache-Control") != "" {
 		return
 	}
 	if strings.HasPrefix(urlPath, "/static/min/") || urlPath == "/static/datasim.js" {
-		h.Set("Cache-Control", "public, max-age=31536000, immutable")
+		h.Set("Cache-Control", "no-cache")
 		return
 	}
 	if urlPath == "/" || strings.HasSuffix(urlPath, "/") || strings.HasSuffix(urlPath, ".html") {
