@@ -28,6 +28,10 @@ class GlitchCycleText extends HTMLElement {
 	#textElement: HTMLElement;
 	#glitchLayers: NodeListOf<HTMLElement>;
 	#slotElement: HTMLSlotElement;
+	// One reusable text node per rendered layer (.text + the two .glitch
+	// layers). #setText writes .data on these; setting textContent would
+	// discard and re-create a text node every scramble frame.
+	#textNodes: Text[];
 
 	#words: string[] = [];
 	#wordIndex = 0;
@@ -160,6 +164,11 @@ class GlitchCycleText extends HTMLElement {
 		this.#textElement = root.querySelector(".text")!;
 		this.#glitchLayers = root.querySelectorAll<HTMLElement>(".glitch");
 		this.#slotElement = root.querySelector("slot")!;
+		this.#textNodes = [this.#textElement, ...this.#glitchLayers].map((el) => {
+			const node = document.createTextNode("");
+			el.appendChild(node);
+			return node;
+		});
 	}
 
 	connectedCallback() {
@@ -261,10 +270,9 @@ class GlitchCycleText extends HTMLElement {
 	}
 
 	#setText(text: string) {
-		this.#textElement.textContent = text;
-		this.#glitchLayers.forEach((layer) => {
-			layer.textContent = text;
-		});
+		for (const node of this.#textNodes) {
+			node.data = text;
+		}
 		// Intentionally NOT setting `this.dataset.text = text`; Datastar
 		// 1.0 reads `data-text` as a directive and would try to evaluate
 		// the visible word as a JS expression (e.g. `MORPHEUS` -> ReferenceError).
