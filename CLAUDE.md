@@ -34,7 +34,11 @@ Write like a technical specification, not an essay or marketing copy. Applies to
 
 ### Git commits
 
-Follow [Conventional Commits 1.0](https://www.conventionalcommits.org/en/v1.0.0/): `<type>[optional scope]: <description>` (e.g. `feat(switch): …`, `fix: …`, `chore: …`). Title 50 characters max. Description wraps at 72 characters per line. State the non-obvious _why_ of the change. Never paraphrase the diff's _what_.
+Follow [Conventional Commits 1.0](https://www.conventionalcommits.org/en/v1.0.0/): `<type>[optional scope]: <description>` (e.g. `feat(switch): …`, `fix: …`, `chore: …`).
+
+- Title (first line) 50 characters max, sentence case (capitalize the first word), no trailing period, imperative mood: it completes "If applied, this commit will …". Use `fix: Revalidate min bundles`, not `Revalidated` (past) or `Revalidates` (present).
+- Body wraps at 72 characters per line. State the non-obvious _why_, never paraphrase the _what_. Describe the current state in present tense and the fix in imperative, not past: `Focus leaves the open dialog. Trap it in the panel`, not `Focus left the open dialog and was trapped`.
+- Reserve `fix`/`feat` for the shippable kit (`web/lib`, `neo`/`datastar` wrappers). The demo/doc site (`web/site`, `internal/site`, landing) uses `docs`; tooling (`internal/cmd`) uses `chore`.
 
 ### Comment style
 
