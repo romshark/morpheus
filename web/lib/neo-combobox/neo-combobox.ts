@@ -439,10 +439,11 @@ export class NeoCombobox extends NeoListbox {
 		document.addEventListener("focusin", this.onDocFocusIn, true);
 		window.addEventListener("resize", this.reposition);
 		window.addEventListener("scroll", this.onWindowScroll, true);
-		// visualViewport.resize/scroll cover pinch-zoom and the iOS
-		// virtual-keyboard inset; neither fires window.resize.
-		window.visualViewport?.addEventListener("resize", this.reposition);
-		window.visualViewport?.addEventListener("scroll", this.reposition);
+		// visualViewport.resize/scroll cover pinch-zoom and the iOS virtual-keyboard
+		// inset; neither fires window.resize. onViewportChange (not reposition) so
+		// the keyboard can't dismiss an open combobox.
+		window.visualViewport?.addEventListener("resize", this.onViewportChange);
+		window.visualViewport?.addEventListener("scroll", this.onViewportChange);
 
 		this.observer = new MutationObserver(this.#onLightDomMutation);
 		this.observePanelResize();
@@ -490,8 +491,8 @@ export class NeoCombobox extends NeoListbox {
 		document.removeEventListener("focusin", this.onDocFocusIn, true);
 		window.removeEventListener("resize", this.reposition);
 		window.removeEventListener("scroll", this.onWindowScroll, true);
-		window.visualViewport?.removeEventListener("resize", this.reposition);
-		window.visualViewport?.removeEventListener("scroll", this.reposition);
+		window.visualViewport?.removeEventListener("resize", this.onViewportChange);
+		window.visualViewport?.removeEventListener("scroll", this.onViewportChange);
 		this.#clearSearchDebounceTimer();
 		this.#closeCleanupGeneration += 1;
 	}

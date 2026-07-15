@@ -44,6 +44,31 @@ export function applyOpenSizeDuringScroll(panel: HTMLElement, result: PositionRe
 	}
 }
 
+// Cached: an engine trait, not runtime state. null until first probed under a
+// non-zero visual-viewport offset, the only time the frames are distinguishable.
+let rectFrameIsVisual: boolean | null = null;
+
+// position:fixed is layout-viewport-relative, but iOS Safari's
+// getBoundingClientRect is visual-relative; returns the offset between them.
+function fixedFrameOffset(): { x: number; y: number } {
+	const vv = window.visualViewport;
+	const ox = vv?.offsetLeft ?? 0;
+	const oy = vv?.offsetTop ?? 0;
+	if (ox === 0 && oy === 0) return { x: 0, y: 0 };
+	if (rectFrameIsVisual === null) {
+		const probe = document.createElement("div");
+		probe.style.cssText =
+			"position:fixed;top:0;left:0;width:1px;height:1px;margin:0;border:0;padding:0;visibility:hidden;pointer-events:none";
+		document.body.appendChild(probe);
+		const r = probe.getBoundingClientRect();
+		probe.remove();
+		// A fixed element pinned at (0,0) reports (0,0) when the rect frame is
+		// layout, or (-offsetLeft,-offsetTop) when it is visual.
+		rectFrameIsVisual = oy !== 0 ? Math.abs(r.top + oy) < 1 : Math.abs(r.left + ox) < 1;
+	}
+	return rectFrameIsVisual ? { x: ox, y: oy } : { x: 0, y: 0 };
+}
+
 interface PositionOptions {
 	/** Re-anchor inside the viewport instead of strict placement; inline
 	 *  max-* cleared, auto-flip skipped. Default false. */
@@ -116,19 +141,14 @@ export function positionPanelResult(
 	const minFitHeight = resolveMinFit(opts.minFitHeight, contentSize?.height);
 	const minFitWidth = resolveMinFit(opts.minFitWidth, contentSize?.width);
 
-	// Use the visual viewport: iOS shrinks it for the on-screen
-	// keyboard without resizing the layout viewport, so the panel
-	// would otherwise render behind the keyboard.
+	// vw/vh from the visual viewport: iOS shrinks it for the keyboard without
+	// resizing the layout viewport, so the panel sizes to fit clear of it.
 	const visualViewport = window.visualViewport;
-	const vLeft = visualViewport?.offsetLeft ?? 0;
-	const vTop = visualViewport?.offsetTop ?? 0;
 	const vw = visualViewport?.width ?? document.documentElement.clientWidth;
 	const vh = visualViewport?.height ?? document.documentElement.clientHeight;
 
-	// Trigger rect in visual-viewport coords for the math; converted
-	// back to layout coords before writing (`position: fixed` is
-	// layout-viewport-relative).
-	const t = new DOMRect(tRaw.left - vLeft, tRaw.top - vTop, tRaw.width, tRaw.height);
+	// Keep getBoundingClientRect coords; convert to fixed coords once, at the end.
+	const t = tRaw;
 
 	// Containment window in visual-viewport coords. Defaults to the whole
 	// viewport; a <neo-boundary> ancestor of the anchor that scopes
@@ -144,10 +164,10 @@ export function positionPanelResult(
 		: scopingBoundary(opts.boundaryContext ?? anchor, "positioning");
 	const bRect = positioningBoundary ? boundaryRect(positioningBoundary) : null;
 	if (bRect) {
-		wL = Math.max(0, bRect.left - vLeft);
-		wT = Math.max(0, bRect.top - vTop);
-		wR = Math.min(vw, bRect.right - vLeft);
-		wB = Math.min(vh, bRect.bottom - vTop);
+		wL = Math.max(0, bRect.left);
+		wT = Math.max(0, bRect.top);
+		wR = Math.min(vw, bRect.right);
+		wB = Math.min(vh, bRect.bottom);
 		// Off-screen or inverted boundary: ignore it, keep the viewport.
 		if (wR <= wL || wB <= wT) {
 			wL = 0;
@@ -207,13 +227,9 @@ export function positionPanelResult(
 		top = clampToWindow(top, height, edgeOffset, wT, wB);
 	}
 
-	// Back to layout-viewport coords before any offsetParent shift.
-	top += vTop;
-	left += vLeft;
-
 	// A transformed ancestor (transform/filter/contain:paint/perspective/
 	// will-change, e.g. <neo-sidebar>'s translateX) becomes the fixed
-	// containing block, so inline top/left are then relative to it.
+	// containing block, so inline top/left are relative to it.
 	const cb = panel.offsetParent;
 	if (cb instanceof HTMLElement) {
 		// Containing block is the padding edge; getBoundingClientRect
@@ -221,6 +237,11 @@ export function positionPanelResult(
 		const cbRect = cb.getBoundingClientRect();
 		left -= cbRect.left + cb.clientLeft;
 		top -= cbRect.top + cb.clientTop;
+	} else {
+		// Viewport-anchored: bridge the iOS rect/fixed frame gap.
+		const ffo = fixedFrameOffset();
+		top += ffo.y;
+		left += ffo.x;
 	}
 
 	panel.style.top = `${top}px`;

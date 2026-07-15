@@ -515,8 +515,13 @@ export abstract class NeoListbox extends HTMLElement {
 			return;
 		}
 		if (mode === "until-trigger-invisible") {
-			if (intersectsVisualViewport(this.trigger)) this.position();
-			else this.hide();
+			// keepWhenUnfit: a keyboard-shrunk fit failure follows the trigger
+			// rather than dismissing; only a genuinely hidden trigger closes.
+			if (intersectsLayoutViewport(this.trigger)) {
+				this.position({ keepWhenUnfit: true });
+			} else {
+				this.hide();
+			}
 			return;
 		}
 		if (performance.now() < this.#openCommandScrollHoldUntil) {
@@ -694,8 +699,16 @@ export abstract class NeoListbox extends HTMLElement {
 		return "off";
 	}
 
+	// visualViewport resize/scroll fire as the mobile keyboard insets the view.
+	// keepWhenUnfit re-anchors without dismissing when the panel no longer fits.
+	protected onViewportChange = () => {
+		if (this.open) this.position({ keepWhenUnfit: true });
+	};
+
 	#shouldCloseForHiddenTrigger(): boolean {
-		return this.#followScrollMode() === "until-trigger-invisible" && !intersectsVisualViewport(this.trigger);
+		// Layout viewport, not visual: the keyboard shrinks the visual viewport
+		// but leaves the trigger in place (see intersectsLayoutViewport).
+		return this.#followScrollMode() === "until-trigger-invisible" && !intersectsLayoutViewport(this.trigger);
 	}
 
 	#rememberTriggerRect(): void {
@@ -710,20 +723,13 @@ export abstract class NeoListbox extends HTMLElement {
 	}
 }
 
-function intersectsVisualViewport(el: HTMLElement): boolean {
+// Intersects the layout viewport, ignoring the visual-viewport inset the mobile
+// keyboard adds: a keyboard-covered trigger has not scrolled away, so
+// until-trigger-invisible must not dismiss for it. Genuine scroll-away still hides.
+function intersectsLayoutViewport(el: HTMLElement): boolean {
 	const rect = el.getBoundingClientRect();
 	if (rect.width <= 0 || rect.height <= 0) return false;
-
-	const visualViewport = window.visualViewport;
-	const vLeft = visualViewport?.offsetLeft ?? 0;
-	const vTop = visualViewport?.offsetTop ?? 0;
-	const vw = visualViewport?.width ?? document.documentElement.clientWidth;
-	const vh = visualViewport?.height ?? document.documentElement.clientHeight;
-
-	const left = rect.left - vLeft;
-	const right = rect.right - vLeft;
-	const top = rect.top - vTop;
-	const bottom = rect.bottom - vTop;
-
-	return right > 0 && left < vw && bottom > 0 && top < vh;
+	const vw = document.documentElement.clientWidth;
+	const vh = document.documentElement.clientHeight;
+	return rect.right > 0 && rect.left < vw && rect.bottom > 0 && rect.top < vh;
 }
