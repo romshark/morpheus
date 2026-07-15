@@ -1,10 +1,25 @@
 /* Landing-page-only styles. */
 
-/* Override the docs-app's `body { overflow: hidden }`; landing scrolls as one page. */
+/* The docs-app shell (style.css) pins html+body to `height: 100dvh;
+   overflow: clip` and scrolls inner regions. The landing page scrolls as one
+   document instead. Revert the root: without this the body below stays a
+   100dvh-tall inner scroll container, and on iOS a dvh-tall inner scroller
+   desyncs from the collapsing address bar, leaving a strip of html background
+   (the "black stripe" past the last content) that a rotate/resize clears. */
+.landing-root {
+	height: auto;
+	overflow: visible;
+}
+
+/* Grow with content and let the root document scroll; keep horizontal clipping.
+   overflow-x:clip + overflow-y:visible is a valid pair (no scroll container),
+   unlike the former overflow-y:auto which made the body scroll internally. */
 .landing-body {
 	position: relative;
-	overflow-x: hidden;
-	overflow-y: auto;
+	height: auto;
+	min-height: 100dvh;
+	overflow-x: clip;
+	overflow-y: visible;
 	--landing-surface-bg: color-mix(in srgb, var(--page-bg) 98%, var(--page-fg));
 	--landing-code-gutter-bg: color-mix(
 		in srgb,
