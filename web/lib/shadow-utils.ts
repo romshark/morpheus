@@ -57,7 +57,7 @@ export function scopingBoundary(el: Element, facet: string): Element | null {
 	}
 	if (!b) return null;
 	const raw = b.getAttribute("scope");
-	const tokens = (raw === null ? BOUNDARY_DEFAULT_SCOPE : raw).toLowerCase().split(/\s+/);
+	const tokens = (raw ?? BOUNDARY_DEFAULT_SCOPE).toLowerCase().split(/\s+/);
 	return tokens.includes(facet) ? b : null;
 }
 

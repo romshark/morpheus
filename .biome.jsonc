@@ -37,6 +37,27 @@
 			},
 			"suspicious": {
 				"noDuplicateProperties": "error"
+			},
+			// a11y recommended rules run via the top-level `recommended`. Most
+			// target JSX; this kit builds DOM imperatively, so only the
+			// CSS-applicable ones (e.g. useGenericFontNames) fire today. The
+			// group stays on to guard any future markup.
+			"a11y": {
+				"recommended": true
+			},
+			// nursery rules are unstable across Biome versions; @biomejs/biome is
+			// pinned exactly, so upgrades opt in deliberately. Only vetted,
+			// zero-false-positive rules are enabled here.
+			"nursery": {
+				"recommended": true,
+				// Unhandled Promise (missing await/catch/void).
+				"noFloatingPromises": "error",
+				// Promise passed where a non-Promise is expected.
+				"noMisusedPromises": "error",
+				// new Function / eval-like string execution.
+				"noImpliedEval": "error",
+				// Nullish ternary that ?? expresses directly.
+				"useNullishCoalescing": "error"
 			}
 		}
 	},

@@ -41,7 +41,7 @@ export class TriggerFace {
 			return;
 		}
 		const text = sourceRoot?.textContent?.trim();
-		this.text(text || (value === null ? this.#host.getAttribute("placeholder") || "Select…" : value));
+		this.text(text || (value ?? (this.#host.getAttribute("placeholder") || "Select…")));
 	}
 
 	// Deep-clone `nodes` into the trigger view.

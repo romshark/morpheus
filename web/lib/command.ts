@@ -26,7 +26,7 @@ export function boolCommand(host: Element, name: string): BoolCommand {
 // server-only knobs that the client never mutates.
 export function boolAttr(host: Element, name: string, dflt: boolean): boolean {
 	const cmd = boolCommand(host, name);
-	return cmd === null ? dflt : cmd;
+	return cmd ?? dflt;
 }
 
 // warnBadAxis logs when `orientation` is set to a value a two-axis

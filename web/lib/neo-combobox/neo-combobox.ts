@@ -619,7 +619,7 @@ export class NeoCombobox extends NeoListbox {
 			queueMicrotask(finish);
 			return;
 		}
-		Promise.allSettled(animations.map((animation) => animation.finished)).then(finish);
+		void Promise.allSettled(animations.map((animation) => animation.finished)).then(finish);
 	}
 
 	#cacheTemplates() {

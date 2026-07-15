@@ -225,6 +225,7 @@ class SitePlayground extends HTMLElement {
 		// single-quoted strings), not strict JSON. Evaluate as JS the way
 		// Datastar does; the state HTML is trusted, repo-authored. The editor
 		// stays patchable on a throw; only the malformed control is omitted.
+		// biome-ignore lint/nursery/noImpliedEval: Datastar-syntax state HTML is trusted, repo-authored; evaluated as JS like Datastar itself does.
 		const evalExpr = (expr: string): unknown => new Function(`"use strict";return(${expr})`)();
 		const keep = (name: string, value: unknown): void => {
 			if (value === null || typeof value === "string" || typeof value === "number" || typeof value === "boolean") {
