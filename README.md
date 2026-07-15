@@ -1,4 +1,4 @@
-![Static Badge](https://img.shields.io/badge/version-alpha%20v0.1.0-yellow?style=for-the-badge)
+![Static Badge](https://img.shields.io/badge/version-pre--alpha%20v0.1.0-yellow?style=for-the-badge)
 
 # Morpheus
 
