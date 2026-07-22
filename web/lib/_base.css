@@ -78,6 +78,15 @@
 	--neo-control-height: calc(1em + 2 * round(calc(var(--page-spacing, 0.25rem) * 2.75), 1px) + 2px);
 }
 
+/* Suppress the mobile tap-highlight flash (a translucent rectangle that
+ * ignores the control's border-radius) on touch. -webkit-tap-highlight-color
+ * is inherited, so a single value on :root cascades to every control,
+ * including across shadow boundaries into shadow-DOM triggers and list
+ * items. Override on an ancestor to restore the native highlight. */
+:root {
+	-webkit-tap-highlight-color: transparent;
+}
+
 /* Kit-wide focus-ring baseline. `:where()` is specificity 0 so any
  * per-component :focus-visible rule wins. */
 :where(button, a[href], [tabindex="0"]):focus-visible {
