@@ -47,14 +47,14 @@ neo-tooltip > [data-neo-tooltip-content] {
 		display var(--neo-tooltip-enter-duration) allow-discrete;
 }
 
-neo-tooltip:not([open]) > [data-neo-tooltip-content] {
+neo-tooltip:not([open]:where(:not([open="false"]))) > [data-neo-tooltip-content] {
 	display: none;
 	opacity: 0;
 	transform: translateY(-3px);
 }
 
 @starting-style {
-	neo-tooltip[open] > [data-neo-tooltip-content] {
+	neo-tooltip[open]:where(:not([open="false"])) > [data-neo-tooltip-content] {
 		opacity: 0;
 		transform: translateY(-3px);
 	}
