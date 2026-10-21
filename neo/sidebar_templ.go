@@ -9,8 +9,8 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 type SidebarOpts struct {
-	// Open pins the sidebar open at every viewport; absent gives auto
-	// behaviour (open above OverlayBreakpoint, closed below).
+	// Open pins the sidebar open or closed at every viewport; absent
+	// gives auto behaviour (open above OverlayBreakpoint, closed below).
 	Open Attr[bool]
 	Side Attr[Side]
 	// Manual disables auto-open-on-wide.

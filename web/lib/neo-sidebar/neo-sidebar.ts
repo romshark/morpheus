@@ -24,10 +24,11 @@ export class NeoSidebar extends HTMLElement {
 	// Stable ref so re-adopting a morph-preserved backdrop doesn't stack
 	// click listeners (addEventListener dedups identical refs).
 	#onBackdropClick = () => this.hide();
-	// True when the original markup didn't pin a state. Auto-mode
-	// tracks the host's PARENT width so the sidebar stays in sync
-	// across breakpoint crossings (window resize, preview pane drag).
-	#autoMode = false;
+	// True when the original markup didn't pin a state; null until the
+	// first connect reads it. Auto-mode tracks the host's PARENT width
+	// so the sidebar stays in sync across breakpoint crossings (window
+	// resize, preview pane drag).
+	#autoMode: boolean | null = null;
 	#parentResizeObserver: ResizeObserver | null = null;
 	#wideMode: boolean | null = null;
 	// Persistent "user wants the sidebar closed in wide layouts" flag.
@@ -102,25 +103,18 @@ export class NeoSidebar extends HTMLElement {
 		this.#syncManagedAttrs();
 		this.#morphObserver ??= observeManagedAttrs(this, RESILIENT_ATTRS, this.#syncManagedAttrs);
 
-		// [open] in markup pins open; absence means "auto". CSS handles
-		// the pre-upgrade initial state.
-		this.#autoMode =
-			!this.hasAttribute("open") && !boolAttr(this, "manual", false) && !boolAttr(this, "overlay", false);
+		const cmd = openCommand(this);
+		// `open` in the original markup, true or false, pins the state;
+		// absence means "auto". CSS handles the pre-upgrade initial state.
+		this.#autoMode ??= cmd === null && !boolAttr(this, "manual", false) && !boolAttr(this, "overlay", false);
+		this.#syncOpen();
 
 		// Seed wideMode from the actual parent's width; the containing
 		// block differs from the viewport in nested previews.
 		const parentWidth = this.#breakpointElement?.getBoundingClientRect().width ?? 0;
 		this.#wideMode = parentWidth > this.#breakpointPx;
-		// Seed from authored markup, then auto-mode derives the responsive
-		// default. A later morph strip keeps intent, never re-runs this.
-		this.#openIntent = this.hasAttribute("open");
-		if (this.#autoMode) {
-			if (this.#wideMode && !this.#openIntent) {
-				this.#applyOpen();
-			} else if (!this.#wideMode && this.#openIntent) {
-				this.#applyClose();
-			}
-		}
+		// A command wins; otherwise auto-mode derives the responsive default.
+		if (this.#autoMode && cmd === null && this.#wideMode && !this.#openIntent) this.#applyOpen();
 		this.#syncOverlayMode();
 		this.#syncInert();
 
@@ -254,6 +248,14 @@ export class NeoSidebar extends HTMLElement {
 			return;
 		}
 		if (name !== "open" || this.#reflecting) return;
+		// Before connect, connectedCallback reads the command for
+		// auto-mode; a close applied here would remove it first.
+		if (this.#wideMode === null) return;
+		this.#syncOpen();
+	}
+
+	// Reconcile the `open` command with the intent (see command).
+	#syncOpen(): void {
 		const cmd = openCommand(this);
 		if (cmd === null) {
 			// Absent: keep state; re-assert for `[open]` CSS. No

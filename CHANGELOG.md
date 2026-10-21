@@ -24,5 +24,6 @@ This file records the notable changes of each release in the format of [Keep a C
 - Restore the name that `<neo-checkbox>` and `<neo-radio>` take from a wrapping `<label>` after a morph removes their `aria-label`.
 - Show `<neo-switch>` and `<neo-checkbox>` with `checked="false"` as unchecked before the script loads. The `neo` wrappers render that attribute for `Checked: neo.Set(false)`. These controls showed as checked until the script loaded, then animated to unchecked.
 - Collapse `<neo-elastic>` with `open="false"` before the script loads. The `neo` wrapper renders that attribute for `Collapsed: neo.Set(true)`. The content showed at full height until the script loaded.
+- Keep `<neo-sidebar>` with `open="false"` closed on wide layouts. With `Open: neo.Set(false)` and no `Manual`, the sidebar opened when the script loaded.
 
 [Unreleased]: https://github.com/romshark/morpheus/compare/v0.1.0...HEAD
