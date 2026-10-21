@@ -40,6 +40,10 @@ Follow [Conventional Commits 1.0](https://www.conventionalcommits.org/en/v1.0.0/
 - Body wraps at 72 characters per line. State the non-obvious _why_, never paraphrase the _what_. Describe the current state in present tense and the fix in imperative, not past: `Focus leaves the open dialog. Trap it in the panel`, not `Focus left the open dialog and was trapped`.
 - Reserve `fix`/`feat` for the shippable kit (`web/lib`, `neo`/`datastar` wrappers). The demo/doc site (`web/site`, `internal/site`, landing) uses `docs`; tooling (`internal/cmd`) uses `chore`.
 
+### Changelog
+
+Record each user-visible change to the shippable kit under `## [Unreleased]` in [CHANGELOG.md](CHANGELOG.md), in the same commit. The `changelog` skill holds the entry rules and the release steps.
+
 ### Comment style
 
 Prefer one or two lines over a paragraph and a sentence fragment over a full sentence when it's unambiguous. State the non-obvious _why_ (invariant, constraint, browser quirk, gotcha). Never paraphrase the code's _what_. Use precise terms (e.g. "top layer", "capture phase", "passive listener", "cascade", "containing block") rather than narrating in plain English. If a comment grows past ~3 lines, the reason it needs that much prose is usually the signal to split or rename, not to keep writing.
