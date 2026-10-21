@@ -86,8 +86,9 @@ neo-sidebar:state(mode-snap) {
 /* Wide-mode collapse: closing an upgraded sidebar shrinks its width to
  * 0 so the in-flow column it occupies releases the freed space. Scoped
  * to :defined so unupgraded auto sidebars render in their desktop-open
- * state before JS loads; the component then reflects [open] as soon as
- * it connects. Skipped in overlay mode: there the host is `position:
+ * state before JS loads, while an unupgraded `open="false"` renders
+ * closed; the component then reflects [open] as soon as it connects.
+ * Skipped in overlay mode: there the host is `position:
  * fixed`, the close animation is purely a transform slide, and
  * shrinking width to 0 would clip the host instantly and make the
  * slide-out invisible. Gating by `:state(overlay)` (not by `@media
@@ -97,23 +98,28 @@ neo-sidebar:state(mode-snap) {
  * opting out of overlay (`overlay-breakpoint="0rem"`) at a 700px
  * viewport would have toggle-off remove `[open]` with no visible
  * effect. */
+neo-sidebar:not(:defined)[open="false"],
 neo-sidebar:defined:not([open]):not(:state(overlay)) {
 	width: 0;
 	max-width: 0;
 	border-color: transparent;
 }
 
+neo-sidebar:not(:defined)[open="false"]:has(> [data-neo-sidebar-minimized]),
 neo-sidebar:defined:not([open]):not(:state(overlay)):has(> [data-neo-sidebar-minimized]) {
 	width: var(--neo-sidebar-minimized-width);
 	max-width: var(--neo-sidebar-minimized-width);
 	border-color: var(--neo-sidebar-border-color);
 }
 
+neo-sidebar:not(:defined)[open="false"]:has(> [data-neo-sidebar-minimized]) > [data-neo-sidebar-minimized],
 neo-sidebar:defined:not([open]):not(:state(overlay)):has(> [data-neo-sidebar-minimized])
 	> [data-neo-sidebar-minimized] {
 	display: flex;
 }
 
+neo-sidebar:not(:defined)[open="false"]:has(> [data-neo-sidebar-minimized])
+	> :is([data-neo-sidebar-header], [data-neo-sidebar-content], [data-neo-sidebar-footer]),
 neo-sidebar:defined:not([open]):not(:state(overlay)):has(> [data-neo-sidebar-minimized])
 	> :is([data-neo-sidebar-header], [data-neo-sidebar-content], [data-neo-sidebar-footer]) {
 	display: none;
@@ -255,7 +261,7 @@ neo-sidebar > [data-neo-sidebar-minimized] {
 		border-left: 1px solid var(--neo-sidebar-border-color);
 	}
 
-	neo-sidebar:not(:defined)[open] {
+	neo-sidebar:not(:defined)[open]:where(:not([open="false"])) {
 		transform: translateX(0);
 	}
 }
@@ -300,11 +306,11 @@ neo-sidebar > [data-neo-sidebar-minimized] {
 		border-left: 1px solid var(--neo-sidebar-border-color);
 	}
 
-	neo-sidebar:not(:defined)[open] {
+	neo-sidebar:not(:defined)[open]:where(:not([open="false"])) {
 		transform: translateX(0);
 	}
 
-	neo-sidebar:not(:defined):not([open]) {
+	neo-sidebar:not(:defined):not([open]:where(:not([open="false"]))) {
 		width: var(--neo-sidebar-width);
 		max-width: var(--neo-sidebar-width);
 		border-color: var(--neo-sidebar-border-color);
@@ -361,7 +367,7 @@ neo-sidebar:state(overlay)[side="right"] {
 	border-left: 1px solid var(--neo-sidebar-border-color);
 }
 
-neo-sidebar[overlay]:not([overlay="false"])[open],
+neo-sidebar[overlay]:not([overlay="false"])[open]:where(:not([open="false"])),
 neo-sidebar:state(overlay)[open] {
 	transform: translateX(0);
 }
