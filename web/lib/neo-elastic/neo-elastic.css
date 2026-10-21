@@ -20,6 +20,11 @@ neo-elastic {
 	transition: height var(--neo-elastic-duration) var(--neo-easing, ease);
 }
 
+/* Collapsed until the script upgrades the host and pins its height. */
+neo-elastic:not(:defined)[open="false"] {
+	height: 0;
+}
+
 /* The inner wrapper must be a block formatting context, otherwise
  * a child's `margin-top` (e.g. a `<ul>` with default top margin)
  * collapses *through* the wrapper to the host. The host's
