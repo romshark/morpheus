@@ -5,6 +5,7 @@
 @import "../../../web/lib/_layout.css";
 @import "../../../web/lib/_boundary.css";
 @import "../../../web/lib/neo-alert/neo-alert.css";
+@import "../../../web/lib/neo-aura/neo-aura.global.css";
 @import "../../../web/lib/neo-avatar/neo-avatar.css";
 @import "../../../web/lib/neo-badge/neo-badge.css";
 @import "../../../web/lib/neo-breadcrumb/neo-breadcrumb.css";

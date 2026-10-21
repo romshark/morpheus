@@ -13,6 +13,7 @@
 // Keep both sets in sync with the customElements.define calls and the CSS-only
 // stylesheets; a missing entry weakens the warning but doesn't break anything.
 const BEHAVIORAL_TAGS = new Set<string>([
+	"neo-aura",
 	"neo-avatars",
 	"neo-breadcrumb",
 	"neo-button",

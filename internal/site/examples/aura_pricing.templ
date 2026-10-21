@@ -1,0 +1,82 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ AuraPricing() {
+	<div class="aura-pricing">
+		@neo.Card(neo.CardOpts{}) {
+			@neo.CardHeader() {
+				@neo.CardTitle() {
+					Starter
+				}
+				@neo.CardDescription() {
+					For side projects
+				}
+			}
+			@neo.CardBody() {
+				<p class="aura-pricing-price"><strong>$0</strong> per month</p>
+				<ul class="aura-pricing-features">
+					<li>Up to 3 projects</li>
+					<li>Community forum</li>
+					<li>7-day history</li>
+				</ul>
+			}
+			@neo.CardFooter() {
+				@neo.Button(neo.ButtonOpts{}) {
+					Start free
+				}
+			}
+		}
+		@neo.AuraAttrs(neo.AuraOpts{}, templ.Attributes{"class": "aura-pricing-highlight"}) {
+			@neo.Card(neo.CardOpts{}) {
+				@neo.CardHeader() {
+					@neo.Badge(neo.BadgeOpts{Variant: neo.Set(neo.BadgeVariantPrimary)}) {
+						Most popular
+					}
+					@neo.CardTitle() {
+						Team
+					}
+					@neo.CardDescription() {
+						For growing teams
+					}
+				}
+				@neo.CardBody() {
+					<p class="aura-pricing-price"><strong>$12</strong> per seat, monthly</p>
+					<ul class="aura-pricing-features">
+						<li>Unlimited projects</li>
+						<li>SSO and audit log</li>
+						<li>90-day history</li>
+					</ul>
+				}
+				@neo.CardFooter() {
+					@neo.Button(neo.ButtonOpts{Variant: neo.Set(neo.ButtonVariantPrimary)}) {
+						Start trial
+					}
+				}
+			}
+		}
+		@neo.Card(neo.CardOpts{}) {
+			@neo.CardHeader() {
+				@neo.CardTitle() {
+					Enterprise
+				}
+				@neo.CardDescription() {
+					For regulated industries
+				}
+			}
+			@neo.CardBody() {
+				<p class="aura-pricing-price"><strong>Custom</strong> annual contract</p>
+				<ul class="aura-pricing-features">
+					<li>Dedicated support</li>
+					<li>Data residency</li>
+					<li>Unlimited history</li>
+				</ul>
+			}
+			@neo.CardFooter() {
+				@neo.Button(neo.ButtonOpts{}) {
+					Contact sales
+				}
+			}
+		}
+	</div>
+}

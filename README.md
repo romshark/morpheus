@@ -3,7 +3,7 @@
 
 # Morpheus
 
-Morpheus is an open alpha web component UI kit. It provides 48 components and 5 utility components, and targets server-driven architectures.
+Morpheus is an open alpha web component UI kit. It provides 49 components and 5 utility components, and targets server-driven architectures.
 
 ## Install
 

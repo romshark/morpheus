@@ -42,6 +42,8 @@ func bundleCSSModule(name string) string {
 		return "_layout.css"
 	case "neo-boundary":
 		return "_boundary.css"
+	case "neo-aura":
+		return "neo-aura.global.css"
 	case "neo-spinner":
 		return "neo-spinner.global.css"
 	}

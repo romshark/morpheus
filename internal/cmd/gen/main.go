@@ -125,6 +125,7 @@ func buildPages(morpheusVersion string) ([]pageEntry, error) {
 		{href.PageProjectStatus(), site.PageProjectStatus(morpheusVersion)},
 		{href.PageBundleBuilder(), site.PageBundleBuilder(morpheusVersion)},
 		{href.PageAlert(), site.PageAlert(morpheusVersion)},
+		{href.PageAura(), site.PageAura(morpheusVersion)},
 		{href.PageAvatar(), site.PageAvatar(morpheusVersion)},
 		{href.PageAvatars(), site.PageAvatars(morpheusVersion)},
 		{href.PageBadge(), site.PageBadge(morpheusVersion)},

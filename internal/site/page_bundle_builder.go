@@ -61,7 +61,7 @@ var bundleComponents = []bundleDep{
 // target. neo-link is excluded entirely; it ships no JS or CSS module,
 // so it is not a bundle unit.
 var bundleStandalone = []string{
-	"neo-alert", "neo-badge", "neo-boundary", "neo-card", "neo-checkbox",
+	"neo-alert", "neo-aura", "neo-badge", "neo-boundary", "neo-card", "neo-checkbox",
 	"neo-clipcopy", "neo-color-field", "neo-condition", "neo-dialog", "neo-drawer",
 	"neo-elastic", "neo-kbd", "neo-keys", "neo-layout", "neo-lightbox",
 	"neo-persist", "neo-progress", "neo-revealable", "neo-sidebar", "neo-skeleton",

@@ -24,6 +24,7 @@ func PageLayout() string         { return "/layout/" }
 func PageProjectStatus() string  { return "/project-status/" }
 func PageBundleBuilder() string  { return "/bundle-builder/" }
 func PageAlert() string          { return "/alert/" }
+func PageAura() string           { return "/aura/" }
 func PageAvatar() string         { return "/avatar/" }
 func PageAvatars() string        { return "/avatars/" }
 func PageBadge() string          { return "/badge/" }

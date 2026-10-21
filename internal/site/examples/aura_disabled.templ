@@ -1,0 +1,20 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ AuraDisabled() {
+	<neo-layout wrap gap="lg" align-items="center" data-signals="{aura_lights_on: true}">
+		@neo.AuraAttrs(neo.AuraOpts{}, templ.Attributes{"data-attr:disabled": "!$aura_lights_on"}) {
+			@neo.Button(neo.ButtonOpts{Variant: neo.Set(neo.ButtonVariantPrimary)}) {
+				Publish
+			}
+		}
+		<label class="aura-disabled-label">
+			@neo.SwitchAttrs(neo.SwitchOpts{Checked: neo.Set(true), AriaLabel: neo.Set("Lights on")}, templ.Attributes{
+				"data-on:neo-switch-change": "$aura_lights_on = evt.detail.checked",
+				"data-attr:aria-label":      "$aura_lights_on ? 'Lights on' : 'Lights off'",
+			})
+			<span data-text="$aura_lights_on ? 'Lights on' : 'Lights off'">Lights on</span>
+		</label>
+	</neo-layout>
+}

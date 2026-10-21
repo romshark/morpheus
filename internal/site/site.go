@@ -221,6 +221,7 @@ var DataLinks = []NavLink{
 //  2. Append the entry here so the sidebar surfaces it.
 var ComponentLinks = []NavLink{
 	{href.PageAlert(), "Alert"},
+	{href.PageAura(), "Aura"},
 	{href.PageAvatar(), "Avatar"},
 	{href.PageAvatars(), "Avatars"},
 	{href.PageBadge(), "Badge"},

@@ -1,0 +1,188 @@
+package site
+
+import (
+	"github.com/romshark/morpheus/internal/href"
+	"github.com/romshark/morpheus/internal/site/examples"
+)
+
+templ PageAura(morpheusVersion string) {
+	@PageDoc(href.PageAura(), "Aura", morpheusVersion) {
+		<section class="demo">
+			@anchoredH2("overview") {
+				Aura
+			}
+			<p class="intro">
+				Component <code>{ "<neo-aura>" }</code> is a
+				decorative light around the element it wraps: a
+				ring in its padding with a light that rotates along
+				it, and a blurred glow behind. Wrap one element that
+				has an opaque background, such as a button, input,
+				or card. Custom properties set the look and the
+				motion. The light holds still under reduced motion
+				and becomes a solid <code>Highlight</code> ring in
+				forced-colors mode. The layers live in an open
+				shadow root; style them with <code>::part()</code>.
+			</p>
+			@Playground(PlaygroundOpts{
+				ID:     "aura-playground",
+				States: auraPlaygroundStates(),
+			})
+			@anchoredH2("reference") {
+				Reference
+			}
+			@ComponentDocs(auraDoc)
+		</section>
+		<section class="demo">
+			@anchoredH2("examples") {
+				Examples
+			}
+			@anchoredH3("lights") {
+				Lights
+			}
+			<p class="demo-note">
+				Each light is a set of custom properties on a class:
+				copy one from the CSS tab.
+				<code>--neo-aura-gradient</code> holds the image, which
+				rotates about the center of the aura. The glow recipe
+				stops the rotation and pulses the glow instead.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     auraLightsHTML,
+				TemplSource:    auraLightsTempl,
+				CSSSource:      auraLightsCSS,
+			}) {
+				@examples.AuraLights()
+			}
+			@anchoredH3("highlight-one-option") {
+				Highlight one option
+			}
+			<p class="demo-note">
+				Marks the recommended option in a set. The aura has
+				no accessible role or name: state the emphasis in
+				text as well, here with the <code>Most popular</code>
+				badge.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     auraPricingHTML,
+				TemplSource:    auraPricingTempl,
+				CSSSource:      auraPricingCSS,
+			}) {
+				@examples.AuraPricing()
+			}
+			@anchoredH3("form-control") {
+				Form control
+			}
+			<p class="demo-note">
+				The ring takes the corner radius of the element it
+				wraps, here <code>{ "<neo-input-group>" }</code>.
+				The control keeps its own focus ring. Tab to the field
+				to see it.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     auraInputHTML,
+				TemplSource:    auraInputTempl,
+				CSSSource:      auraInputCSS,
+			}) {
+				@examples.AuraInput()
+			}
+			@anchoredH3("ring-width") {
+				Ring width
+			}
+			<p class="demo-note">
+				<code>--neo-aura-width</code> sets the ring thickness,
+				which is also the aura's padding. At <code>0</code>
+				only the glow remains.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     auraWidthHTML,
+				TemplSource:    auraWidthTempl,
+				CSSSource:      auraWidthCSS,
+			}) {
+				@examples.AuraWidth()
+			}
+			@anchoredH3("color-and-track") {
+				Color and track
+			}
+			<p class="demo-note">
+				<code>--neo-aura-color</code> colors the light;
+				<code>--neo-aura-track-color</code> fills the ring
+				under it.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     auraColorHTML,
+				TemplSource:    auraColorTempl,
+				CSSSource:      auraColorCSS,
+			}) {
+				@examples.AuraColor()
+			}
+			@anchoredH3("any-element") {
+				Any element
+			}
+			<p class="demo-note">
+				The aura measures the corners of the element it
+				wraps, kit component or not: the square image here
+				needs no configuration. Set
+				<code>--neo-aura-radius</code> to override the
+				measured value.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     auraRadiusHTML,
+				TemplSource:    auraRadiusTempl,
+				CSSSource:      auraRadiusCSS,
+			}) {
+				@examples.AuraRadius()
+			}
+			@anchoredH3("disabled") {
+				Disabled
+			}
+			<p class="demo-note">
+				<code>disabled</code> fades the light out and stops its
+				animations. The aura keeps its padding: the wrapped
+				element does not move, and it stays enabled. Flip
+				the switch to see it.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     auraDisabledHTML,
+				TemplSource:    auraDisabledTempl,
+				CSSSource:      auraDisabledCSS,
+			}) {
+				@examples.AuraDisabled()
+			}
+		</section>
+	}
+}
+
+var auraDoc = ComponentDoc{
+	Attributes: []DocAttribute{
+		{Name: "disabled", Type: "boolean", Default: "false", Observed: true,
+			Description: templ.Raw("Fades the light out and stops its animations. The aura keeps its padding: the wrapped element does not move, and it stays enabled.")},
+	},
+	Parts: []DocPart{
+		{Name: "ring", Description: templ.Raw("The ring in the aura's padding. Masked to the padding, it never shows through the wrapped element.")},
+		{Name: "glow", Description: templ.Raw("The two blurred layers behind the wrapped element: a tight glow and a wide halo. Hide them for a ring without a glow.")},
+		{Name: "light", Description: templ.Raw("The gradient box inside the ring and inside each glow. It carries the rotation.")},
+	},
+	CSSProps: []DocCSSProp{
+		{Name: "--neo-aura-color", Default: "var(--accent, currentColor)",
+			Description: templ.Raw("Light color, used by the default <code>--neo-aura-gradient</code>.")},
+		{Name: "--neo-aura-gradient", Default: "conic-gradient(transparent 225deg, var(--neo-aura-color))",
+			Description: templ.Raw("The light: any CSS image, rotated about the center of the aura. <code>cq</code> units in it measure the aura's box.")},
+		{Name: "--neo-aura-width", Default: "0.125rem",
+			Description: templ.Raw("Ring thickness, applied as the aura's padding. <code>0</code> leaves only the glow.")},
+		{Name: "--neo-aura-radius", Default: "measured",
+			Description: templ.Raw("Corner radius of the wrapped element, one value for all corners. Unset, the aura measures each corner of the element's computed <code>border-radius</code>, and measures again when the element changes, resizes, or is replaced. <code>&lt;neo-buttongroup&gt;</code>, <code>&lt;neo-toggle-group&gt;</code>, <code>&lt;neo-select&gt;</code>, <code>&lt;neo-combobox&gt;</code>, and <code>&lt;neo-textinput&gt;</code> draw their rounded box inside, not on the host; for them the aura reads their radius token. Set it to override.")},
+		{Name: "--neo-aura-spin-duration", Default: "6s",
+			Description: templ.Raw("One turn of the light. <code>0s</code> holds it still.")},
+		{Name: "--neo-aura-pulse-duration", Default: "0s",
+			Description: templ.Raw("One pulse of the glow. <code>0s</code> turns the pulse off.")},
+		{Name: "--neo-aura-track-color", Default: "transparent",
+			Description: templ.Raw("Ring color under the light.")},
+	},
+}
