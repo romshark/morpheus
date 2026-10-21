@@ -118,7 +118,7 @@ Three mechanisms customize a component's content.
 - Style hooks are `[data-neo-<component>-<part>]` attribute marks, not CSS classes, so they survive a morph like any other attribute. A mark names a part of the markup (which element is the header, the trigger, the panel), never a runtime state; derived state is a custom state (see [Internal state](#internal-state)).
 - Theming uses CSS custom properties: `--neo-*` component tokens over `--page-*` page tokens. A theme overrides variables, not selectors.
 - The text and box row controls (button, toggle, text input, textarea, select, combobox) share one `size` scale, so a small or large button, input, and select still line up in the same row. Each step derives from the page spacing unit, so a theme's density change carries through every size. Small fixed-glyph controls (checkbox, radio, switch, rating, kbd) and the 2D color field carry their own sizing.
-- CSS that keys on a configuration boolean treats the explicit false form as off, not just absence.
+- CSS that keys on a boolean attribute treats the explicit false form as off, not just absence. This includes interactive state: until the element upgrades and reflects its state, the attribute holds the value the template rendered, such as `checked="false"`.
 - Components respond to forced-colors, `prefers-reduced-motion`, text scaling, and target-size requirements, and do not encode meaning in color alone.
 
 ## Layering

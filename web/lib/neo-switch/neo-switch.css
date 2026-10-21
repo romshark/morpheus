@@ -71,7 +71,7 @@ neo-switch::before {
 	transition: transform var(--neo-switch-transition-duration) var(--neo-easing, ease);
 }
 
-neo-switch[checked] {
+neo-switch[checked]:where(:not([checked="false"])) {
 	background: var(--neo-switch-track-on);
 }
 
@@ -79,7 +79,7 @@ neo-switch[checked] {
  * left-edge gap when unchecked (= the border width). Inner travel is
  * (outer-width - 2*border-width - thumb-width). 100% here is the
  * thumb's own width. */
-neo-switch[checked]::before {
+neo-switch[checked]:where(:not([checked="false"]))::before {
 	transform: translateX(calc(var(--neo-switch-width) - 2 * var(--neo-switch-border-width) - 100%));
 }
 
@@ -119,11 +119,11 @@ neo-switch[size="sm"] {
 	neo-switch::before {
 		background: ButtonText;
 	}
-	neo-switch[checked] {
+	neo-switch[checked]:where(:not([checked="false"])) {
 		background: Highlight;
 		border-color: Highlight;
 	}
-	neo-switch[checked]::before {
+	neo-switch[checked]:where(:not([checked="false"]))::before {
 		background: HighlightText;
 	}
 	neo-switch:focus-visible {
@@ -153,10 +153,10 @@ neo-switch[size="sm"] {
 		margin-left: calc(-1 * var(--neo-switch-border-width));
 		box-shadow: inset 0 0 0 2px currentColor;
 	}
-	neo-switch[checked]::before {
+	neo-switch[checked]:where(:not([checked="false"]))::before {
 		transform: translateX(calc(var(--neo-switch-width) - 100%));
 	}
-	neo-switch[checked] {
+	neo-switch[checked]:where(:not([checked="false"])) {
 		border-color: var(--accent);
 	}
 }
@@ -180,9 +180,9 @@ neo-switch[size="sm"] {
 	margin-left: calc(-1 * var(--neo-switch-border-width));
 	box-shadow: inset 0 0 0 2px currentColor;
 }
-:root[data-pref-contrast-more] neo-switch[checked]::before {
+:root[data-pref-contrast-more] neo-switch[checked]:where(:not([checked="false"]))::before {
 	transform: translateX(calc(var(--neo-switch-width) - 100%));
 }
-:root[data-pref-contrast-more] neo-switch[checked] {
+:root[data-pref-contrast-more] neo-switch[checked]:where(:not([checked="false"])) {
 	border-color: var(--accent);
 }

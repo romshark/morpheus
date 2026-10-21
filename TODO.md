@@ -2,6 +2,12 @@
 
 ## BUGS
 
+`open="false"` shows as open until the element upgrades (2026-10-22). `neo.Set(false)` renders it, and DESIGN.md Styling requires CSS to treat it as off. Same cause as the `checked="false"` fix in `neo-switch.css`. Verified in Chrome with only `min/morpheus.css` loaded:
+- `web/lib/_placeholders.css:83`, `:96`, `:105`: `neo-revealable:not([open])` draws no veil and does not hide or blur the content. The secret is readable and in the accessibility tree until the script loads, and stays that way without JS.
+- `web/lib/neo-tooltip/neo-tooltip.css:50`: a server-rendered `[data-neo-tooltip-content]` child shows.
+- `web/lib/neo-sidebar/neo-sidebar.css:258`, `:303`, `:307`: below 50rem, `neo-sidebar:not(:defined)[open]` slides the sidebar on-screen over the page.
+- Fix: write `[open]` as `[open]:where(:not([open="false"]))` and `:not([open])` as `:not([open]:where(:not([open="false"])))`. Unaffected: the menu, submenu and revealable wrapper rules match only nodes the script creates, and `:defined` / `:state()` rules apply after upgrade.
+
 In-browser bundle builder (/bundle-builder/) fails to build (2026-10-21):
 - `web/site/bundle-size.ts:142` loads every import as TS, and `internal/cmd/gen/bundleassets.go:117` copies only `neo-X.ts` into `static/bundle-src/`. The text-imported shadow sheets of neo-aura, neo-spinner, neo-progress, neo-slider, neo-slider-range, and `neo-tooltip/tooltip-pill.css` return 404. Any selection that includes one fails ("Bundle build failed"), the default all-components selection included. Fix: copy the imported `.css` into `bundle-src/` and load `.css` with the `text` loader, minified like `web/build.ts` does.
 - `internal/site/bundle_manifest.go:39` maps neo-progress, neo-slider, and neo-slider-range to their shadow sheets instead of the `*.global.css` that `internal/site/static/morpheus.css` imports. A trimmed bundle ships the wrong CSS for them.

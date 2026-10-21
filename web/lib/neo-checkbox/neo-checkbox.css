@@ -74,13 +74,13 @@ neo-checkbox::before {
 		opacity var(--neo-checkbox-transition-duration) var(--neo-easing, ease);
 }
 
-neo-checkbox[checked],
+neo-checkbox[checked]:where(:not([checked="false"])),
 neo-checkbox[indeterminate]:where(:not([indeterminate="false"])) {
 	background: var(--neo-checkbox-checked-bg);
 	border-color: var(--neo-checkbox-checked-border);
 }
 
-neo-checkbox[checked]::before,
+neo-checkbox[checked]:where(:not([checked="false"]))::before,
 neo-checkbox[indeterminate]:where(:not([indeterminate="false"]))::before {
 	transform: scale(1);
 	opacity: 1;
@@ -118,7 +118,7 @@ neo-checkbox[size="sm"] {
 		background-color: HighlightText;
 		forced-color-adjust: none;
 	}
-	neo-checkbox[checked],
+	neo-checkbox[checked]:where(:not([checked="false"])),
 	neo-checkbox[indeterminate]:where(:not([indeterminate="false"])) {
 		background: Highlight;
 		border-color: Highlight;
