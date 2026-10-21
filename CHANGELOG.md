@@ -16,4 +16,11 @@ This file records the notable changes of each release in the format of [Keep a C
 
 - Require templ v0.3.1070 in the `neo` and `datastar` packages. Upgrade the templ CLI to the same version and regenerate. This version reads `@` after a space in text as a component call, and renders the line break after a call without children as a space: check text next to component calls.
 
+### Fixed
+
+#### Components
+
+- Name `<neo-switch>` from the text of a wrapping `<label>` when the switch has no `aria-label` or `aria-labelledby`, as `<neo-checkbox>` and `<neo-radio>` do.
+- Restore the name that `<neo-checkbox>` and `<neo-radio>` take from a wrapping `<label>` after a morph removes their `aria-label`.
+
 [Unreleased]: https://github.com/romshark/morpheus/compare/v0.1.0...HEAD

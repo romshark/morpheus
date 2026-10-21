@@ -1,4 +1,5 @@
 import { boolAttr, warnBadAxis } from "../command";
+import { nameFromLabel } from "../label-name";
 import { observeManagedAttrs, setAttrIfChanged } from "../neo-morph-resilient";
 
 // `aria-checked` and `tabindex` are written by the enclosing group's
@@ -7,7 +8,7 @@ import { observeManagedAttrs, setAttrIfChanged } from "../neo-morph-resilient";
 // the radio's own observer re-asserts a safe default. The group's
 // next refresh, fired by any subsequent click/value/disabled, will
 // overwrite both to the correct roving-state value.
-const RESILIENT_ATTRS = ["role", "aria-checked", "aria-disabled", "tabindex"];
+const RESILIENT_ATTRS = ["role", "aria-checked", "aria-disabled", "tabindex", "aria-label"];
 
 export class NeoRadio extends HTMLElement {
 	static readonly observedAttributes = ["disabled"];
@@ -16,16 +17,6 @@ export class NeoRadio extends HTMLElement {
 
 	connectedCallback() {
 		this.#resync();
-		// Custom elements with explicit ARIA roles don't inherit naming
-		// from a wrapping <label> the way a native <input> does. If we're
-		// wrapped in a label and don't have an explicit aria-label /
-		// aria-labelledby, fold the label's visible text into aria-label
-		// so AT announces the option name.
-		if (!this.hasAttribute("aria-label") && !this.hasAttribute("aria-labelledby")) {
-			const label = this.closest("label");
-			const text = label?.textContent?.trim();
-			if (text) this.setAttribute("aria-label", text);
-		}
 		this.#morphObserver = observeManagedAttrs(this, RESILIENT_ATTRS, this.#resync);
 	}
 
@@ -52,6 +43,7 @@ export class NeoRadio extends HTMLElement {
 
 	#resync = () => {
 		if (!this.hasAttribute("role")) this.setAttribute("role", "radio");
+		nameFromLabel(this);
 		if (!this.hasAttribute("aria-checked")) {
 			this.setAttribute("aria-checked", "false");
 		}

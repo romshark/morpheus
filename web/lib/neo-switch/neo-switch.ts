@@ -1,7 +1,8 @@
 import { boolAttr, boolCommand } from "../command";
+import { nameFromLabel } from "../label-name";
 import { observeManagedAttrs, setAttrIfChanged } from "../neo-morph-resilient";
 
-const RESILIENT_ATTRS = ["role", "tabindex", "aria-disabled", "aria-checked"];
+const RESILIENT_ATTRS = ["role", "tabindex", "aria-disabled", "aria-checked", "aria-label"];
 
 export class NeoSwitch extends HTMLElement {
 	static readonly observedAttributes = ["checked", "disabled"];
@@ -38,6 +39,7 @@ export class NeoSwitch extends HTMLElement {
 
 	#resync = () => {
 		if (!this.hasAttribute("role")) this.setAttribute("role", "switch");
+		nameFromLabel(this);
 		this.#syncDisabledState();
 		this.#reflectChecked();
 	};

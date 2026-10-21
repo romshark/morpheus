@@ -25,6 +25,8 @@ A state a component sets on a child kit element (a panel it animates out, an ite
 
 A morph strips any attribute the component set at runtime that the server template doesn't carry (role, tabindex, ARIA). A self-targeted `MutationObserver` detects the strip and re-applies through `setAttrIfChanged`, which is idempotent so a no-op pass produces no records and the observer settles instead of looping. Removal takes plain `removeAttribute`: it queues no record when the attribute is absent, so it needs no wrapper. See `observeManagedAttrs`. This is for attributes the platform or assistive tech reads; anything only CSS reads is internal state instead.
 
+The `aria-label` that DESIGN.md requires a control to derive from a wrapping `<label>` is one such attribute: call `nameFromLabel` from the resync and list `aria-label` among the managed attributes.
+
 ## Getters, methods, private state
 
 - Use a getter for a value that behaves like a property: cheap, pure, derived from existing state, taking no arguments, safe to read repeatedly. Use a method when the operation takes parameters, has side effects, is async, is expensive, or represents an action.

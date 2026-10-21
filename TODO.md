@@ -2,9 +2,6 @@
 
 ## BUGS
 
-neo-switch has no accessible name inside a wrapping label (2026-10-21):
-- `web/lib/neo-switch/neo-switch.ts` forwards clicks from a wrapping `<label>` but never derives `aria-label` from its text, which DESIGN.md (Accessibility) requires when the host has no `aria-label`/`aria-labelledby`. The switch page's "With label" example (`internal/site/examples/switch_with_label.templ`) exposes `role=switch` with an empty name.
-
 In-browser bundle builder (/bundle-builder/) fails to build (2026-10-21):
 - `web/site/bundle-size.ts:142` loads every import as TS, and `internal/cmd/gen/bundleassets.go:117` copies only `neo-X.ts` into `static/bundle-src/`. The text-imported shadow sheets of neo-aura, neo-spinner, neo-progress, neo-slider, neo-slider-range, and `neo-tooltip/tooltip-pill.css` return 404. Any selection that includes one fails ("Bundle build failed"), the default all-components selection included. Fix: copy the imported `.css` into `bundle-src/` and load `.css` with the `text` loader, minified like `web/build.ts` does.
 - `internal/site/bundle_manifest.go:39` maps neo-progress, neo-slider, and neo-slider-range to their shadow sheets instead of the `*.global.css` that `internal/site/static/morpheus.css` imports. A trimmed bundle ships the wrong CSS for them.

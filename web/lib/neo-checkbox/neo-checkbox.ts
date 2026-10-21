@@ -1,7 +1,8 @@
 import { boolAttr, boolCommand } from "../command";
+import { nameFromLabel } from "../label-name";
 import { observeManagedAttrs, setAttrIfChanged } from "../neo-morph-resilient";
 
-const RESILIENT_ATTRS = ["role", "tabindex", "aria-disabled", "aria-checked"];
+const RESILIENT_ATTRS = ["role", "tabindex", "aria-disabled", "aria-checked", "aria-label"];
 
 export class NeoCheckbox extends HTMLElement {
 	static readonly observedAttributes = ["checked", "indeterminate", "disabled"];
@@ -29,15 +30,6 @@ export class NeoCheckbox extends HTMLElement {
 		// wrapping label per click, never caching the label node, so a
 		// morph that swaps an ancestor label can't strand the listener.
 		document.addEventListener("click", this.#onDocumentClick);
-
-		// Custom elements with role="checkbox" don't inherit naming from a
-		// wrapping <label> the way a native <input> does. Fold the label's
-		// visible text into aria-label so AT announces the option name.
-		const label = this.closest("label");
-		if (label && !this.hasAttribute("aria-label") && !this.hasAttribute("aria-labelledby")) {
-			const text = label.textContent?.trim();
-			if (text) this.setAttribute("aria-label", text);
-		}
 		this.#morphObserver = observeManagedAttrs(this, RESILIENT_ATTRS, this.#resync);
 	}
 
@@ -51,6 +43,7 @@ export class NeoCheckbox extends HTMLElement {
 
 	#resync = () => {
 		if (!this.hasAttribute("role")) this.setAttribute("role", "checkbox");
+		nameFromLabel(this);
 		this.#syncDisabledState();
 		this.#reflectState();
 	};
