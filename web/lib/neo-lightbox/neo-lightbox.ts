@@ -255,6 +255,15 @@ export class NeoLightbox extends HTMLElement {
 	}
 
 	connectedCallback() {
+		// Command `open` on connect: explicit open/close obey; absent
+		// keeps prior intent (persists across reconnect / morph). A close
+		// command left on the host would outlive the next open
+		// (#reflectOpen skips an existing `open`), so drop it before
+		// #bindChildren mirrors `open` into aria-expanded.
+		const cmd = openCommand(this);
+		if (cmd === "open") this.#openIntent = true;
+		else if (cmd === "close") this.#openIntent = false;
+		if (!this.#openIntent) this.#reflectClose();
 		if (!this.#bindChildren()) return;
 		this.#applyScope();
 
@@ -268,11 +277,6 @@ export class NeoLightbox extends HTMLElement {
 		this.#childObserver = new MutationObserver(this.#onChildMutation);
 		this.#childObserver.observe(this, { childList: true, subtree: true });
 
-		// Command `open` on connect: explicit open/close obey; absent
-		// keeps prior intent (persists across reconnect / morph).
-		const cmd = openCommand(this);
-		if (cmd === "open") this.#openIntent = true;
-		else if (cmd === "close") this.#openIntent = false;
 		this.#ready = true;
 		if (this.#openIntent) {
 			// Silent re-establish: a morph rebuild must not re-fire load

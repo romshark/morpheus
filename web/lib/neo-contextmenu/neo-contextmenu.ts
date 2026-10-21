@@ -39,6 +39,9 @@ export class NeoContextMenu extends HTMLElement {
 			this.#openFromTrigger();
 		} else if (cmd === "close") {
 			this.#openIntent = false;
+			this.#reflecting = true;
+			this.removeAttribute("open");
+			this.#reflecting = false;
 		}
 	}
 

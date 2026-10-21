@@ -244,6 +244,9 @@ export class NeoPopover extends HTMLElement {
 				// animation.
 				this.#suppressEntryAnimation();
 			}
+		} else {
+			// A close command left on the host would match `:host([open])`.
+			this.#reflectClose();
 		}
 		this.#firstConnect = false;
 	}

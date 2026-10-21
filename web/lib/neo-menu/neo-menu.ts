@@ -51,6 +51,15 @@ export class NeoMenu extends HTMLElement {
 
 	connectedCallback() {
 		if (this.#ready) return;
+		// Reads the `open` command on connect: explicit open/close obey;
+		// absent keeps prior intent (persists across reconnect/morph).
+		// Reflected before #bindStructure mirrors it into aria-expanded:
+		// a close command left on the host defeats the `:not([open])` CSS.
+		const cmd = openCommand(this);
+		if (cmd === "open") this.#openIntent = true;
+		else if (cmd === "close") this.#openIntent = false;
+		if (this.#openIntent) this.#reflectOpen();
+		else this.#reflectClose();
 		if (!this.#bindStructure()) return;
 
 		this.addEventListener("focusin", this.#onItemFocusIn);
@@ -72,12 +81,6 @@ export class NeoMenu extends HTMLElement {
 		}
 		this.#applyEffectiveMode();
 		this.#syncCssBackedAttrs();
-
-		// Reads the `open` command on connect: explicit open/close obey;
-		// absent keeps prior intent (persists across reconnect/morph).
-		const cmd = openCommand(this);
-		if (cmd === "open") this.#openIntent = true;
-		else if (cmd === "close") this.#openIntent = false;
 		this.#ready = true;
 	}
 

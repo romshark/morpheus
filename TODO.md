@@ -2,11 +2,12 @@
 
 ## BUGS
 
-`open="false"` shows as open until the element upgrades (2026-10-22). `neo.Set(false)` renders it, and DESIGN.md Styling requires CSS to treat it as off. Same cause as the `checked="false"` fix in `neo-switch.css`. Verified in Chrome with only `min/morpheus.css` loaded:
-- `web/lib/_placeholders.css:83`, `:96`, `:105`: `neo-revealable:not([open])` draws no veil and does not hide or blur the content. The secret is readable and in the accessibility tree until the script loads, and stays that way without JS.
-- `web/lib/neo-tooltip/neo-tooltip.css:50`: a server-rendered `[data-neo-tooltip-content]` child shows.
-- `web/lib/neo-sidebar/neo-sidebar.css:258`, `:303`, `:307`: below 50rem, `neo-sidebar:not(:defined)[open]` slides the sidebar on-screen over the page.
-- Fix: write `[open]` as `[open]:where(:not([open="false"]))` and `:not([open])` as `:not([open]:where(:not([open="false"])))`. Unaffected: the menu, submenu and revealable wrapper rules match only nodes the script creates, and `:defined` / `:state()` rules apply after upgrade.
+Components keep `open="false"` after upgrade (2026-10-22). `connectedCallback` takes the intent from a close command but leaves the attribute on the host; neo-dialog and neo-drawer reflect the intent on connect. Verified in Chrome:
+- `web/lib/neo-popover/neo-popover.ts:221`: the shadow `:host([open])` rule (`:80`) matches it. The panel shows and the trigger reports `aria-expanded="true"` until the first `hide()`.
+- `web/lib/neo-menu/neo-menu.ts:78`, `web/lib/neo-submenu/neo-submenu.ts:56`: `:not([open])` in `web/lib/neo-menu/neo-menu.css:92`, `:94` does not hide the panel. It shows after upgrade.
+- `web/lib/neo-lightbox/neo-lightbox.ts:273`: nothing shows, but the host keeps `open="false"` while the trigger opens it: `#reflectOpen` skips an existing `open`.
+- `web/lib/neo-contextmenu/neo-contextmenu.ts:36`: the host keeps `open="false"` until the menu first opens.
+- Fix: reflect the intent on connect, as neo-dialog does.
 
 In-browser bundle builder (/bundle-builder/) fails to build (2026-10-21):
 - `web/site/bundle-size.ts:142` loads every import as TS, and `internal/cmd/gen/bundleassets.go:117` copies only `neo-X.ts` into `static/bundle-src/`. The text-imported shadow sheets of neo-aura, neo-spinner, neo-progress, neo-slider, neo-slider-range, and `neo-tooltip/tooltip-pill.css` return 404. Any selection that includes one fails ("Bundle build failed"), the default all-components selection included. Fix: copy the imported `.css` into `bundle-src/` and load `.css` with the `text` loader, minified like `web/build.ts` does.

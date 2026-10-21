@@ -37,6 +37,14 @@ export class NeoSubmenu extends HTMLElement {
 
 	connectedCallback() {
 		if (this.#ready) return;
+		// Reads the `open` command on connect; absent keeps prior intent.
+		// Reflected before #bindStructure mirrors it into aria-expanded:
+		// a close command left on the host defeats the `:not([open])` CSS.
+		const cmd = openCommand(this);
+		if (cmd === "open") this.#openIntent = true;
+		else if (cmd === "close") this.#openIntent = false;
+		if (this.#openIntent) this.#reflectOpen();
+		else this.#reflectClose();
 		this.#bindStructure();
 
 		this.addEventListener("keydown", this.#onHostKeyDown);
@@ -52,10 +60,6 @@ export class NeoSubmenu extends HTMLElement {
 		this.#hostObserver.observe(this, { childList: true });
 
 		this.#syncCssBackedAttrs();
-		// Reads the `open` command on connect; absent keeps prior intent.
-		const cmd = openCommand(this);
-		if (cmd === "open") this.#openIntent = true;
-		else if (cmd === "close") this.#openIntent = false;
 		this.#ready = true;
 	}
 
