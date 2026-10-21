@@ -14,14 +14,13 @@ templ PageToggleGroup(morpheusVersion string) {
 			<p class="intro">
 				Component <code>{ "<neo-toggle-group>" }</code> is a
 				cluster of&nbsp;
-				@ComponentLink("neo-toggle", href.PageToggle())
-				&nbsp;children sharing a selection model. Each child
+				@ComponentLink("neo-toggle", href.PageToggle())&nbsp;children
+				sharing a selection model. Each child
 				toggle remains independent. The group
 				<code>value</code> is a comma-separated list of the
 				pressed child values. For singular segmented choices,
 				use&nbsp;
-				@ComponentLink("neo-buttongroup", href.PageButtonGroup())
-				.
+				@ComponentLink("neo-buttongroup", href.PageButtonGroup())&period;
 			</p>
 			<p class="demo-note">
 				Use toggle group for independent on/off controls,
@@ -63,8 +62,7 @@ templ PageToggleGroup(morpheusVersion string) {
 			<p class="demo-note">
 				The group allows any combination of values. For
 				exclusive choices, use&nbsp;
-				@ComponentLink("neo-buttongroup", href.PageButtonGroup())
-				.
+				@ComponentLink("neo-buttongroup", href.PageButtonGroup())&period;
 			</p>
 			@demoFrameWith(DemoFrameOpts{
 				StageMinHeight: "max-content",

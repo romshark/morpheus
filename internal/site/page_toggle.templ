@@ -15,12 +15,12 @@ templ PageToggle(morpheusVersion string) {
 				Component <code>{ "<neo-toggle>" }</code> is a
 				button with a sticky on/off pressed state. Same
 				visual styling as&nbsp;
-				@ComponentLink("neo-button", href.PageButton())
-				&nbsp;but a click flips <code>aria-pressed</code>:
+				@ComponentLink("neo-button", href.PageButton())&nbsp;but
+				a click flips <code>aria-pressed</code>:
 				the toolbar "Bold" / "Italic" control. Cluster
 				several inside&nbsp;
-				@ComponentLink("neo-toggle-group", href.PageToggleGroup())
-				&nbsp;to build single- or multi-select toolbars.
+				@ComponentLink("neo-toggle-group", href.PageToggleGroup())&nbsp;to
+				build single- or multi-select toolbars.
 			</p>
 			@Playground(PlaygroundOpts{
 				ID:     "toggle-playground",
@@ -149,8 +149,8 @@ templ toggleSlotDemo() {
 
 templ toggleValueDesc() {
 	Selection value inside a&nbsp;
-	@ComponentLink("neo-toggle-group", href.PageToggleGroup())
-	. The group reports pressed children as a comma-separated
+	@ComponentLink("neo-toggle-group", href.PageToggleGroup())&period;
+	The group reports pressed children as a comma-separated
 	<code>value</code>.
 }
 

@@ -21,8 +21,8 @@ templ PageButtonGroup(morpheusVersion string) {
 			</p>
 			<p class="demo-note">
 				Use button group for one selected value. Use&nbsp;
-				@ComponentLink("neo-toggle-group", href.PageToggleGroup())
-				&nbsp;when multiple independent toggles may be on at
+				@ComponentLink("neo-toggle-group", href.PageToggleGroup())&nbsp;when
+				multiple independent toggles may be on at
 				the same time.
 			</p>
 			@Playground(PlaygroundOpts{
@@ -86,11 +86,11 @@ templ PageButtonGroup(morpheusVersion string) {
 }
 
 templ buttonGroupChildrenDesc() {
-	@ComponentLink("neo-button", href.PageButton())
-	&nbsp;children. Mark the active one in segmented mode with a matching
+	@ComponentLink("neo-button", href.PageButton())&nbsp;children.
+	Mark the active one in segmented mode with a matching
 	<code>value</code>. Use&nbsp;
-	@ComponentLink("neo-toggle-group", href.PageToggleGroup())
-	&nbsp;for multiple independent on/off choices.
+	@ComponentLink("neo-toggle-group", href.PageToggleGroup())&nbsp;for
+	multiple independent on/off choices.
 }
 
 var buttonGroupDoc = ComponentDoc{
