@@ -26,5 +26,6 @@ This file records the notable changes of each release in the format of [Keep a C
 - Collapse `<neo-elastic>` with `open="false"` before the script loads. The `neo` wrapper renders that attribute for `Collapsed: neo.Set(true)`. The content showed at full height until the script loaded.
 - Keep `<neo-sidebar>` with `open="false"` closed. The `neo` wrapper renders that attribute for `Open: neo.Set(false)`. The sidebar showed as open until the script loaded, and on wide layouts without `Manual` it stayed open.
 - Conceal `<neo-revealable>` with `open="false"` before the script loads. The `neo` wrapper renders that attribute for `Open: neo.Set(false)`. The content was visible and in the accessibility tree until the script loaded, and stayed that way if the script never loaded.
+- Reflect the open state on `<neo-dialog>` and `<neo-drawer>` rendered with `open="false"`, as `Open: neo.Set(false)` does. The element kept `open="false"`, also while open, until the first close.
 
 [Unreleased]: https://github.com/romshark/morpheus/compare/v0.1.0...HEAD

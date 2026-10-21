@@ -72,6 +72,10 @@ export class NeoDrawer extends HTMLElement {
 		const cmd = openCommand(this);
 		if (cmd === "open") this.#openIntent = true;
 		else if (cmd === "close") this.#openIntent = false;
+		// A close command left on the host would outlive the next open:
+		// #reflectOpen skips an existing `open`.
+		if (this.#openIntent) this.#reflectOpen();
+		else this.#reflectClose();
 		this.#ready = true;
 		this.#sync();
 	}
