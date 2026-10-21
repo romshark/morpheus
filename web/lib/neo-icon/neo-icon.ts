@@ -8,7 +8,7 @@ const cache = new Map<string, Promise<string>>();
 
 function load(url: string): Promise<string> {
 	let p = cache.get(url);
-	if (p) return p;
+	if (p !== undefined) return p;
 	p = fetch(url, { credentials: "same-origin" })
 		.then(async (r) => {
 			if (!r.ok) return "";

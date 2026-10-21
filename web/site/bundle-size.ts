@@ -56,18 +56,16 @@ declare global {
 let esbuildReady: Promise<any> | undefined;
 // biome-ignore lint/suspicious/noExplicitAny: returns the runtime-loaded esbuild-wasm API (see above).
 async function getEsbuild(): Promise<any> {
-	if (!esbuildReady) {
-		esbuildReady = (async () => {
-			// biome-ignore lint/suspicious/noExplicitAny: raw dynamic import of the CDN module; shape is uncertain (API may sit on `default`).
-			const ns: any = await import(ESBUILD_ESM);
-			const api = typeof ns.initialize === "function" ? ns : ns.default;
-			if (!api || typeof api.initialize !== "function") {
-				throw new Error("esbuild-wasm browser API unavailable");
-			}
-			await api.initialize({ wasmURL: ESBUILD_WASM });
-			return api;
-		})();
-	}
+	esbuildReady ??= (async () => {
+		// biome-ignore lint/suspicious/noExplicitAny: raw dynamic import of the CDN module; shape is uncertain (API may sit on `default`).
+		const ns: any = await import(ESBUILD_ESM);
+		const api = typeof ns.initialize === "function" ? ns : ns.default;
+		if (!api || typeof api.initialize !== "function") {
+			throw new Error("esbuild-wasm browser API unavailable");
+		}
+		await api.initialize({ wasmURL: ESBUILD_WASM });
+		return api;
+	})();
 	return esbuildReady;
 }
 
@@ -101,9 +99,7 @@ async function getBrotliCompress(): Promise<Compressor | null> {
 
 let manifestPromise: Promise<Manifest> | undefined;
 function getManifest(): Promise<Manifest> {
-	if (!manifestPromise) {
-		manifestPromise = fetch(MANIFEST).then((r) => r.json());
-	}
+	manifestPromise ??= fetch(MANIFEST).then((r) => r.json());
 	return manifestPromise;
 }
 

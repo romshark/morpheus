@@ -221,9 +221,7 @@ class GlitchCycleText extends HTMLElement {
 	//     motion, and stop off-screen or under reduced motion.
 	#syncPlayback() {
 		if (this.#onScreen && this.#words.length > 1) {
-			if (this.#cycleTimer === undefined) {
-				this.#cycleTimer = window.setInterval(() => this.#cyclePhrase(), this.#intervalDelay);
-			}
+			this.#cycleTimer ??= window.setInterval(() => this.#cyclePhrase(), this.#intervalDelay);
 		} else {
 			window.clearInterval(this.#cycleTimer);
 			this.#cycleTimer = undefined;

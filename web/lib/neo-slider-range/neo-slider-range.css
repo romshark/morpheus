@@ -263,7 +263,8 @@ neo-slider-range > [data-neo-slider-track] > [data-neo-slider-anchor] {
  * on the host bails out, and we drop pointer-events so a click on
  * the dot passes through to the rail underneath like any other rail
  * click. Mirrors the same opt-out on `<neo-slider>`. */
-neo-slider-range[static-marks]:where(:not([static-marks="false"])) > [data-neo-slider-track]
+neo-slider-range[static-marks]:where(:not([static-marks="false"]))
+	> [data-neo-slider-track]
 	> [data-neo-slider-anchor] {
 	pointer-events: none;
 	cursor: default;

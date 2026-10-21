@@ -117,7 +117,8 @@ neo-progress[vertical]:where(:not([vertical="false"])) > [data-neo-progress-trac
  * instead of painting a determinate fill. The fill width / height
  * inline styles set by syncValue() get cleared in the indeterminate
  * branch, so the keyframe rule wins. */
-neo-progress[indeterminate]:where(:not([indeterminate="false"])) > [data-neo-progress-track]
+neo-progress[indeterminate]:where(:not([indeterminate="false"]))
+	> [data-neo-progress-track]
 	> [data-neo-progress-fill] {
 	animation: neo-progress-indeterminate var(--neo-progress-indeterminate-duration) linear infinite;
 	/* The host lives in light DOM but the rail is in the shadow, so the
@@ -283,7 +284,8 @@ neo-progress[vertical]:where(:not([vertical="false"])) > [data-neo-progress-mark
  * rail's top so neither clips. The horizontal versions of these
  * rules above use `left: 0 !important` / `right: 0` which doesn't
  * help vertical, hence the override here. */
-neo-progress[vertical]:where(:not([vertical="false"])) > [data-neo-progress-marks]
+neo-progress[vertical]:where(:not([vertical="false"]))
+	> [data-neo-progress-marks]
 	> [data-neo-progress-mark-label][data-neo-mark-edge="end"] {
 	transform: none;
 	/* biome-ignore lint/complexity/noImportantStyles: resets the horizontal edge rule's left/right for vertical orientation. */

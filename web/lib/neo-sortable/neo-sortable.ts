@@ -1054,9 +1054,7 @@ export class NeoSortable extends HTMLElement {
 		this.setPointerCapture?.(e.pointerId);
 		this.#lockScrollAnchor();
 		d.scrollers = this.#scrollers();
-		if (this.#autoScrollRaf === null) {
-			this.#autoScrollRaf = requestAnimationFrame(this.#autoScrollTick);
-		}
+		this.#autoScrollRaf ??= requestAnimationFrame(this.#autoScrollTick);
 		this.#emit("neo-sortable-start", {
 			id: this.#idOf(d.item),
 			index: d.startIndex,
