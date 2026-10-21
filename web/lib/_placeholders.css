@@ -80,7 +80,7 @@ neo-optgroup:not(:defined) {
  * z-index 1 keeps it under the canvas (2), over the hidden content.
  * base `neo-revealable` sets position/radius/--neo-revealable-veil
  * and matches regardless of :defined, so those resolve here too. */
-neo-revealable:not([open]):not([blur-content]:where(:not([blur-content="false"])))::after {
+neo-revealable:not([open]:where(:not([open="false"]))):not([blur-content]:where(:not([blur-content="false"])))::after {
 	content: "";
 	position: absolute;
 	inset: 0;
@@ -93,7 +93,9 @@ neo-revealable:not([open]):not([blur-content]:where(:not([blur-content="false"])
 /* Pre-upgrade only (no wrapper/canvas yet): hide the raw secret from
  * paint AND the a11y tree while reserving its box (no CLS); the
  * ::after veil above is the cover. Fails closed if JS never loads. */
-neo-revealable:not(:defined):not([open]):not([blur-content]:where(:not([blur-content="false"]))) {
+neo-revealable:not(:defined):not([open]:where(:not([open="false"]))):not(
+	[blur-content]:where(:not([blur-content="false"]))
+) {
 	visibility: hidden;
 }
 
@@ -102,7 +104,7 @@ neo-revealable:not(:defined):not([open]):not([blur-content]:where(:not([blur-con
  * flash). blur-content is the softer "shape only" mode; pre-upgrade
  * a screen reader can still reach the text; that's the documented
  * trade-off for showing the shape. */
-neo-revealable:not(:defined):not([open])[blur-content]:where(:not([blur-content="false"])) {
+neo-revealable:not(:defined):not([open]:where(:not([open="false"])))[blur-content]:where(:not([blur-content="false"])) {
 	filter: blur(var(--neo-revealable-blur));
 	opacity: 0.6;
 }

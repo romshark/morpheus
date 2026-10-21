@@ -71,7 +71,7 @@ neo-revealable[variant="media"][blur-content]:where(:not([blur-content="false"])
 	filter: blur(var(--neo-revealable-blur));
 }
 
-neo-revealable[open] {
+neo-revealable[open]:where(:not([open="false"])) {
 	cursor: default;
 	user-select: text;
 }
