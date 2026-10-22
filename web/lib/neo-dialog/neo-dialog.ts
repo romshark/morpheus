@@ -5,6 +5,7 @@
 let nextId = 0;
 
 import { boolAttr, openCommand } from "../command";
+import { retryWhileParsing, stillParsing } from "../document-parsing";
 import { DialogBackdropClickTracker, lockBodyScroll, unlockBodyScroll } from "../native-dialog";
 
 export class NeoDialog extends HTMLElement {
@@ -42,7 +43,12 @@ export class NeoDialog extends HTMLElement {
 	#asyncRestoreTimer: number | null = null;
 
 	connectedCallback() {
-		if (!this.#bindChildren()) return;
+		if (!this.#bindChildren()) {
+			retryWhileParsing(this, () => {
+				if (!this.#ready) this.connectedCallback();
+			});
+			return;
+		}
 
 		this.#captureAsyncSlot();
 
@@ -232,7 +238,7 @@ export class NeoDialog extends HTMLElement {
 		const newTrigger = this.querySelector<HTMLElement>("[data-neo-dialog-trigger]");
 		const newDialog = this.querySelector<HTMLDialogElement>("dialog");
 		if (!newTrigger || !newDialog) {
-			if (!this.#trigger || !this.#dialog) {
+			if ((!this.#trigger || !this.#dialog) && !stillParsing()) {
 				console.warn("<neo-dialog> requires a [data-neo-dialog-trigger] and a <dialog> child.");
 			}
 			return false;

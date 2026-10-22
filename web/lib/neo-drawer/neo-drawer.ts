@@ -3,6 +3,7 @@
 // slid in with a transform. Light DOM throughout.
 
 import { boolAttr, openCommand } from "../command";
+import { retryWhileParsing, stillParsing } from "../document-parsing";
 import { setState } from "../internal-state";
 import { DialogBackdropClickTracker, lockBodyScroll, unlockBodyScroll } from "../native-dialog";
 import { resolveTouchDismiss } from "../touch-dismiss";
@@ -60,7 +61,12 @@ export class NeoDrawer extends HTMLElement {
 	} | null = null;
 
 	connectedCallback() {
-		if (!this.#bindChildren()) return;
+		if (!this.#bindChildren()) {
+			retryWhileParsing(this, () => {
+				if (!this.#ready) this.connectedCallback();
+			});
+			return;
+		}
 		this.#captureAsyncSlot();
 		this.addEventListener("click", this.#onContentClick);
 		this.addEventListener("focusin", this.#onHostFocusIn);
@@ -252,7 +258,7 @@ export class NeoDrawer extends HTMLElement {
 		if (!newDialog) {
 			// Trigger is optional; drawers can be opened purely via
 			// [open]/.show(). Only the dialog is required.
-			if (!this.#dialog) {
+			if (!this.#dialog && !stillParsing()) {
 				console.warn("<neo-drawer> requires a <dialog> child.");
 			}
 			return false;

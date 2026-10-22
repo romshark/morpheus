@@ -2,6 +2,7 @@
 // behavior comes from <neo-menu>, none of it reimplemented here.
 
 import { openCommand } from "../command";
+import { retryWhileParsing, stillParsing } from "../document-parsing";
 
 interface NeoMenuLike extends HTMLElement {
 	panel: HTMLElement | null;
@@ -27,7 +28,10 @@ export class NeoContextMenu extends HTMLElement {
 
 	connectedCallback() {
 		if (this.#ready) return;
-		if (!this.#bindStructure()) return;
+		if (!this.#bindStructure()) {
+			retryWhileParsing(this, () => this.connectedCallback());
+			return;
+		}
 		this.#hostObserver = new MutationObserver(() => this.#checkForReset());
 		this.#hostObserver.observe(this, { childList: true });
 		this.#ready = true;
@@ -84,12 +88,12 @@ export class NeoContextMenu extends HTMLElement {
 	#bindStructure(): boolean {
 		const trigger = this.#findTrigger();
 		if (!trigger) {
-			console.warn("<neo-contextmenu> requires a [data-neo-contextmenu-trigger] descendant.");
+			if (!stillParsing()) console.warn("<neo-contextmenu> requires a [data-neo-contextmenu-trigger] descendant.");
 			return false;
 		}
 		const menus = Array.from(this.querySelectorAll<NeoMenuLike>(":scope > neo-menu"));
 		if (menus.length === 0) {
-			console.warn("<neo-contextmenu> requires a <neo-menu> child.");
+			if (!stillParsing()) console.warn("<neo-contextmenu> requires a <neo-menu> child.");
 			return false;
 		}
 		if (menus.length > 1) {

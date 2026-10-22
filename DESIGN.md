@@ -32,6 +32,7 @@ Each behavioral component assumes that, at any time:
 1. Light-DOM content can change (from a morph).
 2. The parent bounding box can resize dynamically.
 3. It is driven declaratively from a template render being patched in, not through imperative JavaScript.
+4. Its children can arrive after it connects: when the bundle loads before the markup, the parser connects the element at its start tag.
 
 ## Attribute Contract
 

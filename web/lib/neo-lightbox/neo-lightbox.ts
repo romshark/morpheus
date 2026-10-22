@@ -1,4 +1,5 @@
 import { boolAttr, openCommand } from "../command";
+import { retryWhileParsing, stillParsing } from "../document-parsing";
 import { deepActiveElement, eventEnters } from "../shadow-utils";
 
 let nextId = 0;
@@ -264,7 +265,12 @@ export class NeoLightbox extends HTMLElement {
 		if (cmd === "open") this.#openIntent = true;
 		else if (cmd === "close") this.#openIntent = false;
 		if (!this.#openIntent) this.#reflectClose();
-		if (!this.#bindChildren()) return;
+		if (!this.#bindChildren()) {
+			retryWhileParsing(this, () => {
+				if (!this.#ready) this.connectedCallback();
+			});
+			return;
+		}
 		this.#applyScope();
 
 		this.addEventListener("click", this.#onContentClick);
@@ -362,7 +368,7 @@ export class NeoLightbox extends HTMLElement {
 		const newTriggers = Array.from(this.querySelectorAll<HTMLElement>("[data-neo-lightbox-trigger]"));
 		const newContent = this.querySelector<HTMLElement>("[data-neo-lightbox-content]");
 		if (newTriggers.length === 0 || !newContent) {
-			if (this.#triggers.length === 0 || !this.#content) {
+			if ((this.#triggers.length === 0 || !this.#content) && !stillParsing()) {
 				console.warn(
 					"<neo-lightbox> requires at least one [data-neo-lightbox-trigger] and a [data-neo-lightbox-content] child.",
 				);

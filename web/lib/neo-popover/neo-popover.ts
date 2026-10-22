@@ -1,4 +1,5 @@
 import { boolAttr, openCommand } from "../command";
+import { retryWhileParsing, stillParsing } from "../document-parsing";
 import { observeManagedAttrs, setAttrIfChanged } from "../neo-morph-resilient";
 import {
 	applyOpenSizeDuringScroll,
@@ -188,7 +189,12 @@ export class NeoPopover extends HTMLElement {
 			if (this.hasAttribute("open")) this.#position();
 		});
 
-		if (!this.#bindChildren()) return;
+		if (!this.#bindChildren()) {
+			retryWhileParsing(this, () => {
+				if (!this.#ready) this.connectedCallback();
+			});
+			return;
+		}
 
 		this.#panel.addEventListener("scroll", this.#onPanelScroll, { passive: true });
 		this.addEventListener("click", this.#onContentClick);
@@ -267,7 +273,7 @@ export class NeoPopover extends HTMLElement {
 		const newTrigger = this.querySelector<HTMLElement>("[data-neo-popover-trigger]");
 		const newContent = this.querySelector<HTMLElement>("[data-neo-popover-content]");
 		if (!newTrigger || !newContent) {
-			if (!this.#trigger || !this.#content) {
+			if ((!this.#trigger || !this.#content) && !stillParsing()) {
 				console.warn("<neo-popover> requires a [data-neo-popover-trigger] and [data-neo-popover-content] child.");
 			}
 			return false;

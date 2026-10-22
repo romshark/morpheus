@@ -27,6 +27,10 @@ A morph strips any attribute the component set at runtime that the server templa
 
 The `aria-label` that DESIGN.md requires a control to derive from a wrapping `<label>` is one such attribute: call `nameFromLabel` from the resync and list `aria-label` among the managed attributes.
 
+## Children that arrive after connect
+
+When the bundle loads from a blocking script ahead of the markup, `connectedCallback` runs at the start tag, before any child exists. A component whose bind needs children calls `retryWhileParsing` from `document-parsing.ts` when the bind fails, and skips its missing-child warning while `stillParsing()`.
+
 ## Getters, methods, private state
 
 - Use a getter for a value that behaves like a property: cheap, pure, derived from existing state, taking no arguments, safe to read repeatedly. Use a method when the operation takes parameters, has side effects, is async, is expensive, or represents an action.
