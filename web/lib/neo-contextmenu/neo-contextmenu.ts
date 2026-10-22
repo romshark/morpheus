@@ -36,7 +36,11 @@ export class NeoContextMenu extends HTMLElement {
 		const cmd = openCommand(this);
 		if (cmd === "open") {
 			this.#openIntent = true;
-			this.#openFromTrigger();
+			// The <neo-menu> child upgrades after this host (tree order, and
+			// it is defined later in the bundle): open once it has.
+			void customElements.whenDefined("neo-menu").then(() => {
+				if (this.#ready && this.#openIntent) this.#openFromTrigger();
+			});
 		} else if (cmd === "close") {
 			this.#openIntent = false;
 			this.#reflecting = true;
