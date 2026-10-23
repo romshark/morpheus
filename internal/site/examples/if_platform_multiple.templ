@@ -1,0 +1,12 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ IfPlatformMultiple() {
+	@neo.IfPlatform(neo.IfPlatformOpts{Windows: neo.Set(true), Linux: neo.Set(true), ChromeOS: neo.Set(true)}) {
+		Ctrl-based shortcuts (Windows, Linux and ChromeOS).
+	}
+	@neo.IfPlatform(neo.IfPlatformOpts{MacOS: neo.Set(true), IOS: neo.Set(true)}) {
+		Command-based shortcuts (macOS and iOS).
+	}
+}

@@ -1,0 +1,15 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ IfPlatformExclude() {
+	@neo.IfPlatform(neo.IfPlatformOpts{IOS: neo.Set(true)}) {
+		Get the app on the App Store.
+	}
+	@neo.IfPlatform(neo.IfPlatformOpts{Android: neo.Set(true)}) {
+		Get the app on Google Play.
+	}
+	@neo.IfPlatform(neo.IfPlatformOpts{IOS: neo.Set(false), Android: neo.Set(false)}) {
+		Download the desktop app for your computer.
+	}
+}

@@ -92,8 +92,8 @@ export abstract class NeoListbox extends HTMLElement {
 	protected abstract readonly ns: string;
 
 	// Form-associated so a bare control submits its value under `name` like a
-	// native <select>, no framework binding required. setFormValue tracks the
-	// value; the browser reads `name` and the disabled state at submit time.
+	// native <select>. setFormValue tracks the value; the browser reads `name`
+	// and the disabled state at submit time.
 	static readonly formAssociated = true;
 	protected internals: ElementInternals;
 

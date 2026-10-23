@@ -199,7 +199,8 @@ var SectionLinks = []NavLink{
 
 var UtilityLinks = []NavLink{
 	{href.PageBoundary(), "Boundary"},
-	{href.PageCondition(), "Condition"},
+	{href.PageIfNetwork(), "If network"},
+	{href.PageIfPlatform(), "If platform"},
 	{href.PageKeys(), "Keys"},
 	{href.PagePersist(), "Persist"},
 }

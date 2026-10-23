@@ -2,8 +2,8 @@ package neo
 
 import "strings"
 
-// Platform is a coarse OS family used for server-side platform gating
-// (<neo-condition>) and shortcut-hint pre-rendering (<neo-kbd>). Detect it
+// Platform is the OS used for server-side platform gating
+// (<neo-if-platform>) and shortcut-hint pre-rendering (<neo-kbd>). Detect it
 // from the request User-Agent with DetectPlatform; the client then refines
 // via navigator.userAgentData.platform. Mirrors web/lib/platform.ts so the
 // server pre-render matches what the browser would render, eliminating the
@@ -11,30 +11,42 @@ import "strings"
 type Platform string
 
 const (
-	PlatformApple   Platform = "apple"
-	PlatformWindows Platform = "windows"
-	PlatformLinux   Platform = "linux"
-	PlatformOther   Platform = "" // zero value: unknown / non-mobile-desktop
+	PlatformMacOS    Platform = "macos"
+	PlatformIOS      Platform = "ios"
+	PlatformWindows  Platform = "windows"
+	PlatformLinux    Platform = "linux"
+	PlatformAndroid  Platform = "android"
+	PlatformChromeOS Platform = "chromeos"
+	PlatformOther    Platform = "" // zero value: unknown
 )
 
-// DetectPlatform classifies a User-Agent header into an OS family. The
-// server only has the UA string (no client hints), so this is a best guess
-// the client may refine. Empty UA → PlatformOther.
+// apple reports whether p uses the Apple modifier keys (⌘ for mod).
+func (p Platform) apple() bool { return p == PlatformMacOS || p == PlatformIOS }
+
+// DetectPlatform classifies a User-Agent header into an OS. The server
+// only has the UA string (no client hints), so this is a best guess the
+// client may refine: iPadOS Safari sends a Mac UA and detects as
+// PlatformMacOS here. Empty UA → PlatformOther.
 func DetectPlatform(userAgent string) Platform {
 	s := strings.ToLower(userAgent)
 	switch {
 	case s == "":
 		return PlatformOther
-	case strings.Contains(s, "mac") ||
-		strings.Contains(s, "iphone") ||
+	case strings.Contains(s, "iphone") ||
 		strings.Contains(s, "ipad") ||
 		strings.Contains(s, "ipod"):
-		return PlatformApple
-	case strings.Contains(s, "win"):
+		return PlatformIOS
+	case strings.Contains(s, "mac"):
+		return PlatformMacOS
+	// Not "win", which "Darwin" in Apple app UAs contains.
+	case strings.Contains(s, "windows"):
 		return PlatformWindows
+	// Before Linux, which Android and ChromeOS UAs also contain.
+	case strings.Contains(s, "android"):
+		return PlatformAndroid
+	case strings.Contains(s, "cros"):
+		return PlatformChromeOS
 	case strings.Contains(s, "linux") ||
-		strings.Contains(s, "android") ||
-		strings.Contains(s, "cros") ||
 		strings.Contains(s, "x11"):
 		return PlatformLinux
 	default:
@@ -42,45 +54,20 @@ func DetectPlatform(userAgent string) Platform {
 	}
 }
 
-// platformMatches reports whether p satisfies a <neo-condition> platform
-// expression: a space-separated OR of tokens, optionally prefixed "not ".
-// Mirrors matchPlatform in web/lib/neo-condition.
-func platformMatches(expr string, p Platform) bool {
-	e := strings.ToLower(strings.TrimSpace(expr))
-	if e == "" {
-		return true
+// platformShown reports whether a <neo-if-platform> with the platform
+// commands cmds shows on p: on p's own command if set, else only when no
+// platform is set true. Mirrors NeoIfPlatform.holds in
+// web/lib/neo-if-platform.
+func platformShown(cmds map[Platform]bool, p Platform) bool {
+	if v, ok := cmds[p]; ok {
+		return v
 	}
-	negate := strings.HasPrefix(e, "not ")
-	if negate {
-		e = strings.TrimSpace(e[len("not "):])
-	}
-	matched := false
-	for tok := range strings.FieldsSeq(e) {
-		if platformToken(tok, p) {
-			matched = true
-			break
+	for _, v := range cmds {
+		if v {
+			return false
 		}
 	}
-	if negate {
-		return !matched
-	}
-	return matched
-}
-
-func platformToken(token string, p Platform) bool {
-	switch token {
-	case "apple",
-		"mac",
-		"macos",
-		"ios":
-		return p == PlatformApple
-	case "windows",
-		"win":
-		return p == PlatformWindows
-	case "linux":
-		return p == PlatformLinux
-	}
-	return false
+	return true
 }
 
 // --- single-key glyph formatting (mirror of web/lib/platform.ts) ---
@@ -180,7 +167,7 @@ func formatKey(token string, p Platform) string {
 		return ""
 	}
 	mods := modifierLabelsOther
-	if p == PlatformApple {
+	if p.apple() {
 		mods = modifierGlyphsApple
 	}
 	if v, ok := mods[t]; ok {
@@ -189,5 +176,5 @@ func formatKey(token string, p Platform) string {
 	if a, ok := keyAliases[t]; ok {
 		t = a
 	}
-	return keyLabel(t, p == PlatformApple)
+	return keyLabel(t, p.apple())
 }

@@ -1,0 +1,68 @@
+package neo
+
+import "maps"
+
+// IfPlatformOpts configures <neo-if-platform>, the client-side platform
+// gate. Each platform field is a boolean command: true shows the children
+// on that platform, false hides them there, unset leaves it to the others.
+// The platforms set true are an OR; with none set true, every platform not
+// set false shows. For platform branches the server can't resolve.
+// Capability conditions (touch, hover, pointer) belong in CSS @media
+// queries instead.
+type IfPlatformOpts struct {
+	MacOS    Attr[bool]
+	IOS      Attr[bool]
+	Windows  Attr[bool]
+	Linux    Attr[bool]
+	Android  Attr[bool]
+	ChromeOS Attr[bool]
+	// UserAgent enables server-side pre-rendering: pass the request
+	// User-Agent (r.UserAgent()) and a matching branch renders already
+	// visible, so it doesn't flash in after the bundle upgrades. The client
+	// then reconciles against the real platform. Leave empty (e.g. on a
+	// static/CDN site that can't read the request UA) for client-only.
+	UserAgent Attr[string]
+}
+
+func (opts IfPlatformOpts) platforms() map[Platform]Attr[bool] {
+	return map[Platform]Attr[bool]{
+		PlatformMacOS:    opts.MacOS,
+		PlatformIOS:      opts.IOS,
+		PlatformWindows:  opts.Windows,
+		PlatformLinux:    opts.Linux,
+		PlatformAndroid:  opts.Android,
+		PlatformChromeOS: opts.ChromeOS,
+	}
+}
+
+// ifPlatformAttrs builds the element attributes, pre-showing the branch
+// (display:contents) when the server already knows the platform matches.
+func ifPlatformAttrs(opts IfPlatformOpts, extra templ.Attributes) templ.Attributes {
+	a := templ.Attributes{}
+	cmds := map[Platform]bool{}
+	for p, attr := range opts.platforms() {
+		maps.Copy(a, attr.Attrs(string(p)))
+		if v, ok := attr.Value(); ok {
+			cmds[p] = v
+		}
+	}
+	if ua := opts.UserAgent.Or(""); ua != "" && platformShown(cmds, DetectPlatform(ua)) {
+		a["style"] = "display:contents"
+	}
+	maps.Copy(a, extra)
+	return a
+}
+
+// IfPlatform shows its children only on the platforms opts selects.
+templ IfPlatform(opts IfPlatformOpts) {
+	@IfPlatformAttrs(opts, nil) {
+		{ children... }
+	}
+}
+
+// IfPlatformAttrs is [IfPlatform] with an extra attribute set.
+templ IfPlatformAttrs(opts IfPlatformOpts, attrs templ.Attributes) {
+	<neo-if-platform { ifPlatformAttrs(opts, attrs)... }>
+		{ children... }
+	</neo-if-platform>
+}

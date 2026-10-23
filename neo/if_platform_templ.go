@@ -8,17 +8,22 @@ package neo
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
-// ConditionOpts configures <neo-condition>, the client-side platform
-// gate. It shows its children only when the current OS matches Platform;
-// otherwise the subtree is removed from layout. For platform branches the
-// server can't resolve. Capability conditions (touch, hover, pointer)
-// belong in CSS @media queries instead.
-type ConditionOpts struct {
-	// Platform names which operating systems to show on: one or more of
-	// apple, windows, linux, separated by spaces to match any. Prefix
-	// "not" to invert. Empty shows everywhere. E.g. "windows linux",
-	// "not apple".
-	Platform Attr[string]
+import "maps"
+
+// IfPlatformOpts configures <neo-if-platform>, the client-side platform
+// gate. Each platform field is a boolean command: true shows the children
+// on that platform, false hides them there, unset leaves it to the others.
+// The platforms set true are an OR; with none set true, every platform not
+// set false shows. For platform branches the server can't resolve.
+// Capability conditions (touch, hover, pointer) belong in CSS @media
+// queries instead.
+type IfPlatformOpts struct {
+	MacOS    Attr[bool]
+	IOS      Attr[bool]
+	Windows  Attr[bool]
+	Linux    Attr[bool]
+	Android  Attr[bool]
+	ChromeOS Attr[bool]
 	// UserAgent enables server-side pre-rendering: pass the request
 	// User-Agent (r.UserAgent()) and a matching branch renders already
 	// visible, so it doesn't flash in after the bundle upgrades. The client
@@ -27,27 +32,37 @@ type ConditionOpts struct {
 	UserAgent Attr[string]
 }
 
-// conditionAttrs builds the element attributes, pre-showing the branch
-// (display:contents) when the server already knows the platform matches.
-func conditionAttrs(opts ConditionOpts, extra templ.Attributes) templ.Attributes {
-	platform := opts.Platform.Or("")
-	userAgent := opts.UserAgent.Or("")
-	a := templ.Attributes{}
-	if platform != "" {
-		a["platform"] = platform
+func (opts IfPlatformOpts) platforms() map[Platform]Attr[bool] {
+	return map[Platform]Attr[bool]{
+		PlatformMacOS:    opts.MacOS,
+		PlatformIOS:      opts.IOS,
+		PlatformWindows:  opts.Windows,
+		PlatformLinux:    opts.Linux,
+		PlatformAndroid:  opts.Android,
+		PlatformChromeOS: opts.ChromeOS,
 	}
-	if userAgent != "" && platformMatches(platform, DetectPlatform(userAgent)) {
+}
+
+// ifPlatformAttrs builds the element attributes, pre-showing the branch
+// (display:contents) when the server already knows the platform matches.
+func ifPlatformAttrs(opts IfPlatformOpts, extra templ.Attributes) templ.Attributes {
+	a := templ.Attributes{}
+	cmds := map[Platform]bool{}
+	for p, attr := range opts.platforms() {
+		maps.Copy(a, attr.Attrs(string(p)))
+		if v, ok := attr.Value(); ok {
+			cmds[p] = v
+		}
+	}
+	if ua := opts.UserAgent.Or(""); ua != "" && platformShown(cmds, DetectPlatform(ua)) {
 		a["style"] = "display:contents"
 	}
-	for k, v := range extra {
-		a[k] = v
-	}
+	maps.Copy(a, extra)
 	return a
 }
 
-// Condition shows its children only on the platforms matching
-// opts.Platform.
-func Condition(opts ConditionOpts) templ.Component {
+// IfPlatform shows its children only on the platforms opts selects.
+func IfPlatform(opts IfPlatformOpts) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -86,7 +101,7 @@ func Condition(opts ConditionOpts) templ.Component {
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = ConditionAttrs(opts, nil).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = IfPlatformAttrs(opts, nil).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -94,8 +109,8 @@ func Condition(opts ConditionOpts) templ.Component {
 	})
 }
 
-// ConditionAttrs is [Condition] with an extra attribute set.
-func ConditionAttrs(opts ConditionOpts, attrs templ.Attributes) templ.Component {
+// IfPlatformAttrs is [IfPlatform] with an extra attribute set.
+func IfPlatformAttrs(opts IfPlatformOpts, attrs templ.Attributes) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -116,11 +131,11 @@ func ConditionAttrs(opts ConditionOpts, attrs templ.Attributes) templ.Component 
 			templ_7745c5c3_Var3 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<neo-condition")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<neo-if-platform")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templ.RenderAttributes(ctx, templ_7745c5c3_Buffer, conditionAttrs(opts, attrs))
+		templ_7745c5c3_Err = templ.RenderAttributes(ctx, templ_7745c5c3_Buffer, ifPlatformAttrs(opts, attrs))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -132,7 +147,7 @@ func ConditionAttrs(opts ConditionOpts, attrs templ.Attributes) templ.Component 
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</neo-condition>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</neo-if-platform>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

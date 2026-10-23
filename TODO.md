@@ -5,12 +5,8 @@
 neo-toast-close fires only on manual close (2026-07-07):
 - `web/lib/neo-toast/neo-toast.ts:212` dispatches `neo-toast-close` only from `#onCloseClick` (the × button). Auto-dismiss (timer), swipe-to-dismiss, and `NeoToast.dismiss()` remove the toast via `neo-toaster.ts` `#removeToast` (`web/lib/neo-toaster/neo-toaster.ts:825`) without emitting any event, so consumers cannot observe non-manual dismissals. Convention is one close/dismiss event on every removal. Fix: dispatch `neo-toast-close` for every dismissal cause (e.g. from `#removeToast`).
 
-`.ts` source audit (2026-06-28) vs DESIGN.md + .claude/skills + CLAUDE.md (verified):
-
-No-em-dash convention (memory feedback_no_em_dashes) - broad sweep needed:
-- `web/lib` `*.ts`: 233 comment lines across 44 files use em dashes. `web/site` `*.ts`: 42 lines across 8 files.
-- `web/lib/neo-combobox/neo-combobox.ts:751` sets `aria-label` to an em-dash-separated search label; the em dash lands in the spoken accessible name, not just a comment.
-- En-dash (`–`) also in `web/lib/neo-spinner/neo-spinner.ts` and `web/lib/neo-slider-range/neo-slider-range.ts`.
+neo-kbd server pre-render differs from the client (2026-10-23):
+- `neo/platform.go` `keyGlyphsApple` renders `enter` as `↵` and `keyLabelsOther` renders `delete` as `Del`; `web/lib/platform.ts` renders `↩` and `Delete`. A `<neo-kbd>` pre-rendered with `UserAgent` swaps the glyph after upgrade. `TestFormatKeyMatchesClient` asserts the Go `↵`, so it doesn't catch it. Fix: copy the TS values into Go and the test.
 
 - 🤔 landing: different color from background (fixed, but there's still these weird trails from the glow effect of the matrix rain - ghosting)
 - Focus of links is not accent color

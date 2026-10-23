@@ -1,40 +1,49 @@
 // Shared platform + keyboard-chord core. The single source for "what
 // modifier / glyph on this OS", consumed by <neo-keys> (behavior),
-// <neo-kbd> (display), and <neo-condition> (platform gating). Framework-
-// agnostic: no Datastar, no DOM beyond `navigator`.
+// <neo-kbd> (display), and <neo-if-platform> (platform gating).
 
-export type Platform = "apple" | "windows" | "linux" | "other";
+export type Platform = "macos" | "ios" | "windows" | "linux" | "android" | "chromeos" | "other";
 
-// Resolve the real OS once. Prefer the structured User-Agent Client Hint
-// (Chromium), the modern replacement for the deprecated navigator.platform,
-// then navigator.platform, then the UA string. All three reflect the actual
-// device; a "User Agent Switcher" extension only rewrites navigator.userAgent
-// (the last fallback), so it won't flip detection. To simulate a platform use
-// DevTools → Network conditions → User agent client hints → Platform, which
-// overrides userAgentData.platform.
+// Resolve the real OS once. Prefer the structured User-Agent Client Hint (Chromium),
+// the modern replacement for the deprecated navigator.platform, then navigator.platform,
+// then the UA string. All three reflect the actual device; a "User Agent Switcher"
+// extension only rewrites navigator.userAgent (the last fallback), so it won't
+// flip detection. To simulate a platform use DevTools → Network conditions →
+// User agent client hints → Platform, which overrides userAgentData.platform.
 function detectPlatform(): Platform {
 	if (typeof navigator === "undefined") return "other";
 	const hint = (navigator as Navigator & { userAgentData?: { platform?: string } }).userAgentData?.platform;
 	if (hint) {
 		const h = hint.toLowerCase();
-		if (h.includes("mac") || h === "ios") return "apple";
+		if (h.includes("mac")) return "macos";
+		if (h === "ios") return "ios";
 		if (h.includes("win")) return "windows";
-		if (h.includes("linux") || h.includes("android") || h.includes("chrome")) return "linux";
+		if (h.includes("android")) return "android";
+		// "Chrome OS", "Chromium OS".
+		if (h.includes("chrom")) return "chromeos";
+		if (h.includes("linux")) return "linux";
 		return "other";
 	}
-	const s = (navigator.platform || navigator.userAgent || "").toLowerCase();
-	if (/mac|iphone|ipad|ipod/.test(s)) return "apple";
+	const ua = navigator.userAgent.toLowerCase();
+	const s = navigator.platform.toLowerCase() || ua;
+	if (/iphone|ipad|ipod/.test(s)) return "ios";
+	// iPadOS Safari reports a Mac; only touch support tells them apart.
+	if (/mac/.test(s)) return navigator.maxTouchPoints > 1 ? "ios" : "macos";
 	if (/win/.test(s)) return "windows";
-	if (/linux|android|cros|x11/.test(s)) return "linux";
+	// Android and ChromeOS report a Linux navigator.platform; only the UA
+	// names them.
+	if (ua.includes("android")) return "android";
+	if (ua.includes("cros")) return "chromeos";
+	if (/linux|x11/.test(s)) return "linux";
 	return "other";
 }
 
 const PLATFORM = detectPlatform();
 
 // `mod` is ⌘ on Apple platforms, Ctrl elsewhere. Shared by behavior
-// (<neo-keys>) and display (<neo-kbd>, <neo-condition>) so the shown hint always
+// (<neo-keys>) and display (<neo-kbd>, <neo-if-platform>) so the shown hint always
 // matches the shortcut that actually fires.
-export const IS_APPLE = PLATFORM === "apple";
+export const IS_APPLE = PLATFORM === "macos" || PLATFORM === "ios";
 
 export function currentPlatform(): Platform {
 	return PLATFORM;
@@ -112,9 +121,8 @@ export function parseChord(text: string): Chord | null {
 	return chord.key ? chord : null;
 }
 
-// `|` separates alternatives, `,` separates sequence steps, `+` joins a
-// chord. None overlap, so the grammar is unambiguous (a literal comma
-// key is the `comma` alias).
+// `|` separates alternatives, `,` separates sequence steps, `+` joins a chord.
+// None overlap, so the grammar is unambiguous (a literal comma key is the `comma` alias).
 export function parseKeys(raw: string): Alternative[] {
 	return raw
 		.split("|")
@@ -165,8 +173,8 @@ function keyLabel(key: string, apple: boolean): string {
 	return key.length === 1 ? key.toUpperCase() : key.charAt(0).toUpperCase() + key.slice(1);
 }
 
-// A <neo-kbd> shows ONE key. Modifier tokens render as their platform
-// glyph; everything else goes through keyLabel. Multi-key shortcuts are
+// A <neo-kbd> shows ONE key. Modifier tokens render as their platform glyph;
+// everything else goes through keyLabel. Multi-key shortcuts are
 // composed from several <neo-kbd> in a <neo-kbd-group>, never a
 // "+"-joined string, so there is no chord formatter here.
 const MODIFIER_GLYPHS_APPLE: Record<string, string> = {

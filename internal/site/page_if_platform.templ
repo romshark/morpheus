@@ -1,0 +1,147 @@
+package site
+
+import (
+	"github.com/romshark/morpheus/internal/href"
+	"github.com/romshark/morpheus/internal/site/examples"
+	"github.com/romshark/morpheus/neo"
+)
+
+templ PageIfPlatform(morpheusVersion string) {
+	@PageDoc(href.PageIfPlatform(), "If platform", morpheusVersion) {
+		<section class="demo">
+			@anchoredH2("overview") {
+				If platform
+			}
+			<p class="intro">
+				Component <code>{ "<neo-if-platform>" }</code> is a platform
+				gate: it shows its content only on the operating systems its
+				attributes select, and hides it elsewhere. Use it
+				only for what CSS can't check. CSS <code>{ "@media" }</code>
+				already handles touch, dark mode, and the like. To gate on the
+				connection state, use @ComponentLink("neo-if-network", href.PageIfNetwork())&period;
+			</p>
+			@anchoredH2("reference") {
+				Reference
+			}
+			@ComponentDocs(ifPlatformDoc)
+			@anchoredH3("platform-rules") {
+				Platform rules
+			}
+			<p>
+				Each platform attribute is a <a href={ href.PageServerDriven() + "#command-patches" }>boolean command</a>
+				the server can drive:
+			</p>
+			<ul>
+				<li>
+					Platforms set true are an OR, since a device has 1
+					platform: <code>{ `<neo-if-platform macos linux>` }</code>
+					shows on either.
+				</li>
+				<li>
+					<code>{ `x="false"` }</code> hides the content on
+					<code>x</code>: <code>{ `<neo-if-platform windows="false">` }</code>
+					shows everywhere but Windows.
+				</li>
+				<li>
+					With no platform attribute the content shows everywhere.
+				</li>
+				<li>
+					A misspelled attribute is ignored:
+					<code>{ `<neo-if-platform macso>` }</code> shows everywhere.
+				</li>
+			</ul>
+		</section>
+		<section class="demo">
+			@anchoredH2("examples") {
+				Examples
+			}
+			@anchoredH3("platform-branch") {
+				Platform branch
+			}
+			<p class="demo-note">
+				Each branch carries platform-specific wording and shows
+				only on its OS: you're seeing the one for your system. iOS
+				and Android match no branch.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				StageClass:     "demo-stage-flow",
+				HTMLSource:     ifPlatformBranchHTML,
+				TemplSource:    ifPlatformBranchTempl,
+			}) {
+				@examples.IfPlatformBranch()
+			}
+			@neo.AlertAttrs(neo.AlertOpts{Variant: neo.Set(neo.AlertVariantInfo)}, templ.Attributes{"class": "demo-callout"}) {
+				@neo.AlertIcon() {
+					@neo.Icon("info")
+				}
+				@neo.AlertContent() {
+					@neo.AlertDescription() {
+						This static demo shows only your own OS's branch, and
+						swaps it in after the script loads, a brief flash. A
+						templ server avoids that: pass the request user agent
+						to <code>IfPlatformOpts.UserAgent</code> and the
+						matching branch renders up front, no flash. To preview
+						another OS here, open DevTools →
+						<code>Network conditions</code> →
+						<code>User agent client hints</code> →
+						<code>Platform</code>, then reload.
+					}
+				}
+			}
+			@anchoredH3("multiple-platforms") {
+				Multiple platforms
+			}
+			<p class="demo-note">
+				Set several platforms to show on any of them. Here one
+				branch covers the Ctrl platforms, the other the Command
+				platforms.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				StageClass:     "demo-stage-flow",
+				HTMLSource:     ifPlatformMultipleHTML,
+				TemplSource:    ifPlatformMultipleTempl,
+			}) {
+				@examples.IfPlatformMultiple()
+			}
+			@anchoredH3("exclude-platforms") {
+				Exclude platforms
+			}
+			<p class="demo-note">
+				Download links per store: phones get their app store, and
+				the branch with <code>{ `ios="false" android="false"` }</code>
+				covers every other platform.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				StageClass:     "demo-stage-flow",
+				HTMLSource:     ifPlatformExcludeHTML,
+				TemplSource:    ifPlatformExcludeTempl,
+			}) {
+				@examples.IfPlatformExclude()
+			}
+		</section>
+	}
+}
+
+var ifPlatformDoc = ComponentDoc{
+	Attributes: []DocAttribute{
+		{Name: "macos", Type: "boolean", Default: "unset", Observed: true,
+			Description: templ.Raw("macOS.")},
+		{Name: "ios", Type: "boolean", Default: "unset", Observed: true,
+			Description: templ.Raw("iOS and iPadOS, including iPadOS Safari, which reports a Mac.")},
+		{Name: "windows", Type: "boolean", Default: "unset", Observed: true,
+			Description: templ.Raw("Windows.")},
+		{Name: "linux", Type: "boolean", Default: "unset", Observed: true,
+			Description: templ.Raw("Desktop Linux. Android and ChromeOS have their own attributes.")},
+		{Name: "android", Type: "boolean", Default: "unset", Observed: true,
+			Description: templ.Raw("Android.")},
+		{Name: "chromeos", Type: "boolean", Default: "unset", Observed: true,
+			Description: templ.Raw("ChromeOS.")},
+	},
+	Slots: []DocSlot{
+		{Name: "default",
+			Description: templ.Raw("Shown only on the platforms the attributes select (see <a href=\"#platform-rules\">Platform rules</a>).")},
+	},
+}

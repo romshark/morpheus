@@ -54,10 +54,9 @@ export class NeoTabs extends HTMLElement {
 		this.#scrollActiveTabIntoView("auto");
 	}
 
-	// Stash per-host rules in a <head> <style> keyed by host id.
-	// Datastar morphs strip the host's `style` attribute, so inline
-	// custom properties wouldn't survive; <head> is outside the morph
-	// zone.
+	// Per-host rules go in a <head> <style> keyed by host id.
+	// A morph strips the host's runtime `style` attribute, so inline custom
+	// properties wouldn't survive; <head> is outside the morph zone.
 	#syncEasing() {
 		if (!this.id) return;
 		const styleId = `neo-tabs-easing-${this.id}`;
@@ -70,8 +69,7 @@ export class NeoTabs extends HTMLElement {
 		const trimmed = raw.trim() || "200ms";
 		// Duration via --neo-duration-scale, timing via --neo-easing with
 		// the author value as fallback: theme + reduced-motion overrides
-		// win kit-wide, and vars unset resolves to the author's exact
-		// `<dur> <fn>`.
+		// win kit-wide, and vars unset resolves to the author's exact `<dur> <fn>`.
 		const m = trimmed.match(/^(\d*\.?\d+(?:ms|s))\s*(.*)$/);
 		const dur = m ? m[1] : "200ms";
 		const fn = m?.[2].trim() ? m[2].trim() : "ease";
@@ -127,8 +125,8 @@ export class NeoTabs extends HTMLElement {
 		if (name === "value") {
 			// Our own re-reflect write (keep-on-absent below); not a command.
 			if (this.#reflectingValue) return;
-			// Fat morph dropped `value`: no command, keep the current
-			// selection. Re-reflect so the attribute stays the state mirror,
+			// Fat morph dropped `value`: no command, keep the current selection.
+			// Re-reflect so the attribute stays the state mirror,
 			// blocking a reset to the first tab.
 			if (newValue === null) {
 				this.#reflectValue();
@@ -206,8 +204,7 @@ export class NeoTabs extends HTMLElement {
 		}
 
 		// Direction derived from the value transition, and published as a
-		// custom state: an attribute would be wiped by the next morph
-		// mid-animation.
+		// custom state: an attribute would be wiped by the next morph mid-animation.
 		const newIdx = tabs.findIndex((t) => t.getAttribute("value") === value);
 		const oldIdx =
 			this.#previousActiveValue !== null
@@ -262,8 +259,8 @@ export class NeoTabs extends HTMLElement {
 				panel.setAttribute("inert", "");
 			}
 
-			// Tab stop the panel only when active/leaving, has content, and
-			// has no focusable descendant. Otherwise focus lands here for
+			// Tab stop the panel only when active/leaving, has content,
+			// and has no focusable descendant. Otherwise focus lands here for
 			// no reason and the browser scroll-into-view's the layout.
 			const hasContent = panel.firstElementChild !== null || (panel.textContent ?? "").trim() !== "";
 			const hasFocusable = panel.querySelector(

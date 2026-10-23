@@ -26,13 +26,14 @@ const BEHAVIORAL_TAGS = new Set<string>([
 	"neo-clipcopy",
 	"neo-color-field",
 	"neo-combobox",
-	"neo-condition",
 	"neo-contextmenu",
 	"neo-datalist",
 	"neo-dialog",
 	"neo-drawer",
 	"neo-elastic",
 	"neo-icon",
+	"neo-if-network",
+	"neo-if-platform",
 	"neo-input-group",
 	"neo-kbd",
 	"neo-keys",
@@ -75,8 +76,8 @@ const BEHAVIORAL_TAGS = new Set<string>([
 ]);
 
 // Tags styled by CSS only (no custom element). Tags whose styles ride a
-// behavioral parent's stylesheet (neo-kbd-group, neo-sortable-item) are left
-// out: that parent's behavioral warning already covers the trim.
+// behavioral parent's stylesheet (neo-kbd-group, neo-sortable-item) are left out:
+// that parent's behavioral warning already covers the trim.
 const CSS_ONLY_TAGS = new Set<string>([
 	"neo-alert",
 	"neo-avatar",

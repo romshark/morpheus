@@ -11,12 +11,15 @@ import (
 
 func TestDetectPlatform(t *testing.T) {
 	cases := map[string]Platform{
-		"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)": PlatformApple,
-		"Mozilla/5.0 (iPhone; CPU iPhone OS 17_0)":        PlatformApple,
+		"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)": PlatformMacOS,
+		"Mozilla/5.0 (iPhone; CPU iPhone OS 17_0)":        PlatformIOS,
+		"Mozilla/5.0 (iPad; CPU OS 17_0 like Mac OS X)":   PlatformIOS,
 		"Mozilla/5.0 (Windows NT 10.0; Win64; x64)":       PlatformWindows,
 		"Mozilla/5.0 (X11; Linux x86_64)":                 PlatformLinux,
-		"Mozilla/5.0 (Linux; Android 14)":                 PlatformLinux,
-		"":                                                PlatformOther,
+		"Mozilla/5.0 (Linux; Android 14)":                 PlatformAndroid,
+		"Mozilla/5.0 (X11; CrOS x86_64 14541.0.0)":        PlatformChromeOS,
+		"Notes/1.0 CFNetwork/1410.0.3 Darwin/22.6.0":      PlatformOther,
+		"": PlatformOther,
 	}
 	for ua, want := range cases {
 		if got := DetectPlatform(ua); got != want {
@@ -33,16 +36,16 @@ func TestFormatKeyMatchesClient(t *testing.T) {
 		p    Platform
 		want string
 	}{
-		{"mod", PlatformApple, "⌘"},
+		{"mod", PlatformMacOS, "⌘"},
 		{"mod", PlatformWindows, "Ctrl"},
 		{"mod", PlatformLinux, "Ctrl"},
-		{"shift", PlatformApple, "⇧"},
+		{"shift", PlatformMacOS, "⇧"},
 		{"shift", PlatformWindows, "Shift"},
-		{"alt", PlatformApple, "⌥"},
-		{"enter", PlatformApple, "↵"},
+		{"alt", PlatformMacOS, "⌥"},
+		{"enter", PlatformMacOS, "↵"},
 		{"enter", PlatformWindows, "Enter"},
 		{"escape", PlatformWindows, "Esc"},
-		{"k", PlatformApple, "K"},
+		{"k", PlatformMacOS, "K"},
 		{"k", PlatformWindows, "K"},
 	}
 	for _, c := range cases {
@@ -52,21 +55,28 @@ func TestFormatKeyMatchesClient(t *testing.T) {
 	}
 }
 
-func TestPlatformMatches(t *testing.T) {
-	if !platformMatches("windows linux", PlatformLinux) {
-		t.Error(`"windows linux" should match linux`)
+// TestPlatformShown tests that platforms set true are an OR, false
+// excludes one, and with none set true every platform not excluded shows.
+func TestPlatformShown(t *testing.T) {
+	cases := []struct {
+		cmds map[Platform]bool
+		p    Platform
+		want bool
+	}{
+		{nil, PlatformWindows, true},
+		{nil, PlatformOther, true},
+		{map[Platform]bool{PlatformMacOS: true, PlatformLinux: true}, PlatformLinux, true},
+		{map[Platform]bool{PlatformMacOS: true, PlatformLinux: true}, PlatformWindows, false},
+		{map[Platform]bool{PlatformMacOS: true}, PlatformOther, false},
+		{map[Platform]bool{PlatformWindows: false}, PlatformWindows, false},
+		{map[Platform]bool{PlatformWindows: false}, PlatformAndroid, true},
+		{map[Platform]bool{PlatformWindows: false}, PlatformOther, true},
+		{map[Platform]bool{PlatformMacOS: true, PlatformWindows: false}, PlatformWindows, false},
 	}
-	if !platformMatches("windows linux", PlatformWindows) {
-		t.Error(`"windows linux" should match windows`)
-	}
-	if platformMatches("apple", PlatformWindows) {
-		t.Error(`"apple" should not match windows`)
-	}
-	if !platformMatches("not apple", PlatformWindows) {
-		t.Error(`"not apple" should match windows`)
-	}
-	if platformMatches("not apple", PlatformApple) {
-		t.Error(`"not apple" should not match apple`)
+	for _, c := range cases {
+		if got := platformShown(c.cmds, c.p); got != c.want {
+			t.Errorf("platformShown(%v, %q) = %v, want %v", c.cmds, c.p, got, c.want)
+		}
 	}
 }
 
@@ -86,13 +96,20 @@ func TestKbdServerPrerender(t *testing.T) {
 	}
 }
 
-func TestConditionServerPrerender(t *testing.T) {
-	match := renderComponent(t, Condition(ConditionOpts{Platform: Set("apple"), UserAgent: Set("Mozilla/5.0 (Macintosh)")}))
+func TestIfPlatformServerPrerender(t *testing.T) {
+	opts := IfPlatformOpts{MacOS: Set(true), IOS: Set(true), Windows: Set(false)}
+	opts.UserAgent = Set("Mozilla/5.0 (Macintosh)")
+	match := renderComponent(t, IfPlatform(opts))
 	if !strings.Contains(match, "display:contents") {
 		t.Errorf("matching branch should be pre-shown, got %q", match)
 	}
-	miss := renderComponent(t, Condition(ConditionOpts{Platform: Set("apple"), UserAgent: Set("Mozilla/5.0 (Windows NT 10.0)")}))
-	if strings.Contains(miss, "display:contents") {
+	for _, want := range []string{" macos", " ios", `windows="false"`} {
+		if !strings.Contains(match, want) {
+			t.Errorf("want %s, got %q", want, match)
+		}
+	}
+	opts.UserAgent = Set("Mozilla/5.0 (Windows NT 10.0)")
+	if miss := renderComponent(t, IfPlatform(opts)); strings.Contains(miss, "display:contents") {
 		t.Errorf("non-matching branch should stay hidden, got %q", miss)
 	}
 }

@@ -1,0 +1,18 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ IfPlatformBranch() {
+	@neo.IfPlatform(neo.IfPlatformOpts{MacOS: neo.Set(true)}) {
+		On macOS, press <neo-kbd-group><neo-kbd key="mod"></neo-kbd><neo-kbd key="enter"></neo-kbd></neo-kbd-group> to run the demo action.
+	}
+	@neo.IfPlatform(neo.IfPlatformOpts{Windows: neo.Set(true)}) {
+		On Windows, press <neo-kbd-group><neo-kbd key="mod"></neo-kbd><neo-kbd key="enter"></neo-kbd></neo-kbd-group> to run the demo action.
+	}
+	@neo.IfPlatform(neo.IfPlatformOpts{Linux: neo.Set(true), ChromeOS: neo.Set(true)}) {
+		On Linux and ChromeOS, press <neo-kbd-group><neo-kbd key="mod"></neo-kbd><neo-kbd key="enter"></neo-kbd></neo-kbd-group> to run the demo action.
+	}
+	@neo.KeysAttrs(neo.KeysOpts{Keys: neo.Set("mod+enter"), Target: neo.Set("window")}, templ.Attributes{
+		"data-on:neo-keys": "NeoToast.info('Shortcut fired', {description: 'You ran the demo action on the If platform page.'})",
+	})
+}

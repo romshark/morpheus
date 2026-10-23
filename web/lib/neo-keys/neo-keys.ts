@@ -1,7 +1,6 @@
 // Behavior-only, no UI: while connected it installs one key listener on a
 // target element (its parent by default) and dispatches a bubbling
-// CustomEvent on a matched chord. Framework-agnostic by contract: config in
-// via attributes, activation out via the event, with no framework here.
+// CustomEvent on a matched chord.
 
 import { boolAttr } from "../command";
 import { type Alternative, type Chord, IS_APPLE, parseKeys } from "../platform";

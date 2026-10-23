@@ -1351,7 +1351,7 @@ site-codemirror[data-site-codemirror-loading] > .site-codemirror-loading {
 }
 
 /* Normal-flow stage: a demo whose content is inline prose (e.g.
- * <neo-condition>, which is display:contents: its text/inline children
+ * <neo-if-platform>, which is display:contents: its text/inline children
  * would otherwise become flex items of the stage, gaining the flex gap
  * and losing baseline alignment). */
 .demo-frame-stage.demo-stage-flow {

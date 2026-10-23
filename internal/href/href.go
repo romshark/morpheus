@@ -37,7 +37,6 @@ func PageCarousel() string       { return "/carousel/" }
 func PageCheckbox() string       { return "/checkbox/" }
 func PageClipcopy() string       { return "/clipcopy/" }
 func PageCombobox() string       { return "/combobox/" }
-func PageCondition() string      { return "/condition/" }
 func PageContextMenu() string    { return "/context-menu/" }
 func PageColorField() string     { return "/color-field/" }
 func PageDatalist() string       { return "/datalist/" }
@@ -45,6 +44,8 @@ func PageDialog() string         { return "/dialog/" }
 func PageDrawer() string         { return "/drawer/" }
 func PageElastic() string        { return "/elastic/" }
 func PageIcon() string           { return "/icon/" }
+func PageIfNetwork() string      { return "/if-network/" }
+func PageIfPlatform() string     { return "/if-platform/" }
 func PageInputGroup() string     { return "/input-group/" }
 func PageKbd() string            { return "/kbd/" }
 func PageKeys() string           { return "/keys/" }

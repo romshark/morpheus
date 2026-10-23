@@ -1,0 +1,21 @@
+/* -----------------------------------------------------------------------
+ * <neo-if-platform>
+ * -----------------------------------------------------------------------
+ * Hidden until the element sets :state(match), so the wrong branch never
+ * flashes (and stays hidden with no JS). `contents` so the gate adds no box. */
+
+neo-if-platform {
+	display: none;
+}
+
+/* biome-ignore-start lint/complexity/noImportantStyles: the server
+ * pre-shows a branch with an inline style="display:contents".
+ * Once defined, the element decides, also when a morph puts that style back. */
+neo-if-platform:defined {
+	display: none !important;
+}
+
+neo-if-platform:state(match) {
+	display: contents !important;
+}
+/* biome-ignore-end lint/complexity/noImportantStyles: end platform gate */

@@ -1,0 +1,13 @@
+/* -----------------------------------------------------------------------
+ * <neo-if-network>
+ * -----------------------------------------------------------------------
+ * Hidden until the element sets :state(match), and with no JS.
+ * `contents` so the gate adds no box. */
+
+neo-if-network {
+	display: none;
+}
+
+neo-if-network:state(match) {
+	display: contents;
+}
