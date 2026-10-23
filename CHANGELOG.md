@@ -46,4 +46,8 @@ This file records the notable changes of each release in the format of [Keep a C
 - Keep a `<neo-if-platform>` branch shown after a morph. `<neo-condition>` hid it.
 - Warn in the console when `<a data-neo-link>` is used but its styles are missing from the loaded bundle, as for `<neo-*>` elements. A trimmed bundle without the link styles left these anchors unstyled without a warning.
 
+#### Templ wrappers
+
+- Pre-render `enter` and `delete` in `neo.Kbd` with the labels the client shows. They changed after the script loaded.
+
 [Unreleased]: https://github.com/romshark/morpheus/compare/v0.1.0...HEAD

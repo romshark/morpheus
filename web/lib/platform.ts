@@ -208,7 +208,7 @@ const MODIFIER_LABELS_OTHER: Record<string, string> = {
 };
 
 // Render a single key token as a platform-appropriate label: a modifier
-// glyph (⌘, ⇧, …) or, via keyLabel, a named key (↵, Esc) or letter.
+// glyph (⌘, ⇧, …) or, via keyLabel, a named key (↩, Esc) or letter.
 export function formatKey(token: string, apple = IS_APPLE): string {
 	const t = token.trim().toLowerCase();
 	if (!t) return "";

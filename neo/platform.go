@@ -89,7 +89,7 @@ var keyAliases = map[string]string{
 
 var keyGlyphsApple = map[string]string{
 	" ":          "Space",
-	"enter":      "↵",
+	"enter":      "↩",
 	"escape":     "⎋",
 	"tab":        "⇥",
 	"delete":     "⌦",
@@ -105,7 +105,7 @@ var keyLabelsOther = map[string]string{
 	"enter":      "Enter",
 	"escape":     "Esc",
 	"tab":        "Tab",
-	"delete":     "Del",
+	"delete":     "Delete",
 	"backspace":  "Backspace",
 	"arrowup":    "↑",
 	"arrowdown":  "↓",
@@ -159,7 +159,7 @@ var modifierLabelsOther = map[string]string{
 }
 
 // formatKey renders a single key token as a platform label: a modifier
-// glyph (⌘, ⇧, …) or, via keyLabel, a named key (↵, Esc) or letter. Empty
+// glyph (⌘, ⇧, …) or, via keyLabel, a named key (↩, Esc) or letter. Empty
 // for an empty token. Mirrors formatKey in web/lib/platform.ts.
 func formatKey(token string, p Platform) string {
 	t := strings.ToLower(strings.TrimSpace(token))

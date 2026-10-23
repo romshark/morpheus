@@ -3,6 +3,9 @@ package neo
 import (
 	"bytes"
 	"context"
+	"maps"
+	"os"
+	"regexp"
 	"strings"
 	"testing"
 
@@ -42,8 +45,9 @@ func TestFormatKeyMatchesClient(t *testing.T) {
 		{"shift", PlatformMacOS, "⇧"},
 		{"shift", PlatformWindows, "Shift"},
 		{"alt", PlatformMacOS, "⌥"},
-		{"enter", PlatformMacOS, "↵"},
+		{"enter", PlatformMacOS, "↩"},
 		{"enter", PlatformWindows, "Enter"},
+		{"del", PlatformWindows, "Delete"},
 		{"escape", PlatformWindows, "Esc"},
 		{"k", PlatformMacOS, "K"},
 		{"k", PlatformWindows, "K"},
@@ -51,6 +55,39 @@ func TestFormatKeyMatchesClient(t *testing.T) {
 	for _, c := range cases {
 		if got := formatKey(c.key, c.p); got != c.want {
 			t.Errorf("formatKey(%q, %q) = %q, want %q", c.key, c.p, got, c.want)
+		}
+	}
+}
+
+// TestKeyLabelsMatchClient tests that the key and modifier tables equal
+// the ones in web/lib/platform.ts, so a <neo-kbd> pre-rendered on the
+// server shows the label the client renders after upgrade.
+func TestKeyLabelsMatchClient(t *testing.T) {
+	src, err := os.ReadFile("../web/lib/platform.ts")
+	if err != nil {
+		t.Fatal(err)
+	}
+	// An entry is `key: "value",` or `" ": "value",`; comment lines don't match.
+	entry := regexp.MustCompile(`(?m)^\s*(?:"([^"]*)"|([a-z]+)):\s*"([^"]*)",`)
+	tables := map[string]map[string]string{
+		"KEY_ALIASES":           keyAliases,
+		"KEY_GLYPHS_APPLE":      keyGlyphsApple,
+		"KEY_LABELS_OTHER":      keyLabelsOther,
+		"MODIFIER_GLYPHS_APPLE": modifierGlyphsApple,
+		"MODIFIER_LABELS_OTHER": modifierLabelsOther,
+	}
+	for name, want := range tables {
+		body := regexp.MustCompile(`(?s)const ` + name + `: Record<string, string> = \{(.*?)\n\};`).FindSubmatch(src)
+		if body == nil {
+			t.Errorf("platform.ts has no %s", name)
+			continue
+		}
+		got := map[string]string{}
+		for _, e := range entry.FindAllSubmatch(body[1], -1) {
+			got[string(e[1])+string(e[2])] = string(e[3])
+		}
+		if !maps.Equal(got, want) {
+			t.Errorf("%s: platform.ts has %v, Go has %v", name, got, want)
 		}
 	}
 }

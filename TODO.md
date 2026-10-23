@@ -5,9 +5,6 @@
 neo-toast-close fires only on manual close (2026-07-07):
 - `web/lib/neo-toast/neo-toast.ts:212` dispatches `neo-toast-close` only from `#onCloseClick` (the × button). Auto-dismiss (timer), swipe-to-dismiss, and `NeoToast.dismiss()` remove the toast via `neo-toaster.ts` `#removeToast` (`web/lib/neo-toaster/neo-toaster.ts:825`) without emitting any event, so consumers cannot observe non-manual dismissals. Convention is one close/dismiss event on every removal. Fix: dispatch `neo-toast-close` for every dismissal cause (e.g. from `#removeToast`).
 
-neo-kbd server pre-render differs from the client (2026-10-23):
-- `neo/platform.go` `keyGlyphsApple` renders `enter` as `↵` and `keyLabelsOther` renders `delete` as `Del`; `web/lib/platform.ts` renders `↩` and `Delete`. A `<neo-kbd>` pre-rendered with `UserAgent` swaps the glyph after upgrade. `TestFormatKeyMatchesClient` asserts the Go `↵`, so it doesn't catch it. Fix: copy the TS values into Go and the test.
-
 - 🤔 landing: different color from background (fixed, but there's still these weird trails from the glow effect of the matrix rain - ghosting)
 - Focus of links is not accent color
 Carousel doc page:
