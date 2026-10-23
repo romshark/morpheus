@@ -4,9 +4,8 @@ import (
 	"bytes"
 	"io/fs"
 	"os"
-	"runtime/debug"
+	"regexp"
 	"slices"
-	"strings"
 	"testing"
 )
 
@@ -68,17 +67,16 @@ func TestBuildSelection(t *testing.T) {
 // TestEsbuildPin tests that go.mod requires the esbuild version web/package.json pins.
 // web/build.ts builds min/ with it, and the bundle builder page loads it as esbuild-wasm.
 func TestEsbuildPin(t *testing.T) {
-	info, ok := debug.ReadBuildInfo()
-	if !ok {
-		t.Fatal("no build info")
+	// Not [runtime/debug.ReadBuildInfo]: a Go 1.26 test binary embeds no deps.
+	mod, err := fs.ReadFile(repo, "go.mod")
+	if err != nil {
+		t.Fatal(err)
 	}
-	i := slices.IndexFunc(info.Deps, func(m *debug.Module) bool {
-		return m.Path == "github.com/evanw/esbuild"
-	})
-	if i < 0 {
-		t.Fatal("github.com/evanw/esbuild is not a dependency")
+	m := regexp.MustCompile(`(?m)^(?:require)?\s+github\.com/evanw/esbuild v(\S+)`).FindSubmatch(mod)
+	if m == nil {
+		t.Fatal("go.mod does not require github.com/evanw/esbuild")
 	}
-	got := strings.TrimPrefix(info.Deps[i].Version, "v")
+	got := string(m[1])
 	if want := prepare(t).Manifest.Esbuild; got != want {
 		t.Errorf("go.mod requires esbuild %s, web/package.json pins %s", got, want)
 	}
