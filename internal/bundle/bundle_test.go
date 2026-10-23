@@ -67,7 +67,6 @@ func TestBuildSelection(t *testing.T) {
 // TestEsbuildPin tests that go.mod requires the esbuild version web/package.json pins.
 // web/build.ts builds min/ with it, and the bundle builder page loads it as esbuild-wasm.
 func TestEsbuildPin(t *testing.T) {
-	// Not [runtime/debug.ReadBuildInfo]: a Go 1.26 test binary embeds no deps.
 	mod, err := fs.ReadFile(repo, "go.mod")
 	if err != nil {
 		t.Fatal(err)

@@ -16,6 +16,7 @@ This file records the notable changes of each release in the format of [Keep a C
 #### Templ wrappers
 
 - Require templ v0.3.1070 in the `neo` and `datastar` packages. Upgrade the templ CLI to the same version and regenerate. This version reads `@` after a space in text as a component call, and renders the line break after a call without children as a space: check text next to component calls.
+- Require Go 1.26.10 in the `neo` and `datastar` packages.
 
 ### Fixed
 
