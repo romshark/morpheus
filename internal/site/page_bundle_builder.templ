@@ -1,38 +1,45 @@
 package site
 
 import (
+	"slices"
+
+	"github.com/romshark/morpheus/internal/bundle"
 	"github.com/romshark/morpheus/internal/href"
 	"github.com/romshark/morpheus/neo"
 )
 
-templ PageBundleBuilder(morpheusVersion string) {
+templ PageBundleBuilder(morpheusVersion string, versions []BundleVersion) {
 	@PageDoc(href.PageBundleBuilder(), "Bundle builder", morpheusVersion) {
-		<section class="demo" data-signals={ bundleSignals() }>
-			@anchoredH2("dependency-graph") {
-				Bundle builder
-			}
-			<p class="intro">
-				Every Morpheus component and the building blocks it composes,
-				arranged in a ring. Faint curves trace each component's
-				dependencies. Point at (or keyboard-focus) a name to light up
-				what it pulls in; everything unrelated dims away.
-			</p>
-			@anchoredH3("components") {
-				Components
-			}
-			<p>
-				Toggle a component to include or exclude it from your
-				bundle. Excluded components (and every dependency edge
-				touching them) dim out in the graph below.
-			</p>
-			<neo-layout class="bundle-bulk-actions" justify-content="center">
+		@templ.JSONScript("bundle-components",
+			bundleURLData{Components: bundleURLComponents(), Versions: versions})
+		@bundleURLBootstrap()
+		<section class="demo" data-signals={ bundleSignals }>
+			<neo-layout
+				class="bundle-bulk-actions"
+				justify-content="center"
+				gap="md"
+				wrap
+			>
+				@neo.SelectAttrs(neo.SelectOpts{
+					Value:     neo.Set(versions[0].Name),
+					AriaLabel: neo.Set("Version"),
+				}, templ.Attributes{
+					"data-attr:value":           bundleVersionSignal,
+					"data-on:neo-select-change": bundleVersionChange(),
+				}) {
+					for i, v := range versions {
+						@neo.Option(neo.OptionOpts{Value: neo.Set(v.Name)}) {
+							{ bundleVersionLabel(versions, i) }
+						}
+					}
+				}
 				@neo.ButtonGroupAttrs(neo.ButtonGroupOpts{
 					AriaLabel: neo.Set("Select or clear all components"),
 				}, nil) {
-					<neo-button data-on:click={ bundleEnableAllExpr() }>
+					<neo-button data-on:click={ bundleEnableAllExpr }>
 						Enable all
 					</neo-button>
-					<neo-button data-on:click={ bundleDisableAllExpr() }>
+					<neo-button data-on:click={ bundleDisableAllExpr }>
 						Disable all
 					</neo-button>
 				}
@@ -46,222 +53,303 @@ templ PageBundleBuilder(morpheusVersion string) {
 				"role":       "group",
 				"aria-label": "Components in the bundle",
 			}) {
-				for _, nd := range bundleNodes() {
-					if !nd.Bound {
+				for _, nd := range bundle.Nodes() {
+					if nd.Selectable() {
+						{{ lacks := slices.Contains(versions[0].Absent, nd.ID) }}
 						@neo.ToggleAttrs(neo.ToggleOpts{
-							Pressed:  neo.Set(!nd.Disabled),
-							Disabled: neo.Set(bundleInitiallyLocked(nd)),
-							Size:     neo.Set("sm"),
-							Value:    neo.Set(nd.Name),
+							Pressed:  neo.Set(!lacks),
+							Disabled: neo.Set(bundleInitiallyLocked(nd) || lacks),
+							Size:  neo.Set("sm"),
+							Value: neo.Set(nd.Name),
 						}, templ.Attributes{
 							"data-neo-navgroup-item":    true,
 							"data-attr:pressed":         bundleTogglePressed(nd),
 							"data-attr:disabled":        bundleToggleLock(nd),
 							"data-on:neo-toggle-change": bundleToggleChange(nd),
 						}) {
-							{ nd.Name }
+							{ nd.ShortName() }
 						}
 					}
 				}
 			}
-			<p class="bundle-count" aria-live="polite" data-text={ bundleCountText() }></p>
 			<div id="bundle-size" class="bundle-size" data-state="building">
 				<div class="bundle-size-overlay" aria-hidden="true">
 					<neo-spinner></neo-spinner>
 					<span class="bundle-size-overlay-label">Building bundle…</span>
 				</div>
 				<div class="bundle-size-body">
-					<neo-layout class="bundle-size-head" align-items="baseline" justify-content="space-between" gap="md">
-						<h3>Estimated bundle size</h3>
-						<span id="bundle-size-status" class="bundle-size-status" aria-live="polite">Building bundle…</span>
+					<neo-layout
+						class="bundle-size-head"
+						align-items="baseline"
+						justify-content="space-between"
+						gap="md"
+						wrap
+					>
+						<h2>Bundle size</h2>
+						<span
+							class="bundle-size-count"
+							aria-live="polite"
+							data-text={ bundleCountText }
+						></span>
 					</neo-layout>
-					<table class="bundle-size-table">
-						<thead>
-							<tr>
-								<th scope="col"></th>
-								<th scope="col">Uncompressed</th>
-								<th scope="col">gzip</th>
-								<th scope="col">brotli</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr>
-								<th scope="row">morpheus.min.js</th>
-								<td id="bundle-size-js-raw">–</td>
-								<td id="bundle-size-js-gzip">–</td>
-								<td id="bundle-size-js-br">–</td>
-							</tr>
-							<tr>
-								<th scope="row">morpheus.min.css</th>
-								<td id="bundle-size-css-raw">–</td>
-								<td id="bundle-size-css-gzip">–</td>
-								<td id="bundle-size-css-br">–</td>
-							</tr>
-							<tr class="bundle-size-total">
-								<th scope="row">Total</th>
-								<td id="bundle-size-total-raw">–</td>
-								<td id="bundle-size-total-gzip">–</td>
-								<td id="bundle-size-total-br">–</td>
-							</tr>
-						</tbody>
-					</table>
-					<p class="bundle-size-note">
-						Built in your browser with esbuild from the selected
-						TypeScript modules and component CSS modules.
-					</p>
+					<p
+						id="bundle-size-status"
+						class="bundle-size-status"
+						aria-live="polite"
+					>Building bundle…</p>
+					<div class="bundle-size-scroll">
+						<table class="bundle-size-table">
+							<thead>
+								<tr>
+									<th scope="col"></th>
+									<th scope="col">Uncompressed</th>
+									<th scope="col">
+										gzip
+										@bundleSizeInfo("gzip") {
+											<p>
+												Level 6, the <code>gzip</code> default.
+												Level 9 saves under 1% more.
+											</p>
+										}
+									</th>
+									<th scope="col">
+										brotli
+										@bundleSizeInfo("brotli") {
+											<p>
+												Quality 11, the maximum, as used for precompressed
+												files. On-the-fly compression uses a lower quality
+												and produces larger files.
+											</p>
+										}
+									</th>
+								</tr>
+							</thead>
+							<tbody>
+								for _, f := range bundleFiles {
+									<tr data-file={ f.Key }>
+										<th scope="row">
+											<label class="bundle-size-file">
+												@neo.Checkbox(neo.CheckboxOpts{
+													Checked: neo.Set(f.Zip),
+													Size:    neo.Set("sm"),
+													AriaLabel: neo.Set(
+														"Include " +
+															f.Name() +
+															" in morpheus.zip",
+													),
+												})
+												<span>
+													<span class="bundle-size-file-base">
+														morpheus
+													</span>
+													<wbr/>
+													{ "." + f.Key }
+												</span>
+											</label>
+										</th>
+										<td class="bundle-size-raw">
+											<span data-size="raw">–</span>
+											@bundleCopyButton(f.Name())
+										</td>
+										<td data-size="gzip">–</td>
+										<td data-size="br">–</td>
+									</tr>
+								}
+								<tr class="bundle-size-total">
+									<th scope="row">Total</th>
+									<td class="bundle-size-raw">
+										<span data-size="raw">–</span>
+										<span
+											class="bundle-size-copy"
+											aria-hidden="true"
+										></span>
+									</td>
+									<td data-size="gzip">–</td>
+									<td data-size="br">–</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+					<neo-layout class="bundle-size-downloads" justify-content="center">
+						@neo.LinkAttrs(neo.LinkOpts{
+							Variant:  neo.Set(neo.LinkVariantButtonPrimary),
+							Download: neo.Set("morpheus.zip"),
+							Disabled: neo.Set(true),
+						}, templ.Attributes{"id": "bundle-download"}) {
+							@neo.Icon("download")
+							Download morpheus.zip
+						}
+					</neo-layout>
+					<p class="bundle-size-note">Built in your browser with esbuild.</p>
 				</div>
 			</div>
-			<span hidden aria-hidden="true" data-effect="window.__bundleSizeUpdate($bundleSel)"></span>
-			<figure class="bundle-graph-figure">
-				<bundle-graph>
-					for _, nd := range bundleNodes() {
-						<span
-							id={ nd.ID }
-							if nd.DependsOn != "" {
-								depends-on={ nd.DependsOn }
-							}
-							if nd.Disabled {
-								disabled
-							}
-							data-attr:disabled={ bundleSpanDisabled(nd) }
-						>{ nd.Name }</span>
-					}
-				</bundle-graph>
-				<figcaption>
-					Component-to-component dependencies, mirrored from the
-					project README. An edge points from the component that
-					creates or coordinates another.
-				</figcaption>
-			</figure>
+			<span
+				hidden
+				aria-hidden="true"
+				data-effect={ bundleSizeUpdate }
+			></span>
 		</section>
-		<style>
-			.bundle-graph-figure {
-				margin: 0;
-				display: flex;
-				flex-direction: column;
-				align-items: center;
-				gap: 1rem;
+		<section class="demo">
+			@anchoredH2("command-line") {
+				Command line
 			}
-			.bundle-graph-figure figcaption {
-				max-width: 42rem;
-				text-align: center;
-				color: var(--muted);
-				font-size: 0.9rem;
-			}
-			/* Element-qualified like the kit's own neo-navgroup.component-grid:
-			 * a bare class can be out-specified by neo-navgroup's base style. */
-			neo-navgroup.bundle-toggle-grid {
-				display: grid;
-				grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr));
-				gap: 0.4rem;
-				width: 100%;
-				max-width: 56rem;
-				margin: 0 auto 2rem;
-			}
-			.bundle-toggle-grid neo-toggle {
-				width: 100%;
-				min-width: 0;
-			}
-			.bundle-bulk-actions {
-				display: flex;
-				justify-content: center;
-				margin: 0 0 1rem;
-			}
-			.bundle-count {
-				text-align: center;
-				color: var(--muted);
-				font-size: 0.9rem;
-				margin: 0 0 0.5rem;
-			}
-			.bundle-size {
-				position: relative;
-				overflow: hidden;
-				max-width: 34rem;
-				margin: 0 auto 1.5rem;
-				padding: 1rem 1.25rem;
-				border: 1px solid color-mix(in srgb, var(--page-fg) 12%, transparent);
-				border-radius: var(--page-radius, 0.5rem);
-			}
-			.bundle-size-overlay {
-				position: absolute;
-				inset: 0;
-				z-index: 1;
-				display: none;
-				flex-direction: column;
-				align-items: center;
-				justify-content: center;
-				gap: 0.6rem;
-				color: var(--muted);
-				font-size: 0.85rem;
-				background: color-mix(in srgb, var(--page-bg) 62%, transparent);
-				backdrop-filter: blur(1.5px);
-			}
-			.bundle-size[data-state="building"] .bundle-size-overlay {
-				display: flex;
-			}
-			.bundle-size[data-state="building"] .bundle-size-body {
-				opacity: 0.45;
-				filter: grayscale(1);
-				pointer-events: none;
-				user-select: none;
-			}
-			.bundle-size-head {
-				display: flex;
-				align-items: baseline;
-				justify-content: space-between;
-				gap: 1rem;
-			}
-			.bundle-size-head h3 {
-				margin: 0;
-				font-size: 1rem;
-			}
-			.bundle-size-status {
-				color: var(--muted);
-				font-size: 0.85rem;
-			}
-			.bundle-size[data-state="ready"] .bundle-size-status {
-				display: none;
-			}
-			.bundle-size-table {
-				width: 100%;
-				margin: 0.75rem 0 0;
-				border-collapse: collapse;
-				font-variant-numeric: tabular-nums;
-			}
-			.bundle-size-table th,
-			.bundle-size-table td {
-				padding: 0.3rem 0.5rem;
-				text-align: right;
-				font-size: 0.9rem;
-			}
-			.bundle-size-table thead th,
-			.bundle-size-table tbody th {
-				color: var(--muted);
-				font-weight: 600;
-			}
-			.bundle-size-table tbody th[scope="row"] {
-				text-align: left;
-				color: var(--page-fg);
-			}
-			.bundle-size-total td,
-			.bundle-size-total th {
-				border-top: 1px solid color-mix(in srgb, var(--page-fg) 14%, transparent);
-				font-weight: 700;
-			}
-			.bundle-size-note {
-				margin: 0.75rem 0 0;
-				color: var(--muted);
-				font-size: 0.78rem;
-				line-height: 1.4;
-			}
-		</style>
+			<p>
+				The <code>morpheus</code> command builds the same files
+				without a browser. It needs Go, and the version after
+				<code>{ "@" }</code> selects the release it builds:
+			</p>
+			<div class="theming-source">
+				<site-codemirror language="bash" readonly>
+					<template>{ bundleCLIRun(morpheusVersion) }</template>
+				</site-codemirror>
+			</div>
+			<p>
+				<code>-components</code> takes the names on this page,
+				comma-separated, and adds the components they require.
+				The command writes <code>morpheus.min.js</code> and
+				<code>morpheus.min.css</code> to the <code>-o</code>
+				directory and prints their sizes. With <code>-json</code>
+				it prints the result as JSON, and with
+				<code>-unminified</code> it also writes
+				<code>morpheus.js</code> and <code>morpheus.css</code>.
+			</p>
+			<p>
+				In a Go module, add the command as a tool. It then builds
+				the version the module requires, which the
+				<code>neo</code> and <code>datastar</code> packages come from:
+			</p>
+			<div class="theming-source">
+				<site-codemirror language="bash" readonly>
+					<template>{ bundleCLITool(morpheusVersion) }</template>
+				</site-codemirror>
+			</div>
+			<p>
+				<code>morpheus components</code> lists the names with the
+				components each requires, and
+				<code>morpheus bundle -h</code> lists the flags.
+			</p>
+		</section>
 		<script>
-			// Buffer selection updates until bundlebuilder.min.js
-			// loads; the module flushes the latest on ready.
-			window.__bundleSizeUpdate = function (s) {
-				window.__bundleSizePending = s;
+			// Buffers the latest update until bundlebuilder.min.js loads.
+			window.__bundleSizeUpdate = function (s, v) {
+				window.__bundleSizePending = [s, v];
 			};
 		</script>
 		<script type="module" src={ href.Asset("min/bundlebuilder.min.js") }></script>
+	}
+}
+
+// bundleURLBootstrap reads ?version=, ?components= and ?file= into
+// window.__bundleURL, which seeds the Datastar signals. It parses names as
+// [bundle.Select] does and adds their requirements. Its withDeps serves
+// [bundleVersionChange] and [bundleToggleChange]. bundle-size.ts writes
+// the URL back and runs the ?file= download.
+templ bundleURLBootstrap() {
+	<script>
+		window.__bundleURL = (function () {
+			var data = JSON.parse(document.getElementById("bundle-components").textContent);
+			var query = new URLSearchParams(location.search);
+			var absentBy = {};
+			data.versions.forEach(function (v) {
+				absentBy[v.name] = v.absent || [];
+			});
+			var version = query.get("version");
+			var badVersion = null;
+			if (version === null || !absentBy[version]) {
+				badVersion = version;
+				version = data.versions[0].name;
+			}
+			var ids = data.components.map(function (c) {
+				return c.id;
+			});
+			var depsByID = {};
+			data.components.forEach(function (c) {
+				depsByID[c.id] = c.deps || [];
+			});
+			function absentIn(v) {
+				return absentBy[v] || [];
+			}
+			// The ids in sel and their requirements that version v has, in ids order.
+			function withDeps(sel, v) {
+				var picked = {};
+				sel.forEach(function (id) {
+					picked[id] = true;
+					(depsByID[id] || []).forEach(function (d) {
+						picked[d] = true;
+					});
+				});
+				return ids.filter(function (id) {
+					return picked[id] && absentIn(v).indexOf(id) < 0;
+				});
+			}
+			var named = ids;
+			var unknown = [];
+			var missing = [];
+			if (query.has("components")) {
+				var byName = {};
+				data.components.forEach(function (c) {
+					byName[c.name] = c;
+				});
+				named = [];
+				query.getAll("components").join(",").split(",").forEach(function (raw) {
+					var name = raw.trim().toLowerCase().replace(/^neo-/, "");
+					var c = byName[name];
+					if (!c) {
+						if (name) unknown.push(raw.trim());
+					} else if (absentIn(version).indexOf(c.id) >= 0) {
+						missing.push(c.name);
+					} else {
+						named.push(c.id);
+					}
+				});
+			}
+			return {
+				components: data.components,
+				ids: ids,
+				defaultVersion: data.versions[0].name,
+				version: version,
+				selected: withDeps(named, version),
+				unknown: unknown,
+				missing: missing,
+				badVersion: badVersion,
+				file: query.get("file"),
+				absent: absentIn,
+				withDeps: withDeps,
+			};
+		})();
+	</script>
+}
+
+// bundleSizeInfo is an info button whose popover explains a size column.
+templ bundleSizeInfo(label string) {
+	@neo.PopoverAttrs(neo.PopoverOpts{
+		Placement: neo.Set(neo.PlacementBottomEnd),
+	}, templ.Attributes{"class": "bundle-size-info"}) {
+		<neo-button
+			{ neo.PopoverTrigger()... }
+			variant="ghost"
+			size="sm"
+			aria-label={ "How the " + label + " size is measured" }
+		>
+			@neo.Icon("info")
+		</neo-button>
+		<div { neo.PopoverContent()... } class="bundle-size-info-text">
+			{ children... }
+		</div>
+	}
+}
+
+// bundleCopyButton copies a built file once bundle-size.ts sets its
+// value and enables it.
+templ bundleCopyButton(file string) {
+	@neo.ClipcopyAttrs(neo.ClipcopyOpts{}, templ.Attributes{"class": "bundle-size-copy"}) {
+		<neo-button variant="ghost" size="sm" disabled aria-label={ "Copy " + file }>
+			<span data-neo-clipcopy-idle>
+				@neo.Icon("clipboard")
+			</span>
+			<span data-neo-clipcopy-copied>
+				@neo.Icon("check")
+			</span>
+		</neo-button>
 	}
 }

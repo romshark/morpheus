@@ -2,9 +2,11 @@
 
 ## BUGS
 
-In-browser bundle builder (/bundle-builder/) fails to build (2026-10-21):
-- `web/site/bundle-size.ts:142` loads every import as TS, and `internal/cmd/gen/bundleassets.go:117` copies only `neo-X.ts` into `static/bundle-src/`. The text-imported shadow sheets of neo-aura, neo-spinner, neo-progress, neo-slider, neo-slider-range, and `neo-tooltip/tooltip-pill.css` return 404. Any selection that includes one fails ("Bundle build failed"), the default all-components selection included. Fix: copy the imported `.css` into `bundle-src/` and load `.css` with the `text` loader, minified like `web/build.ts` does.
-- `internal/site/bundle_manifest.go:39` maps neo-progress, neo-slider, and neo-slider-range to their shadow sheets instead of the `*.global.css` that `internal/site/static/morpheus.css` imports. A trimmed bundle ships the wrong CSS for them.
+False missing-styles warning for unslotted CSS-only elements (2026-10-23):
+- `web/lib/missing-components.ts:105` reads the `--neo-loaded` sentinel of every CSS-only element, including one inside an unslotted light-DOM child of a shadow host, such as the trigger-face or option-row source markup of a `<neo-combobox>`. Chrome computes no style outside the flat tree: the sentinel reads empty, and the console reports the element's styles as missing with the full bundle loaded (`/combobox/`: `<neo-avatar>`). Fix: skip an element without a computed style (`getComputedStyle(el).display === ""`).
+
+`<a data-neo-link>` has no missing-styles warning (2026-10-23):
+- `web/lib/missing-components.ts` checks only `<neo-*>` elements. A trimmed bundle without neo-link (and without neo-button.css) drops all link styling, and nothing warns. DESIGN.md scopes the warning to `<neo-*>`. Fix: set a `--neo-loaded` sentinel on `a[data-neo-link]` in `web/lib/neo-button/neo-button.css` and scan for it.
 
 neo-toast-close fires only on manual close (2026-07-07):
 - `web/lib/neo-toast/neo-toast.ts:212` dispatches `neo-toast-close` only from `#onCloseClick` (the × button). Auto-dismiss (timer), swipe-to-dismiss, and `NeoToast.dismiss()` remove the toast via `neo-toaster.ts` `#removeToast` (`web/lib/neo-toaster/neo-toaster.ts:825`) without emitting any event, so consumers cannot observe non-manual dismissals. Convention is one close/dismiss event on every removal. Fix: dispatch `neo-toast-close` for every dismissal cause (e.g. from `#removeToast`).

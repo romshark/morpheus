@@ -663,13 +663,13 @@ templ landingModularBundle() {
 			</p>
 		</div>
 		<bundle-graph
-			center-label={ strconv.Itoa(len(bundleSelectableIDs())) + " Components" }
+			center-label={ strconv.Itoa(len(bundleURLComponents())) + " Components" }
 		>
 			for _, nd := range bundleStandaloneNodes() {
 				<span
 					id={ nd.ID }
-					if nd.DependsOn != "" {
-						depends-on={ nd.DependsOn }
+					if len(nd.DependsOn) > 0 {
+						depends-on={ bundleDependsOn(nd) }
 					}
 					if nd.Disabled {
 						disabled
@@ -677,7 +677,7 @@ templ landingModularBundle() {
 				>{ nd.Name }</span>
 			}
 		</bundle-graph>
-		<script type="module" src={ href.Asset("min/bundlebuilder.min.js") }></script>
+		<script type="module" src={ href.Asset("min/bundle_graph.js") }></script>
 	</section>
 }
 
@@ -698,13 +698,16 @@ templ landingCustomExample(label, desc string) {
 }
 
 templ landingCustomCodeToggle(signal string) {
-	@neo.ToggleAttrs(neo.ToggleOpts{Variant: neo.Set(neo.ToggleVariantGhost), Size: neo.Set("sm")}, templ.Attributes{
-		"class":                     "landing-custom-code-toggle",
-		"aria-label":                "Show code",
-		"data-attr:aria-label":      "$" + signal + " ? 'Hide code' : 'Show code'",
-		"data-attr:pressed":         "$" + signal,
-		"data-on:neo-toggle-change": "$" + signal + " = evt.detail.pressed",
-	}) {
+	@neo.ToggleAttrs(neo.ToggleOpts{
+		Variant: neo.Set(neo.ToggleVariantGhost),
+		Size:    neo.Set("sm")},
+		templ.Attributes{
+			"class":                     "landing-custom-code-toggle",
+			"aria-label":                "Show code",
+			"data-attr:aria-label":      "$" + signal + " ? 'Hide code' : 'Show code'",
+			"data-attr:pressed":         "$" + signal,
+			"data-on:neo-toggle-change": "$" + signal + " = evt.detail.pressed",
+		}) {
 		<span data-text={ "$" + signal + " ? 'Hide code' : 'Show code'" }>Show code</span>
 	}
 }
@@ -770,7 +773,11 @@ templ landingOpenAlpha(morpheusVersion string) {
 			</p>
 			<neo-layout class="landing-open-alpha-makers" column align-items="center">
 				<span>The Scharkov brothers</span>
-				<neo-layout class="landing-open-alpha-maker-links" wrap justify-content="center">
+				<neo-layout
+					class="landing-open-alpha-maker-links"
+					wrap
+					justify-content="center"
+				>
 					@neo.LinkAttrs(neo.LinkOpts{
 						Href:    neo.Set("https://github.com/romshark/"),
 						Target:  neo.Set("_blank"),
@@ -779,7 +786,11 @@ templ landingOpenAlpha(morpheusVersion string) {
 					}, templ.Attributes{
 						"class": "landing-cta",
 					}) {
-						<img src="https://avatars.githubusercontent.com/u/9574743" alt="" loading="lazy"/>
+						<img
+							src="https://avatars.githubusercontent.com/u/9574743"
+							alt=""
+							loading="lazy"
+						/>
 						<span>Roman</span>
 					}
 					@neo.LinkAttrs(neo.LinkOpts{
@@ -790,7 +801,11 @@ templ landingOpenAlpha(morpheusVersion string) {
 					}, templ.Attributes{
 						"class": "landing-cta",
 					}) {
-						<img src="https://avatars.githubusercontent.com/u/26609752" alt="" loading="lazy"/>
+						<img
+							src="https://avatars.githubusercontent.com/u/26609752"
+							alt=""
+							loading="lazy"
+						/>
 						<span>Daniel</span>
 					}
 				</neo-layout>
@@ -871,7 +886,10 @@ templ landingAccessibility() {
 				@neo.Icon("circle-check")
 				<div>
 					<strong>Respects user preferences.</strong>
-					<span>prefers-reduced-motion, prefers-contrast, and prefers-color-scheme.</span>
+					<span>
+						prefers-reduced-motion, prefers-contrast,
+						and prefers-color-scheme.
+					</span>
 				</div>
 			</li>
 		</ul>
@@ -883,28 +901,35 @@ templ landingAccessibility() {
 			<div data-neo-card-inner class="landing-a11y-demo-inner">
 				<header class="landing-a11y-demo-toolbar">
 					@neo.Tooltip(neo.TooltipOpts{Text: neo.Set("Toggle sidebar"), Placement: neo.Set(neo.PlacementBottomStart)}) {
-						@neo.ButtonAttrs(neo.ButtonOpts{Variant: neo.Set(neo.ButtonVariantGhost)}, templ.Attributes{
-							"class":                   "landing-a11y-demo-sidebar-toggle",
-							"type":                    "button",
-							"aria-label":              "Toggle sidebar",
-							"aria-controls":           "landing-a11y-demo-sidebar",
-							"aria-expanded":           "true",
-							"data-attr:aria-expanded": "$_lf_a11y_sidebar_open",
-							"data-on:click":           "$_lf_a11y_sidebar_open = !$_lf_a11y_sidebar_open",
-						}) {
+						@neo.ButtonAttrs(neo.ButtonOpts{Variant: neo.Set(neo.ButtonVariantGhost)},
+							templ.Attributes{
+								"class":                   "landing-a11y-demo-sidebar-toggle",
+								"type":                    "button",
+								"aria-label":              "Toggle sidebar",
+								"aria-controls":           "landing-a11y-demo-sidebar",
+								"aria-expanded":           "true",
+								"data-attr:aria-expanded": "$_lf_a11y_sidebar_open",
+								"data-on:click":           "$_lf_a11y_sidebar_open = !$_lf_a11y_sidebar_open",
+							}) {
 							@neo.Icon("menu")
 						}
 					}
 					<neo-layout class="landing-a11y-demo-toggles" role="group" aria-label="Simulate user preferences" wrap align-items="center">
 						<label class="landing-a11y-demo-toggle">
-							@neo.SwitchAttrs(neo.SwitchOpts{Size: neo.Set("sm"), AriaLabel: neo.Set("Simulate reduce motion")}, templ.Attributes{
+							@neo.SwitchAttrs(neo.SwitchOpts{
+								Size:      neo.Set("sm"),
+								AriaLabel: neo.Set("Simulate reduce motion"),
+							}, templ.Attributes{
 								"data-attr:checked":         "$_lf_a11y_motion",
 								"data-on:neo-switch-change": "$_lf_a11y_motion = evt.detail.checked",
 							})
 							<span>Reduce motion</span>
 						</label>
 						<label class="landing-a11y-demo-toggle">
-							@neo.SwitchAttrs(neo.SwitchOpts{Size: neo.Set("sm"), AriaLabel: neo.Set("Simulate higher contrast")}, templ.Attributes{
+							@neo.SwitchAttrs(neo.SwitchOpts{
+								Size:      neo.Set("sm"),
+								AriaLabel: neo.Set("Simulate higher contrast"),
+							}, templ.Attributes{
 								"data-attr:checked":         "$_lf_a11y_contrast",
 								"data-on:neo-switch-change": "$_lf_a11y_contrast = evt.detail.checked",
 							})
@@ -965,14 +990,20 @@ templ landingAccessibility() {
 								aria-label="Simulate user preferences"
 							>
 								<label class="landing-a11y-demo-toggle">
-									@neo.SwitchAttrs(neo.SwitchOpts{Size: neo.Set("sm"), AriaLabel: neo.Set("Simulate reduce motion")}, templ.Attributes{
+									@neo.SwitchAttrs(neo.SwitchOpts{
+										Size:      neo.Set("sm"),
+										AriaLabel: neo.Set("Simulate reduce motion"),
+									}, templ.Attributes{
 										"data-attr:checked":         "$_lf_a11y_motion",
 										"data-on:neo-switch-change": "$_lf_a11y_motion = evt.detail.checked",
 									})
 									<span>Reduce motion</span>
 								</label>
 								<label class="landing-a11y-demo-toggle">
-									@neo.SwitchAttrs(neo.SwitchOpts{Size: neo.Set("sm"), AriaLabel: neo.Set("Simulate higher contrast")}, templ.Attributes{
+									@neo.SwitchAttrs(neo.SwitchOpts{
+										Size:      neo.Set("sm"),
+										AriaLabel: neo.Set("Simulate higher contrast"),
+									}, templ.Attributes{
 										"data-attr:checked":         "$_lf_a11y_contrast",
 										"data-on:neo-switch-change": "$_lf_a11y_contrast = evt.detail.checked",
 									})
@@ -1501,7 +1532,10 @@ templ lfThemeMode() {
 						Rose
 					}
 				}
-				@neo.Tooltip(neo.TooltipOpts{Text: neo.Set("Reduce motion"), Placement: neo.Set(neo.PlacementTop)}) {
+				@neo.Tooltip(neo.TooltipOpts{
+					Text:      neo.Set("Reduce motion"),
+					Placement: neo.Set(neo.PlacementTop),
+				}) {
 					@neo.ToggleAttrs(neo.ToggleOpts{}, templ.Attributes{
 						"class":                     "lf-theme-pref-toggle",
 						"aria-label":                "Reduce motion",
@@ -1511,7 +1545,10 @@ templ lfThemeMode() {
 						@neo.Icon("pause")
 					}
 				}
-				@neo.Tooltip(neo.TooltipOpts{Text: neo.Set("Higher contrast"), Placement: neo.Set(neo.PlacementTop)}) {
+				@neo.Tooltip(neo.TooltipOpts{
+					Text:      neo.Set("Higher contrast"),
+					Placement: neo.Set(neo.PlacementTop),
+				}) {
 					@neo.ToggleAttrs(neo.ToggleOpts{}, templ.Attributes{
 						"class":                     "lf-theme-pref-toggle",
 						"aria-label":                "Higher contrast",

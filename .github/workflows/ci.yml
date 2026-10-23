@@ -101,23 +101,23 @@ jobs:
             exit 1
           fi
 
-  # README hand-pins the jsDelivr URLs to a release tag, and VERSION is the
-  # single source for that tag (web/build.ts and internal/cmd/gen read it too).
+  # README pins the jsDelivr URLs and the go run command to the release tag
+  # in VERSION, which web/build.ts and internal/cmd/gen also read.
   # Catch a bumped VERSION with a stale README here, while it is still a normal commit;
   # after the tag is pushed, fixing it means moving a published tag.
-  # The getting-started page interpolates VERSION at render, so it cannot drift.
+  # The site reads VERSION at render time and cannot drift.
   version:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
 
-      - name: Documented CDN version matches VERSION
+      - name: Documented version matches VERSION
         run: |
           version=$(tr -d '[:space:]' < VERSION)
-          stale=$(grep -oE 'cdn\.jsdelivr\.net/gh/romshark/morpheus@[^/]+' README.md \
+          stale=$(grep -oE 'romshark/morpheus@[^/[:space:]]+' README.md \
             | grep -v "@${version}$" || true)
           if [ -n "$stale" ]; then
-            echo "README pins a CDN version other than ${version}:"
+            echo "README pins a version other than ${version}:"
             echo "$stale"
             exit 1
           fi

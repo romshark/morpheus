@@ -9,6 +9,7 @@ This file records the notable changes of each release in the format of [Keep a C
 #### Components
 
 - Add `<neo-aura>`, a decorative light around the element it wraps: a ring with a rotating light and a glow behind it. Custom properties set the light and its motion. The ring follows the corner radius of the wrapped element, and `disabled` turns the light off. `neo.Aura` renders it from Templ.
+- Add the `morpheus` command. It builds the bundle builder's `morpheus.min.js` and `morpheus.min.css` without a browser: `go run github.com/romshark/morpheus@<version> bundle -components select,dialog`.
 
 ### Changed
 
@@ -30,5 +31,7 @@ This file records the notable changes of each release in the format of [Keep a C
 - Open `<neo-contextmenu>` rendered with `open`. It threw a `TypeError` and stayed closed.
 - Bind `<neo-popover>`, `<neo-dialog>`, `<neo-drawer>`, `<neo-lightbox>` and `<neo-contextmenu>` when a blocking script loads the bundle before their markup. Their triggers did nothing.
 - Hide `<neo-tooltip>` content with `open="false"` before the script loads. The `neo` wrapper renders that attribute for `Open: neo.Set(false)`. Content in the markup, such as an element marked with `neo.TooltipContent`, showed until the script loaded.
+- Register `<neo-option>` and `<neo-optgroup>` in a bundle without `<neo-select>`. With `<neo-combobox>`, `<neo-datalist>` or `<neo-textinput>` and no `<neo-select>`, every option stayed hidden and the console reported both elements as missing from the bundle.
+- Make `<neo-buttongroup>` a single-selection group when its `value` is set after it connects, as by a Datastar `data-attr:value` binding or a morph. The group stayed a plain button group: clicks selected nothing, and it had no radio roles or arrow-key navigation.
 
 [Unreleased]: https://github.com/romshark/morpheus/compare/v0.1.0...HEAD

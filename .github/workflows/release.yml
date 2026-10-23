@@ -31,9 +31,11 @@ on:
         description: "Existing tag to (re-)publish"
         required: true
 
-# gh release create writes to the repo.
+# gh release create writes to the repo; gh workflow run dispatches the
+# Pages deploy.
 permissions:
   contents: write
+  actions: write
 
 # Never cancel a publish midway; a half-created release needs manual cleanup.
 concurrency:
@@ -169,3 +171,10 @@ jobs:
               curl -fsS -o /dev/null "$url" || echo "  purge failed (non-fatal)"
             done
           done
+
+      # The site's bundle builder offers the release tags gen finds at
+      # deploy time, and a tag push does not deploy the site.
+      - name: Redeploy the site
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run pages.yml --ref main

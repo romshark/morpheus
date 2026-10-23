@@ -2,6 +2,9 @@
 // Not interactive: no shadow DOM, no keyboard. Modeled on native
 // <datalist>: give it an id and a control opts in with list="<id>".
 
+import "../neo-optgroup";
+import "../neo-option";
+
 // Controls that can read a datalist.
 export const DATALIST_CONTROLS = "neo-select, neo-combobox, neo-textinput";
 

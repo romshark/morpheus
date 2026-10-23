@@ -13,7 +13,7 @@ paths:
 - Use imperative entries like commit titles: `Add <neo-aura>`. Say enough for users to determine whether they are affected.
 - A `Security` entry follows [Security entries](#security-entries).
 - A breaking change gives the migration steps.
-- To release, rename `## [Unreleased]` to `## [X.Y.Z] - YYYY-MM-DD`, insert an empty `## [Unreleased]` and update the compare links. Set `VERSION` and the CDN pins in `README.md` to `vX.Y.Z`, rebuild `/min/` (its banner carries the version), commit, then tag `vX.Y.Z` and push the tag.
+- To release, rename `## [Unreleased]` to `## [X.Y.Z] - YYYY-MM-DD`, insert an empty `## [Unreleased]` and update the compare links. Set `VERSION` and the version pins in `README.md` (the CDN URLs and `go run`) to `vX.Y.Z`, rebuild `/min/` (its banner carries the version), commit, then tag `vX.Y.Z` and push the tag.
 
 # Security entries
 

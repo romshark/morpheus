@@ -2050,7 +2050,7 @@ func serverErrorControls() templ.Component {
 			Size:      neo.Set("lg"),
 			AriaLabel: neo.Set("server unreachable"),
 		}, templ.Attributes{
-			"data-attr:checked":         "$_sim_unreachable",
+			"data-attr:checked":         "($_sim_unreachable ? 'true' : 'false')",
 			"data-on:neo-switch-change": "$_sim_unreachable = evt.detail.checked",
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
@@ -2417,7 +2417,7 @@ func simToggle(label, signal string) templ.Component {
 			Size:      neo.Set("sm"),
 			AriaLabel: neo.Set(label),
 		}, templ.Attributes{
-			"data-attr:checked":         "$" + signal,
+			"data-attr:checked":         "($" + signal + " ? 'true' : 'false')",
 			"data-on:neo-switch-change": "$" + signal + " = evt.detail.checked",
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {

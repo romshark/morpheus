@@ -55,7 +55,7 @@ func platformMatches(expr string, p Platform) bool {
 		e = strings.TrimSpace(e[len("not "):])
 	}
 	matched := false
-	for _, tok := range strings.Fields(e) {
+	for tok := range strings.FieldsSeq(e) {
 		if platformToken(tok, p) {
 			matched = true
 			break

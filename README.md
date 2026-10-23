@@ -17,6 +17,14 @@ Three static assets: the base stylesheet, one theme stylesheet, and the componen
 
 Pin the tag. Floating refs such as `@latest` resolve to the newest matching tag, so they pull in breaking changes. To self-host, take the same files from [`/min/`](min) or from a [release](https://github.com/romshark/morpheus/releases).
 
+To ship only the components a page uses, build a trimmed bundle on the [bundle builder](https://romshark.github.io/morpheus/bundle-builder/) page or with the `morpheus` command, which needs Go:
+
+```sh
+go run github.com/romshark/morpheus@v0.1.0 bundle -components select,dialog -o static/morpheus
+```
+
+Its `morpheus.min.js` and `morpheus.min.css` replace `bundle.js` and `morpheus.css`. [Command line](https://romshark.github.io/morpheus/bundle-builder/#command-line) describes the command.
+
 The Go module carries the templ wrappers (`neo.Select`, `datastar.ComboboxAsync`, and one per component):
 
 ```sh

@@ -28,6 +28,25 @@
  * placeholder needs the trigger-button styling verbatim and renders the
  * placeholder text via `attr(placeholder)`, so it stays inline. */
 
+/* The skeleton pulse, shared with <neo-skeleton>. It lives here because
+ * this sheet ships in every bundle and neo-skeleton.css only with the
+ * component. color-mix on --page-fg works on every theme without overrides. */
+:root {
+	--neo-skeleton-bg: color-mix(in srgb, var(--page-fg) 10%, transparent);
+	--neo-skeleton-bg-pulse: color-mix(in srgb, var(--page-fg) 20%, transparent);
+	--neo-skeleton-duration: 1.4s;
+}
+
+@keyframes neo-skeleton-pulse {
+	0%,
+	100% {
+		background-color: var(--neo-skeleton-bg);
+	}
+	50% {
+		background-color: var(--neo-skeleton-bg-pulse);
+	}
+}
+
 :root {
 	--neo-placeholder-delay: 200ms;
 	--neo-placeholder-fade: 240ms;

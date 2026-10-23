@@ -1,7 +1,6 @@
-// Command gen renders the UI Kit example as a static, CDN-hostable
-// site under {dst}/. Walks every page in package site, copies static
-// assets, minifies JS outputs, and emits datasim.js so the site works
-// without a server.
+// Command gen renders the UI Kit example as a static, CDN-hostable site under {dst}/.
+// Walks every page in package site, copies static assets, minifies JS outputs,
+// and emits datasim.js so the site works without a server.
 //
 // datasim.js comes from https://github.com/romshark/datastar-simulator.
 package main
@@ -39,32 +38,49 @@ func main() {
 		`URL path prefix for hosting under a subdirectory (e.g. "/morpheus"); `+
 			`empty serves at the document root`)
 	flag.Parse()
-	base = normalizeBase(base)
+	if err := run(dst, normalizeBase(base)); err != nil {
+		fatalf("%v", err)
+	}
+}
 
+// run writes the site to dst.
+func run(dst, base string) error {
 	// Inline the built default theme into every page head so first paint
 	// needs no theme-default.css request. Read from the tracked /min/
 	// artifact build.ts produced; gen runs from the repo root.
 	defaultThemeCSS, err := os.ReadFile("min/theme-default.css")
 	if err != nil {
-		fatalf("reading min/theme-default.css: %v", err)
+		return fmt.Errorf("reading min/theme-default.css: %w", err)
 	}
 	site.SetInlineThemeDefaultCSS(string(defaultThemeCSS))
 
 	// Release version, single-sourced from the repo-root VERSION file that
-	// web/build.ts also reads for the bundle banner. gen runs from the repo
-	// root.
+	// web/build.ts also reads for the bundle banner. gen runs from the repo root.
 	version, err := os.ReadFile("VERSION")
 	if err != nil {
-		fatalf("reading VERSION: %v", err)
+		return fmt.Errorf("reading VERSION: %w", err)
 	}
 
-	pages, err := buildPages(strings.TrimSpace(string(version)))
+	release := strings.TrimSpace(string(version))
+
+	// Runs before buildPages because the bundle builder page lists the
+	// versions and what each lacks.
+	bundleVersions, err := prepareBundleVersions(release)
 	if err != nil {
-		fatalf("collecting pages: %v", err)
+		return fmt.Errorf("preparing bundle builder versions: %w", err)
+	}
+	siteVersions := make([]site.BundleVersion, len(bundleVersions))
+	for i, v := range bundleVersions {
+		siteVersions[i] = site.BundleVersion{Name: v.name, Absent: v.Absent}
+	}
+
+	pages, err := buildPages(release, siteVersions)
+	if err != nil {
+		return fmt.Errorf("collecting pages: %w", err)
 	}
 
 	if err := os.MkdirAll(dst, 0o755); err != nil {
-		fatalf("creating %s: %v", dst, err)
+		return fmt.Errorf("creating %s: %w", dst, err)
 	}
 
 	pagePaths := make([]string, len(pages))
@@ -74,42 +90,50 @@ func main() {
 	for _, p := range pages {
 		p.Body = rewriteHTMLBase(p.Body, base, pagePaths)
 		if err := writePage(dst, p); err != nil {
-			fatalf("rendering %s: %v", p.URLPath, err)
+			return fmt.Errorf("rendering %s: %w", p.URLPath, err)
 		}
 	}
 
 	if err := copyStatic(dst); err != nil {
-		fatalf("copying static assets: %v", err)
+		return fmt.Errorf("copying static assets: %w", err)
 	}
 
 	staticDir := filepath.Join(dst, "static")
 	minDatasimJS, err := minifyJS([]byte(datasimJS), "datasim.js")
 	if err != nil {
-		fatalf("minifying datasim.js: %v", err)
+		return fmt.Errorf("minifying datasim.js: %w", err)
 	}
 	if err := os.WriteFile(
 		filepath.Join(staticDir, "datasim.js"),
 		minDatasimJS, 0o644,
 	); err != nil {
-		fatalf("writing datasim.js: %v", err)
+		return fmt.Errorf("writing datasim.js: %w", err)
 	}
 
-	if err := writeBundleAssets(staticDir); err != nil {
-		fatalf("writing bundle assets: %v", err)
+	for _, v := range bundleVersions {
+		if err := writeBundleVersion(
+			filepath.Join(staticDir, "bundle", v.name), v,
+		); err != nil {
+			return fmt.Errorf("writing bundle builder version %s: %w", v.name, err)
+		}
 	}
 
 	if err := rewriteStaticAssetsBase(staticDir, base); err != nil {
-		fatalf("applying base prefix to assets: %v", err)
+		return fmt.Errorf("applying base prefix to assets: %w", err)
 	}
 
 	_, _ = fmt.Fprintf(
 		os.Stdout, "Wrote %d pages to %s\n", len(pages), dst,
 	)
+	return nil
 }
 
 // buildPages renders every site.Page<X> templ to final HTML bytes.
-// morpheusVersion is the release string stamped into each page frame.
-func buildPages(morpheusVersion string) ([]pageEntry, error) {
+// morpheusVersion is the release string stamped into each page frame;
+// bundleVersions are the versions the bundle builder offers.
+func buildPages(
+	morpheusVersion string, bundleVersions []site.BundleVersion,
+) ([]pageEntry, error) {
 	ctx := context.Background()
 	specs := []struct {
 		path string
@@ -123,7 +147,10 @@ func buildPages(morpheusVersion string) ([]pageEntry, error) {
 		{href.PageServerDriven(), site.PageServerDriven(morpheusVersion)},
 		{href.PageLayout(), site.PageLayout(morpheusVersion)},
 		{href.PageProjectStatus(), site.PageProjectStatus(morpheusVersion)},
-		{href.PageBundleBuilder(), site.PageBundleBuilder(morpheusVersion)},
+		{
+			href.PageBundleBuilder(),
+			site.PageBundleBuilder(morpheusVersion, bundleVersions),
+		},
 		{href.PageAlert(), site.PageAlert(morpheusVersion)},
 		{href.PageAura(), site.PageAura(morpheusVersion)},
 		{href.PageAvatar(), site.PageAvatar(morpheusVersion)},
@@ -193,8 +220,8 @@ func buildPages(morpheusVersion string) ([]pageEntry, error) {
 	return pages, nil
 }
 
-// normalizeBase canonicalises the -base prefix. "" stays "" (document
-// root); anything else gets a single leading slash and no trailing one,
+// normalizeBase canonicalises the -base prefix. "" stays "" (document root);
+// anything else gets a single leading slash and no trailing one,
 // so "morpheus", "/morpheus" and "/morpheus/" all yield "/morpheus".
 func normalizeBase(base string) string {
 	base = strings.Trim(base, "/")
@@ -204,26 +231,25 @@ func normalizeBase(base string) string {
 	return "/" + base
 }
 
-// rewriteHTMLBase prefixes base onto every root-absolute URL in one
-// rendered page. Two kinds occur, and they never overlap so order is
-// irrelevant:
+// rewriteHTMLBase prefixes base onto every root-absolute URL in one rendered page.
+// Two kinds occur, and they never overlap so order is irrelevant:
 //
 //   - Asset URLs "/static/...". They are always the value of a quoted
-//     token in the output ("href=", "src=", an import specifier), so
-//     anchoring on the leading quote leaves any /static/ shown as
+//     token in the output ("href=", "src=", an import specifier),
+//     so anchoring on the leading quote leaves any /static/ shown as
 //     literal text in a doc example untouched.
 //   - The site's own page links, whose exact paths are pagePaths.
 //
 // Datastar demo action paths (e.g. /tree/loadnode/) are intercepted by
-// the client-side simulator on their literal value and are not in
-// pagePaths, so they stay unprefixed by design. base=="" is a no-op.
+// the client-side simulator on their literal value and are not in pagePaths,
+// so they stay unprefixed by design. base=="" is a no-op.
 func rewriteHTMLBase(b []byte, base string, pagePaths []string) []byte {
 	if base == "" {
 		return b
 	}
 	s := string(b)
-	// Assets first: this also turns page-named asset dirs (e.g.
-	// /static/avatar/) into /base/static/... before the page loop runs,
+	// Assets first: this also turns page-named asset dirs (e.g. /static/avatar/)
+	// into /base/static/... before the page loop runs,
 	// so the page anchors below cannot match inside an asset path.
 	s = strings.ReplaceAll(s, `"/static/`, `"`+base+`/static/`)
 	for _, p := range pagePaths {
@@ -232,9 +258,9 @@ func rewriteHTMLBase(b []byte, base string, pagePaths []string) []byte {
 			s = strings.ReplaceAll(s, `"/"`, `"`+base+`/"`)
 			continue
 		}
-		// Anchor on the opening `="` and the full path (kept trailing
-		// slash rules out cross-page prefix hits); catches the plain
-		// link plus its #fragment, ?query and sub-path forms.
+		// Anchor on the opening `="` and the full path
+		// (kept trailing slash rules out cross-page prefix hits);
+		// catches the plain link plus its #fragment, ?query and sub-path forms.
 		s = strings.ReplaceAll(s, `="`+p, `="`+base+p)
 	}
 	return []byte(s)
@@ -299,14 +325,13 @@ func pageOutPath(dst, urlPath string) string {
 
 // copyStatic mirrors internal/site/static to {dst}/static and overlays
 // the tracked /min/ artifacts onto {dst}/static/min/. Bulk copy + prune
-// delegates to rsync (mtime+size incremental, --delete handles removed
-// sources). *.js sources under internal/site/static are excluded from
-// the first rsync and handled by minifyJSFiles below (sim/ demo
-// snippets); top-level *.css sources and the component CSS source
-// modules aren't shipped (pages reference the minified outputs in
-// /min/, and bundle assets are emitted explicitly).
-// Assumes internal/cmd/gen runs from the repo root, as Make and
-// templier invoke it.
+// delegates to rsync (mtime+size incremental, --delete handles removed sources).
+// *.js sources under internal/site/static are excluded from the first rsync
+// and handled by minifyJSFiles below (sim/ demo snippets);
+// top-level *.css sources and the component CSS source modules aren't shipped
+// (pages reference the minified outputs in /min/,
+// and bundle assets are emitted explicitly).
+// Assumes internal/cmd/gen runs from the repo root, as Make and templier invoke it.
 func copyStatic(dst string) error {
 	const src = "internal/site/static"
 	dstStatic := filepath.Join(dst, "static")
@@ -335,8 +360,8 @@ func copyStatic(dst string) error {
 	return minifyJSFiles(src, dstStatic)
 }
 
-// copyMin mirrors /min/ (the tracked build-output directory at the
-// repo root) into {dst}/static/min/. Templates reference these as
+// copyMin mirrors /min/ (the tracked build-output directory at the repo root)
+// into {dst}/static/min/. Templates reference these as
 // /static/min/*; the source layout in /min/ is flat and maps 1:1.
 func copyMin(dstStatic string) error {
 	const src = "min"
@@ -367,8 +392,8 @@ func copyMin(dstStatic string) error {
 
 // minifyJSFiles walks src for *.js sources, invoking esbuild only on
 // files whose dst counterpart is missing or older than the source.
-// rsync excludes *.js from --delete, so removed sources leave stale
-// .js in dst, acceptable since this is an incremental dev path.
+// rsync excludes *.js from --delete, so removed sources leave stale .js in dst,
+// acceptable since this is an incremental dev path.
 func minifyJSFiles(src, dstStatic string) error {
 	return filepath.WalkDir(src, func(p string, d fs.DirEntry, err error) error {
 		if err != nil || d.IsDir() || !strings.HasSuffix(p, ".js") {

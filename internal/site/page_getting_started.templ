@@ -85,6 +85,20 @@ templ PageGettingStarted(morpheusVersion string) {
 				{ " " }and serve them yourself.
 			</p>
 			<p>
+				The&nbsp;
+				@neo.Link(neo.LinkOpts{Href: neo.Set(href.PageBundleBuilder())}) {
+					Bundle builder
+				}
+				{ " " }makes a bundle of only the components you choose.
+				Its <code>morpheus.min.js</code> and <code>morpheus.min.css</code>
+				replace <code>bundle.js</code> and <code>morpheus.css</code>.
+				The <code>morpheus</code> command builds the same files from the&nbsp;
+				@neo.Link(neo.LinkOpts{Href: neo.Set(href.PageBundleBuilder() + "#command-line")}) {
+					command line
+				}
+				.
+			</p>
+			<p>
 				The kit reads <code>:root</code> custom
 				properties of colours and shape: the theme
 				stylesheet (

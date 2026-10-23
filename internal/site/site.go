@@ -192,6 +192,7 @@ var SectionLinks = []NavLink{
 	{href.PageGettingStarted(), "Getting started"},
 	{href.PageFrameworks(), "Frameworks"},
 	{href.PageTheming(), "Theming"},
+	{href.PageBundleBuilder(), "Bundle builder"},
 	{href.PageServerDriven(), "Server-driven architecture"},
 	{href.PageProjectStatus(), "Status & Contribution"},
 }

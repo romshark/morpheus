@@ -1,8 +1,9 @@
-// <bundle-graph>: site-only custom element (not the kit). Renders a
-// D3 ring from a graph declared in light DOM: each child with an id
-// is a node (label = its text), `depends-on="id,..."` its outgoing
-// edges. Children are data only; the shadow root has no slot.
+// <bundle-graph> draws a D3 ring of the graph its light DOM declares.
+// Each child with an id is a node labeled by its text, and depends-on="id,..."
+// lists its edges. Children are data, not slotted. Site-only entry for
+// min/bundle_graph.js on the landing page.
 import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
+import css from "./bundle-graph.css";
 
 const SVG_SIZE = 1100;
 const RING_RADIUS = 350;
@@ -11,7 +12,7 @@ interface GNode {
 	id: string;
 	name: string;
 	disabled: boolean;
-	deps: string[];
+	deps: GNode[];
 	x: number;
 	y: number;
 	ang: number;
@@ -33,11 +34,10 @@ class BundleGraph extends HTMLElement {
 	}
 
 	connectedCallback(): void {
-		// Module script is deferred, so children are parsed before
-		// upgrade. Idempotent: a re-insert rebuilds from scratch.
+		// The children exist at upgrade because the module is deferred.
+		// A re-insert rebuilds.
 		this.#render();
-		// Stay reactive to declarative changes (e.g. a toggle panel
-		// flipping `disabled` on a node), re-rendering once per frame.
+		// Re-renders when the children change, at most 1 time per frame.
 		if (!this.#observer) {
 			this.#observer = new MutationObserver(() => this.#scheduleRender());
 		}
@@ -63,36 +63,29 @@ class BundleGraph extends HTMLElement {
 		});
 	}
 
-	// Edges whose target id has no node are dropped.
-	#readGraph(): { nodes: GNode[]; byId: Map<string, GNode> } {
-		const nodes: GNode[] = [];
-		const byId = new Map<string, GNode>();
-		for (const el of Array.from(this.children)) {
-			if (!el.id) continue;
-			const node: GNode = {
+	// A depends-on id that names no node is dropped.
+	#readGraph(): GNode[] {
+		const els = Array.from(this.children).filter((el) => el.id);
+		const nodes = els.map(
+			(el): GNode => ({
 				id: el.id,
 				name: (el.textContent || "").trim(),
-				// Boolean attr: present = disabled, unless an explicit ="false".
 				disabled: el.hasAttribute("disabled") && el.getAttribute("disabled") !== "false",
-				deps: (el.getAttribute("depends-on") || "")
-					.split(",")
-					.map((s) => s.trim())
-					.filter(Boolean),
+				deps: [],
 				x: 0,
 				y: 0,
 				ang: 0,
-			};
-			nodes.push(node);
-			byId.set(node.id, node);
-		}
-		for (const node of nodes) {
-			node.deps = node.deps.filter((d) => byId.has(d));
-		}
-		return { nodes, byId };
+			}),
+		);
+		const byId = new Map(nodes.map((node) => [node.id, node]));
+		els.forEach((el, i) => {
+			nodes[i].deps = (el.getAttribute("depends-on") || "").split(",").flatMap((id) => byId.get(id.trim()) ?? []);
+		});
+		return nodes;
 	}
 
 	#render(): void {
-		const { nodes, byId } = this.#readGraph();
+		const nodes = this.#readGraph();
 		this.#root.replaceChildren();
 		if (nodes.length === 0) return;
 
@@ -107,7 +100,7 @@ class BundleGraph extends HTMLElement {
 		});
 
 		const style = document.createElement("style");
-		style.textContent = BundleGraph.#css;
+		style.textContent = css;
 		this.#root.append(style);
 
 		const svg = d3
@@ -126,16 +119,9 @@ class BundleGraph extends HTMLElement {
 		const linkLayer = svg.append("g").attr("class", "links");
 		const nodeLayer = svg.append("g").attr("class", "nodes");
 
-		const links: GLink[] = [];
-		for (const s of nodes) {
-			for (const tid of s.deps) {
-				const t = byId.get(tid);
-				if (t) links.push({ s, t });
-			}
-		}
+		const links: GLink[] = nodes.flatMap((s) => s.deps.map((t) => ({ s, t })));
 
-		// Quadratic curve whose control point is pulled toward the
-		// center, so edges bundle inward instead of cutting straight.
+		// Pulls the control point toward the center, which curves the edges inward.
 		const linkPath = (s: GNode, t: GNode): string => {
 			const mx = (s.x + t.x) / 2;
 			const my = (s.y + t.y) / 2;
@@ -149,7 +135,6 @@ class BundleGraph extends HTMLElement {
 			.selectAll("path")
 			.data(links)
 			.join("path")
-			// Either endpoint disabled = a broken/excluded link.
 			.attr("class", (d: GLink) => (d.s.disabled || d.t.disabled ? "link is-disabled" : "link"))
 			.attr("d", (d: GLink) => linkPath(d.s, d.t));
 
@@ -158,13 +143,12 @@ class BundleGraph extends HTMLElement {
 			.data(nodes)
 			.join("g")
 			.attr("class", (d: GNode) => (d.disabled ? "node is-disabled" : "node"))
-			// Disabled host leaves the tab order (CLAUDE.md a11y rule).
 			.attr("tabindex", (d: GNode) => (d.disabled ? -1 : 0))
 			.attr("role", "img")
 			.attr("aria-disabled", (d: GNode) => (d.disabled ? "true" : null))
 			.attr("aria-label", (d: GNode) => {
 				const base = d.deps.length
-					? `${d.name}, depends on ${d.deps.map((id) => byId.get(id)?.name).join(", ")}`
+					? `${d.name}, depends on ${d.deps.map((t) => t.name).join(", ")}`
 					: `${d.name}, no component dependencies`;
 				return d.disabled ? `${base}, disabled` : base;
 			})
@@ -178,8 +162,7 @@ class BundleGraph extends HTMLElement {
 			.attr("dy", "0.32em")
 			.text((d: GNode) => d.name)
 			.each(function (this: SVGTextElement, d: GNode) {
-				// Lay labels radially; flip the left half so text
-				// stays upright and reads outward from the ring.
+				// Radial labels; the left half flips to stay upright.
 				const onRight = Math.cos(d.ang) >= 0;
 				const deg = (d.ang * 180) / Math.PI + (onRight ? 0 : 180);
 				d3.select(this)
@@ -188,9 +171,8 @@ class BundleGraph extends HTMLElement {
 					.attr("transform", `rotate(${deg})`);
 			});
 
-		// Optional focal label drawn last so it sits on top of the
-		// ring. Decorative (aria-hidden): the count is stated in page
-		// copy, and pointer-events:none keeps hover working through it.
+		// Drawn last, on top. Decorative because the page states the count.
+		// pointer-events: none keeps hover working through it.
 		const centerLabel = this.getAttribute("center-label");
 		if (centerLabel) {
 			const [head, ...rest] = centerLabel.split(" ");
@@ -211,11 +193,9 @@ class BundleGraph extends HTMLElement {
 			}
 		}
 
-		// Light up every edge touching the node: outgoing (what it
-		// depends on) and incoming (parents that depend on it), so a
-		// leaf like [data-neo-toast] still shows its neo-toaster link.
+		// Highlights edges in both directions. A leaf such as neo-toast still
+		// shows its neo-toaster link.
 		const activate = (node: GNode): void => {
-			// Disabled items are inert: they never become the source.
 			if (node.disabled) return;
 			const related = new Set<string>([node.id]);
 			for (const l of links) {
@@ -238,9 +218,9 @@ class BundleGraph extends HTMLElement {
 			.on("focus", (_: Event, d: GNode) => activate(d))
 			.on("blur", reset);
 
-		// Touch dial: no hover on touch, so a finger dragged on the ring
-		// scrubs selection by bearing from center: the angularly nearest
-		// node lights up, no need to hit the small label. Lift resets.
+		// Touch has no hover. A touch on the ring highlights the node nearest
+		// its angle from the center, without hitting the small label.
+		// Lifting resets.
 		const norm = (a: number): number => Math.atan2(Math.sin(a), Math.cos(a));
 		const nodeAtTouch = (touch: Touch): GNode | null => {
 			const [px, py] = d3.pointer(touch, svg.node());
@@ -250,7 +230,6 @@ class BundleGraph extends HTMLElement {
 			let best: GNode | null = null;
 			let bestD = Infinity;
 			for (const nd of nodes) {
-				// Dial skips disabled slots, snapping to the next live one.
 				if (nd.disabled) continue;
 				const d = Math.abs(norm(ang - nd.ang));
 				if (d < bestD) {
@@ -261,8 +240,8 @@ class BundleGraph extends HTMLElement {
 			return best;
 		};
 		const scrub = (event: TouchEvent): void => {
-			// Owns the gesture: block scroll/zoom and the emulated
-			// mouse/hover events that would fight the touch state.
+			// Blocks scroll, zoom and emulated mouse events,
+			// which would interfere with touch selection.
 			event.preventDefault();
 			const touch = event.touches[0] || event.changedTouches[0];
 			if (!touch) return;
@@ -278,131 +257,6 @@ class BundleGraph extends HTMLElement {
 			})
 			.on("touchcancel", reset);
 	}
-
-	// Theme custom properties pierce the shadow boundary, so the
-	// graph tracks the site palette without extra wiring.
-	static #css = `
-		:host {
-			display: block;
-			width: 100%;
-			max-width: 56rem;
-			margin: 0 auto;
-		}
-		.bundle-svg {
-			width: 100%;
-			height: auto;
-			display: block;
-			overflow: visible;
-			/* The whole ring is a touch dial; don't let the browser
-			 * hijack the drag for page scroll/zoom. */
-			touch-action: none;
-		}
-		.link {
-			fill: none;
-			stroke: var(--muted);
-			stroke-width: 1;
-			opacity: 0.16;
-			transition: opacity .15s, stroke .15s, stroke-width .15s;
-		}
-		.node-dot {
-			fill: var(--muted);
-			opacity: .55;
-			transition: fill .15s, opacity .15s;
-		}
-		.node-label {
-			fill: var(--page-fg);
-			font-family: var(--page-font-family, ui-sans-serif, system-ui, sans-serif);
-			font-size: 15px;
-			font-weight: 600;
-			cursor: default;
-			transition: fill .15s, opacity .15s;
-		}
-		.center { pointer-events: none; }
-		.center-head {
-			fill: var(--page-fg);
-			font-family: var(--page-font-family, ui-sans-serif, system-ui, sans-serif);
-			font-weight: 800;
-			font-size: 88px;
-		}
-		.center-tail {
-			fill: var(--muted);
-			font-family: var(--page-font-family, ui-sans-serif, system-ui, sans-serif);
-			font-weight: 600;
-			font-size: 30px;
-			letter-spacing: .12em;
-			text-transform: uppercase;
-		}
-		.node { outline: none; }
-		.node:focus-visible .node-label {
-			text-decoration: underline;
-			text-underline-offset: 3px;
-		}
-		.bundle-svg.is-hovering .link { opacity: .04; }
-		.bundle-svg .link.is-active {
-			opacity: .9;
-			stroke: var(--accent, var(--link));
-			stroke-width: 1.6;
-		}
-		.bundle-svg.is-hovering .node.is-dim .node-label { opacity: .22; }
-		.bundle-svg.is-hovering .node.is-dim .node-dot { opacity: .12; }
-		.bundle-svg.is-hovering .node.is-active .node-label {
-			fill: var(--accent, var(--link));
-			opacity: 1;
-		}
-		.bundle-svg.is-hovering .node.is-active .node-dot {
-			fill: var(--accent, var(--link));
-			opacity: 1;
-		}
-		/* Disabled wins over is-active/is-dim: the extra .is-disabled
-		 * class on the hovering selectors outranks the active rules
-		 * above, and the base rule sits after them in source order. */
-		.bundle-svg .node.is-disabled .node-label,
-		.bundle-svg.is-hovering .node.is-disabled.is-active .node-label,
-		.bundle-svg.is-hovering .node.is-disabled.is-dim .node-label {
-			fill: var(--muted);
-			opacity: .45;
-			cursor: not-allowed;
-			text-decoration: line-through;
-			text-decoration-thickness: 1px;
-		}
-		.bundle-svg .node.is-disabled .node-dot,
-		.bundle-svg.is-hovering .node.is-disabled.is-active .node-dot,
-		.bundle-svg.is-hovering .node.is-disabled.is-dim .node-dot {
-			fill: none;
-			stroke: var(--muted);
-			stroke-width: 1;
-			opacity: .5;
-		}
-		.bundle-svg .link.is-disabled {
-			stroke-dasharray: 4 4;
-			opacity: .1;
-		}
-		.bundle-svg .link.is-disabled.is-active {
-			stroke: var(--muted);
-			stroke-width: 1.2;
-			opacity: .45;
-		}
-		@media (prefers-reduced-motion: reduce) {
-			.link, .node-label, .node-dot { transition: none; }
-		}
-		@media (forced-colors: active) {
-			.node-label, .center-head { fill: CanvasText; }
-			.center-tail { fill: GrayText; }
-			.link { stroke: GrayText; }
-			.bundle-svg .node.is-disabled .node-label,
-			.bundle-svg.is-hovering .node.is-disabled.is-active .node-label {
-				fill: GrayText;
-			}
-			.bundle-svg .node.is-disabled .node-dot { stroke: GrayText; }
-			.bundle-svg .link.is-disabled { stroke: GrayText; }
-			.bundle-svg .link.is-active,
-			.bundle-svg.is-hovering .node.is-active .node-label,
-			.bundle-svg.is-hovering .node.is-active .node-dot {
-				stroke: Highlight;
-				fill: Highlight;
-			}
-		}
-	`;
 }
 
 if (!customElements.get("bundle-graph")) {

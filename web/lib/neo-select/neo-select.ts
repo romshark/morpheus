@@ -206,31 +206,6 @@ SELECT_SHADOW_TEMPLATE.innerHTML = `
 </div>
 `;
 
-export class NeoOption extends HTMLElement {}
-
-if (!customElements.get("neo-option")) {
-	customElements.define("neo-option", NeoOption);
-}
-
-// <neo-optgroup>: declarative section wrapper. The visual header lives
-// in CSS (`::before { content: attr(label) }`), and role/aria-label are
-// server-rendered, so the element has no JS-managed subtree that a
-// morph could strip and re-add. Sync aria-label when the label attr
-// changes after hydration.
-export class NeoOptgroup extends HTMLElement {
-	static readonly observedAttributes = ["label"];
-
-	attributeChangedCallback(name: string, _old: string | null, value: string | null) {
-		if (name !== "label") return;
-		if (value) this.setAttribute("aria-label", value);
-		else this.removeAttribute("aria-label");
-	}
-}
-
-if (!customElements.get("neo-optgroup")) {
-	customElements.define("neo-optgroup", NeoOptgroup);
-}
-
 export class NeoSelect extends NeoListbox {
 	static readonly observedAttributes = [
 		"value",

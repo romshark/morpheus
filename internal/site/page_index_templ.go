@@ -1690,7 +1690,7 @@ func landingModularBundle() templ.Component {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var56 string
-		templ_7745c5c3_Var56, templ_7745c5c3_Err = templ.ResolveAttributeValue(strconv.Itoa(len(bundleSelectableIDs())) + " Components")
+		templ_7745c5c3_Var56, templ_7745c5c3_Err = templ.ResolveAttributeValue(strconv.Itoa(len(bundleURLComponents())) + " Components")
 		if templ_7745c5c3_Err != nil {
 			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 666, Col: 74}
 		}
@@ -1720,15 +1720,15 @@ func landingModularBundle() templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			if nd.DependsOn != "" {
+			if len(nd.DependsOn) > 0 {
 				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 76, " depends-on=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var58 string
-				templ_7745c5c3_Var58, templ_7745c5c3_Err = templ.ResolveAttributeValue(nd.DependsOn)
+				templ_7745c5c3_Var58, templ_7745c5c3_Err = templ.ResolveAttributeValue(bundleDependsOn(nd))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 672, Col: 31}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 672, Col: 38}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var58)
 				if templ_7745c5c3_Err != nil {
@@ -1768,9 +1768,9 @@ func landingModularBundle() templ.Component {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var60 string
-		templ_7745c5c3_Var60, templ_7745c5c3_Err = templ.ResolveAttributeValue(href.Asset("min/bundlebuilder.min.js"))
+		templ_7745c5c3_Var60, templ_7745c5c3_Err = templ.ResolveAttributeValue(href.Asset("min/bundle_graph.js"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 680, Col: 68}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 680, Col: 63}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var60)
 		if templ_7745c5c3_Err != nil {
@@ -1887,7 +1887,7 @@ func landingCustomCodeToggle(signal string) templ.Component {
 			var templ_7745c5c3_Var66 string
 			templ_7745c5c3_Var66, templ_7745c5c3_Err = templ.ResolveAttributeValue("$" + signal + " ? 'Hide code' : 'Show code'")
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 708, Col: 65}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 711, Col: 65}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var66)
 			if templ_7745c5c3_Err != nil {
@@ -1899,13 +1899,16 @@ func landingCustomCodeToggle(signal string) templ.Component {
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = neo.ToggleAttrs(neo.ToggleOpts{Variant: neo.Set(neo.ToggleVariantGhost), Size: neo.Set("sm")}, templ.Attributes{
-			"class":                     "landing-custom-code-toggle",
-			"aria-label":                "Show code",
-			"data-attr:aria-label":      "$" + signal + " ? 'Hide code' : 'Show code'",
-			"data-attr:pressed":         "$" + signal,
-			"data-on:neo-toggle-change": "$" + signal + " = evt.detail.pressed",
-		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var65), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = neo.ToggleAttrs(neo.ToggleOpts{
+			Variant: neo.Set(neo.ToggleVariantGhost),
+			Size:    neo.Set("sm")},
+			templ.Attributes{
+				"class":                     "landing-custom-code-toggle",
+				"aria-label":                "Show code",
+				"data-attr:aria-label":      "$" + signal + " ? 'Hide code' : 'Show code'",
+				"data-attr:pressed":         "$" + signal,
+				"data-on:neo-toggle-change": "$" + signal + " = evt.detail.pressed",
+			}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var65), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1953,7 +1956,7 @@ func landingCustomCode(source, signal string) templ.Component {
 			var templ_7745c5c3_Var69 string
 			templ_7745c5c3_Var69, templ_7745c5c3_Err = templ.ResolveAttributeValue("$" + signal)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 718, Col: 27}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 721, Col: 27}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var69)
 			if templ_7745c5c3_Err != nil {
@@ -1966,7 +1969,7 @@ func landingCustomCode(source, signal string) templ.Component {
 			var templ_7745c5c3_Var70 string
 			templ_7745c5c3_Var70, templ_7745c5c3_Err = templ.JoinStringErrs(source)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 722, Col: 22}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 725, Col: 22}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var70))
 			if templ_7745c5c3_Err != nil {
@@ -2048,7 +2051,7 @@ func shippingOption(value, icon, name, price, desc, delta string, popular bool) 
 				var templ_7745c5c3_Var74 string
 				templ_7745c5c3_Var74, templ_7745c5c3_Err = templ.JoinStringErrs(name)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 736, Col: 33}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 739, Col: 33}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var74))
 				if templ_7745c5c3_Err != nil {
@@ -2066,7 +2069,7 @@ func shippingOption(value, icon, name, price, desc, delta string, popular bool) 
 					var templ_7745c5c3_Var75 string
 					templ_7745c5c3_Var75, templ_7745c5c3_Err = templ.JoinStringErrs(delta)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 738, Col: 36}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 741, Col: 36}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var75))
 					if templ_7745c5c3_Err != nil {
@@ -2098,7 +2101,7 @@ func shippingOption(value, icon, name, price, desc, delta string, popular bool) 
 			var templ_7745c5c3_Var76 string
 			templ_7745c5c3_Var76, templ_7745c5c3_Err = templ.JoinStringErrs(name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 745, Col: 35}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 748, Col: 35}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var76))
 			if templ_7745c5c3_Err != nil {
@@ -2111,7 +2114,7 @@ func shippingOption(value, icon, name, price, desc, delta string, popular bool) 
 			var templ_7745c5c3_Var77 string
 			templ_7745c5c3_Var77, templ_7745c5c3_Err = templ.JoinStringErrs(price)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 746, Col: 37}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 749, Col: 37}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var77))
 			if templ_7745c5c3_Err != nil {
@@ -2152,7 +2155,7 @@ func shippingOption(value, icon, name, price, desc, delta string, popular bool) 
 			var templ_7745c5c3_Var79 string
 			templ_7745c5c3_Var79, templ_7745c5c3_Err = templ.JoinStringErrs(desc)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 753, Col: 31}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 756, Col: 31}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var79))
 			if templ_7745c5c3_Err != nil {
@@ -2200,7 +2203,7 @@ func landingOpenAlpha(morpheusVersion string) templ.Component {
 		var templ_7745c5c3_Var81 string
 		templ_7745c5c3_Var81, templ_7745c5c3_Err = templ.JoinStringErrs(morpheusVersion)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 767, Col: 30}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 770, Col: 30}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var81))
 		if templ_7745c5c3_Err != nil {
@@ -2443,15 +2446,16 @@ func landingAccessibility() templ.Component {
 				}
 				return nil
 			})
-			templ_7745c5c3_Err = neo.ButtonAttrs(neo.ButtonOpts{Variant: neo.Set(neo.ButtonVariantGhost)}, templ.Attributes{
-				"class":                   "landing-a11y-demo-sidebar-toggle",
-				"type":                    "button",
-				"aria-label":              "Toggle sidebar",
-				"aria-controls":           "landing-a11y-demo-sidebar",
-				"aria-expanded":           "true",
-				"data-attr:aria-expanded": "$_lf_a11y_sidebar_open",
-				"data-on:click":           "$_lf_a11y_sidebar_open = !$_lf_a11y_sidebar_open",
-			}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var88), templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = neo.ButtonAttrs(neo.ButtonOpts{Variant: neo.Set(neo.ButtonVariantGhost)},
+				templ.Attributes{
+					"class":                   "landing-a11y-demo-sidebar-toggle",
+					"type":                    "button",
+					"aria-label":              "Toggle sidebar",
+					"aria-controls":           "landing-a11y-demo-sidebar",
+					"aria-expanded":           "true",
+					"data-attr:aria-expanded": "$_lf_a11y_sidebar_open",
+					"data-on:click":           "$_lf_a11y_sidebar_open = !$_lf_a11y_sidebar_open",
+				}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var88), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -2465,7 +2469,10 @@ func landingAccessibility() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = neo.SwitchAttrs(neo.SwitchOpts{Size: neo.Set("sm"), AriaLabel: neo.Set("Simulate reduce motion")}, templ.Attributes{
+		templ_7745c5c3_Err = neo.SwitchAttrs(neo.SwitchOpts{
+			Size:      neo.Set("sm"),
+			AriaLabel: neo.Set("Simulate reduce motion"),
+		}, templ.Attributes{
 			"data-attr:checked":         "$_lf_a11y_motion",
 			"data-on:neo-switch-change": "$_lf_a11y_motion = evt.detail.checked",
 		}).Render(ctx, templ_7745c5c3_Buffer)
@@ -2476,7 +2483,10 @@ func landingAccessibility() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = neo.SwitchAttrs(neo.SwitchOpts{Size: neo.Set("sm"), AriaLabel: neo.Set("Simulate higher contrast")}, templ.Attributes{
+		templ_7745c5c3_Err = neo.SwitchAttrs(neo.SwitchOpts{
+			Size:      neo.Set("sm"),
+			AriaLabel: neo.Set("Simulate higher contrast"),
+		}, templ.Attributes{
 			"data-attr:checked":         "$_lf_a11y_contrast",
 			"data-on:neo-switch-change": "$_lf_a11y_contrast = evt.detail.checked",
 		}).Render(ctx, templ_7745c5c3_Buffer)
@@ -2623,7 +2633,10 @@ func landingAccessibility() templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = neo.SwitchAttrs(neo.SwitchOpts{Size: neo.Set("sm"), AriaLabel: neo.Set("Simulate reduce motion")}, templ.Attributes{
+			templ_7745c5c3_Err = neo.SwitchAttrs(neo.SwitchOpts{
+				Size:      neo.Set("sm"),
+				AriaLabel: neo.Set("Simulate reduce motion"),
+			}, templ.Attributes{
 				"data-attr:checked":         "$_lf_a11y_motion",
 				"data-on:neo-switch-change": "$_lf_a11y_motion = evt.detail.checked",
 			}).Render(ctx, templ_7745c5c3_Buffer)
@@ -2634,7 +2647,10 @@ func landingAccessibility() templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = neo.SwitchAttrs(neo.SwitchOpts{Size: neo.Set("sm"), AriaLabel: neo.Set("Simulate higher contrast")}, templ.Attributes{
+			templ_7745c5c3_Err = neo.SwitchAttrs(neo.SwitchOpts{
+				Size:      neo.Set("sm"),
+				AriaLabel: neo.Set("Simulate higher contrast"),
+			}, templ.Attributes{
 				"data-attr:checked":         "$_lf_a11y_contrast",
 				"data-on:neo-switch-change": "$_lf_a11y_contrast = evt.detail.checked",
 			}).Render(ctx, templ_7745c5c3_Buffer)
@@ -2987,7 +3003,7 @@ func lfA11yNavBranch(name string, expanded bool) templ.Component {
 				var templ_7745c5c3_Var105 string
 				templ_7745c5c3_Var105, templ_7745c5c3_Err = templ.JoinStringErrs(name)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 1115, Col: 34}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 1146, Col: 34}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var105))
 				if templ_7745c5c3_Err != nil {
@@ -3073,7 +3089,7 @@ func lfA11yNavLeaf(name string, active bool) templ.Component {
 				var templ_7745c5c3_Var109 string
 				templ_7745c5c3_Var109, templ_7745c5c3_Err = templ.JoinStringErrs(name)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 1128, Col: 34}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 1159, Col: 34}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var109))
 				if templ_7745c5c3_Err != nil {
@@ -3127,7 +3143,7 @@ func landingFooter(morpheusVersion string) templ.Component {
 		var templ_7745c5c3_Var111 string
 		templ_7745c5c3_Var111, templ_7745c5c3_Err = templ.JoinStringErrs(morpheusVersion)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 1138, Col: 27}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 1169, Col: 27}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var111))
 		if templ_7745c5c3_Err != nil {
@@ -3588,7 +3604,10 @@ func lfThemeMode() templ.Component {
 				}
 				return nil
 			})
-			templ_7745c5c3_Err = neo.Tooltip(neo.TooltipOpts{Text: neo.Set("Reduce motion"), Placement: neo.Set(neo.PlacementTop)}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var123), templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = neo.Tooltip(neo.TooltipOpts{
+				Text:      neo.Set("Reduce motion"),
+				Placement: neo.Set(neo.PlacementTop),
+			}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var123), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -3633,7 +3652,10 @@ func lfThemeMode() templ.Component {
 				}
 				return nil
 			})
-			templ_7745c5c3_Err = neo.Tooltip(neo.TooltipOpts{Text: neo.Set("Higher contrast"), Placement: neo.Set(neo.PlacementTop)}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var125), templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = neo.Tooltip(neo.TooltipOpts{
+				Text:      neo.Set("Higher contrast"),
+				Placement: neo.Set(neo.PlacementTop),
+			}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var125), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -3877,7 +3899,7 @@ func lfEqBand(hz, signal string) templ.Component {
 		var templ_7745c5c3_Var131 string
 		templ_7745c5c3_Var131, templ_7745c5c3_Err = templ.JoinStringErrs(hz)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 1636, Col: 29}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 1673, Col: 29}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var131))
 		if templ_7745c5c3_Err != nil {
@@ -3962,7 +3984,7 @@ func lfDeployRef() templ.Component {
 							var templ_7745c5c3_Var136 string
 							templ_7745c5c3_Var136, templ_7745c5c3_Err = templ.JoinStringErrs(b.Branch)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 1670, Col: 55}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 1707, Col: 55}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var136))
 							if templ_7745c5c3_Err != nil {
@@ -3975,7 +3997,7 @@ func lfDeployRef() templ.Component {
 							var templ_7745c5c3_Var137 string
 							templ_7745c5c3_Var137, templ_7745c5c3_Err = templ.JoinStringErrs(c.Hash)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 1672, Col: 51}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 1709, Col: 51}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var137))
 							if templ_7745c5c3_Err != nil {
@@ -3988,7 +4010,7 @@ func lfDeployRef() templ.Component {
 							var templ_7745c5c3_Var138 string
 							templ_7745c5c3_Var138, templ_7745c5c3_Err = templ.JoinStringErrs(c.Msg)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 1673, Col: 49}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 1710, Col: 49}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var138))
 							if templ_7745c5c3_Err != nil {
@@ -4001,7 +4023,7 @@ func lfDeployRef() templ.Component {
 							var templ_7745c5c3_Var139 string
 							templ_7745c5c3_Var139, templ_7745c5c3_Err = templ.JoinStringErrs(c.Author)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 1675, Col: 56}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 1712, Col: 56}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var139))
 							if templ_7745c5c3_Err != nil {
@@ -4014,7 +4036,7 @@ func lfDeployRef() templ.Component {
 							var templ_7745c5c3_Var140 string
 							templ_7745c5c3_Var140, templ_7745c5c3_Err = templ.JoinStringErrs(c.When)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 1676, Col: 52}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 1713, Col: 52}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var140))
 							if templ_7745c5c3_Err != nil {
@@ -4577,7 +4599,7 @@ func lfDeploy() templ.Component {
 		var templ_7745c5c3_Var161 string
 		templ_7745c5c3_Var161, templ_7745c5c3_Err = templ.ResolveAttributeValue(lfDeployDryRunLog)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 1899, Col: 34}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 1936, Col: 34}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var161)
 		if templ_7745c5c3_Err != nil {
@@ -5127,7 +5149,7 @@ func lfChatMessage(className, time, text string) templ.Component {
 				var templ_7745c5c3_Var176 string
 				templ_7745c5c3_Var176, templ_7745c5c3_Err = templ.JoinStringErrs(text)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 2333, Col: 10}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 2370, Col: 10}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var176))
 				if templ_7745c5c3_Err != nil {
@@ -5450,7 +5472,7 @@ func lfChatParticipant(avatar, name string) templ.Component {
 		var templ_7745c5c3_Var188 string
 		templ_7745c5c3_Var188, templ_7745c5c3_Err = templ.JoinStringErrs(name)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 2392, Col: 42}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 2429, Col: 42}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var188))
 		if templ_7745c5c3_Err != nil {
@@ -5609,7 +5631,7 @@ func lfSearchResult(id, icon, label string, active bool) templ.Component {
 		var templ_7745c5c3_Var192 string
 		templ_7745c5c3_Var192, templ_7745c5c3_Err = templ.ResolveAttributeValue(id)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 2454, Col: 13}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 2491, Col: 13}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var192)
 		if templ_7745c5c3_Err != nil {
@@ -5660,7 +5682,7 @@ func lfSearchResult(id, icon, label string, active bool) templ.Component {
 		var templ_7745c5c3_Var195 string
 		templ_7745c5c3_Var195, templ_7745c5c3_Err = templ.JoinStringErrs(label)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 2460, Col: 16}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 2497, Col: 16}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var195))
 		if templ_7745c5c3_Err != nil {
@@ -6321,7 +6343,7 @@ func lfLogin() templ.Component {
 							var templ_7745c5c3_Var217 string
 							templ_7745c5c3_Var217, templ_7745c5c3_Err = templ.JoinStringErrs("@gmail.com")
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 2784, Col: 23}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 2821, Col: 23}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var217))
 							if templ_7745c5c3_Err != nil {
@@ -6348,7 +6370,7 @@ func lfLogin() templ.Component {
 							var templ_7745c5c3_Var219 string
 							templ_7745c5c3_Var219, templ_7745c5c3_Err = templ.JoinStringErrs("@outlook.com")
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 2787, Col: 25}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 2824, Col: 25}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var219))
 							if templ_7745c5c3_Err != nil {
@@ -6375,7 +6397,7 @@ func lfLogin() templ.Component {
 							var templ_7745c5c3_Var221 string
 							templ_7745c5c3_Var221, templ_7745c5c3_Err = templ.JoinStringErrs("@yahoo.com")
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 2790, Col: 23}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 2827, Col: 23}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var221))
 							if templ_7745c5c3_Err != nil {
@@ -6402,7 +6424,7 @@ func lfLogin() templ.Component {
 							var templ_7745c5c3_Var223 string
 							templ_7745c5c3_Var223, templ_7745c5c3_Err = templ.JoinStringErrs("@icloud.com")
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 2793, Col: 24}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 2830, Col: 24}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var223))
 							if templ_7745c5c3_Err != nil {
@@ -6429,7 +6451,7 @@ func lfLogin() templ.Component {
 							var templ_7745c5c3_Var225 string
 							templ_7745c5c3_Var225, templ_7745c5c3_Err = templ.JoinStringErrs("@proton.me")
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 2796, Col: 23}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 2833, Col: 23}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var225))
 							if templ_7745c5c3_Err != nil {
@@ -6627,7 +6649,7 @@ func lfEventInvitee(avatar, name, rsvp string) templ.Component {
 		var templ_7745c5c3_Var229 string
 		templ_7745c5c3_Var229, templ_7745c5c3_Err = templ.ResolveAttributeValue(href.Asset("avatar/" + avatar + ".svg"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 2868, Col: 48}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 2905, Col: 48}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var229)
 		if templ_7745c5c3_Err != nil {
@@ -6640,7 +6662,7 @@ func lfEventInvitee(avatar, name, rsvp string) templ.Component {
 		var templ_7745c5c3_Var230 string
 		templ_7745c5c3_Var230, templ_7745c5c3_Err = templ.JoinStringErrs(name)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 2871, Col: 44}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 2908, Col: 44}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var230))
 		if templ_7745c5c3_Err != nil {
@@ -7139,7 +7161,7 @@ func lfLogs() templ.Component {
 			var templ_7745c5c3_Var243 string
 			templ_7745c5c3_Var243, templ_7745c5c3_Err = templ.ResolveAttributeValue(lfLogEmptyExpr)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 3069, Col: 57}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 3106, Col: 57}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var243)
 			if templ_7745c5c3_Err != nil {
@@ -7252,7 +7274,7 @@ func lfLogRow(severity, level, off, time, msg string) templ.Component {
 		var templ_7745c5c3_Var248 string
 		templ_7745c5c3_Var248, templ_7745c5c3_Err = templ.ResolveAttributeValue(level)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 3098, Col: 20}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 3135, Col: 20}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var248)
 		if templ_7745c5c3_Err != nil {
@@ -7265,7 +7287,7 @@ func lfLogRow(severity, level, off, time, msg string) templ.Component {
 		var templ_7745c5c3_Var249 string
 		templ_7745c5c3_Var249, templ_7745c5c3_Err = templ.ResolveAttributeValue(off)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 3099, Col: 16}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 3136, Col: 16}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var249)
 		if templ_7745c5c3_Err != nil {
@@ -7278,7 +7300,7 @@ func lfLogRow(severity, level, off, time, msg string) templ.Component {
 		var templ_7745c5c3_Var250 string
 		templ_7745c5c3_Var250, templ_7745c5c3_Err = templ.ResolveAttributeValue(lfLogShowExpr)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 3100, Col: 27}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 3137, Col: 27}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var250)
 		if templ_7745c5c3_Err != nil {
@@ -7291,7 +7313,7 @@ func lfLogRow(severity, level, off, time, msg string) templ.Component {
 		var templ_7745c5c3_Var251 string
 		templ_7745c5c3_Var251, templ_7745c5c3_Err = templ.JoinStringErrs(time)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 3102, Col: 35}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 3139, Col: 35}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var251))
 		if templ_7745c5c3_Err != nil {
@@ -7326,7 +7348,7 @@ func lfLogRow(severity, level, off, time, msg string) templ.Component {
 		var templ_7745c5c3_Var254 string
 		templ_7745c5c3_Var254, templ_7745c5c3_Err = templ.JoinStringErrs(severity)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 3103, Col: 66}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 3140, Col: 66}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var254))
 		if templ_7745c5c3_Err != nil {
@@ -7339,7 +7361,7 @@ func lfLogRow(severity, level, off, time, msg string) templ.Component {
 		var templ_7745c5c3_Var255 string
 		templ_7745c5c3_Var255, templ_7745c5c3_Err = templ.JoinStringErrs(msg)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 3104, Col: 33}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 3141, Col: 33}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var255))
 		if templ_7745c5c3_Err != nil {
@@ -8613,7 +8635,7 @@ func lfFileTree() templ.Component {
 					var templ_7745c5c3_Var310 string
 					templ_7745c5c3_Var310, templ_7745c5c3_Err = templ.JoinStringErrs("Workspace storage is at ")
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 3396, Col: 34}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 3433, Col: 34}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var310))
 					if templ_7745c5c3_Err != nil {
@@ -8632,7 +8654,7 @@ func lfFileTree() templ.Component {
 					var templ_7745c5c3_Var311 string
 					templ_7745c5c3_Var311, templ_7745c5c3_Err = templ.JoinStringErrs(" 87%. Archive old projects or expand the volume soon.")
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 3400, Col: 63}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 3437, Col: 63}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var311))
 					if templ_7745c5c3_Err != nil {
@@ -8738,7 +8760,7 @@ func lfTreeFolder(name string, expanded bool) templ.Component {
 					var templ_7745c5c3_Var316 string
 					templ_7745c5c3_Var316, templ_7745c5c3_Err = templ.JoinStringErrs(name)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 3425, Col: 36}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 3462, Col: 36}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var316))
 					if templ_7745c5c3_Err != nil {
@@ -8751,7 +8773,7 @@ func lfTreeFolder(name string, expanded bool) templ.Component {
 					var templ_7745c5c3_Var317 string
 					templ_7745c5c3_Var317, templ_7745c5c3_Err = templ.ResolveAttributeValue("Add to " + name)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 3435, Col: 36}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 3472, Col: 36}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var317)
 					if templ_7745c5c3_Err != nil {
@@ -8944,7 +8966,7 @@ func lfTreeFolderMenu(name string) templ.Component {
 		var templ_7745c5c3_Var324 string
 		templ_7745c5c3_Var324, templ_7745c5c3_Err = templ.ResolveAttributeValue("More actions for " + name)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 3473, Col: 41}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 3510, Col: 41}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var324)
 		if templ_7745c5c3_Err != nil {
@@ -9233,7 +9255,7 @@ func lfTreeFile(name, status string, statusVariant neo.BadgeVariant) templ.Compo
 					var templ_7745c5c3_Var337 string
 					templ_7745c5c3_Var337, templ_7745c5c3_Err = templ.JoinStringErrs(name)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 3524, Col: 36}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 3561, Col: 36}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var337))
 					if templ_7745c5c3_Err != nil {
@@ -9259,7 +9281,7 @@ func lfTreeFile(name, status string, statusVariant neo.BadgeVariant) templ.Compo
 							var templ_7745c5c3_Var339 string
 							templ_7745c5c3_Var339, templ_7745c5c3_Err = templ.JoinStringErrs(status)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 3533, Col: 16}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 3570, Col: 16}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var339))
 							if templ_7745c5c3_Err != nil {
@@ -9352,7 +9374,7 @@ func lfTreeFileMenu(name string) templ.Component {
 		var templ_7745c5c3_Var342 string
 		templ_7745c5c3_Var342, templ_7745c5c3_Err = templ.ResolveAttributeValue("More actions for " + name)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 3551, Col: 41}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 3588, Col: 41}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var342)
 		if templ_7745c5c3_Err != nil {

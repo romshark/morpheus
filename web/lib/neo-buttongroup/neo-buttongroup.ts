@@ -17,15 +17,10 @@ export class NeoButtonGroup extends HTMLElement {
 
 	connectedCallback() {
 		warnBadAxis(this);
-		this.#segmented = this.hasAttribute("value");
+		this.#segmented = false;
 		this.#valueIntent = this.getAttribute("value");
 		this.addEventListener("click", this.#onClick);
-		if (this.#segmented) {
-			if (!this.hasAttribute("role")) this.setAttribute("role", "radiogroup");
-			this.addEventListener("keydown", this.#onKeyDown);
-			this.addEventListener("focusin", this.#onFocusIn);
-			this.addEventListener("focusout", this.#onFocusOut);
-		}
+		if (this.hasAttribute("value")) this.#enterSegmented();
 
 		// Re-sync segmented ARIA / roving tabindex on button add / remove /
 		// reorder (Datastar morph, dynamic option lists) and on child
@@ -52,6 +47,16 @@ export class NeoButtonGroup extends HTMLElement {
 
 		this.#ready = true;
 		if (this.#segmented) this.#syncSegmentedAttrs();
+	}
+
+	// A value makes the group segmented, at connect or when a binding or
+	// morph adds one later.
+	#enterSegmented() {
+		this.#segmented = true;
+		if (!this.hasAttribute("role")) this.setAttribute("role", "radiogroup");
+		this.addEventListener("keydown", this.#onKeyDown);
+		this.addEventListener("focusin", this.#onFocusIn);
+		this.addEventListener("focusout", this.#onFocusOut);
 	}
 
 	disconnectedCallback() {
@@ -111,10 +116,13 @@ export class NeoButtonGroup extends HTMLElement {
 	};
 
 	attributeChangedCallback(name: string, _oldValue: string | null, newValue: string | null) {
-		if (!this.#ready || !this.#segmented) return;
-		if (name !== "value") return;
+		if (!this.#ready || name !== "value") return;
 		// Our own re-reflect write (writeValue / keep-on-absent below); not a command.
 		if (this.#applyingValue) return;
+		if (!this.#segmented) {
+			if (newValue === null) return;
+			this.#enterSegmented();
+		}
 		if (newValue === null) {
 			// Fat morph dropped `value`: no command, keep the current selection
 			// and re-reflect it so the attribute stays the state mirror and

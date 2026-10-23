@@ -101,6 +101,7 @@ custom-watchers:
       - "min/**/*"
       - "internal/cmd/gen/**/*.go"
       - "internal/cmd/gen/datasim.js"
+      - "internal/bundle/**/*.go"
       - "internal/href/**/*.go"
       - "neo/**/*.go"
       - "datastar/**/*.go"

@@ -921,7 +921,7 @@ templ serverErrorControls() {
 				Size:      neo.Set("lg"),
 				AriaLabel: neo.Set("server unreachable"),
 			}, templ.Attributes{
-				"data-attr:checked":         "$_sim_unreachable",
+				"data-attr:checked":         "($_sim_unreachable ? 'true' : 'false')",
 				"data-on:neo-switch-change": "$_sim_unreachable = evt.detail.checked",
 			})
 		</label>
@@ -1003,7 +1003,7 @@ templ simToggle(label, signal string) {
 			Size:      neo.Set("sm"),
 			AriaLabel: neo.Set(label),
 		}, templ.Attributes{
-			"data-attr:checked":         "$" + signal,
+			"data-attr:checked":         "($" + signal + " ? 'true' : 'false')",
 			"data-on:neo-switch-change": "$" + signal + " = evt.detail.checked",
 		})
 		<span>{ label }</span>

@@ -150,9 +150,7 @@ func resizableRenderAttrs(attrs templ.Attributes) templ.Attributes {
 	}
 
 	out := make(templ.Attributes, len(attrs)+1)
-	for k, v := range attrs {
-		out[k] = v
-	}
+	maps.Copy(out, attrs)
 
 	var b strings.Builder
 	for _, item := range resizableSizeAttrs {

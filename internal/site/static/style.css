@@ -3105,3 +3105,226 @@ site-command-palette {
 	padding: 1rem 0.6rem;
 	color: var(--muted);
 }
+
+/* neo-navgroup's base style outranks a bare class. */
+neo-navgroup.bundle-toggle-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr));
+	gap: 0.4rem;
+	width: 100%;
+	max-width: 56rem;
+	margin: 0 auto 2rem;
+}
+.bundle-toggle-grid neo-toggle {
+	width: 100%;
+	min-width: 0;
+	padding: 0.75rem;
+}
+.bundle-bulk-actions {
+	margin: 0 0 1rem;
+}
+/* width: 100% keeps the table's min-content width from widening this
+ * auto-margin flex item past the column. */
+.bundle-size {
+	position: relative;
+	overflow: hidden;
+	width: 100%;
+	max-width: 34rem;
+	margin: 0 auto 1.5rem;
+	padding: 1rem 1.25rem;
+	border: 1px solid color-mix(in srgb, var(--page-fg) 12%, transparent);
+	border-radius: var(--page-radius, 0.5rem);
+}
+.bundle-size-overlay {
+	position: absolute;
+	inset: 0;
+	z-index: 1;
+	display: none;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 0.6rem;
+	color: var(--muted);
+	font-size: 0.85rem;
+	background: color-mix(in srgb, var(--page-bg) 62%, transparent);
+	backdrop-filter: blur(1.5px);
+}
+.bundle-size[data-state="building"] .bundle-size-overlay {
+	display: flex;
+}
+.bundle-size[data-state="building"] .bundle-size-body {
+	opacity: 0.45;
+	filter: grayscale(1);
+	pointer-events: none;
+	user-select: none;
+}
+.bundle-size-head h2 {
+	margin: 0;
+	font-size: 1rem;
+}
+/* Stays at the end of the line after the row wraps. */
+.bundle-size-count {
+	margin-inline-start: auto;
+	color: var(--muted);
+	font-size: 0.9rem;
+}
+.bundle-size-status {
+	margin: 0.5rem 0 0;
+	color: var(--muted);
+	font-size: 0.85rem;
+}
+/* Visually hidden while the overlay shows the text.
+ * The live region still announces it. */
+.bundle-size:not([data-state="error"]) .bundle-size-status {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+	clip-path: inset(50%);
+	white-space: nowrap;
+}
+/* Scrolls a table wider than the card; the padding keeps edge
+ * focus rings unclipped. */
+.bundle-size-scroll {
+	overflow-x: auto;
+	margin: 0.5rem -0.25rem -0.25rem;
+	padding: 0.25rem;
+}
+.bundle-size-table {
+	width: 100%;
+	border-collapse: collapse;
+	font-variant-numeric: tabular-nums;
+}
+.bundle-size-table th,
+.bundle-size-table td {
+	padding: 0.3rem 0.5rem;
+	text-align: right;
+	font-size: 0.9rem;
+	white-space: nowrap;
+}
+.bundle-size-table :is(th, td):first-child {
+	padding-inline-start: 0;
+}
+.bundle-size-table :is(th, td):last-child {
+	padding-inline-end: 0;
+}
+/* Same specificity as .bundle-size-total th, which wins by source order
+ * and keeps the total label bold. */
+.bundle-size-table th {
+	color: var(--muted);
+	font-weight: 600;
+}
+/* Middle alignment lifts labels beside info buttons off the baseline. */
+.bundle-size-table thead th {
+	vertical-align: baseline;
+}
+/* A file name wraps only at its <wbr>. */
+.bundle-size-table tbody th[scope="row"] {
+	text-align: left;
+	color: var(--page-fg);
+	white-space: normal;
+}
+.bundle-size-file {
+	display: inline-flex;
+	align-items: flex-start;
+	gap: 0.4rem;
+	cursor: pointer;
+}
+/* Centered on the first line of a wrapped name. */
+.bundle-size-file neo-checkbox {
+	margin-block-start: calc((1lh - var(--neo-checkbox-size)) / 2);
+}
+/* A file left out of the archive. */
+.bundle-size-table tr:has(neo-checkbox:not([checked]:where(:not([checked="false"])))) :is(th, td) {
+	color: var(--muted);
+}
+.bundle-size-total td,
+.bundle-size-total th {
+	border-top: 1px solid color-mix(in srgb, var(--page-fg) 14%, transparent);
+	font-weight: 700;
+}
+/* Also sizes the total row's empty slot, keeping numbers aligned. */
+.bundle-size-copy {
+	display: inline-flex;
+	vertical-align: middle;
+	inline-size: 1.75rem;
+	margin-inline-start: 0.25rem;
+}
+.bundle-size-copy neo-button {
+	inline-size: 100%;
+	padding-inline: 0;
+	justify-content: center;
+}
+.bundle-size-info {
+	vertical-align: middle;
+	margin-inline-start: 0.125rem;
+}
+.bundle-size-info neo-button {
+	padding: 0.25rem;
+}
+/* Resets the bold, right-aligned style inherited from the header. */
+.bundle-size-info-text {
+	max-width: 18rem;
+	text-align: start;
+	font-size: 0.85rem;
+	font-weight: 400;
+	line-height: 1.45;
+	white-space: normal;
+}
+.bundle-size-info-text p {
+	margin: 0;
+}
+.bundle-size-downloads {
+	margin: 0.75rem 0 0;
+}
+.bundle-size-note {
+	margin: 0.75rem 0 0;
+	text-align: center;
+	color: var(--muted);
+	font-size: 0.78rem;
+	line-height: 1.4;
+}
+/* At phone width, tighter padding and type fit the table. */
+@container app-main (max-width: 30rem) {
+	.bundle-size {
+		padding-inline: 0.75rem;
+	}
+	.bundle-size-count {
+		font-size: 0.8rem;
+	}
+	.bundle-size-table th,
+	.bundle-size-table td {
+		padding-inline: 0.25rem;
+		font-size: 0.8rem;
+	}
+	/* Visually hidden because every file name starts with "morpheus". */
+	.bundle-size-file-base {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		overflow: hidden;
+		clip-path: inset(50%);
+		white-space: nowrap;
+	}
+}
+/* Down to the site's narrowest column, at a 340px viewport. */
+@container app-main (max-width: 21rem) {
+	.bundle-size {
+		padding-inline: 0.5rem;
+	}
+	.bundle-size-table th,
+	.bundle-size-table td {
+		font-size: 0.75rem;
+	}
+	.bundle-size-table thead th {
+		font-size: 0.7rem;
+	}
+	.bundle-size-file {
+		gap: 0.25rem;
+	}
+	/* 1.5rem keeps the 24px minimum target size (WCAG 2.5.8). */
+	.bundle-size-copy {
+		inline-size: 1.5rem;
+		margin-inline-start: 0.125rem;
+	}
+}
