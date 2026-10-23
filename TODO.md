@@ -2,9 +2,6 @@
 
 ## BUGS
 
-False missing-styles warning for unslotted CSS-only elements (2026-10-23):
-- `web/lib/missing-components.ts:105` reads the `--neo-loaded` sentinel of every CSS-only element, including one inside an unslotted light-DOM child of a shadow host, such as the trigger-face or option-row source markup of a `<neo-combobox>`. Chrome computes no style outside the flat tree: the sentinel reads empty, and the console reports the element's styles as missing with the full bundle loaded (`/combobox/`: `<neo-avatar>`). Fix: skip an element without a computed style (`getComputedStyle(el).display === ""`).
-
 `<a data-neo-link>` has no missing-styles warning (2026-10-23):
 - `web/lib/missing-components.ts` checks only `<neo-*>` elements. A trimmed bundle without neo-link (and without neo-button.css) drops all link styling, and nothing warns. DESIGN.md scopes the warning to `<neo-*>`. Fix: set a `--neo-loaded` sentinel on `a[data-neo-link]` in `web/lib/neo-button/neo-button.css` and scan for it.
 

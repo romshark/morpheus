@@ -101,8 +101,11 @@ function reportIfMissing(el: Element): void {
 		warned.add(tag);
 		console.warn(`<${tag}> is used in the DOM but missing from the loaded bundle; it is not registered.`);
 	} else if (stylesReady && CSS_ONLY_TAGS.has(tag) && !cssConfirmed.has(tag)) {
+		const style = getComputedStyle(el);
+		// Chrome computes no style outside the flat tree, such as for an unslotted child.
+		if (style.display === "") return;
 		// The sentinel resolves to the tag only when its stylesheet loaded.
-		if (getComputedStyle(el).getPropertyValue("--neo-loaded").trim() === tag) {
+		if (style.getPropertyValue("--neo-loaded").trim() === tag) {
 			cssConfirmed.add(tag);
 			return;
 		}
