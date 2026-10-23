@@ -34,5 +34,6 @@ This file records the notable changes of each release in the format of [Keep a C
 - Register `<neo-option>` and `<neo-optgroup>` in a bundle without `<neo-select>`. With `<neo-combobox>`, `<neo-datalist>` or `<neo-textinput>` and no `<neo-select>`, every option stayed hidden and the console reported both elements as missing from the bundle.
 - Make `<neo-buttongroup>` a single-selection group when its `value` is set after it connects, as by a Datastar `data-attr:value` binding or a morph. The group stayed a plain button group: clicks selected nothing, and it had no radio roles or arrow-key navigation.
 - Stop warning that the styles of `<neo-avatar>`, `<neo-badge>` and the other CSS-only components are missing when such an element is not rendered, as in the option and trigger markup of `<neo-combobox>`. Chrome logged the warning with the full bundle loaded.
+- Warn in the console when `<a data-neo-link>` is used but its styles are missing from the loaded bundle, as for `<neo-*>` elements. A trimmed bundle without the link styles left these anchors unstyled without a warning.
 
 [Unreleased]: https://github.com/romshark/morpheus/compare/v0.1.0...HEAD

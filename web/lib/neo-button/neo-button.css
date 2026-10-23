@@ -78,6 +78,11 @@
 	--neo-link-radius: 2px;
 }
 
+a[data-neo-link]:where(:not([data-neo-link="false"])) {
+	/* Marks this stylesheet as loaded so the kit can flag a trimmed <a data-neo-link>. */
+	--neo-loaded: neo-link;
+}
+
 /* Button-styled base: <neo-button> (any non-anchor variant + bare
  * element as a defensive fallback) and any <a data-neo-link> with a
  * LinkVariantButton* opt-in. The link's "default" value (anchor) is

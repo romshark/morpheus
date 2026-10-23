@@ -139,7 +139,7 @@ The kit ships as a single default bundle, fine to use as-is (cached once from a 
 - A trimmed bundle contains the chosen components plus their transitive dependencies: other components, shared internals, and the stylesheets that set the custom properties their CSS reads.
 - A component can be dropped only when nothing else in the bundle depends on it; cutting unused components cuts bundle size.
 - A component needs no setup beyond being in the bundle the page loads: its elements activate themselves, with no per-component registration or initialization call.
-- A `<neo-*>` used in markup but missing from the bundle must log a console warning naming the component, not fail silently.
+- A component used in markup but missing from the bundle, a `<neo-*>` element or `<a data-neo-link>`, must log a console warning naming the component, not fail silently.
 
 ## Safety
 

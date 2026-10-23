@@ -2,9 +2,6 @@
 
 ## BUGS
 
-`<a data-neo-link>` has no missing-styles warning (2026-10-23):
-- `web/lib/missing-components.ts` checks only `<neo-*>` elements. A trimmed bundle without neo-link (and without neo-button.css) drops all link styling, and nothing warns. DESIGN.md scopes the warning to `<neo-*>`. Fix: set a `--neo-loaded` sentinel on `a[data-neo-link]` in `web/lib/neo-button/neo-button.css` and scan for it.
-
 neo-toast-close fires only on manual close (2026-07-07):
 - `web/lib/neo-toast/neo-toast.ts:212` dispatches `neo-toast-close` only from `#onCloseClick` (the × button). Auto-dismiss (timer), swipe-to-dismiss, and `NeoToast.dismiss()` remove the toast via `neo-toaster.ts` `#removeToast` (`web/lib/neo-toaster/neo-toaster.ts:825`) without emitting any event, so consumers cannot observe non-manual dismissals. Convention is one close/dismiss event on every removal. Fix: dispatch `neo-toast-close` for every dismissal cause (e.g. from `#removeToast`).
 
