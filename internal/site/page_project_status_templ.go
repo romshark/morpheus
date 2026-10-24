@@ -85,7 +85,7 @@ func PageProjectStatus(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, " is currently an early access alpha version developed by <a href=\"https://github.com/romshark\">Roman Sharkov</a> and  <a href=\"https://github.com/DanielSharkov\">Daniel Sharkov</a>.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, " is currently an alpha version developed by <a href=\"https://github.com/romshark\">Roman Sharkov</a> and  <a href=\"https://github.com/DanielSharkov\">Daniel Sharkov</a>.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
