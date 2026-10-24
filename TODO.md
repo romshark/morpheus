@@ -74,6 +74,9 @@ Doc-site prose (2026-10-24 comment sweep):
 - `internal/site/page_index.templ:301`: quotes "Let the server drive it". The h2 at :323 says "Let the server drive your UI".
 - `internal/site/examples/layout_overview.templ:5`: says "no custom CSS". `layout_overview.css` sets `flex-basis`. The `page_layout.templ` intro says "no page-specific CSS", but several layout examples ship CSS.
 
+Theme fonts (2026-10-24):
+- `min/theme-ocean.css` and `min/theme-matrix.css` load fonts from `/static/fonts/*.woff2`, a doc-site path. From jsDelivr (README install) it resolves to `cdn.jsdelivr.net/static/fonts/...`, which does not exist. `min/` has no fonts. The bundle builder and `morpheus bundle` leave both themes out for this (`internal/bundle/version.go` `themes`).
+
 # Nice to have
 
 - NavGroup: Grid diagonal navigation (nice to have? I'm not sure this would be good).

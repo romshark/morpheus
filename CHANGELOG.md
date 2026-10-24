@@ -12,7 +12,7 @@ This file records the notable changes of each release in the format of [Keep a C
 
 - Add `<neo-aura>`, a decorative light around the element it wraps. `neo.Aura` renders it from Templ.
 - Add `<neo-if-network>`, which shows its content only while online or offline. `neo.IfNetwork` renders it from Templ.
-- Add the `morpheus` command, which builds the bundle builder's `morpheus.min.js` and `morpheus.min.css` without a browser. Run `go run github.com/romshark/morpheus@<version> bundle -components select,dialog`.
+- Add the bundler, which builds `morpheus.min.js` and `morpheus.min.css` with only the chosen components, and `theme-default.css` or other themes. Run it on the [bundle builder](https://romshark.github.io/morpheus/bundle-builder/) page or with `go run github.com/romshark/morpheus@<version> bundle -components select,dialog`.
 
 ### Changed
 

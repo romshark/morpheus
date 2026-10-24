@@ -60,9 +60,23 @@ func TestBundle(t *testing.T) {
 			t.Errorf("%s: sizes %+v for %d bytes", f.Path, f, len(b))
 		}
 	}
-	want := []string{"morpheus.min.js", "morpheus.min.css", "morpheus.js", "morpheus.css"}
+	want := []string{
+		"morpheus.min.js", "morpheus.min.css", "morpheus.js", "morpheus.css",
+		"theme-default.css",
+	}
 	if !slices.Equal(names, want) {
 		t.Errorf("files %v, want %v", names, want)
+	}
+}
+
+func TestSelectThemes(t *testing.T) {
+	have := []string{"theme-default.css", "theme-rose.css"}
+	files, unknown := selectThemes([]string{" Theme-Rose.css,default", "rose,none,ocean", ""}, have)
+	if want := []string{"theme-default.css", "theme-rose.css"}; !slices.Equal(files, want) {
+		t.Errorf("files %v, want %v", files, want)
+	}
+	if want := []string{"ocean"}; !slices.Equal(unknown, want) {
+		t.Errorf("unknown %v, want %v", unknown, want)
 	}
 }
 
@@ -97,6 +111,7 @@ func TestUsageErrors(t *testing.T) {
 		{"bundle", "select"},
 		{"bundle", "-components", "selct"},
 		{"bundle", "-components", "select", "-bogus"},
+		{"bundle", "-components", "select", "-themes", "nope"},
 		{"components", "select"},
 	} {
 		var stderr bytes.Buffer

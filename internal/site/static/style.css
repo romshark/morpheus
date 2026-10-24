@@ -3197,7 +3197,7 @@ neo-navgroup.bundle-toggle-grid {
 .bundle-size-table thead th {
 	vertical-align: baseline;
 }
-/* A file name wraps only at its <wbr>. */
+/* A file name wraps only at its <wbr> or hyphen. */
 .bundle-size-table tbody th[scope="row"] {
 	text-align: left;
 	color: var(--page-fg);
@@ -3253,6 +3253,17 @@ neo-navgroup.bundle-toggle-grid {
 .bundle-size-info-text p {
 	margin: 0;
 }
+.bundle-size-theme-alert {
+	display: none;
+	margin: 0.75rem 0 0;
+}
+.bundle-size:has(tr[data-file="theme-default.css"] neo-checkbox:not([checked]:where(:not([checked="false"]))))
+	.bundle-size-theme-alert {
+	display: grid;
+}
+.bundle-size-theme-alert code {
+	white-space: nowrap;
+}
 .bundle-size-downloads {
 	margin: 0.75rem 0 0;
 }
@@ -3276,7 +3287,7 @@ neo-navgroup.bundle-toggle-grid {
 		padding-inline: 0.25rem;
 		font-size: 0.8rem;
 	}
-	/* Visually hidden because every file name starts with "morpheus". */
+	/* Visually hidden because every built file name starts with "morpheus". */
 	.bundle-size-file-base {
 		position: absolute;
 		width: 1px;

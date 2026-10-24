@@ -15,9 +15,11 @@ import (
 	"strings"
 )
 
-// TreePaths are the parts of a source tree a [Version] is prepared from.
+// TreePaths are the parts of a source tree a [Version] is prepared from,
+// as git pathspecs.
 var TreePaths = []string{
-	"web/lib", "web/package.json", "min/bundle.js", "internal/site/static/morpheus.css",
+	"web/lib", "web/package.json", "min/bundle.js", "min/theme-*.css",
+	"internal/site/static/morpheus.css",
 }
 
 // Version is a source tree prepared for building with the current graph
@@ -27,12 +29,14 @@ var TreePaths = []string{
 //   - bundle-src/: the kit's TypeScript, flattened ([flatten]),
 //     with the stylesheets it imports as text and index.ts.
 //   - bundle-css/: the stylesheets morpheus.css imports.
+//   - bundle-themes/: the min/theme-*.css files that load no other file.
 //   - bundle-manifest.json: the [Manifest].
 type Version struct {
 	Manifest Manifest
 	// Absent are the selectable ids the tree lacks.
 	Absent []string
-	// Files are bundle-src/ and bundle-css/ by slash-separated path.
+	// Files are bundle-src/, bundle-css/ and bundle-themes/
+	// by slash-separated path.
 	Files map[string][]byte
 }
 
@@ -42,6 +46,8 @@ type Manifest struct {
 	Esbuild string  `json:"esbuild"`
 	CSS     []Sheet `json:"css"`
 	Entries []Entry `json:"entries"`
+	// Themes are the file names in bundle-themes/, such as theme-default.css.
+	Themes []string `json:"themes"`
 }
 
 // Entry is a graph node in a [Manifest].
@@ -99,9 +105,14 @@ func Prepare(fsys fs.FS) (Version, error) {
 		}
 		files[path.Join("bundle-css", s.File)] = b
 	}
+	themeNames, err := themes(fsys, files)
+	if err != nil {
+		return Version{}, err
+	}
 	return Version{
 		Manifest: Manifest{
 			Banner: banner, Esbuild: esbuild, CSS: sheets, Entries: entries,
+			Themes: themeNames,
 		},
 		Absent: absent,
 		Files:  files,
@@ -125,6 +136,36 @@ func manifestEntries() []Entry {
 		out = append(out, e)
 	}
 	return out
+}
+
+// A url() and its data: scheme, if any.
+var reURL = regexp.MustCompile(`url\(\s*["']?(data:)?`)
+
+// themes adds the tree's min/theme-*.css files to files as bundle-themes/
+// and returns their names. It skips a theme with a url() other than a
+// data: URL, such as a @font-face font, because the url() is a doc-site
+// path and fails anywhere else.
+func themes(fsys fs.FS, files map[string][]byte) ([]string, error) {
+	paths, err := fs.Glob(fsys, "min/theme-*.css")
+	if err != nil {
+		return nil, err
+	}
+	names := []string{}
+	for _, p := range paths {
+		b, err := fs.ReadFile(fsys, p)
+		if err != nil {
+			return nil, err
+		}
+		if slices.ContainsFunc(reURL.FindAllSubmatchIndex(b, -1), func(m []int) bool {
+			return m[2] < 0
+		}) {
+			continue
+		}
+		name := path.Base(p)
+		files[path.Join("bundle-themes", name)] = b
+		names = append(names, name)
+	}
+	return names, nil
 }
 
 // esbuildVersion returns the tree's esbuild devDependency. The bundle builder page

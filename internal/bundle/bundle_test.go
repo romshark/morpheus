@@ -64,6 +64,25 @@ func TestBuildSelection(t *testing.T) {
 	}
 }
 
+// TestThemes tests that [Prepare] ships the min/theme-*.css files that load
+// no other file, unchanged.
+func TestThemes(t *testing.T) {
+	v := prepare(t)
+	want := []string{"theme-default.css", "theme-rose.css", "theme-sunshine.css"}
+	if !slices.Equal(v.Manifest.Themes, want) {
+		t.Errorf("Themes = %v, want %v", v.Manifest.Themes, want)
+	}
+	for _, name := range v.Manifest.Themes {
+		b, err := fs.ReadFile(repo, "min/"+name)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if !bytes.Equal(v.Files["bundle-themes/"+name], b) {
+			t.Errorf("bundle-themes/%s is not min/%s", name, name)
+		}
+	}
+}
+
 // TestEsbuildPin tests that go.mod requires the esbuild version web/package.json pins.
 // web/build.ts builds min/ with it, and the bundle builder page loads it as esbuild-wasm.
 func TestEsbuildPin(t *testing.T) {

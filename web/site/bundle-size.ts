@@ -1,8 +1,9 @@
 // Entry for min/bundlebuilder.min.js, the /bundle-builder page's builder.
 // On each selection or version change, esbuild-wasm builds morpheus.min.js,
 // morpheus.min.css and their unminified forms from the version's sources,
-// as web/build.ts builds min/. Reports sizes, zips the checked files, syncs
-// ?version= and ?components= and runs ?file= downloads.
+// as web/build.ts builds min/, and the version's themes load as they are.
+// Reports sizes, zips the checked files, syncs ?version= and ?components=
+// and runs ?file= downloads.
 //
 // internal/bundle/build.go is the same build for the morpheus command and
 // must produce the same bytes. Change both together.
@@ -34,6 +35,8 @@ interface Manifest {
 	esbuild: string;
 	css: ManifestSheet[];
 	entries: ManifestEntry[];
+	// File names in bundle-themes/.
+	themes: string[];
 }
 interface Source {
 	manifest: Manifest;
@@ -75,13 +78,19 @@ declare global {
 	}
 }
 
-// File names after "morpheus.", as in the data-file rows and ?file= values.
-const FILE_KEYS = ["min.js", "min.css", "js", "css"] as const;
-type FileKey = (typeof FILE_KEYS)[number];
-const fileName = (key: FileKey | "zip") => `morpheus.${key}`;
+const BUILT_NAMES = ["morpheus.min.js", "morpheus.min.css", "morpheus.js", "morpheus.css"] as const;
+type BuiltName = (typeof BUILT_NAMES)[number];
+const ARCHIVE_NAME = "morpheus.zip";
+
+// The data-file values of the size table rows, which are the built files
+// and the themes of all versions.
+const ROW_NAMES = Array.from(
+	document.querySelectorAll<HTMLElement>("#bundle-size tr[data-file]"),
+	(row) => row.dataset.file ?? "",
+);
 
 interface BuiltFile {
-	key: FileKey;
+	name: string;
 	text: string;
 	bytes: Uint8Array<ArrayBuffer>;
 	size: SizeResult;
@@ -274,9 +283,9 @@ async function buildCSS({ manifest, dir }: Source, nodes: ManifestEntry[], minif
 	return minify ? minifyCSS(await getEsbuild(manifest.esbuild), css) : css;
 }
 
-function buildFile(key: FileKey, source: Source, nodes: ManifestEntry[]): Promise<string> {
-	const minify = key.startsWith("min.");
-	return key.endsWith("css") ? buildCSS(source, nodes, minify) : buildJS(source, nodes, minify);
+function buildFile(name: BuiltName, source: Source, nodes: ManifestEntry[]): Promise<string> {
+	const minify = name.includes(".min.");
+	return name.endsWith(".css") ? buildCSS(source, nodes, minify) : buildJS(source, nodes, minify);
 }
 
 const enc = new TextEncoder();
@@ -316,8 +325,8 @@ function setDownload(archive: Blob | null): void {
 	link.removeAttribute("tabindex");
 }
 
-function fileRow(key: FileKey): Element | null {
-	return document.querySelector(`#bundle-size tr[data-file="${key}"]`);
+function fileRow(name: string): Element | null {
+	return document.querySelector(`#bundle-size tr[data-file="${name}"]`);
 }
 
 function totalRow(): Element | null {
@@ -343,8 +352,8 @@ function setCopy(row: Element | null, text: string | null): void {
 }
 
 // Whether the archive includes the file (its row's checkbox).
-function included(key: FileKey): boolean {
-	return fileRow(key)?.querySelector<HTMLElement & { checked?: boolean }>("neo-checkbox")?.checked === true;
+function included(name: string): boolean {
+	return fileRow(name)?.querySelector<HTMLElement & { checked?: boolean }>("neo-checkbox")?.checked === true;
 }
 
 type State = "building" | "ready" | "error";
@@ -366,11 +375,12 @@ function render(state: State, files?: BuiltFile[], message?: string): void {
 	current = state === "ready" && files ? files : null;
 	archiveSeq++;
 	setDownload(null);
-	// Building keeps the last sizes under the overlay; an error clears them.
-	for (const key of FILE_KEYS) {
-		const file = files?.find((f) => f.key === key);
-		setCopy(fileRow(key), file ? file.text : null);
-		if (file || state === "error") setSizes(fileRow(key), file ? file.size : null);
+	// Building keeps the last sizes under the overlay; an error and a
+	// version without the theme clear them.
+	for (const name of ROW_NAMES) {
+		const file = files?.find((f) => f.name === name);
+		setCopy(fileRow(name), file ? file.text : null);
+		if (file || state !== "building") setSizes(fileRow(name), file ? file.size : null);
 	}
 	if (state === "error") setSizes(totalRow(), null);
 }
@@ -379,7 +389,7 @@ function render(state: State, files?: BuiltFile[], message?: string): void {
 // checked or a newer call or render superseded it.
 async function updateArchive(): Promise<Blob | null> {
 	if (!current) return null;
-	const files = current.filter((f) => included(f.key));
+	const files = current.filter((f) => included(f.name));
 	const total: SizeResult = { raw: 0, gzip: 0, brotli: 0 };
 	for (const { size } of files) {
 		total.raw += size.raw;
@@ -390,7 +400,7 @@ async function updateArchive(): Promise<Blob | null> {
 	const mySeq = ++archiveSeq;
 	setDownload(null);
 	if (!files.length) return null;
-	const archive = await zip(files.map((f) => ({ name: fileName(f.key), data: f.bytes })));
+	const archive = await zip(files.map((f) => ({ name: f.name, data: f.bytes })));
 	if (mySeq !== archiveSeq) return null;
 	setDownload(archive);
 	return archive;
@@ -398,14 +408,14 @@ async function updateArchive(): Promise<Blob | null> {
 
 // Runs the ?file= download. Its object URL is not revoked because this
 // runs once per page.
-function download(file: FileKey | "zip", files: BuiltFile[], archive: Blob | null): void {
-	const built = files.find((f) => f.key === file);
-	const type = file.endsWith("css") ? "text/css" : "text/javascript";
-	const blob = file === "zip" ? archive : built && new Blob([built.bytes], { type });
+function download(file: string, files: BuiltFile[], archive: Blob | null): void {
+	const built = files.find((f) => f.name === file);
+	const type = file.endsWith(".css") ? "text/css" : "text/javascript";
+	const blob = file === ARCHIVE_NAME ? archive : built && new Blob([built.bytes], { type });
 	if (!blob) return;
 	const link = document.createElement("a");
 	link.href = URL.createObjectURL(blob);
-	link.download = fileName(file);
+	link.download = file;
 	document.body.append(link);
 	link.click();
 	link.remove();
@@ -439,13 +449,11 @@ function writeURL(selected: string[], version: string): void {
 
 // The ?file= download, for the first build of the requested version and selection;
 // any change cancels it.
-let request: { file: FileKey | "zip"; selection: string } | null = null;
+let request: { file: string; selection: string } | null = null;
 // Replaces the first build when the URL names something unknown; no download runs.
 let requestError: string | null = null;
 
 const selectionKey = (selected: string[], version: string) => `${version}:${selected.join(",")}`;
-
-const isFileKey = (s: string): s is FileKey => (FILE_KEYS as readonly string[]).includes(s);
 
 if (window.__bundleURL) {
 	const { unknown, missing, badVersion, file, selected, version } = window.__bundleURL;
@@ -454,11 +462,10 @@ if (window.__bundleURL) {
 	if (unknown.length) problems.push(`Unknown component${unknown.length > 1 ? "s" : ""}: ${unknown.join(", ")}.`);
 	if (missing.length) problems.push(`Not in ${version}: ${missing.join(", ")}.`);
 	if (file !== null) {
-		const key = file
-			.trim()
-			.toLowerCase()
-			.replace(/^morpheus\./, "");
-		if (key === "zip" || isFileKey(key)) request = { file: key, selection: selectionKey(selected, version) };
+		// "morpheus." is optional, as in ?file=zip.
+		const name = file.trim().toLowerCase();
+		const known = [name, `morpheus.${name}`].find((n) => n === ARCHIVE_NAME || ROW_NAMES.includes(n));
+		if (known) request = { file: known, selection: selectionKey(selected, version) };
 		else problems.push(`Unknown file: ${file}.`);
 	}
 	if (problems.length) {
@@ -475,11 +482,18 @@ async function run(selected: string[], version: string, mySeq: number): Promise<
 		const source = await getSource(version);
 		const nodes = enabledNodes(source.manifest, selected);
 		const stale = () => mySeq !== seq;
+		const pending: [string, Promise<string>][] = [
+			...BUILT_NAMES.map((name): [string, Promise<string>] => [name, buildFile(name, source, nodes)]),
+			...source.manifest.themes.map((name): [string, Promise<string>] => [
+				name,
+				fetchText(`${source.dir}bundle-themes/${name}`),
+			]),
+		];
 		const files = await Promise.all(
-			FILE_KEYS.map(async (key): Promise<BuiltFile> => {
-				const text = await buildFile(key, source, nodes);
+			pending.map(async ([name, load]): Promise<BuiltFile> => {
+				const text = await load;
 				const bytes = enc.encode(text);
-				return { key, text, bytes, size: await sizes(bytes, stale) };
+				return { name, text, bytes, size: await sizes(bytes, stale) };
 			}),
 		);
 		if (mySeq !== seq) return; // a newer selection superseded us

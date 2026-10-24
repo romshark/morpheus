@@ -23,7 +23,7 @@ To ship only the components a page uses, build a trimmed bundle on the [bundle b
 go run github.com/romshark/morpheus@v0.2.0 bundle -components select,dialog -o static/morpheus
 ```
 
-Its `morpheus.min.js` and `morpheus.min.css` replace `bundle.js` and `morpheus.css`. [Command line](https://romshark.github.io/morpheus/bundle-builder/#command-line) describes the command.
+Its `morpheus.min.js` and `morpheus.min.css` replace `bundle.js` and `morpheus.css`. It also writes `theme-default.css`, and `-themes` picks others, such as `-themes default,rose`. [Command line](https://romshark.github.io/morpheus/bundle-builder/#command-line) describes the command.
 
 The Go module carries the templ wrappers (`neo.Select`, `datastar.ComboboxAsync`, and one per component):
 

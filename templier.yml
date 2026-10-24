@@ -14,6 +14,12 @@ tls:
 # pattern cover both the directory itself and every descendant.
 watcher-ignore:
   - "**/node_modules/**"
+  # fsnotify v1.10.1's kqueue backend can emit a Create event named "." after
+  # a watched directory is deleted with its files, as when git gc packs
+  # .git/objects/xx/. templier then exits with "can't make . relative".
+  # Nothing reads events from .git/ or the dst/ output.
+  - ".git/**"
+  - "dst/**"
 
 log:
   level: erronly

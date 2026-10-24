@@ -71,7 +71,9 @@ func run(dst, base string) error {
 	}
 	siteVersions := make([]site.BundleVersion, len(bundleVersions))
 	for i, v := range bundleVersions {
-		siteVersions[i] = site.BundleVersion{Name: v.name, Absent: v.Absent}
+		siteVersions[i] = site.BundleVersion{
+			Name: v.name, Absent: v.Absent, Themes: v.Manifest.Themes,
+		}
 	}
 
 	pages, err := buildPages(release, siteVersions)
@@ -270,8 +272,8 @@ func rewriteHTMLBase(b []byte, base string, pagePaths []string) []byte {
 // rewriteStaticAssetsBase prefixes base onto the "/static/" root-absolute
 // URLs baked into copied JS and CSS assets (bundle.js icon/manifest/
 // datasim paths, minified theme @font-face url()s, sim import specifiers).
-// bundle-src/ and bundle-css/ are skipped, because they are the in-browser
-// builder's downloadable payloads. Users host them elsewhere, and their
+// bundle-src/, bundle-css/ and bundle-themes/ are skipped, because they are
+// the in-browser builder's downloadable payloads. Users host them elsewhere, and their
 // root-absolute defaults must stay unprefixed. base=="" is a no-op.
 func rewriteStaticAssetsBase(staticDir, base string) error {
 	if base == "" {
@@ -284,7 +286,8 @@ func rewriteStaticAssetsBase(staticDir, base string) error {
 			return err
 		}
 		if strings.Contains(p, sep+"bundle-src"+sep) ||
-			strings.Contains(p, sep+"bundle-css"+sep) {
+			strings.Contains(p, sep+"bundle-css"+sep) ||
+			strings.Contains(p, sep+"bundle-themes"+sep) {
 			return nil
 		}
 		if ext := filepath.Ext(p); ext != ".js" && ext != ".css" {

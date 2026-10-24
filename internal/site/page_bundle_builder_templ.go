@@ -10,6 +10,7 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import (
 	"slices"
+	"strings"
 
 	"github.com/romshark/morpheus/internal/bundle"
 	"github.com/romshark/morpheus/internal/href"
@@ -65,7 +66,7 @@ func PageBundleBuilder(morpheusVersion string, versions []BundleVersion) templ.C
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(bundleSignals)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_bundle_builder.templ`, Line: 16, Col: 52}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_bundle_builder.templ`, Line: 17, Col: 52}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 			if templ_7745c5c3_Err != nil {
@@ -103,7 +104,7 @@ func PageBundleBuilder(morpheusVersion string, versions []BundleVersion) templ.C
 						var templ_7745c5c3_Var6 string
 						templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(bundleVersionLabel(versions, i))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_bundle_builder.templ`, Line: 32, Col: 40}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_bundle_builder.templ`, Line: 33, Col: 40}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 						if templ_7745c5c3_Err != nil {
@@ -147,7 +148,7 @@ func PageBundleBuilder(morpheusVersion string, versions []BundleVersion) templ.C
 				var templ_7745c5c3_Var8 string
 				templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.ResolveAttributeValue(bundleEnableAllExpr)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_bundle_builder.templ`, Line: 39, Col: 52}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_bundle_builder.templ`, Line: 40, Col: 52}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var8)
 				if templ_7745c5c3_Err != nil {
@@ -160,7 +161,7 @@ func PageBundleBuilder(morpheusVersion string, versions []BundleVersion) templ.C
 				var templ_7745c5c3_Var9 string
 				templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.ResolveAttributeValue(bundleDisableAllExpr)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_bundle_builder.templ`, Line: 42, Col: 53}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_bundle_builder.templ`, Line: 43, Col: 53}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var9)
 				if templ_7745c5c3_Err != nil {
@@ -212,7 +213,7 @@ func PageBundleBuilder(morpheusVersion string, versions []BundleVersion) templ.C
 							var templ_7745c5c3_Var12 string
 							templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(nd.ShortName())
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_bundle_builder.templ`, Line: 70, Col: 23}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_bundle_builder.templ`, Line: 71, Col: 23}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 							if templ_7745c5c3_Err != nil {
@@ -257,7 +258,7 @@ func PageBundleBuilder(morpheusVersion string, versions []BundleVersion) templ.C
 			var templ_7745c5c3_Var13 string
 			templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.ResolveAttributeValue(bundleCountText)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_bundle_builder.templ`, Line: 92, Col: 34}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_bundle_builder.templ`, Line: 93, Col: 34}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var13)
 			if templ_7745c5c3_Err != nil {
@@ -319,15 +320,15 @@ func PageBundleBuilder(morpheusVersion string, versions []BundleVersion) templ.C
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			for _, f := range bundleFiles {
+			for _, f := range bundleFiles(versions) {
 				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<tr data-file=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var16 string
-				templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.ResolveAttributeValue(f.Key)
+				templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.ResolveAttributeValue(f.Name)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_bundle_builder.templ`, Line: 129, Col: 30}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_bundle_builder.templ`, Line: 130, Col: 31}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var16)
 				if templ_7745c5c3_Err != nil {
@@ -342,44 +343,146 @@ func PageBundleBuilder(morpheusVersion string, versions []BundleVersion) templ.C
 					Size:    neo.Set("sm"),
 					AriaLabel: neo.Set(
 						"Include " +
-							f.Name() +
+							f.Name +
 							" in morpheus.zip",
 					),
 				}).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<span><span class=\"bundle-size-file-base\">morpheus</span> <wbr> ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<span>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				var templ_7745c5c3_Var17 string
-				templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs("." + f.Key)
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_bundle_builder.templ`, Line: 146, Col: 26}
+				if rest, ok := strings.CutPrefix(f.Name, "morpheus"); ok {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<span class=\"bundle-size-file-base\">morpheus</span><wbr>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var17 string
+					templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(rest)
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_bundle_builder.templ`, Line: 144, Col: 77}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+				} else {
+					var templ_7745c5c3_Var18 string
+					templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(f.Name)
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_bundle_builder.templ`, Line: 146, Col: 22}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
 				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</span></label></th><td class=\"bundle-size-raw\"><span data-size=\"raw\">-</span>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</span></label></th><td class=\"bundle-size-raw\"><span data-size=\"raw\">-</span>")
+				templ_7745c5c3_Err = bundleCopyButton(f.Name).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = bundleCopyButton(f.Name()).Render(ctx, templ_7745c5c3_Buffer)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</td><td data-size=\"gzip\">-</td><td data-size=\"br\">-</td></tr>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</td><td data-size=\"gzip\">-</td><td data-size=\"br\">-</td></tr>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<tr class=\"bundle-size-total\"><th scope=\"row\">Total</th><td class=\"bundle-size-raw\"><span data-size=\"raw\">-</span> <span class=\"bundle-size-copy\" aria-hidden=\"true\"></span></td><td data-size=\"gzip\">-</td><td data-size=\"br\">-</td></tr></tbody></table></div><neo-layout class=\"bundle-size-downloads\" justify-content=\"center\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<tr class=\"bundle-size-total\"><th scope=\"row\">Total</th><td class=\"bundle-size-raw\"><span data-size=\"raw\">-</span> <span class=\"bundle-size-copy\" aria-hidden=\"true\"></span></td><td data-size=\"gzip\">-</td><td data-size=\"br\">-</td></tr></tbody></table></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Var18 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+			templ_7745c5c3_Var19 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+				templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+				templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+				if !templ_7745c5c3_IsBuffer {
+					defer func() {
+						templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+						if templ_7745c5c3_Err == nil {
+							templ_7745c5c3_Err = templ_7745c5c3_BufErr
+						}
+					}()
+				}
+				ctx = templ.InitializeContext(ctx)
+				templ_7745c5c3_Var20 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+					templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+					templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+					if !templ_7745c5c3_IsBuffer {
+						defer func() {
+							templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+							if templ_7745c5c3_Err == nil {
+								templ_7745c5c3_Err = templ_7745c5c3_BufErr
+							}
+						}()
+					}
+					ctx = templ.InitializeContext(ctx)
+					templ_7745c5c3_Err = neo.Icon("info").Render(ctx, templ_7745c5c3_Buffer)
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					return nil
+				})
+				templ_7745c5c3_Err = neo.AlertIcon().Render(templ.WithChildren(ctx, templ_7745c5c3_Var20), templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Var21 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+					templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+					templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+					if !templ_7745c5c3_IsBuffer {
+						defer func() {
+							templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+							if templ_7745c5c3_Err == nil {
+								templ_7745c5c3_Err = templ_7745c5c3_BufErr
+							}
+						}()
+					}
+					ctx = templ.InitializeContext(ctx)
+					templ_7745c5c3_Var22 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+						templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+						templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+						if !templ_7745c5c3_IsBuffer {
+							defer func() {
+								templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+								if templ_7745c5c3_Err == nil {
+									templ_7745c5c3_Err = templ_7745c5c3_BufErr
+								}
+							}()
+						}
+						ctx = templ.InitializeContext(ctx)
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "The components and the other themes need <code>theme-default.css</code>.")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						return nil
+					})
+					templ_7745c5c3_Err = neo.AlertDescription().Render(templ.WithChildren(ctx, templ_7745c5c3_Var22), templ_7745c5c3_Buffer)
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					return nil
+				})
+				templ_7745c5c3_Err = neo.AlertContent().Render(templ.WithChildren(ctx, templ_7745c5c3_Var21), templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				return nil
+			})
+			templ_7745c5c3_Err = neo.AlertAttrs(neo.AlertOpts{
+				Variant: neo.Set(neo.AlertVariantInfo),
+			}, templ.Attributes{"class": "bundle-size-theme-alert"}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var19), templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<neo-layout class=\"bundle-size-downloads\" justify-content=\"center\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Var23 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 				templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 				templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
 				if !templ_7745c5c3_IsBuffer {
@@ -395,7 +498,7 @@ func PageBundleBuilder(morpheusVersion string, versions []BundleVersion) templ.C
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, " Download morpheus.zip")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, " Download morpheus.zip")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -405,28 +508,28 @@ func PageBundleBuilder(morpheusVersion string, versions []BundleVersion) templ.C
 				Variant:  neo.Set(neo.LinkVariantButtonPrimary),
 				Download: neo.Set("morpheus.zip"),
 				Disabled: neo.Set(true),
-			}, templ.Attributes{"id": "bundle-download"}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var18), templ_7745c5c3_Buffer)
+			}, templ.Attributes{"id": "bundle-download"}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var23), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</neo-layout><p class=\"bundle-size-note\">Built in your browser with esbuild.</p></div></div><span hidden aria-hidden=\"true\" data-effect=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</neo-layout><p class=\"bundle-size-note\">Built in your browser with esbuild.</p></div></div><span hidden aria-hidden=\"true\" data-effect=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var19 string
-			templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.ResolveAttributeValue(bundleSizeUpdate)
+			var templ_7745c5c3_Var24 string
+			templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.ResolveAttributeValue(bundleSizeUpdate)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_bundle_builder.templ`, Line: 189, Col: 34}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_bundle_builder.templ`, Line: 203, Col: 34}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var19)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "\"></span></section><section class=\"demo\">")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var24)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Var20 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "\"></span></section><section class=\"demo\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Var25 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 				templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 				templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
 				if !templ_7745c5c3_IsBuffer {
@@ -438,69 +541,69 @@ func PageBundleBuilder(morpheusVersion string, versions []BundleVersion) templ.C
 					}()
 				}
 				ctx = templ.InitializeContext(ctx)
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "Command line")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "Command line")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				return nil
 			})
-			templ_7745c5c3_Err = anchoredH2("command-line").Render(templ.WithChildren(ctx, templ_7745c5c3_Var20), templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = anchoredH2("command-line").Render(templ.WithChildren(ctx, templ_7745c5c3_Var25), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<p>The <code>morpheus</code> command builds the same files without a browser. It needs Go, and the version after <code>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<p>The <code>morpheus</code> command builds the same files without a browser. It needs Go, and the version after <code>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var21 string
-			templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs("@")
+			var templ_7745c5c3_Var26 string
+			templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs("@")
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_bundle_builder.templ`, Line: 199, Col: 15}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_bundle_builder.templ`, Line: 213, Col: 15}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</code> selects the release it builds:</p><div class=\"theming-source\"><site-codemirror language=\"bash\" readonly><template>")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var22 string
-			templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(bundleCLIRun(morpheusVersion))
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_bundle_builder.templ`, Line: 203, Col: 46}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</code> selects the release it builds:</p><div class=\"theming-source\"><site-codemirror language=\"bash\" readonly><template>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "</template></site-codemirror></div><p><code>-components</code> takes the names on this page, comma-separated, and adds the components they require. The command writes <code>morpheus.min.js</code> and <code>morpheus.min.css</code> to the <code>-o</code> directory and prints their sizes. With <code>-json</code> it prints the result as JSON, and with <code>-unminified</code> it also writes <code>morpheus.js</code> and <code>morpheus.css</code>.</p><p>In a Go module, add the command as a tool. It then builds the version the module requires, which the <code>neo</code> and <code>datastar</code> packages come from:</p><div class=\"theming-source\"><site-codemirror language=\"bash\" readonly><template>")
+			var templ_7745c5c3_Var27 string
+			templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinStringErrs(bundleCLIRun(morpheusVersion))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_bundle_builder.templ`, Line: 217, Col: 46}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var23 string
-			templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(bundleCLITool(morpheusVersion))
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_bundle_builder.templ`, Line: 223, Col: 47}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</template></site-codemirror></div><p><code>-components</code> takes the names on this page, comma-separated, and adds the components they require. The command writes <code>morpheus.min.js</code>, <code>morpheus.min.css</code> and <code>theme-default.css</code> to the <code>-o</code> directory and prints their sizes. <code>-themes</code> takes theme names, such as <code>default,rose</code>, or <code>none</code>. With <code>-json</code> it prints the result as JSON, and with <code>-unminified</code> it also writes <code>morpheus.js</code> and <code>morpheus.css</code>.</p><p>In a Go module, add the command as a tool. It then builds the version the module requires, which the <code>neo</code> and <code>datastar</code> packages come from:</p><div class=\"theming-source\"><site-codemirror language=\"bash\" readonly><template>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "</template></site-codemirror></div><p><code>morpheus components</code> lists the names with the components each requires, and <code>morpheus bundle -h</code> lists the flags.</p></section><script>\n\t\t\t// Buffers the latest update until bundlebuilder.min.js loads.\n\t\t\twindow.__bundleSizeUpdate = function (s, v) {\n\t\t\t\twindow.__bundleSizePending = [s, v];\n\t\t\t};\n\t\t</script> <script type=\"module\" src=\"")
+			var templ_7745c5c3_Var28 string
+			templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinStringErrs(bundleCLITool(morpheusVersion))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_bundle_builder.templ`, Line: 239, Col: 47}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var28))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var24 string
-			templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.ResolveAttributeValue(href.Asset("min/bundlebuilder.min.js"))
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_bundle_builder.templ`, Line: 238, Col: 68}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var24)
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</template></site-codemirror></div><p><code>morpheus components</code> lists the names with the components each requires, and <code>morpheus bundle -h</code> lists the flags.</p></section><script>\n\t\t\t// Buffers the latest update until bundlebuilder.min.js loads.\n\t\t\twindow.__bundleSizeUpdate = function (s, v) {\n\t\t\t\twindow.__bundleSizePending = [s, v];\n\t\t\t};\n\t\t</script> <script type=\"module\" src=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "\"></script>")
+			var templ_7745c5c3_Var29 string
+			templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.ResolveAttributeValue(href.Asset("min/bundlebuilder.min.js"))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_bundle_builder.templ`, Line: 254, Col: 68}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var29)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "\"></script>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -535,12 +638,12 @@ func bundleURLBootstrap() templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var25 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var25 == nil {
-			templ_7745c5c3_Var25 = templ.NopComponent
+		templ_7745c5c3_Var30 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var30 == nil {
+			templ_7745c5c3_Var30 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<script>\n\t\twindow.__bundleURL = (function () {\n\t\t\tvar data = JSON.parse(document.getElementById(\"bundle-components\").textContent);\n\t\t\tvar query = new URLSearchParams(location.search);\n\t\t\tvar absentBy = {};\n\t\t\tdata.versions.forEach(function (v) {\n\t\t\t\tabsentBy[v.name] = v.absent || [];\n\t\t\t});\n\t\t\tvar version = query.get(\"version\");\n\t\t\tvar badVersion = null;\n\t\t\tif (version === null || !absentBy[version]) {\n\t\t\t\tbadVersion = version;\n\t\t\t\tversion = data.versions[0].name;\n\t\t\t}\n\t\t\tvar ids = data.components.map(function (c) {\n\t\t\t\treturn c.id;\n\t\t\t});\n\t\t\tvar depsByID = {};\n\t\t\tdata.components.forEach(function (c) {\n\t\t\t\tdepsByID[c.id] = c.deps || [];\n\t\t\t});\n\t\t\tfunction absentIn(v) {\n\t\t\t\treturn absentBy[v] || [];\n\t\t\t}\n\t\t\t// The ids in sel and their requirements that version v has, in ids order.\n\t\t\tfunction withDeps(sel, v) {\n\t\t\t\tvar picked = {};\n\t\t\t\tsel.forEach(function (id) {\n\t\t\t\t\tpicked[id] = true;\n\t\t\t\t\t(depsByID[id] || []).forEach(function (d) {\n\t\t\t\t\t\tpicked[d] = true;\n\t\t\t\t\t});\n\t\t\t\t});\n\t\t\t\treturn ids.filter(function (id) {\n\t\t\t\t\treturn picked[id] && absentIn(v).indexOf(id) < 0;\n\t\t\t\t});\n\t\t\t}\n\t\t\tvar named = ids;\n\t\t\tvar unknown = [];\n\t\t\tvar missing = [];\n\t\t\tif (query.has(\"components\")) {\n\t\t\t\tvar byName = {};\n\t\t\t\tdata.components.forEach(function (c) {\n\t\t\t\t\tbyName[c.name] = c;\n\t\t\t\t});\n\t\t\t\tnamed = [];\n\t\t\t\tquery.getAll(\"components\").join(\",\").split(\",\").forEach(function (raw) {\n\t\t\t\t\tvar name = raw.trim().toLowerCase().replace(/^neo-/, \"\");\n\t\t\t\t\tvar c = byName[name];\n\t\t\t\t\tif (!c) {\n\t\t\t\t\t\tif (name) unknown.push(raw.trim());\n\t\t\t\t\t} else if (absentIn(version).indexOf(c.id) >= 0) {\n\t\t\t\t\t\tmissing.push(c.name);\n\t\t\t\t\t} else {\n\t\t\t\t\t\tnamed.push(c.id);\n\t\t\t\t\t}\n\t\t\t\t});\n\t\t\t}\n\t\t\treturn {\n\t\t\t\tcomponents: data.components,\n\t\t\t\tids: ids,\n\t\t\t\tdefaultVersion: data.versions[0].name,\n\t\t\t\tversion: version,\n\t\t\t\tselected: withDeps(named, version),\n\t\t\t\tunknown: unknown,\n\t\t\t\tmissing: missing,\n\t\t\t\tbadVersion: badVersion,\n\t\t\t\tfile: query.get(\"file\"),\n\t\t\t\tabsent: absentIn,\n\t\t\t\twithDeps: withDeps,\n\t\t\t};\n\t\t})();\n\t</script>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "<script>\n\t\twindow.__bundleURL = (function () {\n\t\t\tvar data = JSON.parse(document.getElementById(\"bundle-components\").textContent);\n\t\t\tvar query = new URLSearchParams(location.search);\n\t\t\tvar absentBy = {};\n\t\t\tdata.versions.forEach(function (v) {\n\t\t\t\tabsentBy[v.name] = v.absent || [];\n\t\t\t});\n\t\t\tvar version = query.get(\"version\");\n\t\t\tvar badVersion = null;\n\t\t\tif (version === null || !absentBy[version]) {\n\t\t\t\tbadVersion = version;\n\t\t\t\tversion = data.versions[0].name;\n\t\t\t}\n\t\t\tvar ids = data.components.map(function (c) {\n\t\t\t\treturn c.id;\n\t\t\t});\n\t\t\tvar depsByID = {};\n\t\t\tdata.components.forEach(function (c) {\n\t\t\t\tdepsByID[c.id] = c.deps || [];\n\t\t\t});\n\t\t\tfunction absentIn(v) {\n\t\t\t\treturn absentBy[v] || [];\n\t\t\t}\n\t\t\t// The ids in sel and their requirements that version v has, in ids order.\n\t\t\tfunction withDeps(sel, v) {\n\t\t\t\tvar picked = {};\n\t\t\t\tsel.forEach(function (id) {\n\t\t\t\t\tpicked[id] = true;\n\t\t\t\t\t(depsByID[id] || []).forEach(function (d) {\n\t\t\t\t\t\tpicked[d] = true;\n\t\t\t\t\t});\n\t\t\t\t});\n\t\t\t\treturn ids.filter(function (id) {\n\t\t\t\t\treturn picked[id] && absentIn(v).indexOf(id) < 0;\n\t\t\t\t});\n\t\t\t}\n\t\t\tvar named = ids;\n\t\t\tvar unknown = [];\n\t\t\tvar missing = [];\n\t\t\tif (query.has(\"components\")) {\n\t\t\t\tvar byName = {};\n\t\t\t\tdata.components.forEach(function (c) {\n\t\t\t\t\tbyName[c.name] = c;\n\t\t\t\t});\n\t\t\t\tnamed = [];\n\t\t\t\tquery.getAll(\"components\").join(\",\").split(\",\").forEach(function (raw) {\n\t\t\t\t\tvar name = raw.trim().toLowerCase().replace(/^neo-/, \"\");\n\t\t\t\t\tvar c = byName[name];\n\t\t\t\t\tif (!c) {\n\t\t\t\t\t\tif (name) unknown.push(raw.trim());\n\t\t\t\t\t} else if (absentIn(version).indexOf(c.id) >= 0) {\n\t\t\t\t\t\tmissing.push(c.name);\n\t\t\t\t\t} else {\n\t\t\t\t\t\tnamed.push(c.id);\n\t\t\t\t\t}\n\t\t\t\t});\n\t\t\t}\n\t\t\treturn {\n\t\t\t\tcomponents: data.components,\n\t\t\t\tids: ids,\n\t\t\t\tdefaultVersion: data.versions[0].name,\n\t\t\t\tversion: version,\n\t\t\t\tselected: withDeps(named, version),\n\t\t\t\tunknown: unknown,\n\t\t\t\tmissing: missing,\n\t\t\t\tbadVersion: badVersion,\n\t\t\t\tfile: query.get(\"file\"),\n\t\t\t\tabsent: absentIn,\n\t\t\t\twithDeps: withDeps,\n\t\t\t};\n\t\t})();\n\t</script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -565,12 +668,12 @@ func bundleSizeInfo(label string) templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var26 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var26 == nil {
-			templ_7745c5c3_Var26 = templ.NopComponent
+		templ_7745c5c3_Var31 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var31 == nil {
+			templ_7745c5c3_Var31 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Var27 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_Var32 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 			templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 			templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
 			if !templ_7745c5c3_IsBuffer {
@@ -582,7 +685,7 @@ func bundleSizeInfo(label string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "<neo-button")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "<neo-button")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -590,20 +693,20 @@ func bundleSizeInfo(label string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, " variant=\"ghost\" size=\"sm\" aria-label=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, " variant=\"ghost\" size=\"sm\" aria-label=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var28 string
-			templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.ResolveAttributeValue("How the " + label + " size is measured")
+			var templ_7745c5c3_Var33 string
+			templ_7745c5c3_Var33, templ_7745c5c3_Err = templ.ResolveAttributeValue("How the " + label + " size is measured")
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_bundle_builder.templ`, Line: 332, Col: 56}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_bundle_builder.templ`, Line: 348, Col: 56}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var28)
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var33)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -611,7 +714,7 @@ func bundleSizeInfo(label string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "</neo-button><div")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "</neo-button><div")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -619,15 +722,15 @@ func bundleSizeInfo(label string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, " class=\"bundle-size-info-text\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, " class=\"bundle-size-info-text\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templ_7745c5c3_Var26.Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = templ_7745c5c3_Var31.Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "</div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "</div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -635,7 +738,7 @@ func bundleSizeInfo(label string) templ.Component {
 		})
 		templ_7745c5c3_Err = neo.PopoverAttrs(neo.PopoverOpts{
 			Placement: neo.Set(neo.PlacementBottomEnd),
-		}, templ.Attributes{"class": "bundle-size-info"}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var27), templ_7745c5c3_Buffer)
+		}, templ.Attributes{"class": "bundle-size-info"}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var32), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -661,12 +764,12 @@ func bundleCopyButton(file string) templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var29 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var29 == nil {
-			templ_7745c5c3_Var29 = templ.NopComponent
+		templ_7745c5c3_Var34 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var34 == nil {
+			templ_7745c5c3_Var34 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Var30 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_Var35 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 			templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 			templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
 			if !templ_7745c5c3_IsBuffer {
@@ -678,20 +781,20 @@ func bundleCopyButton(file string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "<neo-button variant=\"ghost\" size=\"sm\" disabled aria-label=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "<neo-button variant=\"ghost\" size=\"sm\" disabled aria-label=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var31 string
-			templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.ResolveAttributeValue("Copy " + file)
+			var templ_7745c5c3_Var36 string
+			templ_7745c5c3_Var36, templ_7745c5c3_Err = templ.ResolveAttributeValue("Copy " + file)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_bundle_builder.templ`, Line: 346, Col: 76}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_bundle_builder.templ`, Line: 362, Col: 76}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var31)
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var36)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "\"><span data-neo-clipcopy-idle>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "\"><span data-neo-clipcopy-idle>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -699,7 +802,7 @@ func bundleCopyButton(file string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "</span> <span data-neo-clipcopy-copied>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "</span> <span data-neo-clipcopy-copied>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -707,13 +810,13 @@ func bundleCopyButton(file string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "</span></neo-button>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "</span></neo-button>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = neo.ClipcopyAttrs(neo.ClipcopyOpts{}, templ.Attributes{"class": "bundle-size-copy"}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var30), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = neo.ClipcopyAttrs(neo.ClipcopyOpts{}, templ.Attributes{"class": "bundle-size-copy"}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var35), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

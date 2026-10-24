@@ -18,11 +18,13 @@ const bundleVersionSignal = "$bundleVersion"
 const bundleAbsentExpr = "window.__bundleURL.absent(" + bundleVersionSignal + ")"
 
 // BundleVersion is a release tag the bundle builder builds, or "main" for
-// the working tree. Absent are the selectable ids it lacks. internal/cmd/gen
-// lists the default first, which is the newest release without a pre-release suffix.
+// the working tree. Absent are the selectable ids it lacks and Themes its
+// [bundle.Manifest.Themes]. internal/cmd/gen lists the default first,
+// which is the newest release without a pre-release suffix.
 type BundleVersion struct {
 	Name   string   `json:"name"`
 	Absent []string `json:"absent,omitempty"`
+	Themes []string `json:"-"`
 }
 
 func bundleVersionLabel(versions []BundleVersion, i int) string {
@@ -85,20 +87,41 @@ func bundleURLComponents() []bundleURLComponent {
 	return out
 }
 
-// bundleFile is a size table row. Key is the file name after "morpheus."
-// and the ?file= value. Zip puts the file in the archive by default.
+// bundleFile is a size table row. Name is the row's data-file and the
+// ?file= value. Zip puts the file in the archive by default.
 type bundleFile struct {
-	Key string
-	Zip bool
+	Name string
+	Zip  bool
 }
 
-func (f bundleFile) Name() string { return "morpheus." + f.Key }
+// bundleDefaultTheme is the theme the components need.
+const bundleDefaultTheme = "theme-default.css"
 
-var bundleFiles = []bundleFile{
-	{"min.js", true},
-	{"min.css", true},
-	{"js", false},
-	{"css", false},
+// bundleFiles are the built files, then the themes of all versions with
+// [bundleDefaultTheme] first. bundle-size.ts leaves the row of a theme
+// the selected version lacks empty.
+func bundleFiles(versions []BundleVersion) []bundleFile {
+	files := []bundleFile{
+		{"morpheus.min.js", true},
+		{"morpheus.min.css", true},
+		{"morpheus.js", false},
+		{"morpheus.css", false},
+	}
+	var themes []string
+	for _, v := range versions {
+		for _, t := range v.Themes {
+			if !slices.Contains(themes, t) {
+				themes = append(themes, t)
+			}
+		}
+	}
+	if i := slices.Index(themes, bundleDefaultTheme); i > 0 {
+		themes = slices.Insert(slices.Delete(themes, i, i+1), 0, bundleDefaultTheme)
+	}
+	for _, t := range themes {
+		files = append(files, bundleFile{t, t == bundleDefaultTheme})
+	}
+	return files
 }
 
 // bundleEnableAllExpr and bundleDisableAllExpr are the bulk handlers.

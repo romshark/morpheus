@@ -27,7 +27,8 @@ import (
 // tree holds [bundle.TreePaths] at the version the command is built from.
 // The all: prefix embeds web/lib's _*.css, which //go:embed skips by default.
 //
-//go:embed all:web/lib web/package.json min/bundle.js internal/site/static/morpheus.css
+//go:embed all:web/lib web/package.json min/bundle.js min/theme-*.css
+//go:embed internal/site/static/morpheus.css
 var tree embed.FS
 
 //go:embed VERSION
@@ -37,13 +38,14 @@ const usageText = `Morpheus %s builds a bundle of only the components a page use
 
 Usage:
 
-	morpheus bundle -components <names> [-o <dir>] [-unminified] [-json]
+	morpheus bundle -components <names> [-themes <names>] [-o <dir>] [-unminified] [-json]
 	morpheus components [-json]
 
 Commands:
 
 	bundle      write morpheus.min.js and morpheus.min.css with the named
-	            components and the components they require
+	            components and the components they require, and the
+	            theme stylesheets
 	components  list the names bundle takes, with the components each
 	            requires and the sub-components each includes
 
@@ -52,12 +54,16 @@ The bundle builder page builds the same files:
 https://romshark.github.io/morpheus/bundle-builder/
 `
 
-const bundleUsage = `Usage: morpheus bundle -components <names> [-o <dir>] [-unminified] [-json]
+const bundleUsage = `Usage: morpheus bundle -components <names> [-themes <names>] [-o <dir>] [-unminified] [-json]
 
 Bundle writes morpheus.min.js and morpheus.min.css to the -o directory with
 the named components and the components they require. The files replace
 bundle.js and morpheus.css. A name is one "morpheus components" lists,
 with or without "neo-".
+
+Bundle also writes theme-<name>.css for each -themes name, the same file
+as min/theme-<name>.css. The components need theme-default.css, which
+-themes defaults to. -themes none writes no theme.
 
 Example:
 
@@ -133,6 +139,9 @@ func runBundle(args []string, stdout, stderr io.Writer) int {
 	var names listFlag
 	fl.Var(&names, "components",
 		"comma-separated component `names`, such as select,dialog; repeatable")
+	var themeNames listFlag
+	fl.Var(&themeNames, "themes",
+		"comma-separated theme `names`, such as default,rose, or none; repeatable (default \"default\")")
 	dir := fl.String("o", ".", "output `directory`")
 	unminified := fl.Bool("unminified", false, "also write morpheus.js and morpheus.css")
 	asJSON := fl.Bool("json", false, "print the result as JSON")
@@ -160,6 +169,18 @@ func runBundle(args []string, stdout, stderr io.Writer) int {
 		return fail(stderr, exitUsage,
 			"bundle: no components: name them with -components, such as -components select,dialog")
 	}
+	if len(themeNames) == 0 {
+		themeNames = listFlag{"default"}
+	}
+	themes, unknown := selectThemes(themeNames, v.Manifest.Themes)
+	if len(unknown) > 0 {
+		var all []string
+		for _, f := range v.Manifest.Themes {
+			all = append(all, themeName(f))
+		}
+		return fail(stderr, exitUsage, "bundle: unknown theme: %s\nThemes: %s",
+			strings.Join(unknown, ", "), strings.Join(all, ", "))
+	}
 
 	type file struct {
 		name string
@@ -176,6 +197,9 @@ func runBundle(args []string, stdout, stderr io.Writer) int {
 			return fail(stderr, exitFail, "bundle: %v", err)
 		}
 		files = append(files, file{"morpheus.js", js}, file{"morpheus.css", css})
+	}
+	for _, name := range themes {
+		files = append(files, file{name, v.Files["bundle-themes/"+name]})
 	}
 	if err := os.MkdirAll(*dir, 0o755); err != nil {
 		return fail(stderr, exitFail, "bundle: %v", err)
@@ -304,6 +328,38 @@ func components(v bundle.Version) []componentInfo {
 		list = append(list, c)
 	}
 	return list
+}
+
+// selectThemes returns the file names in have, such as theme-default.css,
+// of the comma-separated values in have order, and the values matching none.
+// A value may carry the "theme-" and ".css" of its file name.
+// "none" selects nothing.
+func selectThemes(values, have []string) (files, unknown []string) {
+	picked := make(map[string]bool)
+	for raw := range strings.SplitSeq(strings.Join(values, ","), ",") {
+		raw = strings.TrimSpace(raw)
+		name := themeName(strings.ToLower(raw))
+		file := "theme-" + name + ".css"
+		switch {
+		case name == "" || name == "none":
+		case slices.Contains(have, file):
+			picked[file] = true
+		default:
+			unknown = append(unknown, raw)
+		}
+	}
+	for _, file := range have {
+		if picked[file] {
+			files = append(files, file)
+		}
+	}
+	return files, unknown
+}
+
+// themeName returns the theme name in a file name, such as default
+// in theme-default.css.
+func themeName(file string) string {
+	return strings.TrimSuffix(strings.TrimPrefix(file, "theme-"), ".css")
 }
 
 // shortNames maps each [bundle.Node.ID] to its [bundle.Node.ShortName].

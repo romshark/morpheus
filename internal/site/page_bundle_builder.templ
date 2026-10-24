@@ -2,6 +2,7 @@ package site
 
 import (
 	"slices"
+	"strings"
 
 	"github.com/romshark/morpheus/internal/bundle"
 	"github.com/romshark/morpheus/internal/href"
@@ -125,8 +126,8 @@ templ PageBundleBuilder(morpheusVersion string, versions []BundleVersion) {
 								</tr>
 							</thead>
 							<tbody>
-								for _, f := range bundleFiles {
-									<tr data-file={ f.Key }>
+								for _, f := range bundleFiles(versions) {
+									<tr data-file={ f.Name }>
 										<th scope="row">
 											<label class="bundle-size-file">
 												@neo.Checkbox(neo.CheckboxOpts{
@@ -134,22 +135,22 @@ templ PageBundleBuilder(morpheusVersion string, versions []BundleVersion) {
 													Size:    neo.Set("sm"),
 													AriaLabel: neo.Set(
 														"Include " +
-															f.Name() +
+															f.Name +
 															" in morpheus.zip",
 													),
 												})
 												<span>
-													<span class="bundle-size-file-base">
-														morpheus
-													</span>
-													<wbr/>
-													{ "." + f.Key }
+													if rest, ok := strings.CutPrefix(f.Name, "morpheus"); ok {
+														<span class="bundle-size-file-base">morpheus</span><wbr/>{ rest }
+													} else {
+														{ f.Name }
+													}
 												</span>
 											</label>
 										</th>
 										<td class="bundle-size-raw">
 											<span data-size="raw">-</span>
-											@bundleCopyButton(f.Name())
+											@bundleCopyButton(f.Name)
 										</td>
 										<td data-size="gzip">-</td>
 										<td data-size="br">-</td>
@@ -170,6 +171,19 @@ templ PageBundleBuilder(morpheusVersion string, versions []BundleVersion) {
 							</tbody>
 						</table>
 					</div>
+					@neo.AlertAttrs(neo.AlertOpts{
+						Variant: neo.Set(neo.AlertVariantInfo),
+					}, templ.Attributes{"class": "bundle-size-theme-alert"}) {
+						@neo.AlertIcon() {
+							@neo.Icon("info")
+						}
+						@neo.AlertContent() {
+							@neo.AlertDescription() {
+								The components and the other themes need
+								<code>theme-default.css</code>.
+							}
+						}
+					}
 					<neo-layout class="bundle-size-downloads" justify-content="center">
 						@neo.LinkAttrs(neo.LinkOpts{
 							Variant:  neo.Set(neo.LinkVariantButtonPrimary),
@@ -206,9 +220,11 @@ templ PageBundleBuilder(morpheusVersion string, versions []BundleVersion) {
 			<p>
 				<code>-components</code> takes the names on this page,
 				comma-separated, and adds the components they require.
-				The command writes <code>morpheus.min.js</code> and
-				<code>morpheus.min.css</code> to the <code>-o</code>
-				directory and prints their sizes. With <code>-json</code>
+				The command writes <code>morpheus.min.js</code>,
+				<code>morpheus.min.css</code> and <code>theme-default.css</code>
+				to the <code>-o</code> directory and prints their sizes.
+				<code>-themes</code> takes theme names, such as
+				<code>default,rose</code>, or <code>none</code>. With <code>-json</code>
 				it prints the result as JSON, and with
 				<code>-unminified</code> it also writes
 				<code>morpheus.js</code> and <code>morpheus.css</code>.

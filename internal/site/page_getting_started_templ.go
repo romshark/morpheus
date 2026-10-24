@@ -492,7 +492,7 @@ func PageGettingStarted(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "makes a bundle of only the components you choose. Its <code>morpheus.min.js</code> and <code>morpheus.min.css</code> replace <code>bundle.js</code> and <code>morpheus.css</code>. The <code>morpheus</code> command builds the same files from the&nbsp;")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "makes a bundle of only the components you choose. Its <code>morpheus.min.js</code> and <code>morpheus.min.css</code> replace <code>bundle.js</code> and <code>morpheus.css</code>, and it includes <code>theme-default.css</code>. The <code>morpheus</code> command builds the same files from the&nbsp;")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -547,7 +547,7 @@ func PageGettingStarted(morpheusVersion string) templ.Component {
 			var templ_7745c5c3_Var31 string
 			templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.JoinStringErrs(" ")
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_getting_started.templ`, Line: 108, Col: 9}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_getting_started.templ`, Line: 109, Col: 9}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var31))
 			if templ_7745c5c3_Err != nil {
@@ -582,7 +582,7 @@ func PageGettingStarted(morpheusVersion string) templ.Component {
 			var templ_7745c5c3_Var33 string
 			templ_7745c5c3_Var33, templ_7745c5c3_Err = templ.JoinStringErrs(" ")
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_getting_started.templ`, Line: 112, Col: 9}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_getting_started.templ`, Line: 113, Col: 9}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var33))
 			if templ_7745c5c3_Err != nil {
@@ -621,7 +621,7 @@ func PageGettingStarted(morpheusVersion string) templ.Component {
 			var templ_7745c5c3_Var35 string
 			templ_7745c5c3_Var35, templ_7745c5c3_Err = templ.JoinStringErrs(gettingStartedInstallGo)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_getting_started.templ`, Line: 124, Col: 40}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_getting_started.templ`, Line: 125, Col: 40}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var35))
 			if templ_7745c5c3_Err != nil {
