@@ -1,4 +1,4 @@
-![Static Badge](https://img.shields.io/badge/version-pre--alpha%20v0.1.0-yellow?style=for-the-badge)
+![Static Badge](https://img.shields.io/badge/version-alpha%20v0.2.0-yellow?style=for-the-badge)
 [![Requires Baseline 2024](https://img.shields.io/badge/requires-Baseline%202024-4285f4?style=for-the-badge)](#browser-support)
 
 # Morpheus
@@ -10,9 +10,9 @@ Morpheus is an open alpha web component UI kit. It provides 49 components and 5 
 Load the base stylesheet, 1 theme stylesheet and the component bundle. [jsDelivr](https://www.jsdelivr.com) serves every tagged release straight from this repository.
 
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/romshark/morpheus@v0.1.0/min/morpheus.css"/>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/romshark/morpheus@v0.1.0/min/theme-default.css"/>
-<script type="module" src="https://cdn.jsdelivr.net/gh/romshark/morpheus@v0.1.0/min/bundle.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/romshark/morpheus@v0.2.0/min/morpheus.css"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/romshark/morpheus@v0.2.0/min/theme-default.css"/>
+<script type="module" src="https://cdn.jsdelivr.net/gh/romshark/morpheus@v0.2.0/min/bundle.js"></script>
 ```
 
 Pin the tag. Floating refs such as `@latest` resolve to the newest matching tag and pull in breaking changes. To self-host, take the same files from [`/min/`](min) or from a [release](https://github.com/romshark/morpheus/releases).
@@ -20,7 +20,7 @@ Pin the tag. Floating refs such as `@latest` resolve to the newest matching tag 
 To ship only the components a page uses, build a trimmed bundle on the [bundle builder](https://romshark.github.io/morpheus/bundle-builder/) page or with the `morpheus` command, which needs Go:
 
 ```sh
-go run github.com/romshark/morpheus@v0.1.0 bundle -components select,dialog -o static/morpheus
+go run github.com/romshark/morpheus@v0.2.0 bundle -components select,dialog -o static/morpheus
 ```
 
 Its `morpheus.min.js` and `morpheus.min.css` replace `bundle.js` and `morpheus.css`. [Command line](https://romshark.github.io/morpheus/bundle-builder/#command-line) describes the command.

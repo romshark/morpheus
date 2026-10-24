@@ -4,6 +4,8 @@ This file records the notable changes of each release in the format of [Keep a C
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-10-24
+
 ### Added
 
 #### Components
@@ -50,4 +52,5 @@ This file records the notable changes of each release in the format of [Keep a C
 
 - Pre-render `enter` and `delete` in `neo.Kbd` with the labels the client shows. They changed after the script loaded.
 
-[Unreleased]: https://github.com/romshark/morpheus/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/romshark/morpheus/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/romshark/morpheus/compare/v0.1.0...v0.2.0
