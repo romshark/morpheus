@@ -113,15 +113,14 @@ jobs:
             exit 1
           fi
 
-      # Pre-release for 0.x (the project is in open alpha) and for any tag
-      # carrying a suffix such as -rc1.
+      # Pre-release only for a tag carrying a suffix such as -rc1.
       - name: Publish the GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           prerelease=""
           case "$TAG" in
-            v0.*|*-*) prerelease="--prerelease" ;;
+            *-*) prerelease="--prerelease" ;;
           esac
           if gh release view "$TAG" >/dev/null 2>&1; then
             echo "Release $TAG already exists; refreshing its notes and assets."

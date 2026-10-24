@@ -47,8 +47,8 @@ func prepareBundleVersions(release string) ([]bundleVersion, error) {
 		}
 		versions = append(versions, bundleVersion{name: tag, Version: v})
 	}
-	// Only a "-" suffix marks a pre-release, which lets a v0 release be the default.
-	// release.yml also marks v0.* as GitHub pre-releases.
+	// Only a "-" suffix marks a pre-release, as in release.yml, which lets a v0
+	// release be the default.
 	if i := slices.IndexFunc(versions, func(v bundleVersion) bool {
 		return !strings.Contains(v.name, "-")
 	}); i > 0 {
