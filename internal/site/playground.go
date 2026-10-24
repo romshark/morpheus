@@ -12,7 +12,7 @@ type PlaygroundState struct {
 	Label string
 	HTML  string
 	// CSS is the state's styling, shown in the editor's CSS tab and
-	// applied to the preview wrapped in <style>@scope { … }</style> so it
+	// applied to the preview wrapped in <style>@scope { ... }</style> so it
 	// scopes to the preview subtree only. Empty for states with no styling.
 	CSS string
 }
@@ -25,8 +25,8 @@ type PlaygroundOpts struct {
 	Height neo.CSSUnit
 	// MinWidth sets the preview stage's minimum width (the resizable's
 	// left/right drag lower bound). Empty defaults to "14rem"; raise it for
-	// components that need room to stay legible when dragged narrow (e.g. a
-	// sidebar shell).
+	// components that need room to stay legible when dragged narrow
+	// (e.g. a sidebar shell).
 	MinWidth neo.CSSUnit
 	States   []PlaygroundState
 	// Autoplay starts cycling through enabled states on connect (once in
@@ -39,8 +39,8 @@ type PlaygroundOpts struct {
 
 // playgroundSimWarningShow is the Datastar guard for the toolbar's
 // simulator-settings warning. The signals are global, declared by the
-// site Settings panel. The preview routes through the simulator, so a
-// throttled / erroring / unreachable server makes it look like the live
+// site Settings panel. The preview routes through the simulator.
+// A throttled / erroring / unreachable server makes it look like the live
 // preview misbehaves. Mirrors the Settings panel's own warning.
 const playgroundSimWarningShow = "$_sim_unreachable || $_sim_server_error || $_sim_latency_max > 0 || $_sim_delay > 0"
 
@@ -52,7 +52,7 @@ func (o PlaygroundOpts) stageMinWidth() neo.CSSUnit {
 }
 
 // scopedStyleTag wraps CSS in a scoped <style>. @scope with no prelude
-// scopes to the <style> element's parent (the preview/stage container), so
+// scopes to the <style> element's parent (the preview/stage container), and
 // the styles never leak to the page. Empty CSS yields no element. Shared by
 // the playground preview and the demo-frame live preview.
 func scopedStyleTag(css string) string {
@@ -63,9 +63,9 @@ func scopedStyleTag(css string) string {
 	return "<style>@scope {\n" + css + "\n}</style>\n"
 }
 
-// playgroundPreviewHTML is a state's initial preview body: its scoped CSS
-// followed by its markup. Must match site-playground.ts #previewCode so an
-// unedited state patches identically.
+// playgroundPreviewHTML returns a state's initial preview body, its scoped
+// CSS followed by its markup. Must match site-playground.ts #previewCode
+// so an unedited state patches identically.
 func playgroundPreviewHTML(state PlaygroundState) string {
 	return scopedStyleTag(state.CSS) + state.HTML
 }

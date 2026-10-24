@@ -1,8 +1,8 @@
 package neo
 
 // Rating prerenders <neo-rating> with the same symbol markup and ARIA
-// the JS host would build on connect, so the control paints once with
-// no upgrade flicker. The host's reconcile() adopts the prerendered
+// the JS host would build on connect, which lets the control paint once
+// with no upgrade flicker. The host's reconcile() adopts the prerendered
 // [data-neo-rating-symbols] subtree when its shape matches (symbol
 // count == max, same icon) instead of rebuilding it.
 templ Rating(opts RatingOpts) {
@@ -52,10 +52,10 @@ templ RatingAttrs(opts RatingOpts, attrs templ.Attributes) {
 	</neo-rating>
 }
 
-// ratingSymbols emits the decorative symbol row. The host carries the
-// slider semantics, so the row is aria-hidden. Each symbol stacks
-// empty, candidate, and committed layers; the candidate layer starts
-// at zero width and is driven by hover/drag in the JS host.
+// ratingSymbols emits the decorative symbol row. The row is aria-hidden
+// because the host carries the slider semantics. Each symbol stacks empty,
+// candidate, and committed layers; the candidate layer starts
+// at width 0 and the JS host sets it on hover/drag.
 templ ratingSymbols(opts RatingOpts) {
 	<div data-neo-rating-symbols aria-hidden="true">
 		for _, i := range opts.symbolIndices() {

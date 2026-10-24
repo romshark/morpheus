@@ -51,7 +51,7 @@ templ PageDatalist(morpheusVersion string) {
 				Shared across controls
 			}
 			<p class="demo-note">
-				One <code>{ `<neo-datalist id="…">` }</code> supplies the
+				One <code>{ `<neo-datalist id="...">` }</code> supplies the
 				same options to every control whose
 				<code>{ `list="<id>"` }</code> references it.
 			</p>
@@ -64,8 +64,8 @@ templ PageDatalist(morpheusVersion string) {
 				</li>
 				<li>
 					The datalist itself renders nothing; each control
-					reads it and renders its own way: Select and
-					Combobox as listbox options, Text input as
+					reads it and renders it its own way, Select and
+					Combobox as listbox options and Text input as
 					free-text suggestions. Selection stays
 					per-control.
 				</li>
@@ -91,10 +91,10 @@ templ PageDatalist(morpheusVersion string) {
 var datalistDoc = ComponentDoc{
 	Attributes: []DocAttribute{
 		{Name: "id", Type: "string", Observed: true,
-			Description: templ.Raw("Names the datalist so controls can reference it. A control opts in with <code>list=\"&lt;id&gt;\"</code> (like native <code>&lt;input list&gt;</code>); one id can feed several controls. Omit it for an <em>inline</em> datalist placed inside a single control. An inline datalist (or a control's own authored options) always wins over a referenced external one.")},
+			Description: templ.Raw("Names the datalist so controls can reference it. A control opts in with <code>list=\"&lt;id&gt;\"</code> (like native <code>&lt;input list&gt;</code>); one id can feed several controls. Omit it for an <em>inline</em> datalist placed inside a single control. An inline datalist (or a control's own authored options) always takes precedence over a referenced external one.")},
 	},
 	Slots: []DocSlot{
 		{Name: "default",
-			Description: templ.Raw("<code>&lt;neo-option&gt;</code> and <code>&lt;neo-optgroup&gt;</code> option data: the same children a <code>&lt;neo-select&gt;</code> / <code>&lt;neo-combobox&gt;</code> takes. The element is not interactive; the consuming control reads this data and owns the trigger, listbox, keyboard, and selection. Patching these children re-syncs every control the datalist feeds.")},
+			Description: templ.Raw("<code>&lt;neo-option&gt;</code> and <code>&lt;neo-optgroup&gt;</code> option data, the same children a <code>&lt;neo-select&gt;</code> / <code>&lt;neo-combobox&gt;</code> takes. The element is not interactive; the consuming control reads this data and owns the trigger, listbox, keyboard, and selection. Patching these children re-syncs every control the datalist feeds.")},
 	},
 }

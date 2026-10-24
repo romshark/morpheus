@@ -99,7 +99,7 @@ func PageTooltip(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</code> with tooltip semantics: no focus stealing, no click dismissal, <code>pointer-events: none</code>, <code>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</code> with tooltip semantics (no focus stealing, no click dismissal, <code>pointer-events: none</code>, <code>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -112,7 +112,7 @@ func PageTooltip(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</code>, and <code>aria-describedby</code> on the trigger. The first non-content child is the trigger. The <code>text</code> attribute is the shorthand body; pass a child carrying <code>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</code>, and <code>aria-describedby</code> on the trigger). The first non-content child is the trigger. The <code>text</code> attribute is the shorthand body; pass a child carrying <code>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -209,7 +209,7 @@ func PageTooltip(morpheusVersion string) templ.Component {
 							}()
 						}
 						ctx = templ.InitializeContext(ctx)
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "Tooltips trigger on hover and keyboard focus; touch devices have neither, so a tap never reveals one. Never put essential information only in a tooltip; keep it available inline for touch and assistive technology users.")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "Tooltips trigger on hover and keyboard focus. Touch devices have neither. A tap never reveals one. Never put essential information only in a tooltip; keep it available inline for touch and assistive technology users.")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -313,7 +313,7 @@ func PageTooltip(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<p class=\"demo-note\">Twelve combinations: each side (<code>top</code>, <code>right</code>, <code>bottom</code>, <code>left</code>) paired with optional <code>-start</code> or <code>-end</code> alignment. Bare side names center the panel on that edge; <code>bottom-start</code> is the initial value.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<p class=\"demo-note\">Each side (<code>top</code>, <code>right</code>, <code>bottom</code>, <code>left</code>) pairs with an optional <code>-start</code> or <code>-end</code> alignment, for 12 combinations. Bare side names center the panel on that edge; <code>bottom-start</code> is the initial value.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -429,7 +429,7 @@ func PageTooltip(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</code> to render arbitrary markup as the body. The <code>text</code> attribute is ignored once that slot is present, so the slot wins on collisions.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</code> to render arbitrary markup as the body. The <code>text</code> attribute is ignored once that slot is present.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

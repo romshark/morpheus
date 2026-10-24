@@ -222,8 +222,8 @@ func buildPages(
 }
 
 // normalizeBase canonicalises the -base prefix. "" stays "" (document root);
-// anything else gets a single leading slash and no trailing one,
-// so "morpheus", "/morpheus" and "/morpheus/" all yield "/morpheus".
+// anything else gets a single leading slash and no trailing one.
+// "morpheus", "/morpheus" and "/morpheus/" all yield "/morpheus".
 func normalizeBase(base string) string {
 	base = strings.Trim(base, "/")
 	if base == "" {
@@ -233,25 +233,25 @@ func normalizeBase(base string) string {
 }
 
 // rewriteHTMLBase prefixes base onto every root-absolute URL in one rendered page.
-// Two kinds occur, and they never overlap so order is irrelevant:
+// 2 kinds occur, and they never overlap, which makes order irrelevant:
 //
 //   - Asset URLs "/static/...". They are always the value of a quoted
-//     token in the output ("href=", "src=", an import specifier),
-//     so anchoring on the leading quote leaves any /static/ shown as
+//     token in the output ("href=", "src=", an import specifier).
+//     Anchoring on the leading quote leaves any /static/ shown as
 //     literal text in a doc example untouched.
 //   - The site's own page links, whose exact paths are pagePaths.
 //
 // Datastar demo action paths (e.g. /tree/loadnode/) are intercepted by
-// the client-side simulator on their literal value and are not in pagePaths,
-// so they stay unprefixed by design. base=="" is a no-op.
+// the client-side simulator on their literal value and are not in pagePaths.
+// They stay unprefixed by design. base=="" is a no-op.
 func rewriteHTMLBase(b []byte, base string, pagePaths []string) []byte {
 	if base == "" {
 		return b
 	}
 	s := string(b)
-	// Assets first: this also turns page-named asset dirs (e.g. /static/avatar/)
-	// into /base/static/... before the page loop runs,
-	// so the page anchors below cannot match inside an asset path.
+	// Assets go first. This turns page-named asset dirs (e.g. /static/avatar/)
+	// into /base/static/... before the page loop runs, which keeps the page
+	// anchors from matching inside an asset path.
 	s = strings.ReplaceAll(s, `"/static/`, `"`+base+`/static/`)
 	for _, p := range pagePaths {
 		if p == "/" {
@@ -270,8 +270,8 @@ func rewriteHTMLBase(b []byte, base string, pagePaths []string) []byte {
 // rewriteStaticAssetsBase prefixes base onto the "/static/" root-absolute
 // URLs baked into copied JS and CSS assets (bundle.js icon/manifest/
 // datasim paths, minified theme @font-face url()s, sim import specifiers).
-// bundle-src/ and bundle-css/ are skipped: those are the in-browser
-// builder's downloadable payloads, hosted by users elsewhere, so their
+// bundle-src/ and bundle-css/ are skipped, because they are the in-browser
+// builder's downloadable payloads. Users host them elsewhere, and their
 // root-absolute defaults must stay unprefixed. base=="" is a no-op.
 func rewriteStaticAssetsBase(staticDir, base string) error {
 	if base == "" {
@@ -328,7 +328,7 @@ func pageOutPath(dst, urlPath string) string {
 // the tracked /min/ artifacts onto {dst}/static/min/. Bulk copy + prune
 // delegates to rsync (mtime+size incremental, --delete handles removed sources).
 // *.js sources under internal/site/static are excluded from the first rsync
-// and handled by minifyJSFiles below (sim/ demo snippets);
+// and handled by [minifyJSFiles] (sim/ demo snippets);
 // top-level *.css sources and the component CSS source modules aren't shipped
 // (pages reference the minified outputs in /min/,
 // and bundle assets are emitted explicitly).
@@ -393,8 +393,8 @@ func copyMin(dstStatic string) error {
 
 // minifyJSFiles walks src for *.js sources, invoking esbuild only on
 // files whose dst counterpart is missing or older than the source.
-// rsync excludes *.js from --delete, so removed sources leave stale .js in dst,
-// acceptable since this is an incremental dev path.
+// rsync excludes *.js from --delete, and removed sources leave stale .js in
+// dst. That is acceptable on this incremental dev path.
 func minifyJSFiles(src, dstStatic string) error {
 	return filepath.WalkDir(src, func(p string, d fs.DirEntry, err error) error {
 		if err != nil || d.IsDir() || !strings.HasSuffix(p, ".js") {

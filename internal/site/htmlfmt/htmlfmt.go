@@ -6,8 +6,7 @@
 // one line stays inline; a longer one breaks each child onto its own line.
 // Prose (an element with direct text) flows its inline content instead of
 // stacking it, unless it wraps a structural child too wide to inline, which
-// forces a stack. A start tag wider than the target wraps one attribute per
-// line.
+// forces a stack. A start tag wider than the target wraps one attribute per line.
 package htmlfmt
 
 import (
@@ -16,8 +15,8 @@ import (
 	"golang.org/x/net/html"
 )
 
-// width is the target line length: start tags and subtrees wider than this
-// wrap. Prose content still flows past it (a paragraph is never stacked).
+// width is the target line length. Start tags and subtrees wider than this wrap.
+// Prose content still flows past it (a paragraph is never stacked).
 const width = 80
 
 var voidTags = map[string]bool{
@@ -52,7 +51,8 @@ func Format(s string) string {
 		}
 		switch tt {
 		case html.TextToken, html.CommentToken, html.DoctypeToken:
-			cur().children = append(cur().children, &node{isText: true, text: string(z.Raw())})
+			cur().children = append(cur().children,
+				&node{isText: true, text: string(z.Raw())})
 		case html.StartTagToken, html.SelfClosingTagToken:
 			raw := string(z.Raw())
 			name, _ := z.TagName()
@@ -84,7 +84,7 @@ func writeNode(b *strings.Builder, n *node, depth int) {
 	ind := strings.Repeat("  ", depth)
 	if n.isText {
 		if t := strings.TrimSpace(collapseWS(n.text)); t != "" {
-			b.WriteString(ind + t + "\n")
+			writeLine(b, ind, t)
 		}
 		return
 	}
@@ -95,41 +95,41 @@ func writeNode(b *strings.Builder, n *node, depth int) {
 	if rawTextTags[n.tag] {
 		body := strings.Trim(rawText(n), "\n")
 		if !strings.Contains(body, "\n") {
-			b.WriteString(ind + n.rawOpen + strings.TrimSpace(body) + "</" + n.tag + ">\n")
+			writeLine(b, ind, n.rawOpen, strings.TrimSpace(body), "</", n.tag, ">")
 			return
 		}
-		b.WriteString(ind + n.rawOpen + "\n")
+		writeLine(b, ind, n.rawOpen)
 		for _, line := range dedentRawLines(body) {
 			if line == "" {
 				b.WriteString("\n")
 				continue
 			}
-			b.WriteString(ind + "  " + line + "\n")
+			writeLine(b, ind, "  ", line)
 		}
-		b.WriteString(ind + "</" + n.tag + ">\n")
+		writeLine(b, ind, "</", n.tag, ">")
 		return
 	}
 	inline := serializeInline(n)
 	openTagFits := len(ind)+len(n.rawOpen) <= width
 	// Prose flows its inline content on one line, but only when it is a real
 	// paragraph; a direct-text element wrapping a structural child too wide to
-	// inline (e.g. a handle <span> nesting a <neo-icon>) is a container, so it
+	// inline (e.g. a handle <span> nesting a <neo-icon>) is a container and
 	// stacks instead of emitting one very long line.
 	flowProse := hasDirectText(n) && !hasStructuralOversizedChild(n, len(ind)+2)
-	// Whole element on one line: its open tag fits and either it flows as
-	// prose or the entire subtree fits the width.
+	// The whole element goes on one line when its open tag fits and either it
+	// flows as prose or the entire subtree fits the width.
 	if openTagFits && !strings.Contains(inline, "\n") &&
 		(flowProse || len(ind)+len(inline) <= width) {
-		b.WriteString(ind + inline + "\n")
+		writeLine(b, ind, inline)
 		return
 	}
 	switch {
 	case !hasRenderableChildren(n):
 		// Empty element: wrap the attribute list, close on the bracket line.
 		if writeAttrHead(b, ind, n.rawOpen) {
-			b.WriteString(ind + "></" + n.tag + ">\n")
+			writeLine(b, ind, "></", n.tag, ">")
 		} else {
-			b.WriteString(ind + n.rawOpen + "</" + n.tag + ">\n")
+			writeLine(b, ind, n.rawOpen, "</", n.tag, ">")
 		}
 	case flowProse:
 		// Prose with an oversized open tag: wrap the attributes, then flow
@@ -139,19 +139,29 @@ func writeNode(b *strings.Builder, n *node, depth int) {
 			for _, c := range n.children {
 				sb.WriteString(serializeInline(c))
 			}
-			b.WriteString(ind + ">" + sb.String() + "</" + n.tag + ">\n")
+			writeLine(b, ind, ">", sb.String(), "</", n.tag, ">")
 		} else {
-			b.WriteString(ind + inline + "\n")
+			writeLine(b, ind, inline)
 		}
 	default:
-		// Container: open tag (attributes wrapped when oversized), then each
-		// child on its own line.
+		// Container: open tag (attributes wrapped when oversized),
+		// then each child on its own line.
 		writeOpenTag(b, ind, n.rawOpen)
 		for _, c := range n.children {
 			writeNode(b, c, depth+1)
 		}
-		b.WriteString(ind + "</" + n.tag + ">\n")
+		writeLine(b, ind, "</", n.tag, ">")
 	}
+}
+
+// writeLine writes ind, then parts, then a newline. It writes each part
+// separately instead of concatenating them, which allocates a temporary string.
+func writeLine(b *strings.Builder, ind string, parts ...string) {
+	b.WriteString(ind)
+	for _, p := range parts {
+		b.WriteString(p)
+	}
+	b.WriteByte('\n')
 }
 
 // writeOpenTag emits a start tag, breaking each attribute onto its own line
@@ -159,24 +169,24 @@ func writeNode(b *strings.Builder, n *node, depth int) {
 // own line aligned with the tag.
 func writeOpenTag(b *strings.Builder, ind, rawOpen string) {
 	if len(ind)+len(rawOpen) <= width {
-		b.WriteString(ind + rawOpen + "\n")
+		writeLine(b, ind, rawOpen)
 		return
 	}
 	_, _, selfClose, _ := splitStartTag(rawOpen)
 	if !writeAttrHead(b, ind, rawOpen) {
-		b.WriteString(ind + rawOpen + "\n")
+		writeLine(b, ind, rawOpen)
 		return
 	}
 	if selfClose {
-		b.WriteString(ind + "/>\n")
+		writeLine(b, ind, "/>")
 	} else {
-		b.WriteString(ind + ">\n")
+		writeLine(b, ind, ">")
 	}
 }
 
 // writeAttrHead writes a start tag with one attribute per line, stopping
 // before the closing bracket so the caller appends it as ">", "/>",
-// "></tag>", or ">…</tag>":
+// "></tag>", or ">...</tag>":
 //
 //	<tag
 //	  attr1
@@ -188,9 +198,9 @@ func writeAttrHead(b *strings.Builder, ind, rawOpen string) bool {
 	if !ok || len(attrs) == 0 {
 		return false
 	}
-	b.WriteString(ind + "<" + name + "\n")
+	writeLine(b, ind, "<", name)
 	for _, a := range attrs {
-		b.WriteString(ind + "  " + a + "\n")
+		writeLine(b, ind, "  ", a)
 	}
 	return true
 }
@@ -263,18 +273,19 @@ func serializeInline(n *node) string {
 	for _, c := range n.children {
 		sb.WriteString(serializeInline(c))
 	}
-	sb.WriteString("</" + n.tag + ">")
+	sb.WriteString("</")
+	sb.WriteString(n.tag)
+	sb.WriteByte('>')
 	return sb.String()
 }
 
 // dedentRawLines normalizes a multi-line raw-text body (a <style> or <script>
-// block carried verbatim from .templ source). Example sources indent with
-// tabs, and the block sits a few levels deep in its templ function, so each
-// line arrives with that base tab nesting. Strip the common leading tabs (so
-// the block doesn't double-indent under the writer's own prefix), then expand
-// the remaining per-rule leading tabs to two spaces, matching the 2-space
-// scheme of the surrounding HTML. Blank lines collapse to empty; trailing
-// whitespace is trimmed.
+// block carried verbatim from .templ source). Example sources indent with tabs,
+// and the block sits a few levels deep in its templ function.
+// Each line arrives with that base tab nesting. Strip the common leading tabs
+// (so the block doesn't double-indent under the writer's own prefix), then expand
+// the remaining per-rule leading tabs to 2 spaces, matching the 2-space scheme of
+// the surrounding HTML. Blank lines collapse to empty; trailing whitespace is trimmed.
 func dedentRawLines(body string) []string {
 	lines := strings.Split(body, "\n")
 	prefix := ""
@@ -326,8 +337,8 @@ func rawText(n *node) string {
 }
 
 // hasRenderableChildren reports whether the element has any child that
-// produces output: a non-whitespace text node or any element. An element
-// without one is empty, so its close tag rides the bracket line.
+// produces output, meaning a non-whitespace text node or any element.
+// An element without one is empty and its close tag goes on the bracket line.
 func hasRenderableChildren(n *node) bool {
 	for _, c := range n.children {
 		if !c.isText || strings.TrimSpace(c.text) != "" {
@@ -337,7 +348,7 @@ func hasRenderableChildren(n *node) bool {
 	return false
 }
 
-// hasDirectText reports whether the element holds prose: a direct,
+// hasDirectText reports whether the element holds prose, meaning a direct,
 // non-whitespace text child. Such elements stay inline so a paragraph
 // flows instead of stacking each text run and inline element on its own line.
 func hasDirectText(n *node) bool {
@@ -350,10 +361,10 @@ func hasDirectText(n *node) bool {
 }
 
 // hasStructuralOversizedChild reports whether any element child both nests
-// its own element children and is too wide to inline at childIndent. Such a
-// child must break onto its own lines, so its direct-text parent is a
+// its own element children and is too wide to inline at childIndent.
+// Such a child must break onto its own lines, which makes its direct-text parent a
 // structural container, not a flowing paragraph. A paragraph's inline children
-// (text-only <kbd>, <code>, <a>) hold no nested element, so they never qualify
+// (text-only <kbd>, <code>, <a>) hold no nested element. They never qualify,
 // and prose keeps flowing.
 func hasStructuralOversizedChild(n *node, childIndent int) bool {
 	for _, c := range n.children {
@@ -378,7 +389,7 @@ func hasChildElement(n *node) bool {
 }
 
 // collapseWS reduces internal whitespace runs to single spaces while keeping
-// a single boundary space when the original had one, so inline prose like
+// a single boundary space when the original had one. Inline prose like
 // `press <kbd>g</kbd> then` keeps its spacing.
 func collapseWS(s string) string {
 	if strings.TrimSpace(s) == "" {

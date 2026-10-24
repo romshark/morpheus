@@ -8,15 +8,15 @@ package neo
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
-// Icon renders <neo-icon name="…"> with the SVG body inlined from the
+// Icon renders <neo-icon name="..."> with the SVG body inlined from the
 // configured icon FS, eliminating the upgrade-time fetch flash on first
 // paint. The custom element still upgrades and re-fetches when the
 // theme changes.
 //
-// `data-neo-icon-base` carries the URL prefix the inlined SVG came from;
-// the JS upgrade only adopts the inlined markup when it matches the
-// prefix it'd resolve from --neo-icon-base, so a matrix-themed user
-// re-fetches the right icon set instead of being stuck with the
+// `data-neo-icon-base` carries the URL prefix the inlined SVG came from.
+// The JS upgrade only adopts the inlined markup when it matches the
+// prefix it'd resolve from --neo-icon-base. A user on a theme with its
+// own icon set then re-fetches the right icons instead of keeping the
 // default-theme SVG the server pre-rendered.
 func Icon(name string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {

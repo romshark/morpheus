@@ -10,8 +10,8 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import "github.com/romshark/morpheus/neo"
 
-// PageDebugBorders: hidden /debug-borders/ harness for visually
-// auditing border width/color consistency across every bordered
+// PageDebugBorders renders the hidden /debug-borders/ harness for
+// visually auditing border width/color consistency across every bordered
 // control, standalone and composed inside input groups. Custom top bar
 // flips theme, color mode, and high contrast so the same grid can be
 // compared across every combination. Not linked from navigation.
@@ -758,7 +758,7 @@ func PageDebugBorders(morpheusVersion string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "<neo-input-group><span>Sort</span> <neo-select value=\"b\" aria-label=\"Sort by\"><neo-option value=\"a\">Newest</neo-option> <neo-option value=\"b\">Oldest</neo-option> <neo-option value=\"c\">A–Z</neo-option></neo-select></neo-input-group>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "<neo-input-group><span>Sort</span> <neo-select value=\"b\" aria-label=\"Sort by\"><neo-option value=\"a\">Newest</neo-option> <neo-option value=\"b\">Oldest</neo-option> <neo-option value=\"c\">A-Z</neo-option></neo-select></neo-input-group>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -882,9 +882,9 @@ func dbCell(label string) templ.Component {
 	})
 }
 
-// debugBordersBar: sticky controls that flip theme, color mode, and
-// high contrast. Combines siteTheme + siteA11yPrefs signal wiring into
-// one bar (see site.templ for the canonical versions).
+// debugBordersBar renders sticky controls that flip theme, color mode,
+// and high contrast. It combines the signal wiring of [siteTheme] and
+// [siteA11yPrefs], which hold the canonical versions, into 1 bar.
 func debugBordersBar() templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context

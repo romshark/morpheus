@@ -435,7 +435,7 @@ func PageNavgroup(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<p class=\"demo-note\">A horizontal row of formatting buttons with <code>wrap</code> on, so arrow keys cycle past either edge. <code>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<p class=\"demo-note\">A horizontal row of formatting buttons with <code>wrap</code> on, which makes arrow keys cycle past either edge. <code>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -565,7 +565,7 @@ func PageNavgroup(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "</code> with a <code>columns</code> count and arrow keys move in two dimensions. <code>wrap</code> wraps both axes, so a Right at the end of a row jumps to the start of the next row.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "</code> with a <code>columns</code> count and arrow keys move in 2 dimensions. <code>wrap</code> wraps both axes. A Right at the end of a row jumps to the start of the next row.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -618,7 +618,7 @@ func PageNavgroup(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<p class=\"demo-note\">Disabled items stay in place so the toolbar's visual order is preserved, but arrow keys skip over them: they're dropped from the roving focus set and can't be activated. Useful for media controls where the available actions change with playback state.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<p class=\"demo-note\">Disabled items stay in place so the toolbar's visual order is preserved, but arrow keys skip over them. They're dropped from the roving focus set and can't be activated. Useful for media controls where the available actions change with playback state.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

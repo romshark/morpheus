@@ -1,17 +1,16 @@
-/* theme-matrix.css: phosphor green on a near-black background, sharp
- * corners. A nod to the 1999 film's CRT-terminal aesthetic. Unlike
+/* theme-matrix.css: phosphor green on a near-black background, sharp corners.
+ * A nod to the 1999 film's CRT-terminal aesthetic. Unlike
  * the other themes, both modes share the dark background. "light"
  * mode is the loud, full-phosphor look (max #00ff41); "dark" mode
  * dims the greens down so the same surfaces feel like a screen at
- * low brightness. Either way --page-radius collapses to 0 for hard
- * edges. */
+ * low brightness. Either way --page-radius collapses to 0 for hard edges. */
 
-/* VT323 by Peter Hull, OFL-licensed (see /static/fonts/LICENSE). The
- * font is only requested when the matrix theme is active (its
- * --page-font-family below names "VT323"), so users on every other
- * theme don't pay for the download. `font-display: swap` shows the
- * monospace fallback during the ~18 KB fetch and swaps in cleanly
- * when ready, instead of blocking first paint on a webfont. */
+/* VT323 by Peter Hull, OFL-licensed (see /static/fonts/LICENSE).
+ * The font is only requested when the matrix theme is active (its
+ * --page-font-family names "VT323"). Users on every other theme don't
+ * download it. `font-display: swap` shows the monospace fallback during
+ * the ~18 KB fetch and swaps in cleanly when ready, instead of blocking
+ * first paint on a webfont. */
 @font-face {
 	font-family: "VT323";
 	src: url("/static/fonts/vt323-latin-400.woff2") format("woff2");
@@ -32,7 +31,7 @@
 	--page-bg: #000a04;
 	--muted: #2da55a;
 
-	/* Body text is already the #00ff41 phosphor, so links shift to a
+	/* Body text is already the #00ff41 phosphor. Links shift to a
 	 * brighter mint to stand apart; the underline does the rest. */
 	--link: #5cffac;
 	--link-hover: #9dffc4;
@@ -41,7 +40,7 @@
 	--page-radius: 0;
 	--page-spacing: 0.18rem;
 
-	/* VT323 is a pixel-grid CRT terminal font (vendored, see top of file).
+	/* VT323 is a pixel-grid CRT terminal font (vendored, see @font-face).
 	 * The monospace stack is the fallback chain while the webfont is
 	 * loading and for any glyph VT323 doesn't cover. Set on the light
 	 * variant only; dark matrix inherits via the cascade. */
@@ -51,15 +50,15 @@
 
 	/* Swap Lucide for Pixelarticons (MIT, vendored under
 	 * /static/icons-matrix/). <neo-icon> reads this var to resolve
-	 * `name="..."` against a directory, so flipping the directory
-	 * flips the entire icon set theme-wide with no app changes. The
+	 * `name="..."` against a directory. Changing the directory swaps
+	 * the entire icon set theme-wide with no app changes. The
 	 * file names mirror the default set so existing markup keeps
 	 * working. See /static/icons-matrix/LICENSE for attribution. */
 	--neo-icon-base: "/static/icons-matrix";
 
 	/* CRT-frame animations: stepped easing snaps state in discrete
 	 * frames (popover open, switch toggle, sidebar slide), and the
-	 * 0.4× duration scale halves+ every per-component duration so
+	 * 0.4x duration scale cuts every per-component duration to 40% so
 	 * the kit feels closer to a hardware terminal than a smooth GUI.
 	 * Both vars are kit-wide overrides plumbed through every
 	 * `transition:` declaration in morpheus.css; themes never touch
@@ -69,7 +68,7 @@
 	/* Hover/focus feedback is instant on matrix; a CRT terminal
 	 * doesn't fade highlights, the cursor block just appears. State
 	 * changes (popover open, sidebar slide, switch toggle) keep the
-	 * stepped duration above; only interactive feedback is zeroed. */
+	 * stepped duration; only interactive feedback is zeroed. */
 	--neo-duration-hover: 0ms;
 
 	/* Square the switch's track and thumb so they match the
@@ -78,11 +77,11 @@
 	--neo-switch-track-radius: 0;
 	--neo-switch-thumb-radius: 0;
 
-	/* Same for the badge: base theme uses 9999px (pill); matrix
+	/* Square the badge too. The base theme uses 9999px (pill); matrix
 	 * is boxy. */
 	--neo-badge-radius: 0;
 
-	/* Matrix avatars use a six-sided terminal-glyph silhouette rather
+	/* Matrix avatars use a 6-sided terminal-glyph silhouette rather
 	 * than the round crop used by softer themes. */
 	--neo-avatar-radius: 0;
 	--neo-avatar-border-width: 0;
@@ -105,8 +104,8 @@
 		drop-shadow(-1px -1px 0 var(--btn-border));
 	--neo-avatars-border-width: 0;
 
-	/* Square the slider too: rail, thumb, and anchor dots all drop
-	 * to zero radius, and the rail thickens to the thumb's height
+	/* Square the slider too. Rail, thumb, and anchor dots all drop
+	 * to radius 0, and the rail thickens to the thumb's height
 	 * so the thumb reads as a square cursor sliding along a solid
 	 * scrubber bar, closer to a hardware fader than the round
 	 * lozenge default. */
@@ -115,7 +114,7 @@
 	--neo-slider-anchor-radius: 0;
 	--neo-slider-track-height: var(--neo-slider-thumb-size, 1rem);
 
-	/* 45° hatch on disabled surfaces, reads like a CRT scanline
+	/* 45deg hatch on disabled surfaces, reads like a CRT scanline
 	 * mask and reinforces the brutalist look. The overlay layers
 	 * over each component's existing background-color, tinted with
 	 * the theme's accent so it stays in-key. */
@@ -189,11 +188,11 @@
 }
 
 /* Visible "border" between overlapping <neo-avatars> children.
- * clip-path is the last paint step in the CSS rendering model, so
- * filter / box-shadow / outline / border are all clipped along with
+ * clip-path is the last paint step in the CSS rendering model.
+ * Filter / box-shadow / outline / border are all clipped along with
  * the box. The default theme's `border: 2px solid var(--page-bg)`
- * trick can't be reproduced *outside* the hex. Rebuild it *inside*
- * instead: pad the host 2px and fill it with page-bg, then shrink
+ * trick can't be reproduced outside the hex. Rebuild it inside
+ * instead. Pad the host 2px and fill it with page-bg, then shrink
  * the inner content with its own hex clip-path. The 2px gap between
  * outer hex (host bg) and inner hex (content) is the visible "ring";
  * it shows through wherever the next overlapping sibling sits on top
@@ -208,7 +207,7 @@
 	clip-path: var(--neo-avatar-clip-path);
 }
 /* Popover-wrapped overflow: same outer-hex / inner-hex layering as
- * the image avatars above, applied on the trigger (which is the
+ * the image avatars, applied on the trigger (which is the
  * hex-clipped element; the popover host has no clip-path so the
  * open panel can escape via its overflow: visible). Trigger holds
  * the outer page-bg ring; a ::before pseudo paints the inner

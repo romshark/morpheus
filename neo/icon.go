@@ -9,13 +9,13 @@ import (
 
 // iconFS is the filesystem [Icon] reads SVG bytes from. Default
 // matches the demo site's on-disk layout (internal/cmd/gen runs from the repo
-// root); apps with a different layout call SetIconFS once at init,
+// root); apps with a different layout call [SetIconFS] once at init,
 // typically with an embed.FS.
 //
 // iconBase is the URL prefix the inlined SVGs correspond to. The client
-// upgrade compares it against the base it resolves from --neo-icon-base;
-// SSR-adoption only fires when both agree, so a themed user re-fetches
-// the right icon set instead of being stuck with the default.
+// upgrade compares it against the base it resolves from --neo-icon-base.
+// SSR adoption only fires when both agree. A themed user then re-fetches
+// the right icon set instead of keeping the default.
 var (
 	iconFSMu sync.RWMutex
 	iconFS   fs.FS  = os.DirFS("internal/site/static/icons")
@@ -54,7 +54,7 @@ func IconBase() string {
 }
 
 // iconCache memoises the post-strip SVG text per name. Lookups are
-// process-lifetime; SetIconFS clears it. Misses are NOT cached: a
+// process-lifetime; [SetIconFS] clears it. Misses are not cached. A
 // new icon file dropped in while the server runs becomes visible on
 // the next render without restart, and re-statting a one-off missing
 // icon is cheap relative to reading + stripping the SVG.
@@ -63,7 +63,7 @@ var (
 	iconCache   = map[string]string{}
 )
 
-// loadIconSVG returns the inlinable <svg>…</svg> markup for name.svg,
+// loadIconSVG returns the inlinable <svg>...</svg> markup for name.svg,
 // with any leading XML prolog / license comment trimmed. Empty string
 // if the file is missing or has no <svg> root.
 func loadIconSVG(name string) string {
@@ -86,8 +86,7 @@ func loadIconSVG(name string) string {
 		}
 	}
 
-	// Don't cache misses: that would freeze the "missing" verdict for
-	// the process lifetime and block newly-added SVGs without a restart.
+	// A cached miss would hide a newly added SVG until a restart.
 	if s == "" {
 		return ""
 	}

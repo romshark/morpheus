@@ -1,7 +1,4 @@
-/* -----------------------------------------------------------------------
- * <neo-skeleton>
- * -----------------------------------------------------------------------
- * A pulsing placeholder. Authors size each box with an inline style or a class.
+/* A pulsing placeholder. Authors size each box with an inline style or a class.
  * The tints, the pulse duration and the neo-skeleton-pulse keyframes are in
  * _placeholders.css, which uses the same pulse.
  */
@@ -9,7 +6,7 @@
 :root {
 	--neo-skeleton-radius: var(--page-radius, 0.25rem);
 	--neo-skeleton-default-height: 1rem;
-	/* Anti-flash window: the skeleton stays invisible for the delay, then
+	/* Anti-flash window. The skeleton stays invisible for the delay, then
 	 * fades in. Content that resolves within the delay never flashes a
 	 * skeleton. `immediate` opts out. */
 	--neo-skeleton-fade-delay: 0.3s;
@@ -24,7 +21,7 @@ neo-skeleton {
 	height: var(--neo-skeleton-default-height);
 	background-color: var(--neo-skeleton-bg);
 	border-radius: var(--neo-skeleton-radius);
-	/* `both` holds opacity at 0 through the delay, so removing the element
+	/* `both` holds opacity at 0 through the delay. Removing the element
 	 * before the delay elapses shows nothing. */
 	animation:
 		neo-skeleton-fade-in var(--neo-skeleton-fade-duration) ease-out var(--neo-skeleton-fade-delay) both,
@@ -61,8 +58,8 @@ neo-skeleton[variant="line"] {
 }
 
 @media (prefers-reduced-motion: reduce) {
-	/* Drop the looping pulse but keep the delayed fade-in: it's a functional
-	 * anti-flash gate, not decorative motion. */
+	/* Drop the looping pulse but keep the delayed fade-in, because it's a
+	 * functional anti-flash gate, not decorative motion. */
 	neo-skeleton {
 		animation: neo-skeleton-fade-in var(--neo-skeleton-fade-duration) ease-out var(--neo-skeleton-fade-delay) both;
 	}

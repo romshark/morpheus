@@ -53,8 +53,8 @@ func SelectAsyncFailure() templ.Component {
 	})
 }
 
-// selectAsyncFailureLoading is the placeholder SelectAsync clones above
-// the listbox on every open. The kit hides it once the server morphs
+// selectAsyncFailureLoading is the placeholder [datastar.SelectAsync]
+// clones above the listbox on every open. The kit hides it once the server morphs
 // the options fragment into <neo-datalist id="<ID>-options">.
 func selectAsyncFailureLoading() templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
@@ -87,8 +87,8 @@ func selectAsyncFailureLoading() templ.Component {
 
 // selectAsyncFailureFailed swaps into the visible loading clone once
 // Datastar fires retries-failed. The retry button carries
-// [data-neo-popover-async-retry] so SelectAsync re-fires the @post
-// action when clicked.
+// [data-neo-popover-async-retry] so [datastar.SelectAsync] re-fires the
+// @post action when clicked.
 func selectAsyncFailureFailed() templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context

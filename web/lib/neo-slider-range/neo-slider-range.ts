@@ -1,6 +1,6 @@
-// Two-thumb slider sharing <neo-slider>'s markup. Internals render into a
-// shadow root on connect with no <slot>, so a fat morph of value-min /
-// value-max keeps the same thumb and fill nodes and the `easing` transition
+// 2-thumb slider sharing <neo-slider>'s markup. Internals render into a
+// shadow root on connect with no <slot>. A fat morph of value-min /
+// value-max keeps the same thumb and fill nodes, and the `easing` transition
 // runs instead of rebuilding and snapping.
 
 import { boolAttr } from "../command";
@@ -47,7 +47,7 @@ const MARK_CFG: MarkRailConfig = {
 // The whole module stylesheet, tag selectors rewritten to `:host`,
 // adopted into every instance's shadow root. Built once and shared. The
 // internals live in the shadow so a fat morph of the light host
-// can't wipe them. The thumb / fill nodes persist, so an `easing`
+// can't wipe them. The thumb / fill nodes persist, and an `easing`
 // transition runs on a plain value change instead of snapping after a
 // rebuild. The tooltip pill CSS is adopted here too because both thumbs'
 // [data-neo-tooltip-host] bubbles live inside this shadow root and global
@@ -96,7 +96,7 @@ export class NeoSliderRange extends HTMLElement {
 	#fillEl: HTMLElement | null = null;
 	#thumbMinEl: HTMLElement | null = null;
 	#thumbMaxEl: HTMLElement | null = null;
-	// Host elements wrapping each thumb; the controllers drive the value
+	// Host elements wrapping each thumb; the controllers manage the value
 	// bubbles on them without a registered <neo-tooltip>. Null when hide-tooltip.
 	#tooltipMinEl: HTMLElement | null = null;
 	#tooltipMaxEl: HTMLElement | null = null;
@@ -117,7 +117,7 @@ export class NeoSliderRange extends HTMLElement {
 	// Track rect captured at drag start; reused each move so a captured pointer
 	// doesn't force a layout flush per frame. Refreshed on scroll/resize.
 	#dragTrackRect: DOMRect | null = null;
-	// Follow-drag baseline: the side whose tooltip follows the thumb, and that
+	// Follow-drag baseline. The side whose tooltip follows the thumb, and that
 	// thumb's position (%) when the drag crossed its threshold (see #syncValues).
 	#followSide: Side | null = null;
 	#followBasePct = 0;
@@ -145,24 +145,24 @@ export class NeoSliderRange extends HTMLElement {
 		this.#adoptValueAttr("min");
 		this.#adoptValueAttr("max");
 		this.#render();
-		// On a reconnect #render early-returns (internals persist), so the
+		// On a reconnect #render early-returns (internals persist). The
 		// tooltip controllers disconnected on the prior detach must re-bind
 		// their window listeners here. Idempotent when already connected.
 		this.#tooltipMinCtrl?.connect();
 		this.#tooltipMaxCtrl?.connect();
 		// Rect-invalidators live for the element's lifetime, not per drag, to
 		// avoid churning listener objects each drag. #invalidateDragRect no-ops
-		// unless a drag is active. addEventListener dedupes, so a reconnect
-		// re-adds harmlessly.
+		// unless a drag is active. A reconnect re-adds harmlessly because
+		// addEventListener dedupes.
 		window.addEventListener("scroll", this.#invalidateDragRect, true);
 		window.addEventListener("resize", this.#invalidateDragRect);
 		this.#syncAll();
 		this.#observeMarkLayout();
 		this.#scheduleMarkLayoutSync();
 		this.#observeChildren();
-		// Focus events cross the shadow boundary, so they still fire on the
-		// host; the active-mark-label preference reads which thumb holds
-		// focus from the shadow's activeElement.
+		// Focus events cross the shadow boundary and still fire on the host.
+		// The active-mark-label preference reads which thumb holds focus
+		// from the shadow's activeElement.
 		this.addEventListener("focusin", this.#onFocusChange);
 		this.addEventListener("focusout", this.#onFocusChange);
 	}
@@ -186,10 +186,10 @@ export class NeoSliderRange extends HTMLElement {
 		this.#tooltipMaxCtrl?.disconnect();
 	}
 
-	// Focus moved between (or away from) the shadow's thumbs / value
-	// fields: re-resolve which mark label stays visible. The min-thumb
-	// preference is read live from the shadow's activeElement, so no
-	// per-part field is tracked.
+	// When focus moves between (or away from) the shadow's thumbs / value
+	// fields, re-resolve which mark label stays visible. The min-thumb
+	// preference is read live from the shadow's activeElement instead of a
+	// per-part field.
 	#onFocusChange = () => {
 		this.#syncActiveMarkLabelVisibility();
 	};
@@ -200,8 +200,8 @@ export class NeoSliderRange extends HTMLElement {
 
 	// Author marks are [data-neo-slider-mark] light children; the rendered
 	// dots/labels live in the shadow. A morph that changes the light marks
-	// won't touch the shadow, so re-collect and re-render the rail here.
-	// The rendered internals themselves are shadow-only and never wiped.
+	// won't touch the shadow. This observer re-collects and re-renders the
+	// rail. The rendered internals themselves are shadow-only and never wiped.
 	#observeChildren() {
 		if (this.#childObserver) return;
 		this.#childObserver = new MutationObserver((mutations) => {
@@ -209,8 +209,8 @@ export class NeoSliderRange extends HTMLElement {
 			if (!this.#markSourceChanged(mutations)) return;
 			this.#captureUserContent();
 			this.#renderMarks();
-			// Apply the current values to the fresh dots/labels; a marks-only
-			// morph fires no attribute change, so nothing else runs
+			// Apply the current values to the fresh dots/labels. A marks-only
+			// morph fires no attribute change. Without this call nothing runs
 			// #syncValues and the active state would wait until the first
 			// interaction.
 			this.#syncValues();
@@ -284,7 +284,7 @@ export class NeoSliderRange extends HTMLElement {
 				this.#syncValues();
 				return;
 			}
-			// Ignore a write equal to this thumb's current value: a two-way
+			// Ignore a write equal to this thumb's current value. A 2-way
 			// binding echoes every input back into these attributes, which
 			// would otherwise re-run the sync.
 			const dflt = side === "min" ? this.min : this.max;
@@ -314,7 +314,7 @@ export class NeoSliderRange extends HTMLElement {
 
 	// Public getters sort the pair so external updates may cross without
 	// leaving the rendered range inverted. Read the intents (the source of
-	// truth), not the attributes, so a morph that strips either keeps state.
+	// truth), not the attributes, which keeps state when a morph strips either.
 	get valueMin(): number {
 		return Math.min(this.#valueMinIntent, this.#valueMaxIntent);
 	}
@@ -350,8 +350,8 @@ export class NeoSliderRange extends HTMLElement {
 		return Math.min(this.max, Math.max(this.min, v));
 	}
 
-	// Single writer per thumb: update the intent, reflect to the attribute
-	// (guarded so it isn't read back as a command), and re-render.
+	// Single writer per thumb. Updates the intent, reflects to the attribute
+	// (guarded so it isn't read back as a command), and re-renders.
 	#writeValue(side: Side, v: number) {
 		if (side === "min") this.#valueMinIntent = v;
 		else this.#valueMaxIntent = v;
@@ -378,7 +378,7 @@ export class NeoSliderRange extends HTMLElement {
 		this.#rendered = true;
 
 		// A rebuild replaces the old tooltip hosts; drop the stale
-		// controllers (and their window listeners) before rebuilding below.
+		// controllers (and their window listeners) before the rebuild.
 		this.#tooltipMinCtrl?.disconnect();
 		this.#tooltipMaxCtrl?.disconnect();
 		this.#tooltipMinCtrl = null;
@@ -404,7 +404,7 @@ export class NeoSliderRange extends HTMLElement {
 		const separatorEl = part(document.createElement("span"), "separator");
 		separatorEl.setAttribute("data-neo-slider-separator", "");
 		separatorEl.setAttribute("aria-hidden", "true");
-		separatorEl.textContent = "–";
+		separatorEl.textContent = "-";
 
 		this.#unitEl = part(document.createElement("span"), "unit");
 		this.#unitEl.setAttribute("data-neo-slider-unit", "");
@@ -450,11 +450,11 @@ export class NeoSliderRange extends HTMLElement {
 		this.#trackEl.addEventListener("pointerdown", this.#onTrackPointerDown);
 		this.#trackEl.addEventListener("pointermove", this.#onTrackMarkPointerMove);
 		this.#trackEl.addEventListener("pointerleave", this.#onTrackMarkPointerLeave);
-		// Drag listeners bound once here, not per pointerdown: each
+		// Drag listeners bound once here, not per pointerdown, because each
 		// add/removeEventListener pair allocates a listener object that lives
-		// until GC. All four short-circuit on `#dragPointerId`, so they are
-		// inert until a drag is active. The track lives in the shadow and
-		// persists across morphs, so these survive a reconnect.
+		// until GC. All 4 short-circuit on `#dragPointerId` and stay inert
+		// until a drag is active. The track lives in the shadow and
+		// persists across morphs, and these survive a reconnect.
 		this.#trackEl.addEventListener("pointermove", this.#onTrackPointerMove);
 		this.#trackEl.addEventListener("pointerup", this.#onTrackPointerUp);
 		this.#trackEl.addEventListener("pointercancel", this.#onTrackPointerCancel);
@@ -465,8 +465,8 @@ export class NeoSliderRange extends HTMLElement {
 		this.#marksEl.addEventListener("pointermove", this.#onMarkLabelPointerMove);
 		this.#marksEl.addEventListener("pointerleave", this.#onMarkLabelPointerLeave);
 		this.#orderThumbsForOrientation();
-		// Bind now that the hosts are in the shadow tree. Idempotent, so the
-		// connectedCallback re-connect on a reconnect is a no-op here.
+		// Bind now that the hosts are in the shadow tree. Idempotent, which
+		// makes the connectedCallback re-connect on a reconnect a no-op.
 		this.#tooltipMinCtrl?.connect();
 		this.#tooltipMaxCtrl?.connect();
 		this.#renderMarks();
@@ -511,7 +511,7 @@ export class NeoSliderRange extends HTMLElement {
 			vertical: this.#isVertical(),
 			cfg: MARK_CFG,
 			// Stack: fill < dots < thumbs. Insert before the front-most
-			// thumb host (orderThumbsForOrientation may swap min⇆max).
+			// thumb host (orderThumbsForOrientation may swap min and max).
 			insertDot: (track, dot) => {
 				const firstThumbHost = track.querySelector<HTMLElement>(
 					":scope > [data-neo-slider-thumb-host], :scope > [data-neo-slider-thumb]",
@@ -562,9 +562,9 @@ export class NeoSliderRange extends HTMLElement {
 		if (!this.#trackEl || !this.#marksEl) return;
 		// The active set is the marks in [lo, hi]; it changes only when lo or hi
 		// crosses a mark. (belowLo, atOrBelowHi) are the band's boundary indices
-		// into the sorted marks, so an unchanged pair means an unchanged set:
-		// skip the querySelectorAll sweep, so a drag between marks does no mark
-		// work. NaN (set on re-render) forces the first sync.
+		// into the sorted marks, and an unchanged pair means an unchanged set.
+		// Skipping the querySelectorAll sweep then keeps a drag between marks
+		// free of mark work. NaN (set on re-render) forces the first sync.
 		let belowLo = 0;
 		let atOrBelowHi = 0;
 		for (const m of this.#marks) {
@@ -664,10 +664,10 @@ export class NeoSliderRange extends HTMLElement {
 	}
 
 	// ARIA that depends on min/max/label/orientation, not the live values.
-	// Kept out of #syncValues so a drag doesn't rewrite eight unchanging
+	// Kept out of #syncValues so a drag doesn't rewrite 8 unchanging
 	// attributes each frame; the relevant attribute handlers and #syncAll call
 	// it. The cross-coupled bounds (min field capped at the max thumb, and vice
-	// versa) DO change per value and stay in #syncValues.
+	// versa) do change per value and stay in #syncValues.
 	#syncAriaMeta() {
 		const orientation = this.#isVertical() ? "vertical" : "horizontal";
 		const min = String(this.min);
@@ -713,7 +713,7 @@ export class NeoSliderRange extends HTMLElement {
 		return span > 0 ? ((v - this.min) / span) * 100 : 0;
 	}
 
-	// Start following the dragged thumb's tooltip: place it once, then
+	// Start following the dragged thumb's tooltip. Place it once, then
 	// #syncValues shifts it by the thumb's delta with no layout read.
 	#beginFollowSide(side: Side) {
 		this.#followSide = side;
@@ -723,7 +723,7 @@ export class NeoSliderRange extends HTMLElement {
 	}
 
 	// Set the transition var on the shadow track (the common ancestor of
-	// fill + thumbs, so it inherits to all three), NOT the host. A fat
+	// fill + thumbs, which inherit it), not the host. A fat
 	// morph of the bare light host reconciles its attributes to the
 	// source, which has no `style`. Putting it on the host would strip the
 	// transition on every morph and snap instead of easing. The shadow tree
@@ -738,7 +738,8 @@ export class NeoSliderRange extends HTMLElement {
 		const trimmed = raw.trim() || "200ms";
 		// Scale the duration by --neo-duration-scale so reduced motion (the OS
 		// query and the manual `data-pref-reduced-motion` toggle both zero it)
-		// makes the thumb jump. Live var, so a runtime toggle needs no re-run.
+		// makes the thumb jump. The var is live, and a runtime toggle needs no
+		// re-run.
 		// A bare duration gets the kit default timing function; a full pair
 		// keeps its own.
 		const m = trimmed.match(/^(\d*\.?\d+(?:ms|s))\s*(.*)$/);
@@ -814,8 +815,8 @@ export class NeoSliderRange extends HTMLElement {
 		const loFmt = formatNumber(lo, step);
 		const hiFmt = formatNumber(hi, step);
 
-		// The value fields live in the shadow, so `document.activeElement`
-		// retargets to the host; read focus from the shadow root to avoid
+		// `document.activeElement` retargets to the host because the value
+		// fields live in the shadow. Read focus from the shadow root to avoid
 		// stomping the user's typing.
 		const active = this.shadowRoot?.activeElement;
 		// In-place text update avoids orphaning a text node every drag frame.
@@ -824,7 +825,7 @@ export class NeoSliderRange extends HTMLElement {
 
 		// Value-dependent ARIA only; the static rest (orientation, min/max,
 		// label) is in #syncAriaMeta. The editable spinbutton spans cross-couple
-		// their bounds: the min field's max is the current max thumb and the max
+		// their bounds. The min field's max is the current max thumb and the max
 		// field's min is the current min thumb, mirroring onValueBlur clamping.
 		this.#thumbMinEl?.setAttribute("aria-valuenow", String(lo));
 		this.#thumbMaxEl?.setAttribute("aria-valuenow", String(hi));
@@ -879,8 +880,9 @@ export class NeoSliderRange extends HTMLElement {
 
 		if (this.#dragStarted && this.#dragTrackRect && this.#followSide) {
 			// Follow only the dragged thumb's tooltip by shifting it along the
-			// drag axis from the drag-start baseline; no getBoundingClientRect,
-			// so no forced reflow per frame. The other thumb is static.
+			// drag axis from the drag-start baseline. This skips
+			// getBoundingClientRect and its forced reflow per frame. The other
+			// thumb is static.
 			const side = this.#followSide;
 			const ctrl = this.#ctrlFor(side);
 			ctrl?.setText(side === "min" ? loFmt : hiFmt);
@@ -941,7 +943,7 @@ export class NeoSliderRange extends HTMLElement {
 	}
 
 	// Clamp to [lo, hi] and snap to the step grid anchored at the
-	// GLOBAL min (not lo), so both thumbs share aligned ticks
+	// global min (not lo), which gives both thumbs aligned ticks
 	// regardless of which bound is supplied. Then trim FP debris.
 	#clampSnap(v: number, lo: number, hi: number): number {
 		if (!Number.isFinite(v)) return lo;
@@ -985,7 +987,7 @@ export class NeoSliderRange extends HTMLElement {
 		const changed = nextLo !== beforeLo || nextHi !== beforeHi;
 		if (!changed) {
 			// No value change, but typed text may diverge from the committed
-			// value (e.g. "9" with min=10), so re-sync. Emit nothing, like a
+			// value (e.g. "9" with min=10). Re-sync. Emit nothing, like a
 			// native input that fires only on an actual change.
 			this.#syncValues();
 			return nextSide;
@@ -1168,7 +1170,7 @@ export class NeoSliderRange extends HTMLElement {
 		ctrl?.show();
 	}
 
-	// Press ON a thumb forces that thumb; otherwise pick the closer one
+	// Press on a thumb forces that thumb; otherwise pick the closer one
 	// in value-space. Clicks below value-min always pick low; above
 	// value-max always pick high.
 	#pickThumb(target: EventTarget | null, valueAtClick: number): Side {
@@ -1234,12 +1236,12 @@ export class NeoSliderRange extends HTMLElement {
 		if (boolAttr(this, ATTR_DISABLED, false)) return;
 		if (e.button !== 0) return;
 		if (!this.#trackEl) return;
-		// Don't hijack presses inside the contenteditable value field:
-		// user intent is text editing, not scrubbing.
+		// Don't hijack presses inside the contenteditable value field. The
+		// user intends text editing there, not scrubbing.
 		if ((e.target as Element | null)?.closest("[data-neo-slider-value]")) return;
 		e.preventDefault();
 		// Cache the track rect for the whole drag (see #valueAtPointer); set it
-		// before the first #valueAtPointer below.
+		// before the first #valueAtPointer call.
 		this.#dragTrackRect = this.#trackEl.getBoundingClientRect();
 		const valueAtClick = this.#valueAtPointer(e.clientX, e.clientY);
 		const which = this.#pickThumb(e.target, valueAtClick);
@@ -1254,9 +1256,10 @@ export class NeoSliderRange extends HTMLElement {
 		this.#dragStartX = e.clientX;
 		this.#dragStartY = e.clientY;
 		this.#dragStarted = false;
-		// Drag pointer listeners are bound once in #render; setting the id above
-		// arms them. Scroll/resize rect-invalidators are bound for the element's
-		// lifetime (see connectedCallback). Nothing is attached here.
+		// Drag pointer listeners are bound once in #render; setting
+		// #dragPointerId arms them. Scroll/resize rect-invalidators are bound
+		// for the element's lifetime (see connectedCallback). Nothing is
+		// attached here.
 		const nextSide = this.#commit(which, valueAtClick, "input");
 		if (nextSide !== which) {
 			this.#dragWhich = nextSide;
@@ -1284,7 +1287,7 @@ export class NeoSliderRange extends HTMLElement {
 		this.#showSide(this.#dragWhich);
 		const nextSide = this.#commit(this.#dragWhich, this.#valueAtPointer(e.clientX, e.clientY), "input");
 		if (nextSide !== this.#dragWhich) {
-			// Thumbs crossed: settle the old tooltip and re-baseline the follow
+			// Thumbs crossed. Settle the old tooltip and re-baseline the follow
 			// onto the thumb that now carries the drag.
 			this.#ctrlFor(this.#dragWhich)?.endFollow();
 			this.#dragWhich = nextSide;

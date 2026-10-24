@@ -17,10 +17,10 @@ import "github.com/romshark/morpheus/neo"
 // place. When Datastar exhausts its retry budget, Failed is swapped
 // into the same content wrapper.
 //
-// The sidebar has no built-in trigger: wire an outside button to
+// The sidebar has no built-in trigger. Wire an outside button to
 // `document.getElementById('<ID>').toggle()`. Any descendant in the
 // Failed template that carries data-neo-popover-async-retry becomes a
-// retry button: a click aborts any in-flight fetch, restores loading,
+// retry button. A click aborts any in-flight fetch, restores loading,
 // and re-fires the action without closing the sidebar.
 func SidebarAsync(opts SidebarAsyncOpts) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
@@ -171,8 +171,8 @@ func SidebarAsync(opts SidebarAsyncOpts) templ.Component {
 	})
 }
 
-// sidebarAsyncFailed renders the user-supplied Failed template, or a
-// minimal built-in callout if none was provided.
+// sidebarAsyncFailed renders the user-supplied Failed template,
+// or a minimal built-in callout if none was provided.
 func sidebarAsyncFailed(failed templ.Component) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context

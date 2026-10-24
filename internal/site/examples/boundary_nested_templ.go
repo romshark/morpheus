@@ -91,7 +91,7 @@ func BoundaryNested() templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "><p class=\"boundary-nested-body\">The closest boundary defines the rules. Dismiss is off here, so a click anywhere outside this popover closes it, even though the outer boundary enables dismiss scoping. Rules are not inherited.</p></div>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "><p class=\"boundary-nested-body\">The closest boundary defines the rules. Dismiss is off here. A click anywhere outside this popover closes it, even though the outer boundary enables dismiss scoping. Rules are not inherited.</p></div>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

@@ -125,8 +125,8 @@ func sidebarAsyncFailureFooter() templ.Component {
 	})
 }
 
-// Wrapped in [data-neo-async-placeholder] by SidebarAsync so the
-// sidebar restores it after close and before retry/reopen.
+// Wrapped in [data-neo-async-placeholder] by [datastar.SidebarAsync] so
+// the sidebar restores it after close and before retry/reopen.
 func sidebarAsyncFailureLoading() templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
@@ -157,8 +157,8 @@ func sidebarAsyncFailureLoading() templ.Component {
 }
 
 // Swapped into <div id="<ID>-body"> once Datastar fires retries-failed.
-// The retry button carries [data-neo-popover-async-retry] so SidebarAsync
-// re-fires the @post action when clicked.
+// The retry button carries [data-neo-popover-async-retry] so
+// [datastar.SidebarAsync] re-fires the @post action when clicked.
 func sidebarAsyncFailureFailed() templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context

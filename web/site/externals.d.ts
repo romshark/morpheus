@@ -1,5 +1,5 @@
-// CDN ESM modules have no shipped types. They're kept external by the
-// esbuild build (see web/build.mjs `external: ["https://*"]`), so these
+// CDN ESM modules have no shipped types. Because the esbuild build keeps
+// them external (`external: ["https://*"]` in commonBuildOptions), these
 // ambient declarations only exist to keep the site TS self-describing.
 declare module "https://cdn.jsdelivr.net/npm/d3@7/+esm" {
 	// biome-ignore lint/suspicious/noExplicitAny: untyped CDN ESM module (see header).

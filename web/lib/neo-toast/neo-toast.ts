@@ -1,8 +1,8 @@
 // Shadow DOM owns the markup (variant icon, body wrapper, close button) so a
 // fat morph reaching <neo-toaster>'s children can't strip it; the user's
-// title/description/action live in light DOM via named slots. Layout
-// transforms are inline custom properties written by <neo-toaster> and
-// inherited into the shadow.
+// title/description/action live in light DOM via named slots.
+// Layout transforms are inline custom properties written
+// by <neo-toaster> and inherited into the shadow.
 
 import "../neo-icon";
 import "../neo-spinner";
@@ -20,8 +20,8 @@ const TEMPLATE = document.createElement("template");
 // Shadow CSS notes, kept out of the template string so the minifier drops
 // them from the bundle. Anchored by selector:
 // - :host custom properties: shadow inherits these from the host; the toaster
-//   writes them inline on the host to drive the Sonner pile. Declared here too
-//   so a stand-alone <neo-toast> still renders.
+//   writes them inline on the host to lay out the Sonner pile. Declared here
+//   too so a stand-alone <neo-toast> still renders.
 // - :host(:not([variant])) [data-neo-toast-icon]: hide the icon slot entirely
 //   when there's nothing to show.
 // - [data-empty]: hide empty rows. data-empty is toggled from JS via slotchange

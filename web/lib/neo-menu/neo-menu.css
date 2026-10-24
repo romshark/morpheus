@@ -1,7 +1,5 @@
-/* -----------------------------------------------------------------------
- * <neo-menu>, <neo-contextmenu>, <neo-submenu>, <neo-menuitem>
- * -----------------------------------------------------------------------
- * Self-contained dropdown menu. Trigger is a regular element the author
+/* <neo-menu>, <neo-contextmenu>, <neo-submenu> and <neo-menuitem> form a
+ * self-contained dropdown menu. Trigger is a regular element the author
  * picks (typically <neo-button>); the panel and submenu fly-outs are
  * rendered as `position: fixed` cards so they escape any parent overflow
  * the way <neo-popover> does. */
@@ -28,8 +26,8 @@
 
 /* High contrast: pin the panel border and separators to currentColor
  * and thicken to 2px to match the rest of the kit. The menu panel is
- * out of flow, so a real 2px border never reflows the page. Mirrored
- * across the media query and the data-pref simulator hook. */
+ * out of flow, which means a real 2px border never reflows the page.
+ * Mirrored across the media query and the data-pref simulator hook. */
 @media (prefers-contrast: more) {
 	:root {
 		--neo-menu-border-color: currentColor;
@@ -52,8 +50,8 @@ neo-submenu {
 	display: contents;
 }
 
-/* Pre-hydration: the panel wrapper is JS-built, so until it exists the
- * rows are raw children, so hide the menu so they don't flash inside the
+/* Pre-hydration: the panel wrapper is JS-built, and until it exists the
+ * rows are raw children. Hide the menu so they don't flash inside the
  * host (e.g. a <neo-button>) before upgrade. */
 neo-menu:not(:has(> [data-neo-menu-panel])),
 neo-submenu:not(:has(> [data-neo-submenu-panel])) {
@@ -142,8 +140,8 @@ neo-menuitem,
 	white-space: nowrap;
 }
 
-/* One highlight, driven by focus only. Hover moves focus to the row (see
- * onPanelMouseOver), so a separate :hover rule is redundant, and worse,
+/* One highlight, set by focus only. Hover moves focus to the row (see
+ * onPanelMouseOver), which makes a separate :hover rule redundant. Worse,
  * it lights a second row whenever focus and the pointer diverge, e.g. a
  * panel opening under a stationary mouse keeps focus on the first row
  * while the pointer rests on another. */
@@ -203,9 +201,8 @@ neo-menuitem[disabled]:not([disabled="false"]),
 }
 
 /* The submenu's synthesized "Back" row. Hidden in cascade mode (the
- * default); it only earns its keep in push mode where the submenu
- * replaces the parent panel and the user needs a control to climb
- * back up. */
+ * default); it is only needed in push mode where the submenu replaces
+ * the parent panel and the user needs a control to go back up. */
 [data-neo-submenu-back] {
 	display: none;
 	color: var(--neo-menu-shortcut-color);
@@ -224,10 +221,10 @@ neo-menuitem[disabled]:not([disabled="false"]),
 }
 
 /* Push mode: submenus replace the parent's visible rows rather than
- * fly out. Submenu panels flow INLINE inside their parent panel (no
- * fixed/absolute positioning, no styling of their own), so the root
- * panel's natural height grows or shrinks to match whichever level is
- * currently visible. `:has()` hides every sibling of an open submenu
+ * fly out. Submenu panels flow inline inside their parent panel (no
+ * fixed/absolute positioning, no styling of their own). The root
+ * panel's natural height then grows or shrinks to match whichever level
+ * is currently visible. `:has()` hides every sibling of an open submenu
  * so its panel becomes the visible content of the level. Cascade mode
  * (the default) is untouched.
  *

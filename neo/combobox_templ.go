@@ -13,11 +13,11 @@ type ComboboxOpts struct {
 	// Multiple mode, single option value otherwise). In Multiple mode an
 	// option value must not contain a comma; the separator is unescaped.
 	Value Attr[string]
-	// Name is the form field name. The control is form-associated, so with a
-	// Name set it submits its value in a native <form>. Multiple mode submits
+	// Name is the form field name. The control is form-associated and, with
+	// a Name set, submits its value in a native <form>. Multiple mode submits
 	// one entry per selected value under the same name, like <select multiple>.
 	Name Attr[string]
-	// Disabled makes the control non-interactive: the trigger drops out of
+	// Disabled makes the control non-interactive. The trigger drops out of
 	// the tab order and ignores clicks and keys.
 	Disabled Attr[bool]
 	// Size is the control-size step ("sm" | "lg"); empty is the default
@@ -49,17 +49,17 @@ type ComboboxOpts struct {
 	// no selection.
 	Clearable Attr[bool]
 	// Caret overrides the trigger's caret icon name (default
-	// "chevrons-up-down"). Resolved through <neo-icon>, so it follows the
+	// "chevrons-up-down"). Resolved through <neo-icon> and follows the
 	// active icon theme. Set("") hides the caret entirely.
 	Caret        Attr[string]
 	AriaLabel    Attr[string]
 	Placement    Attr[Placement]
 	ScreenOffset Attr[CSSUnit]
 	// FollowScroll forwards a popover scroll-follow mode to the inner
-	// popover. Defaults to PopoverFollowScrollUntilTriggerInvisible so
+	// popover. Defaults to [PopoverFollowScrollUntilTriggerInvisible] so
 	// the popover closes once its trigger scrolls off-screen; pass
-	// PopoverFollowScrollAlways to keep it anchored across scrolls, or
-	// PopoverFollowScrollOff to disable.
+	// [PopoverFollowScrollAlways] to keep it anchored across scrolls, or
+	// [PopoverFollowScrollOff] to disable.
 	FollowScroll   Attr[PopoverFollowScroll]
 	ClampPlacement Attr[bool]
 	MinFitHeight   Attr[CSSUnit]
@@ -72,13 +72,13 @@ type ComboboxOpts struct {
 	PopoverFitContent Attr[bool]
 }
 
-// Combobox renders <neo-combobox>. Children provide the option data:
+// Combobox renders <neo-combobox>. Children provide the option data as
 // [Option] / [OptGroup] (shared with [Select]), optionally wrapped
 // in a [Datalist]; a [data-neo-async-placeholder] child marks async
-// loading. This wrapper never injects a container: to address the options
+// loading. This wrapper never injects a container. To address the options
 // from a server-driven patch, wrap them in a [Datalist] with
 // id="<host-id>-options" yourself. The browser component owns the
-// trigger/search/listbox in shadow DOM, so patches target the light option
+// trigger/search/listbox in shadow DOM. Patches target the light option
 // data, never the live scroll container.
 func Combobox(opts ComboboxOpts) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
@@ -284,15 +284,15 @@ func ComboboxAttrs(opts ComboboxOpts, attrs templ.Attributes) templ.Component {
 	})
 }
 
-// ComboboxEmpty marks its children as the empty-state trigger face:
-// cloned into the trigger when nothing is selected, never shown as a
-// listbox row. Place it as a child of Combobox.
+// ComboboxEmpty marks its children as the empty-state trigger face, which
+// is cloned into the trigger when nothing is selected and never shown as
+// a listbox row. Place it as a child of [Combobox].
 //
 //	@neo.Combobox(neo.ComboboxOpts{Clearable: neo.Set(true)}) {
 //	    @neo.ComboboxEmpty() {
 //	        <span class="muted">Unassigned</span>
 //	    }
-//	    @neo.Option(neo.OptionOpts{Value: "a"}) { … }
+//	    @neo.Option(neo.OptionOpts{Value: neo.Set("a")}) { ... }
 //	}
 func ComboboxEmpty() templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {

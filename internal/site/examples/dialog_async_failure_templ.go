@@ -69,7 +69,7 @@ func DialogAsyncFailure() templ.Component {
 	})
 }
 
-// Wrapped in [data-neo-async-placeholder] by DialogAsync so the
+// Wrapped in [data-neo-async-placeholder] by [datastar.DialogAsync] so the
 // dialog restores it after close and before retry/reopen.
 func dialogAsyncFailureLoading() templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
@@ -102,7 +102,7 @@ func dialogAsyncFailureLoading() templ.Component {
 
 // Swapped into <div id="<ID>-body"> once Datastar fires
 // retries-failed. The retry button carries
-// [data-neo-popover-async-retry] so DialogAsync re-fires the
+// [data-neo-popover-async-retry] so [datastar.DialogAsync] re-fires the
 // @post action when clicked.
 func dialogAsyncFailureFailed() templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {

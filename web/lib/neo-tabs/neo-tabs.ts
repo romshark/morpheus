@@ -23,7 +23,7 @@ export class NeoTabs extends HTMLElement {
 	// tab and blurs it to <body>; sync() reseats focus by value.
 	#focusedTabValue: string | null = null;
 	// Current selected value (source of truth). A fat morph dropping `value`
-	// is no command: keep this and re-reflect, so the selection survives.
+	// is no command. Keep this and re-reflect so the selection survives.
 	#valueIntent: string | null = null;
 	#reflectingValue = false;
 
@@ -39,8 +39,8 @@ export class NeoTabs extends HTMLElement {
 		this.addEventListener("focusin", this.#onFocusIn);
 		this.addEventListener("focusout", this.#onFocusOut);
 
-		// Re-sync on child changes: initial render races the parser, and
-		// a fat-morph re-emitting tabs/panels needs re-linking by value.
+		// Re-sync on child changes because initial render races the parser,
+		// and a fat-morph re-emitting tabs/panels needs re-linking by value.
 		this.#childObserver = new MutationObserver(() => this.#sync());
 		this.#childObserver.observe(this, { childList: true, subtree: true });
 
@@ -48,15 +48,15 @@ export class NeoTabs extends HTMLElement {
 		this.#valueIntent = this.getAttribute("value");
 		this.#syncEasing();
 		this.#sync();
-		// Deep-link scenario: a non-leading selected tab might already be
+		// In the deep-link case a non-leading selected tab might already be
 		// off-screen in a narrow tablist on the first paint. Jump to it
 		// without animation so the page loads with the selection in view.
 		this.#scrollActiveTabIntoView("auto");
 	}
 
 	// Per-host rules go in a <head> <style> keyed by host id.
-	// A morph strips the host's runtime `style` attribute, so inline custom
-	// properties wouldn't survive; <head> is outside the morph zone.
+	// Inline custom properties wouldn't survive because a morph strips the
+	// host's runtime `style` attribute; <head> is outside the morph zone.
 	#syncEasing() {
 		if (!this.id) return;
 		const styleId = `neo-tabs-easing-${this.id}`;
@@ -68,8 +68,8 @@ export class NeoTabs extends HTMLElement {
 		}
 		const trimmed = raw.trim() || "200ms";
 		// Duration via --neo-duration-scale, timing via --neo-easing with
-		// the author value as fallback: theme + reduced-motion overrides
-		// win kit-wide, and vars unset resolves to the author's exact `<dur> <fn>`.
+		// the author value as fallback. Theme + reduced-motion overrides
+		// apply kit-wide, and vars unset resolves to the author's exact `<dur> <fn>`.
 		const m = trimmed.match(/^(\d*\.?\d+(?:ms|s))\s*(.*)$/);
 		const dur = m ? m[1] : "200ms";
 		const fn = m?.[2].trim() ? m[2].trim() : "ease";
@@ -123,9 +123,9 @@ export class NeoTabs extends HTMLElement {
 			return;
 		}
 		if (name === "value") {
-			// Our own re-reflect write (keep-on-absent below); not a command.
+			// Our own re-reflect write (keep-on-absent branch); not a command.
 			if (this.#reflectingValue) return;
-			// Fat morph dropped `value`: no command, keep the current selection.
+			// Fat morph dropped `value`. No command; keep the current selection.
 			// Re-reflect so the attribute stays the state mirror,
 			// blocking a reset to the first tab.
 			if (newValue === null) {
@@ -204,7 +204,8 @@ export class NeoTabs extends HTMLElement {
 		}
 
 		// Direction derived from the value transition, and published as a
-		// custom state: an attribute would be wiped by the next morph mid-animation.
+		// custom state because an attribute would be wiped by the next morph
+		// mid-animation.
 		const newIdx = tabs.findIndex((t) => t.getAttribute("value") === value);
 		const oldIdx =
 			this.#previousActiveValue !== null
@@ -311,8 +312,8 @@ export class NeoTabs extends HTMLElement {
 			this.#focusedTabValue = null;
 			return;
 		}
-		// Blur to nothing: a morph re-creating the tab (sync() restores
-		// first, same microtask checkpoint) or a real click-away / Escape.
+		// A blur to nothing comes from a morph re-creating the tab (sync()
+		// restores first, same microtask checkpoint) or a real click-away / Escape.
 		// If focus is still gone after sync() ran, it was the user.
 		queueMicrotask(() => {
 			if (this.contains(document.activeElement)) return;
@@ -405,11 +406,11 @@ export class NeoTabs extends HTMLElement {
 		this.#scrollActiveTabIntoView();
 	}
 
-	// Center the active tab in the tablist's strip. Not
-	// Element.scrollIntoView: its inline option walks every scrollable
+	// Center the active tab in the tablist's strip.
+	// Not Element.scrollIntoView, whose inline option walks every scrollable
 	// ancestor and would scroll the page too; only the tablist's own
-	// scrollLeft/scrollTop is touched. scrollTo clamps, so first/last
-	// sit flush with no slack. Position derived from
+	// scrollLeft/scrollTop is touched. scrollTo clamps, which keeps
+	// first/last flush with no slack. Position derived from
 	// getBoundingClientRect + scroll offset, not offsetLeft/offsetTop,
 	// whose reference is the nearest positioned ancestor (not the tablist).
 	#scrollActiveTabIntoView(behavior: ScrollBehavior = "smooth") {
@@ -434,9 +435,9 @@ export class NeoTabs extends HTMLElement {
 	}
 }
 
-// <neo-tablist>, <neo-tab>, <neo-tabpanel>: minimal markers. All
-// behaviour lives on the parent <neo-tabs>. These just stamp default
-// ARIA roles for unstyled markup.
+// <neo-tablist>, <neo-tab> and <neo-tabpanel> are minimal markers.
+// All behaviour lives on the parent <neo-tabs>.
+// These just stamp default ARIA roles for unstyled markup.
 export class NeoTabList extends HTMLElement {
 	connectedCallback() {
 		if (!this.hasAttribute("role")) this.setAttribute("role", "tablist");
@@ -456,10 +457,10 @@ export class NeoTabPanel extends HTMLElement {
 		if (!this.hasAttribute("role")) this.setAttribute("role", "tabpanel");
 	}
 
-	// Exit-animation marker, driven by the parent <neo-tabs>. A custom
-	// state, not an attribute: a morph landing mid-animation would strip
-	// the attribute, cancel the animation without an `animationend`, and
-	// strand the outgoing panel visible.
+	// Exit-animation marker, set by the parent <neo-tabs>. A custom state,
+	// not an attribute, because a morph landing mid-animation would strip
+	// the attribute, cancel the animation without an `animationend`,
+	// and strand the outgoing panel visible.
 	setLeaving(on: boolean): void {
 		setState(this.#internals, "leaving", on);
 	}

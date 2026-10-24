@@ -12,7 +12,7 @@ import templruntime "github.com/a-h/templ/runtime"
 // direct element children drag-reorder via pointer, touch, or keyboard.
 type SortableOpts struct {
 	// Orientation constrains pointer travel and the reorder axis.
-	// Zero value defaults to a vertical column; OrientationGrid
+	// Zero value defaults to a vertical column; [OrientationGrid]
 	// enables 2-D reordering.
 	Orientation Attr[Orientation]
 	// Disabled freezes reordering and drops the keyboard grip.
@@ -21,12 +21,12 @@ type SortableOpts struct {
 	// floating dragged element to the host's bounding box, letting it
 	// follow the pointer anywhere on the page.
 	Unbounded Attr[bool]
-	// Easing for displaced (non-dragged) items: empty omits the
-	// attribute (theme --neo-easing at default duration), a bare
+	// Easing is the easing for displaced (non-dragged) items. Empty omits
+	// the attribute (theme --neo-easing at default duration), a bare
 	// duration ("220ms") pairs with --neo-easing, a full pair is
-	// verbatim. Explicit empty via SortableAttrs disables it.
+	// verbatim. Explicit empty via [SortableAttrs] disables it.
 	Easing Attr[string]
-	// TolerateReorder relaxes the mid-drag abort rule: by default a
+	// TolerateReorder relaxes the mid-drag abort rule. By default a
 	// server morph that reorders items aborts the user's drag (the
 	// slot data semantically changed). With TolerateReorder set,
 	// order-only changes are treated as a no-op (same set of ids
@@ -151,7 +151,7 @@ func SortableAttrs(opts SortableOpts, attrs templ.Attributes) templ.Component {
 }
 
 // SortableItem emits one item; id is what the reorder events report.
-// Add a SortableHandle child to restrict the drag grip, else the
+// Add a [SortableHandle] child to restrict the drag grip, else the
 // whole item is draggable.
 func SortableItem(id string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
@@ -259,10 +259,10 @@ func SortableItemAttrs(id string, attrs templ.Attributes) templ.Component {
 	})
 }
 
-// SortablePlaceholder customizes the drop-gap indicator (default: a
-// dashed slot outline). Its children render inside the same-size gap,
-// replacing the default markup. An inert <template>, so never itself
-// a sortable item.
+// SortablePlaceholder customizes the drop-gap indicator
+// (default: a dashed slot outline). Its children render inside the same-size gap,
+// replacing the default markup. It is an inert <template> and never
+// itself a sortable item.
 func SortablePlaceholder() templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
@@ -300,9 +300,8 @@ func SortablePlaceholder() templ.Component {
 	})
 }
 
-// SortableHandle is the drag grip. Inside a SortableItem it limits
-// dragging to itself, leaving the rest free for buttons, links, and
-// selection.
+// SortableHandle is the drag grip. Inside a [SortableItem] it limits
+// dragging to itself, leaving the rest free for buttons, links, and selection.
 func SortableHandle() templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
@@ -379,9 +378,8 @@ func SortableHandleAttrs(attrs templ.Attributes) templ.Component {
 }
 
 // SortableNoDrag marks an interactive descendant (button, link, input) so
-// a pointer-down on it starts no drag, leaving the control usable. Spread
-// onto the element. Only needed when the whole item is draggable (no
-// SortableHandle).
+// a pointer-down on it starts no drag, leaving the control usable. Spread onto
+// the element. Only needed when the whole item is draggable (no [SortableHandle]).
 func SortableNoDrag() templ.Attributes {
 	return templ.Attributes{"data-neo-sortable-nodrag": true}
 }

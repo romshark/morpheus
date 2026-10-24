@@ -10,18 +10,18 @@ import templruntime "github.com/a-h/templ/runtime"
 
 type CheckboxOpts struct {
 	Checked Attr[bool]
-	// Indeterminate paints a dash and sets aria-checked="mixed"; it
-	// takes precedence over Checked for ARIA, but user input still
+	// Indeterminate paints a dash and sets aria-checked="mixed";
+	// it takes precedence over Checked for ARIA, but user input still
 	// clears the mixed state.
 	Indeterminate Attr[bool]
 	Disabled      Attr[bool]
-	// Size: "" (default) or "sm" (compact).
+	// Size is "" (default) or "sm" (compact).
 	Size      Attr[string]
 	AriaLabel Attr[string]
 }
 
 // Checkbox prerenders <neo-checkbox> with role/aria-checked/tabindex
-// matching the upgraded state, so the host paints once with no flicker.
+// matching the upgraded state, which lets the host paint once with no flicker.
 func Checkbox(opts CheckboxOpts) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context

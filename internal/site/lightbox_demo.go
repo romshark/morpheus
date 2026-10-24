@@ -69,7 +69,7 @@ var lightboxDoc = ComponentDoc{
 		{Name: "dismissible", Type: "boolean", Default: "true", Observed: true,
 			Description: templ.Raw("Set <code>false</code> to disable backdrop-press and <neo-kbd>Esc</neo-kbd> dismissal.")},
 		{Name: "transition", Type: `"zoom" | "fade" | "none"`, Default: `"zoom"`,
-			Description: templ.Raw("Entry / exit style. <code>zoom</code> morphs the surface from the opening trigger's position and size (a FLIP) and back into it on close; <code>fade</code> is a centered scale + opacity; <code>none</code> is instant. The backdrop fades in every mode. Honors reduced motion. Read when the overlay opens, so a change while it is open applies on the next open.")},
+			Description: templ.Raw("Entry / exit style. <code>zoom</code> morphs the surface from the opening trigger's position and size (a FLIP) and back into it on close; <code>fade</code> is a centered scale + opacity; <code>none</code> is instant. The backdrop fades in every mode. Honors reduced motion. Read when the overlay opens. A change while it is open applies on the next open.")},
 	},
 	Slots: []DocSlot{
 		{Name: "[data-neo-lightbox-trigger]",

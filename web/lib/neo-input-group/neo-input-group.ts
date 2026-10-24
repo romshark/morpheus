@@ -12,13 +12,12 @@ export class NeoInputGroup extends HTMLElement {
 
 	connectedCallback() {
 		this.addEventListener("mousedown", this.#onAddonMouseDown);
-		// Subtree observer to watch the inner input's disabled state (lives
-		// one level down inside <neo-textinput>).
+		// Subtree observer to watch the inner input's disabled state
+		// (lives one level down inside <neo-textinput>).
 		//
-		// CRITICAL: subtree:true reports mutations on `this` too, and
-		// syncDisabled writes aria-disabled on the host. Without the
-		// `target !== this` guard below, the observer re-fires on its own
-		// write and loops forever (page hangs).
+		// subtree:true reports mutations on `this` too, and syncDisabled writes
+		// aria-disabled on the host. Without the `target !== this` guard,
+		// the observer re-fires on its own write and loops forever (page hangs).
 		this.#observer = new MutationObserver((mutations) => {
 			for (const m of mutations) {
 				if (m.target !== this) {
@@ -62,7 +61,7 @@ export class NeoInputGroup extends HTMLElement {
 	#syncDisabled = () => {
 		const inner = this.#findInput();
 		const dis = !!inner && (boolAttr(inner, "disabled", false) || inner.getAttribute("aria-disabled") === "true");
-		// Skip no-op writes: even with the target filter, a redundant
+		// Skip no-op writes. Even with the target filter, a redundant
 		// setAttribute would log a mutation we'd then have to discard.
 		const cur = this.getAttribute("aria-disabled");
 		if (dis && cur !== "true") this.setAttribute("aria-disabled", "true");

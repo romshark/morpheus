@@ -1,14 +1,11 @@
-/* -----------------------------------------------------------------------
- * <neo-resizable>
- * -----------------------------------------------------------------------
- * A wrapper that can be drag-resized from any subset of its edges and
+/* A wrapper that can be drag-resized from any subset of its edges and
  * corners. The host owns its width/height; CSS positions the handles,
  * picks the right resize cursor, and makes them visible on hover so the
  * preview-canvas use case (see .resizable-canvas in style.css) doesn't
  * litter the page with permanently-bright grippers.
  *
- * The corners deliberately sit on top of the edges (z-index: 2) so the
- * NW/SE / NE/SW resize cursor wins where the two would otherwise overlap.
+ * The corners sit on top of the edges (z-index: 2) so the NW/SE / NE/SW
+ * resize cursor applies where the 2 would otherwise overlap.
  */
 
 :root {
@@ -28,7 +25,7 @@ neo-resizable {
 	box-sizing: border-box;
 }
 
-/* Active drag: lock selection / cursor reflow site-wide for the duration
+/* During a drag, lock selection / cursor reflow site-wide for the duration
  * of the gesture so quick mouse moves outside the handle don't deselect
  * or hand off the cursor to the underlying content. */
 neo-resizable:state(resizing) {
@@ -101,7 +98,7 @@ neo-resizable > [data-neo-resizable-handle] > * {
 }
 
 neo-resizable:state(resizing) > neo-sidebar {
-	/* biome-ignore lint/complexity/noImportantStyles: kill the sidebar's open/close transition while actively resizing. */
+	/* biome-ignore lint/complexity/noImportantStyles: disable the sidebar's open/close transition while actively resizing. */
 	transition: none !important;
 }
 
@@ -201,12 +198,12 @@ neo-resizable > [data-neo-resizable-handle] > neo-icon {
 	--neo-icon-size: var(--neo-resizable-icon-size);
 }
 
-/* Author-supplied [data-neo-resizable-icon] children are templates: the
- * component lifts them into a managed handle wrapper on upgrade. The
+/* Author-supplied [data-neo-resizable-icon] children are templates, which
+ * the component lifts into a managed handle wrapper on upgrade. The
  * `> [data-neo-resizable-icon]` direct-child selector only matches the raw
- * pre-hydration markup (after the move, the icon is a grand-child),
- * so this rule cleanly suppresses the pre-paint flash without
- * affecting the lifted icon. */
+ * pre-hydration markup (after the move, the icon is a grand-child). This
+ * rule therefore suppresses the pre-paint flash without affecting the
+ * lifted icon. */
 neo-resizable > [data-neo-resizable-icon] {
 	display: none;
 }

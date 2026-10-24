@@ -19,9 +19,7 @@
 		"rules": {
 			"recommended": true,
 			"correctness": {
-				// Both rules exempt `_`-prefixed identifiers by default,
-				// matching the prior ESLint configuration's
-				// argsIgnorePattern/varsIgnorePattern of "^_".
+				// Both rules exempt `_`-prefixed identifiers by default.
 				"noUnusedVariables": "error",
 				"noUnusedFunctionParameters": "error"
 			},
@@ -38,16 +36,16 @@
 			"suspicious": {
 				"noDuplicateProperties": "error"
 			},
-			// a11y recommended rules run via the top-level `recommended`. Most
-			// target JSX; this kit builds DOM imperatively, so only the
-			// CSS-applicable ones (e.g. useGenericFontNames) fire today. The
-			// group stays on to guard any future markup.
+			// a11y recommended rules run via the top-level `recommended`.
+			// Most target JSX, and this kit builds DOM imperatively.
+			// Only the CSS-applicable ones (e.g. useGenericFontNames) fire today.
+			// The group stays on to guard any future markup.
 			"a11y": {
 				"recommended": true
 			},
 			// nursery rules are unstable across Biome versions; @biomejs/biome is
-			// pinned exactly, so upgrades opt in deliberately. Only vetted,
-			// zero-false-positive rules are enabled here.
+			// pinned exactly, and upgrades opt in deliberately.
+			// Only vetted rules with no false positives are enabled here.
 			"nursery": {
 				"recommended": true,
 				// Unhandled Promise (missing await/catch/void).

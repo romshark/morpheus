@@ -1,7 +1,7 @@
 package neo
 
-// Spinner renders the bare indeterminate <neo-spinner>. The JS host owns
-// the SVG ring in its shadow root.
+// Spinner renders the bare indeterminate <neo-spinner>.
+// The JS host owns the SVG ring in its shadow root.
 templ Spinner() {
 	@SpinnerAttrs(nil)
 }
@@ -12,8 +12,8 @@ templ SpinnerAttrs(attrs templ.Attributes) {
 }
 
 // SpinnerProgress renders a determinate circular progress ring (the
-// round counterpart of Progress). No text is drawn on the ring; with
-// opts.Tooltip the value (plus Unit) is shown in a wrapping
+// round counterpart of [Progress]). No text is drawn on the ring;
+// with opts.Tooltip the value (plus Unit) is shown in a wrapping
 // <neo-tooltip> on hover/focus. With opts.Indeterminate it falls back
 // to the indeterminate spin while keeping any label / ARIA wiring.
 templ SpinnerProgress[N Number](opts SpinnerOpts[N]) {
@@ -58,8 +58,8 @@ templ spinnerDeterminate[N Number](opts SpinnerOpts[N], attrs templ.Attributes) 
 	></neo-spinner>
 }
 
-// spinnerIndeterminate carries opts-driven label / ARIA / easing where
-// set; otherwise it stays the bare rotating spinner.
+// spinnerIndeterminate carries the label / ARIA / easing from opts where set;
+// otherwise it stays the bare rotating spinner.
 templ spinnerIndeterminate[N Number](opts SpinnerOpts[N], attrs templ.Attributes) {
 	<neo-spinner
 		indeterminate

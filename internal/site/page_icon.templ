@@ -13,7 +13,7 @@ templ PageIcon(morpheusVersion string) {
 			}
 			<p class="intro">
 				Component <code>{ "<neo-icon>" }</code> is an inline
-				SVG icon: the host pulls the configured icon set's
+				SVG icon. The host pulls the configured icon set's
 				SVG body in so
 				<code>{ `stroke="currentColor"` }</code> resolves
 				against the parent's CSS <code>color</code>. Size
@@ -74,8 +74,8 @@ templ PageIcon(morpheusVersion string) {
 				Inherits text colour
 			}
 			<p class="demo-note">
-				Lucide glyphs use
-				<code>{ `stroke="currentColor"` }</code>, so the icon
+				Because Lucide glyphs use
+				<code>{ `stroke="currentColor"` }</code>, the icon
 				inherits the parent's CSS <code>color</code>.
 				Wrap the host in any coloured ancestor to retint
 				it without writing variant-specific CSS.
@@ -112,7 +112,7 @@ templ PageIcon(morpheusVersion string) {
 			<p class="demo-note">
 				The host is
 				<code>display: inline-flex</code> with a
-				<code>1em</code> default size, so it sits on the
+				<code>1em</code> default size. It sits on the
 				text baseline and tracks the surrounding font
 				size without nudging the line box.
 			</p>

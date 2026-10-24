@@ -38,7 +38,8 @@ const signalRef = (expr: string): string | null => {
 // back-channel reads the value from these (signal <- DOM direction), since
 // it fires synchronously before Datastar's MutationObserver re-asserts the
 // stale signal value onto the DOM; a mutation observer here always loses
-// that race. `*-change` only (never `*-input`): commit, not every tick.
+// that race. Only `*-change` (never `*-input`), which fires on commit, not
+// every tick.
 const PREVIEW_CHANGE_EVENTS = [
 	"neo-switch-change",
 	"neo-checkbox-change",
@@ -72,8 +73,8 @@ class SitePlayground extends HTMLElement {
 	#codeTimer = 0;
 	#playTimer = 0;
 	// Autoplay intent (the toggle) vs. whether it's currently running.
-	// While off-screen the interval is halted but the intent persists, so
-	// it resumes when the playground scrolls back into view.
+	// While off-screen the interval is halted but the intent persists, and
+	// autoplay resumes when the playground scrolls back into view.
 	#autoplayWanted = false;
 	#onScreen = true;
 	#visibilityObserver: IntersectionObserver | null = null;
@@ -101,7 +102,7 @@ class SitePlayground extends HTMLElement {
 		document.addEventListener(PLAYGROUND_CONFIG_EVENT, this.#onConfigChange);
 		if (this.#states.length > 0) this.#select(this.#states[0].id, false);
 		// Autoplay off by default; opt in via the `autoplay` attribute. A
-		// single state has nothing to cycle. The observer below starts it
+		// single state has nothing to cycle. #visibilityObserver starts it
 		// once the playground is in view.
 		if (this.hasAttribute("autoplay") && this.#states.length > 1) {
 			this.#autoplayWanted = true;
@@ -193,7 +194,7 @@ class SitePlayground extends HTMLElement {
 		);
 	}
 
-	// Preview body for a state: scoped CSS then markup. Must match
+	// Preview body for a state, scoped CSS then markup. Must match
 	// playground.go playgroundPreviewHTML so an unedited state patches
 	// identically to the server-rendered initial preview.
 	#previewCode(state: PlaygroundState): string {
@@ -247,9 +248,9 @@ class SitePlayground extends HTMLElement {
 			// Per-key form: data-signals:foo="1". Datastar camel-cases the
 			// key (hyphens removed) unless a __case modifier overrides; the
 			// value is its own expression. A bare word is an undefined
-			// identifier in Datastar (an error), so an eval throw means "not
-			// a scalar signal value" and is skipped, like a non-scalar object
-			// entry. Quote strings: data-signals:foo="'x'".
+			// identifier in Datastar (an error). An eval throw therefore means
+			// "not a scalar signal value" and is skipped, like a non-scalar
+			// object entry. Quote strings, as in data-signals:foo="'x'".
 			for (const attr of Array.from(element.attributes)) {
 				if (!attr.name.startsWith("data-signals:")) continue;
 				const name = this.#signalKey(attr.name.slice("data-signals:".length));
@@ -267,7 +268,7 @@ class SitePlayground extends HTMLElement {
 	}
 
 	// Resolve a `data-signals:*` attribute key to the signal name Datastar
-	// creates: default camel case (hyphens removed, the next letter
+	// creates. The default is camel case (hyphens removed, the next letter
 	// uppercased), overridable by the `__case` modifier. Modifiers are
 	// appended with `__`; underscores are left as-is.
 	#signalKey(raw: string): string {
@@ -293,7 +294,7 @@ class SitePlayground extends HTMLElement {
 	#renderSignals(): void {
 		const list = this.querySelector<HTMLElement>(".component-playground-signal-list")!;
 		// A preview interaction fires this on every value change. Update the
-		// existing rows in place when the signal set is unchanged, so each
+		// existing rows in place when the signal set is unchanged, so that each
 		// interaction does not recreate every input element (and its event
 		// listeners), which churns the DOM and the JS listener count.
 		if (this.#updateSignalsInPlace(list)) return;
@@ -354,8 +355,8 @@ class SitePlayground extends HTMLElement {
 			if (!input) continue;
 			if (typeof value === "boolean") {
 				// Write the explicit false form. Removing `checked` is not a
-				// command to uncheck, so neo-switch keeps its intent and
-				// re-reflects the attribute, pinning the row on.
+				// command to uncheck; neo-switch would keep its intent and
+				// re-reflect the attribute, pinning the row on.
 				if (input.hasAttribute("checked") !== value) {
 					input.setAttribute("checked", value ? "true" : "false");
 				}
@@ -384,7 +385,7 @@ class SitePlayground extends HTMLElement {
 		this.#select(state.id, true);
 	}
 
-	// Copy a state in place: a new item with the same code, inserted right
+	// Copy a state in place as a new item with the same code, inserted right
 	// after the source.
 	#duplicateState(source: PlaygroundState, sourceItem: HTMLElement): void {
 		this.#copyCount++;
@@ -400,7 +401,7 @@ class SitePlayground extends HTMLElement {
 		this.#select(state.id, true);
 	}
 
-	// "Unnamed", then "Unnamed 2", "Unnamed 3", … reusing freed numbers.
+	// "Unnamed", then "Unnamed 2", "Unnamed 3", ... reusing freed numbers.
 	#nextUnnamedLabel(): string {
 		const used = new Set(this.#states.map((state) => state.label));
 		if (!used.has("Unnamed")) return "Unnamed";
@@ -410,8 +411,8 @@ class SitePlayground extends HTMLElement {
 	}
 
 	// Copy name: strip a trailing number off the source, then append the
-	// lowest free count ≥ 2. "With actions" → "With actions 2"; duplicating
-	// "With actions 2" → "With actions 3".
+	// lowest free count >= 2. "With actions" -> "With actions 2"; duplicating
+	// "With actions 2" -> "With actions 3".
 	#nextCopyLabel(label: string): string {
 		const base = label.replace(/\s+\d+$/, "").trim() || "Unnamed";
 		const used = new Set(this.#states.map((state) => state.label));
@@ -472,7 +473,7 @@ class SitePlayground extends HTMLElement {
 	}
 
 	// Reconcile the running timer with intent + visibility. Start always
-	// holds the current state for one full delay before advancing.
+	// holds the current state for 1 full delay before advancing.
 	#syncAutoplay(): void {
 		if (this.#autoplayWanted && this.#onScreen) this.#runAutoplay();
 		else this.#haltAutoplay();
@@ -598,8 +599,8 @@ class SitePlayground extends HTMLElement {
 			item.classList.toggle("is-disabled", !state.enabled);
 		} else if (value === "rename") {
 			const name = item.querySelector<HTMLElement>(".component-playground-state-name");
-			// Defer: the menu returns focus to its trigger on close, which
-			// would otherwise steal focus from the rename field.
+			// Defer, because the menu returns focus to its trigger on close,
+			// which would otherwise steal focus from the rename field.
 			if (name) requestAnimationFrame(() => this.#editStateName(name));
 		} else if (value === "duplicate") {
 			this.#duplicateState(state, item);
@@ -641,7 +642,7 @@ class SitePlayground extends HTMLElement {
 		name.setAttribute("data-neo-sortable-nodrag", "");
 		name.focus();
 		// A pointerdown on a non-focusable sibling (another state, toolbar
-		// gap) won't blur the field, so commit it explicitly. Capture phase
+		// gap) won't blur the field. Commit it explicitly. Capture phase
 		// fires before the click reorders/selects.
 		document.addEventListener("pointerdown", this.#onEditOutsidePointerDown, true);
 
@@ -709,8 +710,8 @@ class SitePlayground extends HTMLElement {
 		const state = this.#states.find((candidate) => candidate.id === item?.id);
 		if (!item || !state) return;
 		const label = name.textContent?.replace(/\s+/g, " ").trim() ?? "";
-		// An emptied name deletes the state, unless it's the last one left:
-		// that one can't be removed, so it falls back to a generated name.
+		// An emptied name deletes the state, unless it's the last one left.
+		// That one can't be removed and falls back to a generated name.
 		if (label === "" && this.#states.length > 1) {
 			this.#removeState(state, item);
 			return;
@@ -783,9 +784,9 @@ class SitePlayground extends HTMLElement {
 	};
 
 	// A live preview element committed a new value through user interaction
-	// (toggle, drag, pick). Mirror it into the bound signal. Toolbar and
-	// signal-editor controls live outside the preview and have their own
-	// handlers, so skip them.
+	// (toggle, drag, pick). Mirror it into the bound signal. Skip toolbar
+	// and signal-editor controls, which live outside the preview and have
+	// their own handlers.
 	#onPreviewChange = (event: Event): void => {
 		const target = event.target;
 		if (!(target instanceof Element)) return;
@@ -804,7 +805,7 @@ class SitePlayground extends HTMLElement {
 	// value back into its signal. Called synchronously from the element's
 	// change event so the attribute is still the just-committed value;
 	// Datastar's MutationObserver re-asserts the old signal value a microtask
-	// later, which is exactly why a mutation observer can't drive this.
+	// later, which is why a mutation observer can't handle this.
 	#mirrorPreviewBindings(el: Element, patch = true): void {
 		if (!this.#isChecked(this.#signalSync)) return;
 		let changed = false;

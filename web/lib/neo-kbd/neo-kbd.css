@@ -1,8 +1,5 @@
-/* -----------------------------------------------------------------------
- * <neo-kbd> + <neo-kbd-group>
- * -----------------------------------------------------------------------
- * Small inline keyboard-key indicator: a monospaced glyph in a
- * subtle chip with a thin border and a 1px inset bottom shadow that
+/* <neo-kbd> is a small inline keyboard-key indicator, a monospaced glyph
+ * in a subtle chip with a thin border and a 1px inset bottom shadow that
  * suggests a key with depth. Sized off the surrounding font so it
  * nests cleanly inside button labels, input trailing slots, and
  * prose. */

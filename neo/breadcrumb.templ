@@ -16,11 +16,10 @@ type BreadcrumbOpts struct {
 	MinOpenWidth   Attr[CSSUnit]
 }
 
-// Breadcrumb renders <neo-breadcrumb> with items and chevron separators
-// interleaved as authored slot content. At wide widths every child stays
-// visible; at narrower widths the host folds middle items into an
-// overflow popover. First paint matches the upgraded wide-mode rendering
-// so there's no hydration flash.
+// Breadcrumb renders <neo-breadcrumb> with items and chevron separators interleaved
+// as authored slot content. At wide widths every child stays visible; at narrower widths
+// the host folds middle items into an overflow popover. First paint matches the upgraded
+// wide-mode rendering so there's no hydration flash.
 templ Breadcrumb(items []BreadcrumbItem) {
 	@BreadcrumbAttrs(items, nil)
 }
@@ -30,9 +29,10 @@ templ BreadcrumbAttrs(items []BreadcrumbItem, attrs templ.Attributes) {
 	@BreadcrumbWith(items, BreadcrumbOpts{}, attrs)
 }
 
-// BreadcrumbWith is [Breadcrumb] with [BreadcrumbOpts] and an extra
-// attribute set.
-templ BreadcrumbWith(items []BreadcrumbItem, opts BreadcrumbOpts, attrs templ.Attributes) {
+// BreadcrumbWith is [Breadcrumb] with [BreadcrumbOpts] and an extra attribute set.
+templ BreadcrumbWith(
+	items []BreadcrumbItem, opts BreadcrumbOpts, attrs templ.Attributes,
+) {
 	<neo-breadcrumb
 		{ opts.Placement.Attrs("placement")... }
 		{ opts.ScreenOffset.Attrs("screen-offset")... }
@@ -60,7 +60,7 @@ templ BreadcrumbWith(items []BreadcrumbItem, opts BreadcrumbOpts, attrs templ.At
 }
 
 // BreadcrumbSep renders a separator between manually-authored
-// <neo-breadcrumb> children. BreadcrumbWith inserts a chevron on its own;
+// <neo-breadcrumb> children. [BreadcrumbWith] inserts a chevron on its own;
 // use this only when hand-authoring children with a different separator.
 // aria-hidden is set so assistive tech skips it.
 templ BreadcrumbSep() {

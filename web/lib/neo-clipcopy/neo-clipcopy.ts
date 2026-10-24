@@ -3,7 +3,7 @@ async function writeClipboardText(text: string): Promise<void> {
 		await navigator.clipboard.writeText(text);
 		return;
 	}
-	// Fallback for insecure contexts (http://, file://): execCommand is
+	// Fallback for insecure contexts (http://, file://). execCommand is
 	// deprecated but still the only option without a secure context.
 	const ta = document.createElement("textarea");
 	ta.value = text;
@@ -24,10 +24,10 @@ export class NeoClipcopy extends HTMLElement {
 	#copiedTimer: number | null = null;
 
 	connectedCallback() {
-		// Listen on the host, not the trigger child: trigger clicks bubble
-		// through the host (a stable ancestor), so a morph that swaps the
-		// child can't strand the listener on a detached node. The trigger
-		// is resolved live per click, never cached.
+		// Listen on the host, not the trigger child. Trigger clicks bubble
+		// through the host (a stable ancestor), which means a morph that
+		// swaps the child can't strand the listener on a detached node. The
+		// trigger is resolved live per click, never cached.
 		this.addEventListener("click", this.#onClick);
 	}
 

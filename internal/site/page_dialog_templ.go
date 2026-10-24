@@ -103,7 +103,7 @@ func PageDialog(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</code> element. The host wires trigger, close, and aria plumbing; the browser owns top-layer rendering, focus trap, scroll lock, and Esc. No portal: markup stays in light DOM so kit CSS themes it directly.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</code> element. The host wires trigger, close, and aria plumbing; the browser owns top-layer rendering, focus trap, scroll lock, and Esc. No portal. Markup stays in light DOM so kit CSS themes it directly.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -202,7 +202,7 @@ func PageDialog(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</code>: backdrop clicks and <neo-kbd>Esc</neo-kbd> are ignored, so the user must pick an action. Pair it with a clearly destructive primary button.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</code>. Backdrop clicks and <neo-kbd>Esc</neo-kbd> are then ignored and the user must pick an action. Pair it with a clearly destructive primary button.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -267,7 +267,7 @@ func PageDialog(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</code> tokens inline on the host.</p><ul class=\"demo-note\"><li>Here a dark translucent panel with an 18px backdrop blur over a heavier overlay dim.</li><li>Holds up in light and dark modes: the dialog stays dark and the blurred page reads through the glass either way.</li></ul>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</code> tokens inline on the host.</p><ul class=\"demo-note\"><li>Here a dark translucent panel with an 18px backdrop blur over a heavier overlay dim.</li><li>Holds up in light and dark modes. The dialog stays dark and the blurred page reads through the glass either way.</li></ul>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -359,7 +359,7 @@ func PageDialog(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</code> wrapper around the body animates the dialog's height between the two layouts.</li><li>Autoplay cycles the states below to simulate the server-driven morphs.</li></ul>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</code> wrapper around the body animates the dialog's height between the 2 layouts.</li><li>Autoplay cycles the states below to simulate the server-driven morphs.</li></ul>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -384,7 +384,7 @@ func PageDialog(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</code> child holds skeleton bars; opening posts to the server, whose response morph-patches real content in to replace it.</p><ul class=\"demo-note\"><li>On close the host reinstates the placeholder, so each open shows it again until the new request resolves.</li><li><code>requestCancellation</code> aborts an in-flight request when the user closes mid-load.</li></ul>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</code> child holds skeleton bars; opening posts to the server, whose response morph-patches real content in to replace it.</p><ul class=\"demo-note\"><li>On close the host reinstates the placeholder. Each open shows it again until the new request resolves.</li><li><code>requestCancellation</code> aborts an in-flight request when the user closes mid-load.</li></ul>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -497,7 +497,7 @@ var dialogDoc = ComponentDoc{
 	},
 }
 
-// asyncDialogDemo: a dialog whose body is loaded on every open via a
+// asyncDialogDemo renders a dialog whose body is loaded on every open via a
 // Datastar action. The AbortController and the simulator's response
 // HTML are seeded with `data-signals` on the host.
 func asyncDialogDemo() templ.Component {
@@ -636,7 +636,7 @@ func dialogAsyncFailureDemo() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</code> slot, so close/reopen restores it; on success the server morphs <code>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</code> slot, and close/reopen restores it. On success the server morphs <code>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -745,7 +745,7 @@ func dialogAsyncFailureDemo() templ.Component {
 	})
 }
 
-// dialogAsyncFailureSimulator seeds the retry-success payload: on a
+// dialogAsyncFailureSimulator seeds the retry-success payload. On a
 // reachable retry the simulator morphs this template into the body.
 func dialogAsyncFailureSimulator() templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
@@ -784,7 +784,7 @@ func dialogAsyncFailureSimulator() templ.Component {
 	})
 }
 
-// asyncPatchingDialogDemo: a dialog whose body grows as the server
+// asyncPatchingDialogDemo renders a dialog whose body grows as the server
 // streams progress patches. The steps wrapper is morph-targeted by
 // id (`#dialog-patching-steps`) so each patch is a child diff rather
 // than a wrapper replacement; the wrapper lives inside a
@@ -864,8 +864,8 @@ func asyncPatchingDialogDemo() templ.Component {
 	})
 }
 
-// dialogSimulator: /dialog/async-load and /dialog/work-stream for the
-// async-loading and continuous-patching examples.
+// dialogSimulator serves /dialog/async-load and /dialog/work-stream for
+// the async-loading and continuous-patching examples.
 func dialogSimulator() templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
@@ -887,7 +887,7 @@ func dialogSimulator() templ.Component {
 			templ_7745c5c3_Var35 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "<script type=\"module\">\n\t\timport sim from \"/static/datasim.js\";\n\n\t\tconst escText = (str) =>\n\t\t\tString(str)\n\t\t\t\t.replace(/&/g, \"&amp;\")\n\t\t\t\t.replace(/</g, \"&lt;\")\n\t\t\t\t.replace(/>/g, \"&gt;\");\n\n\t\t// Async-loading demo: each dialog open POSTs here. The\n\t\t// response payload is read from the `dialog_async_html`\n\t\t// signal (seeded on the host).\n\t\tsim.post(\"/dialog/async-load\", async (ctx, sse) => {\n\t\t\tconst s = ctx.signals || {};\n\t\t\tconst html = s.dialog_async_html == null\n\t\t\t\t? \"\"\n\t\t\t\t: String(s.dialog_async_html);\n\t\t\tsse.patchElements(\n\t\t\t\t`<div id=\"dialog-async-body\" class=\"dialog-async-slot dialog-async-loaded\">` +\n\t\t\t\t\thtml +\n\t\t\t\t\t`</div>`,\n\t\t\t);\n\t\t});\n\n\t\t// Failure-swap demo: each retry/open POSTs here. The handler\n\t\t// always returns success; failures are injected globally by the\n\t\t// server-error controls. On a reachable response it morphs the\n\t\t// retry-success template into the body.\n\t\tconst templateHTML = (id) =>\n\t\t\tdocument.getElementById(id).innerHTML.trim();\n\n\t\tsim.post(\"/dialog/asyncload/\", async (_ctx, sse) => {\n\t\t\tsse.patchElements(templateHTML(\"dialogAsyncDemo-success-template\"));\n\t\t});\n\n\t\t// Continuous-patching demo. Each `await sse.delay(...)` is a\n\t\t// cancellation point: closing the dialog while the stream is\n\t\t// in flight aborts the requestCancellation controller wired on\n\t\t// the host, so the next delay rejects and no further patches\n\t\t// land.\n\t\tconst patchingStep = (state, label) => {\n\t\t\tconst glyph = state === \"done\"\n\t\t\t\t? `<neo-icon name=\"check\"></neo-icon>`\n\t\t\t\t: `<neo-spinner></neo-spinner>`;\n\t\t\treturn `<li data-state=\"${state}\">${glyph}` +\n\t\t\t\t`<span>${escText(label)}</span></li>`;\n\t\t};\n\t\tconst patchingState = (steps, footer) =>\n\t\t\t`<div id=\"dialog-patching-steps\" class=\"dialog-patching-progress\">` +\n\t\t\t`<ul class=\"dialog-patching-steplist\">` +\n\t\t\tsteps.map(([state, label]) => patchingStep(state, label)).join(\"\") +\n\t\t\t`</ul>` +\n\t\t\t(footer || \"\") +\n\t\t\t`</div>`;\n\n\t\tsim.post(\"/dialog/work-stream\", async (_ctx, sse) => {\n\t\t\tconst stages = [\n\t\t\t\t\"Connecting to server\",\n\t\t\t\t\"Building artifacts\",\n\t\t\t\t\"Bundling assets\",\n\t\t\t\t\"Running tests\",\n\t\t\t\t\"Pushing release\",\n\t\t\t];\n\t\t\tconst doneLabel = (i) => [\n\t\t\t\t\"Connected to server\",\n\t\t\t\t\"Built artifacts\",\n\t\t\t\t\"Bundled assets\",\n\t\t\t\t\"Tests passed\",\n\t\t\t\t\"Released v0.1.0\",\n\t\t\t][i];\n\n\t\t\tawait sse.delay(300);\n\t\t\tfor (let i = 0; i < stages.length; i++) {\n\t\t\t\tconst rows = [];\n\t\t\t\tfor (let j = 0; j < i; j++) {\n\t\t\t\t\trows.push([\"done\", doneLabel(j)]);\n\t\t\t\t}\n\t\t\t\trows.push([\"active\", stages[i]]);\n\t\t\t\tsse.patchElements(patchingState(rows));\n\t\t\t\tawait sse.delay(700);\n\t\t\t}\n\n\t\t\tconst finalRows = stages.map((_, j) => [\"done\", doneLabel(j)]);\n\t\t\tconst footer =\n\t\t\t\t`<div class=\"dialog-patching-result\">` +\n\t\t\t\t`<neo-icon name=\"sparkles\"></neo-icon>` +\n\t\t\t\t`<span>Deployment complete · 3.5s</span>` +\n\t\t\t\t`</div>` +\n\t\t\t\t`<div class=\"dialog-patching-actions\">` +\n\t\t\t\t`<neo-button variant=\"primary\" data-neo-dialog-close>Dismiss</neo-button>` +\n\t\t\t\t`</div>`;\n\t\t\tsse.patchElements(patchingState(finalRows, footer));\n\t\t});\n\t</script>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "<script type=\"module\">\n\t\timport sim from \"/static/datasim.js\";\n\n\t\tconst escText = (str) =>\n\t\t\tString(str)\n\t\t\t\t.replace(/&/g, \"&amp;\")\n\t\t\t\t.replace(/</g, \"&lt;\")\n\t\t\t\t.replace(/>/g, \"&gt;\");\n\n\t\t// Async-loading demo. Each dialog open POSTs here. The\n\t\t// response payload is read from the `dialog_async_html`\n\t\t// signal (seeded on the host).\n\t\tsim.post(\"/dialog/async-load\", async (ctx, sse) => {\n\t\t\tconst s = ctx.signals || {};\n\t\t\tconst html = s.dialog_async_html == null\n\t\t\t\t? \"\"\n\t\t\t\t: String(s.dialog_async_html);\n\t\t\tsse.patchElements(\n\t\t\t\t`<div id=\"dialog-async-body\" class=\"dialog-async-slot dialog-async-loaded\">` +\n\t\t\t\t\thtml +\n\t\t\t\t\t`</div>`,\n\t\t\t);\n\t\t});\n\n\t\t// Failure-swap demo. Each retry/open POSTs here. The handler\n\t\t// always returns success; failures are injected globally by the\n\t\t// server-error controls. On a reachable response it morphs the\n\t\t// retry-success template into the body.\n\t\tconst templateHTML = (id) =>\n\t\t\tdocument.getElementById(id).innerHTML.trim();\n\n\t\tsim.post(\"/dialog/asyncload/\", async (_ctx, sse) => {\n\t\t\tsse.patchElements(templateHTML(\"dialogAsyncDemo-success-template\"));\n\t\t});\n\n\t\t// Continuous-patching demo. Each `await sse.delay(...)` is a\n\t\t// cancellation point. Closing the dialog while the stream is\n\t\t// in flight aborts the requestCancellation controller wired on\n\t\t// the host; the next delay then rejects and no further patches\n\t\t// land.\n\t\tconst patchingStep = (state, label) => {\n\t\t\tconst glyph = state === \"done\"\n\t\t\t\t? `<neo-icon name=\"check\"></neo-icon>`\n\t\t\t\t: `<neo-spinner></neo-spinner>`;\n\t\t\treturn `<li data-state=\"${state}\">${glyph}` +\n\t\t\t\t`<span>${escText(label)}</span></li>`;\n\t\t};\n\t\tconst patchingState = (steps, footer) =>\n\t\t\t`<div id=\"dialog-patching-steps\" class=\"dialog-patching-progress\">` +\n\t\t\t`<ul class=\"dialog-patching-steplist\">` +\n\t\t\tsteps.map(([state, label]) => patchingStep(state, label)).join(\"\") +\n\t\t\t`</ul>` +\n\t\t\t(footer || \"\") +\n\t\t\t`</div>`;\n\n\t\tsim.post(\"/dialog/work-stream\", async (_ctx, sse) => {\n\t\t\tconst stages = [\n\t\t\t\t\"Connecting to server\",\n\t\t\t\t\"Building artifacts\",\n\t\t\t\t\"Bundling assets\",\n\t\t\t\t\"Running tests\",\n\t\t\t\t\"Pushing release\",\n\t\t\t];\n\t\t\tconst doneLabel = (i) => [\n\t\t\t\t\"Connected to server\",\n\t\t\t\t\"Built artifacts\",\n\t\t\t\t\"Bundled assets\",\n\t\t\t\t\"Tests passed\",\n\t\t\t\t\"Released v0.1.0\",\n\t\t\t][i];\n\n\t\t\tawait sse.delay(300);\n\t\t\tfor (let i = 0; i < stages.length; i++) {\n\t\t\t\tconst rows = [];\n\t\t\t\tfor (let j = 0; j < i; j++) {\n\t\t\t\t\trows.push([\"done\", doneLabel(j)]);\n\t\t\t\t}\n\t\t\t\trows.push([\"active\", stages[i]]);\n\t\t\t\tsse.patchElements(patchingState(rows));\n\t\t\t\tawait sse.delay(700);\n\t\t\t}\n\n\t\t\tconst finalRows = stages.map((_, j) => [\"done\", doneLabel(j)]);\n\t\t\tconst footer =\n\t\t\t\t`<div class=\"dialog-patching-result\">` +\n\t\t\t\t`<neo-icon name=\"sparkles\"></neo-icon>` +\n\t\t\t\t`<span>Deployment complete · 3.5s</span>` +\n\t\t\t\t`</div>` +\n\t\t\t\t`<div class=\"dialog-patching-actions\">` +\n\t\t\t\t`<neo-button variant=\"primary\" data-neo-dialog-close>Dismiss</neo-button>` +\n\t\t\t\t`</div>`;\n\t\t\tsse.patchElements(patchingState(finalRows, footer));\n\t\t});\n\t</script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -14,7 +14,7 @@ templ PageIfPlatform(morpheusVersion string) {
 			}
 			<p class="intro">
 				Component <code>{ "<neo-if-platform>" }</code> is a platform
-				gate: it shows its content only on the operating systems its
+				gate. It shows its content only on the operating systems its
 				attributes select, and hides it elsewhere. Use it
 				only for what CSS can't check. CSS <code>{ "@media" }</code>
 				already handles touch, dark mode, and the like. To gate on the
@@ -29,24 +29,24 @@ templ PageIfPlatform(morpheusVersion string) {
 			}
 			<p>
 				Each platform attribute is a <a href={ href.PageServerDriven() + "#command-patches" }>boolean command</a>
-				the server can drive:
+				the server can set:
 			</p>
 			<ul>
 				<li>
 					Platforms set true are an OR, since a device has 1
-					platform: <code>{ `<neo-if-platform macos linux>` }</code>
+					platform. <code>{ `<neo-if-platform macos linux>` }</code>
 					shows on either.
 				</li>
 				<li>
 					<code>{ `x="false"` }</code> hides the content on
-					<code>x</code>: <code>{ `<neo-if-platform windows="false">` }</code>
+					<code>x</code>. <code>{ `<neo-if-platform windows="false">` }</code>
 					shows everywhere but Windows.
 				</li>
 				<li>
 					With no platform attribute the content shows everywhere.
 				</li>
 				<li>
-					A misspelled attribute is ignored:
+					A misspelled attribute is ignored.
 					<code>{ `<neo-if-platform macso>` }</code> shows everywhere.
 				</li>
 			</ul>
@@ -60,7 +60,7 @@ templ PageIfPlatform(morpheusVersion string) {
 			}
 			<p class="demo-note">
 				Each branch carries platform-specific wording and shows
-				only on its OS: you're seeing the one for your system. iOS
+				only on its OS. You're seeing the one for your system. iOS
 				and Android match no branch.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
@@ -79,13 +79,13 @@ templ PageIfPlatform(morpheusVersion string) {
 					@neo.AlertDescription() {
 						This static demo shows only your own OS's branch, and
 						swaps it in after the script loads, a brief flash. A
-						templ server avoids that: pass the request user agent
+						templ server avoids that. Pass the request user agent
 						to <code>IfPlatformOpts.UserAgent</code> and the
-						matching branch renders up front, no flash. To preview
-						another OS here, open DevTools →
-						<code>Network conditions</code> →
-						<code>User agent client hints</code> →
-						<code>Platform</code>, then reload.
+						matching branch renders up front, with no flash. To preview
+						another OS here, open DevTools, go to
+						<code>Network conditions</code> and then
+						<code>User agent client hints</code>, set
+						<code>Platform</code>, and reload.
 					}
 				}
 			}
@@ -109,7 +109,7 @@ templ PageIfPlatform(morpheusVersion string) {
 				Exclude platforms
 			}
 			<p class="demo-note">
-				Download links per store: phones get their app store, and
+				Download links per store. Phones get their app store, and
 				the branch with <code>{ `ios="false" android="false"` }</code>
 				covers every other platform.
 			</p>

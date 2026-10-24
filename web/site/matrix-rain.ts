@@ -1,4 +1,4 @@
-// <matrix-rain>: decorative falling-glyph canvas for the landing
+// <matrix-rain> is a decorative falling-glyph canvas for the landing
 // backdrop. Pure visual; pointer-events:none, hidden entirely under
 // reduced motion (the loop is torn down, not just paused).
 
@@ -86,8 +86,8 @@ class MatrixRain extends HTMLElement {
 	#resizeObserver: ResizeObserver;
 	#intersectionObserver: IntersectionObserver;
 	// Whether any part of the backdrop is in the viewport. Gates the loop with
-	// reduced motion: a decorative off-screen canvas must not keep a 60fps rAF
-	// loop repainting behind content the user isn't looking at.
+	// reduced motion, because a decorative off-screen canvas must not keep a
+	// 60fps rAF loop repainting behind content the user isn't looking at.
 	#onScreen = true;
 	#unwatchReducedMotion: (() => void) | null = null;
 	#animationFrame = 0;
@@ -124,8 +124,8 @@ class MatrixRain extends HTMLElement {
 		this.#canvas = root.querySelector("canvas")!;
 		this.#context = this.#canvas.getContext("2d", { alpha: true })!;
 		this.#resizeObserver = new ResizeObserver(() => this.#resize());
-		// isIntersecting at threshold 0 stays true while any sliver is visible,
-		// so the loop runs a touch past the edge rather than blanking on a
+		// isIntersecting at threshold 0 stays true while any sliver is visible.
+		// The loop runs a little past the edge rather than blanking on a
 		// partially-visible backdrop.
 		this.#intersectionObserver = new IntersectionObserver((entries) => {
 			this.#onScreen = entries[entries.length - 1].isIntersecting;
@@ -149,7 +149,7 @@ class MatrixRain extends HTMLElement {
 		this.#unwatchReducedMotion = null;
 	}
 
-	// Decorative-only: under reduced motion, hide the host and tear
+	// Decorative only. Under reduced motion, hide the host and tear
 	// down the canvas loop entirely (not just pause).
 	#applyReducedMotion() {
 		if (prefersReducedMotion()) {
@@ -163,7 +163,7 @@ class MatrixRain extends HTMLElement {
 	}
 
 	// Run the loop only while on-screen and motion is allowed; stop otherwise.
-	// Driven by the intersection observer (scroll) and reduced-motion changes.
+	// Runs on intersection observer (scroll) and reduced-motion changes.
 	#syncPlayback() {
 		if (this.#onScreen && !prefersReducedMotion()) this.#start();
 		else this.#stop();
@@ -308,8 +308,8 @@ class MatrixRain extends HTMLElement {
 	}
 
 	// destination-out, not source-over fade-to-bg. Fading toward
-	// --page-bg leaves a faint seam where the rain ends: iterative
-	// fillRect rounding lands the canvas ±1 off the body and the host
+	// --page-bg leaves a faint seam where the rain ends, because iterative
+	// fillRect rounding lands the canvas +/-1 off the body and the host
 	// opacity compounds it. Erasing to transparent has no seam.
 	#fadePreviousFrame() {
 		this.#context.save();

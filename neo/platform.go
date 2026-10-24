@@ -4,7 +4,7 @@ import "strings"
 
 // Platform is the OS used for server-side platform gating
 // (<neo-if-platform>) and shortcut-hint pre-rendering (<neo-kbd>). Detect it
-// from the request User-Agent with DetectPlatform; the client then refines
+// from the request User-Agent with [DetectPlatform]; the client then refines
 // via navigator.userAgentData.platform. Mirrors web/lib/platform.ts so the
 // server pre-render matches what the browser would render, eliminating the
 // flash where content changes after the bundle upgrades the elements.
@@ -24,9 +24,9 @@ const (
 func (p Platform) apple() bool { return p == PlatformMacOS || p == PlatformIOS }
 
 // DetectPlatform classifies a User-Agent header into an OS. The server
-// only has the UA string (no client hints), so this is a best guess the
-// client may refine: iPadOS Safari sends a Mac UA and detects as
-// PlatformMacOS here. Empty UA → PlatformOther.
+// only has the UA string (no client hints), which makes this a best guess
+// the client may refine. iPadOS Safari sends a Mac UA and detects as
+// [PlatformMacOS]. An empty UA returns [PlatformOther].
 func DetectPlatform(userAgent string) Platform {
 	s := strings.ToLower(userAgent)
 	switch {
@@ -54,10 +54,9 @@ func DetectPlatform(userAgent string) Platform {
 	}
 }
 
-// platformShown reports whether a <neo-if-platform> with the platform
-// commands cmds shows on p: on p's own command if set, else only when no
-// platform is set true. Mirrors NeoIfPlatform.holds in
-// web/lib/neo-if-platform.
+// platformShown reports whether a <neo-if-platform> with the platform commands cmds
+// shows on p. p's own command decides if set, else it shows only when no platform
+// is set true. Mirrors NeoIfPlatform.holds in web/lib/neo-if-platform.
 func platformShown(cmds map[Platform]bool, p Platform) bool {
 	if v, ok := cmds[p]; ok {
 		return v
@@ -70,7 +69,7 @@ func platformShown(cmds map[Platform]bool, p Platform) bool {
 	return true
 }
 
-// --- single-key glyph formatting (mirror of web/lib/platform.ts) ---
+// Single-key glyph formatting mirrors web/lib/platform.ts.
 
 var keyAliases = map[string]string{
 	"esc":      "escape",
@@ -158,8 +157,9 @@ var modifierLabelsOther = map[string]string{
 	"win":     "Win",
 }
 
-// formatKey renders a single key token as a platform label: a modifier
-// glyph (⌘, ⇧, …) or, via keyLabel, a named key (↩, Esc) or letter. Empty
+// formatKey renders a single key token as a platform label, either a
+// modifier glyph (⌘, ⇧, ...) or, via keyLabel, a named key (↩, Esc) or
+// letter. Empty
 // for an empty token. Mirrors formatKey in web/lib/platform.ts.
 func formatKey(token string, p Platform) string {
 	t := strings.ToLower(strings.TrimSpace(token))

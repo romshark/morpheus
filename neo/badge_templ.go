@@ -9,7 +9,7 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 // BadgeVariant is the visual style enum for <neo-badge>. Zero value
-// (BadgeVariantNeutral) renders the default neutral chip and emits no
+// ([BadgeVariantNeutral]) renders the default neutral chip and emits no
 // `variant` attribute.
 type BadgeVariant string
 

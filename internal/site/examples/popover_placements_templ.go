@@ -14,7 +14,7 @@ import (
 	"github.com/romshark/morpheus/neo"
 )
 
-// popoverPlacementValues lists the twelve side/alignment combinations the
+// popoverPlacementValues lists the 12 side/alignment combinations the
 // placements demo renders, in visual order.
 var popoverPlacementValues = []neo.Placement{
 	"top-start", "top", "top-end",

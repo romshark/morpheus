@@ -101,7 +101,7 @@ func PageToggleGroup(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "&period;</p><p class=\"demo-note\">Use toggle group for independent on/off controls, such as Bold + Italic. Use button group for one selected value, such as Day / Week / Month.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "&period;</p><p class=\"demo-note\">Use toggle group for independent on/off controls, such as Bold + Italic. Use button group for a single selected value, such as Day / Week / Month.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -311,7 +311,7 @@ func PageToggleGroup(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</code> only changes layout; selection semantics are unchanged and any of the four arrow keys move focus.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</code> only changes layout; selection semantics are unchanged and any of the 4 arrow keys move focus.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -360,7 +360,7 @@ var toggleGroupDoc = ComponentDoc{
 		{Name: "value", Type: "string", Default: `""`, Reflected: true, Observed: true,
 			Description: templ.Raw("Comma-separated active child values. A child value must not contain a comma; the separator is unescaped. Use <code>neo-buttongroup</code> for a single selected value.")},
 		{Name: "orientation", Type: `"horizontal" | "vertical"`, Default: "horizontal",
-			Description: templ.Raw("Layout axis only. All four arrow keys move focus regardless of orientation.")},
+			Description: templ.Raw("Layout axis only. All 4 arrow keys move focus regardless of orientation.")},
 	},
 	Events: []DocEvent{
 		{Name: "neo-toggle-group-change", Detail: "{ value: string, values: string[] }", Bubbles: true,

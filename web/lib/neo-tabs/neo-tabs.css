@@ -1,9 +1,6 @@
-/* -----------------------------------------------------------------------
- * <neo-tabs>
- * -----------------------------------------------------------------------
- * Pill-shaped tablist with a single highlighted tab. The active tab
- * lifts out of a muted pill background with a subtle shadow. Panels
- * show one at a time. */
+/* Pill-shaped tablist with a single highlighted tab. The active tab
+ * lifts out of a muted pill background with a subtle shadow.
+ * Panels show one at a time. */
 
 :root {
 	--neo-tabs-list-bg: color-mix(in srgb, var(--page-fg) 6%, transparent);
@@ -26,8 +23,8 @@
 	--neo-tabs-panel-padding: 0.85rem 0;
 }
 
-/* min-width: 0 lets the host shrink in flex/grid parents; without
- * it the tablist's intrinsic tab widths would pin it. */
+/* min-width: 0 lets the host shrink in flex/grid parents;
+ * without it the tablist's intrinsic tab widths would pin it. */
 neo-tabs {
 	display: block;
 	min-width: 0;
@@ -51,7 +48,7 @@ neo-tabs[easing] > neo-tabpanel {
 	grid-area: panels;
 }
 
-/* Crossfade fallback: when no animations are specified, override
+/* Crossfade fallback. When no animations are specified, override
  * the UA `[hidden]` display:none so the panel stays in the grid
  * cell at opacity 0 and the transition rule fades it. */
 neo-tabs[easing]:not([enter-animation]):not([exit-animation]) > neo-tabpanel[hidden] {
@@ -60,8 +57,8 @@ neo-tabs[easing]:not([enter-animation]):not([exit-animation]) > neo-tabpanel[hid
 	pointer-events: none;
 }
 
-/* During an exit animation the panel keeps `:state(leaving)` (no
- * `[hidden]`), so it stays display:block and the head <style>
+/* During an exit animation the panel keeps `:state(leaving)`
+ * (no `[hidden]`). It stays display:block and the head <style>
  * applies the exit @keyframes via animation. */
 
 /* Built-in @keyframes; author can reference these by name from
@@ -161,9 +158,9 @@ neo-tablist::-webkit-scrollbar {
 	display: none;
 }
 
-/* Vertical orientation: tablist sits on the left and panels fill
+/* In vertical orientation the tablist sits on the left and panels fill
  * the rest of the row. Baked into the kit so authors don't need
- * inline `display: flex; gap: …` boilerplate per host. */
+ * inline `display: flex; gap: ...` boilerplate per host. */
 neo-tabs[orientation="vertical"] {
 	display: grid;
 	grid-template-columns: auto 1fr;
@@ -313,13 +310,11 @@ neo-tabpanel:focus-visible {
 			calc(var(--neo-tabs-tab-padding-x) + var(--neo-tabs-list-padding) - var(--neo-tabs-list-border-width))
 		);
 	}
-	/* biome-ignore lint/style/noDescendingSpecificity: sets background/border/padding; the higher-specificity neo-tabs[easing] > neo-tablist rule sets grid-area; disjoint, no conflict */
 	neo-tablist {
 		background: ButtonFace;
 		border: var(--neo-tabs-list-border-width) solid ButtonText;
 		padding: 0;
 	}
-	/* biome-ignore lint/style/noDescendingSpecificity: sets color; the higher-specificity neo-tabs[orientation="vertical"] neo-tab rule sets justify-content; disjoint, no conflict */
 	neo-tab {
 		color: ButtonText;
 	}
@@ -353,8 +348,8 @@ neo-tabpanel:focus-visible {
 	}
 }
 
-/* Same shape as forced-colors above, but with theme tokens: once for
- * the real media query, once for the page-level attribute hook. */
+/* Same shape as the forced-colors block, but with theme tokens, once
+ * for the real media query and once for the page-level attribute hook. */
 @media (prefers-contrast: more) {
 	neo-tabs {
 		--neo-tabs-focus-outline-offset: calc(
@@ -373,13 +368,11 @@ neo-tabpanel:focus-visible {
 			calc(var(--neo-tabs-tab-padding-x) + var(--neo-tabs-list-padding) - var(--neo-tabs-list-border-width))
 		);
 	}
-	/* biome-ignore lint/style/noDescendingSpecificity: sets background/border/padding; the higher-specificity neo-tabs[easing] > neo-tablist rule sets grid-area; disjoint, no conflict */
 	neo-tablist {
 		background: transparent;
 		border: var(--neo-tabs-list-border-width) solid currentColor;
 		padding: 0;
 	}
-	/* biome-ignore lint/style/noDescendingSpecificity: sets color; the higher-specificity neo-tabs[orientation="vertical"] neo-tab rule sets justify-content; disjoint, no conflict */
 	neo-tab {
 		color: currentColor;
 	}
@@ -405,7 +398,7 @@ neo-tabpanel:focus-visible {
 	}
 }
 
-/* Same shape as forced-colors above, via the page-level attribute. */
+/* Same shape as the forced-colors block, via the page-level attribute. */
 :root[data-pref-contrast-more] neo-tabs {
 	--neo-tabs-focus-outline-offset: calc(0px - var(--neo-tabs-list-border-width) - var(--neo-tabs-focus-outline-width));
 	--neo-tabs-tab-radius: max(0px, calc(var(--neo-tabs-radius) - var(--neo-tabs-list-border-width)));

@@ -36,7 +36,7 @@ export class NeoRevealable extends HTMLElement {
 	#rehideTimer: ReturnType<typeof setTimeout> | null = null;
 	#resizeObserver: ResizeObserver | null = null;
 	#mutationObserver: MutationObserver | null = null;
-	// Set while the component edits its own light DOM, so the content
+	// Set while the component edits its own light DOM so that the content
 	// MutationObserver doesn't treat the canvas/wrapper it injects as an
 	// external content patch.
 	#internalMutation = false;
@@ -143,8 +143,8 @@ export class NeoRevealable extends HTMLElement {
 		this.#applyOpen(!!value);
 	}
 
-	// Single path for both programmatic and command-driven changes: update
-	// intent, reflect, run the reveal/conceal side effects on a real change.
+	// Single path for programmatic and command changes. Updates intent,
+	// reflects, and runs the reveal/conceal side effects on a real change.
 	#applyOpen(next: boolean): void {
 		const changed = next !== this.#openIntent;
 		this.#openIntent = next;
@@ -159,7 +159,7 @@ export class NeoRevealable extends HTMLElement {
 			this.#resetParticles();
 			this.#startAnimation();
 		}
-		// Inline two-state disclosure fires one toggle event; `open` in the
+		// Inline 2-state disclosure fires 1 toggle event; `open` in the
 		// detail carries the new state (per DESIGN Events).
 		this.dispatchEvent(
 			new CustomEvent("neo-revealable-toggle", {
@@ -170,7 +170,7 @@ export class NeoRevealable extends HTMLElement {
 		);
 	}
 
-	// State → attribute, guarded so it isn't read back as a command.
+	// State -> attribute, guarded so it isn't read back as a command.
 	#reflectOpen(): void {
 		this.#reflectingOpen = true;
 		try {
@@ -217,8 +217,8 @@ export class NeoRevealable extends HTMLElement {
 	};
 
 	#onKeyDown = (e: KeyboardEvent) => {
-		// Same as click: never re-conceal from a keystroke, just let it
-		// through to whatever has focus inside the content.
+		// Like click, never re-conceal from a keystroke; let it through to
+		// whatever has focus inside the content.
 		if (this.open) return;
 		if (e.key !== "Enter" && e.key !== " ") return;
 		e.preventDefault();
@@ -226,8 +226,8 @@ export class NeoRevealable extends HTMLElement {
 		this.reveal();
 	};
 
-	// Hover and focus gate the rehide-after timer: either being live
-	// pauses it, both gone restarts it. mouseenter/mouseleave fire on
+	// Hover and focus gate the rehide-after timer. Either one live pauses
+	// it; both gone restarts it. mouseenter/mouseleave fire on
 	// the host (crossing into / out of its bounding box, ignoring
 	// children); focusin/focusout bubble from descendants.
 	#onMouseEnter = () => {
@@ -246,9 +246,9 @@ export class NeoRevealable extends HTMLElement {
 	};
 
 	#onFocusOut = (e: FocusEvent) => {
-		// relatedTarget is the next focus owner; focus moving to a
+		// relatedTarget is the next focus owner. Focus moving to a
 		// descendant (e.g. tabbing from host into a link inside content)
-		// keeps focus "inside" us, so the timer must stay paused.
+		// keeps focus "inside" us and must keep the timer paused.
 		const next = e.relatedTarget as Node | null;
 		if (next && this.contains(next)) return;
 		this.#focused = false;
@@ -260,9 +260,9 @@ export class NeoRevealable extends HTMLElement {
 		this.#startRehideTimer();
 	}
 
-	// Idempotent: wrap loose author children in [data-neo-revealable-
-	// content] and keep exactly one [data-neo-revealable-canvas] overlay.
-	// Safe to call after any morph that stripped/duplicated either.
+	// Wraps loose author children in [data-neo-revealable-content] and
+	// keeps exactly 1 [data-neo-revealable-canvas] overlay. Idempotent and
+	// safe to call after any morph that stripped/duplicated either.
 	#sync(): void {
 		this.#internalMutation = true;
 		try {
@@ -319,8 +319,8 @@ export class NeoRevealable extends HTMLElement {
 			return true;
 		});
 		if (!external) return;
-		// Content was patched (e.g. a server morph swapped the secret):
-		// re-hide so it can't flash, then rebuild the veil.
+		// Content was patched (e.g. a server morph swapped the secret).
+		// Re-hide so it can't flash, then rebuild the veil.
 		this.#sync();
 		this.#syncAria();
 		if (this.open) {
@@ -392,7 +392,7 @@ export class NeoRevealable extends HTMLElement {
 		const dpr = Math.min(window.devicePixelRatio || 1, 2);
 		this.#width = rect.width;
 		this.#height = rect.height;
-		// Pin the CSS box to the exact px and the bitmap to that × dpr.
+		// Pin the CSS box to the exact px and the bitmap to that * dpr.
 		// The canvas is a replaced element stretched by width/height:100%;
 		// without an explicit style size the browser resamples a rounded
 		// bitmap onto a fractional box, smearing the bottom/right edge
@@ -406,11 +406,11 @@ export class NeoRevealable extends HTMLElement {
 		const media = this.#variant() === "media";
 		const area = rect.width * rect.height;
 		const maxCount = media ? 3500 : 420;
-		// Clamp the area-derived baseline to the ceiling *before* applying
+		// Clamp the area-derived baseline to the ceiling before applying
 		// density, then density scales it within [24, maxCount]. Applying
-		// density and clamping afterwards pinned inline at the cap for
-		// every density (area * 0.22 ≫ 420 for any real text run), so the
-		// parameter had no visible effect.
+		// density and clamping afterwards pins inline at the cap for every
+		// density (area * 0.22 >> 420 for any real text run), which leaves
+		// the parameter with no visible effect.
 		const base = Math.min(area * (media ? 0.007 : 0.05), maxCount);
 		const count = Math.max(24, Math.min(Math.round(base * this.#density), maxCount));
 
@@ -441,7 +441,7 @@ export class NeoRevealable extends HTMLElement {
 		ctx.clearRect(0, 0, w, h);
 
 		// Grain only. The veil is a CSS ::after rendered identically
-		// before and after upgrade, so the canvas just layers animated
+		// before and after upgrade. The canvas only layers animated
 		// particles on top of it (no hydration flash).
 		const cs = getComputedStyle(this);
 		const color = cs.getPropertyValue("--neo-revealable-particle-color").trim() || "currentColor";

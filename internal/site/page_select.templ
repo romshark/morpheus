@@ -15,7 +15,7 @@ templ PageSelect(morpheusVersion string) {
 			}
 			<p class="intro">
 				Component <code>{ "<neo-select>" }</code> is a
-				single-select dropdown: trigger button, popover
+				single-select dropdown with a trigger button, a popover
 				panel, and a roving-tabindex listbox of
 				{ " " }
 				@neo.Link(neo.LinkOpts{Href: neo.Set(href.PageOption())}) {
@@ -54,7 +54,7 @@ templ PageSelect(morpheusVersion string) {
 			}
 			<p class="demo-note">
 				Mark an option unavailable with
-				<code>disabled</code>: it renders muted, is
+				<code>disabled</code>. It renders muted, is
 				skipped by arrow-key navigation, and can't be
 				selected.
 			</p>
@@ -70,7 +70,7 @@ templ PageSelect(morpheusVersion string) {
 			}
 			<p class="demo-note">
 				Set <code>disabled</code> on the host to make the
-				whole control non-interactive: the trigger leaves the
+				whole control non-interactive. The trigger leaves the
 				tab order, ignores clicks and keys, and renders faded.
 				An open panel closes. Distinct from disabling
 				individual options.
@@ -105,7 +105,7 @@ templ PageSelect(morpheusVersion string) {
 			<p class="demo-note">
 				Group related options under labeled headers by
 				wrapping them in
-				<code>{ "<neo-optgroup label=\"…\">" }</code>.
+				<code>{ "<neo-optgroup label=\"...\">" }</code>.
 			</p>
 			<ul class="demo-note">
 				<li>
@@ -141,7 +141,7 @@ templ PageSelect(morpheusVersion string) {
 					Tag an empty
 					<code>{ `<neo-option value="">` }</code> with
 					<code>{ "[data-neo-select-empty]" }</code> to
-					serve as both a selectable “none” row and the
+					serve as both a selectable "none" row and the
 					trigger face shown once cleared.
 				</li>
 			</ul>
@@ -159,8 +159,8 @@ templ PageSelect(morpheusVersion string) {
 			<p class="demo-note">
 				Options carry multi-line bodies (avatar, name,
 				title). With no <code>label</code> override, the
-				trigger clones the selected option's body, so it
-				matches the listbox row.
+				trigger clones the selected option's body to
+				match the listbox row.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
 				StageMinHeight: "24rem",
@@ -175,7 +175,7 @@ templ PageSelect(morpheusVersion string) {
 			}
 			<p class="demo-note">
 				Show a compact label on the trigger while the
-				list keeps the rich card: set each option's
+				list keeps the rich card. Set each option's
 				<code>label</code> and the trigger uses it
 				instead of cloning the body.
 			</p>
@@ -259,7 +259,7 @@ templ PageSelect(morpheusVersion string) {
 				</li>
 				<li>
 					Here <code>min-fit-height</code> is
-					<code>8rem</code>: when the trigger sits low in
+					<code>8rem</code>. When the trigger sits low in
 					the viewport the listbox flips from
 					<code>bottom-start</code> to
 					<code>top-start</code>. Scroll it down to see it.
@@ -356,7 +356,7 @@ templ PageSelect(morpheusVersion string) {
 				<li>
 					Add a
 					<code>{ "[data-neo-async-placeholder]" }</code>
-					without <code>async</code>: the first open
+					without <code>async</code>. The first open
 					fires <code>neo-select-load</code>.
 				</li>
 				<li>
@@ -401,7 +401,7 @@ templ PageSelect(morpheusVersion string) {
 					panel.
 				</li>
 				<li>
-					The placeholder stays the source, so reopening
+					The placeholder stays the source. Reopening
 					shows the loading view again.
 				</li>
 			</ul>
@@ -423,11 +423,11 @@ var selectDoc = ComponentDoc{
 		{Name: "value", Type: "string", Reflected: true, Observed: true,
 			Description: templ.Raw("Selected option value. Empty clears the selection.")},
 		{Name: "name", Type: "string",
-			Description: templ.Raw("Form field name. The control is form-associated: with a <code>name</code> set it submits its value in a native <code>&lt;form&gt;</code> like a <code>&lt;select&gt;</code>, resets with the form, and is barred from submission while disabled.")},
+			Description: templ.Raw("Form field name. The control is form-associated. With a <code>name</code> set it submits its value in a native <code>&lt;form&gt;</code> like a <code>&lt;select&gt;</code>, resets with the form, and is barred from submission while disabled.")},
 		{Name: "size", Type: `"sm" | "lg"`,
 			Description: templ.Raw("Control-size step: <code>sm</code> compact, <code>lg</code> large. Omit for the default size.")},
 		{Name: "disabled", Type: "boolean", Default: "false", Observed: true,
-			Description: templ.Raw("Makes the control non-interactive: the trigger drops out of the tab order and ignores clicks and keys, and an open panel closes.")},
+			Description: templ.Raw("Makes the control non-interactive. The trigger drops out of the tab order and ignores clicks and keys, and an open panel closes.")},
 		{Name: "placeholder", Type: "string", Observed: true,
 			Description: templ.Raw("Trigger text when nothing is selected.")},
 		{Name: "list", Type: "string", Observed: true,
@@ -437,7 +437,7 @@ var selectDoc = ComponentDoc{
 		{Name: "clearable", Type: "boolean", Default: "false",
 			Description: templ.Raw("<code>Backspace</code> / <code>Delete</code> clears the selection.")},
 		{Name: "caret", Type: "string", Default: `"chevrons-up-down"`, Observed: true,
-			Description: templ.Raw(`Name of the trigger's caret icon. Resolved through <a href="` + href.PageIcon() + `"><code>&lt;neo-icon&gt;</code></a>, so it follows the active icon theme. Set <code>caret=&quot;&quot;</code> (empty) to hide the caret entirely.`)},
+			Description: templ.Raw(`Name of the trigger's caret icon. Resolved through <a href="` + href.PageIcon() + `"><code>&lt;neo-icon&gt;</code></a> and follows the active icon theme. Set <code>caret=&quot;&quot;</code> (empty) to hide the caret entirely.`)},
 		{Name: "typeahead", Type: "true | false", Default: "true",
 			Description: templ.Raw("Type-to-search over the options. With typeahead on, Space feeds the buffer; set <code>typeahead=\"false\"</code> and Space activates the focused option instead.")},
 		{Name: "typeahead-timeout", Type: "number", Default: "500",
@@ -463,7 +463,7 @@ var selectDoc = ComponentDoc{
 		{Name: "popover-fit-content", Type: "boolean", Default: "false",
 			Description: templ.Raw(`The listbox tracks the trigger width by default; set this to size the panel to the option rows instead (e.g. a glyph-only trigger in a <a href="` + href.PageInputGroup() + `"><code>&lt;neo-input-group&gt;</code></a>). Capped by <code>--neo-popover-max-width</code> and the viewport.`)},
 		{Name: "hover", Type: "boolean", Default: "false",
-			Description: templ.Raw("Open the panel on trigger hover without moving focus; close after the pointer leaves both trigger and panel. Mouse only; touch falls back to click. While set, clicking the trigger always shows the panel instantly and never toggles it shut, so touch and keyboard users keep a way in.")},
+			Description: templ.Raw("Open the panel on trigger hover without moving focus; close after the pointer leaves both trigger and panel. Mouse only; touch falls back to click. While set, clicking the trigger always shows the panel instantly and never toggles it shut, which keeps a way in for touch and keyboard users.")},
 		{Name: "hover-open-delay", Type: "integer (ms)", Default: "100",
 			Description: templ.Raw("Milliseconds the pointer must rest on the trigger before <code>hover</code> opens the panel. Filters incidental cursor crossings. Does not apply to click.")},
 		{Name: "hover-close-delay", Type: "integer (ms)", Default: "200",
@@ -473,19 +473,19 @@ var selectDoc = ComponentDoc{
 		{Name: "default",
 			Description: templ.Raw(`<a href="` + href.PageOption() + `"><code>&lt;neo-option&gt;</code></a> and <a href="` + href.PageOptgroup() + `"><code>&lt;neo-optgroup&gt;</code></a> children. Alternatively, set <code>list</code> to source them from a shared <a href="` + href.PageDatalist() + `"><code>&lt;neo-datalist&gt;</code></a>.`)},
 		{Name: "[data-neo-async-placeholder]",
-			Description: templ.Raw("Custom skeleton shown while options load. Presence of this slot also marks the select as lazy-by-default: the kit shows it on opens with no options, then caches options across opens once they arrive.")},
+			Description: templ.Raw("Custom skeleton shown while options load. Presence of this slot also marks the select as lazy-by-default. The kit shows it on opens with no options, then caches options across opens once they arrive.")},
 		{Name: "[slot=trigger]",
 			Description: templ.Raw("Owns the trigger face. Leave it absent and the kit fills it client-side by cloning the selected option's body (so its CSS styles it and the trigger grows to fit); provide one (e.g. patched from a server) and the kit yields, rendering exactly your content.")},
 		{Name: "[data-neo-option-trigger]",
-			Description: templ.Raw(`Optional per-<a href="` + href.PageOption() + `"><code>&lt;neo-option&gt;</code></a> child: a compact trigger face distinct from the option's rich list row. Hidden in the list; cloned into the trigger when that option is selected. Falls back to the option's <code>label</code> (plain text), then its full body. Shared with <a href="` + href.PageCombobox() + `"><code>&lt;neo-combobox&gt;</code></a>.`)},
+			Description: templ.Raw(`Optional per-<a href="` + href.PageOption() + `"><code>&lt;neo-option&gt;</code></a> child holding a compact trigger face distinct from the option's rich list row. Hidden in the list; cloned into the trigger when that option is selected. Falls back to the option's <code>label</code> (plain text), then its full body. Shared with <a href="` + href.PageCombobox() + `"><code>&lt;neo-combobox&gt;</code></a>.`)},
 		{Name: "[data-neo-select-empty]",
-			Description: templ.Raw("The empty-state trigger face: its body is cloned into the trigger when nothing is selected.")},
+			Description: templ.Raw("The empty-state trigger face. Its body is cloned into the trigger when nothing is selected.")},
 	},
 	Events: []DocEvent{
 		{Name: "neo-select-change", Detail: "{ value: string | null, label: string | null }", Bubbles: true,
 			Description: templ.Raw("Fires after the selection changes.")},
 		{Name: "neo-select-load", Detail: "none", Bubbles: true,
-			Description: templ.Raw("Fires when options need fetching: every open with <code>async</code>, or a lazy select's first open. Wire a loader to it (e.g. a Datastar <code>@post</code>). Call <code>el.reload()</code> to re-fire it. Distinct from <code>neo-popover-open</code>, which always fires on open.")},
+			Description: templ.Raw("Fires when options need fetching, on every open with <code>async</code> or on a lazy select's first open. Wire a loader to it (e.g. a Datastar <code>@post</code>). Call <code>el.reload()</code> to re-fire it. Distinct from <code>neo-popover-open</code>, which always fires on open.")},
 	},
 	Parts: []DocPart{
 		{Name: "label",
@@ -500,9 +500,9 @@ var selectDoc = ComponentDoc{
 }
 
 // selectSimulator wires the page's simulated server for the async /
-// lazy / failure-swap examples: the per-demo handler modules under
-// /static/sim/select/ (also surfaced in the Server script tab) plus
-// the inline /select/asyncload/ handler.
+// lazy / failure-swap examples. It loads the per-demo handler modules
+// under /static/sim/select/ (also surfaced in the Server script tab) and
+// registers the inline /select/asyncload/ handler.
 templ selectSimulator() {
 	<template id="demo-assignee-select-alt-options-template">
 		@assigneeOptions("demo-assignee-select-alt-options", assignees)

@@ -75,7 +75,7 @@ func BoundaryPositioning() templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "><h3 class=\"boundary-positioning-heading\">Filters</h3><p class=\"boundary-positioning-body\">The panel is clamped to the dashed region instead of the viewport, so it flips above the trigger to stay inside. Drop the <code>positioning</code> token from <code>scope</code> to clamp to the viewport instead.</p></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "><h3 class=\"boundary-positioning-heading\">Filters</h3><p class=\"boundary-positioning-body\">The panel is clamped to the dashed region instead of the viewport. It flips above the trigger to stay inside. Drop the <code>positioning</code> token from <code>scope</code> to clamp to the viewport instead.</p></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

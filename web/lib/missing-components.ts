@@ -1,12 +1,12 @@
 // A component used in markup but missing from the loaded bundle
 // (trimmed, or never imported) must warn the developer by name instead of
-// failing silently. The two component kinds need two signals:
+// failing silently. The 2 component kinds need 2 signals:
 //
 // - Behavioral components register a custom element. A BEHAVIORAL_TAGS entry
 //   customElements.get cannot resolve is missing. The manifest survives
-//   trimming (this module is always bundled), so the absence stays detectable.
-// - CSS-only components register nothing and are always :not(:defined),
-//   so customElements cannot tell a present one from a trimmed one. Each ships a
+//   trimming (this module is always bundled) and the absence stays detectable.
+// - CSS-only components register nothing and are always :not(:defined).
+//   customElements cannot tell a present one from a trimmed one. Each ships a
 //   `--neo-loaded: <tag>` sentinel in its stylesheet, read back here once the
 //   stylesheets have loaded; an absent sentinel means trimmed styles.
 //   The native <a data-neo-link> carries `--neo-loaded: neo-link` the same way.
@@ -75,8 +75,8 @@ const BEHAVIORAL_TAGS = new Set<string>([
 	"neo-tree-item",
 ]);
 
-// Tags styled by CSS only (no custom element). Tags whose styles ride a
-// behavioral parent's stylesheet (neo-kbd-group, neo-sortable-item) are left out:
+// Tags styled by CSS only (no custom element). Tags styled by a behavioral
+// parent's stylesheet (neo-kbd-group, neo-sortable-item) are left out because
 // that parent's behavioral warning already covers the trim.
 const CSS_ONLY_TAGS = new Set<string>([
 	"neo-alert",
@@ -118,7 +118,7 @@ function reportIfStylesMissing(el: Element, name: string, markup: string): void 
 	// Chrome computes no style outside the flat tree, such as for an unslotted child.
 	if (style.display === "") return;
 	// The sentinel resolves to the name only when its stylesheet loaded.
-	// Descendants inherit it, so only an exact match counts.
+	// Only an exact match counts because descendants inherit it.
 	if (style.getPropertyValue("--neo-loaded").trim() === name) {
 		cssConfirmed.add(name);
 		return;

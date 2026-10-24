@@ -98,8 +98,8 @@ func popoverAsyncFailureLoading() templ.Component {
 }
 
 // Swapped in once Datastar fires retries-failed. The retry button
-// carries [data-neo-popover-async-retry] so PopoverAsync re-fires
-// the @post action when clicked.
+// carries [data-neo-popover-async-retry] so [datastar.PopoverAsync]
+// re-fires the @post action when clicked.
 func popoverAsyncFailureFailed() templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context

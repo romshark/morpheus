@@ -132,11 +132,11 @@ func AvatarsAttrs(opts AvatarsOpts, attrs templ.Attributes) templ.Component {
 	})
 }
 
-// AvatarsOverflow declares custom content for the +N overflow circle: the
-// host clones this <template data-neo-avatars-overflow> in place of the
+// AvatarsOverflow declares custom content for the +N overflow circle.
+// The host clones this <template data-neo-avatars-overflow> in place of the
 // generated circle (e.g. a popover trigger). Mark a descendant with
-// AvatarsOverflowCount to show the hidden count. Place it as a direct
-// child of Avatars.
+// [AvatarsOverflowCount] to show the hidden count. Place it as a direct
+// child of [Avatars].
 func AvatarsOverflow() templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
@@ -175,8 +175,8 @@ func AvatarsOverflow() templ.Component {
 }
 
 // AvatarsOverflowCount renders the [data-neo-avatars-overflow-count]
-// placeholder the host fills with the current hidden count. Use inside
-// AvatarsOverflow.
+// placeholder the host fills with the current hidden count.
+// Use inside [AvatarsOverflow].
 func AvatarsOverflowCount() templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context

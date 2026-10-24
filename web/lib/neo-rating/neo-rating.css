@@ -1,12 +1,9 @@
-/* -----------------------------------------------------------------------
- * <neo-rating>
- * -----------------------------------------------------------------------
- * Stacked-layer symbols: empty (track), preview (hollow candidate),
+/* Each symbol stacks 3 layers, empty (track), preview (hollow candidate)
  * and full (committed value). Layer widths are clipped per symbol;
- * overflow:hidden clips the fixed-size inner svg, so a partial value
- * shows an exact left fraction of the icon. The host carries the
- * slider semantics (the symbol row is aria-hidden), so the focus
- * ring goes on the row. */
+ * overflow:hidden clips the fixed-size inner svg, which makes a partial
+ * value show an exact left fraction of the icon. The host carries the
+ * slider semantics (the symbol row is aria-hidden); the focus ring goes
+ * on the row. */
 
 :root {
 	--neo-rating-symbol-size: 1.5rem;
@@ -70,8 +67,8 @@ neo-rating [data-neo-rating-preview] {
 /* The icon svg lives in <neo-icon>'s shadow root, exposed as part="svg";
  * a bare descendant `svg` selector can't reach it. The full layer fills
  * solid; the preview layer is the icon's native outline (lucide ships
- * `fill="none" stroke="currentColor"`). All three layers keep the same
- * stroke width: a wider preview stroke would poke past the solid fill on
+ * `fill="none" stroke="currentColor"`). All 3 layers keep the same stroke
+ * width because a wider preview stroke would poke past the solid fill on
  * the already-committed stars and read as a hairline border on hover. */
 neo-rating [data-neo-rating-full] neo-icon::part(svg) {
 	fill: currentColor;
@@ -98,9 +95,9 @@ neo-rating [data-neo-rating-full] svg {
 	height: var(--neo-rating-symbol-size);
 }
 
-/* Match the kit-wide focus baseline (_base.css): a 2px accent outline,
- * offset 2px. It rides the symbol row so it rounds to the row's radius;
- * suppress the baseline's own outline on the host so the two don't stack
+/* Match the kit-wide focus baseline (_base.css), a 2px accent outline
+ * offset 2px. It sits on the symbol row so it rounds to the row's radius;
+ * suppress the baseline's own outline on the host so the 2 don't stack
  * into a double ring (`:focus-visible` here outranks the baseline). */
 neo-rating:focus-visible {
 	outline: none;

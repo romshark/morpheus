@@ -13,7 +13,7 @@ export class NeoIfNetwork extends ConditionGate {
 	override connectedCallback() {
 		window.addEventListener("online", this.#onNetworkChange);
 		window.addEventListener("offline", this.#onNetworkChange);
-		// No delay on connect: a page loaded offline shows it at once.
+		// No delay on connect. A page loaded offline shows it at once.
 		this.#online = navigator.onLine;
 		super.connectedCallback();
 	}
@@ -29,7 +29,7 @@ export class NeoIfNetwork extends ConditionGate {
 		return want === null || want === this.#online;
 	}
 
-	// Each event restarts the delay, so the change applies only after
+	// Each event restarts the delay. The change applies only after
 	// `navigator.onLine` holds for the whole delay.
 	// A drop shorter than the delay never shows.
 	#onNetworkChange = () => {

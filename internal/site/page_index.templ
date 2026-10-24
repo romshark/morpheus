@@ -31,9 +31,9 @@ const lfSelectOptionsPatchHTML = `<neo-select
 </neo-select>
 `
 
-// Templ source shown alongside the live combobox in landingTemplWrappers.
-// Kept in sync with the live invocation by hand; copy/paste from the
-// templ block above the constant.
+// lfTemplComboboxSource is the templ source shown alongside the live
+// combobox in [landingTemplWrappers]. Kept in sync with the live
+// invocation there by hand.
 const lfTemplComboboxSource = `@neo.Combobox(neo.ComboboxOpts{
   Value:             neo.Set("templ"),
   AriaLabel:         neo.Set("Templating engine"),
@@ -299,7 +299,7 @@ templ PageIndex(morpheusVersion string) {
 }
 
 // landingHowWorks renders the entire "Let the server drive it" section
-// for a given pipeline stage. The same component renders three states:
+// for a given pipeline stage. The same component renders 3 states:
 //
 //   1: initial / post-reset: placeholder slot inside the select,
 //       Reset disabled, stage 1 marked (current).
@@ -311,8 +311,8 @@ templ PageIndex(morpheusVersion string) {
 //
 // Each <neo-select-load>/<neo-button-click> action morphs the entire
 // section by id; the initial render is stage 1 and the in-page
-// <template> wrappers above carry stages 2 and 3 as the morph payloads
-// the simulator returns.
+// <template> wrappers in [PageIndex] carry stages 2 and 3 as the morph
+// payloads the simulator returns.
 templ landingHowWorks(currentStage int) {
 	<section
 		id="lf-how-section"
@@ -324,11 +324,10 @@ templ landingHowWorks(currentStage int) {
 			<p>
 				Morpheus is designed to be server-side patching friendly.
 				<br/>
-				This demo demonstates how to use <code>neo-select</code> with&nbsp;
+				This demo shows how to use <code>neo-select</code> with&nbsp;
 				@neo.Link(neo.LinkOpts{Href: neo.Set("https://data-star.dev"), Target: neo.Set("_blank")}) {
 					Datastar
 				}
-				{ " " }
 				.
 			</p>
 		</div>
@@ -728,8 +727,8 @@ templ landingCustomCode(source, signal string) {
 	}
 }
 
-// shippingOption renders one rich combobox option for the landing
-// "Rich Options" card: a compact trigger face (icon + name + optional
+// shippingOption renders a rich combobox option for the landing
+// "Rich Options" card, with a compact trigger face (icon + name + optional
 // price delta) plus a full list row (icon + name + price, an optional
 // "Popular" badge, and a description).
 templ shippingOption(value, icon, name, price, desc, delta string, popular bool) {
@@ -839,7 +838,7 @@ templ landingOpenAlpha(morpheusVersion string) {
 }
 
 // landingAccessibility highlights the kit's a11y commitments. Mirrors
-// the `landing-how` rhythm: centered copy on top, a 2x2 grid of
+// the `landing-how` layout with centered copy on top, a 2x2 grid of
 // claims, then a togglable "try it" panel that simulates
 // `prefers-reduced-motion` and `prefers-contrast: more` on a small
 // set of sample components so a sighted visitor can see the effect
@@ -857,7 +856,7 @@ templ landingAccessibility() {
 			<h2 id="landing-a11y-title">Accessible by Default</h2>
 			<p>
 				Every primitive ships with full keyboard navigation, ARIA roles,
-				managed focus, and screen reader-tested behavior, built in, not bolted on.
+				managed focus, and screen reader-tested behavior, all built in.
 			</p>
 		</div>
 		<ul class="landing-a11y-features" aria-label="Accessibility commitments">
@@ -946,9 +945,9 @@ templ landingAccessibility() {
 						@neo.SidebarAttrs(neo.SidebarOpts{
 							Open: neo.Set(true),
 							// Below ~600px the 10rem sidebar leaves the form pane
-							// too narrow to lay out its rows, so let the kit's
-							// overlay-drawer mode take over, paired with the
-							// CSS below that re-anchors the drawer (and its
+							// too narrow to lay out its rows. The kit's
+							// overlay-drawer mode takes over there, paired with
+							// landing.css rules that re-anchor the drawer (and its
 							// backdrop) to the demo body instead of the viewport
 							// so it slides in from the card's left edge, not the
 							// browser's. The toolbar's "Toggle sidebar" button is
@@ -1137,8 +1136,8 @@ func lfA11yLeafAttrs(active bool) templ.Attributes {
 	}
 }
 
-// lfA11yNavBranch renders one expandable group inside the demo's
-// settings tree: plain text label, no icon (settings rows don't
+// lfA11yNavBranch renders an expandable group inside the demo's
+// settings tree, with a plain text label, no icon (settings rows don't
 // need a folder/file icon) and no per-row actions menu.
 templ lfA11yNavBranch(name string, expanded bool) {
 	@neo.TreeItem(expanded) {
@@ -1184,8 +1183,9 @@ templ landingFooter(morpheusVersion string) {
 	</footer>
 }
 
-// Three-flex-column masonry of unlabelled UI fragments: snippets that
-// could plausibly come from real apps, no titles or descriptions.
+// landingShowcase renders a 3-flex-column masonry of unlabelled UI
+// fragments, snippets that could plausibly come from real apps, with no
+// titles or descriptions.
 templ landingShowcase() {
 	<section
 		class="landing-showcase"
@@ -1223,10 +1223,10 @@ templ landingShowcase() {
 
 templ lfColorField() {
 	// HSV->hex helper used by the hue and saturation sliders to recompute
-	// the authoritative `_lf_color_value` hex when only one of the three
-	// dimensions has changed. Mirrors the conversion in
-	// web/lib/neo-color-field/neo-color-field.ts so a hex round-trip through this helper
-	// is bit-exact with what the field would emit for the same h/s/v.
+	// the authoritative `_lf_color_value` hex when only one of the 3
+	// dimensions has changed. Mirrors hsvToHex in neo-color-field so a hex
+	// round-trip through this helper is bit-exact with what the field would
+	// emit for the same h/s/v.
 	<script>
 		(function () {
 			if (window.lfHsvToHex) return;
@@ -1392,10 +1392,10 @@ templ lfColorField() {
 				"class":           "lf-color-field",
 				"data-attr:value": "$_lf_color_value",
 				"data-attr:hue":   "$_lf_color_hue",
-				// Debounce the per-pointermove input: the handler drives a
-				// :root --accent write that invalidates the whole page's style,
-				// so coalesce to the trailing edge. neo-color-field-change fires
-				// on pointerup and stays immediate, committing the final color.
+				// Debounce the per-pointermove input to the trailing edge. The
+				// handler writes :root --accent, which invalidates the whole
+				// page's style. neo-color-field-change fires on pointerup and
+				// stays immediate, committing the final color.
 				"data-on:neo-color-field-input__debounce.30ms": "$_lf_color_value = evt.detail.value; $_lf_color_hue = evt.detail.hue; $_lf_color_sat = evt.detail.x; $_lf_color_val = 100 - evt.detail.y; $_lf_color_touched = true",
 				"data-on:neo-color-field-change":               "$_lf_color_value = evt.detail.value; $_lf_color_hue = evt.detail.hue; $_lf_color_sat = evt.detail.x; $_lf_color_val = 100 - evt.detail.y; $_lf_color_touched = true",
 			})
@@ -1431,16 +1431,16 @@ templ lfColorField() {
 	</neo-card>
 	// Sync the picker to the real computed accent, at init and on
 	// every user theme/mode switch. The data-signals seed
-	// (#2563eb / 221 / 85) is a placeholder: the actual theme accent
+	// (#2563eb / 221 / 85) is a placeholder. The actual theme accent
 	// is only knowable client-side after the theme CSS applies (the
 	// default theme's is achromatic oklch(... 0 0), not blue). The
-	// reset handler keeps touched false, so this corrects the readout
-	// without painting the page; on a theme switch it also drops the
-	// stale inline --accent override (which beats the theme class's
-	// --accent). The init sync waits for window load so Datastar has
-	// wired data-on:lf-color-reset; themeBootstrap's pre-paint
-	// neo-theme-change in <head> fired before this listener existed,
-	// hence the explicit init dispatch instead of relying on it.
+	// reset handler keeps touched false, which lets this correct the
+	// readout without painting the page; on a theme switch it also drops
+	// the stale inline --accent override (which takes precedence over the
+	// theme class's --accent). The init sync waits for window load so
+	// Datastar has wired data-on:lf-color-reset; themeBootstrap's
+	// pre-paint neo-theme-change in <head> fired before this listener
+	// existed, hence the explicit init dispatch instead of relying on it.
 	<script>
 		(function () {
 			function syncPicker() {
@@ -1508,8 +1508,8 @@ templ lfThemeMode() {
 					// CSS shell renders this via `content: attr(placeholder)`)
 					// so the trigger reads "Default" before the JS bundle
 					// upgrades the element. Avoids a CLS / flash from a
-					// blank trigger. The Datastar `data-attr:value` below
-					// patches in the saved theme name once the signal boots.
+					// blank trigger. The Datastar `data-attr:value` patches
+					// in the saved theme name once the signal boots.
 					Placeholder: neo.Set("Default"),
 				}, templ.Attributes{
 					"class":                     "lf-theme-select",
@@ -1608,7 +1608,7 @@ templ lfEqualizer() {
 					AriaLabel: neo.Set("Preset"),
 				}, templ.Attributes{
 					"data-attr:value": "$_lf_eq_preset",
-					// Preset rides in the URL; Datastar drops `_*` signals
+					// Preset goes in the URL; Datastar drops `_*` signals
 					// from request bodies.
 					"data-on:neo-buttongroup-change": "$_lf_eq_preset = evt.detail.value;" +
 						" @post('/lf-eq/preset/' + evt.detail.value + '/')",
@@ -1639,7 +1639,7 @@ templ lfEqualizer() {
 	</neo-card>
 }
 
-// Two-way bound to `signal` so preset patches move the rail and
+// lfEqBand is 2-way bound to `signal` so preset patches move the rail and
 // drags update the signal. Easing animates the thumb/fill between
 // commits; without it, signal patches snap.
 templ lfEqBand(hz, signal string) {
@@ -1675,8 +1675,8 @@ templ lfEqBand(hz, signal string) {
 }
 
 // lfDeployRef renders the deploy card's branch/commit picker. Each
-// option's children carry every searchable field (branch · hash ·
-// message · author · time) so the local filter matches across all of
+// option's children carry every searchable field (branch, hash,
+// message, author, time) so the local filter matches across all of
 // them; the option's `label` attribute is just the short commit hash
 // so the trigger stays compact regardless of branch-name length.
 templ lfDeployRef() {
@@ -1687,9 +1687,10 @@ templ lfDeployRef() {
 		Placement:         neo.Set(neo.PlacementBottomEnd),
 		ScreenOffset:      neo.Set("0.5rem"),
 		MinFitWidth:       neo.Set("22rem"),
-		// The trigger is a shrunk pill (--neo-combobox-min-width: 0), so the
-		// list has no width floor; size it to the option rows instead, capped
-		// at --neo-popover-max-width (28rem, set on .lf-deploy-ref).
+		// The trigger is a shrunk pill (--neo-combobox-min-width: 0), which
+		// leaves the list no width floor. Size it to the option rows
+		// instead, capped at --neo-popover-max-width (28rem, set on
+		// .lf-deploy-ref).
 		PopoverFitContent: neo.Set(true),
 		FollowScroll:      neo.Set(neo.PopoverFollowScrollUntilTriggerInvisible),
 	}, templ.Attributes{
@@ -1738,10 +1739,10 @@ templ lfDeploy() {
 				});
 				var toaster = document.getElementById("lf-toaster");
 				if (!toaster) return;
-				// show() inserts the new toast at firstChild, so the
-				// loading element we just created is reachable
-				// synchronously. Tag it with an HTML id so the patch
-				// dispatch below can find it.
+				// show() inserts the new toast at firstChild, which makes
+				// the loading element we just created reachable
+				// synchronously. Tag it with an HTML id so the delayed
+				// patch can find it.
 				if (toaster.firstElementChild) {
 					toaster.firstElementChild.id = "lf-deploy-toast";
 				}
@@ -2058,7 +2059,7 @@ templ lfMusicPlayer() {
 						class="lf-music-volume-popover"
 						align-items="center"
 					>
-						// Three states keyed off volume + snapshot:
+						// 3 states keyed off volume + snapshot:
 						//   volume > 0                   -> "Mute",   click saves snapshot + zeroes volume.
 						//   volume == 0 && snapshot > 0  -> "Unmute", click restores snapshot + clears it.
 						//   volume == 0 && snapshot == 0 -> "Muted",  disabled (user dragged to 0 deliberately).
@@ -2124,7 +2125,7 @@ templ lfChat() {
 				'<hr/>',
 				'<neo-menuitem value="report" data-lf-chat-action="report"><neo-icon name="triangle-alert"></neo-icon>Report</neo-menuitem>'
 			].join("");
-			// neo-contextmenu wraps exactly one <neo-menu> child.
+			// neo-contextmenu wraps exactly 1 <neo-menu> child.
 			window.lfChatMenuHTML =
 				"<neo-menu>" + window.lfChatMenuHTML + "</neo-menu>";
 			window.lfChatBubble = function (text, className, time) {
@@ -2184,7 +2185,7 @@ templ lfChat() {
 				var list = card.querySelector(".lf-chat-bubbles");
 				// Manual zero-padded HH:MM rather than toLocaleTimeString;
 				// the latter picks up the user's locale, which renders as
-				// "07:07 PM" in en-US and is jarringly inconsistent with
+				// "07:07 PM" in en-US and is inconsistent with
 				// the predefined 24-hour tooltips on the existing bubbles.
 				var now = new Date();
 				var hh = String(now.getHours()).padStart(2, "0");
@@ -2640,8 +2641,8 @@ templ lfNotes() {
 				// Once the user drags the resizable, content growth no
 				// longer pushes the resizable taller; instead the inner
 				// scrolls (overflow: auto on .lf-notes-inner). Flip on
-				// resize-start (not -end) so the auto-grow doesn't fight
-				// each pointermove of a corner-handle drag; when both
+				// resize-start (not -end) so the auto-grow doesn't conflict
+				// with each pointermove of a corner-handle drag; when both
 				// width and height are pinned per move, an in-flight
 				// auto-grow oscillates the resizable height each frame
 				// against the user's drag, which in turn flickers the
@@ -2669,7 +2670,7 @@ templ lfNotes() {
 					Handles: neo.Set(neo.ResizableBottom | neo.ResizableRight |
 						neo.ResizableBottomRight),
 					// Breadcrumb (~2rem) + gap + textarea container's
-					// 0.5rem*2 padding + one minimal row of textarea;
+					// 0.5rem*2 padding + 1 minimal row of textarea;
 					// floor low enough to feel compact but high enough
 					// that the breadcrumb can never be cropped.
 					MinHeight: neo.Set("11.3rem"),
@@ -2853,7 +2854,7 @@ templ lfLogin() {
 							},
 						}, templ.Attributes{
 							"class": "lf-signup-strength",
-							// 8 chars maps to 50%, so each char is worth 6.25%.
+							// 8 chars maps to 50%, which makes each char worth 6.25%.
 							// Clamped to [0, 100].
 							"data-attr:value": "Math.min(100, $_lf_signup_password.length * 6.25)",
 						})
@@ -3017,15 +3018,15 @@ templ lfSkeleton() {
 }
 
 // data-show on each row references the row's own data-level / data-off
-// values via `el.dataset`, so the same expression string works for every
+// values via `el.dataset`. The same expression string works for every
 // row, with no per-row Sprintf needed.
 const lfLogShowExpr = "Number(el.dataset.level) >= Number($_lf_logs_minlevel)" +
 	" && Number(el.dataset.off) >= $_lf_logs_from" +
 	" && Number(el.dataset.off) <= $_lf_logs_to"
 
-// Empty-state predicate: true when none of the hardcoded rows below
-// match the current filter signals. The [level, off] pairs must mirror
-// the @lfLogRow calls in lfLogs.
+// lfLogEmptyExpr is the empty-state predicate, true when none of the
+// hardcoded log rows match the current filter signals. The [level, off]
+// pairs must mirror the @lfLogRow calls in [lfLogs].
 const lfLogEmptyExpr = "![[1,-52],[2,-34],[2,-22],[3,-11],[1,-4]].some(" +
 	"r => r[0] >= Number($_lf_logs_minlevel)" +
 	" && r[1] >= $_lf_logs_from && r[1] <= $_lf_logs_to)"
@@ -3446,7 +3447,7 @@ templ lfTreeFolder(name string, expanded bool) {
 	@neo.TreeItem(expanded) {
 		@neo.TreeLabel() {
 			@neo.ContextMenu(neo.ContextMenuOpts{}) {
-				// display:contents trigger: the row stays the label's
+				// display:contents trigger, which keeps the row the label's
 				// flex child while right-click anywhere on it opens the
 				// same actions as the kebab. tabindex=-1 keeps the tree's
 				// roving focus on neo-tree-item.

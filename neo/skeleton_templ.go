@@ -9,8 +9,8 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 // SkeletonVariant picks the placeholder geometry. Zero value
-// (SkeletonVariantBlock) renders a generic block; SkeletonVariantCircle
-// is 1:1 round, SkeletonVariantLine is an inline text-height bar.
+// ([SkeletonVariantBlock]) renders a generic block; [SkeletonVariantCircle]
+// is 1:1 round, [SkeletonVariantLine] is an inline text-height bar.
 type SkeletonVariant string
 
 const (
@@ -27,7 +27,7 @@ type SkeletonOpts struct {
 }
 
 // Skeleton renders <neo-skeleton>, a gently-pulsing loading placeholder.
-// No intrinsic size: set dimensions via inline style or CSS. No JS;
+// It has no intrinsic size. Set dimensions via inline style or CSS. No JS;
 // visuals from morpheus.css; honours `prefers-reduced-motion`.
 func Skeleton(opts SkeletonOpts) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {

@@ -76,10 +76,10 @@ templ PagePersist(morpheusVersion string) {
 				(<code>{ `style.width` }</code> /
 				<code>{ `style.height` }</code>) on the
 				<code>{ `<neo-textarea>` }</code> host. Property names
-				accept dot paths, so nested fields like
+				accept dot paths. Nested fields like
 				<code>{ `style.width` }</code> are snapshotted
 				directly. The childless
-				<code>{ `<neo-persist for="…">` }</code> form
+				<code>{ `<neo-persist for="...">` }</code> form
 				targets an existing element by id rather than
 				wrapping it.
 			</p>
@@ -95,8 +95,8 @@ templ PagePersist(morpheusVersion string) {
 			}
 			<p class="demo-note">
 				Persists <code>currentTime</code>,
-				<code>volume</code>, and <code>muted</code>, so
-				the player resumes where the viewer left off
+				<code>volume</code>, and <code>muted</code>. The
+				player resumes where the viewer left off
 				with the same volume and mute state. Source:
 				<em>Sintel</em> trailer (Blender, CC&nbsp;BY 3.0).
 			</p>

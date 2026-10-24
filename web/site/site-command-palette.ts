@@ -1,7 +1,7 @@
-// <site-command-palette>: the docs site's ⌘K/Ctrl+K page jumper.
+// <site-command-palette> is the docs site's Cmd+K/Ctrl+K page jumper.
 //
-// Pure client-side: the row list is baked into light DOM at render time
-// (one <a> per site page), so navigation works without JS. This
+// Pure client-side. The row list is baked into light DOM at render time
+// (1 <a> per site page), which makes navigation work without JS. This
 // controller adds fuzzy filtering, ranking, keyboard navigation, and the
 // ARIA combobox/listbox wiring on top.
 //
@@ -9,15 +9,15 @@
 //
 //   <site-command-palette>
 //     <neo-dialog>
-//       <neo-button data-neo-dialog-trigger>…⌘K…</neo-button>
+//       <neo-button data-neo-dialog-trigger>...</neo-button>
 //       <dialog>
 //         <header data-neo-dialog-header>
 //           <input role="combobox" data-site-cmdk-input>
 //         </header>
 //         <div role="listbox" data-site-cmdk-list>
-//           <a role="option" data-site-cmdk-row data-label="Alert">…</a>
-//           …
-//           <p data-site-cmdk-empty hidden>…</p>
+//           <a role="option" data-site-cmdk-row data-label="Alert">...</a>
+//           ...
+//           <p data-site-cmdk-empty hidden>...</p>
 //         </div>
 //       </dialog>
 //     </neo-dialog>
@@ -25,7 +25,7 @@
 //
 // The <neo-dialog> owns the modal lifecycle (top layer, focus trap,
 // scroll lock, Escape-to-close); this element only opens it on the
-// global shortcut and drives the result list.
+// global shortcut and manages the result list.
 
 interface FuzzyResult {
 	score: number;
@@ -34,9 +34,9 @@ interface FuzzyResult {
 	ranges: [number, number][];
 }
 
-// Greedy subsequence match with Sublime/fzf-style bonuses: word-start
+// Greedy subsequence match with Sublime/fzf-style bonuses. Word-start
 // hits and consecutive runs score higher, longer labels score slightly
-// lower. Greedy is enough to *detect* a subsequence; the scoring just
+// lower. Greedy is enough to detect a subsequence; the scoring just
 // orders the matches sensibly for short nav labels. Returns null when
 // the query isn't a subsequence of the text.
 function fuzzyMatch(query: string, text: string): FuzzyResult | null {
@@ -88,7 +88,7 @@ function escapeHTML(s: string): string {
 
 // Rebuild a label with matched ranges wrapped in <mark>. The label is
 // repository-authored; only its own characters are re-emitted (the query
-// is never interpolated), so this is injection-safe.
+// is never interpolated), which makes this injection-safe.
 function highlight(label: string, ranges: [number, number][]): string {
 	if (ranges.length === 0) return escapeHTML(label);
 	let out = "";
@@ -154,7 +154,7 @@ class SiteCommandPalette extends HTMLElement {
 			list.addEventListener("pointermove", this.#onPointerMove);
 			this.#list = list;
 		}
-		// neo-dialog-open fires on both trigger click and the ⌘K path.
+		// neo-dialog-open fires on both trigger click and the shortcut path.
 		this.addEventListener("neo-dialog-open", this.#onOpen);
 
 		this.#rows = Array.from(list.querySelectorAll<HTMLAnchorElement>("[data-site-cmdk-row]"));
@@ -169,11 +169,12 @@ class SiteCommandPalette extends HTMLElement {
 		if (!(e.key === "k" || e.key === "K") || !(e.metaKey || e.ctrlKey)) return;
 		if (e.altKey) return;
 		e.preventDefault();
-		// The palette lives in the collapsible sidebar; when that's closed
-		// (display:none in overlay mode) the modal can't render, so showModal
+		// The palette lives in the collapsible sidebar. When that's closed
+		// (display:none in overlay mode) the modal can't render, and showModal
 		// would enter a broken invisible state. Gate on the trigger, not the
-		// host: the host is display:contents (no box), so its own
-		// checkVisibility() is always false and would kill ⌘K everywhere.
+		// host, because the host is display:contents (no box). Its own
+		// checkVisibility() is always false and would disable the shortcut
+		// everywhere.
 		if (this.#trigger?.checkVisibility && !this.#trigger.checkVisibility()) return;
 		(this.#dialog as { show?: () => void } | null)?.show?.();
 	};
@@ -183,7 +184,7 @@ class SiteCommandPalette extends HTMLElement {
 		this.#input.value = "";
 		this.#filter("");
 		// showModal lands focus on the first focusable (the input), but
-		// re-focus explicitly so the caret is ready after the ⌘K path too.
+		// re-focus explicitly so the caret is ready after the shortcut path too.
 		requestAnimationFrame(() => this.#input?.focus());
 	};
 
@@ -269,12 +270,12 @@ class SiteCommandPalette extends HTMLElement {
 				break;
 			}
 			case "Tab":
-				// Pin focus to the field: the only other focus stop in the
-				// modal is the (now tabindex=-1) scroller, so Tab has nowhere
+				// Pin focus to the field. The only other focus stop in the
+				// modal is the (now tabindex=-1) scroller, and Tab has nowhere
 				// useful to go. Keeps the combobox the sole focus target.
 				e.preventDefault();
 				break;
-			// Escape is handled by the native <dialog> (cancel → neo-dialog).
+			// Escape is handled by the native <dialog> (cancel -> neo-dialog).
 		}
 	};
 

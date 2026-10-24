@@ -9,7 +9,7 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 // LightboxTransition selects the entry / exit style. The zero value emits
-// no `transition`, so the component defaults to zoom.
+// no `transition` and the component defaults to zoom.
 type LightboxTransition string
 
 const (
@@ -24,15 +24,14 @@ const (
 )
 
 type LightboxOpts struct {
-	// Contained confines the overlay to the host's own box (the host
-	// becomes the positioned containing block). Default renders to the
-	// screen top layer.
+	// Contained confines the overlay to the host's own box (the host becomes
+	// the positioned containing block). Default renders to the screen top layer.
 	Contained Attr[bool]
 	// Open seeds the open state.
 	Open Attr[bool]
 	// Hover opens the overlay when the pointer enters a trigger and
-	// closes it after the pointer leaves both trigger and surface. Mouse
-	// only; touch and keyboard fall back to click.
+	// closes it after the pointer leaves both trigger and surface.
+	// Mouse only; touch and keyboard fall back to click.
 	Hover Attr[bool]
 	// HoverOpenDelay and HoverCloseDelay are the milliseconds the
 	// component waits before opening / closing on hover. Zero leaves the
@@ -40,16 +39,16 @@ type LightboxOpts struct {
 	HoverOpenDelay  Attr[int]
 	HoverCloseDelay Attr[int]
 	// Dismissible controls backdrop and Esc dismissal. Default leaves the
-	// overlay dismissible; DismissibleOff locks it open.
+	// overlay dismissible; [DismissibleOff] locks it open.
 	Dismissible Attr[Dismissible]
 	// Transition picks the entry / exit style. The zero value emits no
-	// attribute, so the component defaults to zoom.
+	// attribute and the component defaults to zoom.
 	Transition Attr[LightboxTransition]
 }
 
 // Lightbox renders <neo-lightbox>. The body must contain one or more
 // trigger children and one content child, marked via the helper splats
-// below:
+// [LightboxTrigger], [LightboxContent] and [LightboxClose]:
 //
 //	@neo.Lightbox(neo.LightboxOpts{}) {
 //		<neo-button { neo.LightboxTrigger()... }>Open</neo-button>
@@ -108,16 +107,16 @@ func Lightbox(opts LightboxOpts) templ.Component {
 	})
 }
 
-// LightboxTrigger marks an element as a lightbox trigger. Repeat it on
-// any number of children; all of them open the same overlay. The JS
-// wires aria-haspopup / aria-expanded / aria-controls and the open
+// LightboxTrigger marks an element as a lightbox trigger.
+// Repeat it on any number of children; all of them open the same overlay.
+// The JS wires aria-haspopup / aria-expanded / aria-controls and the open
 // handler onto each. Use on any focusable element.
 func LightboxTrigger() templ.Attributes {
 	return templ.Attributes{"data-neo-lightbox-trigger": true}
 }
 
 // LightboxContent marks the element projected into the overlay surface.
-// See Lightbox for a complete example.
+// See [Lightbox] for a complete example.
 func LightboxContent() templ.Attributes {
 	return templ.Attributes{"data-neo-lightbox-content": true}
 }

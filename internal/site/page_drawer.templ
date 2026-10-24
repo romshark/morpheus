@@ -22,7 +22,7 @@ templ PageDrawer(morpheusVersion string) {
 					Dialog
 				}
 				, anchored
-				to one of four viewport edges via <code>side</code>
+				to one of 4 viewport edges via <code>side</code>
 				(<code>right</code> default,
 				<code>left</code> / <code>top</code> /
 				<code>bottom</code>) and animated in with a slide
@@ -72,7 +72,7 @@ templ PageDrawer(morpheusVersion string) {
 			<ul class="demo-note">
 				<li>
 					The drawer reuses the dialog's surface
-					tokens, so any recipe that frosts a centred
+					tokens. Any recipe that frosts a centred
 					dialog frosts the side sheet too.
 				</li>
 				<li>
@@ -96,8 +96,8 @@ templ PageDrawer(morpheusVersion string) {
 				For must-decide flows where dismissing implicitly
 				would be ambiguous, set
 				<code>{ `dismissible="false"` }</code> on the
-				host: backdrop click and Esc no longer close, so
-				the user must pick a button.
+				host. Backdrop click and Esc then do not close the
+				drawer, and the user must pick a button.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
 				StageMinHeight: "max-content",
@@ -132,12 +132,12 @@ templ PageDrawer(morpheusVersion string) {
 			</p>
 			<ul class="demo-note">
 				<li>
-					Axis follows <code>side</code>: left/right
+					Axis follows <code>side</code>. Left/right
 					drawers take horizontal swipes, top/bottom
 					vertical.
 				</li>
 				<li>
-					The threshold defaults to half the panel's
+					The threshold defaults to 50% of the panel's
 					relevant dimension; pass a CSS length (here
 					<code>{ `touch-dismiss="120px"` }</code>) to
 					pin it, or <code>{ `touch-dismiss="off"` }</code>
@@ -156,10 +156,9 @@ templ PageDrawer(morpheusVersion string) {
 				marked
 				<code>{ `[data-neo-drawer-touch-ignore]` }</code>),
 				and is disabled when
-				<code>{ `dismissible="false"` }</code>. The
-				<code>{ `<neo-slider>` }</code> in the panel
-				below demonstrates this: dragging the slider
-				thumb horizontally never closes the drawer.
+				<code>{ `dismissible="false"` }</code>. Dragging
+				the <code>{ `<neo-slider>` }</code> thumb horizontally
+				in the panel below never closes the drawer.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
 				StageMinHeight: "max-content",
@@ -176,7 +175,7 @@ templ PageDrawer(morpheusVersion string) {
 				Open a drawer from inside a dialog. The dialog's
 				<em>Connected devices…</em> button triggers a nested
 				<code>{ "<neo-drawer>" }</code> that slides in over the
-				modal, so both overlays are open together; each keeps the
+				modal. Both overlays are open together; each keeps the
 				page behind it from scrolling while its own content
 				scrolls. Open the dialog, then click 
 				<em>
@@ -207,7 +206,7 @@ templ PageDrawer(morpheusVersion string) {
 				<li>
 					On close the host reinstates the placeholder
 					after the slide-out finishes (so it doesn't
-					flash through the closing panel), so each open
+					flash through the closing panel). Each open
 					shows it again until the next response resolves.
 				</li>
 				<li>
@@ -236,7 +235,7 @@ var drawerDoc = ComponentDoc{
 				"On by default; set <code>touch-dismiss=\"off\"</code> " +
 				"(or <code>\"false\"</code> / <code>\"no\"</code> / " +
 				"<code>\"none\"</code>) to disable. The default close " +
-				"threshold is half the panel's relevant dimension along " +
+				"threshold is 50% of the panel's relevant dimension along " +
 				"the swipe axis; pass a CSS length (e.g. <code>120</code>, " +
 				"<code>120px</code>, or <code>40%</code>) to pin it explicitly. Touches " +
 				"that start on a same-axis scrollable child or on an " +
@@ -259,7 +258,7 @@ var drawerDoc = ComponentDoc{
 		{Name: "[data-neo-drawer-trigger]",
 			Description: templ.Raw("Element that opens the drawer on click.")},
 		{Name: "[data-neo-drawer-close]",
-			Description: templ.Raw("Element that closes the drawer on click (matched via <code>closest</code>, so a descendant works too).")},
+			Description: templ.Raw("Element that closes the drawer on click (matched via <code>closest</code>; a descendant works too).")},
 		{Name: "[data-neo-async-placeholder]",
 			Description: templ.Raw("Loading skeleton swapped in while the body morphs in.")},
 	},
@@ -279,7 +278,7 @@ var drawerDoc = ComponentDoc{
 	},
 }
 
-// asyncDrawerDemo: a drawer whose body is loaded on every open via a
+// asyncDrawerDemo renders a drawer whose body is loaded on every open via a
 // Datastar action. The AbortController and the simulator's response
 // HTML are seeded with `data-signals` on the host. The drawer's
 // `[data-neo-async-placeholder]` skeleton is reinstated by the host on
@@ -314,7 +313,7 @@ templ drawerAsyncFailureDemo() {
 		<li>
 			The loader lives in the drawer's
 			<code>{ "[data-neo-async-placeholder]" }</code> slot,
-			so close/reopen restores it; on success the server
+			and close/reopen restores it. On success the server
 			morphs <code>{ "<div id=\"<host-id>-body\">" }</code>
 			in place.
 		</li>
@@ -363,14 +362,13 @@ templ drawerSimulator() {
 		const templateHTML = (id) =>
 			document.getElementById(id).innerHTML.trim();
 
-		// Async-loading demo: each drawer open POSTs here. The
+		// Async-loading demo. Each drawer open POSTs here. The
 		// simulator reads the response payload off the
 		// `drawer_async_html` signal (seeded on the host) and morphs
 		// it into the drawer body slot.
-		// Datastar matches by id on `#drawer-async-body`, so the
-		// existing wrapper element is updated in place, keeping
-		// the host's saved slot reference valid for restoration on
-		// close.
+		// Datastar matches by id on `#drawer-async-body` and updates
+		// the existing wrapper element in place, keeping the host's
+		// saved slot reference valid for restoration on close.
 		sim.post("/drawer/async-load", async (ctx, sse) => {
 			const s = ctx.signals || {};
 			const html = s.drawer_async_html == null

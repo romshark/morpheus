@@ -90,7 +90,7 @@ func PageTextInput(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</code> is a wrapper around a native <code>&lt;input&gt;</code> with live formatting: <code>mask</code>, <code>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</code> is a wrapper around a native <code>&lt;input&gt;</code> with live formatting such as <code>mask</code>, <code>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -129,7 +129,7 @@ func PageTextInput(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</code> is the right answer otherwise. The native field lives in the element's shadow root, so the light DOM stays empty and a server can re-render the host without disturbing the live field. Slot <code>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</code> is the right answer otherwise. The native field lives in the element's shadow root. The light DOM stays empty and a server can re-render the host without disturbing the live field. Slot <code>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -227,7 +227,7 @@ func PageTextInput(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<p class=\"demo-note\">In <code>mask</code>, <code>#</code> is a digit slot and the spaces between groups are literal delimiters.</p><ul class=\"demo-note\"><li>Spaces appear at the right positions as you type.</li><li>Backspace at a delimiter deletes the preceding digit, so the literal never has to be skipped manually.</li></ul>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<p class=\"demo-note\">In <code>mask</code>, <code>#</code> is a digit slot and the spaces between groups are literal delimiters.</p><ul class=\"demo-note\"><li>Spaces appear at the right positions as you type.</li><li>Backspace at a delimiter deletes the preceding digit. The literal never has to be skipped manually.</li></ul>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -505,7 +505,7 @@ func PageTextInput(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<p class=\"demo-note\">European notation from the same number format: <code>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<p class=\"demo-note\">European notation from the same number format, with <code>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -518,7 +518,7 @@ func PageTextInput(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "</code> with a period <code>thousands-separator</code>.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "</code> and a period <code>thousands-separator</code>.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -571,7 +571,7 @@ func PageTextInput(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "<p class=\"demo-note\"><code>disabled</code> and <code>readonly</code> pass through to the inner field: <code>disabled</code> fades the host and blocks all interaction; <code>readonly</code> leaves the value selectable but immutable.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "<p class=\"demo-note\"><code>disabled</code> and <code>readonly</code> pass through to the inner field. <code>disabled</code> fades the host and blocks all interaction; <code>readonly</code> leaves the value selectable but immutable.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -650,7 +650,7 @@ func PageTextInput(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "<p class=\"demo-note\">Slotted suggestions are server state: a Datastar morph can swap the set at any time and the field reconciles in place. Switch states to compare.</p><ul class=\"demo-note\"><li><strong>Initial</strong> has no suggestions; <strong>Suggestions</strong>, <strong>Disabled</strong>, and <strong>Rich</strong> morph rows in: plain, with <code>disabled</code> rows, then rich rows (icon plus a short description). The typed value is untouched.</li><li><strong>No results</strong> shows a non-selectable <code>[data-neo-empty-results]</code> status row, keeping the popover open with zero options instead of closing.</li><li>The <code>open</code> attribute forces the popover open so each state shows without focusing the preview; normally suggestions appear on focus.</li></ul>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "<p class=\"demo-note\">Slotted suggestions are server state. A Datastar morph can swap the set at any time and the field reconciles in place. Switch states to compare.</p><ul class=\"demo-note\"><li><strong>Initial</strong> has no suggestions; <strong>Suggestions</strong>, <strong>Disabled</strong>, and <strong>Rich</strong> morph in plain rows, <code>disabled</code> rows, then rich rows (icon plus a short description). The typed value is untouched.</li><li><strong>No results</strong> shows a non-selectable <code>[data-neo-empty-results]</code> status row, keeping the popover open with 0 options instead of closing.</li><li>The <code>open</code> attribute forces the popover open so each state shows without focusing the preview; normally suggestions appear on focus.</li></ul>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -697,7 +697,7 @@ func PageTextInput(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "</code> children to turn the field into an autocomplete: free text the user can submit as typed, with server-supplied suggestions and built-in keyboard navigation.</p><ul class=\"demo-note\"><li>Each debounced keystroke posts the query; the server morphs matching <code>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "</code> children to turn the field into an autocomplete. The user can submit free text as typed, with server-supplied suggestions and built-in keyboard navigation.</p><ul class=\"demo-note\"><li>Each debounced keystroke posts the query; the server morphs matching <code>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -723,7 +723,7 @@ func PageTextInput(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "</code> API: <code>value</code>, <code>label</code>, <code>disabled</code>, rich content.</li><li>Constrain the value to a fixed set instead?")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "</code> API (<code>value</code>, <code>label</code>, <code>disabled</code>, rich content).</li><li>Constrain the value to a fixed set instead?")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -818,7 +818,7 @@ func PageTextInput(morpheusVersion string) templ.Component {
 }
 
 // textInputSimulator loads the per-demo handler module under
-// /static/sim/textinput/ that powers the Datastar autocomplete example
+// /static/sim/textinput/ that serves the Datastar autocomplete example
 // (also surfaced in the demo's Server script tab).
 func textInputSimulator() templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
@@ -868,7 +868,7 @@ var textInputDoc = ComponentDoc{
 		{Name: "size", Type: `"sm" | "lg"`,
 			Description: templ.Raw("Control-size step: <code>sm</code> compact, <code>lg</code> large. Omit for the default size.")},
 		{Name: "mask", Type: "string", Observed: true,
-			Description: templ.Raw("Static template: <code>#</code> digit, <code>U</code> letter→upper, <code>l</code> letter→lower, <code>A</code> alnum→upper, <code>a</code> alnum→lower, <code>X</code> alnum (case preserved), <code>*</code> any char. Other chars are literal. Cased slots accept either case and coerce on insert.")},
+			Description: templ.Raw("Static template. Slots are <code>#</code> digit, <code>U</code> letter to upper, <code>l</code> letter to lower, <code>A</code> alnum to upper, <code>a</code> alnum to lower, <code>X</code> alnum (case preserved), and <code>*</code> any char. Other chars are literal. Cased slots accept either case and coerce on insert.")},
 		{Name: "format", Type: `"number"`, Observed: true,
 			Description: templ.Raw("Right-anchored thousands grouping for numeric input.")},
 		{Name: "prefix", Type: "string", Reflected: true, Observed: true, Description: templ.Raw("Leading literal preserved across clears.")},
@@ -877,7 +877,7 @@ var textInputDoc = ComponentDoc{
 		{Name: "decimal-mark", Type: `"." | ","`, Default: `"."`, Observed: true,
 			Description: templ.Raw("Decimal separator character.")},
 		{Name: "thousands-separator", Type: "string", Default: `","`, Observed: true,
-			Description: templ.Raw("Grouping separator inserted every three digits.")},
+			Description: templ.Raw("Grouping separator inserted every 3 digits.")},
 		{Name: "numeric-only", Type: "boolean", Default: "false", Observed: true,
 			Description: templ.Raw("Drop non-digit input.")},
 		{Name: "case", Type: `"upper" | "lower"`, Default: `""`, Observed: true,
@@ -885,7 +885,7 @@ var textInputDoc = ComponentDoc{
 		{Name: "submit-raw", Type: "boolean", Default: "false", Observed: true,
 			Description: templ.Raw("Form submission uses the unformatted value. Always on for <code>format=\"number\"</code>; thousands separators never appear in the submitted value.")},
 		{Name: "open", Type: "boolean", Default: "false", Reflected: true, Observed: true,
-			Description: templ.Raw("Suggestions popover state using the shared command contract: <code>open=\"true\"</code> opens, <code>open=\"false\"</code> closes, and an omitted attribute leaves client state unchanged. Client-open state is reflected as bare <code>open</code>, so a fat morph that omits the attribute does not close the popover.")},
+			Description: templ.Raw("Suggestions popover state using the shared command contract. <code>open=\"true\"</code> opens, <code>open=\"false\"</code> closes, and an omitted attribute leaves client state unchanged. Client-open state is reflected as bare <code>open</code>. A fat morph that omits the attribute does not close the popover.")},
 		{Name: "placement", Type: "string", Default: `"bottom-start"`, Observed: true,
 			Description: templ.Raw("Suggestion popover placement relative to the field. The popover honors the same positioning surface as <code>&lt;neo-select&gt;</code> (<code>placement</code>, <code>screen-offset</code>, <code>follow-scroll</code>, <code>clamp-placement</code>, <code>min-fit-height</code>/<code>min-fit-width</code>, <code>min-open-height</code>/<code>min-open-width</code>, <code>popover-fit-content</code>) plus the <code>--neo-popover-*</code> custom properties. Applies only when the <code>suggestions</code> slot is in use.")},
 		{Name: "popover-fit-content", Type: "boolean", Default: "false",
@@ -895,7 +895,7 @@ var textInputDoc = ComponentDoc{
 	},
 	Slots: []DocSlot{
 		{Name: "suggestions",
-			Description: templ.Raw("Slotted <code>&lt;neo-option&gt;</code> children turn the field into an autocomplete: a listbox of suggestions. The field stays free text: the value is whatever's typed; options are hints. Bare <code>&lt;neo-option&gt;</code> children are assigned to this slot automatically. Same option API as <code>&lt;neo-select&gt;</code> (<code>value</code>, <code>label</code>, <code>disabled</code>, rich content). A <code>[data-neo-empty-results]</code> child is a non-selectable status row that keeps the popover open with zero options (same contract as <code>&lt;neo-combobox&gt;</code>). The server may patch the slot at any time; patching it empty (no options and no status row) closes the popover. The field gains <code>role=\"combobox\"</code> whenever suggestions exist or the popover is open; focus never leaves it (ArrowDown/Up move <code>aria-activedescendant</code>). Alternatively, set <code>list</code> to source these options from a shared datalist.")},
+			Description: templ.Raw("Slotted <code>&lt;neo-option&gt;</code> children turn the field into an autocomplete with a listbox of suggestions. The field stays free text. The value is whatever's typed; options are hints. Bare <code>&lt;neo-option&gt;</code> children are assigned to this slot automatically. Same option API as <code>&lt;neo-select&gt;</code> (<code>value</code>, <code>label</code>, <code>disabled</code>, rich content). A <code>[data-neo-empty-results]</code> child is a non-selectable status row that keeps the popover open with 0 options (same contract as <code>&lt;neo-combobox&gt;</code>). The server may patch the slot at any time; patching it empty (no options and no status row) closes the popover. The field gains <code>role=\"combobox\"</code> whenever suggestions exist or the popover is open; focus never leaves it (ArrowDown/Up move <code>aria-activedescendant</code>). Alternatively, set <code>list</code> to source these options from a shared datalist.")},
 	},
 	Events: []DocEvent{
 		{Name: "input", URL: W3CEventURL("input"), Bubbles: true,

@@ -1,7 +1,7 @@
-# Continuous integration: lint, type-check, build, and test on every push
-# to main and every pull request. Site deployment lives in pages.yml.
+# Continuous integration. Lints, type-checks, builds and tests on every
+# push to main and every pull request. Site deployment lives in pages.yml.
 #
-# Three jobs run in parallel. The first two also verify that the checked-in
+# 3 jobs run in parallel. The first 2 also verify that the checked-in
 # generated artifacts they own are reproducible:
 #   go      - the *_templ.go files (templ generate)
 #   web     - the /min/ bundle and minified CSS (web/build.ts)

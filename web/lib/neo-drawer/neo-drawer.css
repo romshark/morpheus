@@ -1,12 +1,9 @@
-/* -----------------------------------------------------------------------
- * <neo-drawer>
- * -----------------------------------------------------------------------
- * Side-anchored modal sheet. Same native-<dialog> foundation as
- * <neo-dialog> (top-layer, focus trap, scroll lock, Esc); the
- * difference is purely visual: instead of centering and fading the
- * panel, we pin it to one of the four viewport edges and slide it
- * in. Reuses --neo-dialog-* tokens so theme overrides carry the
- * drawer along with the dialog. */
+/* <neo-drawer> is a side-anchored modal sheet. Same native-<dialog>
+ * foundation as <neo-dialog> (top layer, focus trap, scroll lock, Esc).
+ * The difference is purely visual. Instead of centering and fading the
+ * panel, we pin it to one of the 4 viewport edges and slide it in.
+ * Reuses --neo-dialog-* tokens so theme overrides apply to the drawer
+ * as well as the dialog. */
 
 :root {
 	--neo-drawer-width: 22rem;
@@ -47,8 +44,8 @@ neo-drawer > dialog[open] {
 }
 
 /* Default + side="right": right-anchored, slides in from the right. */
-/* Border zeroing is per-side: a bare `neo-drawer > dialog` selector
- * would leak `border-right: 0` onto left/top/bottom drawers. */
+/* Border zeroing is per-side, because a bare `neo-drawer > dialog`
+ * selector would leak `border-right: 0` onto left/top/bottom drawers. */
 neo-drawer > dialog,
 neo-drawer[side="right"] > dialog {
 	inset: 0 0 0 auto;
@@ -155,7 +152,7 @@ neo-drawer > dialog[open]::backdrop {
 	}
 }
 
-/* Optional structural slots: same naming convention as
+/* Optional structural slots use the same naming convention as
  * <neo-dialog>'s slots, with `data-neo-drawer-*` prefixes. The body
  * stretches to fill the remaining vertical space so the footer
  * sticks to the bottom of the panel even when the body is short. */

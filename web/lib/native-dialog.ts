@@ -1,4 +1,4 @@
-// Native <dialog>: ::backdrop and dialog-box clicks both target <dialog>.
+// On a native <dialog>, ::backdrop and dialog-box clicks both target <dialog>.
 
 export class DialogBackdropClickTracker {
 	#pointerDownOutside = false;
@@ -25,15 +25,15 @@ export function dialogPointContains(dialog: HTMLDialogElement, clientX: number, 
 	return clientX >= r.left && clientX <= r.right && clientY >= r.top && clientY <= r.bottom;
 }
 
-// showModal() inerts clicks but doesn't reliably block wheel/touch scroll on
-// the body (Chromium scrolls the page behind the modal on mouse-wheel over the
-// backdrop). CSS-based locks (`html{overflow:hidden}`, `body{position:fixed}`)
-// bounce visibly as the scroll container changes mid-toggle. Blocking the
-// scroll *input* events reflows nothing: wheel/touchmove pass through inside an
-// open overlay, preventDefault'd elsewhere. Hit-test by coordinates against any
-// open native <dialog>, so one lock covers both <neo-dialog> and <neo-drawer>.
-// Ref-counted with a single shared listener pair: a dialog and a drawer open at
-// once share one lock instead of two that each block the other's surface.
+// showModal() inerts clicks but doesn't reliably block wheel/touch scroll on the body
+// (Chromium scrolls the page behind the modal on mouse-wheel over the backdrop).
+// CSS-based locks (`html{overflow:hidden}`, `body{position:fixed}`) bounce visibly
+// as the scroll container changes mid-toggle. Blocking the scroll input events
+// reflows nothing. wheel/touchmove pass through inside an open overlay and
+// are preventDefault'd elsewhere. Hit-test by coordinates against any
+// open native <dialog>, which lets 1 lock cover both <neo-dialog> and <neo-drawer>.
+// Ref-counted with a single shared listener pair. A dialog and a drawer open at once
+// share 1 lock instead of 2 that each block the other's surface.
 let scrollLockCount = 0;
 
 function blockScrollOutsideOverlay(e: WheelEvent | TouchEvent): void {

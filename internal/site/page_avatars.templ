@@ -50,8 +50,8 @@ templ PageAvatars(morpheusVersion string) {
 			}
 			<p class="demo-note">
 				<code>collapse-at</code> caps the visible authored
-				avatars before responsive fitting kicks in. Here the
-				row keeps five images visible at wide widths and folds
+				avatars before responsive fitting applies. Here the
+				row keeps 5 images visible at wide widths and folds
 				the rest into <code>+N</code>.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
@@ -138,7 +138,7 @@ templ PageAvatars(morpheusVersion string) {
 			}
 			<p class="demo-note">
 				Raster files (<code>.jpg</code>, <code>.png</code>,
-				…) drop in the same way as the styled SVG
+				...) drop in the same way as the styled SVG
 				illustrations. The host's clip / radius / border
 				tokens crop the photo to the theme's avatar shape, and
 				<code>object-fit: cover</code> keeps the subject

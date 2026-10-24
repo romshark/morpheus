@@ -85,7 +85,7 @@ func PageElastic(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</code> is a block container that animates its height as the natural size of its content changes: toggled visibility, added items, swapped blocks, async-loaded payloads. A <code>ResizeObserver</code> pins the latest content height to the host; the transition rides <code>--neo-easing</code> / <code>--neo-duration-scale</code> so each theme paces it differently. Server-side morphs that swap content animate the height shift automatically.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</code> is a block container that animates its height as the natural size of its content changes, as with toggled visibility, added items, swapped blocks, or async-loaded payloads. A <code>ResizeObserver</code> pins the latest content height to the host; the transition uses <code>--neo-easing</code> / <code>--neo-duration-scale</code> so each theme paces it differently. Server-side morphs that swap content animate the height shift automatically.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -170,7 +170,7 @@ func PageElastic(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<p class=\"demo-note\">The accordion case. While the inner is <code>display: none</code> the wrapper measures zero and the host collapses; on reveal it animates back to the natural content height. The button just flips the inner's <code>hidden</code> attribute; the host re-measures on its own.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<p class=\"demo-note\">The accordion case. While the inner is <code>display: none</code> the wrapper measures 0 and the host collapses; on reveal it animates back to the natural content height. The button just flips the inner's <code>hidden</code> attribute; the host re-measures on its own.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -226,7 +226,7 @@ func PageElastic(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<p class=\"demo-note\">Datastar morph patches that swap or re-render the inner content animate the height shift automatically; Elastic's ResizeObserver / MutationObserver re-pin on every reflow, so any server-driven content swap reads as a smooth transition without per-demo wiring.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<p class=\"demo-note\">Datastar morph patches that swap or re-render the inner content animate the height shift automatically; Elastic's ResizeObserver / MutationObserver re-pin on every reflow, which makes any server-driven content swap read as a smooth transition without per-demo wiring.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -365,7 +365,7 @@ func PageElastic(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<p class=\"demo-note\">Not just expand-from-zero: the host shrinks or grows between two differently sized blocks. Whatever the wrapper measures, the host transitions to. Re-toggling mid-flight retargets the latest height instead of finishing the old one.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<p class=\"demo-note\">Besides expanding from 0 height, the host shrinks or grows between 2 differently sized blocks. Whatever the wrapper measures, the host transitions to. Re-toggling mid-flight retargets the latest height instead of finishing the old one.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -431,7 +431,7 @@ func PageElastic(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</code> to reload content through the placeholder. Opening reveals the skeleton and posts to the server, which morphs the loaded panel into the slot; collapsing reinstates the skeleton after the transition, so the next open loads fresh. Closing aborts an in-flight request. Load details, collapse, then reopen.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</code> to reload content through the placeholder. Opening reveals the skeleton and posts to the server, which morphs the loaded panel into the slot; collapsing reinstates the skeleton after the transition. The next open then loads fresh. Closing aborts an in-flight request. Load details, collapse, then reopen.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -492,7 +492,7 @@ var elasticDoc = ComponentDoc{
 		{Name: "neo-elastic-start", Detail: "{ from: number, to: number }", Bubbles: true,
 			Description: templ.Raw("Fires at the start of a height transition.")},
 		{Name: "neo-elastic-end", Detail: "{ height: number }", Bubbles: true,
-			Description: templ.Raw("Fires once the height transition lands.")},
+			Description: templ.Raw("Fires once the height transition ends.")},
 	},
 }
 

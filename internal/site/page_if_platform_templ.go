@@ -86,7 +86,7 @@ func PageIfPlatform(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</code> is a platform gate: it shows its content only on the operating systems its attributes select, and hides it elsewhere. Use it only for what CSS can't check. CSS <code>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</code> is a platform gate. It shows its content only on the operating systems its attributes select, and hides it elsewhere. Use it only for what CSS can't check. CSS <code>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -172,7 +172,7 @@ func PageIfPlatform(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "\">boolean command</a> the server can drive:</p><ul><li>Platforms set true are an OR, since a device has 1 platform: <code>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "\">boolean command</a> the server can set:</p><ul><li>Platforms set true are an OR, since a device has 1 platform. <code>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -198,7 +198,7 @@ func PageIfPlatform(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</code> hides the content on <code>x</code>: <code>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</code> hides the content on <code>x</code>. <code>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -211,7 +211,7 @@ func PageIfPlatform(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</code> shows everywhere but Windows.</li><li>With no platform attribute the content shows everywhere.</li><li>A misspelled attribute is ignored: <code>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</code> shows everywhere but Windows.</li><li>With no platform attribute the content shows everywhere.</li><li>A misspelled attribute is ignored. <code>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -272,7 +272,7 @@ func PageIfPlatform(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<p class=\"demo-note\">Each branch carries platform-specific wording and shows only on its OS: you're seeing the one for your system. iOS and Android match no branch.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<p class=\"demo-note\">Each branch carries platform-specific wording and shows only on its OS. You're seeing the one for your system. iOS and Android match no branch.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -361,7 +361,7 @@ func PageIfPlatform(morpheusVersion string) templ.Component {
 							}()
 						}
 						ctx = templ.InitializeContext(ctx)
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "This static demo shows only your own OS's branch, and swaps it in after the script loads, a brief flash. A templ server avoids that: pass the request user agent to <code>IfPlatformOpts.UserAgent</code> and the matching branch renders up front, no flash. To preview another OS here, open DevTools → <code>Network conditions</code> → <code>User agent client hints</code> → <code>Platform</code>, then reload.")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "This static demo shows only your own OS's branch, and swaps it in after the script loads, a brief flash. A templ server avoids that. Pass the request user agent to <code>IfPlatformOpts.UserAgent</code> and the matching branch renders up front, with no flash. To preview another OS here, open DevTools, go to <code>Network conditions</code> and then <code>User agent client hints</code>, set <code>Platform</code>, and reload.")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -458,7 +458,7 @@ func PageIfPlatform(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<p class=\"demo-note\">Download links per store: phones get their app store, and the branch with <code>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<p class=\"demo-note\">Download links per store. Phones get their app store, and the branch with <code>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

@@ -8,10 +8,11 @@ package neo
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
-// Boundary renders <neo-boundary>: a region that overlays inside it
-// (popover, select, menu, …) treat as their local document and viewport
+// Boundary renders <neo-boundary>, a region that overlays inside it
+// (popover, select, menu, ...) treat as their local document and viewport
 // for dismiss, positioning, scroll-follow, and stacking. Children stay in
-// light DOM. Scope which concerns the boundary owns via BoundaryOpts.Scopes.
+// light DOM. Scope which concerns the boundary owns via
+// [BoundaryOpts.Scopes].
 func Boundary(opts BoundaryOpts) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
@@ -94,7 +95,7 @@ func BoundaryAttrs(opts BoundaryOpts, attrs templ.Attributes) templ.Component {
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.ResolveAttributeValue(scope)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `neo/boundary.templ`, Line: 18, Col: 16}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `neo/boundary.templ`, Line: 19, Col: 16}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var4)
 			if templ_7745c5c3_Err != nil {

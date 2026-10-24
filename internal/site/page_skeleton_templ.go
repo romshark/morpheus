@@ -107,7 +107,7 @@ func PageSkeleton(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</code> is a gently-pulsing loading placeholder with optional <code>variant</code> presets (circle, text-height line). No intrinsic size: set width and height in inline style or CSS so the placeholder matches the content that will replace it. By default it fades in after a short delay, so content that resolves quickly never flashes a skeleton; set <code>immediate</code> to show it at once. The pulse honours <code>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</code> is a gently-pulsing loading placeholder with optional <code>variant</code> presets (circle, text-height line). It has no intrinsic size. Set width and height in inline style or CSS so the placeholder matches the content that will replace it. By default it fades in after a short delay. Content that resolves quickly never flashes a skeleton; set <code>immediate</code> to show it at once. The pulse honours <code>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -291,7 +291,7 @@ func PageSkeleton(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</code> preset gives a 1:1 round placeholder for an avatar, paired with two stacked line skeletons for the name and a secondary detail. Useful in lists of users or comments while the real data resolves.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</code> preset gives a 1:1 round placeholder for an avatar, paired with 2 stacked line skeletons for the name and a secondary detail. Useful in lists of users or comments while the real data resolves.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -436,7 +436,7 @@ func PageSkeleton(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<p class=\"demo-note\">Render the placeholder card on first paint, then fat-morph real content into the same card once the server responds. Autoplay alternates the two states below.</p><ul class=\"demo-note\"><li>The <code>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<p class=\"demo-note\">Render the placeholder card on first paint, then fat-morph real content into the same card once the server responds. Autoplay alternates the 2 states below.</p><ul class=\"demo-note\"><li>The <code>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

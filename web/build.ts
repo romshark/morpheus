@@ -1,12 +1,12 @@
-// Build script driven by Make and templier custom watchers.
+// Build script run by Make and templier custom watchers.
 //
-// Default invocation (`node build.mjs`) runs both stages: bundle the
+// Default invocation (`node build.mjs`) runs both stages. It bundles the
 // TypeScript (the kit -> ../min/bundle.js, the bundle builder ->
 // ../min/bundlebuilder.min.js and ../min/brotli_worker.js, the landing-page
 // graph -> ../min/bundle_graph.js, the landing-page bundle ->
 // ../min/landing.js, the docs UI bundle -> ../min/site_docs.js, the
 // CodeMirror loader -> ../min/site_codemirror_loader.js and the editor
-// bundle -> ../min/site_codemirror.js), then minify every top-level CSS
+// bundle -> ../min/site_codemirror.js), then minifies every top-level CSS
 // entry in ../internal/site/static/ into ../min/. Local @imports
 // (including morpheus/*.css modules) are bundled into their top-level entry.
 //
@@ -43,10 +43,10 @@ const commonBuildOptions: Parameters<typeof esbuild.buildSync>[0] = {
 };
 
 // Minify .css modules pulled in via the `text` loader. esbuild inlines text
-// imports verbatim and does not minify CSS inside a string, so a module's
-// comments and indentation would otherwise ship in bundle.js. scopeCssToHost
-// runs on this text at runtime and treats `{`/`}` as selector boundaries, so
-// minified output (`}neo-x{`) scopes the same as pretty-printed source.
+// imports verbatim and does not minify CSS inside a string. Without this,
+// a module's comments and indentation would ship in bundle.js. scopeCssToHost
+// runs on this text at runtime and treats `{`/`}` as selector boundaries,
+// which makes minified output (`}neo-x{`) scope the same as pretty-printed source.
 const minifyCssText: Plugin = {
 	name: "minify-css-text",
 	setup(build) {
@@ -61,10 +61,10 @@ const minifyCssText: Plugin = {
 };
 
 // Minify the CSS inside inline <style>...</style> shadow-template strings.
-// esbuild minifies JS but treats template-literal contents as opaque,
-// so a component's inlined shadow CSS would otherwise ship with its source
-// indentation in bundle.js. These blocks are static (no interpolation or
-// escapes), so a source-level CSS minify of each block is safe.
+// esbuild minifies JS but treats template-literal contents as opaque.
+// Without this, a component's inlined shadow CSS would ship with its source
+// indentation in bundle.js. These blocks are static (no interpolation or escapes),
+// which makes a source-level CSS minify of each block safe.
 const minifyInlineStyles: Plugin = {
 	name: "minify-inline-styles",
 	setup(build) {
@@ -94,7 +94,7 @@ async function buildJS() {
 	// The kit: every web component, IIFE, into bundle.js. Shadow-DOM
 	// components import their .css module as raw text (the `text` loader)
 	// to adopt it into a shadow root via scopeCssToHost; no .css enters
-	// the JS graph as a stylesheet, so this loader is safe here.
+	// the JS graph as a stylesheet, which makes this loader safe here.
 	await esbuild.build({
 		...commonBuildOptions,
 		entryPoints: ["lib/index.ts"],
@@ -103,16 +103,16 @@ async function buildJS() {
 		outfile: path.join(MIN_DIR, "bundle.js"),
 	});
 
-	// The /bundle-builder page's in-browser builder. Its esbuild-wasm and
-	// brotli-wasm imports stay CDN URLs.
+	// The /bundle-builder page's in-browser builder.
+	// Its esbuild-wasm and brotli-wasm imports stay CDN URLs.
 	esbuild.buildSync({
 		...commonBuildOptions,
 		entryPoints: ["site/bundle-size.ts"],
 		outfile: path.join(MIN_DIR, "bundlebuilder.min.js"),
 	});
 
-	// The landing page's <bundle-graph> element. Its d3 import stays a CDN
-	// URL, and its shadow CSS loads as minified text.
+	// The landing page's <bundle-graph> element. Its d3 import stays a CDN URL,
+	// and its shadow CSS loads as minified text.
 	await esbuild.build({
 		...commonBuildOptions,
 		entryPoints: ["site/bundle-graph.ts"],
@@ -121,8 +121,8 @@ async function buildJS() {
 		outfile: path.join(MIN_DIR, "bundle_graph.js"),
 	});
 
-	// The bundle builder's brotli worker. bundle-size.ts loads it from next
-	// to bundlebuilder.min.js.
+	// The bundle builder's brotli worker.
+	// bundle-size.ts loads it from next to bundlebuilder.min.js.
 	esbuild.buildSync({
 		...commonBuildOptions,
 		entryPoints: ["site/brotli-worker.ts"],

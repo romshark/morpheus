@@ -10,7 +10,7 @@ import templruntime "github.com/a-h/templ/runtime"
 
 // InputGroup renders <neo-input-group>, the layout wrapper that
 // flushes leading/trailing addons against an inner input under a
-// shared border. DOM order decides placement: anything before the
+// shared border. DOM order decides placement. Anything before the
 // inner input renders on the left, anything after on the right.
 //
 // Direct children are recognized automatically:

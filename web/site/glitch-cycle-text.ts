@@ -1,4 +1,4 @@
-// <glitch-cycle-text>: cycles a list of phrases with a decorative
+// <glitch-cycle-text> cycles a list of phrases with a decorative
 // scramble + chromatic-aberration flicker. The word rotation is
 // content (kept under reduced motion); the scramble/flicker is
 // decorative (dropped under reduced motion).
@@ -28,7 +28,7 @@ class GlitchCycleText extends HTMLElement {
 	#textElement: HTMLElement;
 	#glitchLayers: NodeListOf<HTMLElement>;
 	#slotElement: HTMLSlotElement;
-	// One reusable text node per rendered layer (.text + the two .glitch
+	// One reusable text node per rendered layer (.text + the 2 .glitch
 	// layers). #setText writes .data on these; setting textContent would
 	// discard and re-create a text node every scramble frame.
 	#textNodes: Text[];
@@ -213,11 +213,11 @@ class GlitchCycleText extends HTMLElement {
 		this.#unwatchReducedMotion = null;
 	}
 
-	// Reconcile all animation with visibility and reduced motion. Driven by the
+	// Reconcile all animation with visibility and reduced motion. Runs on
 	// intersection observer (scroll) and reduced-motion changes.
-	//   - Word rotation is content: it runs while on-screen, regardless of
+	//   - Word rotation is content. It runs while on-screen, regardless of
 	//     motion (#cyclePhrase swaps outright under reduced motion).
-	//   - The scramble + flicker are decorative: they additionally require
+	//   - The scramble + flicker are decorative. They additionally require
 	//     motion, and stop off-screen or under reduced motion.
 	#syncPlayback() {
 		if (this.#onScreen && this.#words.length > 1) {
@@ -230,8 +230,8 @@ class GlitchCycleText extends HTMLElement {
 		else this.#stopDecorative();
 	}
 
-	// Kill any in-flight scramble/flicker and settle to the current word, so a
-	// pause (off-screen) or a reduced-motion flip lands clean.
+	// Stop any in-flight scramble/flicker and settle to the current word, so
+	// that a pause (off-screen) or a reduced-motion flip ends in a clean state.
 	#stopDecorative() {
 		window.clearInterval(this.#scrambleTimer);
 		window.clearTimeout(this.#scrambleGlitchTimer);
@@ -271,15 +271,15 @@ class GlitchCycleText extends HTMLElement {
 		for (const node of this.#textNodes) {
 			node.data = text;
 		}
-		// Intentionally NOT setting `this.dataset.text = text`; Datastar
+		// Intentionally not setting `this.dataset.text = text`; Datastar
 		// 1.0 reads `data-text` as a directive and would try to evaluate
 		// the visible word as a JS expression (e.g. `MORPHEUS` -> ReferenceError).
 	}
 
 	#cyclePhrase() {
 		this.#wordIndex = (this.#wordIndex + 1) % this.#words.length;
-		// Reduced motion: swap outright. The scramble is decorative;
-		// the word rotation itself is content, so it stays.
+		// Under reduced motion, swap outright. The scramble is decorative,
+		// but the word rotation itself is content and stays.
 		if (prefersReducedMotion()) {
 			this.#setText(this.#words[this.#wordIndex]);
 			return;

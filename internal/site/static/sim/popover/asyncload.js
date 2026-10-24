@@ -1,6 +1,6 @@
 // Server handler for the "Async load with failure swap" example
-// (PopoverAsync). Same shape as loadcontent.js — produce body markup
-// and stream as an element patch. The Datastar action wired by
+// (PopoverAsync). Same shape as loadcontent.js. Produce body markup
+// and stream it as an element patch. The Datastar action wired by
 // PopoverAsync handles the retry / failure swap purely client-side
 // from `datastar-fetch` events; the server doesn't need to know.
 

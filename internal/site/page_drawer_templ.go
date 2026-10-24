@@ -138,7 +138,7 @@ func PageDrawer(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, ", anchored to one of four viewport edges via <code>side</code> (<code>right</code> default, <code>left</code> / <code>top</code> / <code>bottom</code>) and animated in with a slide transform. Dismiss via backdrop, Esc, or swipe toward the anchored edge; set <code>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, ", anchored to one of 4 viewport edges via <code>side</code> (<code>right</code> default, <code>left</code> / <code>top</code> / <code>bottom</code>) and animated in with a slide transform. Dismiss via backdrop, Esc, or swipe toward the anchored edge; set <code>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -302,7 +302,7 @@ func PageDrawer(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</code> tokens inline on the host.</p><ul class=\"demo-note\"><li>The drawer reuses the dialog's surface tokens, so any recipe that frosts a centred dialog frosts the side sheet too.</li><li>Here a 22px backdrop blur on the surface plus a 6px overlay blur read through both layers as a deep frosted scene.</li></ul>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</code> tokens inline on the host.</p><ul class=\"demo-note\"><li>The drawer reuses the dialog's surface tokens. Any recipe that frosts a centred dialog frosts the side sheet too.</li><li>Here a 22px backdrop blur on the surface plus a 6px overlay blur read through both layers as a deep frosted scene.</li></ul>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -368,7 +368,7 @@ func PageDrawer(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</code> on the host: backdrop click and Esc no longer close, so the user must pick a button.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</code> on the host. Backdrop click and Esc then do not close the drawer, and the user must pick a button.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -472,7 +472,7 @@ func PageDrawer(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<p class=\"demo-note\">Mobile-style drag-to-close, on by default. A single-touch swipe in the closing direction follows the finger; release past the threshold or a fast flick closes, otherwise it snaps back.</p><ul class=\"demo-note\"><li>Axis follows <code>side</code>: left/right drawers take horizontal swipes, top/bottom vertical.</li><li>The threshold defaults to half the panel's relevant dimension; pass a CSS length (here <code>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<p class=\"demo-note\">Mobile-style drag-to-close, on by default. A single-touch swipe in the closing direction follows the finger; release past the threshold or a fast flick closes, otherwise it snaps back.</p><ul class=\"demo-note\"><li>Axis follows <code>side</code>. Left/right drawers take horizontal swipes, top/bottom vertical.</li><li>The threshold defaults to 50% of the panel's relevant dimension; pass a CSS length (here <code>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -524,20 +524,20 @@ func PageDrawer(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</code>. The <code>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</code>. Dragging the <code>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var26 string
 			templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(`<neo-slider>`)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_drawer.templ`, Line: 160, Col: 26}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_drawer.templ`, Line: 160, Col: 30}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</code> in the panel below demonstrates this: dragging the slider thumb horizontally never closes the drawer.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</code> thumb horizontally in the panel below never closes the drawer.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -597,13 +597,13 @@ func PageDrawer(morpheusVersion string) templ.Component {
 			var templ_7745c5c3_Var29 string
 			templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinStringErrs("<neo-drawer>")
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_drawer.templ`, Line: 178, Col: 26}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_drawer.templ`, Line: 177, Col: 26}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var29))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "</code> that slides in over the modal, so both overlays are open together; each keeps the page behind it from scrolling while its own content scrolls. Open the dialog, then click  <em>Connected devices…</em>.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "</code> that slides in over the modal. Both overlays are open together; each keeps the page behind it from scrolling while its own content scrolls. Open the dialog, then click  <em>Connected devices…</em>.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -666,13 +666,13 @@ func PageDrawer(morpheusVersion string) templ.Component {
 			var templ_7745c5c3_Var32 string
 			templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.JoinStringErrs(`[data-neo-async-placeholder]`)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_drawer.templ`, Line: 201, Col: 42}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_drawer.templ`, Line: 200, Col: 42}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var32))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "</code> child holds skeleton bars; opening posts to the server, whose response morph-patches real content in to replace it.</p><ul class=\"demo-note\"><li>On close the host reinstates the placeholder after the slide-out finishes (so it doesn't flash through the closing panel), so each open shows it again until the next response resolves.</li><li>The editor below is bound to the <code>drawer_async_html</code> signal the server reads at request time; edit it to change the next response.</li></ul>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "</code> child holds skeleton bars; opening posts to the server, whose response morph-patches real content in to replace it.</p><ul class=\"demo-note\"><li>On close the host reinstates the placeholder after the slide-out finishes (so it doesn't flash through the closing panel). Each open shows it again until the next response resolves.</li><li>The editor below is bound to the <code>drawer_async_html</code> signal the server reads at request time; edit it to change the next response.</li></ul>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -711,7 +711,7 @@ var drawerDoc = ComponentDoc{
 				"On by default; set <code>touch-dismiss=\"off\"</code> " +
 				"(or <code>\"false\"</code> / <code>\"no\"</code> / " +
 				"<code>\"none\"</code>) to disable. The default close " +
-				"threshold is half the panel's relevant dimension along " +
+				"threshold is 50% of the panel's relevant dimension along " +
 				"the swipe axis; pass a CSS length (e.g. <code>120</code>, " +
 				"<code>120px</code>, or <code>40%</code>) to pin it explicitly. Touches " +
 				"that start on a same-axis scrollable child or on an " +
@@ -734,7 +734,7 @@ var drawerDoc = ComponentDoc{
 		{Name: "[data-neo-drawer-trigger]",
 			Description: templ.Raw("Element that opens the drawer on click.")},
 		{Name: "[data-neo-drawer-close]",
-			Description: templ.Raw("Element that closes the drawer on click (matched via <code>closest</code>, so a descendant works too).")},
+			Description: templ.Raw("Element that closes the drawer on click (matched via <code>closest</code>; a descendant works too).")},
 		{Name: "[data-neo-async-placeholder]",
 			Description: templ.Raw("Loading skeleton swapped in while the body morphs in.")},
 	},
@@ -754,7 +754,7 @@ var drawerDoc = ComponentDoc{
 	},
 }
 
-// asyncDrawerDemo: a drawer whose body is loaded on every open via a
+// asyncDrawerDemo renders a drawer whose body is loaded on every open via a
 // Datastar action. The AbortController and the simulator's response
 // HTML are seeded with `data-signals` on the host. The drawer's
 // `[data-neo-async-placeholder]` skeleton is reinstated by the host on
@@ -890,20 +890,20 @@ func drawerAsyncFailureDemo() templ.Component {
 		var templ_7745c5c3_Var38 string
 		templ_7745c5c3_Var38, templ_7745c5c3_Err = templ.JoinStringErrs("[data-neo-async-placeholder]")
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_drawer.templ`, Line: 316, Col: 41}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_drawer.templ`, Line: 315, Col: 41}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var38))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "</code> slot, so close/reopen restores it; on success the server morphs <code>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "</code> slot, and close/reopen restores it. On success the server morphs <code>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var39 string
 		templ_7745c5c3_Var39, templ_7745c5c3_Err = templ.JoinStringErrs("<div id=\"<host-id>-body\">")
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_drawer.templ`, Line: 318, Col: 47}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_drawer.templ`, Line: 317, Col: 47}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var39))
 		if templ_7745c5c3_Err != nil {
@@ -916,7 +916,7 @@ func drawerAsyncFailureDemo() templ.Component {
 		var templ_7745c5c3_Var40 string
 		templ_7745c5c3_Var40, templ_7745c5c3_Err = templ.JoinStringErrs("[data-neo-popover-async-retry]")
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_drawer.templ`, Line: 324, Col: 43}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_drawer.templ`, Line: 323, Col: 43}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var40))
 		if templ_7745c5c3_Err != nil {
@@ -929,7 +929,7 @@ func drawerAsyncFailureDemo() templ.Component {
 		var templ_7745c5c3_Var41 string
 		templ_7745c5c3_Var41, templ_7745c5c3_Err = templ.JoinStringErrs(" ")
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_drawer.templ`, Line: 328, Col: 37}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_drawer.templ`, Line: 327, Col: 37}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var41))
 		if templ_7745c5c3_Err != nil {
@@ -1065,7 +1065,7 @@ func drawerSimulator() templ.Component {
 			templ_7745c5c3_Var45 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "<script type=\"module\">\n\t\timport sim from \"/static/datasim.js\";\n\n\t\tconst templateHTML = (id) =>\n\t\t\tdocument.getElementById(id).innerHTML.trim();\n\n\t\t// Async-loading demo: each drawer open POSTs here. The\n\t\t// simulator reads the response payload off the\n\t\t// `drawer_async_html` signal (seeded on the host) and morphs\n\t\t// it into the drawer body slot.\n\t\t// Datastar matches by id on `#drawer-async-body`, so the\n\t\t// existing wrapper element is updated in place, keeping\n\t\t// the host's saved slot reference valid for restoration on\n\t\t// close.\n\t\tsim.post(\"/drawer/async-load\", async (ctx, sse) => {\n\t\t\tconst s = ctx.signals || {};\n\t\t\tconst html = s.drawer_async_html == null\n\t\t\t\t? \"\"\n\t\t\t\t: String(s.drawer_async_html);\n\t\t\tsse.patchElements(\n\t\t\t\t`<div id=\"drawer-async-body\" class=\"drawer-async-slot drawer-async-loaded\">` +\n\t\t\t\t\thtml +\n\t\t\t\t\t`</div>`,\n\t\t\t);\n\t\t});\n\n\t\tsim.post(\"/drawer/asyncload/\", async (_ctx, sse) => {\n\t\t\tsse.patchElements(templateHTML(\"drawerAsyncDemo-success-template\"));\n\t\t});\n\t</script>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "<script type=\"module\">\n\t\timport sim from \"/static/datasim.js\";\n\n\t\tconst templateHTML = (id) =>\n\t\t\tdocument.getElementById(id).innerHTML.trim();\n\n\t\t// Async-loading demo. Each drawer open POSTs here. The\n\t\t// simulator reads the response payload off the\n\t\t// `drawer_async_html` signal (seeded on the host) and morphs\n\t\t// it into the drawer body slot.\n\t\t// Datastar matches by id on `#drawer-async-body` and updates\n\t\t// the existing wrapper element in place, keeping the host's\n\t\t// saved slot reference valid for restoration on close.\n\t\tsim.post(\"/drawer/async-load\", async (ctx, sse) => {\n\t\t\tconst s = ctx.signals || {};\n\t\t\tconst html = s.drawer_async_html == null\n\t\t\t\t? \"\"\n\t\t\t\t: String(s.drawer_async_html);\n\t\t\tsse.patchElements(\n\t\t\t\t`<div id=\"drawer-async-body\" class=\"drawer-async-slot drawer-async-loaded\">` +\n\t\t\t\t\thtml +\n\t\t\t\t\t`</div>`,\n\t\t\t);\n\t\t});\n\n\t\tsim.post(\"/drawer/asyncload/\", async (_ctx, sse) => {\n\t\t\tsse.patchElements(templateHTML(\"drawerAsyncDemo-success-template\"));\n\t\t});\n\t</script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

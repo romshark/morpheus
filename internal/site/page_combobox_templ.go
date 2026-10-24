@@ -237,7 +237,7 @@ func PageCombobox(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<p class=\"demo-note\">Set <code>disabled</code> on the host to make the whole control non-interactive: the trigger leaves the tab order, ignores clicks and keys, and renders faded. An open panel closes. Distinct from disabling individual options.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<p class=\"demo-note\">Set <code>disabled</code> on the host to make the whole control non-interactive. The trigger leaves the tab order, ignores clicks and keys, and renders faded. An open panel closes. Distinct from disabling individual options.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -375,7 +375,7 @@ func PageCombobox(morpheusVersion string) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var18 string
-			templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs("<neo-optgroup label=\"…\">")
+			templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs("<neo-optgroup label=\"...\">")
 			if templ_7745c5c3_Err != nil {
 				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_combobox.templ`, Line: 90, Col: 42}
 			}
@@ -688,7 +688,7 @@ func PageCombobox(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "<p class=\"demo-note\"><code>multiple</code> with per-option faces: each pick becomes a chip on the trigger.</p><ul class=\"demo-note\"><li>A chip uses the option's <code>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "<p class=\"demo-note\"><code>multiple</code> with per-option faces. Each pick becomes a chip on the trigger.</p><ul class=\"demo-note\"><li>A chip uses the option's <code>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -970,7 +970,7 @@ func PageCombobox(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "</code> without <code>async</code>: the first open fires <code>neo-combobox-load</code>.</li><li>Loaded options are cached; later opens reuse them with no refetch.</li></ul>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "</code> without <code>async</code>. The first open then fires <code>neo-combobox-load</code>.</li><li>Loaded options are cached; later opens reuse them with no refetch.</li></ul>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -1147,7 +1147,7 @@ func PageCombobox(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "</code> button re-runs the load without closing the panel.</li><li>The placeholder stays the source, so reopening shows the loading view again.</li></ul>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "</code> button re-runs the load without closing the panel.</li><li>Because the placeholder stays the source, reopening shows the loading view again.</li></ul>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -1205,11 +1205,11 @@ var comboboxDoc = ComponentDoc{
 		{Name: "value", Type: "string", Reflected: true, Observed: true,
 			Description: templ.Raw("Selected value(s); comma-separated when <code>multiple</code> is set. In <code>multiple</code> mode an option value must not contain a comma; the separator is unescaped.")},
 		{Name: "name", Type: "string", Observed: true,
-			Description: templ.Raw("Form field name. The control is form-associated: with a <code>name</code> set it submits its value in a native <code>&lt;form&gt;</code>, resets with the form, and is barred from submission while disabled. With <code>multiple</code> it submits one entry per selected value under the same name, like <code>&lt;select multiple&gt;</code>.")},
+			Description: templ.Raw("Form field name. The control is form-associated. With a <code>name</code> set it submits its value in a native <code>&lt;form&gt;</code>, resets with the form, and is barred from submission while disabled. With <code>multiple</code> it submits one entry per selected value under the same name, like <code>&lt;select multiple&gt;</code>.")},
 		{Name: "size", Type: `"sm" | "lg"`,
-			Description: templ.Raw("Control-size step: <code>sm</code> compact, <code>lg</code> large. Omit for the default size.")},
+			Description: templ.Raw("Control-size step, <code>sm</code> compact or <code>lg</code> large. Omit for the default size.")},
 		{Name: "disabled", Type: "boolean", Default: "false", Observed: true,
-			Description: templ.Raw("Makes the control non-interactive: the trigger drops out of the tab order and ignores clicks and keys, and an open panel closes.")},
+			Description: templ.Raw("Makes the control non-interactive. The trigger drops out of the tab order and ignores clicks and keys, and an open panel closes.")},
 		{Name: "placeholder", Type: "string", Observed: true,
 			Description: templ.Raw("Trigger text when nothing is selected.")},
 		{Name: "list", Type: "string", Observed: true,
@@ -1221,7 +1221,7 @@ var comboboxDoc = ComponentDoc{
 		{Name: "clearable", Type: "boolean", Default: "false",
 			Description: templ.Raw("<code>Backspace</code> / <code>Delete</code> on the focused (closed) trigger clears the selection back to the empty state.")},
 		{Name: "caret", Type: "string", Default: `"chevrons-up-down"`, Observed: true,
-			Description: templ.Raw("Name of the trigger's caret icon. Resolved through <code>&lt;neo-icon&gt;</code>, so it follows the active icon theme. Set <code>caret=&quot;&quot;</code> (empty) to hide the caret entirely.")},
+			Description: templ.Raw("Name of the trigger's caret icon. Resolved through <code>&lt;neo-icon&gt;</code> and follows the active icon theme. Set <code>caret=&quot;&quot;</code> (empty) to hide the caret entirely.")},
 		{Name: "async", Type: "boolean", Default: "false",
 			Description: templ.Raw("On every open, clear the listbox, re-show the <code>[data-neo-async-placeholder]</code> slot, and fire <code>neo-combobox-load</code> so a wired loader re-fetches. Without <code>async</code>, a combobox with a <code>[data-neo-async-placeholder]</code> child fires <code>neo-combobox-load</code> only on the first open (options empty) and caches across opens; <code>neo-popover-open</code> is independent; it always fires when the panel opens.")},
 		{Name: "live-search", Type: "boolean", Default: "false",
@@ -1247,7 +1247,7 @@ var comboboxDoc = ComponentDoc{
 		{Name: "popover-fit-content", Type: "boolean", Default: "false",
 			Description: templ.Raw("The listbox tracks the trigger width by default; set this to size the panel to the option rows instead. Capped by <code>--neo-popover-max-width</code> and the viewport.")},
 		{Name: "hover", Type: "boolean", Default: "false",
-			Description: templ.Raw("Open the panel on trigger hover without moving focus; close after the pointer leaves both trigger and panel. Mouse only; touch falls back to click. While set, clicking the trigger always shows the panel instantly and never toggles it shut, so touch and keyboard users keep a way in.")},
+			Description: templ.Raw("Open the panel on trigger hover without moving focus; close after the pointer leaves both trigger and panel. Mouse only; touch falls back to click. While set, clicking the trigger always shows the panel instantly and never toggles it shut, so that touch and keyboard users keep a way in.")},
 		{Name: "hover-open-delay", Type: "integer (ms)", Default: "100",
 			Description: templ.Raw("Milliseconds the pointer must rest on the trigger before <code>hover</code> opens the panel. Filters incidental cursor crossings. Does not apply to click.")},
 		{Name: "hover-close-delay", Type: "integer (ms)", Default: "200",
@@ -1261,11 +1261,11 @@ var comboboxDoc = ComponentDoc{
 		{Name: "[slot=trigger]",
 			Description: templ.Raw("Owns the trigger face. Leave it absent and the kit fills it client-side by cloning the selected option's body (so its CSS styles it and the trigger grows to fit); provide one (e.g. patched from a server) and the kit yields, rendering exactly your content.")},
 		{Name: "[data-neo-option-trigger]",
-			Description: templ.Raw("Optional per-<code>&lt;neo-option&gt;</code> child: a compact trigger face distinct from the option's rich list row. Hidden in the list; cloned into the trigger when that option is selected. Falls back to the option's <code>label</code> (plain text), then its full body. Shared with <code>&lt;neo-select&gt;</code>.")},
+			Description: templ.Raw("Optional per-<code>&lt;neo-option&gt;</code> child with a compact trigger face distinct from the option's rich list row. Hidden in the list; cloned into the trigger when that option is selected. Falls back to the option's <code>label</code> (plain text), then its full body. Shared with <code>&lt;neo-select&gt;</code>.")},
 		{Name: "[data-neo-combobox-empty]",
 			Description: templ.Raw("The empty-state trigger face, cloned into the trigger when nothing is selected. Hidden in the list.")},
 		{Name: "[data-neo-empty-results]",
-			Description: templ.Raw("Overrides the default <em>No results</em> hint when the listbox ends up empty after filtering or after an external load returned no options. Any <code>[data-neo-empty-query]</code> descendants get their <code>textContent</code> set to the current search input each time the slot is mounted, so authors can render messages like <code>No results for &quot;&lt;span data-neo-empty-query&gt;&lt;/span&gt;&quot;</code>. A response can also ship one inline as an option-list child.")},
+			Description: templ.Raw("Overrides the default <em>No results</em> hint when the listbox ends up empty after filtering or after an external load returned no options. Any <code>[data-neo-empty-query]</code> descendants get their <code>textContent</code> set to the current search input each time the slot is mounted, which lets authors render messages like <code>No results for &quot;&lt;span data-neo-empty-query&gt;&lt;/span&gt;&quot;</code>. A response can also ship one inline as an option-list child.")},
 	},
 	Events: []DocEvent{
 		{Name: "neo-combobox-change",
@@ -1275,7 +1275,7 @@ var comboboxDoc = ComponentDoc{
 		{Name: "neo-combobox-search", Detail: "{ query: string }", Bubbles: true,
 			Description: templ.Raw("Fires on every search-input change; <code>detail.query</code> carries the current text. For server-driven live search, copy it into a signal in the handler (the element binds no framework attribute itself).")},
 		{Name: "neo-combobox-load", Detail: "none", Bubbles: true,
-			Description: templ.Raw("Fires when options need fetching: every open with <code>async</code>, or a lazy combobox's first open. Wire a loader to it (e.g. a Datastar <code>@post</code>). Call <code>el.reload()</code> to re-fire it. Distinct from <code>neo-popover-open</code>, which always fires on open.")},
+			Description: templ.Raw("Fires when options need fetching (every open with <code>async</code>, or a lazy combobox's first open). Wire a loader to it (e.g. a Datastar <code>@post</code>). Call <code>el.reload()</code> to re-fire it. Distinct from <code>neo-popover-open</code>, which always fires on open.")},
 	},
 	Parts: []DocPart{
 		{Name: "label",
@@ -1296,8 +1296,8 @@ var comboboxDoc = ComponentDoc{
 }
 
 // comboboxSimulator loads the per-demo handler modules under
-// /static/sim/combobox/ that power the Datastar examples (also surfaced
-// in each demo's Server script tab).
+// /static/sim/combobox/ for the Datastar examples (also surfaced in each
+// demo's Server script tab).
 func comboboxSimulator() templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context

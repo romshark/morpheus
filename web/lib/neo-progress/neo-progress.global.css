@@ -1,15 +1,12 @@
-/* -----------------------------------------------------------------------
- * <neo-progress>: global (light-DOM) half
- * -----------------------------------------------------------------------
- * The painted bar (header, track, fill, marks) lives in the host's SHADOW
+/* The painted bar (header, track, fill, marks) lives in the host's shadow
  * root, styled by the adopted neo-progress.css. This file holds only what
- * must resolve OUTSIDE the shadow:
+ * must resolve outside the shadow:
  *
  *   - the `--neo-progress-*` token defaults the shadow rules read (custom
  *     properties inherit across the boundary into the shadow);
- *   - the manual reduced-motion hook below.
+ *   - the manual reduced-motion hook on `:root[data-pref-reduced-motion]`.
  *
- * First paint needs nothing here: before upgrade the host matches
+ * First paint needs nothing here. Before upgrade the host matches
  * `neo-progress:not(:defined)` (a skeleton placeholder in style.css); after
  * upgrade the adopted `:host` rules take over.
  *

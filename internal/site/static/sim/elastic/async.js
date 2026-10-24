@@ -1,10 +1,10 @@
-// Server handler for the "Async placeholder" example. Each open @posts
-// here; after a delay the simulator morphs the loaded panel into
-// #elastic-async-content, replacing the skeleton placeholder (match-by-id).
-// No reset route: neo-elastic owns the <template data-neo-async-placeholder>
-// slot and reinstates the skeleton after the collapse transition, so the
-// next open loads fresh. Closing aborts any in-flight request so a late
-// response can't overwrite the restored placeholder.
+// Server handler for the "Async placeholder" example. Each open @posts here;
+// after a delay the simulator morphs the loaded panel into #elastic-async-content,
+// replacing the skeleton placeholder (match-by-id). There is no reset route.
+// neo-elastic owns the <template data-neo-async-placeholder> slot and reinstates
+// the skeleton after the collapse transition, which makes the next open load fresh.
+// Closing aborts any in-flight request so a late response can't overwrite
+// the restored placeholder.
 
 import sim from "/static/datasim.js";
 

@@ -9,7 +9,7 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 // Textarea renders <neo-textarea>. The native field lives in the
-// component's shadow root, so the host carries the options/passthrough
+// component's shadow root. The host carries the options/passthrough
 // attributes and the light DOM stays empty; the field appears on upgrade.
 func Textarea(opts TextareaOpts) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
@@ -40,9 +40,9 @@ func Textarea(opts TextareaOpts) templ.Component {
 	})
 }
 
-// TextareaAttrs is [Textarea] plus an escape hatch: attrs carries native
-// passthrough and arbitrary attributes (style, aria-*, data-* / Datastar
-// bindings) and overrides any colliding typed field.
+// TextareaAttrs is [Textarea] with an extra attribute set. attrs carries
+// native passthrough and arbitrary attributes (style, aria-*, data-* /
+// Datastar bindings) and overrides any colliding typed field.
 func TextareaAttrs(opts TextareaOpts, attrs templ.Attributes) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context

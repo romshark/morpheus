@@ -1,9 +1,9 @@
 import React, { useCallback, useState } from "https://esm.sh/react@19.2.7";
 import { createRoot } from "https://esm.sh/react-dom@19.2.7/client";
 
-// Ref callback that wires a Morpheus custom event to the node it lands
-// on. React 19 calls the returned cleanup on unmount, so no useEffect /
-// useRef: the listener's lifetime is the element's lifetime.
+// Ref callback that wires a Morpheus custom event to the node it lands on.
+// React 19 calls the returned cleanup on unmount. No useEffect / useRef is
+// needed because the listener's lifetime is the element's lifetime.
 function useNeoEventRef(name, handle) {
 	return useCallback(
 		(node) => {
@@ -36,7 +36,7 @@ function ColorPicker() {
 
 	const pickOption = useCallback(({ value }) => {
 		setOption(value);
-		// Named options drive the field; "custom" leaves the color as is.
+		// Named options set the field; "custom" leaves the color as is.
 		if (value in NAMED) setColor(NAMED[value]);
 	}, []);
 

@@ -362,7 +362,7 @@ func PageBundleBuilder(morpheusVersion string, versions []BundleVersion) templ.C
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</span></label></th><td class=\"bundle-size-raw\"><span data-size=\"raw\">–</span>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</span></label></th><td class=\"bundle-size-raw\"><span data-size=\"raw\">-</span>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -370,12 +370,12 @@ func PageBundleBuilder(morpheusVersion string, versions []BundleVersion) templ.C
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</td><td data-size=\"gzip\">–</td><td data-size=\"br\">–</td></tr>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</td><td data-size=\"gzip\">-</td><td data-size=\"br\">-</td></tr>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<tr class=\"bundle-size-total\"><th scope=\"row\">Total</th><td class=\"bundle-size-raw\"><span data-size=\"raw\">–</span> <span class=\"bundle-size-copy\" aria-hidden=\"true\"></span></td><td data-size=\"gzip\">–</td><td data-size=\"br\">–</td></tr></tbody></table></div><neo-layout class=\"bundle-size-downloads\" justify-content=\"center\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<tr class=\"bundle-size-total\"><th scope=\"row\">Total</th><td class=\"bundle-size-raw\"><span data-size=\"raw\">-</span> <span class=\"bundle-size-copy\" aria-hidden=\"true\"></span></td><td data-size=\"gzip\">-</td><td data-size=\"br\">-</td></tr></tbody></table></div><neo-layout class=\"bundle-size-downloads\" justify-content=\"center\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

@@ -808,7 +808,7 @@ func Playground(opts PlaygroundOpts) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "declared in the selected state's markup. Change a value to drive the preview, applied live while Sync is on, or when you click Patch.")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "declared in the selected state's markup. Change a value to update the preview, applied live while Sync is on, or when you click Patch.")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -1233,8 +1233,8 @@ func playgroundPaneInfo(label string) templ.Component {
 }
 
 // playgroundSimWarning is a toolbar warning popover shown only while the
-// simulator is throttled, erroring, or unreachable, so the preview's odd
-// behavior reads as configured rather than broken.
+// simulator is throttled, erroring, or unreachable. It marks the preview's
+// odd behavior as configured, not broken.
 func playgroundSimWarning() templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
@@ -1303,7 +1303,7 @@ func playgroundSimWarning() templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, "><p>The preview routes through the in-browser server simulator. Its current Settings (network latency, a non-200 response, or an unreachable server) are in effect, so the live preview can look like it is misbehaving. Adjust them in the Settings panel.</p></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, "><p>The preview routes through the in-browser server simulator. Its current Settings (network latency, a non-200 response, or an unreachable server) are in effect. The live preview can look like it is misbehaving. Adjust them in the Settings panel.</p></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

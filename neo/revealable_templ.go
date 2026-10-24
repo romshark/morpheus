@@ -9,7 +9,7 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 // RevealableVariant picks the obscure treatment. Zero value
-// (RevealableVariantAuto) lets the element infer it from the host's
+// ([RevealableVariantAuto]) lets the element infer it from the host's
 // height (tall -> media, short -> inline) and emits no `variant`.
 type RevealableVariant string
 
@@ -26,10 +26,10 @@ type RevealableOpts struct {
 	// reveal. 0 omits the attribute, which keeps it revealed until the
 	// user re-activates it (same as `rehide-after="0"`).
 	RehideAfter Attr[int]
-	// Variant: inline grain over text, or a veil + sparser particles
+	// Variant picks inline grain over text, or a veil + sparser particles
 	// over an image/section. Auto when empty.
 	Variant Attr[RevealableVariant]
-	// Density multiplies the particle count, clamped 0.3–3 by the
+	// Density multiplies the particle count, clamped 0.3-3 by the
 	// element (e.g. "1.5"). Empty uses the default (1).
 	Density Attr[string]
 	// BlurContent (media variant only) teases the shape with a heavy

@@ -1,15 +1,15 @@
-// Shared platform + keyboard-chord core. The single source for "what
-// modifier / glyph on this OS", consumed by <neo-keys> (behavior),
+// Shared platform + keyboard-chord core. The single source for
+// "what modifier / glyph on this OS", consumed by <neo-keys> (behavior),
 // <neo-kbd> (display), and <neo-if-platform> (platform gating).
 
 export type Platform = "macos" | "ios" | "windows" | "linux" | "android" | "chromeos" | "other";
 
 // Resolve the real OS once. Prefer the structured User-Agent Client Hint (Chromium),
 // the modern replacement for the deprecated navigator.platform, then navigator.platform,
-// then the UA string. All three reflect the actual device; a "User Agent Switcher"
-// extension only rewrites navigator.userAgent (the last fallback), so it won't
-// flip detection. To simulate a platform use DevTools → Network conditions →
-// User agent client hints → Platform, which overrides userAgentData.platform.
+// then the UA string. All 3 reflect the actual device; a "User Agent Switcher"
+// extension only rewrites navigator.userAgent (the last fallback) and won't
+// flip detection. To simulate a platform use DevTools -> Network conditions ->
+// User agent client hints -> Platform, which overrides userAgentData.platform.
 function detectPlatform(): Platform {
 	if (typeof navigator === "undefined") return "other";
 	const hint = (navigator as Navigator & { userAgentData?: { platform?: string } }).userAgentData?.platform;
@@ -75,7 +75,7 @@ export interface Chord {
 	shift: boolean;
 }
 
-// One alternative is a sequence of one or more chords; `keys` is a set
+// An alternative is a sequence of 1 or more chords; `keys` is a set
 // of alternatives. raw is the source text used for the event detail.
 export interface Alternative {
 	raw: string;
@@ -122,7 +122,8 @@ export function parseChord(text: string): Chord | null {
 }
 
 // `|` separates alternatives, `,` separates sequence steps, `+` joins a chord.
-// None overlap, so the grammar is unambiguous (a literal comma key is the `comma` alias).
+// None overlap, which keeps the grammar unambiguous
+// (a literal comma key is the `comma` alias).
 export function parseKeys(raw: string): Alternative[] {
 	return raw
 		.split("|")
@@ -136,8 +137,8 @@ export function parseKeys(raw: string): Alternative[] {
 		.filter((alt) => alt.steps.length > 0);
 }
 
-// Named-key labels: Apple glyphs (↩ ⎋ ⇥ …) vs. spelled words elsewhere.
-// Modifiers live in MODIFIER_GLYPHS_APPLE / MODIFIER_LABELS_OTHER below.
+// Named-key labels: Apple glyphs (↩ ⎋ ⇥ ...) vs. spelled words elsewhere.
+// Modifiers live in MODIFIER_GLYPHS_APPLE / MODIFIER_LABELS_OTHER.
 const KEY_GLYPHS_APPLE: Record<string, string> = {
 	" ": "Space",
 	// Web "Enter" is the Return key; its macOS menu glyph is ↩ (U+21A9),
@@ -173,10 +174,10 @@ function keyLabel(key: string, apple: boolean): string {
 	return key.length === 1 ? key.toUpperCase() : key.charAt(0).toUpperCase() + key.slice(1);
 }
 
-// A <neo-kbd> shows ONE key. Modifier tokens render as their platform glyph;
+// A <neo-kbd> shows 1 key. Modifier tokens render as their platform glyph;
 // everything else goes through keyLabel. Multi-key shortcuts are
 // composed from several <neo-kbd> in a <neo-kbd-group>, never a
-// "+"-joined string, so there is no chord formatter here.
+// "+"-joined string. There is no chord formatter here.
 const MODIFIER_GLYPHS_APPLE: Record<string, string> = {
 	mod: "⌘",
 	meta: "⌘",
@@ -207,8 +208,8 @@ const MODIFIER_LABELS_OTHER: Record<string, string> = {
 	win: "Win",
 };
 
-// Render a single key token as a platform-appropriate label: a modifier
-// glyph (⌘, ⇧, …) or, via keyLabel, a named key (↩, Esc) or letter.
+// Render a single key token as a platform-appropriate label, which is a
+// modifier glyph (⌘, ⇧, ...) or, via keyLabel, a named key (↩, Esc) or letter.
 export function formatKey(token: string, apple = IS_APPLE): string {
 	const t = token.trim().toLowerCase();
 	if (!t) return "";

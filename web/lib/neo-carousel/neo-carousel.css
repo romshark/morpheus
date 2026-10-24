@@ -1,15 +1,12 @@
-/* -----------------------------------------------------------------------
- * <neo-carousel>
- * -----------------------------------------------------------------------
- * Scroll-snap carousel. The track is a native overflow:auto scroll
- * container with `scroll-snap-type`. Touch / pointer / wheel scrolling
- * all run on the compositor. JS only intervenes for prev/next/keyboard
- * input and active-slide tracking.
+/* <neo-carousel> is a scroll-snap carousel. The track is a native
+ * overflow:auto scroll container with `scroll-snap-type`. Touch / pointer /
+ * wheel scrolling all run on the compositor. JS only intervenes for
+ * prev/next/keyboard input and active-slide tracking.
  *
- * Dot markup lives in the host's shadow stylesheet (see neo-carousel.ts).
- * Reach it via the token defaults below or via `::part(dots)` /
- * `::part(dot)`. Light-DOM rules here cover the track + slides (still
- * authored as <neo-carousel-track> / <neo-carousel-slide>).
+ * Dot markup lives in the host's shadow stylesheet (CAROUSEL_TEMPLATE).
+ * Reach it via the :root token defaults or via `::part(dots)` /
+ * `::part(dot)`. Light-DOM rules here cover the track + slides (authored
+ * as <neo-carousel-track> / <neo-carousel-slide>).
  */
 
 :root {
@@ -57,7 +54,8 @@ neo-carousel[per-view="6"] {
 
 neo-carousel-track {
 	/* Percentage h/w resolves to auto when the host is content-sized,
-	 * so this works for both content-sized and definite-sized hosts. */
+	 * which makes this work for both content-sized and definite-sized
+	 * hosts. */
 	width: 100%;
 	height: 100%;
 	display: flex;
@@ -66,9 +64,9 @@ neo-carousel-track {
 	overflow-y: hidden;
 	scroll-snap-type: x mandatory;
 	scroll-behavior: smooth;
-	/* Inline: contain horizontal chaining so end-of-track flicks don't
-	 * scroll the page sideways. Block: leave default so vertical wheel
-	 * over the carousel still scrolls the page past it. */
+	/* Contain inline (horizontal) chaining so end-of-track flicks don't
+	 * scroll the page sideways. Leave block at the default so a vertical
+	 * wheel over the carousel still scrolls the page past it. */
 	overscroll-behavior-inline: contain;
 	overscroll-behavior-block: auto;
 	-webkit-overflow-scrolling: touch;
@@ -89,10 +87,10 @@ neo-carousel-track::-webkit-scrollbar {
 	display: none;
 }
 
-/* Multi-item layouts: switch to `proximity`. `mandatory` recomputes
- * the snap target every frame inside macOS momentum decay, which
- * stutters fast flicks. Per-view=1 keeps `mandatory` so heroes settle
- * exactly on a slide. */
+/* Multi-item layouts switch to `proximity`, because `mandatory`
+ * recomputes the snap target every frame inside macOS momentum decay,
+ * which stutters fast flicks. Per-view=1 keeps `mandatory` so heroes
+ * settle exactly on a slide. */
 neo-carousel[per-view="2"] neo-carousel-track,
 neo-carousel[per-view="3"] neo-carousel-track,
 neo-carousel[per-view="4"] neo-carousel-track,
@@ -121,9 +119,9 @@ neo-carousel[orientation="vertical"][per-view="auto"] neo-carousel-track {
 }
 
 /* `touch="false"` disables native scrolling; prev/next and keyboard
- * still drive via scrollTo. `touch-action: none` stops the gesture
- * from being recognised as a scroll. Default is on, so off is only
- * the explicit `touch="false"` form. */
+ * still scroll via scrollTo. `touch-action: none` stops the gesture
+ * from being recognised as a scroll. Default is on. Only the explicit
+ * `touch="false"` form turns it off. */
 neo-carousel[touch="false"] neo-carousel-track {
 	overflow: hidden;
 	touch-action: none;
@@ -153,11 +151,11 @@ neo-carousel-slide {
 		calc((100% - (var(--neo-carousel-per-view) - 1) * var(--neo-carousel-spacing)) / var(--neo-carousel-per-view));
 }
 
-/* Opt-in via [highlight-active]:where(:not([highlight-active="false"])); styles every slide visibility state
- * via the same `data-neo-carousel-slide-visibility` marker the kit
- * writes on every slide. Off-screen (attribute absent) → dimmed;
- * "partial" / "full" → fade up to fully opaque so any visible card
- * reads as active. */
+/* Opt-in via [highlight-active]:where(:not([highlight-active="false"]));
+ * styles every slide visibility state via the same
+ * `data-neo-carousel-slide-visibility` marker the kit writes on every
+ * slide. Off-screen (attribute absent) is dimmed; "partial" / "full"
+ * fade up to fully opaque so any visible card reads as active. */
 neo-carousel[highlight-active]:where(:not([highlight-active="false"])) > neo-carousel-track > neo-carousel-slide {
 	opacity: var(--neo-carousel-slide-inactive-opacity);
 	transition: opacity var(--neo-carousel-slide-transition);
@@ -182,7 +180,7 @@ neo-carousel[orientation="vertical"] neo-carousel-slide {
 		calc((100% - (var(--neo-carousel-per-view) - 1) * var(--neo-carousel-spacing)) / var(--neo-carousel-per-view));
 }
 
-/* prefers-reduced-motion: cut the track's CSS-driven smooth-scroll and
+/* Under prefers-reduced-motion, cut the track's CSS smooth-scroll and
  * the slide opacity fade. The shadow stylesheet handles the dot/sweep
  * transitions, and the JS animator falls back to instant jumps. */
 @media (prefers-reduced-motion: reduce) {

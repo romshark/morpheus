@@ -17,8 +17,8 @@ templ SidebarAsyncLoading() {
 				}
 			}
 			<!-- [data-neo-async-placeholder] marks the resting content. neo-sidebar
-			     snapshots it on connect and restores it on close, so every open
-			     loads fresh. The server morphs the loaded panel in on open. The
+			     snapshots it on connect and restores it on close, which makes every
+			     open load fresh. The server morphs the loaded panel in on open. The
 			     display:contents wrapper keeps the skeletons as direct flex items of
 			     the slot; immediate skeletons skip the fade so the placeholder shows
 			     from the first frame of the open transition. -->

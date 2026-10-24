@@ -1,24 +1,23 @@
-/* -----------------------------------------------------------------------
- * <neo-button> and the styled anchor <a data-neo-link>: shared styling.
+/* Shared styling for <neo-button> and the styled anchor <a data-neo-link>.
  *
  * <a data-neo-link> is a plain native anchor; the data hook is the only
  * thing the kit's CSS keys on (no custom element, no JS). Both carry an
  * explicit `variant` attribute from the templ wrappers (zero value
- * rewritten to "default"). The two defaults differ:
+ * rewritten to "default"). The 2 defaults differ:
  *
- *   <neo-button variant="default">              → neutral button styling.
- *   <neo-button variant="anchor">               → anchor look.
- *   <a data-neo-link variant="default">         → anchor look (link default).
- *   <a data-neo-link variant="button-default">  → neutral button styling.
+ *   <neo-button variant="default">              -> neutral button styling.
+ *   <neo-button variant="anchor">               -> anchor look.
+ *   <a data-neo-link variant="default">         -> anchor look (link default).
+ *   <a data-neo-link variant="button-default">  -> neutral button styling.
  *   <neo-button>   [variant="primary"|secondary|ghost|danger]
- *   <a data-neo-link> [variant="button-primary"|button-secondary|…]
- *                                               → shared colour rules.
+ *   <a data-neo-link> [variant="button-primary"|button-secondary|...]
+ *                                               -> shared colour rules.
  *
- * Each rule below picks selectors so both honour their defaults. A bare
- * element without a `variant` attribute (raw HTML skipping the templ
+ * Each rule in this file picks selectors so both honour their defaults. A
+ * bare element without a `variant` attribute (raw HTML skipping the templ
  * wrapper) falls through to the same default as the explicit "default"
- * form, for robustness.
- * ----------------------------------------------------------------------- */
+ * form.
+ */
 
 :root {
 	--neo-button-bg: #ffffff;
@@ -26,14 +25,14 @@
 	--neo-button-border-color: rgba(0, 0, 0, 0.12);
 	--neo-button-hover-bg: rgba(0, 0, 0, 0.04);
 	/* Pressed feedback (`:active`); darker than hover so a tap reads as
-	 * a distinct step. Per-variant overrides below mirror the structure. */
+	 * a distinct step. The per-variant overrides mirror the structure. */
 	--neo-button-active-bg: rgba(0, 0, 0, 0.08);
 	--neo-button-active-color: var(--neo-button-color);
 	/* Gap between adjacent button content (icon + label). */
 	--neo-button-gap: 0.35rem;
-	/* Elevation: a small resting shadow that grows as the button lifts
+	/* Elevation is a small resting shadow that grows as the button lifts
 	 * on hover, then sinks back on :active. *-lift values feed translateY;
-	 * the reduced-motion block below zeroes them so only the shadow moves. */
+	 * the prefers-reduced-motion block zeroes them so only the shadow moves. */
 	--neo-button-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 	--neo-button-hover-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
 	--neo-button-active-shadow: 0 1px 3px rgba(0, 0, 0, 0.14);
@@ -45,8 +44,8 @@
 	 * fractional base spacings (e.g. 0.2rem or 0.18rem) the
 	 * vertical padding lands on .8px/.76px fractions and the bar
 	 * vs. sidebar-header outer heights can round differently by
-	 * 1px between the two rows. Visual change at the px level is
-	 * at most 1; styling alignment is the bigger win. */
+	 * 1px between the 2 rows. Visual change at the px level is
+	 * at most 1; the row alignment matters more. */
 	--neo-button-padding: round(calc(var(--page-spacing, 0.25rem) * 2), 1px)
 		round(calc(var(--page-spacing, 0.25rem) * 3.5), 1px);
 
@@ -83,10 +82,10 @@ a[data-neo-link]:where(:not([data-neo-link="false"])) {
 	--neo-loaded: neo-link;
 }
 
-/* Button-styled base: <neo-button> (any non-anchor variant + bare
+/* Button-styled base for <neo-button> (any non-anchor variant + bare
  * element as a defensive fallback) and any <a data-neo-link> with a
  * LinkVariantButton* opt-in. The link's "default" value (anchor) is
- * intentionally absent: it falls through to the anchor block below. */
+ * intentionally absent and falls through to the anchor styling. */
 neo-button:not([variant="anchor"]),
 a[data-neo-link]:where(:not([data-neo-link="false"])):not([variant]),
 a[data-neo-link]:where(:not([data-neo-link="false"])):not([variant="default"]) {
@@ -140,9 +139,9 @@ a[data-neo-link]:where(:not([data-neo-link="false"])):not([variant="default"]) {
 }
 
 /* Freeze the lift while anchoring an open popup. The panel nests inside
- * the button, so the pointer over the panel still reads as `:hover` on
- * the button, and the button, always transformed, is the
- * `position: fixed` panel's containing block, so any translate would
+ * the button, which means the pointer over the panel still reads as
+ * `:hover` on the button. The button, always transformed, is the
+ * `position: fixed` panel's containing block, and any translate would
  * relocate the panel. Zero the lift vars (not a transform override) so
  * the cascade for per-variant hover backgrounds is untouched, and drop
  * transform from the transition so opening from an already-hovered
@@ -183,7 +182,7 @@ a[data-neo-link]:where(:not([data-neo-link="false"]))[variant="button-primary"] 
 	}
 	&:active {
 		background: var(--neo-button-primary-active-bg);
-		/* Re-pin: the neutral :active rule above also matches and
+		/* Re-pin, because the neutral :active rule also matches and
 		 * would otherwise leak --neo-button-active-color here. */
 		color: var(--neo-button-primary-color);
 	}
@@ -206,7 +205,7 @@ a[data-neo-link]:where(:not([data-neo-link="false"]))[variant="button-ghost"] {
 	background: var(--neo-button-ghost-bg);
 	color: var(--neo-button-ghost-color);
 	border-color: transparent;
-	/* Low-emphasis: a transparent surface shouldn't cast or lift. */
+	/* A low-emphasis, transparent surface shouldn't cast or lift. */
 	box-shadow: none;
 	transform: none;
 	&:hover {
@@ -235,10 +234,10 @@ a[data-neo-link]:where(:not([data-neo-link="false"]))[variant="button-danger"] {
 	}
 }
 
-/* Anchor styling: <neo-button variant="anchor">, plus <a data-neo-link>
- * in its default state: `variant="default"` from the templ wrapper
- * or no `variant` attribute at all (raw HTML fallback). Colour comes
- * from the site's `--link*` token cascade so apps don't ship UA
+/* Anchor styling for <neo-button variant="anchor"> and for
+ * <a data-neo-link> in its default state, which is `variant="default"` from
+ * the templ wrapper or no `variant` attribute at all (raw HTML fallback).
+ * Colour comes from the site's `--link*` token cascade so apps don't ship UA
  * blue/purple. The underline is persistent (not hover-only) and starts
  * at 45% currentColor so it reads as "underlined text" rather than
  * "boxed text", then fills to currentColor on hover. */

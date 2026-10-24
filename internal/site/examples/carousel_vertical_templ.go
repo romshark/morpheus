@@ -10,7 +10,7 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import "github.com/romshark/morpheus/neo"
 
-// Side dots: the kit host is a flex row; flex-direction:column + top/
+// Side dots. The kit host is a flex row; flex-direction:column + top/
 // bottom:0 lets its default justify-content:center centre the stacked
 // column on the now-vertical main axis.
 func CarouselVertical() templ.Component {

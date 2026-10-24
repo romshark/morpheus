@@ -70,7 +70,7 @@ func DrawerAsyncFailure() templ.Component {
 	})
 }
 
-// Wrapped in [data-neo-async-placeholder] by DrawerAsync so the
+// Wrapped in [data-neo-async-placeholder] by [datastar.DrawerAsync] so the
 // drawer restores it after close and before retry/reopen.
 func drawerAsyncFailureLoading() templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
@@ -103,7 +103,7 @@ func drawerAsyncFailureLoading() templ.Component {
 
 // Swapped into <div id="<ID>-body"> once Datastar fires
 // retries-failed. The retry button carries
-// [data-neo-popover-async-retry] so DrawerAsync re-fires the
+// [data-neo-popover-async-retry] so [datastar.DrawerAsync] re-fires the
 // @post action when clicked.
 func drawerAsyncFailureFailed() templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {

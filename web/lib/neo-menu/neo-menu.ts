@@ -1,5 +1,5 @@
 // Triggerless, keyboard-navigable menu panel; its direct children are the
-// rows. A host opens and anchors it: a <neo-button> trigger, or a
+// rows. A host opens and anchors it, either a <neo-button> trigger or a
 // <neo-contextmenu> via openAtPoint. neo-menu owns all menu behavior so
 // the hosts don't duplicate any of it.
 
@@ -51,10 +51,11 @@ export class NeoMenu extends HTMLElement {
 
 	connectedCallback() {
 		if (this.#ready) return;
-		// Reads the `open` command on connect: explicit open/close obey;
-		// absent keeps prior intent (persists across reconnect/morph).
-		// Reflected before #bindStructure mirrors it into aria-expanded:
-		// a close command left on the host defeats the `:not([open])` CSS.
+		// On connect, an explicit open/close command is obeyed; an absent
+		// one keeps prior intent (persists across reconnect/morph).
+		// Reflected before #bindStructure mirrors it into aria-expanded,
+		// because a close command left on the host defeats the
+		// `:not([open])` CSS.
 		const cmd = openCommand(this);
 		if (cmd === "open") this.#openIntent = true;
 		else if (cmd === "close") this.#openIntent = false;
@@ -66,7 +67,7 @@ export class NeoMenu extends HTMLElement {
 		document.addEventListener("pointerdown", this.#onDocPointerDown, true);
 		document.addEventListener("focusin", this.#onDocFocusIn, true);
 		window.addEventListener("resize", this.#reposition);
-		// A fixed panel detaches from its anchor on scroll, so dismiss.
+		// Dismiss on scroll, because a fixed panel detaches from its anchor.
 		// Capture phase to catch ancestor scrolls too.
 		window.addEventListener("scroll", this.#onScroll, true);
 
@@ -84,7 +85,7 @@ export class NeoMenu extends HTMLElement {
 		this.#ready = true;
 	}
 
-	// State → attribute, guarded so it isn't read back as a command.
+	// State -> attribute, guarded so it isn't read back as a command.
 	#reflectOpen(): void {
 		if (this.hasAttribute("open")) return;
 		this.#reflectingOpen = true;
@@ -155,8 +156,9 @@ export class NeoMenu extends HTMLElement {
 		}
 		this.panel = panel;
 
-		// Resolve the host. The contract is a direct child of the host, so
-		// the parent element is it; closest() tolerates a wrapper element.
+		// Resolve the host. The contract is a direct child of the host, which
+		// makes the parent element the host; closest() tolerates a wrapper
+		// element.
 		const host = (this.parentElement?.closest("neo-button, neo-contextmenu") as HTMLElement | null) ?? null;
 		this.#hostEl = host;
 
@@ -175,7 +177,7 @@ export class NeoMenu extends HTMLElement {
 		}
 		// context-menu host: it calls openAtPoint() and sets returnFocusEl;
 		// no trigger listeners here. unbindStructure() cleared anchorEl;
-		// the point span survives rebinds, so restore it or a post-morph
+		// the point span survives rebinds. Restore it or a post-morph
 		// reposition snaps to 0,0.
 		if (!this.#anchorEl && this.#pointAnchor) {
 			this.#anchorEl = this.#pointAnchor;
@@ -217,7 +219,7 @@ export class NeoMenu extends HTMLElement {
 			this.#applyEffectiveMode();
 			this.#syncCssBackedAttrs();
 			// The morph stripped `open`; bindStructure already re-projected
-			// the new authored rows. Drive off intent, not the attribute.
+			// the new authored rows. Act on intent, not the attribute.
 			if (this.#openIntent) {
 				this.#reflectOpen();
 				// New panel inserted while open replays the @starting-style
@@ -233,7 +235,7 @@ export class NeoMenu extends HTMLElement {
 		}
 	}
 
-	// Drop the new panel's transition for one frame so a recovery
+	// Drop the new panel's transition for 1 frame so a recovery
 	// rebuild snaps in place; restore so real open/close still animate.
 	#suppressEntryAnimation(): void {
 		const panel = this.panel;
@@ -335,7 +337,7 @@ export class NeoMenu extends HTMLElement {
 		else this.#applyOpen();
 	}
 
-	// Open anchored at a viewport point: the context-menu entry path.
+	// Open anchored at a viewport point (the context-menu entry path).
 	// A fixed 1px element feeds the shared positionPanel unchanged.
 	openAtPoint(x: number, y: number): void {
 		if (!this.#pointAnchor) {
@@ -474,9 +476,9 @@ export class NeoMenu extends HTMLElement {
 		while (item && item.parentElement !== this.panel) item = item.parentElement;
 		if (!(item instanceof HTMLElement) || !this.#items.includes(item)) return;
 		if (this.dataset.modeEffective === "push") {
-			// Push opens submenus on click, not hover. Skip the open submenu:
-			// its pushed panel owns its own hover focus, and refocusing its
-			// trigger here would fight that.
+			// Push opens submenus on click, not hover. Skip the open submenu,
+			// because its pushed panel owns its own hover focus and
+			// refocusing its trigger here would conflict with that.
 			if (item.tagName === "NEO-SUBMENU" && item.hasAttribute("open")) return;
 		} else {
 			for (const it of this.#items) {
@@ -489,7 +491,7 @@ export class NeoMenu extends HTMLElement {
 			}
 		}
 		// Roving focus follows the pointer in both modes; without it the
-		// visual focus strands on the previously focused row, so a hovered
+		// visual focus stays on the previously focused row and a hovered
 		// item lights up alongside it.
 		if (document.activeElement !== item && this.panel?.contains(item)) {
 			item.focus({ preventScroll: true });
@@ -515,7 +517,7 @@ export class NeoMenu extends HTMLElement {
 			if (target?.closest("neo-contextmenu") === this.#hostEl) return;
 		}
 		// Scoped light-dismiss: inside a <neo-boundary>, ignore presses
-		// outside it (e.g. surrounding UI driving the menu).
+		// outside it (e.g. surrounding UI controlling the menu).
 		const boundary = scopingBoundary(this, "dismiss");
 		if (boundary && !eventEnters(e, boundary)) return;
 		this.hide();

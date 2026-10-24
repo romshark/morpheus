@@ -8,10 +8,10 @@ package neo
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
-// ToggleVariant is the visual style enum for <neo-toggle>. Mirrors
-// ButtonVariant; the two share styling rules, but the type stays
-// distinct so the variant set can diverge without churning Button's
-// API. Zero value emits no `variant` attribute.
+// ToggleVariant is the visual style enum for <neo-toggle>.
+// Mirrors [ButtonVariant]; the 2 share styling rules, but the type stays
+// distinct so the variant set can diverge without changing [Button]'s API.
+// Zero value emits no `variant` attribute.
 type ToggleVariant string
 
 const (
@@ -31,7 +31,7 @@ type ToggleOpts struct {
 }
 
 // Toggle prerenders <neo-toggle> with role/aria-pressed/tabindex
-// matching the upgraded state, so the host paints once with no flicker.
+// matching the upgraded state, which lets the host paint once with no flicker.
 func Toggle(opts ToggleOpts) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
@@ -163,8 +163,8 @@ func ToggleAttrs(opts ToggleOpts, attrs templ.Attributes) templ.Component {
 	})
 }
 
-// ToggleOff / ToggleOn mark the two state faces. The host shows the
-// matching span for the current pressed state. Place both inside Toggle.
+// ToggleOff / [ToggleOn] mark the 2 state faces. The host shows the
+// matching span for the current pressed state. Place both inside [Toggle].
 func ToggleOff() templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context

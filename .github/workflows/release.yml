@@ -1,38 +1,37 @@
 # Publish a tagged release and make it available on the jsDelivr CDN.
 #
-# jsDelivr serves files straight out of a GitHub tag, so /min/ (the tracked
+# jsDelivr serves files straight out of a GitHub tag. /min/ (the tracked
 # deliverable directory) is reachable at
 #   https://cdn.jsdelivr.net/gh/romshark/morpheus@<tag>/min/<file>
-# the moment the tag is pushed. There is no upload step. What this workflow
-# guarantees instead:
-#   1. VERSION matches the tag, so the banner esbuild stamps into every
-#      bundle and the version the site renders agree with what is served.
+# the moment the tag is pushed. There is no upload step.
+# What this workflow guarantees instead:
+#   1. VERSION matches the tag, which makes the banner esbuild stamps into
+#      every bundle and the version the site renders agree with what is served.
 #   2. The release notes are the tag's section of CHANGELOG.md.
 #      A tag without a section or compare link fails before anything is built.
 #   3. /min/ at the tag rebuilds byte-identically from the tagged sources,
-#      so the CDN cannot serve an artifact that no commit produces.
+#      which keeps the CDN from serving an artifact that no commit produces.
 #   4. The pinned CDN URLs actually resolve before the release is announced.
 #   5. The mutable aliases (@latest, @<major>.<minor>) are purged, since
 #      jsDelivr caches a range-to-tag resolution for up to 7 days and would
 #      otherwise keep pointing at the previous release.
 #
-# Pinned URLs (@v0.1.0) are immutable and cached permanently; only the
-# aliases need purging.
+# Pinned URLs (@v0.1.0) are immutable and cached permanently;
+# only the aliases need purging.
 name: Release
 
 on:
   push:
     tags: ["v*"]
-  # Re-run the publish/purge for a tag that already exists, e.g. after a
-  # failed CDN propagation check.
+  # Re-run the publish/purge for a tag that already exists,
+  # e.g. after a failed CDN propagation check.
   workflow_dispatch:
     inputs:
       tag:
         description: "Existing tag to (re-)publish"
         required: true
 
-# gh release create writes to the repo; gh workflow run dispatches the
-# Pages deploy.
+# gh release create writes to the repo; gh workflow run dispatches the Pages deploy.
 permissions:
   contents: write
   actions: write
@@ -98,8 +97,8 @@ jobs:
         run: pnpm install --frozen-lockfile
         working-directory: web
 
-      # The CDN serves the committed bytes, so those bytes must be what the
-      # tagged sources produce. CI enforces this on main; re-check here
+      # Because the CDN serves the committed bytes, those bytes must be what
+      # the tagged sources produce. CI enforces this on main; re-check here
       # because a tag can point at any commit.
       - name: Committed /min/ rebuilds from the tagged sources
         run: pnpm run build
@@ -136,8 +135,8 @@ jobs:
           fi
 
       # jsDelivr resolves a gh tag through the GitHub API and caches the
-      # negative result briefly, so a just-pushed tag can 404 for a few
-      # seconds. Retry before failing.
+      # negative result briefly. A just-pushed tag can 404 for a few seconds.
+      # Retry before failing.
       - name: Pinned CDN URLs resolve
         run: |
           fail=0
@@ -158,8 +157,8 @@ jobs:
           exit $fail
 
       # Range URLs (@latest, @0.1) keep resolving to the previous tag for up
-      # to 7 days otherwise. Purging is best-effort: the pinned URLs above
-      # are the documented entry points, and purge.jsdelivr.net rate-limits.
+      # to 7 days otherwise. Purging is best-effort, because the pinned URLs
+      # are the documented entry points and purge.jsdelivr.net rate-limits.
       - name: Purge the mutable jsDelivr aliases
         continue-on-error: true
         run: |

@@ -251,7 +251,7 @@ func PageSidebar(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</code> and drive <code>--neo-sidebar-width</code> from <code>--neo-resizable-width</code> so the sidebar follows the wrapper's width. The wrapper's <code>min-width</code> / <code>max-width</code> set the drag bounds (here 12rem to 22rem). Drag the inner edge of either sidebar to try it.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</code> and set <code>--neo-sidebar-width</code> from <code>--neo-resizable-width</code> so the sidebar follows the wrapper's width. The wrapper's <code>min-width</code> / <code>max-width</code> set the drag bounds (here 12rem to 22rem). Drag the inner edge of either sidebar to try it.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -330,7 +330,7 @@ func PageSidebar(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<p class=\"demo-note\">Mobile-style drag-to-close, on by default in overlay mode. A single-touch horizontal swipe in the closing direction follows the finger; release past the threshold or a fast flick closes, otherwise it snaps back.</p><ul class=\"demo-note\"><li>The threshold defaults to half the host's width; pass a CSS length (here <code>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<p class=\"demo-note\">Mobile-style drag-to-close, on by default in overlay mode. A single-touch horizontal swipe in the closing direction follows the finger; release past the threshold or a fast flick closes, otherwise it snaps back.</p><ul class=\"demo-note\"><li>The threshold defaults to 1/2 the host's width; pass a CSS length (here <code>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -356,7 +356,7 @@ func PageSidebar(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</code> to opt out.</li><li>Try the preview on a touchscreen, or with browser device-toolbar touch emulation.</li></ul><p class=\"demo-note\">The gesture stands down for descendants that own a horizontal gesture of their own: horizontally scrollable containers, range inputs, sliders, resizable handles, color fields, or any element marked <code>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</code> to opt out.</li><li>Try the preview on a touchscreen, or with browser device-toolbar touch emulation.</li></ul><p class=\"demo-note\">The gesture stands down for descendants that own a horizontal gesture of their own, such as horizontally scrollable containers, range inputs, sliders, resizable handles, color fields, or any element marked <code>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -369,7 +369,7 @@ func PageSidebar(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</code>, and only engages in overlay mode (it has no meaning for the in-flow wide-mode column). The <code>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</code>. It only engages in overlay mode (it has no meaning for the in-flow wide-mode column). The <code>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -382,7 +382,7 @@ func PageSidebar(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</code> in the panel below demonstrates this: dragging the slider thumb horizontally never closes the sidebar.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</code> in the panel below demonstrates this. Dragging the slider thumb horizontally never closes the sidebar.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -474,7 +474,7 @@ func PageSidebar(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</code>: the sidebar snapshots it on connect and restores it on close, so every open loads fresh (same slot pattern as <code>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</code>. The sidebar snapshots it on connect and restores it on close, which makes every open load fresh (same slot pattern as <code>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -584,7 +584,7 @@ func PageSidebar(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "</code> slot, so close/reopen restores it; on success the server morphs <code>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "</code> slot and close/reopen restores it; on success the server morphs <code>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -699,8 +699,8 @@ func PageSidebar(morpheusVersion string) templ.Component {
 }
 
 // sidebarSimulator loads the per-demo handler module under
-// /static/sim/sidebar/ that powers the async-loading example (also
-// surfaced in its Server-script tab via sidebarAsyncScript).
+// /static/sim/sidebar/ that serves the async-loading example (also
+// surfaced in its Server-script tab via [sidebarAsyncScript]).
 func sidebarSimulator() templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
@@ -746,7 +746,7 @@ var sidebarDoc = ComponentDoc{
 				"On by default; set <code>touch-dismiss=\"off\"</code> " +
 				"(or <code>\"false\"</code> / <code>\"no\"</code> / " +
 				"<code>\"none\"</code>) to disable. The default close " +
-				"threshold is half the host's width; pass a CSS length " +
+				"threshold is 1/2 the host's width; pass a CSS length " +
 				"(e.g. <code>120</code>, <code>120px</code>, or <code>40%</code>) to pin it " +
 				"explicitly. Touches that start on a horizontally-scrollable " +
 				"child or on an element that owns a horizontal gesture " +
@@ -756,7 +756,7 @@ var sidebarDoc = ComponentDoc{
 	},
 	States: []DocState{
 		{Name: "overlay",
-			Description: templ.Raw("Set while the sidebar renders as a fixed overlay: <code>overlay</code> is pinned, or the parent's width sits at or below <code>overlay-breakpoint</code>. Page CSS branches its shell layout on this.")},
+			Description: templ.Raw("Set while the sidebar renders as a fixed overlay, which happens when <code>overlay</code> is pinned or the parent's width sits at or below <code>overlay-breakpoint</code>. Page CSS branches its shell layout on this.")},
 		{Name: "dragging",
 			Description: templ.Raw("Set while a touch-dismiss drag is in flight.")},
 	},
@@ -800,7 +800,7 @@ var sidebarDoc = ComponentDoc{
 		{Name: "--neo-sidebar-minimized-width", Default: "3.5rem",
 			Description: templ.Raw("Width of the minimized wide-mode rail.")},
 		{Name: "--neo-sidebar-z-index", Default: "60",
-			Description: templ.Raw("Stacking index in overlay mode; the backdrop sits one below.")},
+			Description: templ.Raw("Stacking index in overlay mode; the backdrop sits 1 below.")},
 		{Name: "--neo-sidebar-backdrop-bg", Default: "rgba(0, 0, 0, 0.45)",
 			Description: templ.Raw("Overlay backdrop color.")},
 	},

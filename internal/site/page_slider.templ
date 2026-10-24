@@ -41,7 +41,7 @@ templ PageSlider(morpheusVersion string) {
 			}
 			<p class="demo-note">
 				Each
-				<code>{ `<span data-neo-slider-mark="…">` }</code>
+				<code>{ `<span data-neo-slider-mark="...">` }</code>
 				child renders an anchor dot on the rail at that
 				value plus a label beneath. The dot and label
 				flip to their active colour once the slider's
@@ -63,8 +63,8 @@ templ PageSlider(morpheusVersion string) {
 				Labels that overlap or sit less than
 				<code>1ch</code> apart collapse automatically.
 				Hover a hidden label to reveal it. The highest
-				active mark stays visible as the value moves, so
-				the rail still identifies the current stage.
+				active mark stays visible as the value moves and
+				identifies the current stage on the rail.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
 				Width:          "20rem",
@@ -80,7 +80,7 @@ templ PageSlider(morpheusVersion string) {
 			<p class="demo-note">
 				Click the value, type a new number, and press
 				<neo-kbd>Enter</neo-kbd> (or click away). Try entering
-				<code>9</code> below: the slider clips it to
+				<code>9</code> below. The slider clips it to
 				<code>10</code> on commit. <code>500</code> clips
 				to <code>200</code>. Letters and other unexpected
 				characters never enter the field.
@@ -98,7 +98,7 @@ templ PageSlider(morpheusVersion string) {
 			}
 			<p class="demo-note">
 				<code>{ `step="0.1"` }</code> snaps the
-				value to one decimal place, so the value display
+				value to 1 decimal place. The value display
 				and the value bubble both show <code>3.4</code>,
 				not <code>3.4000000000000004</code>. The
 				<code>.</code> key is allowed in the value field
@@ -143,15 +143,15 @@ templ PageSlider(morpheusVersion string) {
 				children, and their contents are cloned into the
 				rendered anchor wrappers and the draggable thumb
 				on every render. The example below turns the
-				slider into a five-star rating: each anchor is an
+				slider into a 5-star rating. Each anchor is an
 				outline <code>{ `<neo-icon name="star">` }</code>
 				that becomes a filled accent dot once it sits at
 				or below the current value, and the thumb is a
 				larger filled star that glides between them. The
 				cloned glyph lives a shadow boundary too deep for
-				page CSS to restyle, so an active anchor paints its
-				solid dot from the dot's own masked background.
-				Stars are clickable like any other anchor, so a
+				page CSS to restyle. An active anchor paints its
+				solid dot from the dot's own masked background instead.
+				Stars are clickable like any other anchor. A
 				tap on the third star sets the rating to 3.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
@@ -181,7 +181,7 @@ templ PageSlider(morpheusVersion string) {
 				<li>
 					<code>::part(header)</code> is positioned
 					absolutely over the rail to centre the value.
-					<code>hide-tooltip</code> drops the now-redundant
+					<code>hide-tooltip</code> drops the redundant
 					thumb bubble, and the readout is display-only
 					because the header overlays the rail.
 				</li>
@@ -229,7 +229,7 @@ templ PageSlider(morpheusVersion string) {
 				attribute and set <code>hide-value</code> to drop
 				the entire header row. The thumb still focuses on
 				<neo-kbd>Tab</neo-kbd> and the value bubble still pops on
-				hover/press, so the control stays operable; this
+				hover/press, which keeps the control operable. This
 				is the variant for inline placements where the
 				value is shown elsewhere or doesn't need to be
 				edited as text.
@@ -267,7 +267,7 @@ templ PageSlider(morpheusVersion string) {
 			}
 			<p class="demo-note">
 				When <code>min</code> is below
-				zero the value field accepts a leading
+				0 the value field accepts a leading
 				<code>-</code>. The fill grows from the left edge
 				to the current value (the slider doesn't draw a
 				zero-anchored bipolar fill).
@@ -309,10 +309,10 @@ templ PageSlider(morpheusVersion string) {
 				fat-morph the page at any moment, and a server reporting
 				a new position just re-emits the slider with a new
 				<code>value</code>. The rail and thumb live in the
-				component's shadow root, so a morph of the bare light
+				component's shadow root. A morph of the bare light
 				host only changes the <code>value</code> attribute and
-				never touches the thumb or fill nodes, so the
-				<code>easing</code> transition eases them to the new
+				never touches the thumb or fill nodes, which lets the
+				<code>easing</code> transition ease them to the new
 				value. Autoplay cycles the states below, with no signals or
 				morph hints, and the thumb glides between 0%, 30%, and
 				100% just the same.
@@ -365,7 +365,7 @@ var sliderDoc = ComponentDoc{
 	},
 	Events: []DocEvent{
 		{Name: "neo-slider-input", Detail: "{ value: number }", Bubbles: true,
-			Description: templ.Raw("Fires on every value change during a pointer drag: the live value before commit.")},
+			Description: templ.Raw("Fires on every value change during a pointer drag, with the live value before commit.")},
 		{Name: "neo-slider-change", Detail: "{ value: number }", Bubbles: true,
 			Description: templ.Raw("Fires on commit (drag end, mark click, keyboard, or edit), only if the value changed. Bind this too for mark clicks and keyboard.")},
 	},

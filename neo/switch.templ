@@ -8,7 +8,7 @@ type SwitchOpts struct {
 }
 
 // Switch prerenders <neo-switch> with role/aria-checked/tabindex
-// matching the upgraded state, so the host paints once with no flicker.
+// matching the upgraded state, which lets the host paint once with no flicker.
 templ Switch(opts SwitchOpts) {
 	@SwitchAttrs(opts, nil)
 }

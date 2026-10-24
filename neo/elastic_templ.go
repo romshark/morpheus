@@ -13,8 +13,8 @@ type ElasticOpts struct {
 	// (the transition still animates). The host is open by default.
 	Collapsed Attr[bool]
 	// ResetOnCollapse swaps the content back to the
-	// [data-neo-async-placeholder] template after a completed collapse,
-	// so re-expanding reloads from the placeholder (e.g. re-fetches).
+	// [data-neo-async-placeholder] template after a completed collapse.
+	// Re-expanding then reloads from the placeholder (e.g. re-fetches).
 	ResetOnCollapse Attr[bool]
 }
 

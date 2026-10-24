@@ -19,11 +19,10 @@ func renderExampleHTML(c templ.Component) string {
 }
 
 // collapseInlinedIcons restores each <neo-icon> to the form an author
-// writes. neo.Icon server-inlines the SVG body (tagged with
-// data-neo-icon-base) to kill the first-paint fetch flash; in a copy-paste
-// source tab that inlined markup is noise, so drop the SVG and the
-// server-only base hint, leaving <neo-icon name="…">. Tokens outside a
-// <neo-icon> are emitted verbatim so bare boolean attributes survive.
+// writes. neo.Icon server-inlines the SVG body (tagged with data-neo-icon-base)
+// to avoid the first-paint fetch flash. In a copy-paste source tab that inlined markup
+// is noise. Drop the SVG and the server-only base hint, leaving <neo-icon name="...">.
+// Tokens outside a <neo-icon> are emitted verbatim so bare boolean attributes survive.
 func collapseInlinedIcons(s string) string {
 	if !strings.Contains(s, "<neo-icon") {
 		return s

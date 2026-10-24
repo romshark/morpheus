@@ -1,4 +1,4 @@
-// Behavior-only, no UI: while connected it installs one key listener on a
+// Behavior-only, no UI. While connected it installs one key listener on a
 // target element (its parent by default) and dispatches a bubbling
 // CustomEvent on a matched chord.
 
@@ -8,8 +8,8 @@ import { type Alternative, type Chord, IS_APPLE, parseKeys } from "../platform";
 const EVENT_NAME = "neo-keys";
 const DEFAULT_SEQUENCE_TIMEOUT = 1000;
 
-// Input types that are not text entry, so bare-key shortcuts stay live
-// when focus is on them.
+// Input types that are not text entry.
+// Bare-key shortcuts stay live when focus is on them.
 const NON_TEXT_INPUTS = new Set(["button", "checkbox", "radio", "range", "color", "file", "submit", "reset", "image"]);
 
 function chordMatches(c: Chord, e: KeyboardEvent): boolean {
@@ -18,8 +18,8 @@ function chordMatches(c: Chord, e: KeyboardEvent): boolean {
 	if (e.metaKey !== wantMeta) return false;
 	if (e.ctrlKey !== wantCtrl) return false;
 	if (e.altKey !== c.alt) return false;
-	// Shift is enforced only when declared, so `?` matches regardless of
-	// the layout's shift state while `shift+?` requires it.
+	// Shift is enforced only when declared. `?` matches regardless of the
+	// layout's shift state while `shift+?` requires it.
 	if (c.shift && !e.shiftKey) return false;
 	return e.key.toLowerCase() === c.key;
 }

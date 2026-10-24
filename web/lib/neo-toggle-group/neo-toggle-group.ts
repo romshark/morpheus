@@ -7,13 +7,13 @@ function joinValues(values: string[]): string {
 }
 
 export class NeoToggleGroup extends HTMLElement {
-	// `orientation` is a CSS-only layout hook (see neo-toggle-group.css);
-	// arrow-key nav is orientation-agnostic, so JS never reads it.
+	// `orientation` is a CSS-only layout hook (see neo-toggle-group.css).
+	// JS never reads it because arrow-key nav is orientation-agnostic.
 	static readonly observedAttributes = ["value"];
 
 	#ready = false;
 	#applyingValue = false;
-	// Command keep-on-absent contract: the value list is the source of truth.
+	// Command keep-on-absent contract. The value list is the source of truth.
 	// A morph stripping `value` (newValue null) must not clear selection;
 	// re-reflect this kept value instead of treating absence as a command.
 	#valueIntent: string | null = null;
@@ -99,9 +99,9 @@ export class NeoToggleGroup extends HTMLElement {
 		});
 	};
 
-	// Connect/morph seed: pressed state follows the kept value list once the group
+	// Connect/morph seed. Pressed state follows the kept value list once the group
 	// is value-controlled, else `value` is derived from children. A morph
-	// stripping `value` keeps the intent, so absence here means uncontrolled
+	// stripping `value` keeps the intent. Absence here means uncontrolled
 	// (never had a value), not a command to clear. Never dispatches.
 	#resync() {
 		this.#syncHostRole();
@@ -132,9 +132,9 @@ export class NeoToggleGroup extends HTMLElement {
 	attributeChangedCallback(name: string, _oldValue: string | null, newValue: string | null) {
 		if (!this.#ready) return;
 		if (name === "value") {
-			// Our own re-reflect write (keep-on-absent below); not a command.
+			// Our own re-reflect write (keep-on-absent branch); not a command.
 			if (this.#applyingValue) return;
-			// Fat morph dropped `value`: no command, keep the current value list.
+			// Fat morph dropped `value`. No command; keep the current value list.
 			// Re-reflect it so the attribute stays the state mirror.
 			if (newValue === null) {
 				this.#reflectValue(this.#valueIntent ?? "");
@@ -160,9 +160,9 @@ export class NeoToggleGroup extends HTMLElement {
 		return parseValues(this.#valueIntent);
 	}
 
-	// Single writer: the value list is the source of truth. Updates the kept intent
+	// Single writer. The value list is the source of truth. Updates the kept intent
 	// and reflects it to the attribute (guarded so the reflective write isn't
-	// read back as a command), so internal getAttribute("value") reads stay
+	// read back as a command), which keeps internal getAttribute("value") reads
 	// correct. `dispatch` emits the change event for user-driven toggles.
 	#writeValue(next: string, dispatch: boolean, values?: string[]) {
 		this.#valueIntent = next;

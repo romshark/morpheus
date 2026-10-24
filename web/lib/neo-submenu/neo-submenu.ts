@@ -38,8 +38,8 @@ export class NeoSubmenu extends HTMLElement {
 	connectedCallback() {
 		if (this.#ready) return;
 		// Reads the `open` command on connect; absent keeps prior intent.
-		// Reflected before #bindStructure mirrors it into aria-expanded:
-		// a close command left on the host defeats the `:not([open])` CSS.
+		// Reflected before #bindStructure mirrors it into aria-expanded,
+		// because a close command left on the host defeats the `:not([open])` CSS.
 		const cmd = openCommand(this);
 		if (cmd === "open") this.#openIntent = true;
 		else if (cmd === "close") this.#openIntent = false;
@@ -53,9 +53,9 @@ export class NeoSubmenu extends HTMLElement {
 		window.addEventListener("resize", this.#reposition);
 		window.addEventListener("scroll", this.#reposition, true);
 
-		// Detect a Datastar fat-morph wiping our generated trigger row +
-		// panel: server emits authored children directly under the host,
-		// morph deletes our scaffolding. Re-run bindStructure in place.
+		// Detect a Datastar fat-morph wiping our generated trigger row + panel.
+		// The server emits authored children directly under the host,
+		// and the morph deletes our scaffolding. Re-run bindStructure in place.
 		this.#hostObserver = new MutationObserver(() => this.#checkForReset());
 		this.#hostObserver.observe(this, { childList: true });
 
@@ -63,13 +63,12 @@ export class NeoSubmenu extends HTMLElement {
 		this.#ready = true;
 	}
 
-	// Bind (or re-bind) trigger row + panel + back row. Two paths:
-	//   - Reuse: prior scaffolding still in place (e.g. after an
-	//     element-move from an ancestor's bindStructure). Re-acquire
-	//     refs and re-wire listeners.
-	//   - Build: scaffolding missing/detached (initial connect, or
-	//     fat-morph wiped it). Build row/panel/back and move authored
-	//     items into the panel.
+	// Bind (or re-bind) trigger row + panel + back row:
+	//   - Reuse: prior scaffolding still in place
+	//     (e.g. after an element-move from an ancestor's bindStructure).
+	//     Re-acquire refs and re-wire listeners.
+	//   - Build: scaffolding missing/detached (initial connect, or fat-morph wiped it).
+	//     Build row/panel/back and move authored items into the panel.
 	#bindStructure(): void {
 		this.#unbindStructure();
 
@@ -174,9 +173,9 @@ export class NeoSubmenu extends HTMLElement {
 		// Drop refs only; never .remove() the row/panel here.
 		// disconnectedCallback runs during element-move (ancestor's
 		// panel.appendChild) while our scaffolding is still connected
-		// with items inside; removing it would orphan them. The morph
-		// already removes any scaffolding it wiped; a checkForReset
-		// re-bind only sees detached refs.
+		// with items inside; removing it would orphan them.
+		// The morph already removes any scaffolding it wiped;
+		// a checkForReset re-bind only sees detached refs.
 		this.#triggerRow = null;
 		this.#labelSpan = null;
 		this.#backRow = null;
@@ -198,8 +197,8 @@ export class NeoSubmenu extends HTMLElement {
 		this.#rebuilding = true;
 		try {
 			this.#bindStructure();
-			// The morph stripped `open` and destroyed the focused row; drive
-			// off intent (not the attribute) to re-open and reseat focus.
+			// The morph stripped `open` and destroyed the focused row;
+			// use the intent (not the attribute) to re-open and reseat focus.
 			if (this.#openIntent) {
 				this.#reflectOpen();
 				this.#triggerRow?.setAttribute("aria-expanded", "true");
@@ -211,7 +210,7 @@ export class NeoSubmenu extends HTMLElement {
 		}
 	}
 
-	// State → attribute, guarded so it isn't read back as a command.
+	// State -> attribute, guarded so it isn't read back as a command.
 	#reflectOpen(): void {
 		if (this.hasAttribute("open")) return;
 		this.#reflectingOpen = true;
@@ -371,18 +370,18 @@ export class NeoSubmenu extends HTMLElement {
 	#focusFirst(): void {
 		const items = this.#currentItems();
 		if (items.length === 0) return;
-		// APG menu pattern lands initial focus on the first menuitem, not
-		// the back row; skip past it on open.
+		// APG menu pattern lands initial focus on the first menuitem,
+		// not the back row; skip past it on open.
 		const first = items.find((el) => el !== this.#backRow) ?? items[0];
-		// Push mode swaps this panel in over the parent's rows, so the pointer
+		// Push mode swaps this panel in over the parent's rows, and the pointer
 		// may already rest on one. Land focus there (the single highlight) so
 		// it tracks the mouse instead of snapping to the first row.
 		requestAnimationFrame(() => (this.#rowUnderPointer() ?? first)?.focus());
 	}
 
 	// The row the pointer currently sits on, or null. `:hover` is recomputed
-	// when rows appear under a stationary cursor, so this is accurate inside
-	// the post-open rAF without tracking pointer coordinates.
+	// when rows appear under a stationary cursor, which makes this accurate
+	// inside the post-open rAF without tracking pointer coordinates.
 	#rowUnderPointer(): HTMLElement | null {
 		if (!this.#panel) return null;
 		const hovered = this.#panel.querySelectorAll<HTMLElement>(":hover");
@@ -395,8 +394,8 @@ export class NeoSubmenu extends HTMLElement {
 		return null;
 	}
 
-	// Morph recovery: re-focus the row whose value matches the pre-morph
-	// focus, else the first item.
+	// Morph recovery. Re-focus the row whose value matches the pre-morph focus,
+	// else the first item.
 	#restoreFocusOrFirst(): void {
 		const items = this.#currentItems();
 		if (items.length === 0) return;
@@ -438,7 +437,7 @@ export class NeoSubmenu extends HTMLElement {
 
 	#onTriggerHover = () => {
 		if (boolAttr(this, "disabled", false)) return;
-		// Push mode: hover would replace the panel, so open via click/ArrowRight only.
+		// In push mode hover would replace the panel. Open via click/ArrowRight only.
 		const root = this.#parentMenu();
 		if (root?.dataset.modeEffective === "push") return;
 		this.show();
@@ -500,7 +499,7 @@ export class NeoSubmenu extends HTMLElement {
 		let item: Element | null = target;
 		while (item && item.parentElement !== this.#panel) item = item.parentElement;
 		if (!(item instanceof HTMLElement)) return;
-		// The back row is a focus target too (push mode), so it highlights on
+		// The back row is a focus target too (push mode) and highlights on
 		// hover via the same focus-driven rule as the menu rows.
 		if (this.#items.includes(item)) {
 			if (this.#parentMenu()?.dataset.modeEffective === "push") {
@@ -530,7 +529,7 @@ export class NeoSubmenu extends HTMLElement {
 	#onDocPointerDown = (e: PointerEvent) => {
 		if (!this.hasAttribute("open")) return;
 		if (this.contains(e.target as Node)) return;
-		// Scoped light-dismiss: inside a <neo-boundary>, a press outside the
+		// Scoped light-dismiss. Inside a <neo-boundary>, a press outside the
 		// region doesn't collapse the fly-out, matching the parent <neo-menu>.
 		const boundary = scopingBoundary(this, "dismiss");
 		if (boundary && !eventEnters(e, boundary)) return;
@@ -543,8 +542,8 @@ export class NeoSubmenu extends HTMLElement {
 
 	#position(): void {
 		if (!this.#triggerRow || !this.#panel) return;
-		// Push mode: CSS overlays the parent panel, so skip inline top/left
-		// so CSS wins without an !important fight.
+		// In push mode CSS overlays the parent panel.
+		// Skip inline top/left so CSS applies without an !important fight.
 		const root = this.#parentMenu();
 		if (root?.dataset.modeEffective === "push") {
 			this.#panel.style.removeProperty("top");
@@ -557,9 +556,8 @@ export class NeoSubmenu extends HTMLElement {
 		const parent = this.#parentMenu();
 		const clamp =
 			boolAttr(this, "clamp-placement", false) || (parent ? boolAttr(parent, "clamp-placement", false) : false);
-		// Inherits the ancestor <neo-menu>'s --neo-menu-min-fit-*
-		// through the cascade; submenus typically share the root's
-		// policy without setting their own.
+		// Inherits the ancestor <neo-menu>'s --neo-menu-min-fit-* through the cascade;
+		// submenus typically share the root's policy without setting their own.
 		const minFitHeight = resolveCssLengthPxOrContent(this, "--neo-menu-min-fit-height", "content");
 		const minFitWidth = resolveCssLengthPxOrContent(this, "--neo-menu-min-fit-width", "content");
 		const edgeOffset = resolveCssLengthPx(this, "--neo-menu-screen-offset");

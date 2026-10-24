@@ -9,16 +9,16 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 // AsyncPlaceholder marks the loading-state region of an async component
-// (Select, Combobox, Popover, Drawer, Sidebar). The host shows it while a
-// load is in flight and restores it before a retry. Spread onto the
-// element so the author keeps its tag (div, neo-layout, template).
+// ([Select], [Combobox], [Popover], [Drawer], [Sidebar]). The host shows it
+// while a load is in flight and restores it before a retry. Spread onto
+// the element so the author keeps its tag (div, neo-layout, template).
 func AsyncPlaceholder() templ.Attributes {
 	return templ.Attributes{"data-neo-async-placeholder": true}
 }
 
-// EmptyResults marks the no-matches region of an option list (Select,
-// Combobox, suggest TextInput). The host shows it when the search yields
-// nothing. Nest an EmptyQuery to echo the current query.
+// EmptyResults marks the no-matches region of an option list
+// ([Select], [Combobox], suggest [TextInput]). The host shows it when the search
+// yields nothing. Nest an [EmptyQuery] to echo the current query.
 func EmptyResults() templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
@@ -113,7 +113,7 @@ func EmptyResultsAttrs(attrs templ.Attributes) templ.Component {
 }
 
 // EmptyQuery is the span the host fills with the current search text.
-// Place it inside EmptyResults; it takes no children of its own.
+// Place it inside [EmptyResults]; it takes no children of its own.
 func EmptyQuery() templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context

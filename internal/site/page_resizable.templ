@@ -39,8 +39,8 @@ templ PageResizable(morpheusVersion string) {
 				Bottom-right corner
 			}
 			<p class="demo-note">
-				The textarea pattern: a single corner handle for when
-				the surrounding layout pins one edge and only the
+				A single corner handle, as on a textarea, for when
+				the surrounding layout pins 1 edge and only the
 				opposite corner should grow.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
@@ -55,7 +55,7 @@ templ PageResizable(morpheusVersion string) {
 				Edges only
 			}
 			<p class="demo-note">
-				All four edge handles, no corners, so each axis moves
+				All 4 edge handles and no corners. Each axis moves
 				independently and the cursor is always single-axis.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
@@ -67,11 +67,11 @@ templ PageResizable(morpheusVersion string) {
 				@examples.ResizableEdges()
 			}
 			@anchoredH3("all-eight-handles") {
-				All eight handles
+				All 8 handles
 			}
 			<p class="demo-note">
-				Every edge and corner. The corners (NW–SE / NE–SW
-				cursors) sit above the edges so they win on overlap.
+				Every edge and corner. The corners (NW-SE / NE-SW
+				cursors) sit above the edges and take precedence where they overlap.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
 				StageMinHeight: "max-content",
@@ -86,7 +86,7 @@ templ PageResizable(morpheusVersion string) {
 			}
 			<p class="demo-note">
 				A vertical sash. The layout fixes the host's width;
-				only the bottom edge moves, so the cursor stays
+				only the bottom edge moves, which keeps the cursor at
 				<code>ns-resize</code>.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
@@ -101,8 +101,8 @@ templ PageResizable(morpheusVersion string) {
 				Horizontal only
 			}
 			<p class="demo-note">
-				A horizontal sash, symmetric to the vertical case: only
-				the right edge moves, cursor stays <code>ew-resize</code>.
+				A horizontal sash, symmetric to the vertical case. Only
+				the right edge moves and the cursor stays <code>ew-resize</code>.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
 				StageMinHeight: "max-content",
@@ -118,7 +118,7 @@ templ PageResizable(morpheusVersion string) {
 			<p class="demo-note">
 				<code>step-horizontal</code> and <code>step-vertical</code>
 				snap each axis to a multiple of their pixel value while
-				dragging, so the box resizes one grid cell at a time
+				dragging. The box resizes one grid cell at a time
 				instead of continuously. Drag the corner over the grid to
 				see it jump.
 			</p>
@@ -169,7 +169,7 @@ var resizableDoc = ComponentDoc{
 		{Name: "resizing",
 			Description: templ.Raw("Set while a handle drag is in flight.")},
 		{Name: "handle-<dir>",
-			Description: templ.Raw("Set alongside <code>resizing</code> for the handle being dragged (<code>handle-top</code>, <code>handle-bottom-left</code>, …); the kit uses it to pick the resize cursor.")},
+			Description: templ.Raw("Set alongside <code>resizing</code> for the handle being dragged (<code>handle-top</code>, <code>handle-bottom-left</code>, ...); the kit uses it to pick the resize cursor.")},
 	},
 	Slots: []DocSlot{
 		{Name: "default", Description: templ.Raw("Resizable content.")},

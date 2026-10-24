@@ -85,7 +85,7 @@ func PageSliderRange(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</code> is a two-handle slider picking a <code>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</code> is a 2-handle slider picking a <code>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -209,7 +209,7 @@ func PageSliderRange(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</code> snaps both values to one decimal place. The <code>.</code> key is allowed in the value fields because the step is non-integer. Marks show the dB scale's reference points; the active range lights up the marks it covers.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</code> snaps both values to 1 decimal place. The <code>.</code> key is allowed in the value fields because the step is non-integer. Marks show the dB scale's reference points; the active range lights up the marks it covers.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -314,7 +314,7 @@ func PageSliderRange(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<p class=\"demo-note\">When <code>min</code> is below zero both value fields accept a leading <code>-</code>. Useful for symmetric ranges like time offsets or pan positions.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<p class=\"demo-note\">When <code>min</code> is below 0 both value fields accept a leading <code>-</code>. Useful for symmetric ranges like time offsets or pan positions.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -473,7 +473,7 @@ func PageSliderRange(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<p class=\"demo-note\">Omit <code>label</code> and set <code>hide-value</code> to drop the entire header row. The thumbs still focus on <neo-kbd>Tab</neo-kbd> and the value bubbles still pop on hover/press, so the control stays operable.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<p class=\"demo-note\">Omit <code>label</code> and set <code>hide-value</code> to drop the entire header row. The thumbs still focus on <neo-kbd>Tab</neo-kbd> and the value bubbles still pop on hover/press, which keeps the control operable.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -603,7 +603,7 @@ func PageSliderRange(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</code> are cloned into every dot and into both thumbs. Here the range picks a span of star ratings: each anchor is an outline <code>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</code> are cloned into every dot and into both thumbs. Here the range picks a span of star ratings. Each anchor is an outline <code>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -616,7 +616,7 @@ func PageSliderRange(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</code> that becomes a filled accent dot while it sits inside the selected band, and both thumbs are filled stars. The cloned glyph is a shadow boundary too deep for page CSS to restyle, so an active anchor paints its dot from its own masked background.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</code> that becomes a filled accent dot while it sits inside the selected band, and both thumbs are filled stars. The cloned glyph is a shadow boundary too deep for page CSS to restyle. An active anchor paints its dot from its own masked background instead.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -696,7 +696,7 @@ func PageSliderRange(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "<p class=\"demo-note\">A Datastar app can fat-morph the page at any moment, and a server narrowing or widening the band just re-emits the range with new <code>value-min</code> / <code>value-max</code> attributes. The rail, both thumbs, and the fill live in the component's shadow root, so a morph of the bare light host only changes those two attributes and never touches the thumb or fill nodes, so the <code>easing</code> transition eases the band to its new bounds. Autoplay cycles the states below, with no signals or morph hints, and the band glides from Low to Medium to High just the same.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "<p class=\"demo-note\">A Datastar app can fat-morph the page at any moment, and a server narrowing or widening the band just re-emits the range with new <code>value-min</code> / <code>value-max</code> attributes. The rail, both thumbs, and the fill live in the component's shadow root. A morph of the bare light host only changes those 2 attributes and never touches the thumb or fill nodes, which lets the <code>easing</code> transition ease the band to its new bounds. Autoplay cycles the states below, with no signals or morph hints, and the band glides from Low to Medium to High just the same.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -770,10 +770,10 @@ var sliderRangeDoc = ComponentDoc{
 		{Name: "output", Description: templ.Raw("Wrapper around the min value, separator, and max value.")},
 		{Name: "value-min", Description: templ.Raw("Editable lower-bound value field.")},
 		{Name: "value-max", Description: templ.Raw("Editable upper-bound value field.")},
-		{Name: "separator", Description: templ.Raw("Glyph between the two value fields.")},
+		{Name: "separator", Description: templ.Raw("Glyph between the 2 value fields.")},
 		{Name: "unit", Description: templ.Raw("Unit suffix after the values.")},
 		{Name: "track", Description: templ.Raw("The rail the thumbs travel along.")},
-		{Name: "fill", Description: templ.Raw("Painted segment between the two thumbs.")},
+		{Name: "fill", Description: templ.Raw("Painted segment between the 2 thumbs.")},
 		{Name: "thumb-min", Description: templ.Raw("Lower-bound drag handle.")},
 		{Name: "thumb-max", Description: templ.Raw("Upper-bound drag handle.")},
 		{Name: "marks", Description: templ.Raw("Container for anchor-mark labels below the track.")},

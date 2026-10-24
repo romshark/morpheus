@@ -29,11 +29,9 @@ func simSliderAttrs(a simSliderArgs) templ.Attributes {
 	return attrs
 }
 
-// DemoFrameOpts configures demoFrameWith, the wrapper every per-page
-// demo composes around its content.
-// BoundaryScopes tunes the <neo-boundary> scopes on a preview region. The
-// zero value keeps the default scopes (dismiss + positioning) and renders no
-// attribute. Any non-zero field renders an explicit scope="…" token list:
+// BoundaryScopes tunes the <neo-boundary> scopes on a preview region.
+// The zero value keeps the default scopes (dismiss + positioning) and renders no
+// attribute. Any non-zero field renders an explicit scope="..." token list.
 // NoDismiss / NoPositioning drop a default scope, Scroll / Stacking add an
 // opt-in one. See the Boundary page.
 type BoundaryScopes struct {
@@ -44,9 +42,8 @@ type BoundaryScopes struct {
 }
 
 // attrs renders the boundary's scope attribute. The zero value yields nil
-// (no attribute, so the element keeps its default dismiss+positioning scope);
-// any deviation yields an explicit scope token list, which replaces the
-// default entirely.
+// (no attribute, which keeps the element's default dismiss+positioning scope);
+// any deviation yields an explicit scope token list, which replaces the default entirely.
 func (s BoundaryScopes) attrs() templ.Attributes {
 	if s == (BoundaryScopes{}) {
 		return nil
@@ -67,6 +64,8 @@ func (s BoundaryScopes) attrs() templ.Attributes {
 	return templ.Attributes{"scope": strings.Join(tokens, " ")}
 }
 
+// DemoFrameOpts configures demoFrameWith, the wrapper every per-page
+// demo composes around its content.
 type DemoFrameOpts struct {
 	Width          string
 	Height         string
@@ -81,8 +80,8 @@ type DemoFrameOpts struct {
 	// stage's overlays (default: all scopes on).
 	Boundary BoundaryScopes
 
-	// StageAttrs is the escape hatch for stage attributes the dedicated
-	// fields above don't cover (e.g. data-attr:width, min-width).
+	// StageAttrs carries stage attributes no dedicated field covers
+	// (e.g. data-attr:width, min-width).
 	StageAttrs templ.Attributes
 
 	// HTMLSource / TemplSource non-empty adds source tabs to the footer.
@@ -104,8 +103,8 @@ type DemoFrameOpts struct {
 	DefaultTab string
 }
 
-// demoTabsActive starts demos collapsed on the "hide" tab unless a
-// DefaultTab override is set.
+// demoTabsActive starts demos collapsed on the "hide" tab
+// unless a DefaultTab override is set.
 func demoTabsActive(opts DemoFrameOpts) string {
 	if opts.DefaultTab != "" {
 		return opts.DefaultTab
@@ -129,10 +128,9 @@ func (o DemoFrameOpts) stageAttributes() templ.Attributes {
 	return a
 }
 
-// stageAttrs emits width/height as both attributes (recognised by the
-// JS host as drag bounds) and inline styles (so first-paint matches
-// the post-upgrade size and the stage doesn't visibly shrink as the
-// bundle runs).
+// stageAttrs emits width/height as both attributes (recognised by the JS host
+// as drag bounds) and inline styles (so first-paint matches the post-upgrade size
+// and the stage doesn't visibly shrink as the bundle runs).
 func stageAttrs(
 	extraClass,
 	minHeight, maxHeight, minWidth, maxWidth,
@@ -156,7 +154,7 @@ func stageAttrs(
 	}
 	a := templ.Attributes{
 		"class": cls,
-		// Focus sink: without it, a dot-grid click focuses #app-main
+		// Focus sink. Without it, a dot-grid click focuses #app-main
 		// and Tab restarts at the page top instead of entering the demo.
 		"tabindex":   "-1",
 		"min-height": minHeight,
@@ -205,10 +203,9 @@ var UtilityLinks = []NavLink{
 	{href.PagePersist(), "Persist"},
 }
 
-// DataLinks lists the data components: elements that only carry option
-// data for a control to read. They render nothing and have no behavior
-// of their own, which sets them apart from the headless-but-functional
-// UtilityLinks.
+// DataLinks lists the data components, elements that only carry option data
+// for a control to read. They render nothing and have no behavior of their own,
+// which sets them apart from the headless-but-functional UtilityLinks.
 var DataLinks = []NavLink{
 	{href.PageOption(), "Option"},
 	{href.PageOptgroup(), "Optgroup"},
@@ -216,7 +213,7 @@ var DataLinks = []NavLink{
 }
 
 // ComponentLinks lists all per-component pages in the order they
-// appear in the sidebar. Adding a new <neo-X> page is a two-step:
+// appear in the sidebar. Adding a <neo-X> page takes 2 steps:
 //  1. Create page_X.go + page_X.templ that follow the existing pattern
 //     (`Page<Name>` struct + `pageX()` template wrapped in
 //     `@appLayout("/x")`).
@@ -273,7 +270,7 @@ var ComponentLinks = []NavLink{
 	{href.PageTree(), "Tree"},
 }
 
-// cmdkRow is one baked entry in the ⌘K command palette: a site page
+// cmdkRow is one baked entry in the Mod+K command palette, a site page
 // plus the section it lives under (shown as a muted tag).
 type cmdkRow struct {
 	Path  string

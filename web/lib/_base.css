@@ -1,25 +1,25 @@
 /* morpheus.css: styles for the UI kit components.
  *
- * Components render in the light DOM, so every rule is a plain CSS
+ * Components render in the light DOM, and every rule is a plain CSS
  * selector you can override from your app's stylesheet. Theming is done
  * entirely through CSS custom properties declared on :root; scope them
  * to a subtree (e.g. a dark section) by redeclaring on an ancestor.
  */
 
 :root {
-	/* Shared structural defaults: palette-agnostic vars every theme
+	/* Shared structural defaults, the palette-agnostic vars every theme
 	 * inherits unless it explicitly overrides them. Per-palette colours
 	 * (and any radius/spacing/font tweaks specific to a theme) live in
 	 * the theme-*.css files. */
 
 	/* Base corner radius. Component radii in morpheus.css scale from this
-	 * via calc(var(--page-radius) * <multiplier>), so themes that want
+	 * via calc(var(--page-radius) * <multiplier>). Themes that want
 	 * sharp corners only need to set this to 0. Default 10px. */
 	--page-radius: 0.625rem;
 
 	/* Base spacing unit. Component paddings and gaps in morpheus.css scale
-	 * from this via calc(var(--page-spacing) * <multiplier>), so themes
-	 * can tighten or loosen the whole kit by changing one value. */
+	 * from this via calc(var(--page-spacing) * <multiplier>).
+	 * Themes can tighten or loosen the whole kit by changing a single value. */
 	--page-spacing: 0.25rem;
 
 	/* Default height of single-line interactive controls so a button,
@@ -31,32 +31,31 @@
 	--neo-control-height: calc(1em + 2 * round(calc(var(--page-spacing, 0.25rem) * 2), 1px) + 2px);
 
 	/* Maximum content width of the centered main column (and the app
-	 * bar's inner row, so frame and content stay vertically aligned).
+	 * bar's inner row, which keeps frame and content vertically aligned).
 	 * Below this, .wrap fills the available width with edge padding. */
 	--page-max-width: 64rem;
 
 	/* Base font stack. Components inherit `font: inherit` from the
-	 * body, so themes can swap the look of the entire kit by
-	 * overriding this single var (e.g. substituting a serif
-	 * stack). */
+	 * body. Themes can swap the look of the entire kit by overriding
+	 * this single var (e.g. substituting a serif stack). */
 	--page-font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 
 	/* Kit-wide disabled-state overlay. Painted as a `background-image`
-	 * on every disabled component (button, switch, textarea, option),
-	 * so themes can layer a hatch / stripe / texture over disabled
-	 * surfaces without the components themselves needing to know about
-	 * it. Defaults to `none` (no overlay); themes that want a visible
+	 * on every disabled component (button, switch, textarea, option).
+	 * Themes can layer a hatch / stripe / texture over disabled
+	 * surfaces without the components themselves needing to know about it.
+	 * Defaults to `none` (no overlay); themes that want a visible
 	 * "disabled" texture (e.g. a hatch or stripe pattern) override
-	 * this single var. The component's regular background-color stays
-	 * underneath, so the overlay reads as a tint on top. */
+	 * this single var. The component's regular background-color stays underneath,
+	 * and the overlay reads as a tint on top. */
 	--neo-disabled-overlay: none;
 }
 
-/* Control size scale. The single-line and text controls share one box
+/* Control size scale. The single-line and text controls share the same box
  * geometry (font-size plus the --neo-button-padding / --neo-textarea-padding
- * / --neo-control-height tokens), so a row of them lines up. `size` shifts
- * that geometry as one step: sm shrinks, lg grows; the default (attribute
- * absent) is the base. Every step derives from --page-spacing, so a theme's
+ * / --neo-control-height tokens), and a row of them lines up. `size` shifts
+ * that geometry as 1 step. sm shrinks, lg grows; the default (attribute absent)
+ * is the base. Every step derives from --page-spacing, and a theme's
  * density change carries through all sizes.
  *
  * Scope: the text/box row controls. The small fixed-glyph controls
@@ -80,15 +79,15 @@
 
 /* Suppress the mobile tap-highlight flash (a translucent rectangle that
  * ignores the control's border-radius) on touch. -webkit-tap-highlight-color
- * is inherited, so a single value on :root cascades to every control,
- * including across shadow boundaries into shadow-DOM triggers and list
- * items. Override on an ancestor to restore the native highlight. */
+ * is inherited, and a single value on :root cascades to every control,
+ * including across shadow boundaries into shadow-DOM triggers and list items.
+ * Override on an ancestor to restore the native highlight. */
 :root {
 	-webkit-tap-highlight-color: transparent;
 }
 
 /* Kit-wide focus-ring baseline. `:where()` is specificity 0 so any
- * per-component :focus-visible rule wins. */
+ * per-component :focus-visible rule takes precedence. */
 :where(button, a[href], [tabindex="0"]):focus-visible {
 	outline: 2px solid var(--accent, currentColor);
 	outline-offset: 2px;

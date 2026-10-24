@@ -7,7 +7,7 @@ import (
 )
 
 // TextInputCase is the free-form case transform. Zero value
-// (TextInputCaseDefault) emits no `case` attribute and preserves the
+// ([TextInputCaseDefault]) emits no `case` attribute and preserves the
 // typed case. Ignored when Mask is set; use a cased mask letter
 // (U, A, l, a) instead.
 type TextInputCase string
@@ -19,7 +19,7 @@ const (
 )
 
 // TextInputFormat is the live-formatting mode. Zero value
-// (TextInputFormatDefault) emits no `format` attribute (mask / plain
+// ([TextInputFormatDefault]) emits no `format` attribute (mask / plain
 // transforms apply instead).
 type TextInputFormat string
 
@@ -28,10 +28,10 @@ const (
 	TextInputFormatNumber  TextInputFormat = "number"
 )
 
-// TextInputType is the native <input type>. String-backed: values
-// beyond these constants are accepted via conversion, but the listed
-// set is what composes with masking / formatting (others have their
-// own neo components or native pickers that don't).
+// TextInputType is the native <input type>. It is string-backed and
+// accepts values beyond these constants via conversion, but only the
+// listed set composes with masking / formatting (others have their own
+// neo components or native pickers that don't).
 type TextInputType string
 
 const (
@@ -64,9 +64,9 @@ const (
 // (the component's own default applies).
 //
 // Native passthrough attributes not modelled here (autocomplete,
-// maxlength, pattern, min/max/step, …) and arbitrary attributes
+// maxlength, pattern, min/max/step, ...) and arbitrary attributes
 // (style, aria-*, data-* / Datastar bindings) go through the trailing
-// templ.Attributes of TextInputAttrs.
+// [templ.Attributes] of [TextInputAttrs].
 type TextInputOpts struct {
 	Name        Attr[string]
 	Type        Attr[TextInputType]

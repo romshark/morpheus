@@ -3,12 +3,13 @@ package neo
 // IfNetworkOpts configures <neo-if-network>, the client-side connection
 // gate. It shows its children only in the connection state Online names;
 // otherwise the subtree is removed from layout. The server can't know the
-// client's connection state, so a branch never renders visible before
-// the bundle upgrades it.
+// client's connection state. A branch never renders visible before the
+// bundle upgrades it.
 type IfNetworkOpts struct {
-	// Online is a boolean command: true shows the children while online,
-	// false while offline, unset in both. Offline is reliable; online only
-	// means a network is connected, not that the server is reachable.
+	// Online is a boolean command, where true shows the children while
+	// online, false while offline and unset in both. Offline is reliable;
+	// online only means a network is connected, not that the server is
+	// reachable.
 	Online Attr[bool]
 	// Delay is the milliseconds a connection change must last before the
 	// branch switches. A shorter drop shows nothing. Unset switches at

@@ -19,7 +19,7 @@
 
 .resizable-demo [data-neo-resizable-icon] { font-size: 1rem; line-height: 1; }
 
-/* Content styling; the .resizable-* flex container above centers it. */
+/* Content styling; the .resizable-* flex container centers it. */
 .resizable-demo > neo-layout {
 	padding: 1rem;
 	box-sizing: border-box;

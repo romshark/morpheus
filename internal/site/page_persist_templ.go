@@ -306,7 +306,7 @@ func PagePersist(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</code> host. Property names accept dot paths, so nested fields like <code>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</code> host. Property names accept dot paths. Nested fields like <code>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -324,7 +324,7 @@ func PagePersist(morpheusVersion string) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var16 string
-			templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(`<neo-persist for="…">`)
+			templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(`<neo-persist for="...">`)
 			if templ_7745c5c3_Err != nil {
 				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_persist.templ`, Line: 82, Col: 37}
 			}
@@ -384,7 +384,7 @@ func PagePersist(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<p class=\"demo-note\">Persists <code>currentTime</code>, <code>volume</code>, and <code>muted</code>, so the player resumes where the viewer left off with the same volume and mute state. Source: <em>Sintel</em> trailer (Blender, CC&nbsp;BY 3.0).</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<p class=\"demo-note\">Persists <code>currentTime</code>, <code>volume</code>, and <code>muted</code>. The player resumes where the viewer left off with the same volume and mute state. Source: <em>Sintel</em> trailer (Blender, CC&nbsp;BY 3.0).</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

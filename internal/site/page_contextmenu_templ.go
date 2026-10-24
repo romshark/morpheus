@@ -311,7 +311,7 @@ func PageContextMenu(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<p class=\"demo-note\">The trigger is regular light DOM and the panel uses the same menu CSS variables, so custom target surfaces, icon rows, widths, and danger treatments can be handled with a scoped stylesheet.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<p class=\"demo-note\">Because the trigger is regular light DOM and the panel uses the same menu CSS variables, a scoped stylesheet can handle custom target surfaces, icon rows, widths, and danger treatments.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -361,7 +361,7 @@ var contextMenuDoc = ComponentDoc{
 		{Name: "open", Type: "boolean", Default: "false", Reflected: true, Observed: true,
 			Description: templ.Raw("Open state. Usually controlled by the host after a right-click or keyboard context-menu invocation.")},
 		{Name: "mode", Type: `"auto" | "cascade" | "push"`, Default: `"auto"`, Observed: true,
-			Description: templ.Raw("Nested submenu strategy. Matches <code>neo-menu</code>: cascade on roomy pointers, push on narrow or touch-first contexts.")},
+			Description: templ.Raw("Nested submenu strategy. Matches <code>neo-menu</code>, with cascade on roomy pointers and push on narrow or touch-first contexts.")},
 		{Name: "screen-offset", Type: "CSS length", Default: "8px", Observed: true,
 			Description: templ.Raw("Minimum distance between the panel and viewport edge.")},
 		{Name: "clamp-placement", Type: "boolean", Default: "false", Observed: true,
@@ -373,9 +373,9 @@ var contextMenuDoc = ComponentDoc{
 	},
 	Slots: []DocSlot{
 		{Name: "[data-neo-contextmenu-trigger]",
-			Description: templ.Raw("Required descendant (any depth, but not inside a nested <code>&lt;neo-menu&gt;</code> or <code>&lt;neo-contextmenu&gt;</code>) that receives the <code>contextmenu</code> and keyboard handlers. The first match wins.")},
+			Description: templ.Raw("Required descendant (any depth, but not inside a nested <code>&lt;neo-menu&gt;</code> or <code>&lt;neo-contextmenu&gt;</code>) that receives the <code>contextmenu</code> and keyboard handlers. The first match is used.")},
 		{Name: "<neo-menu>",
-			Description: templ.Raw("Exactly one required <code>&lt;neo-menu&gt;</code> child holding the rows. It supplies all menu behavior; the context menu only opens it at the pointer. Zero or multiple warn in the console.")},
+			Description: templ.Raw("Exactly 1 required <code>&lt;neo-menu&gt;</code> child holding the rows. It supplies all menu behavior; the context menu only opens it at the pointer. 0 or multiple warn in the console.")},
 	},
 	Events: []DocEvent{
 		{Name: "neo-contextmenu-open", Bubbles: true,

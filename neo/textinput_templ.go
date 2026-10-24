@@ -9,7 +9,7 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 // TextInput renders <neo-textinput>. The native field lives in the
-// component's shadow root, so the host carries the options/passthrough
+// component's shadow root. The host carries the options/passthrough
 // attributes and the light DOM stays empty; the field appears on upgrade.
 func TextInput(opts TextInputOpts) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
@@ -40,7 +40,7 @@ func TextInput(opts TextInputOpts) templ.Component {
 	})
 }
 
-// TextInputAttrs is [TextInput] plus an escape hatch: attrs carries
+// TextInputAttrs is [TextInput] with an extra attribute set. attrs carries
 // native passthrough and arbitrary attributes (style, aria-*, data-* /
 // Datastar bindings) and overrides any colliding typed field.
 func TextInputAttrs(opts TextInputOpts, attrs templ.Attributes) templ.Component {

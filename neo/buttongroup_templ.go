@@ -9,12 +9,11 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 type ButtonGroupOpts struct {
-	// Value flips the host into segmented-control mode (matching child
-	// gets aria-checked="true", host gains role="radiogroup"); empty
-	// leaves a plain visual cluster.
+	// Value flips the host into segmented-control mode
+	// (matching child gets aria-checked="true", host gains role="radiogroup");
+	// empty leaves a plain visual cluster.
 	Value Attr[string]
-	// Orientation defaults to horizontal; pass AxisVertical for a
-	// stacked column.
+	// Orientation defaults to horizontal; pass [AxisVertical] for a stacked column.
 	Orientation Attr[Axis]
 	// AutoActivate selects on focus rather than requiring
 	// Space/Enter/click.
@@ -22,8 +21,8 @@ type ButtonGroupOpts struct {
 	AriaLabel    Attr[string]
 }
 
-// ButtonGroup renders <neo-buttongroup>. In segmented mode (Value
-// non-empty), set the matching child via `<neo-button value="…">`.
+// ButtonGroup renders <neo-buttongroup>. In segmented mode (Value non-empty),
+// set the matching child via `<neo-button value="...">`.
 func ButtonGroup(opts ButtonGroupOpts) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context

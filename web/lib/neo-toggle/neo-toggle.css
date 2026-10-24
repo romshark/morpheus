@@ -1,8 +1,5 @@
-/* -----------------------------------------------------------------------
- * <neo-toggle>
- * -----------------------------------------------------------------------
- * Visually a clone of <neo-button> with an extra "pressed" state. The
- * pressed look reuses the secondary fill so it reads as "this is on"
+/* Visually a clone of <neo-button> with an extra "pressed" state.
+ * The pressed look reuses the secondary fill so it reads as "this is on"
  * without colliding with the primary-button accent (which a sibling
  * non-toggle CTA may already be using). */
 
@@ -34,7 +31,7 @@ neo-toggle {
 }
 
 /* `size` (sm/lg) is the shared control-size scale in _base.css; toggle
- * is in that selector group, so it needs no per-component size rule. */
+ * is in that selector group and needs no per-component size rule. */
 
 neo-toggle:hover {
 	background: var(--neo-button-hover-bg);
@@ -122,8 +119,8 @@ neo-toggle[aria-disabled="true"] {
 	background-image: var(--neo-disabled-overlay);
 }
 
-/* `[data-neo-toggle-on]` / `[data-neo-toggle-off]` are the two-label slot
- * convention: mark up both states inline and let the `pressed`
+/* `[data-neo-toggle-on]` / `[data-neo-toggle-off]` are the 2-label slot
+ * convention. Mark up both states inline and let the `pressed`
  * attribute swap which one paints. `display: contents` keeps the
  * button's flex gap uniform whichever side is active. */
 neo-toggle [data-neo-toggle-off] {

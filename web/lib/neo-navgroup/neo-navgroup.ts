@@ -1,7 +1,7 @@
 import { boolAttr } from "../command";
 import { NavEngine } from "../nav-engine";
 
-// Thin element wrapper over the shared NavEngine: it owns lifecycle, the
+// Thin element wrapper over the shared NavEngine. It owns lifecycle, the
 // `columns` CSS variable, and change detection (mutation/resize observers),
 // and feeds the engine its light-DOM items ([data-neo-navgroup-item],
 // excluding nested groups). The keyboard model lives entirely in NavEngine,
@@ -20,9 +20,9 @@ export class NeoNavGroup extends HTMLElement {
 		this.#engine = new NavEngine({
 			host: this,
 			getItems: () => this.#collectItems(),
-			// Verb is `navigate`, not `change`: onMove fires on every
-			// roving-focus move, and navgroup holds no selected-value
-			// state, so focus moving is not a committed value change.
+			// Verb is `navigate`, not `change`, because onMove fires on
+			// every roving-focus move and navgroup holds no selected-value
+			// state. Focus moving is not a committed value change.
 			onMove: (item, index) =>
 				this.dispatchEvent(new CustomEvent("neo-navgroup-navigate", { bubbles: true, detail: { index, item } })),
 		});
@@ -78,7 +78,7 @@ export class NeoNavGroup extends HTMLElement {
 	}
 
 	// Mirror explicit `columns` values into the CSS variable. Omitted columns
-	// may be driven by authored CSS, so leave the variable unset in that case.
+	// may come from authored CSS; leave the variable unset in that case.
 	#syncColumns() {
 		const n = this.#explicitColumns();
 		if (n) this.style.setProperty("--neo-navgroup-columns", String(n));
@@ -115,7 +115,7 @@ export class NeoNavGroup extends HTMLElement {
 	#collectItems(): HTMLElement[] {
 		return Array.from(this.querySelectorAll<HTMLElement>("[data-neo-navgroup-item]")).filter((el) => {
 			if (boolAttr(el, "disabled", false) || el.getAttribute("aria-disabled") === "true") return false;
-			// Exclude items inside a NESTED <neo-navgroup> so the outer group
+			// Exclude items inside a nested <neo-navgroup> so the outer group
 			// doesn't claim the inner group's items.
 			return el.closest("neo-navgroup") === this;
 		});

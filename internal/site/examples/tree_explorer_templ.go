@@ -10,8 +10,8 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import "github.com/romshark/morpheus/neo"
 
-// treeExplorerNode is one file-explorer node. Icon names the leading
-// glyph; Branches carry Children, leaves leave it nil.
+// treeExplorerNode is one file-explorer node. Icon names the leading glyph;
+// Branches carry Children, leaves leave it nil.
 type treeExplorerNode struct {
 	Label    string
 	Icon     string
@@ -35,7 +35,7 @@ var treeExplorerData = []treeExplorerNode{
 	{Label: "tsconfig.json", Icon: "file"},
 }
 
-// treeExplorerItem composes a rich row: icon + text + trailing actions.
+// treeExplorerItem composes a row of icon, text and trailing actions.
 // [data-neo-tree-text] takes the available width; [data-neo-tree-actions]
 // pins the trailing button to the tree's right edge.
 func treeExplorerItem(n treeExplorerNode) templ.Component {

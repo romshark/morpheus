@@ -69,7 +69,7 @@ func PageFrameworks(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<p>Morpheus is <strong>framework-agnostic</strong>: its components are standard custom elements that render as plain DOM nodes anywhere. Pass state as attributes, put slotted content between the tags, and subscribe to Morpheus custom events. The same contract works in React, Vue, Svelte, Solid, server-rendered HTML, or plain vanilla JavaScript.</p><p>The simplest way to use Morpheus is to <a href=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<p>Morpheus is <strong>framework-agnostic</strong>. Its components are standard custom elements that render as plain DOM nodes anywhere. Pass state as attributes, put slotted content between the tags, and subscribe to Morpheus custom events. The same contract works in React, Vue, Svelte, Solid, server-rendered HTML, or plain vanilla JavaScript.</p><p>The simplest way to use Morpheus is to <a href=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -82,7 +82,7 @@ func PageFrameworks(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "\">load the bundle once</a> and write the elements directly in your framework's templates, the same as any other HTML.</p><p>Morpheus components are designed to be driven by changes to the DOM in a declarative way, and hence don't provide an imperative API surface. Control them through attributes and observe state changes through events. For example:</p><ul><li>Turn a <code>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "\">load the bundle once</a> and write the elements directly in your framework's templates, the same as any other HTML.</p><p>Morpheus components are designed to be controlled by changes to the DOM in a declarative way, and hence don't provide an imperative API surface. Control them through attributes and observe state changes through events. For example:</p><ul><li>Turn a <code>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -147,7 +147,7 @@ func PageFrameworks(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<p>The following example utilizes  <a target=\"_blank\" href=\"https://data-star.dev/guide/reactive_signals/\">Reactive Datastar signals")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<p>The following example uses <a target=\"_blank\" href=\"https://data-star.dev/guide/reactive_signals/\">Reactive Datastar signals")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -168,14 +168,14 @@ func PageFrameworks(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "drives the components straight from HTML attributes, with no build step and no component wrapper. The example below is an accent-color picker held in two <strong>local signals</strong>; the <code>_</code> prefix keeps them client-only, never serialized to a backend. A <code>data-on:*</code> listener reads the kit's events and <code>data-attr:*</code> bindings push the values back, so the <code>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "to control the components straight from HTML attributes, with no build step and no component wrapper. The example below is an accent-color picker held in 2 <strong>local signals</strong>; the <code>_</code> prefix keeps them client-only, never serialized to a backend. A <code>data-on:*</code> listener reads the kit's events and <code>data-attr:*</code> bindings push the values back. This keeps the <code>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var10 string
 			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs("<neo-select>")
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_frameworks.templ`, Line: 63, Col: 33}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_frameworks.templ`, Line: 63, Col: 41}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 			if templ_7745c5c3_Err != nil {
@@ -194,7 +194,7 @@ func PageFrameworks(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</code>, and the readout stay in sync.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</code>, and the readout in sync.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -254,7 +254,7 @@ func PageFrameworks(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<p>Morpheus targets <strong>server-driven</strong> UIs just as well. This is the same picker, but no display state lives in the browser: the <code>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<p>Morpheus targets <strong>server-driven</strong> UIs just as well. This is the same picker, but no display state lives in the browser. The <code>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -367,7 +367,7 @@ func PageFrameworks(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<p>The following example is powered by  <a target=\"_blank\" href=\"https://react.dev\">React 19.2.7")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<p>The following example uses <a target=\"_blank\" href=\"https://react.dev\">React 19.2.7")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -375,7 +375,7 @@ func PageFrameworks(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "</a> One piece of React state keeps the <code>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "</a>. One piece of React state keeps the <code>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -494,7 +494,7 @@ func PageFrameworks(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "</a> binds in the markup: <code>x-data</code> holds the color, the option, and the named-vs-custom logic; <code>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "</a> binds in the markup. <code>x-data</code> holds the color, the option, and the named-vs-custom logic; <code>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -520,7 +520,7 @@ func PageFrameworks(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "</code> listeners feed the kit's events back. No build step and no component wrapper: the two-way binding falls out of the declarative bindings.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "</code> listeners feed the kit's events back. It needs no build step and no component wrapper. The declarative bindings provide the 2-way binding.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

@@ -327,7 +327,7 @@ function totalRow(): Element | null {
 function setSizes(row: Element | null, size: SizeResult | null): void {
 	const set = (cell: string, value: number | null | undefined) => {
 		const el = row?.querySelector(`[data-size="${cell}"]`);
-		if (el) el.textContent = size ? kb(value ?? null) : "–";
+		if (el) el.textContent = size ? kb(value ?? null) : "-";
 	};
 	set("raw", size?.raw);
 	set("gzip", size?.gzip);

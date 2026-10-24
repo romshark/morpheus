@@ -16,7 +16,7 @@ type SwitchOpts struct {
 }
 
 // Switch prerenders <neo-switch> with role/aria-checked/tabindex
-// matching the upgraded state, so the host paints once with no flicker.
+// matching the upgraded state, which lets the host paint once with no flicker.
 func Switch(opts SwitchOpts) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context

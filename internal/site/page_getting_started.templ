@@ -23,10 +23,10 @@ templ PageGettingStarted(morpheusVersion string) {
 				}
 				.
 				Components are plain custom elements that emit DOM
-				events and expose attribute hooks, so they will
-				slot into other stacks too, but the path of least
+				events and expose attribute hooks. They work in
+				other stacks too, but the path of least
 				resistance, and the one every demo on this site
-				walks, is the one shown below.
+				follows, is the one shown below.
 			</p>
 		</section>
 		<section class="demo">
@@ -34,7 +34,7 @@ templ PageGettingStarted(morpheusVersion string) {
 				Install
 			}
 			<p>
-				Two pieces: the static assets the browser loads,
+				Install the static assets the browser loads
 				and the Go module that gives you templ helpers
 				like <code>neo.Select</code> or
 				<code>datastar.ComboboxAsync</code>.
@@ -43,11 +43,11 @@ templ PageGettingStarted(morpheusVersion string) {
 				Static assets
 			}
 			<p>
-				Three files:{ " " }
+				The browser loads{ " " }
 				@neo.Link(neo.LinkOpts{Href: neo.Set("https://github.com/romshark/morpheus/blob/main/min/morpheus.css"), Target: neo.Set("_blank"), Rel: neo.Set("noopener noreferrer")}) {
 					<code>morpheus.css</code>
 				}
-				, one theme stylesheet (e.g.{ " " }
+				, 1 theme stylesheet (e.g.{ " " }
 				@neo.Link(neo.LinkOpts{Href: neo.Set("https://github.com/romshark/morpheus/blob/main/min/theme-default.css"), Target: neo.Set("_blank"), Rel: neo.Set("noopener noreferrer")}) {
 					<code>theme-default.css</code>
 				}
@@ -60,7 +60,7 @@ templ PageGettingStarted(morpheusVersion string) {
 					jsDelivr
 				}
 				{ " " }serves every tagged release straight from the
-				repository, so load them in your page head:
+				repository. Load them in your page head:
 			</p>
 			<div class="theming-source">
 				<site-codemirror language="html" readonly>
@@ -70,8 +70,8 @@ templ PageGettingStarted(morpheusVersion string) {
 			<p>
 				Pin the tag, as above. jsDelivr also accepts
 				floating refs such as <code>{ "@latest" }</code>
-				and partial versions; those resolve to the newest
-				matching tag, so they pull in breaking changes.
+				and partial versions. Those resolve to the newest
+				matching tag, which pulls in breaking changes.
 			</p>
 			<p>
 				To self-host instead, take the same files from{ " " }
@@ -100,7 +100,7 @@ templ PageGettingStarted(morpheusVersion string) {
 			</p>
 			<p>
 				The kit reads <code>:root</code> custom
-				properties of colours and shape: the theme
+				properties of colours and shape. The theme
 				stylesheet (
 				@neo.Link(neo.LinkOpts{Href: neo.Set("https://github.com/romshark/morpheus/blob/main/min/theme-default.css"), Target: neo.Set("_blank"), Rel: neo.Set("noopener noreferrer")}) {
 					<code>theme-default.css</code>
@@ -125,9 +125,9 @@ templ PageGettingStarted(morpheusVersion string) {
 				</site-codemirror>
 			</div>
 			<p>
-				<code>neo</code> exposes one templ per component
+				<code>neo</code> exposes 1 templ per component
 				(<code>neo.Select</code>, <code>neo.Combobox</code>,
-				<code>neo.Button</code>, …). <code>datastar</code>
+				<code>neo.Button</code>, ...). <code>datastar</code>
 				wraps the async-aware components
 				(<code>datastar.ComboboxAsync</code>,
 				<code>datastar.PopoverAsync</code>) with the SSE

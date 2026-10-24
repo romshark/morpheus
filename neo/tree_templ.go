@@ -105,8 +105,8 @@ func TreeAttrs(attrs templ.Attributes) templ.Component {
 
 // TreeItem renders one <neo-tree-item>. Set `expanded` on branches
 // you want open at first paint. Branch state is derived at runtime
-// from the presence of nested <neo-tree-item> children, so callers
-// only need to pick the `expanded` flag.
+// from the presence of nested <neo-tree-item> children.
+// Callers only pick the `expanded` flag.
 func TreeItem(expanded bool) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
@@ -303,7 +303,7 @@ func TreeLabelAttrs(attrs templ.Attributes) templ.Component {
 }
 
 // TreeText is the label's text region; it takes the remaining row width so
-// a trailing TreeActions cluster aligns to the end. Place inside TreeLabel.
+// a trailing [TreeActions] cluster aligns to the end. Place inside [TreeLabel].
 func TreeText() templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
@@ -398,7 +398,7 @@ func TreeTextAttrs(attrs templ.Attributes) templ.Component {
 }
 
 // TreeActions holds row-level controls (buttons, badges) after the text.
-// Place inside TreeLabel.
+// Place inside [TreeLabel].
 func TreeActions() templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context

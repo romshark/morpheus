@@ -85,7 +85,7 @@ func PageLink(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</code> is the kit's styled anchor: a plain native <code>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</code> is the kit's styled anchor, a plain native <code>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -191,7 +191,7 @@ func PageLink(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<p class=\"demo-note\">The inline <code>default</code> anchor, the five button-styled variants (<code>button-default</code>, <code>button-primary</code>, <code>button-secondary</code>, <code>button-ghost</code>, <code>button-danger</code>), and the disabled state.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<p class=\"demo-note\">The inline <code>default</code> anchor, the 5 button-styled variants (<code>button-default</code>, <code>button-primary</code>, <code>button-secondary</code>, <code>button-ghost</code>, <code>button-danger</code>), and the disabled state.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -243,7 +243,7 @@ func PageLink(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<p class=\"demo-note\">The default variant is tuned to sit inside running text: accent colour, underline, and a focus ring that doesn't disturb the line box.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<p class=\"demo-note\">The default variant is tuned to sit inside running text, with accent colour, underline, and a focus ring that doesn't disturb the line box.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -368,7 +368,7 @@ func PageLink(morpheusVersion string) templ.Component {
 var linkDoc = ComponentDoc{
 	Attributes: []DocAttribute{
 		{Name: "data-neo-link", Type: "boolean",
-			Description: templ.Raw("Styling hook. Marks a native <code>&lt;a&gt;</code> for the kit's link styling; the wrapper adds it automatically, so raw HTML must include it to opt in.")},
+			Description: templ.Raw("Styling hook. Marks a native <code>&lt;a&gt;</code> for the kit's link styling; the wrapper adds it automatically, but raw HTML must include it to opt in.")},
 		{Name: "href", Type: "string",
 			Description: templ.Raw("Link target. Omitted attribute renders a placeholder the browser doesn't treat as a link.")},
 		{Name: "variant", Type: `"default" | "button-default" | "button-primary" | "button-secondary" | "button-ghost" | "button-danger"`, Default: `"default"`,
@@ -376,7 +376,7 @@ var linkDoc = ComponentDoc{
 		{Name: "target", Type: "string",
 			Description: templ.Raw("Native browsing-context target (<code>_blank</code>, <code>_self</code>, a named context).")},
 		{Name: "rel", Type: "string",
-			Description: templ.Raw("Space-separated link-type tokens (<code>noopener</code>, <code>noreferrer</code>, <code>nofollow</code>, …).")},
+			Description: templ.Raw("Space-separated link-type tokens (<code>noopener</code>, <code>noreferrer</code>, <code>nofollow</code>, ...).")},
 		{Name: "download", Type: "string",
 			Description: templ.Raw("Triggers a save-as instead of navigation; the value is the suggested filename.")},
 		{Name: "hreflang", Type: "string",
@@ -388,7 +388,7 @@ var linkDoc = ComponentDoc{
 	},
 	Slots: []DocSlot{
 		{Name: "default",
-			Description: templ.Raw("Link content: text, a <code>&lt;neo-icon&gt;</code>, or arbitrary markup.")},
+			Description: templ.Raw("Link content, such as text, a <code>&lt;neo-icon&gt;</code>, or arbitrary markup.")},
 	},
 	Events: []DocEvent{
 		{Name: "click", URL: W3CEventURL("click"), Bubbles: true,

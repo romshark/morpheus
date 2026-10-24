@@ -7,8 +7,8 @@ import auraCss from "./neo-aura.css";
 const SHEET = new CSSStyleSheet();
 SHEET.replaceSync(scopeCssToHost(auraCss, "neo-aura"));
 
-// Back to front: a wide halo, a tight glow, and the ring masked to the host
-// padding. Each layer clips one oversized light.
+// Back to front, a wide halo, a tight glow, and the ring masked to the host
+// padding. Each layer clips 1 oversized light.
 const TEMPLATE = document.createElement("template");
 TEMPLATE.innerHTML =
 	`<div data-neo-aura-layers>` +
@@ -29,7 +29,8 @@ const CORNERS = [
 
 export class NeoAura extends HTMLElement {
 	// A theme class on <html> or a late stylesheet changes a child's radius
-	// with no mutation on the child: re-measure every connected aura.
+	// with no mutation on the child, which means every connected aura must
+	// re-measure.
 	static #connected = new Set<NeoAura>();
 	static #pageWatched = false;
 
@@ -64,7 +65,7 @@ export class NeoAura extends HTMLElement {
 			for (const aura of NeoAura.#connected) aura.#schedule();
 		};
 		new MutationObserver(all).observe(document.documentElement, { attributes: true });
-		// load does not bubble: capture it to see a <link> stylesheet arrive.
+		// load does not bubble. Capture it to see a <link> stylesheet arrive.
 		document.addEventListener(
 			"load",
 			(e) => {
@@ -74,7 +75,7 @@ export class NeoAura extends HTMLElement {
 		);
 	}
 
-	// A morph or slot change can swap the wrapped element: re-target.
+	// A morph or slot change can swap the wrapped element. Re-target.
 	#observeChild() {
 		this.#resize.disconnect();
 		this.#mutations.disconnect();
@@ -104,7 +105,8 @@ export class NeoAura extends HTMLElement {
 		if (!layers) return;
 		const child = this.#child();
 		const style = child ? getComputedStyle(child) : null;
-		// Layout size, not the transformed box: percentages resolve against it.
+		// Layout size, not the transformed box, because percentages resolve
+		// against it.
 		const width = child instanceof HTMLElement ? child.offsetWidth : (child?.getBoundingClientRect().width ?? 0);
 		const height = child instanceof HTMLElement ? child.offsetHeight : (child?.getBoundingClientRect().height ?? 0);
 		for (const [prop, corner] of CORNERS) {
@@ -115,8 +117,8 @@ export class NeoAura extends HTMLElement {
 	}
 }
 
-// A computed corner radius is one or two lengths or percentages ("8px",
-// "50%", "10px 20px"); a percentage resolves against the box side.
+// A computed corner radius is 1 or 2 lengths or percentages ("8px", "50%",
+// "10px 20px"); a percentage resolves against the box side.
 function cornerPx(value: string, width: number, height: number): [number, number] {
 	const [x, y = x] = value.trim().split(/\s+/);
 	return [lengthPx(x, width), lengthPx(y, height)];
@@ -128,7 +130,8 @@ function lengthPx(value: string, basis: number): number {
 	return value.endsWith("%") ? (n * basis) / 100 : n;
 }
 
-// Write only on a change: a no-op measurement then invalidates no style.
+// Write only on a change, which means a no-op measurement invalidates no
+// style.
 function setProp(el: HTMLElement, name: string, value: string) {
 	if (el.style.getPropertyValue(name) !== value) el.style.setProperty(name, value);
 }

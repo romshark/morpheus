@@ -85,7 +85,7 @@ func PageOption(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</code> is an option-data carrier, not a rendered or interactive element. It holds one selectable value and its label for a control to read and render. Place it inside a ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</code> is an option-data carrier, not a rendered or interactive element. It holds a single selectable value and its label for a control to read and render. Place it inside a ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -289,7 +289,7 @@ var optionDoc = ComponentDoc{
 	},
 	Slots: []DocSlot{
 		{Name: "default",
-			Description: templ.Raw("The option's rendered content: arbitrary markup, from plain text to a rich multi-line row (avatar, name, detail). The control shows it as the listbox row and, by default, clones it onto the trigger when the option is selected. When the <code>label</code> attribute is absent, the plain-text label used for type-to-search falls back to this content's text.")},
+			Description: templ.Raw("The option's rendered content, any markup from plain text to a rich multi-line row (avatar, name, detail). The control shows it as the listbox row and, by default, clones it onto the trigger when the option is selected. When the <code>label</code> attribute is absent, the plain-text label used for type-to-search falls back to this content's text.")},
 	},
 }
 

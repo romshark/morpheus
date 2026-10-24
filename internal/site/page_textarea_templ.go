@@ -98,7 +98,7 @@ func PageTextarea(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</code> (kept in the element's shadow root) with declarative manual-resize handles and auto-grow on either axis. Native textarea attributes (<code>rows</code>, <code>placeholder</code>, <code>maxlength</code>, <code>value</code>, …) go on the host and are forwarded to the field; the field stays fully native (form participation, IME, selection). Because it lives in the shadow, a fat morph can re-render the host without disturbing the live field.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</code> (kept in the element's shadow root) with declarative manual-resize handles and auto-grow on either axis. Native textarea attributes (<code>rows</code>, <code>placeholder</code>, <code>maxlength</code>, <code>value</code>, ...) go on the host and are forwarded to the field; the field stays fully native (form participation, IME, selection). Because it lives in the shadow, a fat morph can re-render the host without disturbing the live field.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -413,7 +413,7 @@ var textareaDoc = ComponentDoc{
 		{Name: "auto-resize-height", Type: "boolean | length", Default: "false", Observed: true,
 			Description: templ.Raw("Auto-grow the field on the Y axis. Bare attribute grows without limit; a CSS length value caps the height.")},
 		{Name: "(native passthrough)", Type: "none",
-			Description: templ.Raw("<code>rows</code>, <code>cols</code>, <code>placeholder</code>, <code>maxlength</code>, <code>readonly</code>, <code>disabled</code>, <code>required</code>, <code>wrap</code>, <code>aria-*</code>, … are forwarded to the field. <code>name</code> submits via the form-associated host.")},
+			Description: templ.Raw("<code>rows</code>, <code>cols</code>, <code>placeholder</code>, <code>maxlength</code>, <code>readonly</code>, <code>disabled</code>, <code>required</code>, <code>wrap</code>, <code>aria-*</code>, ... are forwarded to the field. <code>name</code> submits via the form-associated host.")},
 	},
 	Events: []DocEvent{
 		{Name: "input", URL: W3CEventURL("input"), Bubbles: true,

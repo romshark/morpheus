@@ -8,8 +8,8 @@ package neo
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
-// Progress renders <neo-progress> as the bare host: only attributes plus
-// the progressbar ARIA semantics and any author marks as light children.
+// Progress renders <neo-progress> as the bare host, with only attributes
+// plus the progressbar ARIA semantics and any author marks as light children.
 // The JS host builds the painted bar (header, track + fill, marks) into a
 // shadow root on connect, kept out of light DOM so a Datastar fat-morph
 // can't wipe it, letting a plain `value` change ease instead of snapping.
@@ -220,8 +220,8 @@ func ProgressAttrs[N Number](opts ProgressOpts[N], attrs templ.Attributes) templ
 // <neo-progress>. The host reads these [data-neo-progress-mark] children
 // on connect and builds the anchor dot plus its label (the children;
 // omit them for a bare dot). value is the numeric position; marks outside
-// [min, max] are skipped. The server-prerendered Progress takes marks via
-// ProgressOpts.Marks instead.
+// [min, max] are skipped. The server-prerendered [Progress] takes marks via
+// [ProgressOpts.Marks] instead.
 func ProgressMarkAt[N Number](value N) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context

@@ -222,7 +222,7 @@ func PageAlert(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<p class=\"demo-note\">Five treatments cover common callout severity: neutral default, <code>info</code>, <code>success</code>, <code>warning</code>, and <code>danger</code>.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<p class=\"demo-note\">The neutral default, <code>info</code>, <code>success</code>, <code>warning</code>, and <code>danger</code> cover common callout severities.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -284,7 +284,7 @@ func PageAlert(morpheusVersion string) templ.Component {
 			var templ_7745c5c3_Var14 string
 			templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs("[data-neo-alert-actions]")
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_alert.templ`, Line: 62, Col: 38}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_alert.templ`, Line: 61, Col: 38}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 			if templ_7745c5c3_Err != nil {
@@ -343,7 +343,7 @@ var alertDoc = ComponentDoc{
 	},
 	Slots: []DocSlot{
 		{Name: `[data-neo-alert-icon]`,
-			Description: templ.Raw("Optional leading icon column. Decorative: mark it <code>aria-hidden=&quot;true&quot;</code> so assistive tech skips the glyph.")},
+			Description: templ.Raw("Optional leading icon column. Decorative. Mark it <code>aria-hidden=&quot;true&quot;</code> so assistive tech skips the glyph.")},
 		{Name: `[data-neo-alert-content]`,
 			Description: templ.Raw("Content column for the title, description, and actions.")},
 		{Name: `[data-neo-alert-title]`,

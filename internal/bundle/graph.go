@@ -183,7 +183,7 @@ type Selection struct {
 	// IDs are the named components and their requirements, in [Nodes] order.
 	// [Build] takes them.
 	IDs []string
-	// Named are the ids of the named components, in Nodes order.
+	// Named are the ids of the named components, in [Nodes] order.
 	Named []string
 	// Unknown are the names that match no selectable component.
 	Unknown []string

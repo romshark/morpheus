@@ -1,10 +1,7 @@
-/* -----------------------------------------------------------------------
- * <neo-checkbox>
- * -----------------------------------------------------------------------
- * Three-state checkbox styled as a square that fills with --accent on
- * check and reveals a white mark via a CSS mask. The check / indeterminate
- * SVGs are stored as data-URL mask-image tokens so theme overrides can
- * swap the mark shape (e.g. a different glyph) by redefining
+/* <neo-checkbox> is a 3-state checkbox styled as a square that fills with
+ * --accent on check and reveals a white mark via a CSS mask. The check /
+ * indeterminate SVGs are stored as data-URL mask-image tokens so theme
+ * overrides can swap the mark shape (e.g. a different glyph) by redefining
  * --neo-checkbox-mark / --neo-checkbox-mark-indeterminate without
  * touching the colour rules. Dimensions parallel <neo-switch>:
  *   default size: 1.15rem square
@@ -135,8 +132,8 @@ neo-checkbox[size="sm"] {
 }
 
 /* Match the kit's 2px currentColor outline; checked keeps accent. The
- * box is a fixed-size border-box, so the wider border is absorbed and
- * never shifts layout: a real border here, not the inset ring the
+ * box is a fixed-size border-box, which absorbs the wider border without
+ * shifting layout. It takes a real border, not the inset ring the
  * auto-sized controls use. */
 @media (prefers-contrast: more) {
 	neo-checkbox {

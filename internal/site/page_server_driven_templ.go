@@ -77,7 +77,7 @@ func PageServerDriven(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<p class=\"intro\">Even though Morpheus is entirely framework and architecture agnostic, its original purpose was to enable easier development of hypermedia web app architectures, where the server owns the truth and the browser gets HTML (morph-)patches and renders them with no additional layers of abstraction; as opposed to <code>JSON -> [vDOM ->] DOM</code>.</p><p>Morpheus components make it easy to drive your application with just a single HTML template for each page using \"fat morph\" patches (see <a target=\"_blank\" href=\"https://data-star.dev/guide/the_tao_of_datastar/\">The Tao of Datastar</a> ).<br><a target=\"_blank\" href=\"https://data-star.dev/guide/reactive_signals/\">Reactive signals</a> also allow you to easily interconnect components on a page.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<p class=\"intro\">Even though Morpheus is entirely framework and architecture agnostic, its original purpose was to enable easier development of hypermedia web app architectures, where the server owns the truth and the browser gets HTML (morph-)patches and renders them with no additional layers of abstraction; as opposed to <code>JSON -> [vDOM ->] DOM</code>.</p><p>Morpheus components make it easy to run your application with just a single HTML template for each page using \"fat morph\" patches (see <a target=\"_blank\" href=\"https://data-star.dev/guide/the_tao_of_datastar/\">The Tao of Datastar</a> ).<br><a target=\"_blank\" href=\"https://data-star.dev/guide/reactive_signals/\">Reactive signals</a> also allow you to easily interconnect components on a page.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -161,7 +161,7 @@ func PageServerDriven(morpheusVersion string) templ.Component {
 							}()
 						}
 						ctx = templ.InitializeContext(ctx)
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "In order to avoid hosting a server and to be able to deliver this site via CDN, we are using <a target=\"_blank\" href=\"https://github.com/romshark/datastar-simulator\">An in-browser simulator script</a> which hijacks Datastar's <code>fetch</code> requests, executes the JavaScript handler and then fires a Datastar-native ")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "In order to avoid hosting a server and to be able to deliver this site via CDN, we are using <a target=\"_blank\" href=\"https://github.com/romshark/datastar-simulator\">an in-browser simulator script</a> which intercepts Datastar's <code>fetch</code> requests, executes the JavaScript handler and then fires a Datastar-native ")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -187,7 +187,7 @@ func PageServerDriven(morpheusVersion string) templ.Component {
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, " event. which is similar to a regular Datastar request handler.")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, " event, which is similar to a regular Datastar request handler.")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -290,7 +290,7 @@ func PageServerDriven(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<p>Many Morpheus components are stateful, and server-side morph patching must only interfere in the user's client-side interactions when the server explicitly wants it to happen. For example, a fat morph of the page must not close a <code>neo-popover</code> after the user opened it, unless the server explicitly needs it to happen.</p><p>Therefore every Morpheus attribute follows one rule: <b>an absent attribute is not a command.</b> A brand-new element falls back to the attribute's default; an element already in the DOM keeps its current value. Every boolean attribute also accepts an explicit <code>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<p>Many Morpheus components are stateful, and server-side morph patching must only interfere in the user's client-side interactions when the server explicitly wants it to happen. For example, a fat morph of the page must not close a <code>neo-popover</code> after the user opened it, unless the server explicitly needs it to happen.</p><p>Therefore every Morpheus attribute follows the rule that <b>an absent attribute is not a command.</b> A brand-new element falls back to the attribute's default; an element already in the DOM keeps its current value. Every boolean attribute also accepts an explicit <code>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -316,7 +316,7 @@ func PageServerDriven(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</code>, so the server can command either state or stay silent and leave the client's alone.</p><p>Two kinds of attribute, one rule:</p><ul><li><b>Interactive state</b> the user drives (<code>open</code>, <code>value</code>, <code>checked</code>, <code>pressed</code>, <code>expanded</code>, <code>page</code>): an absent attribute keeps the current client state, so a fat morph that omits it can't reset what the user just did.</li><li><b>Configuration</b> the server owns (<code>flip</code>, <code>hover</code>, <code>disabled</code>, <code>clamp-placement</code>): an absent attribute falls back to the default. The client never changes these, so the server stays the source of truth.</li></ul><p>The server can still <b>explicitly dictate</b> Datastar to...</p><ul><li>close a popover by setting <code>open=\"false\"</code>, or to explicitly open it using <code>open=\"true\"</code>.</li><li>explicitly set a certain value on a <code>neo-textinput</code> by setting attribute <code>value=\"specific value\"</code>.</li></ul><p>Every boolean attribute reads the same three ways. Taking <code>open</code>, which applies to <code>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</code>, which lets the server command either state or stay silent and leave the client's alone.</p><p>The rule applies to 2 kinds of attribute:</p><ul><li><b>Interactive state</b> the user controls (<code>open</code>, <code>value</code>, <code>checked</code>, <code>pressed</code>, <code>expanded</code>, <code>page</code>): an absent attribute keeps the current client state. A fat morph that omits it can't reset what the user just did.</li><li><b>Configuration</b> the server owns (<code>flip</code>, <code>hover</code>, <code>disabled</code>, <code>clamp-placement</code>): an absent attribute falls back to the default. The client never changes these, which keeps the server the source of truth.</li></ul><p>The server can still <b>explicitly dictate</b> Datastar to...</p><ul><li>close a popover by setting <code>open=\"false\"</code>, or to explicitly open it using <code>open=\"true\"</code>.</li><li>explicitly set a certain value on a <code>neo-textinput</code> by setting attribute <code>value=\"specific value\"</code>.</li></ul><p>Every boolean attribute reads the same 3 ways. Taking <code>open</code>, which applies to <code>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -394,7 +394,7 @@ func PageServerDriven(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</code>'s suggestions:</p><ul><li><code>open</code> absent is no command. The component keeps its current state, so a morph that omits <code>open</code> can't disturb it.</li><li><code>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</code>'s suggestions:</p><ul><li><code>open</code> absent is no command. The component keeps its current state. A morph that omits <code>open</code> can't disturb it.</li><li><code>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -432,7 +432,7 @@ func PageServerDriven(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<p>Essentially, an absent attribute means \"no command\", the client may keep its current state until the server genuinely needs to take control.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<p>An absent attribute means \"no command\". The client may keep its current state until the server needs to take control.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -540,7 +540,7 @@ func PageServerDriven(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "\">toasts</a>. Morpheus offers useful template wrappers like for example <code>datastar.ComboboxAsync</code>:</p><p class=\"demo-note\">In the following example, the server always returns a <code>500 Internal Server Error</code> immediately. Datastar retries on <code>error</code> twice, waiting 1s between attempts; once the retry budget is exhausted, the combobox swaps in a failure state with a retry button. ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "\">toasts</a>. Morpheus offers useful template wrappers like for example <code>datastar.ComboboxAsync</code>:</p><p class=\"demo-note\">In the following example, the server always returns a <code>500 Internal Server Error</code> immediately. Datastar retries on <code>error</code> 2 times, waiting 1s between attempts; once the retry budget is exhausted, the combobox swaps in a failure state with a retry button. ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

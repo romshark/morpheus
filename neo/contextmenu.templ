@@ -1,7 +1,7 @@
 package neo
 
 // ContextMenuOpts forwards the same sizing / submenu mode attributes used by
-// Menu, but opens from a right-click or keyboard context-menu invocation on
+// [Menu], but opens from a right-click or keyboard context-menu invocation on
 // the child marked [data-neo-contextmenu-trigger].
 type ContextMenuOpts struct {
 	Mode Attr[MenuMode]
@@ -15,7 +15,7 @@ type ContextMenuOpts struct {
 
 // ContextMenu renders <neo-contextmenu>. Children must be one direct
 // [data-neo-contextmenu-trigger] target and exactly one <neo-menu>
-// (its Menu wrapper) holding the rows. It opens that menu at the
+// (its [Menu] wrapper) holding the rows. It opens that menu at the
 // pointer; all menu behavior is the nested Menu's.
 templ ContextMenu(opts ContextMenuOpts) {
 	@ContextMenuAttrs(opts, nil) {
@@ -39,10 +39,10 @@ templ ContextMenuAttrs(opts ContextMenuOpts, attrs templ.Attributes) {
 }
 
 // ContextMenuTrigger renders the [data-neo-contextmenu-trigger] child a
-// ContextMenu opens its menu from. Emits a <div>; the trigger can be any
-// element, so for an inline or <button> trigger mark your own element with
-// data-neo-contextmenu-trigger instead. Place it as a child of ContextMenu
-// alongside the <neo-menu>.
+// [ContextMenu] opens its menu from. Emits a <div>. The trigger can be any
+// element; for an inline or <button> trigger, mark your own element with
+// data-neo-contextmenu-trigger instead. Place it as a child of
+// [ContextMenu] alongside the <neo-menu>.
 templ ContextMenuTrigger() {
 	@ContextMenuTriggerAttrs(nil) {
 		{ children... }

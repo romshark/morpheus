@@ -8,9 +8,9 @@ package neo
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
-// MenuMode picks the cascade strategy for nested submenus. Zero value
-// (MenuModeDefault) defers to <neo-menu>'s own default (auto: cascade
-// when there's room, push when there isn't).
+// MenuMode picks the cascade strategy for nested submenus.
+// Zero value ([MenuModeDefault]) defers to <neo-menu>'s own default
+// (auto, which cascades when there's room and pushes when there isn't).
 type MenuMode string
 
 const (
@@ -33,10 +33,10 @@ type MenuOpts struct {
 	MinFitWidth    Attr[CSSUnit]
 }
 
-// Menu renders <neo-menu>: a triggerless menu panel. Nest it directly
+// Menu renders <neo-menu>, a triggerless menu panel. Nest it directly
 // inside a <neo-button> (the button becomes the dropdown trigger) or a
-// ContextMenu (opened at the pointer). Its children are the rows
-// (MenuItem / SubMenu / <hr>); it owns all keyboard/submenu behavior.
+// [ContextMenu] (opened at the pointer). Its children are the rows
+// ([MenuItem] / [SubMenu] / <hr>); it owns all keyboard/submenu behavior.
 func Menu(opts MenuOpts) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
@@ -162,14 +162,13 @@ type MenuItemOpts struct {
 	// Value identifies the item in the `neo-menuitem-select` event.
 	Value Attr[string]
 	// Shortcut is a global hotkey, e.g. "Cmd+S" / "Mod+K" /
-	// "Shift+Alt+P": the host registers a document keydown that
+	// "Shift+Alt+P". The host registers a document keydown that
 	// activates the item, and renders a trailing kbd hint.
 	Shortcut Attr[string]
 	Disabled Attr[bool]
 }
 
-// MenuItem renders <neo-menuitem>: a leaf entry inside a Menu or
-// SubMenu.
+// MenuItem renders <neo-menuitem>, a leaf entry inside a [Menu] or [SubMenu].
 func MenuItem(opts MenuItemOpts) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
@@ -289,8 +288,7 @@ type SubMenuOpts struct {
 	MinFitWidth    Attr[CSSUnit]
 }
 
-// SubMenu renders <neo-submenu>: a nested menu that opens to the side
-// of its parent row.
+// SubMenu renders <neo-submenu>, a nested menu that opens to the side of its parent row.
 func SubMenu(opts SubMenuOpts) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
@@ -367,7 +365,7 @@ func SubMenuAttrs(opts SubMenuOpts, attrs templ.Attributes) templ.Component {
 		var templ_7745c5c3_Var10 string
 		templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.ResolveAttributeValue(opts.Label.Or(""))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `neo/menu.templ`, Line: 109, Col: 27}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `neo/menu.templ`, Line: 107, Col: 27}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var10)
 		if templ_7745c5c3_Err != nil {

@@ -19,10 +19,10 @@ templ PageElastic(morpheusVersion string) {
 			<p class="intro">
 				Component <code>{ "<neo-elastic>" }</code> is a block
 				container that animates its height as the natural
-				size of its content changes: toggled visibility,
-				added items, swapped blocks, async-loaded payloads.
+				size of its content changes, as with toggled visibility,
+				added items, swapped blocks, or async-loaded payloads.
 				A <code>ResizeObserver</code> pins the latest content
-				height to the host; the transition rides
+				height to the host; the transition uses
 				<code>--neo-easing</code> /
 				<code>--neo-duration-scale</code> so each theme paces
 				it differently. Server-side morphs that swap content
@@ -46,7 +46,7 @@ templ PageElastic(morpheusVersion string) {
 			}
 			<p class="demo-note">
 				The accordion case. While the inner is
-				<code>display: none</code> the wrapper measures zero and
+				<code>display: none</code> the wrapper measures 0 and
 				the host collapses; on reveal it animates back to the
 				natural content height. The button just flips the
 				inner's <code>hidden</code> attribute; the host
@@ -68,7 +68,7 @@ templ PageElastic(morpheusVersion string) {
 				Datastar morph patches that swap or re-render the
 				inner content animate the height shift automatically;
 				Elastic's ResizeObserver / MutationObserver re-pin on
-				every reflow, so any server-driven content swap reads
+				every reflow, which makes any server-driven content swap read
 				as a smooth transition without per-demo wiring.
 			</p>
 			@anchoredH3("morphing-during-interaction") {
@@ -107,8 +107,8 @@ templ PageElastic(morpheusVersion string) {
 				Content swap
 			}
 			<p class="demo-note">
-				Not just expand-from-zero: the host shrinks or grows
-				between two differently sized blocks. Whatever the
+				Besides expanding from 0 height, the host shrinks or grows
+				between 2 differently sized blocks. Whatever the
 				wrapper measures, the host transitions to. Re-toggling
 				mid-flight retargets the latest height instead of
 				finishing the old one.
@@ -130,8 +130,8 @@ templ PageElastic(morpheusVersion string) {
 				to reload content through the placeholder. Opening
 				reveals the skeleton and posts to the server, which
 				morphs the loaded panel into the slot; collapsing
-				reinstates the skeleton after the transition, so the
-				next open loads fresh. Closing aborts an in-flight
+				reinstates the skeleton after the transition. The
+				next open then loads fresh. Closing aborts an in-flight
 				request. Load details, collapse, then reopen.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
@@ -162,6 +162,6 @@ var elasticDoc = ComponentDoc{
 		{Name: "neo-elastic-start", Detail: "{ from: number, to: number }", Bubbles: true,
 			Description: templ.Raw("Fires at the start of a height transition.")},
 		{Name: "neo-elastic-end", Detail: "{ height: number }", Bubbles: true,
-			Description: templ.Raw("Fires once the height transition lands.")},
+			Description: templ.Raw("Fires once the height transition ends.")},
 	},
 }

@@ -5,10 +5,10 @@
 // subtree, and ships it as an element patch. The kit's tree observer
 // rewires the new descendants into the focus / expansion model.
 //
-// Authoring is post-shadow-DOM: a tree-item's structure (chevron +
-// animation wrapper) lives in shadow. The HTML emitted here only
-// carries the author's content — a `[data-neo-tree-label]` div and
-// nested `<neo-tree-item>`s as direct children.
+// A tree-item's structure (chevron + animation wrapper) lives in its
+// shadow root. The HTML this handler emits carries only the author's
+// content, a `[data-neo-tree-label]` div and nested `<neo-tree-item>`s
+// as direct children.
 
 import sim from "/static/datasim.js";
 

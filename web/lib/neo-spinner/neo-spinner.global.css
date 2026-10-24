@@ -9,8 +9,8 @@
 	--neo-spinner-track-color: color-mix(in srgb, currentColor 20%, transparent);
 }
 
-/* The manual accessibility preview cannot select shadow internals, so
- * switch the shadow rules through inherited tokens. */
+/* The manual accessibility preview cannot select shadow internals.
+ * It switches the shadow rules through inherited tokens. */
 :root[data-pref-reduced-motion] {
 	--neo-spinner-indeterminate-arc-display: none;
 	--neo-spinner-indeterminate-animation: none;
@@ -18,9 +18,9 @@
 	--neo-spinner-manual-arc-transition: none;
 }
 
-/* Shared accessibility preferences historically live beside the spinner
- * tokens in the kit manifest. Keep them global while spinner structure
- * moves into shadow DOM. */
+/* Shared accessibility preferences live beside the spinner tokens in
+ * the kit manifest for historical reasons. They stay global; only the
+ * spinner structure is in shadow DOM. */
 @media (prefers-reduced-motion: reduce) {
 	:root {
 		--neo-duration-scale: 0;

@@ -27,8 +27,8 @@ export class NeoCheckbox extends HTMLElement {
 		this.addEventListener("click", this.#onClick);
 		this.addEventListener("keydown", this.#onKeyDown);
 		// Label-click forwarding listens on `document` and resolves the
-		// wrapping label per click, never caching the label node, so a
-		// morph that swaps an ancestor label can't strand the listener.
+		// wrapping label per click, never caching the label node, which means
+		// a morph that swaps an ancestor label can't strand the listener.
 		document.addEventListener("click", this.#onDocumentClick);
 		this.#morphObserver = observeManagedAttrs(this, RESILIENT_ATTRS, this.#resync);
 	}
@@ -81,7 +81,7 @@ export class NeoCheckbox extends HTMLElement {
 		this.#reflectState();
 	}
 
-	// State → attributes, guarded so they aren't read back as commands.
+	// State -> attributes, guarded so they aren't read back as commands.
 	#reflectState() {
 		this.#reflecting = true;
 		try {
@@ -103,8 +103,9 @@ export class NeoCheckbox extends HTMLElement {
 
 	toggle(): void {
 		if (boolAttr(this, "disabled", false)) return;
-		// Native rule: user input on a mixed checkbox resolves to checked.
-		// Sticky three-state requires re-setting indeterminate after the event.
+		// Per the native rule, user input on a mixed checkbox resolves to
+		// checked.
+		// Sticky 3-state requires re-setting indeterminate after the event.
 		if (this.indeterminate) {
 			this.indeterminate = false;
 			this.checked = true;
@@ -167,7 +168,7 @@ export class NeoCheckbox extends HTMLElement {
 		if (!target || this.contains(target)) return;
 		const label = target.closest("label");
 		if (!label?.contains(this)) return;
-		// Mirror native <label> behaviour: a click on another interactive
+		// Mirror native <label> behaviour, where a click on another interactive
 		// element inside the label (a button, link, etc.) does not
 		// activate the labelled control.
 		const interactive = target.closest(

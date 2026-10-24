@@ -191,7 +191,7 @@ func PageButtonGroup(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<p class=\"demo-note\">Two groups: a visual-only row, then a segmented radiogroup.</p><ul class=\"demo-note\"><li>Without <code>value</code> the buttons share borders only: no selection state, and each is its own tab stop with no arrow-key navigation.</li><li>Setting <code>value</code> on the host and a matching <code>value</code> on one button makes it a radiogroup: a single roving tab stop where arrow keys and Home / End move focus between buttons. Add <code>auto-activate</code> to commit the selection as focus moves.</li></ul>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<p class=\"demo-note\">A visual-only row, then a segmented radiogroup.</p><ul class=\"demo-note\"><li>Without <code>value</code> the buttons share borders only. There is no selection state, and each is its own tab stop with no arrow-key navigation.</li><li>Setting <code>value</code> on the host and a matching <code>value</code> on one button makes it a radiogroup with a single roving tab stop where arrow keys and Home / End move focus between buttons. Add <code>auto-activate</code> to commit the selection as focus moves.</li></ul>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

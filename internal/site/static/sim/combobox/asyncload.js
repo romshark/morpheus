@@ -1,10 +1,11 @@
 // Server handler for the "Async load with failure swap" example,
-// driven by datastar.ComboboxAsync. The host id is `comboboxAsyncDemo`
+// built on datastar.ComboboxAsync. The host id is `comboboxAsyncDemo`
 // (the wrapper's default morph target); the live-search bind on the
 // host stamps the current query onto `comboboxAsyncDemo_query`, which
 // this handler filters by. The simulator's `_sim_unreachable` /
-// `_sim_server_error` signals drive the failure path without any
-// extra wiring here — datasim intercepts the request based on them.
+// `_sim_server_error` signals trigger the failure path without extra
+// wiring in this handler, because datasim intercepts the request
+// based on them.
 
 import sim from "/static/datasim.js";
 

@@ -64,8 +64,8 @@ if (!customElements.get("neo-radio")) {
 }
 
 export class NeoRadioGroup extends HTMLElement {
-	// `orientation` is a CSS-only layout hook (see neo-radio-group.css);
-	// arrow-key nav is orientation-agnostic, so JS never reads it.
+	// `orientation` is a CSS-only layout hook (see neo-radio-group.css). JS
+	// never reads it because arrow-key nav is orientation-agnostic.
 	static readonly observedAttributes = ["value", "disabled"];
 
 	#applyingValue = false;
@@ -145,7 +145,8 @@ export class NeoRadioGroup extends HTMLElement {
 			this.#focusedValue = null;
 			return;
 		}
-		// Blur to nothing: morph strip (observer reseats first) or click-away.
+		// Blur to nothing comes from a morph strip (observer reseats first) or
+		// a click-away.
 		queueMicrotask(() => {
 			if (this.contains(document.activeElement)) return;
 			this.#focusedValue = null;
@@ -157,9 +158,9 @@ export class NeoRadioGroup extends HTMLElement {
 		// Our own reflective write (writeValue / keep-on-absent); not a command.
 		if (this.#applyingValue) return;
 		if (name === "value") {
-			// Fat morph dropped `value`: no command, keep the current selection
-			// (command contract). Re-reflect intent so the attribute stays the
-			// state mirror, then refresh; don't clear the selection.
+			// A fat morph that drops `value` is no command. Keep the current
+			// selection (command contract). Re-reflect intent so the attribute
+			// stays the state mirror, then refresh; don't clear the selection.
 			if (newValue === null) {
 				this.#reflectValue();
 				this.#refresh();
@@ -180,7 +181,7 @@ export class NeoRadioGroup extends HTMLElement {
 		this.#refresh();
 	}
 
-	// Single writer for the selected value: intent is the source of truth, the
+	// Single writer for the selected value. Intent is the source of truth, the
 	// attribute its guarded mirror so refresh()'s getAttribute reads stay true.
 	#writeValue(value: string | null) {
 		this.#valueIntent = value;
@@ -220,7 +221,7 @@ export class NeoRadioGroup extends HTMLElement {
 		const all = this.#radios();
 
 		// Group-disabled propagates via aria-disabled, not the child's own
-		// `disabled` attribute, so removing the group flag preserves any
+		// `disabled` attribute. Removing the group flag then preserves any
 		// per-radio disabled state authors set explicitly.
 		for (const r of all) {
 			const isChecked = value !== null && r.getAttribute("value") === value;
@@ -232,13 +233,13 @@ export class NeoRadioGroup extends HTMLElement {
 			}
 		}
 
-		// Roving tabindex: one tab stop, the checked radio if any, else
+		// Roving tabindex with 1 tab stop, the checked radio if any, else
 		// the first enabled. Disabled radios always tabindex=-1.
 		const enabled = this.#enabledRadios();
 		const checkedEnabled = enabled.find((r) => r.checked);
 		const stopRadio = checkedEnabled ?? enabled[0] ?? null;
-		// setAttrIfChanged so the radioObserver (which now watches tabindex
-		// to catch the morph stripping it) settles after one no-op pass.
+		// setAttrIfChanged so the radioObserver (which watches tabindex to
+		// catch the morph stripping it) settles after 1 no-op pass.
 		for (const r of all) {
 			const stop = r === stopRadio && !groupDisabled && !boolAttr(r, "disabled", false);
 			setAttrIfChanged(r, "tabindex", stop ? "0" : "-1");
@@ -263,14 +264,14 @@ export class NeoRadioGroup extends HTMLElement {
 		if (boolAttr(this, "disabled", false)) return;
 		const el = e.target as Element | null;
 		// Clicks inside the radio resolve via closest("neo-radio"); clicks
-		// on label text bubble through the wrapping <label>, not the radio,
-		// so fall back to closest("label") and pick the radio within.
+		// on label text bubble through the wrapping <label>, not the radio.
+		// Those fall back to closest("label") and pick the radio within.
 		let target = el?.closest<NeoRadio>("neo-radio") ?? null;
 		if (!target) {
 			const label = el?.closest("label");
 			if (label && this.contains(label)) {
-				// Mirror native <label>: another interactive element inside
-				// the label intercepts the click, so don't activate the radio.
+				// Like a native <label>, don't activate the radio when another
+				// interactive element inside the label takes the click.
 				const interactive = el?.closest(
 					'a, button, [role="button"], input, select, textarea, details, summary, [contenteditable=""], [contenteditable="true"], neo-button, neo-toggle, neo-switch, neo-checkbox, neo-slider, neo-tab',
 				);
@@ -310,7 +311,7 @@ export class NeoRadioGroup extends HTMLElement {
 		const dir = e.key === "ArrowDown" || e.key === "ArrowRight" ? +1 : -1;
 		const next = enabled[(idx + dir + enabled.length) % enabled.length];
 		next.focus();
-		// Manual activation by default (like neo-tabs): arrows only move
+		// Manual activation by default (like neo-tabs). Arrows only move
 		// focus; Enter / Space commit. `auto-activate` selects on move.
 		if (boolAttr(this, "auto-activate", false)) {
 			this.#applyValue(next.getAttribute("value"));

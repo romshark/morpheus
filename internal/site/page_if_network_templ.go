@@ -85,7 +85,7 @@ func PageIfNetwork(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</code> is a connection gate: it shows its content only while the browser is online (<code>online</code>) or offline (<code>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</code> is a connection gate. It shows its content only while the browser is online (<code>online</code>) or offline (<code>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -184,20 +184,20 @@ func PageIfNetwork(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<p class=\"demo-note\">One branch per connection state tells the user whether their changes reach the server.</p><ul class=\"demo-note\"><li>The <code>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<p class=\"demo-note\">One branch per connection state tells the user whether their changes reach the server.</p><ul class=\"demo-note\"><li>Because the <code>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var9 string
 			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(`role="status"`)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_if_network.templ`, Line: 40, Col: 32}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_if_network.templ`, Line: 40, Col: 40}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</code> wrapper stays on the page, so screen readers announce the branch that appears. A live region must be on the page before its content changes.</li><li><code>online</code> only means the device is on a network. A server that is down still counts as online.</li><li><code>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</code> wrapper stays on the page, screen readers announce the branch that appears. A live region must be on the page before its content changes.</li><li><code>online</code> only means the device is on a network. A server that is down still counts as online.</li><li><code>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -258,7 +258,7 @@ func PageIfNetwork(morpheusVersion string) templ.Component {
 var ifNetworkDoc = ComponentDoc{
 	Attributes: []DocAttribute{
 		{Name: "online", Type: "boolean", Default: "unset", Observed: true,
-			Description: templ.Raw("Which connection state to show in: <code>online</code> while online, <code>online=\"false\"</code> while offline, unset in both. Offline is reliable; online only means the device is on a network, not that the server is reachable.")},
+			Description: templ.Raw("The connection state to show in. <code>online</code> shows while online, <code>online=\"false\"</code> while offline, and unset in both. Offline is reliable; online only means the device is on a network, not that the server is reachable.")},
 		{Name: "delay", Type: "number", Default: "0",
 			Description: templ.Raw("Milliseconds a connection change must last before the content switches. A shorter drop shows nothing. The state on page load applies at once.")},
 	},

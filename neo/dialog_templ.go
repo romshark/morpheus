@@ -12,18 +12,17 @@ type DialogOpts struct {
 	// Open seeds the open state.
 	Open Attr[bool]
 	// Dismissible controls whether backdrop click and Escape close the
-	// dialog. Default leaves it dismissible; DismissibleOff locks it open
+	// dialog. Default leaves it dismissible; [DismissibleOff] locks it open
 	// for must-decide flows where the user has to pick a button.
 	Dismissible Attr[Dismissible]
 }
 
-// Dialog renders <neo-dialog>: a modal dialog wrapping a native <dialog>.
+// Dialog renders <neo-dialog>, a modal dialog wrapping a native <dialog>.
 // The host owns trigger/close wiring and ARIA; the browser owns modal
 // lifecycle (top-layer, focus trap, scroll lock, Esc). Children must
-// include a `[data-neo-dialog-trigger]` and a `<dialog>` element. Any
-// `[data-neo-dialog-close]` descendant closes on click; standard layout
-// slots are `[data-neo-dialog-header]`, `-title`, `-description`,
-// `-body`, `-footer`.
+// include a `[data-neo-dialog-trigger]` and a `<dialog>` element.
+// Any `[data-neo-dialog-close]` descendant closes on click; standard layout
+// slots are `[data-neo-dialog-header]`, `-title`, `-description`, `-body`, `-footer`.
 func Dialog(opts DialogOpts) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
@@ -139,15 +138,16 @@ func DialogTrigger() templ.Attributes {
 	return templ.Attributes{"data-neo-dialog-trigger": true}
 }
 
-// DialogClose marks any descendant inside the dialog as a close
-// control; clicking it dismisses the dialog.
+// DialogClose marks any descendant inside the dialog as a close control;
+// clicking it dismisses the dialog.
 func DialogClose() templ.Attributes {
 	return templ.Attributes{"data-neo-dialog-close": true}
 }
 
-// Dialog layout slots. Each renders one data-neo-dialog-* element with the
-// kit's spacing/typography presets. Place them inside the dialog's
-// <dialog> element.
+// DialogHeader and the other dialog layout slots ([DialogTitle],
+// [DialogDescription], [DialogBody], [DialogFooter]) each render one
+// data-neo-dialog-* element with the kit's spacing/typography presets.
+// Place them inside the dialog's <dialog> element.
 func DialogHeader() templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context

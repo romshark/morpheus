@@ -31,8 +31,9 @@ func TestDetectPlatform(t *testing.T) {
 	}
 }
 
-// formatKey must match web/lib/platform.ts so the SSR pre-render equals
-// what the browser renders (no flash on reconcile).
+// TestFormatKeyMatchesClient tests that formatKey matches
+// web/lib/platform.ts. The SSR pre-render then equals what the browser
+// renders (no flash on reconcile).
 func TestFormatKeyMatchesClient(t *testing.T) {
 	cases := []struct {
 		key  string
@@ -60,8 +61,8 @@ func TestFormatKeyMatchesClient(t *testing.T) {
 }
 
 // TestKeyLabelsMatchClient tests that the key and modifier tables equal
-// the ones in web/lib/platform.ts, so a <neo-kbd> pre-rendered on the
-// server shows the label the client renders after upgrade.
+// the ones in web/lib/platform.ts. A <neo-kbd> pre-rendered on the server
+// then shows the label the client renders after upgrade.
 func TestKeyLabelsMatchClient(t *testing.T) {
 	src, err := os.ReadFile("../web/lib/platform.ts")
 	if err != nil {

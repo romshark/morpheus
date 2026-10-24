@@ -7,7 +7,7 @@
 	box-sizing: border-box;
 }
 
-/* Content styling; the .resizable-demo flex container above centers it. */
+/* Content styling; the .resizable-demo flex container centers it. */
 .resizable-demo > neo-layout {
 	padding: 1rem;
 	box-sizing: border-box;

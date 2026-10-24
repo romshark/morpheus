@@ -152,8 +152,8 @@ func ResizableAttrs[N Number](opts ResizableOpts[N], attrs templ.Attributes) tem
 }
 
 // ResizableIcon marks a custom handle glyph with the handle it belongs to
-// (e.g. "bottom-right"), matching a ResizableOpts.HandleIcons key. Spread
-// onto the glyph element passed through HandleIcons.
+// (e.g. "bottom-right"), matching a [ResizableOpts.HandleIcons] key.
+// Spread onto the glyph element passed through HandleIcons.
 func ResizableIcon(handle string) templ.Attributes {
 	return templ.Attributes{"data-neo-resizable-icon": handle}
 }

@@ -170,7 +170,7 @@ func PageResizable(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<p class=\"demo-note\">The textarea pattern: a single corner handle for when the surrounding layout pins one edge and only the opposite corner should grow.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<p class=\"demo-note\">A single corner handle, as on a textarea, for when the surrounding layout pins 1 edge and only the opposite corner should grow.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -223,7 +223,7 @@ func PageResizable(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<p class=\"demo-note\">All four edge handles, no corners, so each axis moves independently and the cursor is always single-axis.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<p class=\"demo-note\">All 4 edge handles and no corners. Each axis moves independently and the cursor is always single-axis.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -266,7 +266,7 @@ func PageResizable(morpheusVersion string) templ.Component {
 					}()
 				}
 				ctx = templ.InitializeContext(ctx)
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "All eight handles")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "All 8 handles")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -276,7 +276,7 @@ func PageResizable(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<p class=\"demo-note\">Every edge and corner. The corners (NW–SE / NE–SW cursors) sit above the edges so they win on overlap.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<p class=\"demo-note\">Every edge and corner. The corners (NW-SE / NE-SW cursors) sit above the edges and take precedence where they overlap.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -329,7 +329,7 @@ func PageResizable(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<p class=\"demo-note\">A vertical sash. The layout fixes the host's width; only the bottom edge moves, so the cursor stays <code>ns-resize</code>.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<p class=\"demo-note\">A vertical sash. The layout fixes the host's width; only the bottom edge moves, which keeps the cursor at <code>ns-resize</code>.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -382,7 +382,7 @@ func PageResizable(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<p class=\"demo-note\">A horizontal sash, symmetric to the vertical case: only the right edge moves, cursor stays <code>ew-resize</code>.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<p class=\"demo-note\">A horizontal sash, symmetric to the vertical case. Only the right edge moves and the cursor stays <code>ew-resize</code>.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -435,7 +435,7 @@ func PageResizable(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<p class=\"demo-note\"><code>step-horizontal</code> and <code>step-vertical</code> snap each axis to a multiple of their pixel value while dragging, so the box resizes one grid cell at a time instead of continuously. Drag the corner over the grid to see it jump.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<p class=\"demo-note\"><code>step-horizontal</code> and <code>step-vertical</code> snap each axis to a multiple of their pixel value while dragging. The box resizes one grid cell at a time instead of continuously. Drag the corner over the grid to see it jump.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -563,7 +563,7 @@ var resizableDoc = ComponentDoc{
 		{Name: "resizing",
 			Description: templ.Raw("Set while a handle drag is in flight.")},
 		{Name: "handle-<dir>",
-			Description: templ.Raw("Set alongside <code>resizing</code> for the handle being dragged (<code>handle-top</code>, <code>handle-bottom-left</code>, …); the kit uses it to pick the resize cursor.")},
+			Description: templ.Raw("Set alongside <code>resizing</code> for the handle being dragged (<code>handle-top</code>, <code>handle-bottom-left</code>, ...); the kit uses it to pick the resize cursor.")},
 	},
 	Slots: []DocSlot{
 		{Name: "default", Description: templ.Raw("Resizable content.")},

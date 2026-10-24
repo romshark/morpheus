@@ -1,12 +1,9 @@
-/* -----------------------------------------------------------------------
- * <neo-tooltip>
- * -----------------------------------------------------------------------
- * Built on the same positioning primitives as <neo-popover> but styled
+/* Built on the same positioning primitives as <neo-popover> but styled
  * as a small, borderless pill and rendered with `pointer-events: none` so
  * it never steals hover or clicks from the trigger.
  *
  * tooltip-pill.css mirrors these rules keyed off [data-neo-tooltip-host]
- * for shadow hosts driven by TooltipController; keep the two in sync. */
+ * for shadow hosts run by TooltipController; keep both in sync. */
 
 :root {
 	--neo-tooltip-bg: color-mix(in srgb, var(--page-fg) 92%, transparent);

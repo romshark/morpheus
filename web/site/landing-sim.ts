@@ -5,8 +5,8 @@
 import simDefault from "/static/datasim.js";
 
 // Minimal shape of the subset of the datasim API this page uses. The
-// module itself is kept external by the build (see web/build.mjs) and
-// served separately at /static/datasim.js.
+// build keeps the module itself external, and it is served separately at
+// /static/datasim.js.
 interface SimContext {
 	params: Record<string, string>;
 	// Datastar signals sent with the request (e.g. the bound query field).
@@ -76,9 +76,9 @@ sim.post("/lf-eq/preset/:name/", async (ctx, sse) => {
 	sse.patchSignals(EQ_PRESETS[preset] || EQ_PRESETS.studio);
 });
 
-// Fat-morph demo: replay the templ-baked
+// Fat-morph demo. Replays the templ-baked
 // <template id="lf-how-section-stage-{2,3}"> payloads. Idiomorph
-// matches by id, so the live <section id="lf-how-section"> rebuilds
+// matches by id, which rebuilds the live <section id="lf-how-section">
 // in place.
 const stageHTML = (id: string): string => {
 	const tpl = document.getElementById(id);
@@ -94,11 +94,11 @@ sim.post("/lf-select/reset/", async (_ctx, sse) => {
 	sse.patchElements(stageHTML("lf-how-section-stage-3"));
 });
 
-// Collapse-all: mark open nodes collapsed, then replace (not morph) the tree.
-// neo-tree-item keeps an open node open across a morph, so a morphed
+// Collapse-all marks open nodes collapsed, then replaces (not morphs) the
+// tree. neo-tree-item keeps an open node open across a morph, and a morphed
 // expanded="false" re-expands; replacing rebuilds it collapsed. Build via
-// DOMParser, not cloneNode: a cloned upgraded item runs its command handler
-// and strips expanded="false" back off before serialization.
+// DOMParser, not cloneNode, because a cloned upgraded item runs its command
+// handler and strips expanded="false" back off before serialization.
 sim.post("/lf-tree/collapse/", async (_ctx, sse) => {
 	const tree = document.getElementById("lf-tree");
 	if (!tree) return;
@@ -114,7 +114,7 @@ sim.post("/lf-tree/collapse/", async (_ctx, sse) => {
 // Server-driven suggestions for the search field above the release list.
 // Filters a small release-themed list by the bound lf_search_q signal and
 // morphs matches as <neo-option> rows into the suggestions slot (matched by
-// id). No query → empty container (popover closes); no match → a status row.
+// id). No query -> empty container (popover closes); no match -> a status row.
 const esc = (s: string): string => s.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
 
 const RELEASE_SUGGESTIONS = [

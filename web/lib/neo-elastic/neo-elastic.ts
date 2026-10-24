@@ -1,7 +1,7 @@
 // Animated `height: auto` substitute. On hydration the children are
 // wrapped in a [data-neo-elastic-content] div (the ResizeObserver target);
-// a MutationObserver re-syncs if a morph strips it. Height only: animating
-// width re-wraps text mid-animation and looks broken.
+// a MutationObserver re-syncs if a morph strips it. Height only, because
+// animating width re-wraps text mid-animation and looks broken.
 
 import { boolAttr } from "../command";
 
@@ -41,10 +41,10 @@ export class NeoElastic extends HTMLElement {
 	}
 
 	attributeChangedCallback() {
-		// Defer to a microtask: a morph that toggles `open` typically
+		// Defer to a microtask. A morph that toggles `open` typically
 		// strips inline `style` in the same task. Running synchronously
 		// here either reads a stripped style (from === to, no animation)
-		// or sets a height the morph nukes a tick later (transition
+		// or sets a height the morph removes a tick later (transition
 		// cancels). Microtask lets the morph settle first.
 		if (this.#applyScheduled) return;
 		this.#applyScheduled = true;
@@ -99,8 +99,8 @@ export class NeoElastic extends HTMLElement {
 		this.#applyHeight();
 	}
 
-	// Snap inline height with no transition: used for first paint and
-	// for re-establishing the last pinned value after a morph strip.
+	// Snap inline height with no transition, for first paint and for
+	// re-establishing the last pinned value after a morph strip.
 	#snapHeight(h: number): void {
 		this.style.transition = "none";
 		this.style.height = `${h}px`;

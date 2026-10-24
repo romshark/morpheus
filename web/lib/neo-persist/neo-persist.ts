@@ -15,8 +15,9 @@ function pickStorage(useSession: boolean): Storage | null {
 	}
 }
 
-// Read/write an object property by dot path: "scrollTop", "style.cssText",
-// "dataset.foo". Single-segment paths reduce to plain `obj[prop]`.
+// Read/write an object property by dot path, such as "scrollTop",
+// "style.cssText" or "dataset.foo". Single-segment paths reduce to plain
+// `obj[prop]`.
 function readProp(obj: unknown, path: string): unknown {
 	return path.split(".").reduce<unknown>((cur, p) => (cur == null ? cur : (cur as Record<string, unknown>)[p]), obj);
 }

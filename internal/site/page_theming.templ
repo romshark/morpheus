@@ -18,8 +18,8 @@ templ PageTheming(morpheusVersion string) {
 				<code>&lt;html&gt;</code>.
 			</p>
 			<p class="demo-note">
-				Open the settings sidebar and flip theme or mode:
-				the whole preview updates at once.
+				Open the settings sidebar and flip theme or mode.
+				The whole preview updates at once.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
 				StageMinHeight: "max-content",
@@ -91,8 +91,8 @@ templ PageTheming(morpheusVersion string) {
 				</neo-layout>
 			}
 			<p class="demo-note">
-				Each chip's fill is <code>var(--&lt;name&gt;)</code>,
-				so the grid tracks theme swaps with no JS.
+				Each chip's fill is <code>var(--&lt;name&gt;)</code>.
+				The grid tracks theme swaps with no JS.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
 				StageMinHeight: "max-content",
@@ -117,7 +117,7 @@ templ PageTheming(morpheusVersion string) {
 			}
 			<p>
 				The full default palette as it ships in
-				<code>theme-default.css</code>: every variable a
+				<code>theme-default.css</code>, with every variable a
 				custom theme can override:
 			</p>
 			<div class="theming-source">
@@ -129,8 +129,8 @@ templ PageTheming(morpheusVersion string) {
 				How it works
 			}
 			<p>
-				Two class hooks on <code>&lt;html&gt;</code> drive
-				every visual choice:
+				Every visual choice depends on 2 class hooks on
+				<code>&lt;html&gt;</code>:
 			</p>
 			<ul>
 				<li>
@@ -140,12 +140,12 @@ templ PageTheming(morpheusVersion string) {
 				<li>
 					<code>light</code> / <code>dark</code>: the colour
 					mode. No class lets <code>prefers-color-scheme</code>
-					pick from the OS, so a no-JS visit still respects
+					pick from the OS. A no-JS visit still respects
 					dark mode.
 				</li>
 			</ul>
 			<p>
-				Each palette is one file (e.g.
+				Each palette is 1 file (e.g.
 				<code>theme-ocean.css</code>) with a
 				<code>:root.theme-ocean</code> rule for light and a
 				<code>:root.theme-ocean.dark</code> rule for dark
@@ -159,9 +159,9 @@ templ PageTheming(morpheusVersion string) {
 				Switching at runtime
 			}
 			<p>
-				No kit-owned theme component; anything that writes
-				the two classes works. This site's picker is a
-				Datastar component holding two signals
+				The kit has no theme component. Anything that writes
+				the 2 classes works. This site's picker is a
+				Datastar component holding 2 signals
 				(<code>{ `$_theme` }</code>, <code>{ `$_mode` }</code>);
 				a <code>data-effect</code> writes the classes to
 				<code>document.documentElement</code> and persists
@@ -171,9 +171,9 @@ templ PageTheming(morpheusVersion string) {
 				System mode
 			}
 			<p>
-				Mode also accepts <code>{ `"system"` }</code>: the
+				Mode also accepts <code>{ `"system"` }</code>. The
 				saved value stays <code>{ `"system"` }</code> while
-				<code>&lt;html&gt;</code> wears whichever of
+				<code>&lt;html&gt;</code> has whichever of
 				<code>light</code> or <code>dark</code> matches the
 				OS. A <code>matchMedia</code> listener re-resolves on
 				OS flips; explicit <code>{ `"light"` }</code> or
@@ -215,9 +215,9 @@ templ PageTheming(morpheusVersion string) {
 	}
 }
 
-// themingSwatch renders one token-name + colour-chip cell for the
+// themingSwatch renders a token-name + colour-chip cell for the
 // Tokens demo. Colour comes from a CSS variable so the cell follows
-// theme/mode swaps automatically: no JS, no per-theme branching here.
+// theme/mode swaps with no JS and no per-theme branching.
 templ themingSwatch(name, color string) {
 	<neo-layout class="theming-swatch" align-items="center">
 		<span

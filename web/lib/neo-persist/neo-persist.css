@@ -1,8 +1,5 @@
-/* -----------------------------------------------------------------------
- * <neo-persist>
- * -----------------------------------------------------------------------
- * Headless wrapper. `display: contents` so its child participates
- * directly in the parent's flex / grid / block layout. */
+/* <neo-persist> is a headless wrapper. `display: contents` so its child
+ * participates directly in the parent's flex / grid / block layout. */
 
 neo-persist {
 	display: contents;

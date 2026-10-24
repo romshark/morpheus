@@ -56,10 +56,10 @@ sim.post("/frameworks/accent/", async (ctx, sse) => {
 	let option = String(s.fw_option ?? "blue");
 
 	if (s.fw_src === "color") {
-		// The field moved: its color is authoritative, the option follows.
+		// The field moved. Its color is authoritative and the option follows.
 		option = optionForColor(color);
 	} else if (option in NAMED) {
-		// A named option drives the field; "custom" keeps the color as is.
+		// A named option sets the field; "custom" keeps the color as is.
 		color = NAMED[option];
 	}
 

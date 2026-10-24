@@ -9,9 +9,9 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 // CardVariant picks the surface treatment. Zero value
-// (CardVariantDefault) renders a filled card with a subtle border;
-// CardVariantOutline drops the fill and keeps the border;
-// CardVariantElevated drops the border and adds a soft shadow.
+// ([CardVariantDefault]) renders a filled card with a subtle border;
+// [CardVariantOutline] drops the fill and keeps the border;
+// [CardVariantElevated] drops the border and adds a soft shadow.
 type CardVariant string
 
 const (
@@ -23,19 +23,18 @@ const (
 type CardOpts struct {
 	Variant Attr[CardVariant]
 	// Orientation stacks the card's slots top-to-bottom by default;
-	// AxisHorizontal places the media slot on the left and the remaining
+	// [AxisHorizontal] places the media slot on the left and the remaining
 	// slots in a column on the right (media must be the first child).
-	// Card is CSS-only, so an unsupported raw-HTML value falls back to
-	// the vertical default without a runtime warning.
+	// Card is CSS-only. An unsupported raw-HTML value falls back to the
+	// vertical default without a runtime warning.
 	Orientation Attr[Axis]
 }
 
-// Card renders <neo-card>: a surface container with optional
-// data-neo-card-{media,header,title,description,actions,body,footer}
-// slots. No JS; visuals live in morpheus.css. Authors who want a
-// different layout can ignore the slots and style their own
-// children; the slots are just consistent spacing/typography
-// presets.
+// Card renders <neo-card>, a surface container with optional
+// data-neo-card-{media,header,title,description,actions,body,footer} slots.
+// No JS; visuals live in morpheus.css. Authors who want a
+// different layout can ignore the slots and style their own children;
+// the slots are just consistent spacing/typography presets.
 func Card(opts CardOpts) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
@@ -137,10 +136,12 @@ func CardAttrs(opts CardOpts, attrs templ.Attributes) templ.Component {
 	})
 }
 
-// Card content slots. Each renders one data-neo-card-* element (the title
-// is an <h3>, the description a <p>, the rest <div>s) carrying the kit's
-// spacing/typography presets. Place them as children of Card; the Card
-// wrapper supplies the data-neo-card-inner frame, so don't add one.
+// CardMedia and the other card content slots ([CardHeader], [CardTitle],
+// [CardDescription], [CardActions], [CardBody], [CardFooter]) each render
+// one data-neo-card-* element (the title is an <h3>, the description a <p>,
+// the rest <div>s) carrying the kit's spacing/typography presets.
+// Place them as children of [Card], which supplies the
+// data-neo-card-inner frame; don't add one.
 func CardMedia() templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context

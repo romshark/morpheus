@@ -9,27 +9,25 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 type TooltipOpts struct {
-	// Text is the shorthand: the host stamps a
-	// `[data-neo-tooltip-content]` span with this text on connect. For
-	// rich content, leave Text empty and pass a child with
+	// Text is the shorthand. The host stamps a
+	// `[data-neo-tooltip-content]` span with this text on connect.
+	// For rich content, leave Text empty and pass a child with
 	// `data-neo-tooltip-content` instead.
 	Text Attr[string]
-	// Placement is one of the twelve <neo-popover> placements
+	// Placement is one of the 12 <neo-popover> placements
 	// (bottom-start default).
 	Placement Attr[Placement]
-	// HoverOpenDelay is the hover dwell in ms before showing (default
-	// 350). Focus shows immediately; the delay is hover-only.
+	// HoverOpenDelay is the hover dwell in ms before showing (default 350).
+	// Focus shows immediately; the delay is hover-only.
 	HoverOpenDelay Attr[int]
-	// HoverCloseDelay is the linger in ms after the pointer leaves
-	// (default 0).
+	// HoverCloseDelay is the linger in ms after the pointer leaves (default 0).
 	HoverCloseDelay Attr[int]
-	// Open seeds initial visibility. Normally the host owns this
-	// (hover/focus drive it); set it only for a server-rendered
-	// already-visible tooltip.
+	// Open seeds initial visibility. Normally the host owns this (hover/focus set it);
+	// set it only for a server-rendered already-visible tooltip.
 	Open Attr[bool]
 }
 
-// Tooltip renders <neo-tooltip>: a hover/focus tooltip built on the
+// Tooltip renders <neo-tooltip>, a hover/focus tooltip built on the
 // same positioning primitives as <neo-popover> with tooltip semantics
 // (no focus stealing, no click dismissal, pointer-events: none,
 // role="tooltip", aria-describedby on the trigger). The first non-
@@ -148,7 +146,7 @@ func TooltipAttrs(opts TooltipOpts, attrs templ.Attributes) templ.Component {
 }
 
 // TooltipContent marks the rich-content panel child, used instead of
-// TooltipOpts.Text when the tooltip needs markup. Spread onto the content
+// [TooltipOpts.Text] when the tooltip needs markup. Spread onto the content
 // element so the author keeps its tag.
 func TooltipContent() templ.Attributes {
 	return templ.Attributes{"data-neo-tooltip-content": true}

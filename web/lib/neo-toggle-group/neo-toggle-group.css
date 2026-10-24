@@ -1,7 +1,4 @@
-/* -----------------------------------------------------------------------
- * <neo-toggle-group>
- * -----------------------------------------------------------------------
- * Same segmented-pill styling as <neo-buttongroup>: overlap 1px borders
+/* Same segmented-pill styling as <neo-buttongroup>. Overlap 1px borders
  * on adjacent children, round only the outer corners, lift hovered /
  * pressed children so their full border paints over neighbours. */
 
@@ -72,7 +69,7 @@ neo-toggle-group[orientation="vertical"] > neo-toggle:not(:first-child):not(:las
 	border-radius: 0;
 }
 
-/* High contrast: thicken to a 2px edge with box-shadow, never a wider
+/* High contrast thickens to a 2px edge with box-shadow, never a wider
  * border or a wider overlap, both of which reflow on toggle. An outset ring on
  * the host doubles the outer frame; an inset shadow on each non-last
  * segment doubles the shared divider. Both are layout-free. */

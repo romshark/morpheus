@@ -2,8 +2,8 @@
 // (<neo-toggle-group>, <neo-combobox multiple>). A single `value` attribute
 // mirrors the selection as a comma-separated list of child/option values.
 //
-// The separator is unescaped (this is not RFC 4180 CSV), so a value containing
-// VALUE_SEP cannot round-trip: it re-splits into extra entries on parse.
+// The separator is unescaped (this is not RFC 4180 CSV). A value containing
+// VALUE_SEP cannot round-trip because it re-splits into extra entries on parse.
 // Commas in values are unsupported; [joinValues] warns when one is written so
 // the corruption is diagnosable.
 

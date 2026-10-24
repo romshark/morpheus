@@ -8,9 +8,9 @@ export class NeoSwitch extends HTMLElement {
 	static readonly observedAttributes = ["checked", "disabled"];
 
 	#morphObserver: MutationObserver | null = null;
-	// Checked intent; `checked` is its reflection (see command). Survives a
-	// morph that strips the attribute so a fat morph omitting `checked` can't
-	// reset the toggle.
+	// Checked intent; `checked` is its reflection (see command).
+	// Survives a morph that strips the attribute so a fat morph omitting `checked`
+	// can't reset the toggle.
 	#checkedIntent = false;
 	#reflectingChecked = false;
 
@@ -23,7 +23,7 @@ export class NeoSwitch extends HTMLElement {
 		this.addEventListener("click", this.#onClick);
 		this.addEventListener("keydown", this.#onKeyDown);
 		// Label-click forwarding listens on `document` and resolves the
-		// wrapping label per click. Never caches the label node, so a
+		// wrapping label per click. It never caches the label node, and a
 		// morph that swaps an ancestor label can't strand the listener.
 		document.addEventListener("click", this.#onDocumentClick);
 		this.#morphObserver = observeManagedAttrs(this, RESILIENT_ATTRS, this.#resync);
@@ -50,8 +50,8 @@ export class NeoSwitch extends HTMLElement {
 			if (this.#reflectingChecked) return;
 			const cmd = boolCommand(this, "checked");
 			if (cmd !== null) this.#checkedIntent = cmd;
-			// Absent re-asserts intent for the [checked] CSS; explicit normalizes
-			// the "true"/"false" form to bare / removed.
+			// Absent re-asserts intent for the [checked] CSS;
+			// explicit normalizes the "true"/"false" form to bare / removed.
 			this.#reflectChecked();
 		}
 	}
@@ -65,7 +65,7 @@ export class NeoSwitch extends HTMLElement {
 		this.#reflectChecked();
 	}
 
-	// State → attribute, guarded so it isn't read back as a command.
+	// State -> attribute, guarded so it isn't read back as a command.
 	#reflectChecked() {
 		this.#reflectingChecked = true;
 		try {
@@ -124,16 +124,15 @@ export class NeoSwitch extends HTMLElement {
 		this.toggle();
 	};
 
-	// Forward clicks landing in a wrapping <label> (resolved per click,
-	// not cached). Clicks inside the host are handled by onClick; acting
-	// here too would double-toggle.
+	// Forward clicks landing in a wrapping <label> (resolved per click, not cached).
+	// Clicks inside the host are handled by onClick; acting here too would double-toggle.
 	#onDocumentClick = (e: MouseEvent) => {
 		if (boolAttr(this, "disabled", false)) return;
 		const target = e.target as Element | null;
 		if (!target || this.contains(target)) return;
 		const label = target.closest("label");
 		if (!label?.contains(this)) return;
-		// Mirror native <label>: a click on another interactive element
+		// Mirror native <label>. A click on another interactive element
 		// inside the label does not activate the labelled control.
 		const interactive = target.closest(
 			'a, button, [role="button"], input, select, textarea, details, summary, [contenteditable=""], [contenteditable="true"], neo-button, neo-toggle, neo-switch, neo-radio, neo-checkbox, neo-slider, neo-tab',
@@ -141,7 +140,7 @@ export class NeoSwitch extends HTMLElement {
 		if (interactive && interactive !== this && label.contains(interactive)) return;
 		e.preventDefault();
 		this.toggle();
-		// Match native <label>+checkbox: focus follows the click.
+		// Match native <label>+checkbox, where focus follows the click.
 		this.focus();
 	};
 }

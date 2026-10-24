@@ -1,13 +1,12 @@
-// Package href centralises URL paths used in href attributes: page
-// paths as PageX() functions and an Asset(p) helper that prefixes
-// "/static/". A path rename is then a one-file change.
+// Package href centralises the URL paths used in href attributes,
+// as PageX() functions for pages and the [Asset] helper that
+// prefixes "/static/". A path rename is then a 1-file change.
 package href
 
 import "path"
 
-// External returns url as-is. Kept as a function so call sites read
-// the same as the rest of href, and to leave room for a runtime
-// validation hook later.
+// External returns url as-is. Kept as a function so call sites read the same
+// as the rest of href, and to leave room for a runtime validation hook later.
 func External(url string) string { return url }
 
 // Asset returns the URL path for a static asset file

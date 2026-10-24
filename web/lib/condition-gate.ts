@@ -1,10 +1,10 @@
 // Base of the <neo-if-*> gates. Each gate's stylesheet hides the host
-// until :state(match), so the wrong branch never flashes. A custom state,
-// not an inline style: a morph strips a runtime style attribute and the
-// branch would stay hidden.
+// until :state(match), which keeps the wrong branch from flashing.
+// A custom state, not an inline style, because a morph strips
+// a runtime style attribute and the branch would stay hidden.
 //
-// Each condition is a boolean command attribute (see command.ts),
-// so the server can drive it: absent means no requirement.
+// Each condition is a boolean command attribute (see command.ts)
+// that the server can set. Absent means no requirement.
 
 import { setState } from "./internal-state";
 

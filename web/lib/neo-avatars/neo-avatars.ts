@@ -1,7 +1,7 @@
 import { clampInt } from "../num";
 
-// Avatar children stay in light DOM so server patches can replace the row
-// naturally; the host only hides and shows them in place.
+// Avatar children stay in light DOM so server patches can replace the row;
+// the host only hides and shows them in place.
 
 const ATTR_COLLAPSE_AT = "collapse-at";
 const ATTR_OVERFLOW_COUNT = "overflow-count";
@@ -30,12 +30,12 @@ export class NeoAvatars extends HTMLElement {
 		this.#adapt();
 
 		this.#resizeObserver = new ResizeObserver(() => this.#scheduleAdapt());
-		// Also observe the host: the parent's border-box can stay constant
-		// while the host's flex track reflows (sibling reflow, container
-		// query). No feedback loop: flex-grow sizes the track, not content.
+		// Also observe the host, because the parent's border-box can stay constant
+		// while the host's flex track reflows (sibling reflow, container query).
+		// No feedback loop, because flex-grow sizes the track, not content.
 		this.#resizeObserver.observe(this);
-		// A content-sized host doesn't grow when free space does, so its
-		// own RO entry won't fire on a widen, so also observe a real ancestor.
+		// A content-sized host doesn't grow when free space does, which means
+		// its own RO entry won't fire on a widen. Also observe a real ancestor.
 		const ancestor = this.#layoutAncestor();
 		if (ancestor) this.#resizeObserver.observe(ancestor);
 
@@ -64,7 +64,7 @@ export class NeoAvatars extends HTMLElement {
 	}
 
 	// Nearest ancestor with a principal box. display:contents elements
-	// produce no box and never fire ResizeObserver, so skip them.
+	// produce no box and never fire ResizeObserver. Skip them.
 	#layoutAncestor(): HTMLElement | null {
 		let el = this.parentElement;
 		while (el && getComputedStyle(el).display === "contents") {
@@ -164,10 +164,11 @@ export class NeoAvatars extends HTMLElement {
 				}
 			}
 		} else if (!this.#overflowIsCustom && overflow.textContent !== `+${overflowTotal}`) {
-			// A custom template owns its content: only the generated overflow
-			// takes the default "+N" label. Without a count target the total
-			// stays readable from [data-neo-avatars-overflow-value] and from
-			// the control's aria-label.
+			// A custom template owns its content, which means only the
+			// generated overflow takes the default "+N" label. Without a count
+			// target the total stays readable from
+			// [data-neo-avatars-overflow-value] and from the control's
+			// aria-label.
 			this.#setDefaultOverflowLabel(overflow, overflowTotal);
 		}
 
@@ -188,8 +189,8 @@ export class NeoAvatars extends HTMLElement {
 	}
 
 	#fits(): boolean {
-		// scrollWidth only counts rightward overflow in LTR, so a flex-end
-		// row (chat header) overflows left and always reports "fits".
+		// scrollWidth only counts rightward overflow in LTR. A flex-end row
+		// (chat header) overflows left and always reports "fits".
 		// Zero-size boxes (display:none children, the <template>) drop out.
 		const host = this.getBoundingClientRect();
 		if (host.width <= 0) return true;
@@ -242,9 +243,9 @@ export class NeoAvatars extends HTMLElement {
 		this.#emitChange();
 	}
 
-	// adapt() runs on every resize/mutation, so dedupe: listeners get
-	// an event only on a real partition change. Called after `adapting`
-	// is cleared so a listener may safely re-enter adapt().
+	// adapt() runs on every resize/mutation. Listeners get an event only on
+	// a real partition change. Called after `adapting` is cleared so a listener
+	// may safely re-enter adapt().
 	#emitChange() {
 		const shown: string[] = [];
 		const hidden: string[] = [];
@@ -273,8 +274,8 @@ function findOverflowControl(overflow: HTMLElement): HTMLElement {
 	);
 }
 
-// Fall back to the wrapper's id (anchor/button wrappers often carry
-// it). null ⇒ untrackable, so omitted from the change event.
+// Fall back to the wrapper's id (anchor/button wrappers often carry it).
+// null means untrackable and omitted from the change event.
 function avatarId(item: HTMLElement): string | null {
 	const avatar = item.matches("neo-avatar") ? item : item.querySelector("neo-avatar");
 	return avatar?.id || item.id || null;

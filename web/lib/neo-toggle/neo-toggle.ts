@@ -10,9 +10,9 @@ export class NeoToggle extends HTMLElement {
 	static readonly observedAttributes = ["pressed", "disabled", "role"];
 
 	#morphObserver: MutationObserver | null = null;
-	// Pressed intent; `pressed` is its reflection (see command). Survives a
-	// morph that strips the attribute so a fat morph omitting `pressed` can't
-	// reset the toggle.
+	// Pressed intent; `pressed` is its reflection (see command).
+	// Survives a morph that strips the attribute so a fat morph omitting
+	// `pressed` can't reset the toggle.
 	#pressedIntent = false;
 	#reflectingPressed = false;
 
@@ -40,8 +40,8 @@ export class NeoToggle extends HTMLElement {
 			if (this.#reflectingPressed) return;
 			const cmd = boolCommand(this, "pressed");
 			if (cmd !== null) this.#pressedIntent = cmd;
-			// Absent re-asserts intent for the [pressed] CSS; explicit normalizes
-			// the "true"/"false" form to bare / removed.
+			// Absent re-asserts intent for the [pressed] CSS;
+			// explicit normalizes the "true"/"false" form to bare / removed.
 			this.#reflectPressed();
 		}
 	}
@@ -55,7 +55,7 @@ export class NeoToggle extends HTMLElement {
 		this.#reflectPressed();
 	}
 
-	// State → attribute, guarded so it isn't read back as a command.
+	// State -> attribute, guarded so it isn't read back as a command.
 	#reflectPressed() {
 		this.#reflectingPressed = true;
 		try {

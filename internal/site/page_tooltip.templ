@@ -16,10 +16,10 @@ templ PageTooltip(morpheusVersion string) {
 				Component <code>{ "<neo-tooltip>" }</code> is a
 				hover/focus tooltip on the same positioning
 				primitives as <code>{ "<neo-popover>" }</code> with
-				tooltip semantics: no focus stealing, no click
+				tooltip semantics (no focus stealing, no click
 				dismissal, <code>pointer-events: none</code>,
 				<code>{ `role="tooltip"` }</code>, and
-				<code>aria-describedby</code> on the trigger. The
+				<code>aria-describedby</code> on the trigger). The
 				first non-content child is the trigger. The
 				<code>text</code> attribute is the shorthand body;
 				pass a child carrying
@@ -36,7 +36,7 @@ templ PageTooltip(morpheusVersion string) {
 					}
 					@neo.AlertDescription() {
 						Tooltips trigger on hover and keyboard
-						focus; touch devices have neither, so a tap
+						focus. Touch devices have neither. A tap
 						never reveals one. Never put essential
 						information only in a tooltip; keep it
 						available inline for touch and assistive
@@ -62,11 +62,11 @@ templ PageTooltip(morpheusVersion string) {
 				Placements
 			}
 			<p class="demo-note">
-				Twelve combinations: each side
+				Each side
 				(<code>top</code>, <code>right</code>,
-				<code>bottom</code>, <code>left</code>) paired
-				with optional <code>-start</code> or
-				<code>-end</code> alignment. Bare side names
+				<code>bottom</code>, <code>left</code>) pairs
+				with an optional <code>-start</code> or
+				<code>-end</code> alignment, for 12 combinations. Bare side names
 				center the panel on that edge;
 				<code>bottom-start</code> is the initial value.
 			</p>
@@ -100,7 +100,7 @@ templ PageTooltip(morpheusVersion string) {
 				<code>{ `[data-neo-tooltip-content]` }</code> to
 				render arbitrary markup as the body. The
 				<code>text</code> attribute is ignored once that
-				slot is present, so the slot wins on collisions.
+				slot is present.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
 				HTMLSource:  tooltipRichHTML,

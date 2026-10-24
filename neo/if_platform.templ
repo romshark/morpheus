@@ -3,8 +3,9 @@ package neo
 import "maps"
 
 // IfPlatformOpts configures <neo-if-platform>, the client-side platform
-// gate. Each platform field is a boolean command: true shows the children
-// on that platform, false hides them there, unset leaves it to the others.
+// gate. Each platform field is a boolean command, where true shows the
+// children on that platform, false hides them there and unset leaves it
+// to the others.
 // The platforms set true are an OR; with none set true, every platform not
 // set false shows. For platform branches the server can't resolve.
 // Capability conditions (touch, hover, pointer) belong in CSS @media
@@ -16,11 +17,12 @@ type IfPlatformOpts struct {
 	Linux    Attr[bool]
 	Android  Attr[bool]
 	ChromeOS Attr[bool]
-	// UserAgent enables server-side pre-rendering: pass the request
+	// UserAgent enables server-side pre-rendering. Pass the request
 	// User-Agent (r.UserAgent()) and a matching branch renders already
-	// visible, so it doesn't flash in after the bundle upgrades. The client
-	// then reconciles against the real platform. Leave empty (e.g. on a
-	// static/CDN site that can't read the request UA) for client-only.
+	// visible, which keeps it from flashing in after the bundle upgrades.
+	// The client then reconciles against the real platform. Leave empty
+	// (e.g. on a static/CDN site that can't read the request UA) for
+	// client-only.
 	UserAgent Attr[string]
 }
 

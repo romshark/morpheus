@@ -37,11 +37,11 @@ templ AvatarsAttrs(opts AvatarsOpts, attrs templ.Attributes) {
 	</neo-avatars>
 }
 
-// AvatarsOverflow declares custom content for the +N overflow circle: the
-// host clones this <template data-neo-avatars-overflow> in place of the
+// AvatarsOverflow declares custom content for the +N overflow circle.
+// The host clones this <template data-neo-avatars-overflow> in place of the
 // generated circle (e.g. a popover trigger). Mark a descendant with
-// AvatarsOverflowCount to show the hidden count. Place it as a direct
-// child of Avatars.
+// [AvatarsOverflowCount] to show the hidden count. Place it as a direct
+// child of [Avatars].
 templ AvatarsOverflow() {
 	<template data-neo-avatars-overflow>
 		{ children... }
@@ -49,8 +49,8 @@ templ AvatarsOverflow() {
 }
 
 // AvatarsOverflowCount renders the [data-neo-avatars-overflow-count]
-// placeholder the host fills with the current hidden count. Use inside
-// AvatarsOverflow.
+// placeholder the host fills with the current hidden count.
+// Use inside [AvatarsOverflow].
 templ AvatarsOverflowCount() {
 	<span data-neo-avatars-overflow-count></span>
 }

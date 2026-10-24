@@ -85,7 +85,7 @@ func PageRevealable(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</code> is a spoiler that obscures children behind an animated grain veil until the user activates it (click, <neo-kbd>Enter</neo-kbd>, or <neo-kbd>Space</neo-kbd>). Re-conceals after <code>rehide-after</code> ms and whenever the content is patched, important for server-driven UIs so a morph that swaps the secret never flashes it. While concealed the content is <code>inert</code> and <code>aria-hidden</code>, so the secret never leaks to assistive tech and focus can't enter it. Honours <code>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</code> is a spoiler that obscures children behind an animated grain veil until the user activates it (click, <neo-kbd>Enter</neo-kbd>, or <neo-kbd>Space</neo-kbd>). Re-conceals after <code>rehide-after</code> ms and whenever the content is patched, important for server-driven UIs so a morph that swaps the secret never flashes it. While concealed the content is <code>inert</code> and <code>aria-hidden</code>. The secret never leaks to assistive tech and focus can't enter it. Honours <code>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -183,7 +183,7 @@ func PageRevealable(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<p class=\"demo-note\">The default (inline) variant: fine grain in the element's own text colour, sized to the run. Once revealed it stays revealed; set <code>rehide-after</code> to auto-conceal.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<p class=\"demo-note\">The default (inline) variant draws fine grain in the element's own text colour, sized to the run. Once revealed it stays revealed; set <code>rehide-after</code> to auto-conceal.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -314,7 +314,7 @@ func PageRevealable(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<p class=\"demo-note\"><code>blur-content</code> keeps the image visible but heavily blurred, so the composition teases without giving the subject away, a softer mode than the fully-veiled image above.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<p class=\"demo-note\"><code>blur-content</code> keeps the image visible but heavily blurred. The composition teases without giving the subject away, a softer mode than the fully-veiled image above.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -367,7 +367,7 @@ func PageRevealable(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<p class=\"demo-note\">Any subtree works. <code>blur-content</code> also blurs the hidden block, so the shape teases without giving the text away.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<p class=\"demo-note\">Any subtree works. <code>blur-content</code> also blurs the hidden block. The shape teases without giving the text away.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -472,15 +472,15 @@ var revealableDoc = ComponentDoc{
 		{Name: "rehide-after", Type: "number", Default: "0", Observed: true,
 			Description: templ.Raw("Milliseconds before auto re-conceal after a reveal. <code>0</code> or absent keeps it revealed until re-activated.")},
 		{Name: "variant", Type: `"inline" | "media"`, Observed: true,
-			Description: templ.Raw("Obscure treatment. Inferred from the host's height when absent (tall &rarr; media, short &rarr; inline).")},
+			Description: templ.Raw("Obscure treatment. Inferred from the host's height when absent (media when tall, inline when short).")},
 		{Name: "density", Type: "number", Default: "1", Observed: true,
-			Description: templ.Raw("Particle-count multiplier, clamped 0.3&ndash;3.")},
+			Description: templ.Raw("Particle-count multiplier, clamped to 0.3-3.")},
 		{Name: "blur-content", Type: "boolean", Default: "false", Observed: true,
-			Description: templ.Raw("Media variant only: tease the shape with a heavy blur instead of hiding it outright. No effect on text (already hidden &mdash; blurring it would just waste a composite).")},
+			Description: templ.Raw("Media variant only: tease the shape with a heavy blur instead of hiding it outright. No effect on text (already hidden, and blurring it would waste a composite).")},
 	},
 	Slots: []DocSlot{
 		{Name: "default",
-			Description: templ.Raw("The content to obscure: text, an image, or a whole subtree.")},
+			Description: templ.Raw("The content to obscure, such as text, an image, or a whole subtree.")},
 	},
 	Events: []DocEvent{
 		{Name: "neo-revealable-toggle", Detail: "{ open: boolean }", Bubbles: true,

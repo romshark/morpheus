@@ -1,6 +1,6 @@
 // Shadow DOM owns the trigger/search/panel/scroll geometry. The light-DOM
-// option source is slotted into that panel, so components inside options
-// stay live instead of being cloned.
+// option source is slotted into that panel, which keeps components inside
+// options live instead of cloned.
 
 import { boolAttr } from "../command";
 import {
@@ -15,7 +15,7 @@ import { deepActiveElement } from "../shadow-utils";
 import { joinValues, parseValues } from "../value-list";
 
 const COMBOBOX_SHADOW_TEMPLATE = document.createElement("template");
-// The ::slotted([hidden]) rule below needs !important because the
+// The ::slotted([hidden]) rule needs !important because the
 // component's own ::slotted([data-neo-combobox-options]) display:flex rule
 // outranks the browser's [hidden] UA style. Without it, an empty async source
 // container can remain in layout and leave a phantom flex gap after the error row.
@@ -28,10 +28,10 @@ const COMBOBOX_SHADOW_TEMPLATE = document.createElement("template");
 //   by default. The search input sits inside the popover panel, whose border
 //   plus the caret already frame focus. High-contrast modes re-add the ring on
 //   the input via --neo-input-focus-outline (set on :root[data-pref-contrast-
-//   more]) and via the forced-colors media query. Ring lives on the host, not
-//   the trigger: a trigger ring would be clipped by a host overflow: hidden
-//   (e.g. inside neo-input-group). JS mirrors the trigger's :focus-visible onto
-//   the host as a custom state.
+//   more]) and via the forced-colors media query. The ring lives on the host,
+//   not the trigger, because a host overflow: hidden (e.g. inside
+//   neo-input-group) would clip a trigger ring. JS mirrors the trigger's
+//   :focus-visible onto the host as a custom state.
 // - :host(:state(focus-visible)): match the trigger's radius so the host
 //   ring rounds like neo-button's; --neo-button-radius is 0 inside
 //   neo-input-group, keeping it square there.
@@ -47,19 +47,21 @@ const COMBOBOX_SHADOW_TEMPLATE = document.createElement("template");
 //   height.
 // - :host([data-neo-trigger-rich]) [data-neo-combobox-trigger]: floor the
 //   visible button too, not just the host. With height:auto a single short row
-//   (one chip / one-line face) would leave the bordered trigger shorter than a
+//   (1 chip / 1-line face) would leave the bordered trigger shorter than a
 //   single-select trigger. min-height keeps them equal; taller content still
 //   grows.
 // - :host([multiple]) [data-neo-combobox-trigger]: multi-select fills the
-//   trigger with chips, each carrying its own pill padding, so the trigger's
-//   own vertical padding is redundant and would push a single chip row past the
-//   single-select height. Trim it; min-height holds the floor, and wrapped chip
-//   rows still grow it.
-// - :host([popover-fit-content]) [data-neo-combobox-list]: size to the option
-//   rows instead of forcing the trigger width, capped like max-width.
-// - [data-neo-combobox-options] gap: options slot straight in here (bare, or
-//   via a display:contents <neo-datalist> container), so the row gap lives on
-//   this container.
+//   trigger with chips, each carrying its own pill padding, which makes the
+//   trigger's own vertical padding redundant. It would push a single chip row
+//   past the single-select height. Trim it; min-height holds the floor, and
+//   wrapped chip rows still grow it.
+// - :host([popover-fit-content]) [data-neo-combobox-list]: the positioner
+//   leaves width unset in this mode. Size to the option rows instead of
+//   forcing the trigger width, floored by min-width (trigger width) and capped
+//   by max-width.
+// - [data-neo-combobox-options] gap: options slot straight into this container
+//   (bare, or via a display:contents <neo-datalist> container), which is why
+//   the row gap lives on it.
 // - [data-neo-empty-results] cursor: reset the cursor:pointer inherited from
 //   [data-neo-combobox-list]; these are static status messages, not clickable
 //   rows.
@@ -189,8 +191,6 @@ COMBOBOX_SHADOW_TEMPLATE.innerHTML = `
       display var(--neo-popover-enter-duration, calc(140ms * var(--neo-duration-scale, 1))) allow-discrete;
   }
   :host([popover-fit-content]:not([popover-fit-content="false"])) [data-neo-combobox-list] {
-    /* The positioner leaves width unset in this mode, so size to the option
-       rows, floored by min-width (trigger width) and capped by max-width. */
     width: max-content;
   }
   [data-neo-combobox-list][hidden] {
@@ -564,8 +564,8 @@ export class NeoCombobox extends NeoListbox {
 		this.reflectOpen();
 		this.trigger.setAttribute("aria-expanded", "true");
 		this.listEl.hidden = false;
-		// Programmatic value writes fire no input event, so no suppression
-		// around this is needed.
+		// Programmatic value writes fire no input event and need no
+		// suppression.
 		this.#input.value = "";
 		this.#prepareOpenState();
 		this.#syncOptions();
@@ -573,9 +573,9 @@ export class NeoCombobox extends NeoListbox {
 		const scrollIntoView = opts.scrollIntoView ?? opts.focus !== false;
 		if (!this.position({ scrollIntoView })) return;
 		this.#dispatchOpen();
-		// `loading` means options need fetching now: `async` (every open)
-		// or a lazy combobox's first open. Fire the load request only then;
-		// neo-popover-open stays honest as "panel opened", so a wired-up
+		// `loading` means options need fetching now, on every open for `async`
+		// or on a lazy combobox's first open. Fire the load request only then;
+		// neo-popover-open stays honest as "panel opened" so that a wired-up
 		// lazy combobox doesn't re-fetch (and re-morph) on reopen.
 		if (this.loading) this.#dispatchLoad();
 		// Hover-open passes focus:false so it can't pull the caret out of
@@ -623,15 +623,15 @@ export class NeoCombobox extends NeoListbox {
 	}
 
 	#cacheTemplates() {
-		// Retain the last-seen placeholder when the live one is gone: an async
-		// combobox's first options morph replaces it, but reopen and reload()
-		// still render the author's skeleton from the retained ref. Lifecycle
-		// (lazy trigger, loading done) keys on live presence via
+		// Retain the last-seen placeholder when the live one is gone, because
+		// an async combobox's first options morph replaces it, but reopen and
+		// reload() still render the author's skeleton from the retained ref.
+		// Lifecycle (lazy trigger, loading done) keys on live presence via
 		// #sourceHasAsyncPlaceholder(), never on this possibly detached ref.
 		this.loadingTemplateEl = this.#findLightTemplate("[data-neo-async-placeholder]") ?? this.loadingTemplateEl;
-		// Re-find each time (not ??=): a morph that replaces the source
-		// container also replaces its descendant template divs, so a cached
-		// ref would otherwise stay on the old detached element.
+		// Re-find each time (not ??=), because a morph that replaces the
+		// source container also replaces its descendant template divs. A
+		// cached ref would stay on the old detached element.
 		this.#emptyResultsTemplateEl = this.#findLightTemplate("[data-neo-empty-results]");
 		this.#emptyTriggerTemplateEl = this.#findLightTemplate("[data-neo-combobox-empty]");
 		// [data-neo-empty-results] is a template source cloned into the
@@ -700,7 +700,7 @@ export class NeoCombobox extends NeoListbox {
 		});
 	}
 
-	// Live placeholder presence, checked in the same two scopes
+	// Live placeholder presence, checked in the same 2 scopes
 	// #findLightTemplate reads (host child, source-root child).
 	#sourceHasAsyncPlaceholder(): boolean {
 		return !!this.#findLightTemplate("[data-neo-async-placeholder]");
@@ -730,8 +730,8 @@ export class NeoCombobox extends NeoListbox {
 		return el;
 	}
 
-	// Stand-in when the author supplies no [data-neo-async-placeholder]:
-	// the kit's spinner plus a label. Carries the placeholder marker so
+	// Stand-in when the author supplies no [data-neo-async-placeholder],
+	// made of the kit's spinner plus a label. Carries the placeholder marker so
 	// it inherits the loading-content layout from neo-combobox.css.
 	#defaultLoadingNode(): HTMLElement {
 		const el = document.createElement("div");
@@ -746,9 +746,9 @@ export class NeoCombobox extends NeoListbox {
 			this.loading = true;
 			return;
 		}
-		// Live presence, not the retained loadingTemplateEl: a morph that
-		// removed the placeholder without delivering options means loading is
-		// done (or was never wanted), not perpetually pending.
+		// Live presence, not the retained loadingTemplateEl, because a morph
+		// that removed the placeholder without delivering options means
+		// loading is done (or was never wanted), not perpetually pending.
 		this.loading = this.#sourceHasAsyncPlaceholder() && this.optionData().length === 0;
 	}
 
@@ -801,7 +801,7 @@ export class NeoCombobox extends NeoListbox {
 		this.#renderTrigger(this.#displaySelection());
 	}
 
-	// Multi-select submits one entry per value under the same `name`, like a
+	// Multi-select submits 1 entry per value under the same `name`, like a
 	// native <select multiple>; single-select submits the lone value string.
 	protected override updateFormValue(): void {
 		if (!this.isMultiple()) {
@@ -815,7 +815,7 @@ export class NeoCombobox extends NeoListbox {
 		}
 		const name = this.getAttribute("name");
 		if (!name) {
-			// No name: not submitted anyway, so keep the joined string.
+			// Without a name it isn't submitted anyway. Keep the joined string.
 			this.internals.setFormValue(this.getAttribute("value"));
 			return;
 		}
@@ -825,9 +825,10 @@ export class NeoCombobox extends NeoListbox {
 	}
 
 	// Effective selection for display. Single-select with no value (absent or
-	// empty) resolves to the zero-value option ("") when the list has one:
-	// "no value" and the empty option are the same selection. Multi-select is
-	// unchanged: an empty token is never a value there.
+	// empty) resolves to the zero-value option ("") when the list has one,
+	// because "no value" and the empty option are the same selection.
+	// Multi-select is unchanged, because an empty token is never a value
+	// there.
 	#displaySelection(options = this.optionData()): string[] {
 		const attr = this.getAttribute("value");
 		if (this.isMultiple()) return this.#parseValueAttr(attr);
@@ -847,7 +848,7 @@ export class NeoCombobox extends NeoListbox {
 
 	#renderTrigger(values: string[]) {
 		// An author/server-provided slot="trigger" child owns the trigger
-		// face: the kit yields (only flips on the rich/text split) so a
+		// face. The kit yields (only flips on the rich/text split) so that a
 		// Datastar app can patch arbitrary content there on selection.
 		if (this.querySelector(':scope > [slot="trigger"]:not([data-neo-combobox-trigger-view])')) {
 			this.triggerFace.rich(true);
@@ -865,16 +866,16 @@ export class NeoCombobox extends NeoListbox {
 		this.triggerFace.fromSource(optEl, values[0]);
 	}
 
-	// Multi-select: one chip per selected value, each carrying the option's
-	// trigger face ([data-neo-option-trigger]) when present, else its
+	// Multi-select renders 1 chip per selected value, each carrying the
+	// option's trigger face ([data-neo-option-trigger]) when present, else its
 	// `label` / text. The chips wrap; the trigger grows to fit.
 	#setTriggerChips(values: string[]) {
 		if (values.length === 0) {
 			this.triggerFace.fromSource(this.#emptyTriggerTemplateEl, null);
 			return;
 		}
-		// One option query for all chips; first occurrence wins on duplicate
-		// values, matching find().
+		// A single option query for all chips; the first occurrence is used
+		// for duplicate values, matching find().
 		const optByValue = new Map<string, HTMLElement>();
 		for (const el of this.optionEls()) {
 			const v = el.getAttribute("data-neo-value") ?? "";
@@ -942,9 +943,9 @@ export class NeoCombobox extends NeoListbox {
 				: [...current, value]
 			: [value];
 		this.applyingValue = true;
-		// Paused: #applyValuesFromAttr below re-renders synchronously; letting
-		// the observer see the host's own value write would re-run the whole
-		// reconcile pass a microtask later for nothing.
+		// Paused, because #applyValuesFromAttr re-renders synchronously;
+		// letting the observer see the host's own value write would re-run the
+		// whole reconcile pass a microtask later for nothing.
 		this.withLightDomObserverPaused(() => {
 			if (next.length === 0) this.removeAttribute("value");
 			else this.setAttribute("value", this.isMultiple() ? joinValues(next, "neo-combobox") : (next[0] ?? ""));
@@ -977,8 +978,8 @@ export class NeoCombobox extends NeoListbox {
 	}
 
 	// Rendered rows (not hidden), disabled included. A disabled option that
-	// matches the query is still a result, so the empty-results message keys
-	// on this, never on focusability.
+	// matches the query is still a result. The empty-results message keys on
+	// this, never on focusability.
 	#shownOptions(): HTMLElement[] {
 		return this.optionEls().filter((el) => !el.hidden);
 	}
@@ -1053,9 +1054,9 @@ export class NeoCombobox extends NeoListbox {
 		el.focus({ preventScroll: !!opts.preventScroll || !!opts.center });
 		if (opts.center) this.centerOptionInScroller(this.#optionsEl, el);
 		else if (!opts.preventScroll) el.scrollIntoView({ block: "nearest" });
-		// Snapshot synchronously: the scroll event lands a task later, so a
-		// morph reconcile arriving first would restore the stale pre-scroll
-		// value and yank the list back to the top.
+		// Snapshot synchronously, because the scroll event lands a task later.
+		// A morph reconcile arriving first would restore the stale pre-scroll
+		// value and scroll the list back to the top.
 		this.#lastOptionsScrollTop = this.#optionsEl.scrollTop;
 	}
 
@@ -1146,9 +1147,9 @@ export class NeoCombobox extends NeoListbox {
 	}
 
 	// A click dispatched directly on the host (composedPath()[0] === host)
-	// opens the list, so a <neo-keys for> shortcut reaches a trigger that
-	// otherwise lives in the shadow root. Trigger/option clicks target
-	// those nodes, not the host, so this never double-toggles.
+	// opens the list. This lets a <neo-keys for> shortcut reach a trigger
+	// that otherwise lives in the shadow root. Trigger/option clicks target
+	// those nodes, not the host, which means this never double-toggles.
 	#onHostClick = (e: MouseEvent) => {
 		if (e.composedPath()[0] === this) this.toggle();
 	};
@@ -1160,8 +1161,8 @@ export class NeoCombobox extends NeoListbox {
 
 	#onTriggerKeyDown = (e: KeyboardEvent) => {
 		if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey) return;
-		// Closed-and-focused trigger only: the open state's search input
-		// owns Backspace for editing the query, so clearing lives here.
+		// Closed-and-focused trigger only, because the open state's search
+		// input owns Backspace for editing the query.
 		if (
 			(e.key === "Backspace" || e.key === "Delete") &&
 			boolAttr(this, "clearable", false) &&
@@ -1281,8 +1282,8 @@ export class NeoCombobox extends NeoListbox {
 			this.#syncOptions();
 		} else {
 			this.#applyFilter();
-			// applyFilter pauses the MO, so the reposition path doesn't
-			// fire on the height change. Re-anchor explicitly.
+			// applyFilter pauses the MO, which keeps the reposition path from
+			// firing on the height change. Re-anchor explicitly.
 			if (this.open) this.position();
 		}
 		const query = this.#input.value;
@@ -1396,7 +1397,7 @@ export class NeoCombobox extends NeoListbox {
 	}
 
 	// Reorder the search field above the options when the popover opens
-	// upward, so it stays pinned closest to the trigger.
+	// upward so that it stays pinned closest to the trigger.
 	protected override afterPosition(placement: Placement) {
 		this.listEl.toggleAttribute("data-neo-combobox-above", placement.startsWith("top"));
 	}

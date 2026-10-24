@@ -19,7 +19,7 @@ export function setTextInPlace(el: HTMLElement, text: string): void {
 
 // Does the event's composed path enter (or originate at) `target`?
 // Equivalent to `target.contains(e.target)` for light DOM, but also
-// crosses shadow boundaries: a click inside a shadow root reports
+// crosses shadow boundaries. A click inside a shadow root reports
 // the host as `e.target`, which `.contains()` would miss for a node
 // living inside that same shadow root.
 export function eventEnters(e: Event, target: Node): boolean {
@@ -30,22 +30,22 @@ export function eventEnters(e: Event, target: Node): boolean {
 }
 
 // The facets a <neo-boundary> scopes when it has no `scope` attribute.
-// Stacking isn't a default and isn't queried here: it's pure CSS (isolation:
-// isolate in _boundary.css contains the panels).
+// Stacking isn't a default and isn't queried here because it's pure CSS
+// (isolation: isolate in _boundary.css contains the panels).
 const BOUNDARY_DEFAULT_SCOPE = "dismiss positioning";
 
 // The nearest <neo-boundary> ancestor that scopes `facet`, or null. Facets are
 // a space-separated token list in the `scope` attribute ("dismiss" |
 // "positioning" | "scroll" | "stacking"). Setting the attribute replaces the
-// default ("dismiss positioning"), so `scope="dismiss positioning scroll"`
-// adds scroll, `scope="positioning"` drops dismiss, and `scope=""` scopes
-// nothing. Rules come from the nearest boundary only; they are not inherited,
-// so a closer boundary that omits a facet falls back to the document /
+// default ("dismiss positioning"). `scope="dismiss positioning scroll"`
+// adds scroll, `scope="positioning"` drops dismiss, and `scope=""` scopes nothing.
+// Rules come from the nearest boundary only and are not inherited.
+// A closer boundary that omits a facet falls back to the document /
 // viewport default for it, not to an outer boundary.
 //
-// Climbs out of shadow roots: neo-select / neo-combobox anchor positioning
+// Climbs out of shadow roots. neo-select / neo-combobox anchor positioning
 // on a trigger inside their own shadow DOM, and closest() stops at the
-// shadow boundary, so it would miss a light-DOM boundary wrapping the host.
+// shadow boundary and would miss a light-DOM boundary wrapping the host.
 // Hop to the shadow host and keep searching.
 export function scopingBoundary(el: Element, facet: string): Element | null {
 	let b: Element | null = null;
@@ -70,8 +70,8 @@ export function isIndependentBoundaryScroll(boundary: Element | null, target: Ev
 }
 
 // The geometric rect of a boundary's contents. <neo-boundary> is
-// display:contents and owns no box, so this is the union of its laid-out
-// descendants: the region overlays clamp their panels into. Display-contents
+// display:contents and owns no box. This is the union of its laid-out
+// descendants, the region overlays clamp their panels into. Display-contents
 // wrappers (including neo-menu/neo-contextmenu hosts) are transparent for
 // measurement. Generated overlay panels are skipped so an open panel doesn't
 // expand its own containment region. Null when it has no laid-out children.
@@ -111,10 +111,10 @@ function isGeneratedOverlayPanel(el: Element): boolean {
 }
 
 // Walk through nested shadow roots to find the actual focused element.
-// `document.activeElement` is retargeted at every shadow boundary; for
-// focus inside a shadow root it reports the host. `target.contains(
-// document.activeElement)` therefore falsely reports "outside" when
-// the target lives inside that same shadow root.
+// `document.activeElement` is retargeted at every shadow boundary;
+// for focus inside a shadow root it reports the host.
+// `target.contains(document.activeElement)` therefore falsely reports "outside"
+// when the target lives inside that same shadow root.
 export function deepActiveElement(): Element | null {
 	let el: Element | null = document.activeElement;
 	while (el?.shadowRoot?.activeElement) {
@@ -125,7 +125,7 @@ export function deepActiveElement(): Element | null {
 
 // Rewrite a CSS module's `tagName` selectors to `:host` so the same
 // rules apply inside a shadow root whose host is that tag. Mechanical
-// regex pass: handles bare tag, tag[attr], tag:pseudo, tag.class,
+// regex pass that handles bare tag, tag[attr], tag:pseudo, tag.class,
 // `tag > X`, `tag X`. @starting-style / @media wrappers pass through
 // unchanged because their inner selectors get the same treatment.
 //
@@ -142,15 +142,15 @@ export function scopeCssToHost(css: string, hostTag: string): string {
 	// Wrap the whole run in :host(...).
 	const compound = new RegExp(`(^|[\\s,>~+({}])${escaped}((?:[\\[:.][^\\s,>~+{]*)+)`, "g");
 	// Bare tag selector (not followed by an identifier or one of the
-	// compound suffixes above).
+	// `compound` suffixes).
 	const bare = new RegExp(`(^|[\\s,>~+({}])${escaped}(?![\\w\\-\\[:.])`, "g");
 	return css.replace(compound, "$1:host($2)").replace(bare, "$1:host");
 }
 
 // On every connect (or after a morph re-emits new children) make sure
 // the children we care about carry the `slot` attribute so the shadow
-// projects them into the right slot. Marker selectors map to slot
-// names; first match wins per selector.
+// projects them into the right slot. Marker selectors map to slot names;
+// the first match per selector gets the slot.
 export function assignSlotsToLightChildren(host: Element, map: Record<string, string>) {
 	for (const [selector, slotName] of Object.entries(map)) {
 		const el = host.querySelector(selector);

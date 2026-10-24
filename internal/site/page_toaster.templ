@@ -15,11 +15,11 @@ templ PageToaster(morpheusVersion string) {
 			}
 			<p class="intro">
 				Component <code>{ `<neo-toaster>` }</code> is a
-				stack of transient notifications. One instance
+				stack of transient notifications. A single instance
 				typically lives in the app shell; show toasts
 				programmatically via the window-attached
-				<code>NeoToast</code> API, or server-side by morph-
-				patching <code>{ `<neo-toast>` }</code> children into
+				<code>NeoToast</code> API, or server-side by
+				morph-patching <code>{ `<neo-toast>` }</code> children into
 				the toaster. Hover or click a toast to pause its
 				auto-dismiss; <neo-kbd>×</neo-kbd> dismisses immediately.
 			</p>
@@ -41,8 +41,8 @@ templ PageToaster(morpheusVersion string) {
 				Show a toast (vanilla JS)
 			}
 			<p class="demo-note">
-				No framework: a plain
-				<code>addEventListener('click', …)</code> handler
+				Without a framework, a plain
+				<code>addEventListener('click', ...)</code> handler
 				calls the toaster instance's
 				<code>show()</code> method directly. The
 				window-attached <code>NeoToast.show()</code> targets
@@ -67,7 +67,7 @@ templ PageToaster(morpheusVersion string) {
 				Examples: Datastar
 			}
 			<p class="intro">
-				The toaster also works declaratively: drop
+				The toaster also works declaratively. Drop
 				<code>{ `<neo-toast>` }</code> children
 				into the host (server-side renders or patched in
 				by Datastar SSE
@@ -89,7 +89,7 @@ templ PageToaster(morpheusVersion string) {
 				<code>dismissible="false"</code> skip the
 				close button and the swipe gesture.
 				<code>contained</code> anchors the
-				toaster to its parent, so previewed toasts paint
+				toaster to its parent. Previewed toasts paint
 				inside the demo frame.
 			</p>
 			@appShellToasterDemo()
@@ -135,10 +135,10 @@ templ PageToaster(morpheusVersion string) {
 				@examples.ToasterPatchReplace()
 			}
 			@anchoredH3("patch-update-one-toast") {
-				Patch: update one toast
+				Patch: update 1 toast
 			}
 			<p class="demo-note">
-				The toaster is SSR'd with one pinned toast and
+				The toaster is SSR'd with 1 pinned toast and
 				<code>stack="1"</code> (single visible toast).
 				Clicking <em>Update title</em> streams an SSE
 				patch-elements event keyed by the title node's
@@ -162,8 +162,8 @@ templ PageToaster(morpheusVersion string) {
 				The <code>loading</code> variant defaults to
 				duration 0 (persistent) and renders a
 				<code>{ `<neo-spinner>` }</code> instead of a
-				static icon. These buttons use Datastar actions:
-				the simulator patches a loading toast immediately,
+				static icon. These buttons use Datastar actions.
+				The simulator patches a loading toast immediately,
 				waits on the server side, then morphs that same
 				toast to the final success or error state.
 			</p>
@@ -198,7 +198,7 @@ templ PageToaster(morpheusVersion string) {
 				Variants
 			}
 			<p class="demo-note">
-				Only the icon picks up the variant accent, so the
+				Only the icon picks up the variant accent. The
 				card itself stays neutral. <code>error</code> raises
 				the live-region politeness to <code>assertive</code>
 				so screen readers announce it immediately.
@@ -215,9 +215,9 @@ templ PageToaster(morpheusVersion string) {
 			}
 			<p class="demo-note">
 				Pass an object with both <code>title</code> and
-				<code>description</code> to get a two-line layout.
+				<code>description</code> to get a 2-line layout.
 				Description text uses the muted colour and a
-				smaller size, so the title remains the primary
+				smaller size, which keeps the title the primary
 				label.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
@@ -232,7 +232,7 @@ templ PageToaster(morpheusVersion string) {
 			}
 			<p class="demo-note">
 				<code>NeoToast.dismiss()</code> with no argument
-				closes every active toast at once: a "clear all"
+				closes every active toast at once. Use it for a "clear all"
 				button, or to wipe a backlog between scenarios.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
@@ -253,13 +253,13 @@ var toasterDoc = ComponentDoc{
 		{Name: "contained", Type: "boolean", Default: "false",
 			Description: templ.Raw("Anchor to the nearest positioned ancestor instead of the viewport. Omit for fixed positioning.")},
 		{Name: "stack", Type: `number`, Default: `0`, Observed: true,
-			Description: templ.Raw("<code>0</code> shows every live toast as a normal vertical stack. Positive values show that many full toasts, then up to two older toasts as hidden-behind peek cards; the rest appear when the toaster is hovered, focused, or clicked.")},
+			Description: templ.Raw("<code>0</code> shows every live toast as a normal vertical stack. Positive values show that many full toasts, then up to 2 older toasts as hidden-behind peek cards; the rest appear when the toaster is hovered, focused, or clicked.")},
 		{Name: "touch-dismiss", Type: `"off" | CSS length`, Default: "on",
-			Description: templ.Raw("Touch swipe-to-dismiss is on by default. Set <code>touch-dismiss=\"off\"</code> to disable, or pass a CSS length (for example <code>8ch</code>, <code>4rem</code>, or <code>40%</code>) to override the default threshold of one third of the toast width, minimum 40px.")},
+			Description: templ.Raw("Touch swipe-to-dismiss is on by default. Set <code>touch-dismiss=\"off\"</code> to disable, or pass a CSS length (for example <code>8ch</code>, <code>4rem</code>, or <code>40%</code>) to override the default threshold of 1/3 of the toast width, minimum 40px.")},
 		{Name: "<neo-toast> variant", Type: `"default" | "success" | "error" | "warning" | "info" | "loading"`, Default: `"default"`,
 			Description: templ.Raw("Variant for a declarative toast child. Adds the matching icon/accent; <code>error</code> uses assertive live-region semantics.")},
 		{Name: "<neo-toast> duration", Type: `number`, Default: `0`,
-			Description: templ.Raw("Auto-dismiss delay in milliseconds for a declarative toast child. Positive values arm the timer; missing, zero, or negative values stay pinned.")},
+			Description: templ.Raw("Auto-dismiss delay in milliseconds for a declarative toast child. Positive values arm the timer; missing, 0, or negative values stay pinned.")},
 		{Name: "<neo-toast> dismissible", Type: `"false"`,
 			Description: templ.Raw("Set to <code>false</code> on a declarative toast child to omit the close button and disable touch swipe dismissal for that toast.")},
 	},
@@ -269,7 +269,7 @@ var toasterDoc = ComponentDoc{
 	},
 	Slots: []DocSlot{
 		{Name: "<neo-toast>",
-			Description: templ.Raw("Declarative toast children. Slot names inside each toast: <code>title</code>, <code>description</code>, <code>action</code>, <code>icon</code>. Imperative API: <code>NeoToast.show({...})</code>.")},
+			Description: templ.Raw("Declarative toast children. Each toast takes the slots <code>title</code>, <code>description</code>, <code>action</code>, and <code>icon</code>. The imperative API is <code>NeoToast.show({...})</code>.")},
 	},
 	CSSProps: []DocCSSProp{
 		{Name: "--neo-toaster-z-index", Default: "1200",

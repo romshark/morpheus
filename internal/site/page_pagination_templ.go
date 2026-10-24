@@ -196,7 +196,7 @@ func PagePagination(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</code> reveals two neighbours on each side of the active page rather than one. Useful when users frequently jump ±2 pages and a single neighbour reads as too tight.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</code> reveals 2 neighbours on each side of the active page rather than 1. Useful when users frequently jump +/-2 pages and a single neighbour reads as too tight.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -261,7 +261,7 @@ func PagePagination(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</code> the first and last two pages always render, handy for tables where users habitually jump to \"page 1 / 2\" or \"second-to-last / last\".</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</code> the first and last 2 pages always render, handy for tables where users habitually jump to \"page 1 / 2\" or \"second-to-last / last\".</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -465,7 +465,7 @@ func PagePagination(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<p class=\"demo-note\">The host exposes two <code>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<p class=\"demo-note\">The host exposes 2 <code>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -504,7 +504,7 @@ func PagePagination(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</code>, whose inner HTML becomes the body of the prev / next buttons. Default content is a single chevron icon, so a bare host renders as icon-only.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</code>, whose inner HTML becomes the body of the prev / next buttons. Default content is a single chevron icon. A bare host renders icon-only buttons.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -582,7 +582,7 @@ func PagePagination(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</code> with no children and the matching button is omitted entirely: pure page chips, no prev / next rail. Useful when the dataset's prev / next is wired elsewhere (keyboard shortcut, sidebar nav).</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</code> with no children and the matching button is omitted entirely. Only the page chips remain. Useful when the dataset's prev / next is wired elsewhere (keyboard shortcut, sidebar nav).</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -694,7 +694,7 @@ var paginationDoc = ComponentDoc{
 		{Name: "sibling-count", Type: "number", Default: "1", Observed: true,
 			Description: templ.Raw(
 				"Pages shown on each side of the active one. " +
-					"Increase to make ±N navigation cheaper; the " +
+					"Increase to make +/-N navigation cheaper; the " +
 					"adapt loop shrinks this first when the row " +
 					"runs out of room.",
 			)},

@@ -134,7 +134,7 @@ export class NeoColorField extends HTMLElement {
 	}
 
 	// Reflected `value` property (parity with neo-select / neo-textinput).
-	// Property-based bindings (React, Alpine `:value`, …) set the attribute
+	// Property-based bindings (React, Alpine `:value`, ...) set the attribute
 	// through here; the getter returns the live rendered color so a
 	// same-value write is a no-op and can't echo back mid-drag.
 	get value(): string {
@@ -151,7 +151,7 @@ export class NeoColorField extends HTMLElement {
 		const currentColor = hsvToHex(this.#hueValue, this.#xValue, 100 - this.#yValue);
 		// During a drag, the host reflects `value` and consumers may echo it
 		// straight back through data bindings. Near the bottom edge many x
-		// positions collapse to the same black hex value, so reparsing that
+		// positions collapse to the same black hex value. Reparsing that
 		// echoed value would erase saturation and jump the handle left.
 		if (this.#active && name === "value") return;
 		if (name === "value" && this.getAttribute("value") === currentColor) {
@@ -193,13 +193,13 @@ export class NeoColorField extends HTMLElement {
 			this.setAttribute("aria-label", "Color field");
 		}
 
-		// Reconcile against the DOM, never a cached pointer: a morph can
-		// re-emit the surface markup, leaving duplicate
-		// [data-neo-color-field-surface] siblings. Keep one surface + one
-		// handle as the host's only child; drop extras and strays. Mutations
-		// below only fire when the DOM isn't already canonical, so a
-		// re-entrant observer call post-reconcile is a no-op, and that fixpoint
-		// breaks the childObserver loop.
+		// Reconcile against the DOM, never a cached pointer, because a morph
+		// can re-emit the surface markup, leaving duplicate
+		// [data-neo-color-field-surface] siblings. Keep 1 surface + 1 handle
+		// as the host's only child; drop extras and strays. The reconciling
+		// mutations only fire when the DOM isn't already canonical, which
+		// makes a re-entrant observer call post-reconcile a no-op. That
+		// fixpoint breaks the childObserver loop.
 		const surfaces = this.querySelectorAll<HTMLElement>(":scope > [data-neo-color-field-surface]");
 		let surface = surfaces[0] ?? null;
 		if (!surface) {

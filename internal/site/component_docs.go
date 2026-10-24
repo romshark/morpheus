@@ -8,10 +8,10 @@ type DocAttribute struct {
 	Default string
 	// Reflected marks an attribute the component writes back to the DOM
 	// as its state changes (internal -> attribute). Observed marks one the
-	// component reacts to when changed from outside, e.g. author, morph, or
-	// framework binding (attribute -> internal). Independent: an attribute
-	// can be both, either, or neither. Each renders a badge in the Type
-	// column.
+	// component reacts to when changed from outside, e.g. author, morph,
+	// or framework binding (attribute -> internal). The flags are independent.
+	// An attribute can be both, either, or neither. Each renders a badge in
+	// the Type column.
 	Reflected   bool
 	Observed    bool
 	Description templ.Component
@@ -32,7 +32,7 @@ type DocEvent struct {
 
 // DocState documents a CSS custom state the component sets on itself as
 // its internal state changes. Name is the bare state name; it renders as
-// :state(<Name>). States are not attributes: nothing outside the component
+// :state(<Name>). States are not attributes. Nothing outside the component
 // sets them, and a morph cannot strip them.
 type DocState struct {
 	Name        string

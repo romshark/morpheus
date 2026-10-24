@@ -16,8 +16,8 @@ templ PageToggle(morpheusVersion string) {
 				button with a sticky on/off pressed state. Same
 				visual styling as&nbsp;
 				@ComponentLink("neo-button", href.PageButton())&nbsp;but
-				a click flips <code>aria-pressed</code>:
-				the toolbar "Bold" / "Italic" control. Cluster
+				a click flips <code>aria-pressed</code>,
+				as in the toolbar "Bold" / "Italic" control. Cluster
 				several inside&nbsp;
 				@ComponentLink("neo-toggle-group", href.PageToggleGroup())&nbsp;to
 				build single- or multi-select toolbars.
@@ -39,8 +39,8 @@ templ PageToggle(morpheusVersion string) {
 				Variants
 			}
 			<p class="demo-note">
-				Five fills share the button colour tokens: a
-				neutral default, <code>primary</code> (accent),
+				5 fills share the button colour tokens. Besides a
+				neutral default there are <code>primary</code> (accent),
 				<code>secondary</code> (muted), <code>ghost</code>
 				(transparent), and <code>danger</code>. Click any
 				toggle to flip its pressed state.
@@ -106,8 +106,8 @@ templ PageToggle(morpheusVersion string) {
 			<p class="demo-note">
 				A <code>{ "<neo-icon>" }</code> as the first child
 				is spaced from the label by the toggle's flex
-				layout and inherits the current font colour, so
-				it recolours with the variant and pressed state.
+				layout and inherits the current font colour. It
+				recolours with the variant and pressed state.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
 				StageMinHeight: "max-content",
@@ -129,7 +129,7 @@ templ PageToggle(morpheusVersion string) {
 	}
 }
 
-// toggleSlotDemo: the slot-driven on / off composition.
+// toggleSlotDemo renders the slot-driven on / off composition demo.
 // [data-neo-toggle-off] paints the resting label and
 // [data-neo-toggle-on] the pressed one as `pressed` flips.
 templ toggleSlotDemo() {

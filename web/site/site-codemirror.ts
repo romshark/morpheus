@@ -1,12 +1,12 @@
-// <site-codemirror>: CodeMirror 6 editor for docs code samples.
-// Outside the UI kit on purpose: docs UI, not a reusable widget;
-// the kit ships no editor primitives.
+// <site-codemirror> is a CodeMirror 6 editor for docs code samples.
+// It lives outside the UI kit on purpose, because it is docs UI, not a
+// reusable widget; the kit ships no editor primitives.
 //
-// Attributes: `language` (a key of LANG below; unknown -> plain text),
+// Attributes: `language` (a key of LANG; unknown -> plain text),
 // `readonly` (block edits, unchanged look), `disabled` (block edits +
 // not-allowed/dim CSS styling), `lazy` (defer mounting while inside a
 // hidden/inert tab panel), `value` (bidirectional doc bind for Datastar).
-// Events bubble, detail {value}: `site-codemirror-input` per edit,
+// Events bubble with detail {value}. `site-codemirror-input` fires per edit,
 // `site-codemirror-change` at focusout (commit-time). Theme follows the
 // doc `dark` class via the `neo-theme-change` event.
 
@@ -94,10 +94,11 @@ class SiteCodeMirror extends HTMLElement {
 
 	constructor() {
 		super();
-		// The editor renders in this shadow root, not light DOM, so a Datastar
-		// fat-morph (it reconciles only light DOM) can't wipe or re-measure it:
-		// no teardown, no reflow from morph churn. Light DOM stays the authored
-		// source (<template>/value/text) plus the pre-load fallback.
+		// The editor renders in this shadow root, not light DOM. A Datastar
+		// fat-morph reconciles only light DOM and can't wipe or re-measure it,
+		// which means no teardown and no reflow from morph churn. Light DOM
+		// stays the authored source (<template>/value/text) plus the pre-load
+		// fallback.
 		this.#_shadow = this.attachShadow({ mode: "open" });
 	}
 
@@ -146,8 +147,8 @@ class SiteCodeMirror extends HTMLElement {
 	};
 
 	#_checkMorph(): void {
-		// A live view survives light-DOM morphs (it is in the shadow), so only
-		// mount when there is none and a source is present.
+		// A live view survives light-DOM morphs (it is in the shadow). Mount
+		// only when there is none and a source is present.
 		if (this.#_view) return;
 		const hasSource = this.getAttribute("value") !== null || this.querySelector(":scope > template") !== null;
 		if (!hasSource) return;
@@ -165,8 +166,8 @@ class SiteCodeMirror extends HTMLElement {
 
 		const source = this.#_readSource();
 		// Drop the pre-load fallback (<pre>) and loading indicator, but keep a
-		// <template> source in light DOM: it is invisible, morph-stable, and
-		// re-readable. Text/value sources leave nothing to strip.
+		// <template> source in light DOM, because it is invisible, morph-stable,
+		// and re-readable. Text/value sources leave nothing to strip.
 		for (const child of Array.from(this.children)) {
 			if (child.tagName !== "TEMPLATE") child.remove();
 		}
@@ -185,8 +186,8 @@ class SiteCodeMirror extends HTMLElement {
 					this.#_readonly.of(EditorState.readOnly.of(this.#_isLocked())),
 					// User edits -> `site-codemirror-input` (a Datastar
 					// listener can mirror it into a signal). Skip
-					// externalSync transactions: our own value write-back,
-					// which would echo (see externalSync).
+					// externalSync transactions (our own value write-back),
+					// which would echo.
 					// biome-ignore lint/suspicious/noExplicitAny: CodeMirror ViewUpdate type, CDN-external, no value types.
 					EditorView.updateListener.of((update: any) => {
 						if (!update.docChanged) return;
@@ -210,14 +211,14 @@ class SiteCodeMirror extends HTMLElement {
 				],
 			}),
 			parent: host,
-			// Shadow DOM: CodeMirror needs the root to resolve selection and
+			// CodeMirror needs the shadow root to resolve selection and
 			// focus and to inject its StyleModule into this shadow tree.
 			root: this.#_shadow,
 		});
 
-		// Adopt our overrides last: CodeMirror appended its base theme to
-		// adoptedStyleSheets during construction above, so appending after it
-		// keeps our rules winning ties.
+		// Adopt our overrides last. CodeMirror appends its base theme to
+		// adoptedStyleSheets in the EditorView constructor, and appending
+		// after it makes our rules take precedence at equal specificity.
 		this.#_shadow.adoptedStyleSheets = [
 			...this.#_shadow.adoptedStyleSheets.filter((s) => s !== SHADOW_STYLES),
 			SHADOW_STYLES,
@@ -245,8 +246,8 @@ class SiteCodeMirror extends HTMLElement {
 			});
 		} else if (name === "value") {
 			// `data-attr:value` pushes a signal into the doc. Bail when
-			// already equal: the echoed signal would otherwise churn a
-			// transaction per keystroke. externalSync stops this write
+			// already equal, because the echoed signal would otherwise create
+			// a transaction per keystroke. externalSync stops this write
 			// re-emitting `site-codemirror-input`.
 			const next = this.getAttribute("value") ?? "";
 			const cur = this.#_view.state.doc.toString();
@@ -319,7 +320,7 @@ class SiteCodeMirror extends HTMLElement {
 	}
 
 	// Priority: `value` attr -> <template> child (keeps indentation
-	// through HTML round-trips) -> textContent. `value` wins so a
+	// through HTML round-trips) -> textContent. `value` comes first so a
 	// `data-attr:value`-bound editor first-paints the signal, not a
 	// stale authored literal.
 	#_readSource(): string {

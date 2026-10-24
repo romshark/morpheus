@@ -18,15 +18,15 @@ type SidebarOpts struct {
 	// Overlay forces fixed-overlay rendering at every width (e.g.
 	// settings drawers).
 	Overlay Attr[bool]
-	// OverlayBreakpoint overrides the default 50rem cutoff per instance:
-	// any CSS length, or a bare number in px.
+	// OverlayBreakpoint overrides the default 50rem cutoff per instance.
+	// Accepts any CSS length, or a bare number in px.
 	OverlayBreakpoint Attr[CSSUnit]
 	// NoTouchDismiss opts out of the drag-to-close gesture (enabled by
 	// default in overlay mode); renders `touch-dismiss="off"` on the
 	// host.
 	NoTouchDismiss Attr[bool]
 	// TouchDismissThreshold overrides the default close threshold of
-	// half the host's width. Any CSS length is accepted, including px,
+	// 1/2 of the host's width. Any CSS length is accepted, including px,
 	// rem, and percent.
 	TouchDismissThreshold Attr[CSSUnit]
 	AriaLabel             Attr[string]
@@ -42,7 +42,7 @@ func touchDismissAttr(opts SidebarOpts) string {
 	return opts.TouchDismissThreshold.Or("")
 }
 
-// Sidebar renders <neo-sidebar>: a side-anchored panel that auto-
+// Sidebar renders <neo-sidebar>, a side-anchored panel that auto-
 // switches between in-flow column (wide) and fixed overlay (narrow).
 // Children typically include `[data-neo-sidebar-header]`,
 // `[data-neo-sidebar-content]`, and `[data-neo-sidebar-footer]` slots.
@@ -195,7 +195,8 @@ func SidebarContent() templ.Attributes {
 	return templ.Attributes{"data-neo-sidebar-content": true}
 }
 
-// Sidebar header / footer slots carrying the kit's spacing presets.
+// SidebarHeader and [SidebarFooter] render the header / footer slots
+// carrying the kit's spacing presets.
 func SidebarHeader() templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context

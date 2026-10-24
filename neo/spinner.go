@@ -1,8 +1,8 @@
 package neo
 
 // SpinnerOpts is the determinate-ring attribute surface for
-// <neo-spinner>. Numeric defaults match the JS host: Min=0, Max=100,
-// Value=Min. Set a numeric field when an explicit zero must still be
+// <neo-spinner>. Numeric defaults match the JS host (Min=0, Max=100,
+// Value=Min). Set a numeric field when an explicit zero must still be
 // emitted as an attribute (otherwise it's omitted and the host falls
 // back to its default).
 type SpinnerOpts[N Number] struct {
@@ -17,12 +17,12 @@ type SpinnerOpts[N Number] struct {
 	// Tooltip wraps the ring in a <neo-tooltip> showing the value
 	// (plus Unit) on hover/focus; no text is painted on the ring
 	// itself. The tooltip text is rendered from the initial value;
-	// drive a changing value through aria-valuenow rather than this.
+	// set a changing value through aria-valuenow instead.
 	Tooltip Attr[bool]
 	Unit    Attr[string]
 
-	// Easing animates the arc between value commits: same shorthand
-	// as ProgressOpts.Easing.
+	// Easing animates the arc between value commits, with the same
+	// shorthand as [ProgressOpts.Easing].
 	Easing    Attr[string]
 	AriaLabel Attr[string]
 }

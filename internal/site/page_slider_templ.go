@@ -175,7 +175,7 @@ func PageSlider(morpheusVersion string) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var8 string
-			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(`<span data-neo-slider-mark="…">`)
+			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(`<span data-neo-slider-mark="...">`)
 			if templ_7745c5c3_Err != nil {
 				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_slider.templ`, Line: 44, Col: 47}
 			}
@@ -235,7 +235,7 @@ func PageSlider(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<p class=\"demo-note\">Labels that overlap or sit less than <code>1ch</code> apart collapse automatically. Hover a hidden label to reveal it. The highest active mark stays visible as the value moves, so the rail still identifies the current stage.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<p class=\"demo-note\">Labels that overlap or sit less than <code>1ch</code> apart collapse automatically. Hover a hidden label to reveal it. The highest active mark stays visible as the value moves and identifies the current stage on the rail.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -288,7 +288,7 @@ func PageSlider(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<p class=\"demo-note\">Click the value, type a new number, and press <neo-kbd>Enter</neo-kbd> (or click away). Try entering <code>9</code> below: the slider clips it to <code>10</code> on commit. <code>500</code> clips to <code>200</code>. Letters and other unexpected characters never enter the field.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<p class=\"demo-note\">Click the value, type a new number, and press <neo-kbd>Enter</neo-kbd> (or click away). Try entering <code>9</code> below. The slider clips it to <code>10</code> on commit. <code>500</code> clips to <code>200</code>. Letters and other unexpected characters never enter the field.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -354,7 +354,7 @@ func PageSlider(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</code> snaps the value to one decimal place, so the value display and the value bubble both show <code>3.4</code>, not <code>3.4000000000000004</code>. The <code>.</code> key is allowed in the value field to opt into a non-integer step. Empty-bodied marks render dots without labels, useful for a bare step indicator.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</code> snaps the value to 1 decimal place. The value display and the value bubble both show <code>3.4</code>, not <code>3.4000000000000004</code>. The <code>.</code> key is allowed in the value field to opt into a non-integer step. Empty-bodied marks render dots without labels, useful for a bare step indicator.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -486,7 +486,7 @@ func PageSlider(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</code> children, and their contents are cloned into the rendered anchor wrappers and the draggable thumb on every render. The example below turns the slider into a five-star rating: each anchor is an outline <code>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</code> children, and their contents are cloned into the rendered anchor wrappers and the draggable thumb on every render. The example below turns the slider into a 5-star rating. Each anchor is an outline <code>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -499,7 +499,7 @@ func PageSlider(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</code> that becomes a filled accent dot once it sits at or below the current value, and the thumb is a larger filled star that glides between them. The cloned glyph lives a shadow boundary too deep for page CSS to restyle, so an active anchor paints its solid dot from the dot's own masked background. Stars are clickable like any other anchor, so a tap on the third star sets the rating to 3.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</code> that becomes a filled accent dot once it sits at or below the current value, and the thumb is a larger filled star that glides between them. The cloned glyph lives a shadow boundary too deep for page CSS to restyle. An active anchor paints its solid dot from the dot's own masked background instead. Stars are clickable like any other anchor. A tap on the third star sets the rating to 3.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -553,7 +553,7 @@ func PageSlider(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<p class=\"demo-note\">Restyle the rail into a filled value bar with the readout centred over it, in the style of a Blender number field.</p><ul class=\"demo-note\"><li>A tall rail comes from <code>--neo-slider-track-height</code>; the fill (<code>--neo-slider-fill-bg</code>) reads as a flat surface over it.</li><li><code>::part(header)</code> is positioned absolutely over the rail to centre the value. <code>hide-tooltip</code> drops the now-redundant thumb bubble, and the readout is display-only because the header overlays the rail.</li><li><code>::part(thumb)</code> hides the thumb marker so the fill's right edge is the position indicator; the thumb stays as an invisible keyboard target with a focus ring.</li></ul>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<p class=\"demo-note\">Restyle the rail into a filled value bar with the readout centred over it, in the style of a Blender number field.</p><ul class=\"demo-note\"><li>A tall rail comes from <code>--neo-slider-track-height</code>; the fill (<code>--neo-slider-fill-bg</code>) reads as a flat surface over it.</li><li><code>::part(header)</code> is positioned absolutely over the rail to centre the value. <code>hide-tooltip</code> drops the redundant thumb bubble, and the readout is display-only because the header overlays the rail.</li><li><code>::part(thumb)</code> hides the thumb marker so the fill's right edge is the position indicator; the thumb stays as an invisible keyboard target with a focus ring.</li></ul>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -660,7 +660,7 @@ func PageSlider(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "<p class=\"demo-note\">Omit the <code>label</code> attribute and set <code>hide-value</code> to drop the entire header row. The thumb still focuses on <neo-kbd>Tab</neo-kbd> and the value bubble still pops on hover/press, so the control stays operable; this is the variant for inline placements where the value is shown elsewhere or doesn't need to be edited as text.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "<p class=\"demo-note\">Omit the <code>label</code> attribute and set <code>hide-value</code> to drop the entire header row. The thumb still focuses on <neo-kbd>Tab</neo-kbd> and the value bubble still pops on hover/press, which keeps the control operable. This is the variant for inline placements where the value is shown elsewhere or doesn't need to be edited as text.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -767,7 +767,7 @@ func PageSlider(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "<p class=\"demo-note\">When <code>min</code> is below zero the value field accepts a leading <code>-</code>. The fill grows from the left edge to the current value (the slider doesn't draw a zero-anchored bipolar fill).</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "<p class=\"demo-note\">When <code>min</code> is below 0 the value field accepts a leading <code>-</code>. The fill grows from the left edge to the current value (the slider doesn't draw a zero-anchored bipolar fill).</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -899,7 +899,7 @@ func PageSlider(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "<p class=\"demo-note\">A Datastar app can fat-morph the page at any moment, and a server reporting a new position just re-emits the slider with a new <code>value</code>. The rail and thumb live in the component's shadow root, so a morph of the bare light host only changes the <code>value</code> attribute and never touches the thumb or fill nodes, so the <code>easing</code> transition eases them to the new value. Autoplay cycles the states below, with no signals or morph hints, and the thumb glides between 0%, 30%, and 100% just the same.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "<p class=\"demo-note\">A Datastar app can fat-morph the page at any moment, and a server reporting a new position just re-emits the slider with a new <code>value</code>. The rail and thumb live in the component's shadow root. A morph of the bare light host only changes the <code>value</code> attribute and never touches the thumb or fill nodes, which lets the <code>easing</code> transition ease them to the new value. Autoplay cycles the states below, with no signals or morph hints, and the thumb glides between 0%, 30%, and 100% just the same.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -964,7 +964,7 @@ var sliderDoc = ComponentDoc{
 	},
 	Events: []DocEvent{
 		{Name: "neo-slider-input", Detail: "{ value: number }", Bubbles: true,
-			Description: templ.Raw("Fires on every value change during a pointer drag: the live value before commit.")},
+			Description: templ.Raw("Fires on every value change during a pointer drag, with the live value before commit.")},
 		{Name: "neo-slider-change", Detail: "{ value: number }", Bubbles: true,
 			Description: templ.Raw("Fires on commit (drag end, mark click, keyboard, or edit), only if the value changed. Bind this too for mark clicks and keyboard.")},
 	},

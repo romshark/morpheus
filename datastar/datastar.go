@@ -10,24 +10,24 @@ import (
 	"github.com/romshark/morpheus/neo"
 )
 
-// PopoverAsyncOpts configures PopoverAsync.
+// PopoverAsyncOpts configures [PopoverAsync].
 //
-// ID names the popover and is reused as the AbortController signal name
-// and the morph-target id of the body wrapper, so it must be a valid JS
-// identifier. URL is the Datastar action POSTed on every open. Loading
+// ID names the popover and must be a valid JS identifier, because it is
+// reused as the AbortController signal name and the morph-target id of the
+// body wrapper. URL is the Datastar action POSTed on every open. Loading
 // renders inside the body while the request is in flight; Failed renders
 // when Datastar dispatches `retries-failed` or finishes the action after
 // at least one `error` event (the latter covers `retry: 'auto' / 'never'`
-// + HTTP error, where Datastar gives up silently). Pass nil for a
-// built-in fallback.
+// + HTTP error, where Datastar gives up silently).
+// Pass nil for a built-in fallback.
 //
 // ExtraPostOpts is a JS expression body merged into the @post call,
 // typically retry knobs (e.g. `retry: $_my_retry, retryMaxCount:
 // $_my_retry_max_count`).
 //
-// The embedded neo.PopoverOpts carries every base popover option
-// (placement, open, screen-offset, flip, trigger-action, …); set it
-// as PopoverOpts: neo.PopoverOpts{...}.
+// The embedded [neo.PopoverOpts] carries every base popover option
+// (placement, open, screen-offset, flip, trigger-action, ...);
+// set it as PopoverOpts: neo.PopoverOpts{...}.
 type PopoverAsyncOpts struct {
 	neo.PopoverOpts
 	ID            string
@@ -37,23 +37,21 @@ type PopoverAsyncOpts struct {
 	ExtraPostOpts string
 }
 
-// DrawerAsyncOpts configures DrawerAsync.
+// DrawerAsyncOpts configures [DrawerAsync].
 //
-// ID names the drawer host and is reused as the AbortController
-// signal name and the morph-target id of the body wrapper, so it must
-// be a valid JS identifier. URL is the Datastar action POSTed on every
-// open. Loading renders inside the body while the request is in
-// flight; Failed renders when Datastar dispatches `retries-failed` or
-// finishes the action after at least one `error` event. Pass nil for a
-// built-in fallback.
+// ID names the drawer host and must be a valid JS identifier, because it
+// is reused as the AbortController signal name and the morph-target id of
+// the body wrapper. URL is the Datastar action POSTed on every open.
+// Loading renders inside the body while the request is in flight;
+// Failed renders when Datastar dispatches `retries-failed` or finishes
+// the action after at least one `error` event. Pass nil for a built-in fallback.
 //
-// On a successful response the server is expected to morph
-// `<div id="<ID>-body">` with the rendered drawer body. ExtraPostOpts
-// is a JS expression body merged into the @post call, typically retry
-// knobs (e.g. `retry: $_my_retry, retryMaxCount: $_my_retry_max_count`).
-// The embedded neo.DrawerOpts carries every base drawer option
-// (side, open, dismissible, touch-dismiss); set it as
-// DrawerOpts: neo.DrawerOpts{...}.
+// On a successful response the server is expected to morph `<div id="<ID>-body">`
+// with the rendered drawer body. ExtraPostOpts is a JS expression body merged into
+// the @post call, typically retry knobs
+// (e.g. `retry: $_my_retry, retryMaxCount: $_my_retry_max_count`).
+// The embedded [neo.DrawerOpts] carries every base drawer option
+// (side, open, dismissible, touch-dismiss); set it as DrawerOpts: neo.DrawerOpts{...}.
 type DrawerAsyncOpts struct {
 	neo.DrawerOpts
 	ID            string
@@ -139,8 +137,8 @@ func drawerAsyncResetAndPost(opts DrawerAsyncOpts) string {
 	return b.String()
 }
 
-// drawerAsyncRetry installs click-delegation on the host: a
-// descendant carrying [data-neo-popover-async-retry] aborts the
+// drawerAsyncRetry installs click delegation on the host.
+// A descendant carrying [data-neo-popover-async-retry] aborts the
 // in-flight fetch, swaps the body back to loading, and re-runs the
 // action without closing the drawer. Reuses the popover-async retry
 // attribute so retry buttons read the same in every async wrapper.
@@ -162,11 +160,10 @@ func drawerAsyncRetry(opts DrawerAsyncOpts) string {
 	return b.String()
 }
 
-// drawerAsyncOnFetch mirrors popoverAsyncOnFetch's failure contract:
-// retries-failed means the network retry budget is exhausted; an
-// `error` event increments $<id>_errors so a later `finished` can
-// cover HTTP failures that Datastar stops retrying without emitting
-// retries-failed.
+// drawerAsyncOnFetch mirrors the failure contract of [popoverAsyncOnFetch].
+// retries-failed means the network retry budget is exhausted.
+// An `error` event increments $<id>_errors so a later `finished` can cover
+// HTTP failures that Datastar stops retrying without emitting retries-failed.
 func drawerAsyncOnFetch(opts DrawerAsyncOpts) string {
 	const sw1 = "(document.getElementById('"
 	const sw2 = "-body').innerHTML = document.getElementById('"
@@ -213,8 +210,8 @@ func popoverAsyncOpen(opts PopoverAsyncOpts) string {
 	return popoverAsyncResetAndPost(opts)
 }
 
-// popoverAsyncRetry installs click-delegation on the host: a descendant
-// carrying [data-neo-popover-async-retry] aborts the in-flight fetch,
+// popoverAsyncRetry installs click delegation on the host.
+// A descendant carrying [data-neo-popover-async-retry] aborts the in-flight fetch,
 // seeds a fresh controller, and re-runs the open path.
 func popoverAsyncRetry(opts PopoverAsyncOpts) string {
 	const s1 = "if (evt.target.closest('[data-neo-popover-async-retry]')) { $"
@@ -267,14 +264,14 @@ func popoverAsyncResetAndPost(opts PopoverAsyncOpts) string {
 }
 
 // popoverAsyncOnFetch listens for Datastar's `datastar-fetch` events,
-// auto-bound to document. Three paths trigger the swap:
-//   - `retries-failed`: Datastar exhausted its retry budget (network
-//     throws only; HTTP errors never reach this).
+// auto-bound to document. 3 paths trigger the swap:
+//   - `retries-failed`: Datastar exhausted its retry budget
+//     (network throws only; HTTP errors never reach this).
 //   - `error`: bumps $<id>_errors so we can distinguish a clean
 //     `finished` from a finished-after-failure.
 //   - `finished` after at least one error: Datastar gave up without
-//     dispatching retries-failed (`retry: 'auto' / 'never'` + HTTP
-//     error). For `retry: 'error' / 'always'` + HTTP error this never
+//     dispatching retries-failed (`retry: 'auto' / 'never'` + HTTP error).
+//     For `retry: 'error' / 'always'` + HTTP error this never
 //     fires because the loop is infinite; the user opted into that.
 func popoverAsyncOnFetch(opts PopoverAsyncOpts) string {
 	const sw1 = "(document.getElementById('"
@@ -346,10 +343,10 @@ func popoverAsyncSignals(opts PopoverAsyncOpts) string {
 	return b.String()
 }
 
-// SelectAsyncOpts configures SelectAsync.
+// SelectAsyncOpts configures [SelectAsync].
 //
-// ID names the host and is reused as the AbortController signal name,
-// so it must be a valid JS identifier. URL is the Datastar action
+// ID names the host and must be a valid JS identifier, because it is
+// reused as the AbortController signal name. URL is the Datastar action
 // POSTed on every open. Loading renders inside the host's
 // [data-neo-async-placeholder] slot; the select kit clones the slot
 // above the listbox on each open. Failed renders in the visible
@@ -358,12 +355,11 @@ func popoverAsyncSignals(opts PopoverAsyncOpts) string {
 // into the @post call (typically retry knobs).
 //
 // On a successful response the server is expected to morph
-// `<neo-datalist id="<ID>-options">` with the rendered options; the
-// select kit hides the loading clone automatically once options
-// arrive.
-// The embedded neo.SelectOpts carries every base select option
-// (value, placeholder, typeahead, placement, …); set it as
-// SelectOpts: neo.SelectOpts{...}. Async is forced on regardless.
+// `<neo-datalist id="<ID>-options">` with the rendered options;
+// the select kit hides the loading clone automatically once options arrive.
+// The embedded [neo.SelectOpts] carries every base select option
+// (value, placeholder, typeahead, placement, ...); set it as SelectOpts:
+// neo.SelectOpts{...}. Async is forced on regardless.
 type SelectAsyncOpts struct {
 	neo.SelectOpts
 	ID            string
@@ -444,7 +440,7 @@ func selectAsyncPost(opts SelectAsyncOpts) string {
 	return b.String()
 }
 
-// selectAsyncRetry installs click-delegation on the host: a descendant
+// selectAsyncRetry installs click delegation on the host. A descendant
 // carrying [data-neo-popover-async-retry] aborts the in-flight fetch,
 // then re-runs the load by calling the select host's reload().
 func selectAsyncRetry(opts SelectAsyncOpts) string {
@@ -465,10 +461,10 @@ func selectAsyncRetry(opts SelectAsyncOpts) string {
 	return b.String()
 }
 
-// selectAsyncOnFetch mirrors popoverAsyncOnFetch's three-disjunct
-// listener. The swap writes the failed template into the visible
-// loading clone, leaving the source loading slot untouched so retry or
-// reopen can restore loading before re-posting.
+// selectAsyncOnFetch mirrors the 3-disjunct listener of
+// [popoverAsyncOnFetch]. The swap writes the failed template into the
+// visible loading clone, leaving the source loading slot untouched so
+// retry or reopen can restore loading before re-posting.
 func selectAsyncOnFetch(opts SelectAsyncOpts) string {
 	const sw1 = "((n) => (n && (n.innerHTML = document.getElementById('"
 	const sw2 = "-tpl-failed').innerHTML), true))(document.getElementById('"
@@ -511,10 +507,10 @@ func selectAsyncOnFetch(opts SelectAsyncOpts) string {
 	return b.String()
 }
 
-// ComboboxAsyncOpts configures ComboboxAsync.
+// ComboboxAsyncOpts configures [ComboboxAsync].
 //
-// ID names the host and is reused as the AbortController signal name,
-// so it must be a valid JS identifier. URL is the Datastar action
+// ID names the host and must be a valid JS identifier, because it is
+// reused as the AbortController signal name. URL is the Datastar action
 // POSTed on every open. Loading renders inside the host's
 // [data-neo-async-placeholder] slot; the combobox kit clones the
 // slot above the listbox on each open. Failed renders in the visible
@@ -528,8 +524,8 @@ func selectAsyncOnFetch(opts SelectAsyncOpts) string {
 // `<neo-datalist id="<ID>-options">` with the rendered options; the
 // combobox kit hides the loading clone automatically once options
 // arrive.
-// The embedded neo.ComboboxOpts carries every base combobox option
-// (placeholder, search, placement, …); set it as
+// The embedded [neo.ComboboxOpts] carries every base combobox option
+// (placeholder, search, placement, ...); set it as
 // ComboboxOpts: neo.ComboboxOpts{...}. Async is forced on regardless.
 type ComboboxAsyncOpts struct {
 	neo.ComboboxOpts
@@ -691,8 +687,8 @@ func comboboxAsyncPost(opts ComboboxAsyncOpts) string {
 	return b.String()
 }
 
-// comboboxAsyncRetry installs click-delegation on the host: a
-// descendant carrying [data-neo-popover-async-retry] aborts the
+// comboboxAsyncRetry installs click delegation on the host.
+// A descendant carrying [data-neo-popover-async-retry] aborts the
 // in-flight fetch, then re-runs the load by calling the combobox
 // host's reload(), which clears options, re-shows the loading slot,
 // and re-fires the @post action. Reuses the popover-async retry
@@ -715,17 +711,17 @@ func comboboxAsyncRetry(opts ComboboxAsyncOpts) string {
 	return b.String()
 }
 
-// comboboxAsyncOnFetch mirrors popoverAsyncOnFetch's three-disjunct
-// listener: retries-failed exhausts the retry budget; an `error` event
-// bumps $<id>_errors so we can distinguish a clean `finished` from a
-// finished-after-failure (`retry: 'auto' / 'never'` + HTTP error). The
-// swap writes the failed template into the listbox's navgroup as a
-// [data-neo-empty-results] child; the kit's mutation observer treats
-// that as "no results, show inline empty-results", and the kit's CSS
-// suppresses its default "No results" hint when the listbox already
-// has a descendant carrying that attribute. Mutating the navgroup
-// (rather than the loading clone) avoids tripping the same observer
-// into showing the default "No results" text.
+// comboboxAsyncOnFetch mirrors the 3-disjunct listener of
+// [popoverAsyncOnFetch]. retries-failed exhausts the retry budget.
+// An `error` event bumps $<id>_errors so we can distinguish a clean
+// `finished` from a finished-after-failure (`retry: 'auto' / 'never'` +
+// HTTP error). The swap writes the failed template into the listbox's
+// navgroup as a [data-neo-empty-results] child. The kit's mutation
+// observer treats that as "no results, show inline empty-results",
+// and the kit's CSS suppresses its default "No results" hint when the listbox
+// already has a descendant carrying that attribute. Mutating the navgroup
+// (rather than the loading clone) avoids tripping the same observer into
+// showing the default "No results" text.
 func comboboxAsyncOnFetch(opts ComboboxAsyncOpts) string {
 	const sw1 = "((n) => (n && (n.innerHTML = document.getElementById('"
 	const sw2 = "-tpl-failed').innerHTML), true))(document.getElementById('"
@@ -768,11 +764,11 @@ func comboboxAsyncOnFetch(opts ComboboxAsyncOpts) string {
 	return b.String()
 }
 
-// DialogAsyncOpts configures DialogAsync.
+// DialogAsyncOpts configures [DialogAsync].
 //
-// ID names the dialog host and is reused as the AbortController signal
-// name and the morph-target id of the body wrapper, so it must be a
-// valid JS identifier. URL is the Datastar action POSTed on every open.
+// ID names the dialog host and must be a valid JS identifier, because it
+// is reused as the AbortController signal name and the morph-target id of
+// the body wrapper. URL is the Datastar action POSTed on every open.
 // Loading renders inside the body while the request is in flight;
 // Failed renders when Datastar dispatches `retries-failed` or finishes
 // the action after at least one `error` event. Pass nil for a built-in
@@ -782,7 +778,7 @@ func comboboxAsyncOnFetch(opts ComboboxAsyncOpts) string {
 // `<div id="<ID>-body">` with the rendered dialog body. ExtraPostOpts
 // is a JS expression body merged into the @post call, typically retry
 // knobs (e.g. `retry: $_my_retry, retryMaxCount: $_my_retry_max_count`).
-// The embedded neo.DialogOpts carries every base dialog option (open,
+// The embedded [neo.DialogOpts] carries every base dialog option (open,
 // dismissible); set it as DialogOpts: neo.DialogOpts{...}.
 type DialogAsyncOpts struct {
 	neo.DialogOpts
@@ -869,7 +865,7 @@ func dialogAsyncResetAndPost(opts DialogAsyncOpts) string {
 	return b.String()
 }
 
-// dialogAsyncRetry installs click-delegation on the host: a descendant
+// dialogAsyncRetry installs click delegation on the host. A descendant
 // carrying [data-neo-popover-async-retry] aborts the in-flight fetch,
 // swaps the body back to loading, and re-runs the action without
 // closing the dialog. Reuses the popover-async retry attribute so retry
@@ -892,8 +888,8 @@ func dialogAsyncRetry(opts DialogAsyncOpts) string {
 	return b.String()
 }
 
-// dialogAsyncOnFetch mirrors popoverAsyncOnFetch's failure contract:
-// retries-failed means the network retry budget is exhausted; an
+// dialogAsyncOnFetch mirrors the failure contract of [popoverAsyncOnFetch].
+// retries-failed means the network retry budget is exhausted. An
 // `error` event increments $<id>_errors so a later `finished` can cover
 // HTTP failures that Datastar stops retrying without emitting
 // retries-failed.
@@ -939,11 +935,11 @@ func dialogAsyncOnFetch(opts DialogAsyncOpts) string {
 	return b.String()
 }
 
-// SidebarAsyncOpts configures SidebarAsync.
+// SidebarAsyncOpts configures [SidebarAsync].
 //
-// ID names the sidebar host and is reused as the AbortController signal
-// name and the morph-target id of the content slot, so it must be a
-// valid JS identifier. URL is the Datastar action POSTed on every open.
+// ID names the sidebar host and must be a valid JS identifier, because it
+// is reused as the AbortController signal name and the morph-target id of
+// the content slot. URL is the Datastar action POSTed on every open.
 // Loading renders inside the content slot while the request is in
 // flight; Failed renders when Datastar dispatches `retries-failed` or
 // finishes the action after at least one `error` event. Pass nil for a
@@ -954,10 +950,10 @@ func dialogAsyncOnFetch(opts DialogAsyncOpts) string {
 // On a successful response the server is expected to morph
 // `<div id="<ID>-body">` with the rendered content. ExtraPostOpts is a
 // JS expression body merged into the @post call, typically retry knobs.
-// The embedded neo.SidebarOpts carries every base sidebar option (side,
-// overlay, breakpoint, …); set it as SidebarOpts: neo.SidebarOpts{...}.
+// The embedded [neo.SidebarOpts] carries every base sidebar option (side,
+// overlay, breakpoint, ...); set it as SidebarOpts: neo.SidebarOpts{...}.
 // Set SidebarOpts.Manual so a wide-viewport auto-open doesn't POST
-// before the user asks. The trigger lives outside the wrapper: wire a
+// before the user asks. The trigger lives outside the wrapper. Wire a
 // button to `document.getElementById('<ID>').toggle()`.
 type SidebarAsyncOpts struct {
 	neo.SidebarOpts
@@ -1043,7 +1039,7 @@ func sidebarAsyncResetAndPost(opts SidebarAsyncOpts) string {
 	return b.String()
 }
 
-// sidebarAsyncRetry installs click-delegation on the host: a descendant
+// sidebarAsyncRetry installs click delegation on the host. A descendant
 // carrying [data-neo-popover-async-retry] aborts the in-flight fetch,
 // swaps the content back to loading, and re-runs the action without
 // closing the sidebar. Reuses the popover-async retry attribute so retry
@@ -1066,8 +1062,8 @@ func sidebarAsyncRetry(opts SidebarAsyncOpts) string {
 	return b.String()
 }
 
-// sidebarAsyncOnFetch mirrors popoverAsyncOnFetch's failure contract:
-// retries-failed means the network retry budget is exhausted; an
+// sidebarAsyncOnFetch mirrors the failure contract of [popoverAsyncOnFetch].
+// retries-failed means the network retry budget is exhausted. An
 // `error` event increments $<id>_errors so a later `finished` can cover
 // HTTP failures that Datastar stops retrying without emitting
 // retries-failed.

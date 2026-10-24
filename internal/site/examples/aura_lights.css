@@ -12,7 +12,7 @@
 	);
 }
 
-/* Eight short bands; the slower spin keeps them from flickering. */
+/* 8 short bands; the slower spin keeps them from flickering. */
 .aura-lights-holo {
 	--neo-aura-gradient: repeating-conic-gradient(
 		oklch(0.85 0.13 330),
@@ -47,7 +47,7 @@
 	);
 }
 
-/* A still light that pulses. cq units measure the aura's box: the ellipse
+/* A still light that pulses. cq units measure the aura's box; the ellipse
    passes through its corners. */
 .aura-lights-glow {
 	--neo-aura-gradient: radial-gradient(71cqw 71cqh, var(--neo-aura-color), transparent 90%);

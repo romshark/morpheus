@@ -1,7 +1,7 @@
-// Two modes share the same SVG ring markup, so stroke thickness, outer
-// diameter, and anti-aliasing match exactly across them. Mode is implicit:
-// a `value` without `indeterminate` is determinate, and the shadow
-// stylesheet derives the mode from those public attributes.
+// 2 modes share the same SVG ring markup, which keeps stroke thickness,
+// outer diameter, and anti-aliasing identical across them.
+// Mode is implicit. A `value` without `indeterminate` is determinate,
+// and the shadow stylesheet derives the mode from those public attributes.
 
 import { boolAttr } from "../command";
 import { clamp, num } from "../num";
@@ -21,8 +21,7 @@ const TRACK = "data-neo-spinner-track";
 const ARC = "data-neo-spinner-arc";
 const SUN = "data-neo-spinner-sun";
 
-// Lucide-static "loader" glyph rays: the reduced-motion fallback for
-// indeterminate mode.
+// Lucide-static "loader" glyph rays, the reduced-motion fallback for indeterminate mode.
 const SUN_LINES: ReadonlyArray<readonly [number, number, number, number]> = [
 	[12, 2, 12, 6],
 	[12, 18, 12, 22],
@@ -37,7 +36,7 @@ const SUN_LINES: ReadonlyArray<readonly [number, number, number, number]> = [
 const SVG_NS = "http://www.w3.org/2000/svg";
 
 // Ring geometry. The visible radius defaults to R=10.5 (so a 3-unit stroke fits the
-// 24-unit viewBox exactly), but CSS (`r: calc(12px − ringWidth/2)`)
+// 24-unit viewBox exactly), but CSS (`r: calc(12px - ringWidth/2)`)
 // shrinks it whenever a theme bumps --neo-spinner-ring-width.
 // Dash values use a normalised 0-100 scale via pathLength so they survive
 // that shrink without redoing the maths.
@@ -126,7 +125,7 @@ export class NeoSpinner extends HTMLElement {
 		this.#reconcile();
 	}
 
-	// State → attribute, guarded so it isn't read back as a command.
+	// State -> attribute, guarded so it isn't read back as a command.
 	#reflectValue() {
 		this.#reflectingValue = true;
 		try {
@@ -136,8 +135,8 @@ export class NeoSpinner extends HTMLElement {
 		}
 	}
 
-	// Single entry point: ensure the persistent shadow ring exists, then
-	// sync the arc per mode.
+	// Single entry point. Ensures the persistent shadow ring exists,
+	// then syncs the arc per mode.
 	#reconcile() {
 		this.#ensureRing();
 		const determinate = this.#determinate;
@@ -186,9 +185,9 @@ export class NeoSpinner extends HTMLElement {
 		ring.appendChild(arc);
 		ring.appendChild(sun);
 
-		// Spin this HTML wrapper, not the SVG: a transform animation on an
-		// HTML element composites (raster once, GPU spins it), but on an inner
-		// SVG element it repaints every frame.
+		// Spin this HTML wrapper, not the SVG. A transform animation on an
+		// HTML element composites (raster once, GPU spins it),
+		// but on an inner SVG element it repaints every frame.
 		const spin = document.createElement("div");
 		spin.setAttribute(SPIN, "");
 		spin.appendChild(ring);
@@ -224,8 +223,7 @@ export class NeoSpinner extends HTMLElement {
 
 	// role="progressbar" + value text when determinate, or when an
 	// indeterminate spinner was given a label. A bare, unlabelled
-	// indeterminate spinner stays decorative (no role): preserves the
-	// original behaviour so existing call sites aren't altered.
+	// indeterminate spinner stays decorative (no role).
 	#applyAria(valuenow: number | null) {
 		const label = this.getAttribute(ATTR_LABEL) || this.getAttribute("aria-label");
 		const determinate = valuenow !== null;

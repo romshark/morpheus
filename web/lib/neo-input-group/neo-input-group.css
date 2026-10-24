@@ -1,11 +1,9 @@
-/* -----------------------------------------------------------------------
- * <neo-input-group>
- * -----------------------------------------------------------------------
- * Wrapper that flushes leading/trailing addons (text/icons/buttons)
- * against a <neo-textinput>, <neo-select>, <neo-combobox>, or plain
- * <input> under a single merged border. The group owns the styling
- * (border, radius, focus ring); the inner control gives up its own
- * border while inside the group so the visual stays unified. */
+/* <neo-input-group> is a wrapper that flushes leading/trailing addons
+ * (text/icons/buttons) against a <neo-textinput>, <neo-select>,
+ * <neo-combobox>, or plain <input> under a single merged border. The
+ * group owns the styling (border, radius, focus ring); the inner control
+ * gives up its own border while inside the group so the visual stays
+ * unified. */
 
 :root {
 	--neo-input-group-addon-padding: 0 0.6rem;
@@ -27,24 +25,24 @@ neo-input-group {
 	/* The group owns the high-contrast frame and dividers; no nested
 	 * control (at any depth, incl. a toggle wrapped in a tooltip) may
 	 * paint its own ring. Inherits to the whole subtree. The host's own
-	 * frame is a direct box-shadow, not this variable, so it's unaffected. */
+	 * frame is a direct box-shadow, not this variable, and is unaffected. */
 	--neo-contrast-ring: 0 0 0 0 transparent;
 }
 
 /* The group stands in with its own outline only for the plain text
  * inputs, whose suppressed inner outline has nothing else to show. A
  * select/combobox keeps its own host outline (it has real styling of its
- * own), so the ring lands on the focused control, not the whole group.
- * The textinput field lives in the shadow root, so `:has` can't see its
- * `:focus-visible`; `:focus-within` crosses the boundary, and a text
- * field is focus-visible whenever focused, so the two agree here. */
+ * own), which puts the ring on the focused control, not the whole group.
+ * The textinput field lives in the shadow root, where `:has` can't see its
+ * `:focus-visible`. `:focus-within` crosses the boundary, and a text
+ * field is focus-visible whenever focused, which makes the two agree. */
 neo-input-group:has(> neo-textinput:focus-within),
 neo-input-group:has(> input:focus-visible) {
 	outline: 2px solid var(--neo-textarea-focus-ring);
 	outline-offset: 2px;
 }
 
-/* High contrast: an OUTSET ring (not the inset --neo-contrast-ring used
+/* High contrast: an outset ring (not the inset --neo-contrast-ring used
  * elsewhere) so an addon's opaque hover background, which fills to the
  * group's inner edge, can't paint over the thickened edge. */
 @media (prefers-contrast: more) {
@@ -70,7 +68,7 @@ neo-input-group > input {
 
 /* Select/combobox trigger styling lives in shadow DOM and is controlled
  * by --neo-button-* tokens. When either joins an input-group, the group
- * owns the outer border/ring, so the trigger must not paint its own
+ * owns the outer border/ring and the trigger must not paint its own
  * nested border or contrast ring. */
 neo-input-group > neo-select,
 neo-input-group > neo-combobox {
@@ -90,11 +88,11 @@ neo-input-group > neo-combobox:not(:defined) {
 	background: transparent;
 }
 
-/* The field styling lives in the shadow root and is driven by
+/* The field styling lives in the shadow root and is set by
  * --neo-textarea-* tokens (the way select/combobox use --neo-button-*).
  * In a group the field fills the row height and merges into the group's
- * shared border, so zero its own border, radius, background, and ring;
- * the group owns all of those. */
+ * shared border. Zero its own border, radius, background, and ring; the
+ * group owns all of those. */
 neo-input-group > neo-textinput {
 	--neo-input-height: 100%;
 	--neo-textarea-border-width: 0;
@@ -104,7 +102,7 @@ neo-input-group > neo-textinput {
 	--neo-textarea-focus-outline: none;
 }
 
-/* A bare <input> is light DOM, so reach it directly. */
+/* A bare <input> is light DOM; reach it directly. */
 neo-input-group > input {
 	--neo-input-height: 100%;
 	border: none;
@@ -163,7 +161,7 @@ neo-input-group > neo-icon {
 	 * centering. */
 	align-self: center;
 	/* Icons read as glyphs, not text; they want tighter padding than
-	 * the addon-padding token (which is sized so `[…text]` doesn't
+	 * the addon-padding token (which is sized so `[...text]` doesn't
 	 * crowd the input). The wider edge sits against the group's
 	 * border for breathing room; the tighter edge sits against the
 	 * input, trusting the input's own left/right padding to handle
@@ -182,7 +180,7 @@ neo-input-group > neo-icon:last-child {
 
 /* Round the outer corners to match the group's own radius. The group
  * has overflow: visible (so focus rings on inner buttons aren't
- * clipped), so we clip via per-child border-radius instead. */
+ * clipped); clip via per-child border-radius instead. */
 neo-input-group > :first-child,
 neo-input-group > :first-child > input {
 	border-top-left-radius: calc(var(--neo-textarea-radius) - var(--neo-textarea-border-width, 1px));
@@ -200,11 +198,11 @@ neo-input-group > :last-child > input {
  * full height, and use the addon background so they read as a distinct
  * surface from the input itself. Plain <button> (UA-styled) and
  * <neo-toggle> (base selector `neo-toggle`, specificity 0,0,1) are
- * covered by the direct properties. <neo-button> is not: its base rule
- * (`neo-button:not([variant="anchor"])`, 0,1,1) outranks this one
- * (0,0,2), so the direct overrides lose for it. Re-suppress through the
- * --neo-button-* tokens the base rule reads (as the select/combobox
- * block above does); no specificity fight. */
+ * covered by the direct properties. <neo-button> is not, because its base
+ * rule (`neo-button:not([variant="anchor"])`, 0,1,1) outranks this one
+ * (0,0,2) and the direct overrides do not apply to it. Re-suppress
+ * through the --neo-button-* tokens the base rule reads (as the
+ * `neo-input-group > neo-select` rule does); no specificity fight. */
 neo-input-group > :is(button, neo-button, neo-toggle) {
 	margin: 0;
 	border: none;
@@ -228,7 +226,7 @@ neo-input-group > :is(button, neo-button, neo-toggle):hover {
 
 /* Flatten only the inside-facing corners so the button butts flush
  * against its sibling, while the outside-facing corners are left to
- * the `:first-child` / `:last-child` rules above to round to match the
+ * the `:first-child` / `:last-child` rules to round to match the
  * group's perimeter. A blanket `border-radius: 0` would outrank those
  * rules (higher specificity) and leak the square hover bg past the
  * group's rounded outer border. */
@@ -243,7 +241,7 @@ neo-input-group > :is(button, neo-button, neo-toggle):not(:last-child) {
 }
 
 /* Disabled: the JS mirrors the inner input's disabled state to the
- * host's aria-disabled, so a single CSS rule fades the entire group
+ * host's aria-disabled, which lets a single CSS rule fade the entire group
  * (including all addons) without each addon needing its own state
  * mirror. Pointer events stay live on real <button>s so the developer
  * can opt-out of the cascade by handling the click anyway, but the

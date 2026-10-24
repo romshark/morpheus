@@ -10,18 +10,17 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import "github.com/romshark/morpheus/neo"
 
-// PopoverAsync renders a <neo-popover> wired to a Datastar SSE action
-// that fetches its body content on every open. The Loading template
-// shows during the request; on a successful response the server is
-// expected to morph the element with id `<ID>-body` (the wrapper
-// around the placeholder). When Datastar exhausts its retry budget
-// the Failed template is swapped in automatically, listening for
-// `datastar-fetch` with `evt.detail.type === 'retries-failed'`.
+// PopoverAsync renders a <neo-popover> wired to a Datastar SSE action that fetches
+// its body content on every open. The Loading template shows during the request;
+// on a successful response the server is expected to morph the element with
+// id `<ID>-body` (the wrapper around the placeholder). When Datastar exhausts
+// its retry budget the Failed template is swapped in automatically,
+// listening for `datastar-fetch` with `evt.detail.type === 'retries-failed'`.
 //
-// The trigger label is supplied via children, mirroring neo.Popover.
+// The trigger label is supplied via children, mirroring [neo.Popover].
 // Any descendant in the Loading or Failed template that carries
-// `data-neo-popover-async-retry` becomes a retry button: a click
-// aborts any in-flight fetch, swaps the body back to the loading
+// `data-neo-popover-async-retry` becomes a retry button.
+// A click aborts any in-flight fetch, swaps the body back to the loading
 // placeholder, and re-fires the action without closing the popover.
 //
 // PopoverAsync requires Datastar's retry mode to be anything other
@@ -75,7 +74,7 @@ func PopoverAsync(opts PopoverAsyncOpts) templ.Component {
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(opts.ID + "-body")
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `datastar/popover_async.templ`, Line: 34, Col: 30}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `datastar/popover_async.templ`, Line: 33, Col: 30}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 			if templ_7745c5c3_Err != nil {
@@ -112,7 +111,7 @@ func PopoverAsync(opts PopoverAsyncOpts) templ.Component {
 		var templ_7745c5c3_Var4 string
 		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.ResolveAttributeValue(opts.ID + "-tpl-loading")
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `datastar/popover_async.templ`, Line: 39, Col: 40}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `datastar/popover_async.templ`, Line: 38, Col: 40}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var4)
 		if templ_7745c5c3_Err != nil {
@@ -133,7 +132,7 @@ func PopoverAsync(opts PopoverAsyncOpts) templ.Component {
 		var templ_7745c5c3_Var5 string
 		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.ResolveAttributeValue(opts.ID + "-tpl-failed")
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `datastar/popover_async.templ`, Line: 42, Col: 39}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `datastar/popover_async.templ`, Line: 41, Col: 39}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var5)
 		if templ_7745c5c3_Err != nil {

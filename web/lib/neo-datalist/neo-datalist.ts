@@ -1,6 +1,6 @@
 // Holds option data (<neo-option> / <neo-optgroup>) for a control to read.
-// Not interactive: no shadow DOM, no keyboard. Modeled on native
-// <datalist>: give it an id and a control opts in with list="<id>".
+// Not interactive (no shadow DOM, no keyboard). Modeled on native
+// <datalist>. Give it an id and a control opts in with list="<id>".
 
 import "../neo-optgroup";
 import "../neo-option";
@@ -26,7 +26,7 @@ export class NeoDatalist extends HTMLElement {
 	#observer: MutationObserver | null = null;
 
 	// Shared when it stands outside any control. An inline datalist (a child
-	// of one control) is re-read by that control's own observer, so it needs
+	// of one control) is re-read by that control's own observer and needs
 	// no self-observer here.
 	get isShared(): boolean {
 		return !this.closest(DATALIST_CONTROLS);
@@ -87,7 +87,7 @@ function notify(host: HTMLElement) {
 }
 
 // A control has its own option source (inline datalist or directly authored
-// options): an external datalist must not override it. Clones a control made
+// options), which an external datalist must not override. Clones a control made
 // from an external datalist live under [data-neo-datalist-managed] and don't
 // count as an inline source.
 export function hasInlineSource(host: HTMLElement): boolean {
@@ -98,8 +98,8 @@ export function hasInlineSource(host: HTMLElement): boolean {
 
 // The external datalist a control should read, honoring precedence. A control
 // opts in with list="<id>" (like native <input list>). Returns null when an
-// inline source wins, the list attribute is absent, or it points at no
-// upgraded <neo-datalist>.
+// inline source takes precedence, the list attribute is absent, or it
+// points at no upgraded <neo-datalist>.
 export function externalDatalistFor(host: HTMLElement): NeoDatalist | null {
 	if (hasInlineSource(host)) return null;
 	const id = host.getAttribute("list");

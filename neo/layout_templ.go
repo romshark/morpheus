@@ -9,10 +9,10 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 // Layout renders <neo-layout>, the CSS-only Flexbox layout primitive.
-// Every option maps to the flex container property of the same name, so
-// the markup reads like the CSS it produces. Defaults to a row, like
-// display:flex; set Direction: Column for a vertical stack. Use [Item]
-// for per-child flex behaviour. CSS-only.
+// Every option maps to the flex container property of the same name,
+// which makes the markup read like the CSS it produces. Defaults to a row,
+// like display:flex; set Direction: Column for a vertical stack.
+// Use [Item] for per-child flex behaviour.
 func Layout(opts LayoutOpts) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context

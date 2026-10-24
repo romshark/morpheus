@@ -1,12 +1,11 @@
 package neo
 
 type PaginationOpts struct {
-	// Page is the active page (1-indexed). Set(0) emits page="0", the
-	// matching idiom Slider / Progress use for explicit zero values that
-	// must round-trip as attributes.
+	// Page is the active page (1-indexed). Set(0) emits page="0",
+	// the matching idiom [Slider] / [Progress] use for explicit zero values
+	// that must round-trip as attributes.
 	Page Attr[int]
-	// Pages is the total number of pages; the host renders no chips
-	// when Pages < 1.
+	// Pages is the total number of pages; the host renders no chips when Pages < 1.
 	Pages Attr[int]
 	// SiblingCount controls how many pages flank the current one
 	// (default in the JS host: 1).
@@ -31,7 +30,7 @@ type PaginationOpts struct {
 // The default content is a single chevron-left / chevron-right icon,
 // rendering both buttons as icon-only at every viewport.
 //
-//	@neo.Pagination(neo.PaginationOpts{Page: 5, Pages: 25}) {
+//	@neo.Pagination(neo.PaginationOpts{Page: neo.Set(5), Pages: neo.Set(25)}) {
 //	    <template data-neo-pagination-prev>
 //	        @neo.Icon("chevron-left")
 //	        <span>Previous</span>

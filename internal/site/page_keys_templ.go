@@ -85,7 +85,7 @@ func PageKeys(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</code> is a behavioural utility that binds keyboard shortcuts. While connected it installs a key listener on a target element (its parent by default) and removes it on disconnect. A matched chord dispatches a bubbling <code>neo-keys</code> event. Renders as <code>display: contents</code> and shows nothing.</p><p>It depends on no framework: configuration arrives through attributes (<code>keys</code>, <code>disabled</code>, <code>target</code>) and activation leaves through the dispatched event. That is the signals-down-to-attributes, events-up-to-expressions shape: a Datastar <code>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</code> is a behavioural utility that binds keyboard shortcuts. While connected it installs a key listener on a target element (its parent by default) and removes it on disconnect. A matched chord dispatches a bubbling <code>neo-keys</code> event. Renders as <code>display: contents</code> and shows nothing.</p><p>It depends on no framework. Configuration arrives through attributes (<code>keys</code>, <code>disabled</code>, <code>target</code>) and activation leaves through the dispatched event. That is the signals-down-to-attributes, events-up-to-expressions shape. A Datastar <code>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -163,7 +163,7 @@ func PageKeys(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<p>A chord is zero or more modifiers plus one key, joined with <code>+</code> (<code>mod+k</code>, <code>shift+?</code>, <code>alt+ArrowDown</code>). Three separators, none overlapping:</p><table class=\"api-table\"><thead><tr><th scope=\"col\">Separator</th><th scope=\"col\">Meaning</th><th scope=\"col\">Example</th></tr></thead> <tbody><tr><th scope=\"row\" data-label=\"Separator\"><code>+</code></th><td data-label=\"Meaning\">Joins a modifier to a key within one chord.</td><td data-label=\"Example\"><code>mod+k</code></td></tr><tr><th scope=\"row\" data-label=\"Separator\"><code>,</code></th><td data-label=\"Meaning\">Sequences chords: press in order within <code>sequence-timeout</code>.</td><td data-label=\"Example\"><code>g, i</code></td></tr><tr><th scope=\"row\" data-label=\"Separator\"><code>|</code></th><td data-label=\"Meaning\">Lists alternatives; any one fires.</td><td data-label=\"Example\"><code>mod+k | ctrl+k</code></td></tr></tbody></table><p><code>mod</code> resolves to <code>⌘</code> on Apple platforms and <code>Ctrl</code> elsewhere. A literal comma key is the <code>comma</code> alias, so the separator never collides with a key.</p></section><section class=\"demo\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<p>A chord is 0 or more modifiers plus 1 key, joined with <code>+</code> (<code>mod+k</code>, <code>shift+?</code>, <code>alt+ArrowDown</code>). The 3 separators do not overlap.</p><table class=\"api-table\"><thead><tr><th scope=\"col\">Separator</th><th scope=\"col\">Meaning</th><th scope=\"col\">Example</th></tr></thead> <tbody><tr><th scope=\"row\" data-label=\"Separator\"><code>+</code></th><td data-label=\"Meaning\">Joins a modifier to a key within one chord.</td><td data-label=\"Example\"><code>mod+k</code></td></tr><tr><th scope=\"row\" data-label=\"Separator\"><code>,</code></th><td data-label=\"Meaning\">Sequences chords, pressed in order within <code>sequence-timeout</code>.</td><td data-label=\"Example\"><code>g, i</code></td></tr><tr><th scope=\"row\" data-label=\"Separator\"><code>|</code></th><td data-label=\"Meaning\">Lists alternatives; any one fires.</td><td data-label=\"Example\"><code>mod+k | ctrl+k</code></td></tr></tbody></table><p><code>mod</code> resolves to <code>⌘</code> on Apple platforms and <code>Ctrl</code> elsewhere. A literal comma key is the <code>comma</code> alias, which keeps the separator from colliding with a key.</p></section><section class=\"demo\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -211,7 +211,7 @@ func PageKeys(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<p class=\"demo-note\">The listener lives on the panel (the element's parent), so <code>mod+s</code> only fires while focus is inside it. Default <code>prevent</code> swallows the browser's own save dialog. Click away and the shortcut goes quiet.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<p class=\"demo-note\">Because the listener lives on the panel (the element's parent), <code>mod+s</code> only fires while focus is inside it. Default <code>prevent</code> blocks the browser's own save dialog. Click away and the shortcut stops firing.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -263,7 +263,7 @@ func PageKeys(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<p class=\"demo-note\">A comma-separated chord list fires only after the steps arrive in order. Two <code>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<p class=\"demo-note\">A comma-separated chord list fires only after the steps arrive in order. 2 <code>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -328,7 +328,7 @@ func PageKeys(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<p class=\"demo-note\">A signal drives <code>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<p class=\"demo-note\">A signal is bound through <code>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -341,7 +341,7 @@ func PageKeys(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</code>, so toggling it arms or disarms both bindings without re-rendering anything. Each binding lists an arrow and a vim-style alternative (<code>up | k</code>, <code>down | j</code>).</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</code>; toggling it arms or disarms both bindings without re-rendering anything. Each binding lists an arrow and a vim-style alternative (<code>up | k</code>, <code>down | j</code>).</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -445,7 +445,7 @@ func PageKeys(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<p class=\"demo-note\"><code>for</code> names an element id; on a match the shortcut calls <code>click()</code> on it, so a keyboard trigger needs no event handler. Here <code>mod+i</code> opens a popover and <code>mod+o</code> a select.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<p class=\"demo-note\"><code>for</code> names an element id; on a match the shortcut calls <code>click()</code> on it. A keyboard trigger then needs no event handler. Here <code>mod+i</code> opens a popover and <code>mod+o</code> a select.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -495,7 +495,7 @@ var keysDoc = ComponentDoc{
 		{Name: "keys", Type: "string", Observed: true,
 			Description: templ.Raw("Chord spec. <code>+</code> joins a chord, <code>,</code> sequences steps, <code>|</code> lists alternatives. Required.")},
 		{Name: "target", Type: "string", Default: "parent", Observed: true,
-			Description: templ.Raw("Listener host: <code>parent</code>, <code>window</code>, <code>document</code>, or a CSS selector resolved with <code>querySelector</code>.")},
+			Description: templ.Raw("Listener host, one of <code>parent</code>, <code>window</code>, <code>document</code>, or a CSS selector resolved with <code>querySelector</code>.")},
 		{Name: "for", Type: "string",
 			Description: templ.Raw("ID of an element to activate with <code>click()</code> when the shortcut matches. The <code>neo-keys</code> event is still dispatched.")},
 		{Name: "up", Type: "boolean", Default: "false", Observed: true,

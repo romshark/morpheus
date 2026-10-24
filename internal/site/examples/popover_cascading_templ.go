@@ -10,9 +10,9 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import "github.com/romshark/morpheus/neo"
 
-// PopoverCascading is a nested menu: each submenu is a child neo-popover
-// living inside its parent's content panel. Hover/keydown wiring on every
-// inner navgroup drives roving focus and submenu open/close.
+// PopoverCascading is a nested menu. Each submenu is a child neo-popover
+// inside its parent's content panel. Hover/keydown handlers on every inner
+// navgroup run roving focus and submenu open/close.
 func PopoverCascading() templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context

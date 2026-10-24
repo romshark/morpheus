@@ -1,8 +1,8 @@
 // Renders /static/icons/<name>.svg into a shadow root, fetched once per URL
 // (shared cache). Inlined rather than mask-image because Lucide icons use
 // stroke="currentColor", unreliable in external mask contexts (notably
-// Safari). The shadow root has no <slot>, so fat-morphs of the host's light
-// DOM can't disturb the SVG.
+// Safari). The shadow root has no <slot>, which keeps fat-morphs of the
+// host's light DOM from disturbing the SVG.
 
 const cache = new Map<string, Promise<string>>();
 
@@ -52,7 +52,7 @@ export class NeoIcon extends HTMLElement {
 
 	#shadow: ShadowRoot | null = null;
 	#token = 0;
-	// Dedupes redundant renders (one `attributeChangedCallback` per
+	// Dedupes redundant renders (1 `attributeChangedCallback` per
 	// observed attr at upgrade) and gates SSR-adoption to first render.
 	#renderedURL: string | null = null;
 
@@ -143,7 +143,7 @@ export class NeoIcon extends HTMLElement {
 			this.#shadow.adoptedStyleSheets = [ICON_SHEET];
 		}
 		const markup = await load(url);
-		// Only the latest render call wins.
+		// Only the latest render call applies.
 		if (mine !== this.#token) return;
 		this.#shadow.innerHTML = markup;
 		this.#shadow.firstElementChild?.setAttribute("part", "svg");

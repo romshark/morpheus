@@ -10,8 +10,8 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import "strings"
 
-// PersistOpts: see <neo-persist> attributes. For targets by id when
-// non-empty (else first child).
+// PersistOpts holds the <neo-persist> attributes.
+// For targets by id when non-empty (else first child).
 type PersistOpts struct {
 	Key     Attr[string]
 	Props   []string
@@ -20,7 +20,7 @@ type PersistOpts struct {
 	For     Attr[string]
 }
 
-// Spread instead of literal `on=…`; templ's parser treats `on*`
+// Spread instead of literal `on=...`; templ's parser treats `on*`
 // attributes as JS event handlers requiring templ.ComponentScript.
 func persistAttrs(opts PersistOpts, extra templ.Attributes) templ.Attributes {
 	a := templ.Attributes{}

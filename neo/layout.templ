@@ -1,10 +1,10 @@
 package neo
 
 // Layout renders <neo-layout>, the CSS-only Flexbox layout primitive.
-// Every option maps to the flex container property of the same name, so
-// the markup reads like the CSS it produces. Defaults to a row, like
-// display:flex; set Direction: Column for a vertical stack. Use [Item]
-// for per-child flex behaviour. CSS-only.
+// Every option maps to the flex container property of the same name,
+// which makes the markup read like the CSS it produces. Defaults to a row,
+// like display:flex; set Direction: Column for a vertical stack.
+// Use [Item] for per-child flex behaviour.
 templ Layout(opts LayoutOpts) {
 	@LayoutAttrs(opts, nil) {
 		{ children... }

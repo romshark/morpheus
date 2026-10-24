@@ -86,7 +86,7 @@ func PageBadge(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</code> is a small inline label / chip for status, counts, tags, and category markers. Variants reuse the button colour tokens so theme swaps carry badges along.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</code> is a small inline label / chip for status, counts, tags, and category markers. Variants reuse the button colour tokens, which means a theme change restyles badges too.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -171,7 +171,7 @@ func PageBadge(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<p class=\"demo-note\">Five fills tied to the button colour tokens: default (neutral), <code>primary</code>, <code>secondary</code>, <code>danger</code>, and <code>outline</code> (transparent with a border).</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<p class=\"demo-note\">The default (neutral), <code>primary</code>, <code>secondary</code>, <code>danger</code>, and <code>outline</code> (transparent with a border) fills are tied to the button colour tokens.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -236,7 +236,7 @@ func PageBadge(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</code> as the badge's first child. The flex layout spaces it from the label, and it inherits the badge's font colour, so the icon recolours with the variant.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</code> as the badge's first child. The flex layout spaces it from the label. The icon inherits the badge's font colour and recolours with the variant.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -367,7 +367,7 @@ func PageBadge(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</code>. It is <code>display: inline-flex</code>, so it nests inside inline anchors and picks up the link's hover and focus from the cascade.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</code>. Its <code>display: inline-flex</code> lets it nest inside inline anchors and pick up the link's hover and focus from the cascade.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -420,7 +420,7 @@ func PageBadge(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<p class=\"demo-note\">Short numeric badges next to a label: the unread-count pattern. <code>line-height: 1</code> keeps them from stretching the row at small font sizes.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<p class=\"demo-note\">Short numeric badges next to a label form the unread-count pattern. <code>line-height: 1</code> keeps them from stretching the row at small font sizes.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -451,7 +451,7 @@ func PageBadge(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<p class=\"demo-note\">The badge sits on the text baseline, so it reads as part of a sentence without pushing surrounding lines apart. New tags roll out&nbsp;")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<p class=\"demo-note\">The badge sits on the text baseline and reads as part of a sentence without pushing surrounding lines apart. New tags roll out&nbsp;")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

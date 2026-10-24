@@ -9,14 +9,14 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 type AuraOpts struct {
-	// Disabled turns the light off. The aura keeps its padding, and the
-	// wrapped element stays enabled.
+	// Disabled turns the light off. The aura keeps its padding,
+	// and the wrapped element stays enabled.
 	Disabled Attr[bool]
 }
 
 // Aura renders <neo-aura>, a decorative light that circles the element it
 // wraps, with a glow behind it. Wrap one element with an opaque background.
-// The look comes from CSS: --neo-aura-gradient for the light,
+// CSS sets the look, with --neo-aura-gradient for the light and
 // --neo-aura-spin-duration and --neo-aura-pulse-duration for the motion.
 // The ring follows the wrapped element's measured corner radius;
 // --neo-aura-radius overrides it.

@@ -91,7 +91,7 @@ func PageTree(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</code> is a disclosure tree with collapsible subtrees. Click a row or press <code>Enter</code> / <code>Space</code> on a focused branch to toggle. Expand/collapse rides the kit's <code>--neo-easing</code> / <code>--neo-duration-scale</code> tokens, so each theme paces it on its own.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</code> is a disclosure tree with collapsible subtrees. Click a row or press <code>Enter</code> / <code>Space</code> on a focused branch to toggle. Expand/collapse uses the kit's <code>--neo-easing</code> / <code>--neo-duration-scale</code> tokens, which lets each theme pace it on its own.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -176,7 +176,7 @@ func PageTree(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<p class=\"demo-note\">The canonical shape: the first level and one nested branch start expanded, the rest collapsed. Click any branch to watch the disclosure animate.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<p class=\"demo-note\">In the canonical shape, the first level and 1 nested branch start expanded and the rest collapsed. Click any branch to watch the disclosure animate.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -228,7 +228,7 @@ func PageTree(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<p class=\"demo-note\">Six levels under one expanded root, with uniform per-level indentation. Click a collapsed inner branch to see the chevron rotate.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<p class=\"demo-note\">6 levels under a single expanded root, with uniform per-level indentation. Click a collapsed inner branch to see the chevron rotate.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -568,7 +568,7 @@ func PageTree(morpheusVersion string) templ.Component {
 var treeDoc = ComponentDoc{
 	Attributes: []DocAttribute{
 		{Name: "expanded", Type: "boolean", Default: "false", Reflected: true, Observed: true,
-			Description: templ.Raw("On <code>&lt;neo-tree-item&gt;</code>: branch disclosure state.")},
+			Description: templ.Raw("Branch disclosure state on <code>&lt;neo-tree-item&gt;</code>.")},
 	},
 	Slots: []DocSlot{
 		{Name: "default",
@@ -590,7 +590,7 @@ var treeDoc = ComponentDoc{
 	},
 	Parts: []DocPart{
 		{Name: "row",
-			Description: templ.Raw("Each item's row: the chevron plus the slotted label.")},
+			Description: templ.Raw("Each item's row, holding the chevron and the slotted label.")},
 		{Name: "children",
 			Description: templ.Raw("Wrapper around a branch's nested items, animated open and closed.")},
 	},
@@ -612,9 +612,9 @@ var treeDoc = ComponentDoc{
 	},
 }
 
-// treeSimulator wires the lazy-load route used by the async demo:
-//   - /tree/loadnode/  (extracted to /static/sim/tree/loadnode.js,
-//     also surfaced in its Server script tab).
+// treeSimulator wires the /tree/loadnode/ lazy-load route used by the
+// async demo. The handler lives in /static/sim/tree/loadnode.js and is
+// also surfaced in the demo's Server script tab.
 func treeSimulator() templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context

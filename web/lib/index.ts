@@ -50,6 +50,6 @@ import "./neo-tooltip";
 import "./neo-tree";
 import { watchMissingComponents } from "./missing-components";
 
-// Registration of all components above is synchronous, so this runs after
+// Registration of all imported components is synchronous. This call runs after
 // the bundle's full set is defined and can flag any <neo-*> the bundle omits.
 watchMissingComponents();

@@ -9,19 +9,18 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 // LinkVariant is the visual style enum for the kit's styled anchor
-// (`<a data-neo-link>`). The zero value (LinkVariantDefault) renders as
-// a typical inline anchor: accent-coloured underlined text suitable for
+// (`<a data-neo-link>`). The zero value ([LinkVariantDefault]) renders as
+// a typical inline anchor, accent-coloured underlined text suitable for
 // running prose. The LinkVariantButton* family makes the link adopt
-// <neo-button>'s look exactly, so the same anchor can stand in for a
+// <neo-button>'s look exactly, which lets the same anchor stand in for a
 // button when the destination is a URL rather than an action. Every
 // button-family value carries the `button-` prefix so CSS can select the
 // whole family by attribute prefix.
 //
-// Why a separate enum (rather than sharing ButtonVariant): the two
-// types disagree on what the zero value should mean. <neo-button>'s
+// LinkVariant is separate from [ButtonVariant] because the 2 types
+// disagree on what the zero value should mean. <neo-button>'s
 // zero is its neutral styling; the link's is anchor. Sharing one type
-// would force one component or the other to spell its default
-// explicitly.
+// would force one component or the other to spell its default explicitly.
 type LinkVariant string
 
 const (
@@ -35,18 +34,18 @@ const (
 
 // LinkOpts configures the kit's styled anchor. The wrapper renders a
 // plain native <a> carrying `data-neo-link`, the hook the kit's CSS
-// keys on; there is no custom element and no link-specific JS, so
-// behavior is exactly a native link.
+// keys on. There is no custom element and no link-specific JS. Behavior
+// is exactly a native link.
 type LinkOpts struct {
 	// Href is the link target. Empty emits an anchor without an `href`
 	// attribute (a placeholder that the browser doesn't treat as a link).
 	Href Attr[string]
 	// Target follows the native `target` semantics ("_blank", "_self",
-	// a named browsing context, …). Modern browsers default to
+	// a named browsing context, ...). Modern browsers default to
 	// `rel="noopener"` for `_blank`, but spell it out explicitly when
 	// older targets matter.
 	Target Attr[string]
-	// Rel sets the link-type relationship: a space-separated list of
+	// Rel sets the link-type relationship as a space-separated list of
 	// tokens like "noopener", "noreferrer", "nofollow", "external",
 	// "author". Frequently paired with Target="_blank" on external
 	// links for the cross-origin tab-isolation guarantee.
@@ -54,7 +53,7 @@ type LinkOpts struct {
 	// Download triggers a save-as instead of navigation; the value is
 	// the suggested filename. Empty emits no `download` attribute. For
 	// the bare `download` form (use the server-provided filename),
-	// pass `download=""` via LinkAttrs.
+	// pass `download=""` via [LinkAttrs].
 	Download Attr[string]
 	// HrefLang is the BCP-47 language tag (e.g. "en", "de-CH") of the
 	// linked resource. Hint only; browsers don't act on it, but AT
@@ -62,10 +61,10 @@ type LinkOpts struct {
 	HrefLang Attr[string]
 	// ReferrerPolicy controls how much of the current URL is sent in
 	// the Referer header on follow ("no-referrer",
-	// "strict-origin-when-cross-origin", "origin", …). Empty inherits
+	// "strict-origin-when-cross-origin", "origin", ...). Empty inherits
 	// the document-level policy.
 	ReferrerPolicy Attr[string]
-	// Variant picks the visual style. Zero value (LinkVariantDefault)
+	// Variant picks the visual style. Zero value ([LinkVariantDefault])
 	// renders as a typical inline anchor; the LinkVariantButton*
 	// family renders with the corresponding <neo-button> styling.
 	Variant Attr[LinkVariant]
@@ -75,8 +74,8 @@ type LinkOpts struct {
 	Disabled Attr[bool]
 }
 
-// Link renders <a data-neo-link>, the kit's styled anchor. Variant
-// selects the inline-anchor look or one of the <neo-button> styles.
+// Link renders <a data-neo-link>, the kit's styled anchor.
+// Variant selects the inline-anchor look or one of the <neo-button> styles.
 func Link(opts LinkOpts) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context

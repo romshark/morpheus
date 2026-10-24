@@ -86,10 +86,10 @@ export class NeoRating extends HTMLElement {
 	attributeChangedCallback(name: string, _old: string | null, newValue: string | null) {
 		if (!this.isConnected) return;
 		if (name === ATTR_VALUE) {
-			// Our own re-reflect write (keep-on-absent below); not a command.
+			// Our own re-reflect write (keep-on-absent); not a command.
 			if (this.#reflecting) return;
-			// Fat morph dropped `value`: no command, keep the current value
-			// and re-reflect so the attribute stays the state mirror.
+			// A fat morph that drops `value` is no command. Keep the current
+			// value and re-reflect so the attribute stays the state mirror.
 			if (newValue === null) {
 				this.#reflectValue();
 			} else {
@@ -120,7 +120,7 @@ export class NeoRating extends HTMLElement {
 		this.#syncState();
 	}
 
-	// State → attribute, guarded so it isn't read back as a command.
+	// State -> attribute, guarded so it isn't read back as a command.
 	#reflectValue() {
 		this.#reflecting = true;
 		try {
@@ -155,7 +155,7 @@ export class NeoRating extends HTMLElement {
 	// Adopt the server-prerendered markup when its shape already matches
 	// (symbol count == max, same icon) so first paint isn't thrown away;
 	// otherwise (no markup, or max/icon changed) build it. Detection is
-	// by DOM shape, not a cached flag, so this stays correct across morph
+	// by DOM shape, not a cached flag, which keeps it correct across morph
 	// re-insertions and SSR adoption alike.
 	#reconcile() {
 		const host = this.querySelector<HTMLElement>(`:scope > [${SYMBOLS}]`);
@@ -257,7 +257,7 @@ export class NeoRating extends HTMLElement {
 	}
 
 	// Round to precision and clamp to [0, max]. The extra toFixed pass
-	// strips binary-float noise (0.5 steps stay "2.5", not "2.4999…").
+	// strips binary-float noise (0.5 steps stay "2.5", not "2.4999...").
 	#clampSnap(v: number): number {
 		if (!Number.isFinite(v)) return 0;
 		const p = this.precision;
@@ -272,9 +272,9 @@ export class NeoRating extends HTMLElement {
 		return dot < 0 ? 0 : s.length - dot - 1;
 	}
 
-	// Value the pointer is pointing at: walk the symbols, find the one
-	// under the pointer, add the in-symbol ratio, snap up to precision so
-	// the left fraction of a symbol selects the lower partial value.
+	// Value the pointer is pointing at. Walks the symbols, finds the one
+	// under the pointer, adds the in-symbol ratio and snaps up to precision
+	// so the left fraction of a symbol selects the lower partial value.
 	#valueFromPointer(e: PointerEvent): number | null {
 		if (!this.#symbolsEl) return null;
 		const syms = [...this.#symbolsEl.querySelectorAll<HTMLElement>(`:scope > [${SYMBOL}]`)];

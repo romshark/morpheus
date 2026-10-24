@@ -1,11 +1,8 @@
-/* -----------------------------------------------------------------------
- * <neo-combobox> + <neo-option>
- * -----------------------------------------------------------------------
- * A search-driven sibling of <neo-select>. The trigger / option / group
- * styling reuses the select's tokens; only the popover panel's styling
- * differs: a pinned search field with a leading <neo-icon> and a
- * filtered listbox underneath (or above, when the popover opens
- * upward). */
+/* <neo-combobox> is a search-driven sibling of <neo-select>. The trigger /
+ * option / group styling reuses the select's tokens; only the popover
+ * panel's styling differs. It has a pinned search field with a leading
+ * <neo-icon> and a filtered listbox underneath (or above, when the popover
+ * opens upward). */
 
 :root {
 	--neo-combobox-min-width: var(--neo-select-min-width, 12rem);
@@ -25,7 +22,7 @@ neo-combobox[data-neo-trigger-rich] {
 	min-height: var(--neo-control-height);
 }
 
-/* Pre-hydration shell: same trigger-shaped placeholder as <neo-select>
+/* Pre-hydration shell, the same trigger-shaped placeholder as <neo-select>
  * so the layout doesn't jump on upgrade. */
 neo-combobox:not(:defined) {
 	display: inline-flex;
@@ -70,7 +67,7 @@ neo-combobox:not(:defined)[disabled]:not([disabled="false"]) {
 	cursor: not-allowed;
 }
 
-/* Async placeholder / no-results template sources: hidden at host level
+/* Async placeholder / no-results template sources stay hidden at host level
  * until the kit clones them into the popover. */
 neo-combobox > [data-neo-async-placeholder],
 neo-combobox > [data-neo-empty-results] {
@@ -79,7 +76,7 @@ neo-combobox > [data-neo-empty-results] {
 
 /* Trigger-face sources render only inside the trigger (cloned by the kit),
  * never as a list row. They may sit at the host or nested in the options
- * navgroup, so match as descendants. [data-neo-combobox-empty] is the
+ * navgroup; match them as descendants. [data-neo-combobox-empty] is the
  * empty-state face; [data-neo-option-trigger] is a per-option compact
  * face distinct from its rich list row (shared with neo-select). */
 neo-combobox [data-neo-combobox-empty],
@@ -99,7 +96,7 @@ neo-combobox > [data-neo-combobox-trigger-view] {
 	overflow: hidden;
 }
 
-/* Multi-select chip: one pill per selected option. */
+/* Multi-select chips, 1 pill per selected option. */
 neo-combobox [data-neo-combobox-trigger-chip] {
 	display: inline-flex;
 	align-items: center;
@@ -119,7 +116,7 @@ neo-combobox [data-neo-combobox-trigger-chip] {
  * placeholder drops it and each row supplies its own margin to match the
  * option rhythm so the panel height doesn't jump when options morph in.
  * Author inline styles (e.g. flex-direction:row for a spinner+label)
- * still win over these defaults. */
+ * still override these defaults. */
 neo-combobox > [data-neo-combobox-loading-content] [data-neo-async-placeholder] {
 	display: flex;
 	flex-direction: column;
@@ -138,12 +135,12 @@ neo-combobox > [data-neo-combobox-loading-content] neo-skeleton {
 
 /* Trigger / label / caret / list / search / empty-results / async-
  * placeholder markup all live in the combobox's shadow stylesheet
- * (see neo-combobox.ts); descendant selectors here can't pierce the
+ * (COMBOBOX_SHADOW_TEMPLATE); descendant selectors here can't pierce the
  * shadow boundary. Compose via --neo-button-* / --neo-combobox-* /
  * --neo-popover-* tokens, or via ::slotted on the relevant slot when
  * styling slotted light-DOM content. */
 
-/* High contrast: the search/options divider matches the 2px panel
+/* In high contrast, the search/options divider matches the 2px panel
  * border and pins to currentColor. The token inherits into the shadow
  * search field, where the divider border reads it. */
 @media (prefers-contrast: more) {

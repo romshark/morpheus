@@ -274,7 +274,7 @@ func pageHead(description string) templ.Component {
 
 // matrixRainThemeBridge keeps the landing page's <matrix-rain> in
 // sync with the theme picker. The component itself is theme-unaware
-// (just reads head/body/dim colour attrs), so this script translates
+// (it only reads head/body/dim colour attrs). This script translates
 // the resolved color mode into a palette and re-applies on every
 // `neo-theme-change`.
 func matrixRainThemeBridge() templ.Component {
@@ -298,7 +298,7 @@ func matrixRainThemeBridge() templ.Component {
 			templ_7745c5c3_Var17 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<script>\n\t\t(function () {\n\t\t\tvar rain = document.getElementById(\"lf-rain\");\n\t\t\tif (!rain) return;\n\t\t\tvar DARK = {\n\t\t\t\thead: \"#f2fff7\",\n\t\t\t\tbody: \"#00ff8a\",\n\t\t\t\tdim:  \"#035c33\",\n\t\t\t};\n\t\t\tvar LIGHT = {\n\t\t\t\thead: \"#0c2d18\",\n\t\t\t\tbody: \"#1f8a4a\",\n\t\t\t\tdim:  \"#a8d9bf\",\n\t\t\t};\n\t\t\tfunction apply(mode) {\n\t\t\t\t// Matrix is the green-on-black theme: even when the user\n\t\t\t\t// is in light mode, force the dark palette so the rain\n\t\t\t\t// reads as it does in the films instead of as muddy green\n\t\t\t\t// on white.\n\t\t\t\tvar html = document.documentElement;\n\t\t\t\tvar darkPalette =\n\t\t\t\t\tmode === \"dark\" || html.classList.contains(\"theme-matrix\");\n\t\t\t\tvar p = darkPalette ? DARK : LIGHT;\n\t\t\t\train.setAttribute(\"head-color\", p.head);\n\t\t\t\train.setAttribute(\"body-color\", p.body);\n\t\t\t\train.setAttribute(\"dim-color\",  p.dim);\n\t\t\t}\n\t\t\tfunction current() {\n\t\t\t\treturn document.documentElement.classList.contains(\"dark\")\n\t\t\t\t\t? \"dark\"\n\t\t\t\t\t: \"light\";\n\t\t\t}\n\t\t\tapply(current());\n\t\t\tdocument.documentElement.addEventListener(\n\t\t\t\t\"neo-theme-change\",\n\t\t\t\tfunction (e) {\n\t\t\t\t\tapply(e.detail && e.detail.effectiveMode || current());\n\t\t\t\t},\n\t\t\t);\n\t\t})();\n\t</script>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<script>\n\t\t(function () {\n\t\t\tvar rain = document.getElementById(\"lf-rain\");\n\t\t\tif (!rain) return;\n\t\t\tvar DARK = {\n\t\t\t\thead: \"#f2fff7\",\n\t\t\t\tbody: \"#00ff8a\",\n\t\t\t\tdim:  \"#035c33\",\n\t\t\t};\n\t\t\tvar LIGHT = {\n\t\t\t\thead: \"#0c2d18\",\n\t\t\t\tbody: \"#1f8a4a\",\n\t\t\t\tdim:  \"#a8d9bf\",\n\t\t\t};\n\t\t\tfunction apply(mode) {\n\t\t\t\t// Matrix is the green-on-black theme. Even when the user\n\t\t\t\t// is in light mode, force the dark palette so the rain reads\n\t\t\t\t// as it does in the films instead of as muddy green on white.\n\t\t\t\tvar html = document.documentElement;\n\t\t\t\tvar darkPalette =\n\t\t\t\t\tmode === \"dark\" || html.classList.contains(\"theme-matrix\");\n\t\t\t\tvar p = darkPalette ? DARK : LIGHT;\n\t\t\t\train.setAttribute(\"head-color\", p.head);\n\t\t\t\train.setAttribute(\"body-color\", p.body);\n\t\t\t\train.setAttribute(\"dim-color\",  p.dim);\n\t\t\t}\n\t\t\tfunction current() {\n\t\t\t\treturn document.documentElement.classList.contains(\"dark\")\n\t\t\t\t\t? \"dark\"\n\t\t\t\t\t: \"light\";\n\t\t\t}\n\t\t\tapply(current());\n\t\t\tdocument.documentElement.addEventListener(\n\t\t\t\t\"neo-theme-change\",\n\t\t\t\tfunction (e) {\n\t\t\t\t\tapply(e.detail && e.detail.effectiveMode || current());\n\t\t\t\t},\n\t\t\t);\n\t\t})();\n\t</script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -306,8 +306,8 @@ func matrixRainThemeBridge() templ.Component {
 	})
 }
 
-// LandingPage is the bare marketing-style shell: same head as Page,
-// but no sidebar frame, breadcrumb header, or settings panel.
+// LandingPage is the bare marketing-style shell, with the same head as
+// [Page] but no sidebar frame, breadcrumb header, or settings panel.
 func LandingPage() templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
@@ -344,7 +344,7 @@ func LandingPage() templ.Component {
 		var templ_7745c5c3_Var19 templ.SafeURL
 		templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinURLErrs(href.Asset("min/landing.css"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 102, Col: 61}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 101, Col: 61}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 		if templ_7745c5c3_Err != nil {
@@ -381,7 +381,7 @@ func LandingPage() templ.Component {
 		var templ_7745c5c3_Var20 string
 		templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.ResolveAttributeValue(href.Asset("min/landing.js"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 129, Col: 65}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 128, Col: 65}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var20)
 		if templ_7745c5c3_Err != nil {
@@ -394,7 +394,7 @@ func LandingPage() templ.Component {
 		var templ_7745c5c3_Var21 string
 		templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.ResolveAttributeValue(href.Asset("min/site_codemirror_loader.js"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 130, Col: 80}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 129, Col: 80}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var21)
 		if templ_7745c5c3_Err != nil {
@@ -483,7 +483,7 @@ func Page(currentPath, title, morpheusVersion string) templ.Component {
 		var templ_7745c5c3_Var24 templ.SafeURL
 		templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinURLErrs(href.PageIndex())
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 159, Col: 33}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 158, Col: 33}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
 		if templ_7745c5c3_Err != nil {
@@ -496,7 +496,7 @@ func Page(currentPath, title, morpheusVersion string) templ.Component {
 		var templ_7745c5c3_Var25 string
 		templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(morpheusVersion)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 160, Col: 57}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 159, Col: 57}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
 		if templ_7745c5c3_Err != nil {
@@ -531,7 +531,7 @@ func Page(currentPath, title, morpheusVersion string) templ.Component {
 					var templ_7745c5c3_Var27 string
 					templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinStringErrs(link.Label)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 185, Col: 22}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 184, Col: 22}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
 					if templ_7745c5c3_Err != nil {
@@ -566,7 +566,7 @@ func Page(currentPath, title, morpheusVersion string) templ.Component {
 					var templ_7745c5c3_Var29 string
 					templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinStringErrs(link.Label)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 195, Col: 22}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 194, Col: 22}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var29))
 					if templ_7745c5c3_Err != nil {
@@ -607,7 +607,7 @@ func Page(currentPath, title, morpheusVersion string) templ.Component {
 					var templ_7745c5c3_Var31 string
 					templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.JoinStringErrs(link.Label)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 220, Col: 22}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 219, Col: 22}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var31))
 					if templ_7745c5c3_Err != nil {
@@ -642,7 +642,7 @@ func Page(currentPath, title, morpheusVersion string) templ.Component {
 					var templ_7745c5c3_Var33 string
 					templ_7745c5c3_Var33, templ_7745c5c3_Err = templ.JoinStringErrs(link.Label)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 230, Col: 22}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 229, Col: 22}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var33))
 					if templ_7745c5c3_Err != nil {
@@ -683,7 +683,7 @@ func Page(currentPath, title, morpheusVersion string) templ.Component {
 					var templ_7745c5c3_Var35 string
 					templ_7745c5c3_Var35, templ_7745c5c3_Err = templ.JoinStringErrs(link.Label)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 255, Col: 22}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 254, Col: 22}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var35))
 					if templ_7745c5c3_Err != nil {
@@ -718,7 +718,7 @@ func Page(currentPath, title, morpheusVersion string) templ.Component {
 					var templ_7745c5c3_Var37 string
 					templ_7745c5c3_Var37, templ_7745c5c3_Err = templ.JoinStringErrs(link.Label)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 265, Col: 22}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 264, Col: 22}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var37))
 					if templ_7745c5c3_Err != nil {
@@ -759,7 +759,7 @@ func Page(currentPath, title, morpheusVersion string) templ.Component {
 					var templ_7745c5c3_Var39 string
 					templ_7745c5c3_Var39, templ_7745c5c3_Err = templ.JoinStringErrs(link.Label)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 290, Col: 22}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 289, Col: 22}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var39))
 					if templ_7745c5c3_Err != nil {
@@ -794,7 +794,7 @@ func Page(currentPath, title, morpheusVersion string) templ.Component {
 					var templ_7745c5c3_Var41 string
 					templ_7745c5c3_Var41, templ_7745c5c3_Err = templ.JoinStringErrs(link.Label)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 300, Col: 22}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 299, Col: 22}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var41))
 					if templ_7745c5c3_Err != nil {
@@ -829,7 +829,7 @@ func Page(currentPath, title, morpheusVersion string) templ.Component {
 		var templ_7745c5c3_Var42 string
 		templ_7745c5c3_Var42, templ_7745c5c3_Err = templ.JoinStringErrs(morpheusVersion)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 314, Col: 29}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 313, Col: 29}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var42))
 		if templ_7745c5c3_Err != nil {
@@ -914,7 +914,7 @@ func Page(currentPath, title, morpheusVersion string) templ.Component {
 		var templ_7745c5c3_Var44 string
 		templ_7745c5c3_Var44, templ_7745c5c3_Err = templ.ResolveAttributeValue("morpheus-wrap-scroll:" + currentPath)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 368, Col: 49}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 367, Col: 49}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var44)
 		if templ_7745c5c3_Err != nil {
@@ -975,7 +975,7 @@ func Page(currentPath, title, morpheusVersion string) templ.Component {
 		var templ_7745c5c3_Var45 string
 		templ_7745c5c3_Var45, templ_7745c5c3_Err = templ.ResolveAttributeValue(href.Asset("min/site_docs.js"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 430, Col: 61}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 429, Col: 61}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var45)
 		if templ_7745c5c3_Err != nil {
@@ -989,18 +989,15 @@ func Page(currentPath, title, morpheusVersion string) templ.Component {
 	})
 }
 
-// siteCommandPalette is the site-wide ⌘K page jumper. The element (with
-// the dialog) is mounted once in the always-visible app bar, never
-// siteCommandPalette is the site-wide ⌘K page jumper, mounted once in
+// siteCommandPalette is the site-wide Mod+K page jumper, mounted once in
 // the sidebar above the Sections heading. The full-width trigger is the
 // search button; it shows only while the sidebar is in-flow (desktop /
-// large tablets), so it never appears in the app bar or on phones. The
-// dialog rides along in the sidebar; fine because it only ever opens
-// while the sidebar is visible; ⌘K is guarded for the collapsed case.
+// large tablets) and never appears in the app bar or on phones. The
+// dialog lives in the sidebar too, which works because it only opens
+// while the sidebar is visible; Mod+K is guarded for the collapsed case.
 // Rows are baked from the nav link lists at render time; the controller
-// adds fuzzy filtering, ranking, and keyboard navigation. <neo-dialog>
-// supplies the modal lifecycle (top layer, focus trap, scroll lock,
-// Escape-to-close).
+// adds fuzzy filtering, ranking, and keyboard navigation. <neo-dialog> supplies
+// the modal lifecycle (top layer, focus trap, scroll lock, Escape-to-close).
 func siteCommandPalette() templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
@@ -1059,10 +1056,9 @@ func siteCommandPalette() templ.Component {
 	})
 }
 
-// siteCommandPaletteTriggerContent is the trigger's inner markup: search
-// icon, a flex-growing label that pushes the shortcut hint to the
-// trailing edge, and the <neo-kbd> hint (platform-correct glyph, auto-
-// hidden on touch).
+// siteCommandPaletteTriggerContent renders the trigger's search icon,
+// a flex-growing label that pushes the shortcut hint to the trailing edge,
+// and the <neo-kbd> hint (platform-correct glyph, auto-hidden on touch).
 func siteCommandPaletteTriggerContent() templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
@@ -1122,7 +1118,7 @@ func siteCommandPaletteTriggerContent() templ.Component {
 	})
 }
 
-// siteCommandPaletteRow is one baked result: a real navigation anchor
+// siteCommandPaletteRow is one baked result, a real navigation anchor
 // (works without JS) carrying the searchable label in data-label and a
 // muted section tag. The id feeds aria-activedescendant.
 func siteCommandPaletteRow(i int, row cmdkRow) templ.Component {
@@ -1153,7 +1149,7 @@ func siteCommandPaletteRow(i int, row cmdkRow) templ.Component {
 		var templ_7745c5c3_Var50 string
 		templ_7745c5c3_Var50, templ_7745c5c3_Err = templ.ResolveAttributeValue("site-cmdk-row-" + strconv.Itoa(i))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 520, Col: 41}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 515, Col: 41}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var50)
 		if templ_7745c5c3_Err != nil {
@@ -1166,7 +1162,7 @@ func siteCommandPaletteRow(i int, row cmdkRow) templ.Component {
 		var templ_7745c5c3_Var51 templ.SafeURL
 		templ_7745c5c3_Var51, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(row.Path))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 521, Col: 32}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 516, Col: 32}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var51))
 		if templ_7745c5c3_Err != nil {
@@ -1179,7 +1175,7 @@ func siteCommandPaletteRow(i int, row cmdkRow) templ.Component {
 		var templ_7745c5c3_Var52 string
 		templ_7745c5c3_Var52, templ_7745c5c3_Err = templ.ResolveAttributeValue(row.Label)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 527, Col: 24}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 522, Col: 24}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var52)
 		if templ_7745c5c3_Err != nil {
@@ -1192,7 +1188,7 @@ func siteCommandPaletteRow(i int, row cmdkRow) templ.Component {
 		var templ_7745c5c3_Var53 string
 		templ_7745c5c3_Var53, templ_7745c5c3_Err = templ.JoinStringErrs(row.Label)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 529, Col: 81}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 524, Col: 81}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var53))
 		if templ_7745c5c3_Err != nil {
@@ -1205,7 +1201,7 @@ func siteCommandPaletteRow(i int, row cmdkRow) templ.Component {
 		var templ_7745c5c3_Var54 string
 		templ_7745c5c3_Var54, templ_7745c5c3_Err = templ.JoinStringErrs(row.Group)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 530, Col: 67}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 525, Col: 67}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var54))
 		if templ_7745c5c3_Err != nil {
@@ -1219,9 +1215,8 @@ func siteCommandPaletteRow(i int, row cmdkRow) templ.Component {
 	})
 }
 
-// PageDoc wraps Page with docs-specific frame so a single edit
-// ripples to every doc page. Non-doc shells (LandingPage, …) keep
-// using Page directly.
+// PageDoc wraps [Page] with the docs-specific frame so a single edit applies
+// to every doc page. Non-doc shells ([LandingPage], ...) use [Page] directly.
 func PageDoc(currentPath, title, morpheusVersion string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
@@ -1269,9 +1264,9 @@ func PageDoc(currentPath, title, morpheusVersion string) templ.Component {
 	})
 }
 
-// simDelayHint is the callout placed above any async/lazy demo: the
-// loading state is only observable when the in-browser simulator is
-// given network latency or a handler delay.
+// simDelayHint is the callout placed above any async/lazy demo.
+// The loading state is only observable when the in-browser simulator
+// is given network latency or a handler delay.
 func simDelayHint() templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
@@ -1378,7 +1373,7 @@ func simDelayHint() templ.Component {
 }
 
 // anchoredH2 is an `<h2>` with a hover/focus-revealed deep link.
-// The id doubles as the URL fragment, so callers should pass a stable
+// The id doubles as the URL fragment. Callers should pass a stable
 // kebab-case slug (e.g. "ai-use", not a renumbered counter).
 func anchoredH2(id string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
@@ -1408,7 +1403,7 @@ func anchoredH2(id string) templ.Component {
 		var templ_7745c5c3_Var63 string
 		templ_7745c5c3_Var63, templ_7745c5c3_Err = templ.ResolveAttributeValue(id)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 564, Col: 12}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 558, Col: 12}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var63)
 		if templ_7745c5c3_Err != nil {
@@ -1429,7 +1424,7 @@ func anchoredH2(id string) templ.Component {
 		var templ_7745c5c3_Var64 templ.SafeURL
 		templ_7745c5c3_Var64, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL("#" + id))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 567, Col: 33}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 561, Col: 33}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var64))
 		if templ_7745c5c3_Err != nil {
@@ -1443,9 +1438,8 @@ func anchoredH2(id string) templ.Component {
 	})
 }
 
-// anchoredH3 is the h3 sibling of anchoredH2, same hover-revealed
-// deep link, smaller heading. Used for per-example sub-headings on
-// component doc pages.
+// anchoredH3 is the h3 sibling of anchoredH2, same hover-revealed deep link,
+// smaller heading. Used for per-example sub-headings on component doc pages.
 func anchoredH3(id string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
@@ -1474,7 +1468,7 @@ func anchoredH3(id string) templ.Component {
 		var templ_7745c5c3_Var66 string
 		templ_7745c5c3_Var66, templ_7745c5c3_Err = templ.ResolveAttributeValue(id)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 578, Col: 12}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 571, Col: 12}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var66)
 		if templ_7745c5c3_Err != nil {
@@ -1495,7 +1489,7 @@ func anchoredH3(id string) templ.Component {
 		var templ_7745c5c3_Var67 templ.SafeURL
 		templ_7745c5c3_Var67, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL("#" + id))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 581, Col: 33}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 574, Col: 33}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var67))
 		if templ_7745c5c3_Err != nil {
@@ -1509,13 +1503,11 @@ func anchoredH3(id string) templ.Component {
 	})
 }
 
-// themeBootstrap is the pre-paint script injected before any
-// stylesheet evaluates, so the first frame already uses the user's
-// saved palette (no FOUC). Mode "system" follows
-// `prefers-color-scheme` via matchMedia and re-resolves on OS flips;
-// "light"/"dark" are never overridden. `window.neoTheme.apply` is
-// the single class-flip site so siteTheme's data-effect funnels
-// through it.
+// themeBootstrap is the pre-paint script injected before any stylesheet evaluates.
+// The first frame already uses the user's saved palette (no FOUC). Mode "system"
+// follows `prefers-color-scheme` via matchMedia and re-resolves on OS flips;
+// "light"/"dark" are never overridden. `window.neoTheme.apply` is the single
+// class-flip site so siteTheme's data-effect funnels through it.
 func themeBootstrap() templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
@@ -1546,7 +1538,7 @@ func themeBootstrap() templ.Component {
 }
 
 // a11yBootstrap is the pre-paint sibling of themeBootstrap for
-// reduced-motion / higher-contrast prefs, so the kit's
+// reduced-motion / higher-contrast prefs. It makes the kit's
 // `:root[data-pref-*]` simulation hooks take effect on first paint
 // (no FOUC of animated frame before the saved pref applies).
 func a11yBootstrap() templ.Component {
@@ -1578,12 +1570,11 @@ func a11yBootstrap() templ.Component {
 	})
 }
 
-// siteTheme is the doc site's theme picker. The pre-paint script
-// handles OS-driven changes via matchMedia; this data-effect handles
-// user-driven ones; both funnel through `window.neoTheme.apply` so
-// the `neo-theme-change` event (used by <neo-icon> to reload the
-// sprite when themes swap icon sets) fires from one place. Lives in
-// site.templ rather than the kit because the kit ships theming
+// siteTheme is the doc site's theme picker. The pre-paint script handles OS-driven
+// changes via matchMedia; this data-effect handles user-driven ones; both funnel
+// through `window.neoTheme.apply` so the `neo-theme-change` event
+// (used by <neo-icon> to reload the sprite when themes swap icon sets) fires from
+// one place. Lives in site.templ rather than the kit because the kit ships theming
 // primitives, not a picker; apps wire their own UI.
 func siteTheme() templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
@@ -1928,7 +1919,7 @@ func datastarSimulatorSettings() templ.Component {
 			templ_7745c5c3_Var81 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 92, "<script type=\"module\">\n\t\timport sim from \"/static/datasim.js\";\n\n\t\twindow.sim = sim;\n\t\twindow.NeoSim = {\n\t\t\tapply(opts) {\n\t\t\t\tconst latencyMin = Math.max(0, Number(opts.latencyMin) || 0);\n\t\t\t\tconst latencyMax = Math.max(latencyMin, Number(opts.latencyMax) || 0);\n\t\t\t\t// 0/0 means \"no latency\"; datasim's awaitLatency\n\t\t\t\t// already short-circuits when latencyMax <= 0, so\n\t\t\t\t// we don't need an extra on/off flag.\n\t\t\t\tsim.setLatency(latencyMin, latencyMax);\n\t\t\t\tsim.setHandlerDelay(Math.max(0, Number(opts.handlerDelay) || 0));\n\t\t\t\tsim.setUnreachable(!!opts.unreachable);\n\t\t\t\t// Pass the value through unchanged: setErrorResponse\n\t\t\t\t// accepts \"\" / \"off\" / 0 (disabled) and any HTTP code\n\t\t\t\t// >= 400 either as a number or a numeric string.\n\t\t\t\tsim.setErrorResponse(opts.serverError);\n\t\t\t\tsim.setAccessLog(!!opts.accessLog);\n\t\t\t},\n\t\t};\n\t\t// Drain a pending apply if Datastar's `data-effect` ran\n\t\t// before this module evaluated (cached-reload path:\n\t\t// Datastar loads from disk fast and runs first; the effect\n\t\t// parks its opts on `window.__pendingNeoSim` so we can\n\t\t// honour the initial slider values once we're loaded).\n\t\tif (window.__pendingNeoSim) {\n\t\t\twindow.NeoSim.apply(window.__pendingNeoSim);\n\t\t\tdelete window.__pendingNeoSim;\n\t\t}\n\t</script><section class=\"app-settings-section sim-settings\" data-signals=\"{\n\t\t\t_sim_latency_min: 0,\n\t\t\t_sim_latency_max: 0,\n\t\t\t_sim_delay: 0,\n\t\t\t_sim_unreachable: false,\n\t\t\t_sim_server_error: '',\n\t\t\t_sim_access_log: false\n\t\t}\" data-effect=\"\n\t\t\tconst _opts = {\n\t\t\t\tlatencyMin: $_sim_latency_min,\n\t\t\t\tlatencyMax: $_sim_latency_max,\n\t\t\t\thandlerDelay: $_sim_delay,\n\t\t\t\tunreachable: $_sim_unreachable,\n\t\t\t\tserverError: $_sim_server_error,\n\t\t\t\taccessLog: $_sim_access_log\n\t\t\t};\n\t\t\tif (window.NeoSim) window.NeoSim.apply(_opts);\n\t\t\telse window.__pendingNeoSim = _opts;\n\t\t\"><h3>Server Simulator</h3><div class=\"sim-settings-body\"><section class=\"sim-settings-section\"><div class=\"sim-settings-fields\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 92, "<script type=\"module\">\n\t\timport sim from \"/static/datasim.js\";\n\n\t\twindow.sim = sim;\n\t\twindow.NeoSim = {\n\t\t\tapply(opts) {\n\t\t\t\tconst latencyMin = Math.max(0, Number(opts.latencyMin) || 0);\n\t\t\t\tconst latencyMax = Math.max(latencyMin, Number(opts.latencyMax) || 0);\n\t\t\t\t// 0/0 means \"no latency\". datasim's awaitLatency\n\t\t\t\t// short-circuits when latencyMax <= 0, which makes\n\t\t\t\t// an on/off flag unnecessary.\n\t\t\t\tsim.setLatency(latencyMin, latencyMax);\n\t\t\t\tsim.setHandlerDelay(Math.max(0, Number(opts.handlerDelay) || 0));\n\t\t\t\tsim.setUnreachable(!!opts.unreachable);\n\t\t\t\t// Pass the value through unchanged because setErrorResponse\n\t\t\t\t// accepts \"\" / \"off\" / 0 (disabled) and any HTTP code\n\t\t\t\t// >= 400 either as a number or a numeric string.\n\t\t\t\tsim.setErrorResponse(opts.serverError);\n\t\t\t\tsim.setAccessLog(!!opts.accessLog);\n\t\t\t},\n\t\t};\n\t\t// Drain a pending apply if Datastar's `data-effect` ran\n\t\t// before this module evaluated. On a cached reload Datastar\n\t\t// loads from disk fast and runs first; the effect parks its\n\t\t// opts on `window.__pendingNeoSim` so the initial slider\n\t\t// values apply once this module loads.\n\t\tif (window.__pendingNeoSim) {\n\t\t\twindow.NeoSim.apply(window.__pendingNeoSim);\n\t\t\tdelete window.__pendingNeoSim;\n\t\t}\n\t</script><section class=\"app-settings-section sim-settings\" data-signals=\"{\n\t\t\t_sim_latency_min: 0,\n\t\t\t_sim_latency_max: 0,\n\t\t\t_sim_delay: 0,\n\t\t\t_sim_unreachable: false,\n\t\t\t_sim_server_error: '',\n\t\t\t_sim_access_log: false\n\t\t}\" data-effect=\"\n\t\t\tconst _opts = {\n\t\t\t\tlatencyMin: $_sim_latency_min,\n\t\t\t\tlatencyMax: $_sim_latency_max,\n\t\t\t\thandlerDelay: $_sim_delay,\n\t\t\t\tunreachable: $_sim_unreachable,\n\t\t\t\tserverError: $_sim_server_error,\n\t\t\t\taccessLog: $_sim_access_log\n\t\t\t};\n\t\t\tif (window.NeoSim) window.NeoSim.apply(_opts);\n\t\t\telse window.__pendingNeoSim = _opts;\n\t\t\"><h3>Server Simulator</h3><div class=\"sim-settings-body\"><section class=\"sim-settings-section\"><div class=\"sim-settings-fields\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -2016,11 +2007,10 @@ func datastarSimulatorSettings() templ.Component {
 	})
 }
 
-// serverErrorControls duplicates the simulator's "server unreachable"
-// switch and "server response status" combobox alongside a demo whose
-// failure path the reader is supposed to exercise. Bound to the same
-// global signals as the sidebar copy, so flipping either control
-// updates both rows in sync.
+// serverErrorControls duplicates the simulator's "server unreachable" switch
+// and "server response status" combobox alongside a demo whose failure path the reader
+// is supposed to exercise. Bound to the same global signals as the sidebar copy,
+// which keeps both rows in sync when either control flips.
 func serverErrorControls() templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
@@ -2315,9 +2305,8 @@ func httpStatusOptions() templ.Component {
 	})
 }
 
-// httpStatusOption uses a flat `<code> Reason` Label so the closed
-// combobox stays compact while the open option body shows
-// bold-code + reason.
+// httpStatusOption uses a flat `<code> Reason` Label so the closed combobox
+// stays compact while the open option body shows bold-code + reason.
 func httpStatusOption(code, reason string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
@@ -2358,7 +2347,7 @@ func httpStatusOption(code, reason string) templ.Component {
 			var templ_7745c5c3_Var92 string
 			templ_7745c5c3_Var92, templ_7745c5c3_Err = templ.JoinStringErrs(code)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 994, Col: 16}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 982, Col: 16}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var92))
 			if templ_7745c5c3_Err != nil {
@@ -2371,7 +2360,7 @@ func httpStatusOption(code, reason string) templ.Component {
 			var templ_7745c5c3_Var93 string
 			templ_7745c5c3_Var93, templ_7745c5c3_Err = templ.JoinStringErrs(" " + reason)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 995, Col: 16}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 983, Col: 16}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var93))
 			if templ_7745c5c3_Err != nil {
@@ -2430,7 +2419,7 @@ func simToggle(label, signal string) templ.Component {
 		var templ_7745c5c3_Var95 string
 		templ_7745c5c3_Var95, templ_7745c5c3_Err = templ.JoinStringErrs(label)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 1009, Col: 15}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 997, Col: 15}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var95))
 		if templ_7745c5c3_Err != nil {
@@ -2444,9 +2433,8 @@ func simToggle(label, signal string) templ.Component {
 	})
 }
 
-// simSliderArgs.DisabledExpr is the JS expression bound to
-// data-attr:disabled (e.g. retry knobs that grey out when retries
-// are off).
+// simSliderArgs.DisabledExpr is the JS expression bound to data-attr:disabled
+// (e.g. retry knobs that grey out when retries are off).
 type simSliderArgs struct {
 	ID                    string
 	Label, Unit           string
@@ -2491,10 +2479,9 @@ func simSlider(a simSliderArgs) templ.Component {
 	})
 }
 
-// assigneeOptions's root id must equal `<host-id>-options` so
-// Datastar's default morph finds and updates the existing navgroup
-// in place; the component's MutationObserver wires each newly-
-// inserted <neo-option>.
+// assigneeOptions's root id must equal `<host-id>-options` so Datastar's default morph
+// finds and updates the existing navgroup in place; the component's MutationObserver
+// wires each newly-inserted <neo-option>.
 func assigneeOptions(optionsID string, items []Assignee) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
@@ -2523,7 +2510,7 @@ func assigneeOptions(optionsID string, items []Assignee) templ.Component {
 		var templ_7745c5c3_Var98 string
 		templ_7745c5c3_Var98, templ_7745c5c3_Err = templ.ResolveAttributeValue(optionsID)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 1040, Col: 29}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 1026, Col: 29}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var98)
 		if templ_7745c5c3_Err != nil {
@@ -2541,7 +2528,7 @@ func assigneeOptions(optionsID string, items []Assignee) templ.Component {
 			var templ_7745c5c3_Var99 string
 			templ_7745c5c3_Var99, templ_7745c5c3_Err = templ.ResolveAttributeValue(a.ID)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 1042, Col: 27}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 1028, Col: 27}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var99)
 			if templ_7745c5c3_Err != nil {
@@ -2554,7 +2541,7 @@ func assigneeOptions(optionsID string, items []Assignee) templ.Component {
 			var templ_7745c5c3_Var100 string
 			templ_7745c5c3_Var100, templ_7745c5c3_Err = templ.JoinStringErrs(a.Name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 1042, Col: 38}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 1028, Col: 38}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var100))
 			if templ_7745c5c3_Err != nil {
@@ -2603,7 +2590,7 @@ func popoverLazyContent(id string) templ.Component {
 		var templ_7745c5c3_Var102 string
 		templ_7745c5c3_Var102, templ_7745c5c3_Err = templ.ResolveAttributeValue(id + "-body")
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 1050, Col: 23}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 1036, Col: 23}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var102)
 		if templ_7745c5c3_Err != nil {
@@ -2622,7 +2609,7 @@ func popoverLazyContent(id string) templ.Component {
 				var templ_7745c5c3_Var103 string
 				templ_7745c5c3_Var103, templ_7745c5c3_Err = templ.ResolveAttributeValue(href.Asset(m.Avatar))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 1058, Col: 33}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 1044, Col: 33}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var103)
 				if templ_7745c5c3_Err != nil {
@@ -2635,7 +2622,7 @@ func popoverLazyContent(id string) templ.Component {
 				var templ_7745c5c3_Var104 string
 				templ_7745c5c3_Var104, templ_7745c5c3_Err = templ.JoinStringErrs(m.Name)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 1063, Col: 46}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 1049, Col: 46}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var104))
 				if templ_7745c5c3_Err != nil {
@@ -2648,7 +2635,7 @@ func popoverLazyContent(id string) templ.Component {
 				var templ_7745c5c3_Var105 string
 				templ_7745c5c3_Var105, templ_7745c5c3_Err = templ.JoinStringErrs(m.Title)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 1065, Col: 17}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 1051, Col: 17}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var105))
 				if templ_7745c5c3_Err != nil {
@@ -2671,7 +2658,7 @@ func popoverLazyContent(id string) templ.Component {
 // boundary wraps preview content in a <neo-boundary> so overlays inside
 // treat the region as their local document and viewport. The default scope
 // (dismiss + positioning) renders no attribute; a non-zero BoundaryScopes
-// emits an explicit scope="…" token list. See the Boundary page.
+// emits an explicit scope="..." token list. See the Boundary page.
 func boundary(scopes BoundaryScopes) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
@@ -2717,10 +2704,9 @@ func boundary(scopes BoundaryScopes) templ.Component {
 	})
 }
 
-// demoFrameWith renders a resizable preview canvas. Dragging the
-// stage smaller leaves the wrapper's dot-grid background visible in
-// the slack, so the dots feel attached to the frame rather than the
-// resized component.
+// demoFrameWith renders a resizable preview canvas. Dragging the stage
+// smaller leaves the wrapper's dot-grid background visible in the slack.
+// The dots look attached to the frame, not to the resized component.
 func demoFrameWith(opts DemoFrameOpts) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
@@ -3294,17 +3280,14 @@ func demoTabsFooter(opts DemoFrameOpts) templ.Component {
 		templ_7745c5c3_Err = neo.ResizableAttrs(neo.ResizableOpts[float64]{
 			Handles:   neo.Set(neo.ResizableBottom),
 			MinHeight: neo.Set("8rem"),
-			// `max-content` rather than a hardcoded length: the cap
-			// becomes the active tabpanel's natural height. Drag up
-			// stops once everything's visible (no overshoot into
-			// empty space below the codemirror); drag past content
-			// is impossible. CodeMirror's own scroll is the fallback
-			// when the user shrinks below content. When the Hide tab
-			// is active its panel is empty, so max-content collapses
-			// to ~the tablist height, combined with the
-			// `:has(neo-tab:first-child…)` rule in style.css that
-			// drops `min-height` for that case, the footer shrinks
-			// to just the tab strip.
+			// `max-content` rather than a hardcoded length makes the cap the active
+			// tabpanel's natural height. Drag up stops once everything's visible
+			// (no overshoot into empty space below the codemirror); drag past content
+			// is impossible. CodeMirror's own scroll is the fallback when the user
+			// shrinks below content. When the Hide tab is active its panel is empty
+			// and max-content collapses to about the tablist height.
+			// With the `:has(neo-tab:first-child...)` rule in style.css that drops
+			// `min-height` for that case, the footer shrinks to the tab strip.
 			MaxHeight: neo.Set("max-content"),
 		}, templ.Attributes{"class": "demo-frame-footer-resize"}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var111), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
@@ -3346,7 +3329,7 @@ func sourceCodeEditor(language, source string) templ.Component {
 		var templ_7745c5c3_Var128 string
 		templ_7745c5c3_Var128, templ_7745c5c3_Err = templ.ResolveAttributeValue(language)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 1231, Col: 37}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 1213, Col: 37}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var128)
 		if templ_7745c5c3_Err != nil {
@@ -3359,7 +3342,7 @@ func sourceCodeEditor(language, source string) templ.Component {
 		var templ_7745c5c3_Var129 string
 		templ_7745c5c3_Var129, templ_7745c5c3_Err = templ.JoinStringErrs(source)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 1232, Col: 20}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 1214, Col: 20}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var129))
 		if templ_7745c5c3_Err != nil {
@@ -3372,7 +3355,7 @@ func sourceCodeEditor(language, source string) templ.Component {
 		var templ_7745c5c3_Var130 string
 		templ_7745c5c3_Var130, templ_7745c5c3_Err = templ.JoinStringErrs(source)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 1233, Col: 67}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 1215, Col: 67}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var130))
 		if templ_7745c5c3_Err != nil {
@@ -3414,7 +3397,7 @@ func personCard(title, description, initials, color string) templ.Component {
 		var templ_7745c5c3_Var132 string
 		templ_7745c5c3_Var132, templ_7745c5c3_Err = templ.JoinStringErrs(title)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 1245, Col: 36}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 1227, Col: 36}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var132))
 		if templ_7745c5c3_Err != nil {
@@ -3427,7 +3410,7 @@ func personCard(title, description, initials, color string) templ.Component {
 		var templ_7745c5c3_Var133 string
 		templ_7745c5c3_Var133, templ_7745c5c3_Err = templ.JoinStringErrs(description)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 1246, Col: 41}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 1228, Col: 41}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var133))
 		if templ_7745c5c3_Err != nil {
@@ -3440,7 +3423,7 @@ func personCard(title, description, initials, color string) templ.Component {
 		var templ_7745c5c3_Var134 string
 		templ_7745c5c3_Var134, templ_7745c5c3_Err = templ.ResolveAttributeValue(color)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 1249, Col: 46}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 1231, Col: 46}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var134)
 		if templ_7745c5c3_Err != nil {
@@ -3453,7 +3436,7 @@ func personCard(title, description, initials, color string) templ.Component {
 		var templ_7745c5c3_Var135 string
 		templ_7745c5c3_Var135, templ_7745c5c3_Err = templ.JoinStringErrs(initials)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 1258, Col: 14}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/site.templ`, Line: 1240, Col: 14}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var135))
 		if templ_7745c5c3_Err != nil {

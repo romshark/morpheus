@@ -30,8 +30,8 @@
 
 /* High contrast: pin the panel styling to currentColor and thicken to
  * 2px. These tokens cascade into every popover-family shadow panel
- * (popover, select/combobox dropdowns, menu, tooltip), and the panels
- * are out of flow, so a real 2px border here never reflows the page. */
+ * (popover, select/combobox dropdowns, menu, tooltip). The panels are
+ * out of flow, which means a real 2px border never reflows the page. */
 @media (prefers-contrast: more) {
 	:root {
 		--neo-popover-border-color: currentColor;
@@ -52,9 +52,9 @@ neo-popover {
  * (styling, position, max-*, visibility gate), but the content div
  * also lives in light DOM and would render inline next to the trigger
  * until the bundle upgrades the element. On upgrade the popover
- * projects it into the shadow panel via manual slot assignment, so the
- * `:not(:defined)` rule below is the load-bearing piece that prevents
- * a flash of unstyled inline content between page parse and upgrade.
+ * projects it into the shadow panel via manual slot assignment. Until
+ * then this `:not(:defined)` rule prevents a flash of unstyled inline
+ * content between page parse and upgrade.
  * Auto-disengages once :defined matches; after that the shadow CSS is
  * the single source of truth for panel visibility. */
 neo-popover:not(:defined) > [data-neo-popover-content] {

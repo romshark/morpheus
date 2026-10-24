@@ -163,7 +163,7 @@ func PageBoundary(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</code>: outside clicks and focus no longer dismiss the overlay, and its panel clamps to the region instead of the viewport. Setting <code>scope</code> replaces that default, so add a token to opt into a scope or drop one to turn it off. The <code>scroll</code> token lets independent scrollers outside the region move without closing the overlay; <code>stacking</code> layers the region's overlays inside it rather than the document root. Both are off by default. The element is layout-neutral (<code>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</code>. By default, outside clicks and focus do not dismiss the overlay, and its panel clamps to the region instead of the viewport. Setting <code>scope</code> replaces that default. Add a token to opt into a scope or drop one to turn it off. The <code>scroll</code> token lets independent scrollers outside the region move without closing the overlay; <code>stacking</code> layers the region's overlays inside it rather than the document root. Both are off by default. The element is layout-neutral (<code>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -254,20 +254,20 @@ func PageBoundary(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<p class=\"demo-note\">Two regions, each a <code>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<p class=\"demo-note\">2 regions, each a <code>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var15 string
 			templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs("<neo-boundary>")
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_boundary.templ`, Line: 49, Col: 48}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_boundary.templ`, Line: 49, Col: 46}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</code>. Open an overlay in one, then click or open something in the other: the first stays open, because each boundary scopes dismiss to itself. Without boundaries, the second interaction would close the first.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</code>. Open an overlay in one, then click or open something in the other. The first stays open because each boundary scopes dismiss to itself. Without boundaries, the second interaction would close the first.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -320,7 +320,7 @@ func PageBoundary(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<p class=\"demo-note\">Open the popover. The panel clamps and flips against the dashed region instead of the viewport. The trigger sits at the region's bottom edge, so the panel flips above it to stay inside. Set <code>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<p class=\"demo-note\">Open the popover. The panel clamps and flips against the dashed region instead of the viewport. The trigger sits at the region's bottom edge, and the panel flips above it to stay inside. Set <code>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -399,7 +399,7 @@ func PageBoundary(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</code>). Open the menu, then scroll the panel around it: because that scroller carries the boundary itself, the popover closes instead of floating through the container. Independent scrollers outside the boundary can move without dismissing it.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</code>). Open the menu, then scroll the panel around it. Because that scroller carries the boundary itself, the popover closes instead of floating through the container. Independent scrollers outside the boundary can move without dismissing it.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -452,7 +452,7 @@ func PageBoundary(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<p class=\"demo-note\">Stacking scope is opt-in: the right widget adds the <code>stacking</code> token to establish a local stacking context, so its overlays layer inside the region instead of the document root. Both widgets open the same popover (global <code>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<p class=\"demo-note\">Stacking scope is opt-in. The right widget adds the <code>stacking</code> token to establish a local stacking context, which layers its overlays inside the region instead of the document root. Both widgets open the same popover (global <code>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -478,7 +478,7 @@ func PageBoundary(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</code>.</p><ul class=\"demo-note\"><li>Left (default): no stacking context, so the panel outranks the host overlay and paints over it.</li><li>Right (<code>stacking</code>): the panel is confined to the region's context, so the host overlay paints over it instead.</li></ul><p class=\"demo-note\">Open both popovers to compare. Enabling stacking gives the region a box (<code>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</code>.</p><ul class=\"demo-note\"><li>Left (default): no stacking context. The panel outranks the host overlay and paints over it.</li><li>Right (<code>stacking</code>): the panel is confined to the region's context, and the host overlay paints over it instead.</li></ul><p class=\"demo-note\">Open both popovers to compare. Enabling stacking gives the region a box (<code>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -570,7 +570,7 @@ func PageBoundary(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "</code> (no dismiss), so its popover closes on any outside click (document scope), even though the outer boundary enables dismiss scoping. A closer boundary that turns a scope off falls back to the document or viewport default, never to the outer boundary. Open the popover, then click outside it to see it close.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "</code> (no dismiss). Its popover closes on any outside click (document scope), even though the outer boundary enables dismiss scoping. A closer boundary that turns a scope off falls back to the document or viewport default, never to the outer boundary. Open the popover, then click outside it to see it close.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -618,11 +618,11 @@ func PageBoundary(morpheusVersion string) templ.Component {
 var boundaryDoc = ComponentDoc{
 	Attributes: []DocAttribute{
 		{Name: "scope", Type: `"dismiss" | "positioning" | "scroll" | "stacking" (space-separated)`, Default: `"dismiss positioning"`,
-			Description: templ.Raw("Space-separated list of the scopes this region applies. Setting it replaces the default (<code>dismiss positioning</code>) entirely, so list every scope you want; omit a token to fall back to the document / viewport default for it, and <code>scope=\"\"</code> scopes nothing. Tokens: <code>dismiss</code>: a pointer or focus event outside the boundary does not close an overlay inside it (only events inside the boundary but outside the overlay do). <code>positioning</code>: overlay panels clamp and flip against this region's box (the union of the boundary's laid-out descendant rects) instead of the viewport. <code>scroll</code>: a genuinely independent scroll container outside this region can move without closing an embedded overlay; a scroll inside the region, or on an ancestor scroller that carries the region, still dismisses. <code>stacking</code>: the region establishes a local stacking context (<code>isolation: isolate</code>) so its overlays layer inside it, not the document root; this is the one scope that drops <code>display: contents</code> for a box.")},
+			Description: templ.Raw("Space-separated list of the scopes this region applies. Setting it replaces the default (<code>dismiss positioning</code>) entirely. List every scope you want; omit a token to fall back to the document / viewport default for it, and <code>scope=\"\"</code> scopes nothing. With <code>dismiss</code>, a pointer or focus event outside the boundary does not close an overlay inside it (only events inside the boundary but outside the overlay do). With <code>positioning</code>, overlay panels clamp and flip against this region's box (the union of the boundary's laid-out descendant rects) instead of the viewport. With <code>scroll</code>, an independent scroll container outside this region can move without closing an embedded overlay; a scroll inside the region, or on an ancestor scroller that carries the region, still dismisses. With <code>stacking</code>, the region establishes a local stacking context (<code>isolation: isolate</code>) so its overlays layer inside it, not the document root; this is the one scope that drops <code>display: contents</code> for a box.")},
 	},
 	Slots: []DocSlot{
 		{Name: "default",
-			Description: templ.Raw("The content the boundary scopes. Each overlay inside reads its nearest <code>&lt;neo-boundary&gt;</code> ancestor (via <code>closest(\"neo-boundary\")</code>) and obeys that boundary's scopes only. Rules are not inherited: a closer boundary that turns a scope off falls back to the document or viewport default for that scope, not to an outer boundary. Scoping is purely logical (composed-path containment) and non-visual, so a fixed or top-layer panel still counts as inside through its host even though it paints outside the boundary's box.")},
+			Description: templ.Raw("The content the boundary scopes. Each overlay inside reads its nearest <code>&lt;neo-boundary&gt;</code> ancestor (via <code>closest(\"neo-boundary\")</code>) and obeys that boundary's scopes only. Rules are not inherited. A closer boundary that turns a scope off falls back to the document or viewport default for that scope, not to an outer boundary. Scoping is purely logical (composed-path containment) and non-visual. A fixed or top-layer panel still counts as inside through its host even though it paints outside the boundary's box.")},
 	},
 }
 

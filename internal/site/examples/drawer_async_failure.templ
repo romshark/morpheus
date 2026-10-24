@@ -21,7 +21,7 @@ templ DrawerAsyncFailure() {
 	}
 }
 
-// Wrapped in [data-neo-async-placeholder] by DrawerAsync so the
+// Wrapped in [data-neo-async-placeholder] by [datastar.DrawerAsync] so the
 // drawer restores it after close and before retry/reopen.
 templ drawerAsyncFailureLoading() {
 	<neo-skeleton class="drawer-async-failure-line-title"></neo-skeleton>
@@ -34,7 +34,7 @@ templ drawerAsyncFailureLoading() {
 
 // Swapped into <div id="<ID>-body"> once Datastar fires
 // retries-failed. The retry button carries
-// [data-neo-popover-async-retry] so DrawerAsync re-fires the
+// [data-neo-popover-async-retry] so [datastar.DrawerAsync] re-fires the
 // @post action when clicked.
 templ drawerAsyncFailureFailed() {
 	<div class="popover-async-loading popover-async-failed" role="alert">

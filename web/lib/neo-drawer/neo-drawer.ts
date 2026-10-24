@@ -1,5 +1,5 @@
-// Same foundation as <neo-dialog> (native <dialog>: modal lifecycle, top
-// layer, focus trap, scroll lock, Esc), anchored to one viewport edge and
+// Same foundation as <neo-dialog> (native <dialog> for the modal lifecycle,
+// top layer, focus trap, scroll lock, Esc), anchored to one viewport edge and
 // slid in with a transform. Light DOM throughout.
 
 import { boolAttr, openCommand } from "../command";
@@ -47,7 +47,7 @@ export class NeoDrawer extends HTMLElement {
 
 	// Active single-touch drag state. `decided` flips once the gesture
 	// commits to a closing-direction drag; before that we don't
-	// preventDefault, so taps and cross-axis scrolls still work.
+	// preventDefault, which keeps taps and cross-axis scrolls working.
 	#touchDrag: {
 		startX: number;
 		startY: number;
@@ -73,13 +73,13 @@ export class NeoDrawer extends HTMLElement {
 		this.addEventListener("focusout", this.#onHostFocusOut);
 		this.#childObserver = new MutationObserver(this.#onChildMutation);
 		this.#childObserver.observe(this, { childList: true });
-		// Command `open` on connect: explicit open/close obey; absent
-		// keeps prior intent (persists across reconnect/morph).
+		// On connect, an explicit open/close command is obeyed; an absent
+		// one keeps prior intent (persists across reconnect/morph).
 		const cmd = openCommand(this);
 		if (cmd === "open") this.#openIntent = true;
 		else if (cmd === "close") this.#openIntent = false;
-		// A close command left on the host would outlive the next open:
-		// #reflectOpen skips an existing `open`.
+		// A close command left on the host would outlive the next open,
+		// because #reflectOpen skips an existing `open`.
 		if (this.#openIntent) this.#reflectOpen();
 		else this.#reflectClose();
 		this.#ready = true;
@@ -148,7 +148,7 @@ export class NeoDrawer extends HTMLElement {
 		}
 	}
 
-	// State → attribute, guarded so it isn't read back as a command.
+	// State -> attribute, guarded so it isn't read back as a command.
 	#reflectOpen(): void {
 		if (this.hasAttribute("open")) return;
 		this.#reflecting = true;
@@ -187,7 +187,7 @@ export class NeoDrawer extends HTMLElement {
 	}
 
 	// After a morph settles (post-layout), re-enter the top layer if the
-	// <dialog> was dropped from it. Silent: no neo-drawer-open re-fire.
+	// <dialog> was dropped from it. Silent (no neo-drawer-open re-fire).
 	#scheduleRecover(): void {
 		if (this.#recoverScheduled) return;
 		this.#recoverScheduled = true;
@@ -284,9 +284,9 @@ export class NeoDrawer extends HTMLElement {
 			this.#dialog.addEventListener("click", this.#onDialogClick);
 			this.#dialog.addEventListener("close", this.#onDialogClose);
 			this.#dialog.addEventListener("cancel", this.#onDialogCancel);
-			// Capture-phase Esc swallow: belt-and-suspenders alongside the
-			// cancel handler. Stops descendant Esc handlers (popover etc.)
-			// from acting when the drawer is locked open.
+			// Capture-phase Esc swallow, a second guard next to the cancel
+			// handler. Stops descendant Esc handlers (popover etc.) from
+			// acting when the drawer is locked open.
 			this.#dialog.addEventListener("keydown", this.#onDialogKeydown, true);
 			// Listen on the dialog (the panel), not the host (`display:
 			// contents`). touchmove is non-passive so we can preventDefault
@@ -356,10 +356,10 @@ export class NeoDrawer extends HTMLElement {
 		this.#backdropClick.onPointerDown(this.#dialog, e);
 	};
 
-	// Backdrop click: native <dialog> sets `e.target === dialog` for both
-	// backdrop clicks and clicks on the dialog box itself. Require the press
-	// and release to both be outside so selection drags out of the panel do
-	// not dismiss the drawer.
+	// Native <dialog> sets `e.target === dialog` for both backdrop clicks
+	// and clicks on the dialog box itself. Require the press and release to
+	// both be outside so selection drags out of the panel do not dismiss
+	// the drawer.
 	#onDialogClick = (e: MouseEvent) => {
 		if (!this.#dialog) return;
 		const backdropDismiss = this.#backdropClick.shouldDismiss(this.#dialog, e);
@@ -419,8 +419,8 @@ export class NeoDrawer extends HTMLElement {
 		const ms = Number.isFinite(seconds) && seconds >= 0 ? seconds * 1000 : 250;
 		this.#asyncRestoreTimer = window.setTimeout(() => {
 			this.#asyncRestoreTimer = null;
-			// Re-check `[open]`: a fresh close inside the wait could have
-			// replaced an earlier timer that was meant to be cancelled.
+			// Re-check `[open]`, because a fresh close inside the wait could
+			// have replaced an earlier timer that was meant to be cancelled.
 			if (this.hasAttribute("open")) return;
 			this.#restoreAsyncSlot();
 		}, ms);
@@ -455,8 +455,8 @@ export class NeoDrawer extends HTMLElement {
 			this.#asyncSlotInitialHTML = null;
 			return;
 		}
-		// Drawer opened and closed before the patch landed: placeholder
-		// is still live, skip the redundant innerHTML reset.
+		// Drawer opened and closed before the patch landed. The placeholder
+		// is still live; skip the redundant innerHTML reset.
 		if (this.#asyncSlot.querySelector("[data-neo-async-placeholder]")) {
 			return;
 		}
@@ -560,7 +560,7 @@ export class NeoDrawer extends HTMLElement {
 		if (!d.decided) {
 			// Dead zone.
 			if (Math.abs(along) < 8 && Math.abs(across) < 8) return;
-			// Cross-axis wins -> user is scrolling; back off.
+			// Cross-axis movement is larger -> user is scrolling; back off.
 			if (Math.abs(across) >= Math.abs(along)) {
 				d.cancelled = true;
 				return;
@@ -594,7 +594,8 @@ export class NeoDrawer extends HTMLElement {
 		const along = d.axis === "x" ? endX - d.startX : endY - d.startY;
 		const alongClose = along * d.closeDir;
 		const elapsed = Math.max(1, performance.now() - d.startTime);
-		// 0.6 px/ms ≈ a deliberate flick; tuned to avoid twitchy closes.
+		// 0.6 px/ms is roughly a deliberate flick; tuned to avoid twitchy
+		// closes.
 		const flick = alongClose / elapsed > 0.6;
 		const shouldClose = alongClose >= d.threshold || flick;
 		this.#clearDragStyles();

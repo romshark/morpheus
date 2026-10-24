@@ -1,4 +1,4 @@
-// "Reduced motion" is the OS media query OR the doc-app's simulated
+// "Reduced motion" is the OS media query or the doc-app's simulated
 // `:root[data-pref-reduced-motion]`; both must fire onChange so a
 // simulated preference behaves identically to a real one.
 const reducedMotionMQ = window.matchMedia("(prefers-reduced-motion: reduce)");

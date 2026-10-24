@@ -9,18 +9,18 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 type ToggleGroupOpts struct {
-	// Value is the comma-separated list of selected child Toggle values.
+	// Value is the comma-separated list of selected child [Toggle] values.
 	// A Toggle value must not contain a comma; the separator is unescaped.
 	Value Attr[string]
-	// Orientation is "" (horizontal, default) or "vertical". A display
-	// attribute: it sets the flex direction only. Arrow keys navigate on
-	// either axis regardless.
+	// Orientation is "" (horizontal, default) or "vertical".
+	// A display attribute that sets the flex direction only.
+	// Arrow keys navigate on either axis regardless.
 	Orientation Attr[Axis]
 	AriaLabel   Attr[string]
 }
 
-// ToggleGroup renders <neo-toggle-group>: a container that coordinates
-// selection across its child Toggle instances.
+// ToggleGroup renders <neo-toggle-group>, a container that coordinates
+// selection across its child [Toggle] instances.
 func ToggleGroup(opts ToggleGroupOpts) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context

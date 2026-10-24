@@ -10,7 +10,7 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import "github.com/romshark/morpheus/neo"
 
-// Card-deck carousel: the kit's [highlight-active] dims non-current slides;
+// Card-deck carousel. The kit's [highlight-active] dims non-current slides;
 // the [data-neo-carousel-slide-visibility="full"] rules lift the active one
 // (translate + shadow + saturation).
 func CarouselCards() templ.Component {
@@ -59,10 +59,10 @@ func CarouselCards() templ.Component {
 				}
 				ctx = templ.InitializeContext(ctx)
 				for _, v := range []struct{ Value, Img, Title, Sub, Date, Link string }{
-					{"1", "/static/jar_1.webp", "Terracotta lekythos (oil flask)", "Attributed to the Amasis Painter", "ca. 550–530 BCE", "https://www.metmuseum.org/art/collection/search/254843"},
+					{"1", "/static/jar_1.webp", "Terracotta lekythos (oil flask)", "Attributed to the Amasis Painter", "ca. 550-530 BCE", "https://www.metmuseum.org/art/collection/search/254843"},
 					{"2", "/static/jar_2.webp", "Lekythos (oil flask)", "Attributed to Hermonax", "ca. 460 BCE", "https://www.metmuseum.org/art/collection/search/252541"},
 					{"3", "/static/jar_3.webp", "Terracotta amphora (jar)", "Attributed to the Amasis Painter", "ca. 550 BCE", "https://www.metmuseum.org/art/collection/search/247238"},
-					{"4", "/static/jar_4.webp", "Terracotta lekythos (oil flask)", "Attributed to the Amasis Painter", "ca. 550–530 BCE", "https://www.metmuseum.org/art/collection/search/253348"},
+					{"4", "/static/jar_4.webp", "Terracotta lekythos (oil flask)", "Attributed to the Amasis Painter", "ca. 550-530 BCE", "https://www.metmuseum.org/art/collection/search/253348"},
 					{"5", "/static/jar_5.webp", "Terracotta amphora (jar)", "Attributed to the Berlin Painter", "ca. 490 BCE", "https://www.metmuseum.org/art/collection/search/254896"},
 					{"6", "/static/jar_6.webp", "Terracotta olpe (jug)", "Attributed to the Amasis Painter", "ca. 520 BCE", "https://www.metmuseum.org/art/collection/search/255011"},
 					{"7", "/static/jar_7.webp", "Terracotta oinochoe: olpe (jug)", "Related to the Group of the Early Olpai", "1st half of 6th century BCE", "https://www.metmuseum.org/art/collection/search/252591"},

@@ -1,9 +1,6 @@
-/* -----------------------------------------------------------------------
- * Tooltip pill, host-marker variant
- * -----------------------------------------------------------------------
- * Same bubble as neo-tooltip.css but keyed off a [data-neo-tooltip-host]
- * marker instead of the `neo-tooltip` tag, so a component (e.g.
- * <neo-slider>) can adopt it into a shadow root for a TooltipController
+/* Same bubble as neo-tooltip.css but keyed off a [data-neo-tooltip-host]
+ * marker instead of the `neo-tooltip` tag. A component (e.g.
+ * <neo-slider>) can then adopt it into a shadow root for a TooltipController
  * host that is not a registered <neo-tooltip>. Kept in sync with
  * neo-tooltip.css by hand; the rules differ only in the host selector. */
 

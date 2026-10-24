@@ -1,8 +1,6 @@
-/* -----------------------------------------------------------------------
- * <neo-if-platform>
- * -----------------------------------------------------------------------
- * Hidden until the element sets :state(match), so the wrong branch never
- * flashes (and stays hidden with no JS). `contents` so the gate adds no box. */
+/* <neo-if-platform> is hidden until the element sets :state(match). The
+ * wrong branch never flashes and stays hidden with no JS. `contents` so
+ * the gate adds no box. */
 
 neo-if-platform {
 	display: none;

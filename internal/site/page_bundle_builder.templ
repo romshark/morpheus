@@ -59,8 +59,8 @@ templ PageBundleBuilder(morpheusVersion string, versions []BundleVersion) {
 						@neo.ToggleAttrs(neo.ToggleOpts{
 							Pressed:  neo.Set(!lacks),
 							Disabled: neo.Set(bundleInitiallyLocked(nd) || lacks),
-							Size:  neo.Set("sm"),
-							Value: neo.Set(nd.Name),
+							Size:     neo.Set("sm"),
+							Value:    neo.Set(nd.Name),
 						}, templ.Attributes{
 							"data-neo-navgroup-item":    true,
 							"data-attr:pressed":         bundleTogglePressed(nd),
@@ -148,24 +148,24 @@ templ PageBundleBuilder(morpheusVersion string, versions []BundleVersion) {
 											</label>
 										</th>
 										<td class="bundle-size-raw">
-											<span data-size="raw">–</span>
+											<span data-size="raw">-</span>
 											@bundleCopyButton(f.Name())
 										</td>
-										<td data-size="gzip">–</td>
-										<td data-size="br">–</td>
+										<td data-size="gzip">-</td>
+										<td data-size="br">-</td>
 									</tr>
 								}
 								<tr class="bundle-size-total">
 									<th scope="row">Total</th>
 									<td class="bundle-size-raw">
-										<span data-size="raw">–</span>
+										<span data-size="raw">-</span>
 										<span
 											class="bundle-size-copy"
 											aria-hidden="true"
 										></span>
 									</td>
-									<td data-size="gzip">–</td>
-									<td data-size="br">–</td>
+									<td data-size="gzip">-</td>
+									<td data-size="br">-</td>
 								</tr>
 							</tbody>
 						</table>

@@ -1,5 +1,5 @@
-// Internals render into a shadow root on connect with no <slot>, so a fat
-// morph of the light host keeps the same fill node and the `easing`
+// Internals render into a shadow root on connect with no <slot>. A fat morph
+// of the light host then keeps the same fill node, and the `easing`
 // transition runs instead of rebuilding and snapping. Marks are authored
 // as light children, read on connect and on light-DOM mutation.
 
@@ -37,9 +37,9 @@ const MARK_CFG: MarkRailConfig = {
 
 // The whole module stylesheet, tag selectors rewritten to `:host`, adopted
 // into every instance's shadow root. Built once and shared. The internals
-// live in the shadow so a Datastar fat-morph of the light host can't wipe
-// them: the fill node persists, so an `easing` transition runs on a plain
-// `value` change instead of snapping after a rebuild.
+// live in the shadow so that a Datastar fat-morph of the light host can't
+// wipe them. The fill node persists, and an `easing` transition runs on a
+// plain `value` change instead of snapping after a rebuild.
 const SHEET = new CSSStyleSheet();
 SHEET.replaceSync(scopeCssToHost(progressCss, "neo-progress"));
 
@@ -109,7 +109,7 @@ export class NeoProgress extends HTMLElement {
 
 	// Author marks are [data-neo-progress-mark] light children; the rendered
 	// dots/labels live in the shadow. A morph that changes the light marks
-	// won't touch the shadow, so re-collect and re-render the rail here.
+	// won't touch the shadow. The observer re-collects and re-renders the rail.
 	// The rendered internals themselves are shadow-only and never wiped.
 	#observeChildren() {
 		if (this.#childObserver) return;
@@ -172,7 +172,7 @@ export class NeoProgress extends HTMLElement {
 		this.#syncValue();
 	}
 
-	// State → attribute, guarded so it isn't read back as a command.
+	// State -> attribute, guarded so it isn't read back as a command.
 	#reflectValue() {
 		this.#reflectingValue = true;
 		try {
@@ -282,10 +282,10 @@ export class NeoProgress extends HTMLElement {
 	}
 
 	#syncEasing() {
-		// Set the transition on the shadow fill, NOT the host. A Datastar
+		// Set the transition on the shadow fill, not the host. A Datastar
 		// fat-morph of the bare light host reconciles its attributes to the
 		// source, which has no `style`. Putting it on the host would strip
-		// the transition on every morph, so the fill would snap to the new
+		// the transition on every morph and the fill would snap to the new
 		// value instead of easing. The shadow tree is untouched by the morph.
 		if (!this.#fillEl) return;
 		const raw = this.getAttribute(ATTR_EASING);
@@ -338,13 +338,13 @@ export class NeoProgress extends HTMLElement {
 		const v = this.value;
 		if (this.#valueEl) this.#valueEl.textContent = indeterminate ? "" : String(v);
 		// Host carries the progressbar semantics (the header/track are in the
-		// shadow and presentational). aria-valuenow drives the announced
+		// shadow and presentational). aria-valuenow sets the announced
 		// value; indeterminate drops it.
 		this.setAttribute("aria-valuemin", String(this.min));
 		this.setAttribute("aria-valuemax", String(this.max));
 		if (indeterminate) this.removeAttribute("aria-valuenow");
 		else this.setAttribute("aria-valuenow", String(v));
-		// The visible `label` lives in the shadow, so mirror it to the host's
+		// The visible `label` lives in the shadow. Mirror it to the host's
 		// aria-label to name the progressbar. An author-set aria-label is the
 		// fallback when there's no visible label.
 		const label = this.getAttribute(ATTR_LABEL) || this.getAttribute("aria-label");

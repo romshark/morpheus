@@ -1,11 +1,10 @@
 package neo
 
-// Slider renders <neo-slider> as the bare host: attributes plus optional
-// light-DOM children ([SliderMarkAt], [SliderAnchor], [SliderThumb]). The
-// JS host builds the painted slider (header, track + fill + thumb, marks)
-// into a shadow root on connect, kept out of light DOM so a Datastar
-// fat-morph can't wipe it, letting a plain `value` change ease instead of
-// snapping.
+// Slider renders <neo-slider> as the bare host, with attributes plus optional
+// light-DOM children ([SliderMarkAt], [SliderAnchor], [SliderThumb]).
+// The JS host builds the painted slider (header, track + fill + thumb, marks)
+// into a shadow root on connect, kept out of light DOM so a Datastar fat-morph
+// can't wipe it, letting a plain `value` change ease instead of snapping.
 templ Slider[N Number](opts SliderOpts[N]) {
 	@SliderAttrs(opts, nil) {
 		{ children... }
@@ -46,7 +45,7 @@ templ SliderAttrs[N Number](opts SliderOpts[N], attrs templ.Attributes) {
 // [data-neo-slider-mark] children on connect and builds the anchor dot
 // plus its label (the children; omit them for a bare dot). value is the
 // numeric position; marks outside [min, max] are skipped. The
-// attribute-only Slider takes marks via SliderOpts.Marks instead.
+// attribute-only [Slider] takes marks via [SliderOpts.Marks] instead.
 templ SliderMarkAt[N Number](value N) {
 	@SliderMarkAtAttrs(value, nil) {
 		{ children... }
@@ -63,17 +62,16 @@ templ SliderMarkAtAttrs[N Number](value N, attrs templ.Attributes) {
 // SliderAnchor declares the glyph template for the rail anchor dots. The
 // host reads this <template data-neo-slider-anchor> light-DOM child on
 // connect and clones its content into every anchor (e.g. an icon). Place
-// it as a child of Slider / SliderRange.
+// it as a child of [Slider] / [SliderRange].
 templ SliderAnchor() {
 	<template data-neo-slider-anchor>
 		{ children... }
 	</template>
 }
 
-// SliderThumb declares the glyph template for the drag thumb. The host
-// reads this <template data-neo-slider-thumb> light-DOM child on connect
-// and clones its content into the thumb. Place it as a child of Slider /
-// SliderRange.
+// SliderThumb declares the glyph template for the drag thumb. The host reads
+// this <template data-neo-slider-thumb> light-DOM child on connect and clones
+// its content into the thumb. Place it as a child of [Slider] / [SliderRange].
 templ SliderThumb() {
 	<template data-neo-slider-thumb>
 		{ children... }

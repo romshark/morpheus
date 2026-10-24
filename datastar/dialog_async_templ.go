@@ -10,16 +10,15 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import "github.com/romshark/morpheus/neo"
 
-// DialogAsync renders a <neo-dialog> wired to a Datastar SSE action
-// that fetches its body content on every open. The Loading template is
-// wrapped in [data-neo-async-placeholder] so the dialog can restore it
-// after close; on success the server morphs `<div id="<ID>-body">` in
-// place. When Datastar exhausts its retry budget, Failed is swapped
-// into the same body wrapper.
+// DialogAsync renders a <neo-dialog> wired to a Datastar SSE action that fetches
+// its body content on every open. The Loading template is wrapped in
+// [data-neo-async-placeholder] so the dialog can restore it after close;
+// on success the server morphs `<div id="<ID>-body">` in place. When Datastar
+// exhausts its retry budget, Failed is swapped into the same body wrapper.
 //
 // The trigger label is supplied via children. Any descendant in the
 // Failed template that carries data-neo-popover-async-retry becomes a
-// retry button: a click aborts any in-flight fetch, restores loading,
+// retry button. A click aborts any in-flight fetch, restores loading,
 // and re-fires the action without closing the dialog.
 func DialogAsync(opts DialogAsyncOpts) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
@@ -79,7 +78,7 @@ func DialogAsync(opts DialogAsyncOpts) templ.Component {
 					var templ_7745c5c3_Var3 string
 					templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(opts.Title)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `datastar/dialog_async.templ`, Line: 32, Col: 44}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `datastar/dialog_async.templ`, Line: 31, Col: 44}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 					if templ_7745c5c3_Err != nil {
@@ -98,7 +97,7 @@ func DialogAsync(opts DialogAsyncOpts) templ.Component {
 					var templ_7745c5c3_Var4 string
 					templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(opts.Description)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `datastar/dialog_async.templ`, Line: 35, Col: 55}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `datastar/dialog_async.templ`, Line: 34, Col: 55}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 					if templ_7745c5c3_Err != nil {
@@ -121,7 +120,7 @@ func DialogAsync(opts DialogAsyncOpts) templ.Component {
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.ResolveAttributeValue(opts.ID + "-body")
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `datastar/dialog_async.templ`, Line: 39, Col: 30}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `datastar/dialog_async.templ`, Line: 38, Col: 30}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var5)
 			if templ_7745c5c3_Err != nil {
@@ -147,7 +146,7 @@ func DialogAsync(opts DialogAsyncOpts) templ.Component {
 				var templ_7745c5c3_Var6 string
 				templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(opts.CloseLabel)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `datastar/dialog_async.templ`, Line: 46, Col: 56}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `datastar/dialog_async.templ`, Line: 45, Col: 56}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 				if templ_7745c5c3_Err != nil {
@@ -182,7 +181,7 @@ func DialogAsync(opts DialogAsyncOpts) templ.Component {
 		var templ_7745c5c3_Var7 string
 		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.ResolveAttributeValue(opts.ID + "-tpl-loading")
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `datastar/dialog_async.templ`, Line: 51, Col: 40}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `datastar/dialog_async.templ`, Line: 50, Col: 40}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var7)
 		if templ_7745c5c3_Err != nil {
@@ -203,7 +202,7 @@ func DialogAsync(opts DialogAsyncOpts) templ.Component {
 		var templ_7745c5c3_Var8 string
 		templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.ResolveAttributeValue(opts.ID + "-tpl-failed")
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `datastar/dialog_async.templ`, Line: 56, Col: 39}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `datastar/dialog_async.templ`, Line: 55, Col: 39}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var8)
 		if templ_7745c5c3_Err != nil {
@@ -225,8 +224,8 @@ func DialogAsync(opts DialogAsyncOpts) templ.Component {
 	})
 }
 
-// dialogAsyncFailed renders the user-supplied Failed template, or a
-// minimal built-in callout if none was provided.
+// dialogAsyncFailed renders the user-supplied Failed template,
+// or a minimal built-in callout if none was provided.
 func dialogAsyncFailed(failed templ.Component) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context

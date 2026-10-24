@@ -40,9 +40,9 @@ templ PagePagination(morpheusVersion string) {
 				Sibling count = 2
 			}
 			<p class="demo-note">
-				<code>{ `sibling-count="2"` }</code> reveals two
+				<code>{ `sibling-count="2"` }</code> reveals 2
 				neighbours on each side of the active page rather
-				than one. Useful when users frequently jump ±2
+				than 1. Useful when users frequently jump +/-2
 				pages and a single neighbour reads as too tight.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
@@ -57,7 +57,7 @@ templ PagePagination(morpheusVersion string) {
 			}
 			<p class="demo-note">
 				With <code>{ `boundary-count="2"` }</code> the first
-				and last two pages always render, handy for tables
+				and last 2 pages always render, handy for tables
 				where users habitually jump to "page 1 / 2" or
 				"second-to-last / last".
 			</p>
@@ -112,13 +112,13 @@ templ PagePagination(morpheusVersion string) {
 				Custom prev / next slots
 			}
 			<p class="demo-note">
-				The host exposes two
+				The host exposes 2
 				<code>{ "<template>" }</code> slots,
 				<code>{ "[data-neo-pagination-prev]" }</code> and
 				<code>{ "[data-neo-pagination-next]" }</code>,
 				whose inner HTML becomes the body of the prev /
 				next buttons. Default content is a single chevron
-				icon, so a bare host renders as icon-only.
+				icon. A bare host renders icon-only buttons.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
 				StageMinHeight: "max-content",
@@ -135,8 +135,8 @@ templ PagePagination(morpheusVersion string) {
 				<code>{ "<template data-neo-pagination-prev>" }</code>
 				/ <code>{ "<template data-neo-pagination-next>" }</code>
 				with no children and the matching button is
-				omitted entirely: pure page chips, no prev / next
-				rail. Useful when the dataset's prev / next is
+				omitted entirely. Only the page chips remain.
+				Useful when the dataset's prev / next is
 				wired elsewhere (keyboard shortcut, sidebar nav).
 			</p>
 			@demoFrameWith(DemoFrameOpts{
@@ -180,7 +180,7 @@ var paginationDoc = ComponentDoc{
 		{Name: "sibling-count", Type: "number", Default: "1", Observed: true,
 			Description: templ.Raw(
 				"Pages shown on each side of the active one. " +
-					"Increase to make ±N navigation cheaper; the " +
+					"Increase to make +/-N navigation cheaper; the " +
 					"adapt loop shrinks this first when the row " +
 					"runs out of room.",
 			)},

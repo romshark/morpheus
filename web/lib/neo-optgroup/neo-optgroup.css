@@ -1,7 +1,7 @@
-/* <neo-optgroup>: a non-focusable section above its grouped options.
+/* <neo-optgroup> is a non-focusable section above its grouped options.
  * The visual header is a CSS ::before that reads the `label` attribute
- * directly, so a server morph that strips JS-added subtree state can't
- * make the header flicker out and back in. */
+ * directly, which keeps a server morph that strips JS-added subtree
+ * state from making the header flicker out and back in. */
 neo-optgroup {
 	display: flex;
 	flex-direction: column;
@@ -11,9 +11,9 @@ neo-optgroup {
 	gap: var(--neo-navgroup-gap, 0.5rem);
 }
 
-/* Same reason as neo-option[hidden]: the search filter hides whole
- * groups whose members all dropped out, and the `display: flex` above
- * would otherwise win over the UA `[hidden]` rule. */
+/* Same reason as neo-option[hidden]. The search filter hides whole
+ * groups whose members all dropped out, and the `display: flex` on
+ * neo-optgroup would otherwise override the UA `[hidden]` rule. */
 neo-optgroup[hidden] {
 	display: none;
 }

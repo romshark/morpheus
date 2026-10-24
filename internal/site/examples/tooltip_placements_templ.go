@@ -10,7 +10,7 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import "github.com/romshark/morpheus/neo"
 
-// The twelve placements, grouped by side: bare centers on the edge,
+// The 12 placements, grouped by side. A bare side centers on the edge;
 // -start and -end align to its corners.
 var tooltipPlacements = []neo.Placement{
 	"top-start", "top", "top-end",

@@ -89,7 +89,7 @@ func comboboxAsyncFailureLoading() templ.Component {
 
 // Swapped into the visible loading clone once Datastar fires
 // retries-failed. The retry button carries
-// [data-neo-popover-async-retry] so ComboboxAsync re-fires the
+// [data-neo-popover-async-retry] so [datastar.ComboboxAsync] re-fires the
 // @post action when clicked.
 func comboboxAsyncFailureFailed() templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {

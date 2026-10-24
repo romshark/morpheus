@@ -3,8 +3,8 @@ package neo
 import "github.com/a-h/templ"
 
 // FlexDirection sets <neo-layout> flex-direction. Rendered as a boolean
-// attribute whose name is the CSS value. Zero value renders row (the CSS
-// default) and emits no attribute.
+// attribute whose name is the CSS value. Zero value renders row
+// (the CSS default) and emits no attribute.
 type FlexDirection string
 
 const (
@@ -39,8 +39,8 @@ const (
 	AlignItemsBaseline  AlignItems = "baseline"
 )
 
-// JustifyContent sets <neo-layout> justify-content (main-axis
-// distribution). Zero value emits no attribute.
+// JustifyContent sets <neo-layout> justify-content (main-axis distribution).
+// Zero value emits no attribute.
 type JustifyContent string
 
 const (
@@ -53,8 +53,8 @@ const (
 	JustifyContentSpaceEvenly  JustifyContent = "space-evenly"
 )
 
-// AlignContent sets <neo-layout> align-content (distribution of wrapped
-// lines). Takes effect only with Wrap. Zero value emits no attribute.
+// AlignContent sets <neo-layout> align-content (distribution of wrapped lines).
+// Takes effect only with Wrap. Zero value emits no attribute.
 type AlignContent string
 
 const (
@@ -68,8 +68,8 @@ const (
 	AlignContentStretch      AlignContent = "stretch"
 )
 
-// AlignSelf overrides the parent's cross-axis alignment for one child
-// (neo-align-self). Zero value emits no attribute.
+// AlignSelf overrides the parent's cross-axis alignment for one child (neo-align-self).
+// Zero value emits no attribute.
 type AlignSelf string
 
 const (
@@ -81,8 +81,8 @@ const (
 	AlignSelfBaseline  AlignSelf = "baseline"
 )
 
-// Gap is a spacing-scale token for gap / column-gap / row-gap. Zero
-// value emits no attribute. For an arbitrary length set --neo-gap via
+// Gap is a spacing-scale token for gap / column-gap / row-gap.
+// Zero value emits no attribute. For an arbitrary length set --neo-gap via
 // style instead.
 type Gap string
 
@@ -106,8 +106,8 @@ const (
 	MinHeightFull    MinHeight = "100%"
 )
 
-// Collapse folds a row to a single column below a viewport tier. A Neo
-// extension with no CSS equivalent. Zero value never collapses.
+// Collapse folds a row to a single column below a container-width tier.
+// A Neo extension with no CSS equivalent. Zero value never collapses.
 type Collapse string
 
 const (
@@ -117,8 +117,8 @@ const (
 	CollapseLg      Collapse = "lg" // < 64rem
 )
 
-// FlexBasis is a literal flex-basis for a layout child (neo-flex-basis):
-// only the CSS keywords 0, auto, and 100%. For a fixed width set
+// FlexBasis is a literal flex-basis for a layout child (neo-flex-basis),
+// limited to the CSS keywords 0, auto, and 100%. For a fixed width set
 // flex-basis via style, e.g. style="flex-basis: var(--neo-size-sidebar)"
 // (the --neo-size-* vars are themeable presets) or a plain length;
 // arbitrary lengths stay out of the attribute surface.
@@ -150,8 +150,8 @@ const (
 	ItemSizeFull    ItemSize = "100%"
 )
 
-// LayoutOpts is the typed attribute surface for <neo-layout>. Every
-// field maps 1:1 to the CSS flex container property of the same name.
+// LayoutOpts is the typed attribute surface for <neo-layout>.
+// Every field maps 1:1 to the CSS flex container property of the same name.
 type LayoutOpts struct {
 	Direction      Attr[FlexDirection] // row (default) | row-reverse | column | column-reverse
 	Wrap           Attr[FlexWrap]      // nowrap (default) | wrap | wrap-reverse
@@ -167,8 +167,8 @@ type LayoutOpts struct {
 	Collapse       Attr[Collapse] // fold a row to a column below a container-width tier
 }
 
-// ItemOpts is the typed child-layout surface: flex-item behaviour that
-// belongs to the child rather than the container. Item turns it into the
+// ItemOpts is the typed child-layout surface for flex-item behaviour that
+// belongs to the child rather than the container. [Item] turns it into the
 // neo-* attributes to spread onto any flex child, usually a semantic
 // element instead of a wrapper.
 type ItemOpts struct {
@@ -186,11 +186,11 @@ type ItemOpts struct {
 	ShowBelow  Attr[Collapse]  // neo-show-below: show only while the container is below this tier
 }
 
-// Item builds the neo-* child-layout attributes for a flex child. Spread
-// the result onto the element inside a Layout:
+// Item builds the neo-* child-layout attributes for a flex child.
+// Spread the result onto the element inside a [Layout]:
 //
-//	<aside style="flex-basis: var(--neo-size-sidebar)" { neo.Item(neo.ItemOpts{NoShrink: true})... }>
-//	<main { neo.Item(neo.ItemOpts{Grow: true, MinWidth0: true})... }>
+//	<aside style="flex-basis: var(--neo-size-sidebar)" { neo.Item(neo.ItemOpts{NoShrink: neo.Set(true)})... }>
+//	<main { neo.Item(neo.ItemOpts{Grow: neo.Set(true), MinWidth0: neo.Set(true)})... }>
 func Item(opts ItemOpts) templ.Attributes {
 	a := templ.Attributes{}
 	if opts.Grow.Or(false) {

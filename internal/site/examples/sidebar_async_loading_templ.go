@@ -91,7 +91,7 @@ func SidebarAsyncLoading() templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<!-- [data-neo-async-placeholder] marks the resting content. neo-sidebar\n\t\t\t     snapshots it on connect and restores it on close, so every open\n\t\t\t     loads fresh. The server morphs the loaded panel in on open. The\n\t\t\t     display:contents wrapper keeps the skeletons as direct flex items of\n\t\t\t     the slot; immediate skeletons skip the fade so the placeholder shows\n\t\t\t     from the first frame of the open transition. --> <div id=\"sidebar-async-content\" class=\"sb-async-body\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<!-- [data-neo-async-placeholder] marks the resting content. neo-sidebar\n\t\t\t     snapshots it on connect and restores it on close, which makes every\n\t\t\t     open load fresh. The server morphs the loaded panel in on open. The\n\t\t\t     display:contents wrapper keeps the skeletons as direct flex items of\n\t\t\t     the slot; immediate skeletons skip the fade so the placeholder shows\n\t\t\t     from the first frame of the open transition. --> <div id=\"sidebar-async-content\" class=\"sb-async-body\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

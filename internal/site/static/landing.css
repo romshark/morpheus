@@ -2,7 +2,7 @@
 
 /* The docs-app shell (style.css) pins html+body to `height: 100dvh;
    overflow: clip` and scrolls inner regions. The landing page scrolls as one
-   document instead. Revert the root: without this the body below stays a
+   document instead. Revert the root. Without this, .landing-body stays a
    100dvh-tall inner scroll container, and on iOS a dvh-tall inner scroller
    desyncs from the collapsing address bar, leaving a strip of html background
    (the "black stripe" past the last content) that a rotate/resize clears. */
@@ -13,7 +13,7 @@
 
 /* Grow with content and let the root document scroll; keep horizontal clipping.
    overflow-x:clip + overflow-y:visible is a valid pair (no scroll container),
-   unlike the former overflow-y:auto which made the body scroll internally. */
+   unlike overflow-y:auto, which makes the body scroll internally. */
 .landing-body {
 	position: relative;
 	height: auto;
@@ -540,8 +540,8 @@ glitch-cycle-text {
 	font-variant-numeric: tabular-nums;
 }
 
-/* Selected row: --muted lacks contrast on the accent fill, so flip the
- * price/description/icon to the selected fill's fg. */
+/* Selected row: --muted lacks contrast on the accent fill.
+ * Flip the price/description/icon to the selected fill's fg. */
 neo-option[role="option"][aria-selected="true"] .ship-price,
 neo-option[role="option"][aria-selected="true"] .ship-desc,
 neo-option[role="option"][aria-selected="true"] .ship-icon {
@@ -651,9 +651,8 @@ neo-option[role="option"][aria-selected="true"] .ship-icon {
 
 /* Try-it panel host (elevated <neo-card>). Switches mirror
  * `prefers-reduced-motion` / `prefers-contrast` via Datastar signals,
- * scoped to this demo. `overflow: visible` lets the form's
- * position:fixed popover escape; corner-radius is preserved on the
- * toolbar/footer rules below. */
+ * scoped to this demo. `overflow: visible` lets the form's position:fixed
+ * popover escape; corner-radius is preserved on the toolbar/footer rules. */
 .landing-a11y-demo {
 	margin: 0 auto;
 	max-width: 56rem;
@@ -662,8 +661,8 @@ neo-option[role="option"][aria-selected="true"] .ship-icon {
 }
 
 /* Attribute selector bumps specificity past the kit's
- * `neo-card > [data-neo-card-inner]` defaults. Gap zeroed so the
- * toolbar's border-bottom is the only separator. */
+ * `neo-card > [data-neo-card-inner]` defaults.
+ * Gap zeroed so the toolbar's border-bottom is the only separator. */
 .landing-a11y-demo-inner[data-neo-card-inner] {
 	--neo-card-padding: 0;
 	--neo-card-gap: 0;
@@ -770,9 +769,8 @@ neo-option[role="option"][aria-selected="true"] .ship-icon {
 	container-name: neo-sidebar-shell;
 	border-radius: 0 0 calc(var(--page-radius, 0.5rem) - 1px)
 		calc(var(--page-radius, 0.5rem) - 1px);
-	/* Containing block + clip for the overlay-mode drawer (absolutely
-	 * positioned below). The form's position:fixed popover still
-	 * resolves to the viewport. */
+	/* Containing block + clip for the overlay-mode drawer (absolutely positioned).
+	 * The form's position:fixed popover still resolves to the viewport. */
 	position: relative;
 	overflow: hidden;
 }
@@ -786,11 +784,10 @@ neo-sidebar.landing-a11y-demo-nav:state(overlay) {
 	position: absolute;
 }
 
-/* Narrow the kit's 16rem default; the demo body is cramped vs. a
- * real shell. `height: auto` lets the flex row's default
- * `align-items: stretch` size the sidebar to the pane; the kit's
- * `height: 100%` resolves to content height in a content-driven
- * parent and visibly clips. */
+/* Narrow the kit's 16rem default; the demo body is cramped vs.
+ * a real shell. `height: auto` lets the flex row's default `align-items: stretch`
+ * size the sidebar to the pane; the kit's `height: 100%` resolves to content height
+ * in a content-driven parent and visibly clips. */
 .landing-a11y-demo-nav {
 	--neo-sidebar-width: 10rem;
 	--neo-sidebar-padding: 0.4rem;
@@ -907,7 +904,7 @@ neo-sidebar.landing-a11y-demo-nav:not(:defined) {
 	flex: 0 0 auto;
 }
 
-/* Pref-simulation visuals are driven by the kit's
+/* Pref-simulation visuals come from the kit's
  * `:root[data-pref-*]` hooks; only the popover content styling is local. */
 .landing-a11y-demo-popover {
 	max-width: 16rem;
@@ -927,7 +924,7 @@ neo-sidebar.landing-a11y-demo-nav:not(:defined) {
 		flex: 1 1 auto;
 		min-width: 0;
 		/* Override :host { height: 2rem } so the host fits the group's
-		 * border-box content area (2rem − 2×border). */
+		 * border-box content area (2rem - 2*border). */
 		height: 100%;
 		/* Clip the trigger's square hover-bg to the host's rounded
 		 * left corners (granted by the group's :first-child rule). */
@@ -1006,8 +1003,8 @@ neo-sidebar.landing-a11y-demo-nav:not(:defined) {
 	& site-codemirror {
 		display: block;
 		min-width: 0;
-		/* Reserve height so a fat-morph swap (cm-editor → authored
-		 * <template display:none> → MutationObserver remount) doesn't
+		/* Reserve height so a fat-morph swap (cm-editor -> authored
+		 * <template display:none> -> MutationObserver remount) doesn't
 		 * collapse the box. Sized for the longest docs (14 lines @ 0.76rem). */
 		min-height: 13rem;
 		font-size: 0.76rem;
@@ -1122,7 +1119,7 @@ neo-sidebar.landing-a11y-demo-nav:not(:defined) {
 	}
 
 	.landing-how-stages {
-		/* minmax(0,…), not the 1fr shorthand: a bare 1fr is
+		/* minmax(0,...), not the 1fr shorthand, because a bare 1fr is
 		 * minmax(auto,1fr), whose min-content track lets the wide
 		 * CodeMirror block overflow the viewport on mobile. */
 		grid-template-columns: minmax(0, 1fr);
@@ -1134,8 +1131,8 @@ neo-sidebar.landing-a11y-demo-nav:not(:defined) {
 	}
 }
 
-/* Full-bleed band: negative side margins extend the border-top to the
- * viewport. The inner mirrors .landing-main's max-width + horizontal
+/* Full-bleed band: negative side margins extend the border-top to the viewport.
+ * The inner mirrors .landing-main's max-width + horizontal
  * padding so content edges align with sections above. */
 .landing-footer {
 	margin-left: calc(50% - 50vw);
@@ -1201,7 +1198,7 @@ neo-sidebar.landing-a11y-demo-nav:not(:defined) {
 }
 
 /* data-offscreen is set (data-on-intersect on the section) while the showcase
- * is scrolled off-screen: freeze the light-DOM animations that otherwise keep
+ * is scrolled off-screen. Freeze the light-DOM animations that otherwise keep
  * repainting there. The carousel pauses via its own `paused` attribute; shadow
  * spinners stay on. */
 .landing-showcase[data-offscreen] neo-skeleton,
@@ -1348,7 +1345,7 @@ neo-sidebar.landing-a11y-demo-nav:not(:defined) {
 	}
 }
 
-/* 3-col grid (spacer · play-group · volume) keeps the play group
+/* 3-col grid (spacer / play-group / volume) keeps the play group
  * optically centered while the volume anchors flush right. */
 .lf-music-controls {
 	display: grid;
@@ -1360,7 +1357,7 @@ neo-sidebar.landing-a11y-demo-nav:not(:defined) {
 /* Extra breathing room above the controls. The card-inner reset
  * (.lf-card > [data-neo-card-inner] > * + * { margin-top: 0 }) zeroes
  * sibling margins in favor of gap and outspecifies a bare
- * .lf-music-controls, so qualify the selector to win the cascade; this
+ * .lf-music-controls. Qualify the selector to outrank it; this
  * margin stacks on the 0.5rem flex gap. */
 .lf-music > [data-neo-card-inner] > .lf-music-controls {
 	margin-top: 1rem;
@@ -1430,10 +1427,9 @@ neo-sidebar.landing-a11y-demo-nav:not(:defined) {
 }
 
 /* Authored overflow for the chat-participant avatars. The +N circle is a
- * neo-popover trigger supplied via <template data-neo-avatars-overflow>;
- * neo-avatars only clones it and writes the hidden count. The panel lists
- * every participant, so size it to content instead of the kit's
- * chat-card-width default. */
+ * neo-popover trigger supplied via <template data-neo-avatars-overflow>; neo-avatars
+ * only clones it and writes the hidden count. The panel lists every participant.
+ * Size it to content instead of the kit's chat-card-width default. */
 .lf-chat neo-popover[data-neo-avatars-overflow] {
 	--neo-popover-min-width: 0;
 }
@@ -1513,8 +1509,8 @@ neo-sidebar.landing-a11y-demo-nav:not(:defined) {
 }
 
 /* High contrast: give bubbles the same 2px currentColor edge the kit
- * controls get. A box-shadow ring, not a border; the bubbles carry no
- * border otherwise, so a real one would reflow them on every toggle. */
+ * controls get. A box-shadow ring, not a border, because the bubbles carry
+ * no border otherwise and a real one would reflow them on every toggle. */
 @media (prefers-contrast: more) {
 	.lf-bubble {
 		box-shadow: inset 0 0 0 2px currentColor;
@@ -1536,7 +1532,7 @@ neo-sidebar.landing-a11y-demo-nav:not(:defined) {
 }
 
 /* Tighten the kit's default text-input padding; the row reads as
- * one palette strip alongside the search icon and ⌘I help button. */
+ * one palette strip alongside the search icon and Mod+I help button. */
 .lf-search-input > neo-textinput > input {
 	padding: 0.25rem 0.5rem;
 }
@@ -1572,8 +1568,7 @@ neo-sidebar.landing-a11y-demo-nav:not(:defined) {
 	min-width: 0;
 }
 
-/* Row layout (icon · label · trailing kbd) instead of the kit's
- * centred ghost-button. */
+/* Row layout (icon / label / trailing kbd) instead of the kit's centred ghost-button. */
 .lf-search-row {
 	width: 100%;
 	justify-content: flex-start;
@@ -1636,8 +1631,8 @@ neo-sidebar.landing-a11y-demo-nav:not(:defined) {
 	}
 }
 
-/* Card-shaped radios. <neo-radio> sits inside the <label>, so the
- * whole card is the click target. `data-selected` mirrors the
+/* Card-shaped radios. <neo-radio> sits inside the <label>, which makes
+ * the whole card the click target. `data-selected` mirrors the
  * Datastar signal, single source of truth for the highlight. */
 .lf-pricing-plans {
 	display: flex;
@@ -1678,8 +1673,8 @@ neo-sidebar.landing-a11y-demo-nav:not(:defined) {
 }
 
 /* The neo-radio inside reads as a 2px currentColor stroke in
- * contrast-more; match the card with a 1px border + inset ring (set
- * via --neo-contrast-ring on the base rule) so the strokes line up
+ * contrast-more; match the card with a 1px border + inset ring
+ * (set via --neo-contrast-ring on the base rule) so the strokes line up
  * without the card growing and reflowing the column. Selected keeps the
  * accent on both border and ring. */
 @media (prefers-contrast: more) {
@@ -1775,9 +1770,9 @@ neo-sidebar.landing-a11y-demo-nav:not(:defined) {
 	}
 }
 
-/* Clip both card and resizable: a horizontal shrink-drag stacks
- * three async observers (textarea host, kit's auto-resize-height,
- * article's auto-grow): a one-frame skew can paint the textarea
+/* Clip both card and resizable. A horizontal shrink-drag stacks
+ * 3 async observers (textarea host, kit's auto-resize-height,
+ * article's auto-grow), and a 1-frame skew can paint the textarea
  * past the container. Resize handles live at right:0 / bottom:0 so
  * `overflow: hidden` doesn't crop them. */
 .lf-card.lf-notes {
@@ -1797,7 +1792,7 @@ neo-sidebar.landing-a11y-demo-nav:not(:defined) {
 	overflow: auto;
 	/* Reserve gutter so a corner-handle drag can't oscillate the
 	 * content width by a scrollbar tick across frames (scrollbar
-	 * flicker → rewrap → auto-grow → release → repeat). */
+	 * flicker -> rewrap -> auto-grow -> release -> repeat). */
 	scrollbar-gutter: stable;
 
 	/* Lock children to intrinsic size; default `flex-shrink: 1` would
@@ -1929,9 +1924,9 @@ neo-sidebar.landing-a11y-demo-nav:not(:defined) {
 	white-space: nowrap;
 }
 
-/* Equal widths so all RSVP triggers line up. Token alone isn't
- * enough: the inline-block host shrinks to its trigger's content,
- * and the trigger's min-width only kicks in below 7rem. */
+/* Equal widths so all RSVP triggers line up. The token alone isn't
+ * enough, because the inline-block host shrinks to its trigger's
+ * content and the trigger's min-width only applies below 7rem. */
 .lf-event-invitee-rsvp {
 	--neo-select-min-width: 8rem;
 	width: 8rem;
@@ -2012,7 +2007,7 @@ neo-sidebar.landing-a11y-demo-nav:not(:defined) {
 	color: var(--muted);
 }
 
-/* Background tints with currentColor → tag inherits severity hue. */
+/* Background tints with currentColor -> tag inherits severity hue. */
 .lf-logs-tag {
 	text-transform: uppercase;
 	font-size: 0.66rem;
@@ -2117,9 +2112,10 @@ neo-sidebar.landing-a11y-demo-nav:not(:defined) {
 }
 
 .lf-carousel {
-	/* Single-value padding required: the kit's [data-neo-card-media]
-	 * escape `margin: calc(var(--neo-card-padding) * -1)` only
-	 * resolves for one length. */
+	/* Single-value padding is required because the kit's
+	 * [data-neo-card-media] escape
+	 * `margin: calc(var(--neo-card-padding) * -1)` only resolves for a
+	 * single length. */
 	--neo-card-padding: 0.85rem;
 	--neo-card-title-size: 0.95rem;
 }
@@ -2133,8 +2129,8 @@ neo-sidebar.landing-a11y-demo-nav:not(:defined) {
 
 	/* Stretch the carousel host to fill the media box; the kit
 	 * guarantees `neo-carousel-track` fills the host, and the slide
-	 * inherits the cross-axis stretch from the flex row default,
-	 * so the <img> just needs `height: 100%` to cover. */
+	 * inherits the cross-axis stretch from the flex row default.
+	 * The <img> only needs `height: 100%` to cover. */
 	& > neo-carousel {
 		width: 100%;
 		height: 100%;
@@ -2149,10 +2145,9 @@ neo-sidebar.landing-a11y-demo-nav:not(:defined) {
 	}
 
 	/* Float the dots over the bottom edge of the image. The carousel
-	 * host is `position: relative`, so absolute positioning anchors to
-	 * it. Padding zeroed so the inline 0.4rem bottom is the only
-	 * insetting. Dots themselves get a higher-contrast palette so they
-	 * read on a busy illustration. */
+	 * host is `position: relative`, which anchors the absolute positioning to it.
+	 * Padding zeroed so the inline 0.4rem bottom is the only insetting.
+	 * Dots themselves get a higher-contrast palette so they read on a busy illustration. */
 	& neo-carousel::part(dots) {
 		position: absolute;
 		inset-inline: 0;
@@ -2172,12 +2167,11 @@ neo-sidebar.landing-a11y-demo-nav:not(:defined) {
 			background-color 160ms var(--neo-easing, ease-out);
 	}
 
-	/* Active dot reads as a pill: twice the inactive width, same
+	/* Active dot reads as a pill, 2 times the inactive width, same
 	 * height, same border-radius (the radius is already large enough
-	 * to round both ends). Drop the kit's scale(1.15); the width
-	 * pop signals the active dot now. The kit mirrors aria-current into a
-	 * `dot-current` named part because ::part() doesn't accept
-	 * attribute selectors. */
+	 * to round both ends). Drop the kit's scale(1.15); the width pop signals
+	 * the active dot. The kit mirrors aria-current into a `dot-current`
+	 * named part because ::part() doesn't accept attribute selectors. */
 	& neo-carousel::part(dot-current) {
 		width: calc(var(--neo-carousel-dot-size) * 2);
 		transform: none;
@@ -2196,15 +2190,15 @@ neo-sidebar.landing-a11y-demo-nav:not(:defined) {
 }
 
 /* Popover host is inline-block by default; block so the trigger fills
- * the card width. The wrapper makes card-inner a single child, so the
- * header/body column gap moves to .lf-skel-body. */
+ * the card width. The wrapper makes card-inner a single child.
+ * The header/body column gap moves to .lf-skel-body. */
 .lf-skel > [data-neo-card-inner] > neo-popover {
 	display: block;
 }
 
 /* .lf-skel-* are <neo-layout>; display, flex-direction, and align-items
- * come from its attributes. These add only what an attribute can't:
- * off-scale gaps and flex-item sizing. */
+ * come from its attributes. These add only off-scale gaps and
+ * flex-item sizing, which an attribute can't set. */
 .lf-skel-body {
 	gap: 0.85rem;
 }
@@ -2252,7 +2246,7 @@ neo-sidebar.landing-a11y-demo-nav:not(:defined) {
 }
 
 /* Bump popover min-width so long file paths don't truncate; the
- * combobox chain below stretches to fill the panel. */
+ * nested combobox stretches to fill the panel. */
 .lf-tree-search-content {
 	min-width: min(22rem, 90vw);
 
@@ -2288,11 +2282,10 @@ neo-sidebar.landing-a11y-demo-nav:not(:defined) {
 
 /* The row content sits inside a neo-contextmenu trigger (.lf-tree-row)
  * so right-click mirrors the kebab menu. neo-contextmenu is
- * display:contents, but the trigger is a real box: it takes over the
- * label's flex-row role and re-hosts text/actions, since the kit's
- * [data-neo-tree-label] > * rules no longer reach them through the
- * extra nesting. Descendant combinator on the hover reveal for the
- * same reason. */
+ * display:contents, but the trigger is a real box. It takes over the
+ * label's flex-row role and re-hosts text/actions, because the kit's
+ * [data-neo-tree-label] > * rules don't reach them through the extra nesting.
+ * Descendant combinator on the hover reveal for the same reason. */
 .lf-tree .lf-tree-row {
 	display: flex;
 	flex: 1 1 auto;
@@ -2406,10 +2399,10 @@ neo-sidebar.landing-a11y-demo-nav:not(:defined) {
 	}
 }
 
-/* Select + two toggle addons sharing one input-group styling. The
- * kit's direct interactive-addon selector can't reach past the
- * <neo-tooltip> wrapper, so the wrapper owns the seam
- * and surface while `.lf-theme-pref-toggle` owns the interactive state. */
+/* Select + 2 toggle addons sharing one input-group styling.
+ * The kit's direct interactive-addon selector can't reach past the
+ * <neo-tooltip> wrapper. The wrapper owns the seam and surface while
+ * `.lf-theme-pref-toggle` owns the interactive state. */
 .lf-theme-input-group {
 	width: 100%;
 
@@ -2421,7 +2414,7 @@ neo-sidebar.landing-a11y-demo-nav:not(:defined) {
 		flex: 1 1 auto;
 		min-width: 0;
 		/* Override :host { height: 2rem } from the shadow so it fits
-		 * the group's border-box content area (2rem − 2×border). */
+		 * the group's border-box content area (2rem - 2*border). */
 		height: 100%;
 		/* Clip the trigger's square hover-bg to the host's rounded
 		 * left corners (granted by the group's :first-child rule). */
@@ -2558,13 +2551,12 @@ neo-sidebar.landing-a11y-demo-nav:not(:defined) {
  *
  * The kit clones the selected option's children verbatim into the
  * trigger's label slot. We pack every searchable field into each
- * option row (so the local filter matches branch, hash, message, and
- * author), then hide the rich parts inside the badge trigger so it
- * stays compact (branch · hash · caret) while the popover row shows
- * everything. */
-/* Branch / commit picker. Trigger lives in the combobox shadow;
- * tokens cross the shadow boundary, so badge-style styling lands via
- * --neo-button-*. The trigger shows the option's `label` attribute
+ * option row (so the local filter matches branch, hash, message, and author),
+ * then hide the rich parts inside the badge trigger so it stays
+ * compact (branch, hash, caret) while the popover row shows everything. */
+/* Branch / commit picker. Trigger lives in the combobox shadow.
+ * Tokens cross the shadow boundary, which lets badge-style styling land
+ * via --neo-button-*. The trigger shows the option's `label` attribute
  * (compact "branch · hash"); rich rows below live in light DOM. */
 .lf-deploy-ref {
 	flex: 0 0 auto;
@@ -2575,7 +2567,7 @@ neo-sidebar.landing-a11y-demo-nav:not(:defined) {
 	 * to the hash + caret width. */
 	--neo-combobox-min-width: 0;
 	/* Popover width is capped by --neo-popover-max-width, separate from
-	 * the trigger's --neo-combobox-min-width: widen the list so commit
+	 * the trigger's --neo-combobox-min-width. Widen the list so commit
 	 * messages don't truncate, without growing the pill. */
 	--neo-popover-max-width: 28rem;
 	--neo-button-padding: 0.2rem 0.55rem;
@@ -2583,9 +2575,9 @@ neo-sidebar.landing-a11y-demo-nav:not(:defined) {
 	--neo-button-bg: color-mix(in srgb, var(--page-fg) 8%, transparent);
 }
 
-/* Rich option rows in the popover. The option is a direct grid
- * container; its child spans place themselves by class. Slotted
- * options live in light DOM, so these selectors reach them. */
+/* Rich option rows in the popover. The option is a direct grid container;
+ * its child spans place themselves by class.
+ * Slotted options live in light DOM, where these selectors reach them. */
 neo-combobox.lf-deploy-ref neo-option[role="option"] {
 	display: grid;
 	grid-template-columns: auto 1fr auto;

@@ -1,15 +1,10 @@
-/* -----------------------------------------------------------------------
- * <neo-badge>
- * -----------------------------------------------------------------------
- * A small inline chip for status, counts, tags, and category markers.
- * Variants reuse the button colour tokens so a kit-wide theme swap
- * carries badges along without per-variant overrides. The default
- * (no variant) is a neutral filled chip with a subtle border, matching
- * the kit's "default = neutral" pattern from <neo-button>; variant
- * fills (primary / secondary / danger) drop the border so the colour
- * carries the variant, and variant="outline" keeps the border but
- * goes background-transparent.
- */
+/* <neo-badge> is a small inline chip for status, counts, tags, and category markers.
+ * Variants reuse the button colour tokens so a kit-wide theme swap carries badges
+ * along without per-variant overrides. The default (no variant) is a neutral filled
+ * chip with a subtle border, matching the kit's "default = neutral" pattern from
+ * <neo-button>; variant fills (primary / secondary / danger) drop the border so
+ * the colour carries the variant, and variant="outline" keeps the border but
+ * goes background-transparent. */
 
 :root {
 	--neo-badge-padding-y: 0.125rem;
