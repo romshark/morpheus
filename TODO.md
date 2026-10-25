@@ -21,9 +21,6 @@ Carousel:
 
 - Active status set on carousel and on slides, e.g. check landing page example.
 
-neo-avatars-change skips most changes (2026-10-24):
-- `web/lib/neo-avatars/neo-avatars.ts:235,239`: `#adapt` returns inside `try` when a visible count fits, which skips `#emitChange()` at :244. The event fires only when no count fits. Fix: `break` out of the fit search instead of returning.
-
 Leftovers from the 2026-10-24 comment sweep (code, not prose):
 - `web/lib/neo-sidebar/neo-sidebar.css:24` declares `--neo-sidebar-overlay-breakpoint`, which nothing reads. The doc row is removed. Delete the declaration or make the CSS read it.
 - `web/lib/neo-pagination/neo-pagination.ts` `serializeTemplate` round-trips through a `<div>`. `tpl.innerHTML` already serializes the template content.

@@ -18,6 +18,7 @@ This file records the notable changes of each release in the format of [Keep a C
 - Show the `not-allowed` cursor on a disabled `<neo-button>`. The button showed the cursor of the element behind it, and a `title` on it never showed.
 - Stop the hover and press styles on a disabled `<neo-toggle>`, `<neo-tab>` and `<neo-option>`, on the handles of a disabled `<neo-sortable>` and on the button of a disabled file input.
 - Collapse the `<neo-toaster>` stack when the pointer leaves after a click on a close button. The stack stayed expanded, with every auto-dismiss timer paused, until a click outside the toaster.
+- Fire `neo-avatars-change` whenever `<neo-avatars>` changes which avatars it shows. It fired only when no avatar fit.
 - Take the colours of `<neo-button>`, `<neo-popover>` and `<neo-option>` from the theme. Outside the doc site they used fixed colours, such as a blue primary button and white buttons and popovers in dark mode.
 
 ## [0.2.0] - 2026-10-24

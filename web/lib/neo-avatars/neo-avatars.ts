@@ -230,12 +230,9 @@ export class NeoAvatars extends HTMLElement {
 			const total = this.#items.length;
 			const capped = this.#collapseAt > 0 ? Math.min(total, this.#collapseAt) : total;
 
-			this.#renderVisible(capped);
-			if (this.#fits()) return;
-
-			for (let visible = capped - 1; visible >= 0; visible--) {
+			for (let visible = capped; visible >= 0; visible--) {
 				this.#renderVisible(visible);
-				if (this.#fits()) return;
+				if (this.#fits()) break;
 			}
 		} finally {
 			this.#adapting = false;
