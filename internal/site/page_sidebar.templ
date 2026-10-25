@@ -74,7 +74,7 @@ templ PageSidebar(morpheusVersion string) {
 			}
 			<p class="demo-note">
 				Wrap the sidebar in a
-				<code>{ `<neo-resizable>` }</code> and drive
+				<code>{ `<neo-resizable>` }</code> and set
 				<code>--neo-sidebar-width</code> from
 				<code>--neo-resizable-width</code> so the sidebar
 				follows the wrapper's width. The wrapper's
@@ -113,7 +113,7 @@ templ PageSidebar(morpheusVersion string) {
 			</p>
 			<ul class="demo-note">
 				<li>
-					The threshold defaults to half the host's width;
+					The threshold defaults to 1/2 the host's width;
 					pass a CSS length (here
 					<code>{ `touch-dismiss="120px"` }</code>) to pin
 					it, or <code>{ `touch-dismiss="off"` }</code> to
@@ -126,14 +126,14 @@ templ PageSidebar(morpheusVersion string) {
 			</ul>
 			<p class="demo-note">
 				The gesture stands down for descendants that own a
-				horizontal gesture of their own: horizontally
+				horizontal gesture of their own, such as horizontally
 				scrollable containers, range inputs, sliders, resizable
 				handles, color fields, or any element marked
-				<code>{ `[data-neo-sidebar-touch-ignore]` }</code>,
-				and only engages in overlay mode (it has no meaning for
+				<code>{ `[data-neo-sidebar-touch-ignore]` }</code>.
+				It only engages in overlay mode (it has no meaning for
 				the in-flow wide-mode column). The
 				<code>{ `<neo-slider>` }</code> in the panel below
-				demonstrates this: dragging the slider thumb
+				demonstrates this. Dragging the slider thumb
 				horizontally never closes the sidebar.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
@@ -155,9 +155,9 @@ templ PageSidebar(morpheusVersion string) {
 			<p class="demo-note">
 				Load content on every open. Mark the resting content
 				with
-				<code>{ `[data-neo-async-placeholder]` }</code>: the
+				<code>{ `[data-neo-async-placeholder]` }</code>. The
 				sidebar snapshots it on connect and restores it on
-				close, so every open loads fresh (same slot pattern as
+				close, which makes every open load fresh (same slot pattern as
 				<code>{ "<neo-dialog>" }</code> and
 				<code>{ "<neo-drawer>" }</code>).
 			</p>
@@ -196,7 +196,7 @@ templ PageSidebar(morpheusVersion string) {
 				<li>
 					The loader lives in the sidebar's
 					<code>{ "[data-neo-async-placeholder]" }</code>
-					slot, so close/reopen restores it; on success the
+					slot and close/reopen restores it; on success the
 					server morphs
 					<code>{ "<div id=\"<host-id>-body\">" }</code>
 					in place.
@@ -231,8 +231,8 @@ templ PageSidebar(morpheusVersion string) {
 }
 
 // sidebarSimulator loads the per-demo handler module under
-// /static/sim/sidebar/ that powers the async-loading example (also
-// surfaced in its Server-script tab via sidebarAsyncScript).
+// /static/sim/sidebar/ that serves the async-loading example (also
+// surfaced in its Server-script tab via [sidebarAsyncScript]).
 templ sidebarSimulator() {
 	<script type="module" src="/static/sim/sidebar/async.js"></script>
 	<script type="module" src="/static/sim/sidebar/asyncfail.js"></script>
@@ -254,7 +254,7 @@ var sidebarDoc = ComponentDoc{
 				"On by default; set <code>touch-dismiss=\"off\"</code> " +
 				"(or <code>\"false\"</code> / <code>\"no\"</code> / " +
 				"<code>\"none\"</code>) to disable. The default close " +
-				"threshold is half the host's width; pass a CSS length " +
+				"threshold is 1/2 the host's width; pass a CSS length " +
 				"(e.g. <code>120</code>, <code>120px</code>, or <code>40%</code>) to pin it " +
 				"explicitly. Touches that start on a horizontally-scrollable " +
 				"child or on an element that owns a horizontal gesture " +
@@ -264,7 +264,7 @@ var sidebarDoc = ComponentDoc{
 	},
 	States: []DocState{
 		{Name: "overlay",
-			Description: templ.Raw("Set while the sidebar renders as a fixed overlay: <code>overlay</code> is pinned, or the parent's width sits at or below <code>overlay-breakpoint</code>. Page CSS branches its shell layout on this.")},
+			Description: templ.Raw("Set while the sidebar renders as a fixed overlay, which happens when <code>overlay</code> is pinned or the parent's width sits at or below <code>overlay-breakpoint</code>. Page CSS branches its shell layout on this.")},
 		{Name: "dragging",
 			Description: templ.Raw("Set while a touch-dismiss drag is in flight.")},
 	},
@@ -308,7 +308,7 @@ var sidebarDoc = ComponentDoc{
 		{Name: "--neo-sidebar-minimized-width", Default: "3.5rem",
 			Description: templ.Raw("Width of the minimized wide-mode rail.")},
 		{Name: "--neo-sidebar-z-index", Default: "60",
-			Description: templ.Raw("Stacking index in overlay mode; the backdrop sits one below.")},
+			Description: templ.Raw("Stacking index in overlay mode; the backdrop sits 1 below.")},
 		{Name: "--neo-sidebar-backdrop-bg", Default: "rgba(0, 0, 0, 0.45)",
 			Description: templ.Raw("Overlay backdrop color.")},
 	},

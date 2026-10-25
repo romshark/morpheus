@@ -44,11 +44,11 @@ export class NeoBreadcrumb extends HTMLElement {
 	// Cloned boundary separators inserted around the overflow popover.
 	#overflowSeparators: HTMLElement[] = [];
 	// Boundary-separator clones keyed by their source separator. A fresh
-	// cloneNode drops the source's shadow DOM, so a separator's <neo-icon>
-	// re-renders async (one blank frame); recreating clones on every resize
-	// tick leaves the boundary chevrons perpetually blank mid-drag. Reusing
-	// the cached clone keeps its rendered icon. Cleared on re-capture, when
-	// the authored separators (the clone sources) may be new nodes.
+	// cloneNode drops the source's shadow DOM, which means a separator's
+	// <neo-icon> re-renders async (1 blank frame); recreating clones on every
+	// resize tick leaves the boundary chevrons perpetually blank mid-drag.
+	// Reusing the cached clone keeps its rendered icon. Cleared on re-capture,
+	// when the authored separators (the clone sources) may be new nodes.
 	#overflowSepClones = new Map<HTMLElement, HTMLElement>();
 	#renderedSnapshot: Node[] = [];
 	#lastPartition: string | null = null;
@@ -68,8 +68,8 @@ export class NeoBreadcrumb extends HTMLElement {
 
 		// Self catches shrinking; an ancestor catches growing. When
 		// collapsed, our own width doesn't change as the container gains
-		// room. The ancestor must generate a box: a `display:contents`
-		// wrapper produces none, so a ResizeObserver on it never fires;
+		// room. The ancestor must generate a box. A `display:contents`
+		// wrapper produces none and a ResizeObserver on it never fires;
 		// climb past them.
 		this.#resizeObserver = new ResizeObserver(() => this.#adapt());
 		this.#resizeObserver.observe(this);
@@ -101,8 +101,8 @@ export class NeoBreadcrumb extends HTMLElement {
 	}
 
 	// Nearest ancestor that generates a layout box. `display:contents`
-	// ancestors produce no box (a ResizeObserver on them never fires),
-	// so they can't report the available width growing, so skip them.
+	// ancestors produce no box (a ResizeObserver on them never fires) and
+	// can't report the available width growing. Skip them.
 	#growthAncestor(): Element | null {
 		let el = this.parentElement;
 		while (el && getComputedStyle(el).display === "contents") {
@@ -150,9 +150,9 @@ export class NeoBreadcrumb extends HTMLElement {
 			this.#overflowHadFocus = false;
 			return;
 		}
-		// Blur to nothing: a morph stripping the popover (checkForReset
-		// refocuses first, same microtask checkpoint) or a real click-away /
-		// Escape. If focus stays gone after that, it was the user.
+		// A blur to nothing comes from a morph stripping the popover
+		// (checkForReset refocuses first, same microtask checkpoint) or a real
+		// click-away / Escape. If focus stays gone after that, it was the user.
 		queueMicrotask(() => {
 			if (this.#overflowPopover?.contains(document.activeElement)) return;
 			this.#overflowHadFocus = false;
@@ -171,8 +171,8 @@ export class NeoBreadcrumb extends HTMLElement {
 	// Snapshot authored children, ignoring our generated popover/seps so
 	// re-capture rebuilds against freshly authored nodes only.
 	#captureChildren() {
-		// Drop stale clones: a re-capture means the authored separators they
-		// were cloned from may be new nodes (e.g. after a fat morph).
+		// Drop stale clones, because on a re-capture the authored separators
+		// they were cloned from may be new nodes (e.g. after a fat morph).
 		this.#overflowSepClones.clear();
 		this.#trailNodes = Array.from(this.children).filter((c) => {
 			const el = c as HTMLElement;
@@ -186,9 +186,9 @@ export class NeoBreadcrumb extends HTMLElement {
 		else node.removeAttribute("data-neo-breadcrumb-hidden");
 	}
 
-	// Idempotent: build once, reuse across adapt / morph cycles so
-	// open/focus/scroll state survives. syncOverflowItems replaces the
-	// menu rows in place.
+	// Idempotent. Builds once and is reused across adapt / morph cycles so
+	// open/focus/scroll state survives. syncOverflowItems replaces the menu
+	// rows in place.
 	#ensureOverflowMenu(): HTMLElement {
 		if (this.#overflowPopover) return this.#overflowPopover;
 		const popover = document.createElement("neo-popover");
@@ -249,8 +249,8 @@ export class NeoBreadcrumb extends HTMLElement {
 	}
 
 	#renderFull() {
-		// Detach but keep the JS reference: every adaptInternal() pass
-		// calls renderFull, and dropping the instance would lose open /
+		// Detach but keep the JS reference, because every adaptInternal()
+		// pass calls renderFull, and dropping the instance would lose open /
 		// focus / scroll state on each cycle. renderHidden re-attaches it.
 		if (this.#overflowPopover) this.#overflowPopover.remove();
 		for (const sep of this.#overflowSeparators) sep.remove();
@@ -322,8 +322,9 @@ export class NeoBreadcrumb extends HTMLElement {
 		for (const sep of this.#overflowSeparators) sep.remove();
 		this.#overflowSeparators = [];
 
-		// One popover for the host's lifetime; may be detached (renderFull
-		// ran, or a morph stripped it), and insertBefore below re-attaches it.
+		// A single popover for the host's lifetime; may be detached
+		// (renderFull ran, or a morph stripped it), and insertBefore
+		// re-attaches it.
 		const popover = this.#ensureOverflowMenu();
 		this.#syncOverflowItems(hiddenItems, newKey);
 		if (this.contains(popover)) popover.remove();
@@ -384,7 +385,7 @@ export class NeoBreadcrumb extends HTMLElement {
 		if (this.scrollWidth <= this.clientWidth) return;
 
 		// Collapsed configs (head + popover + tail), preferring more tail
-		// visible. Need n ≥ 3 for a non-trivial menu.
+		// visible. Need n >= 3 for a non-trivial menu.
 		if (n >= 3) {
 			for (let tail = n - 2; tail >= 1; tail--) {
 				this.#renderHidden(1, n - tail);
@@ -396,7 +397,7 @@ export class NeoBreadcrumb extends HTMLElement {
 	}
 }
 
-// null ⇒ untrackable, so omitted from the change event.
+// null means untrackable and omitted from the change event.
 function breadcrumbId(item: HTMLElement): string | null {
 	return item.id || null;
 }

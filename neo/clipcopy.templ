@@ -1,8 +1,7 @@
 package neo
 
 type ClipcopyOpts struct {
-	// Value is the literal string copied on click; takes precedence
-	// over For.
+	// Value is the literal string copied on click; takes precedence over For.
 	Value Attr[string]
 	// For is the id of an element whose textContent should be copied.
 	// Useful when the value is already on the page so the copied
@@ -10,8 +9,8 @@ type ClipcopyOpts struct {
 	For Attr[string]
 	// CopiedDuration is in ms; 0 falls back to the kit default
 	// (1500ms). For sticky copied state until next click, pass
-	// `copied-duration="0"` via ClipcopyAttrs (the struct can't
-	// represent it without a three-valued field).
+	// `copied-duration="0"` via [ClipcopyAttrs] (the struct can't
+	// represent it without a 3-valued field).
 	CopiedDuration Attr[int]
 }
 
@@ -37,9 +36,9 @@ templ ClipcopyAttrs(opts ClipcopyOpts, attrs templ.Attributes) {
 	</neo-clipcopy>
 }
 
-// ClipcopyIdle / ClipcopyCopied mark the two state faces nested inside the
-// trigger. The host swaps them when the `copied` attribute flips. Place
-// both inside the trigger element passed to Clipcopy.
+// ClipcopyIdle / [ClipcopyCopied] mark the 2 state faces nested inside the trigger.
+// The host swaps them when the `copied` attribute flips.
+// Place both inside the trigger element passed to [Clipcopy].
 templ ClipcopyIdle() {
 	@ClipcopyIdleAttrs(nil) {
 		{ children... }

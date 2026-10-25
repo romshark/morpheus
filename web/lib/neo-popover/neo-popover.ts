@@ -1,4 +1,5 @@
 import { boolAttr, openCommand } from "../command";
+import { retryWhileParsing, stillParsing } from "../document-parsing";
 import { observeManagedAttrs, setAttrIfChanged } from "../neo-morph-resilient";
 import {
 	applyOpenSizeDuringScroll,
@@ -15,14 +16,14 @@ import { deepActiveElement, eventEnters, isIndependentBoundaryScroll, scopingBou
 let nextId = 0;
 const TRIGGER_RESILIENT_ATTRS = ["aria-controls", "aria-expanded", "aria-haspopup", "role", "tabindex"];
 
-// Shadow tree: a default slot for the trigger followed by a positioned
-// panel that contains a named slot for the content. The panel is
+// The shadow tree holds a default slot for the trigger followed by a
+// positioned panel that contains a named slot for the content. The panel is
 // shadow-owned so the inline top/left/max-*/positioned marker the
 // component writes can't be stripped by a fat morph (which can only
 // reach light DOM). The user's `[data-neo-popover-content]` div still
 // lives in light DOM and is projected into the panel via manual slot
-// assignment: bindChildren calls slot.assign(node) on both slots, so
-// projection survives a morph that strips the `slot=` attribute the
+// assignment. bindChildren calls slot.assign(node) on both slots, which
+// lets projection survive a morph that strips the `slot=` attribute the
 // auto-assignment mode would otherwise depend on.
 const POPOVER_SHADOW_TEMPLATE = document.createElement("template");
 // Shadow CSS notes, kept out of the template string so the minifier drops
@@ -116,14 +117,14 @@ export class NeoPopover extends HTMLElement {
 	// Shadow slots, manually populated by bindChildren via slot.assign().
 	// We avoid the `slot=` attribute path because a fat morph reconciles
 	// the content's attributes back to source HTML (which doesn't carry
-	// `slot=`), so any attribute-driven projection would land in the
+	// `slot=`). Any attribute-based projection would then land in the
 	// default slot, i.e. render inline next to the trigger.
 	#defaultSlot!: HTMLSlotElement;
 	#contentSlot!: HTMLSlotElement;
 	// Shadow-owned positioning structure. `content` (light DOM) is slotted
 	// into this panel. position() writes inline coords / max-* here so
 	// they survive a morph; the panel's data-neo-popover-positioned
-	// marker gates the visibility CSS in the shadow stylesheet above.
+	// marker gates the visibility CSS in POPOVER_SHADOW_TEMPLATE.
 	#panel!: HTMLElement;
 	#previousFocus: Element | null = null;
 	#resizeObserver: ResizeObserver | null = null;
@@ -157,7 +158,7 @@ export class NeoPopover extends HTMLElement {
 	// Last observed content scrollTop; restored after a morph re-emits at 0.
 	#lastContentScrollTop = 0;
 
-	// Hover-open timers. open/close are mutually exclusive: scheduling
+	// Hover-open timers. open/close are mutually exclusive; scheduling
 	// one cancels the other so a quick re-entry doesn't open-then-close.
 	#hoverOpenTimer: number | null = null;
 	#hoverCloseTimer: number | null = null;
@@ -188,7 +189,12 @@ export class NeoPopover extends HTMLElement {
 			if (this.hasAttribute("open")) this.#position();
 		});
 
-		if (!this.#bindChildren()) return;
+		if (!this.#bindChildren()) {
+			retryWhileParsing(this, () => {
+				if (!this.#ready) this.connectedCallback();
+			});
+			return;
+		}
 
 		this.#panel.addEventListener("scroll", this.#onPanelScroll, { passive: true });
 		this.addEventListener("click", this.#onContentClick);
@@ -201,8 +207,8 @@ export class NeoPopover extends HTMLElement {
 		// scroll, which the rAF tracker can't distinguish from an outside one.
 		window.addEventListener("scroll", this.#onWindowScroll, true);
 		// iOS keyboard shrinks/translates the visual viewport without
-		// firing window resize/scroll, so a panel open across keyboard
-		// show/hide would clip behind it without these listeners.
+		// firing window resize/scroll. Without these listeners a panel open
+		// across keyboard show/hide would clip behind it.
 		window.visualViewport?.addEventListener("resize", this.reposition);
 		window.visualViewport?.addEventListener("scroll", this.reposition);
 
@@ -211,13 +217,13 @@ export class NeoPopover extends HTMLElement {
 		// subtree:true also catches morphs that update the content's
 		// *descendants* (same content element, new children); those
 		// changes resize the slotted panel, and without a synchronous
-		// reposition the panel paints one frame at old-top + new-size
+		// reposition the panel paints 1 frame at old-top + new-size
 		// before the ResizeObserver async callback re-anchors it.
 		this.#childObserver = new MutationObserver(this.#onChildMutation);
 		this.#childObserver.observe(this, { childList: true, subtree: true });
 
-		// Command `open` on connect: explicit open/close obey; absent
-		// keeps prior intent (persists across reconnect/morph).
+		// On connect, an explicit open/close command is obeyed; an absent
+		// one keeps prior intent (persists across reconnect/morph).
 		const cmd = openCommand(this);
 		if (cmd === "open") this.#openIntent = true;
 		else if (cmd === "close") this.#openIntent = false;
@@ -225,8 +231,8 @@ export class NeoPopover extends HTMLElement {
 		if (this.#openIntent) {
 			if (this.#firstConnect) this.#initialOpenPending = true;
 			// applyOpen would normally focus firstTabbable (e.g. the search
-			// input); noFocus skips that and the focused descendant is
-			// restored below for a morph re-attach.
+			// input); noFocus skips that and #restoreFocusedDescendant
+			// restores the focused descendant for a morph re-attach.
 			this.#applyOpen({ silent: true, noFocus: true });
 			this.#restoreFocusedDescendant();
 			this.#restoreContentScroll();
@@ -235,23 +241,24 @@ export class NeoPopover extends HTMLElement {
 				// layout that may not be settled, which can strand the panel
 				// at a stale rect with nothing to re-run it. Hide it (clear
 				// the positioned marker so the gating CSS keeps it invisible)
-				// and re-anchor next frame, so it appears once at the trigger.
+				// and re-anchor next frame so it appears once at the trigger.
 				delete this.#panel.dataset.neoPopoverPositioned;
 				this.#scheduleReposition();
 			} else {
-				// Morph re-attach of an already-open panel: layout is ready,
-				// so snap it back in place without replaying the entry
+				// Morph re-attach of an already-open panel. Layout is ready;
+				// snap it back in place without replaying the entry
 				// animation.
 				this.#suppressEntryAnimation();
 			}
+		} else {
+			// A close command left on the host would match `:host([open])`.
+			this.#reflectClose();
 		}
 		this.#firstConnect = false;
 	}
 
-	// Acquire/refresh trigger + content refs and rewire listeners on
-	// the live nodes.
 	// The host's direct child that contains `node` (or `node` itself when it
-	// is already a direct child): the element slot.assign() can project.
+	// is already a direct child), the element slot.assign() can project.
 	#slottable(node: HTMLElement): HTMLElement {
 		let el: HTMLElement = node;
 		while (el.parentElement && el.parentElement !== this) {
@@ -260,11 +267,13 @@ export class NeoPopover extends HTMLElement {
 		return el;
 	}
 
+	// Acquire/refresh trigger + content refs and rewire listeners on
+	// the live nodes.
 	#bindChildren(): boolean {
 		const newTrigger = this.querySelector<HTMLElement>("[data-neo-popover-trigger]");
 		const newContent = this.querySelector<HTMLElement>("[data-neo-popover-content]");
 		if (!newTrigger || !newContent) {
-			if (!this.#trigger || !this.#content) {
+			if ((!this.#trigger || !this.#content) && !stillParsing()) {
 				console.warn("<neo-popover> requires a [data-neo-popover-trigger] and [data-neo-popover-content] child.");
 			}
 			return false;
@@ -289,11 +298,11 @@ export class NeoPopover extends HTMLElement {
 			this.#content.addEventListener("mouseleave", this.#onContentMouseLeave);
 		}
 		// Project both into the shadow via manual slot assignment. slot.assign
-		// only accepts the host's direct children (slottables), so assign the
-		// top-level child that *contains* each: the trigger or content may be
-		// nested (e.g. a button inside a wrapping <neo-input-group>). Assigning
-		// a nested node is a silent no-op that would leave the wrapper
-		// unrendered (collapsed to 0×0).
+		// only accepts the host's direct children (slottables). Assign the
+		// top-level child that *contains* each, because the trigger or content
+		// may be nested (e.g. a button inside a wrapping <neo-input-group>).
+		// Assigning a nested node is a silent no-op that would leave the
+		// wrapper unrendered (collapsed to 0x0).
 		// Idempotent: slot.assign() with the same element is a no-op.
 		this.#defaultSlot.assign(this.#slottable(this.#trigger));
 		this.#contentSlot.assign(this.#slottable(this.#content));
@@ -301,8 +310,8 @@ export class NeoPopover extends HTMLElement {
 		// Observe the slotted content (light DOM) so a size change inside
 		// the panel (e.g. options arriving, content morphing), re-anchors
 		// the panel via position(). The panel itself doesn't need its own
-		// observer: its size is determined by its slotted content within
-		// the shadow CSS min/max constraints.
+		// observer, because its size is determined by its slotted content
+		// within the shadow CSS min/max constraints.
 		if (this.#resizeTarget !== this.#content) {
 			if (this.#resizeTarget) this.#resizeObserver?.unobserve(this.#resizeTarget);
 			this.#resizeTarget = this.#content;
@@ -310,7 +319,7 @@ export class NeoPopover extends HTMLElement {
 		}
 
 		// aria-controls points at the shadow panel (the actual dialog
-		// surface): it owns role="dialog" and tabindex/aria-modal, while
+		// surface), which owns role="dialog" and tabindex/aria-modal, while
 		// `content` is just a user-authored body slotted inside it.
 		if (!this.#panel.id) this.#panel.id = `neo-popover-${++nextId}`;
 		if (!this.#panel.hasAttribute("aria-modal")) {
@@ -415,7 +424,7 @@ export class NeoPopover extends HTMLElement {
 			// Absent: keep state; re-assert for `[open]` CSS, then
 			// reposition. The panel's inline top/left lives in shadow DOM
 			// so the morph can't strip it. But the trigger may have moved
-			// (other elements morphed around it), so re-run position().
+			// (other elements morphed around it); re-run position().
 			if (this.#openIntent) {
 				this.#reflectOpen();
 				this.#position();
@@ -433,7 +442,7 @@ export class NeoPopover extends HTMLElement {
 		}
 	}
 
-	// State → attribute, guarded so it isn't read back as a command.
+	// State -> attribute, guarded so it isn't read back as a command.
 	#reflectOpen(): void {
 		if (!this.hasAttribute("open")) {
 			this.#reflectingOpen = true;
@@ -483,7 +492,7 @@ export class NeoPopover extends HTMLElement {
 		});
 	}
 
-	// Drop the panel's transition for one frame so a recovery rebuild
+	// Drop the panel's transition for 1 frame so a recovery rebuild
 	// snaps in place; restore so real open/close still animate.
 	#suppressEntryAnimation(): void {
 		const panel = this.#panel;
@@ -494,11 +503,11 @@ export class NeoPopover extends HTMLElement {
 	}
 
 	// childObserver callback: a fat morph re-emitted trigger/content,
-	// OR a subtree morph just changed the content's descendants.
+	// or a subtree morph just changed the content's descendants.
 	// Re-acquire refs and silently re-establish the panel (no
 	// neo-popover-open re-fire). Subtree mutations that don't swap
 	// trigger/content still need an immediate position() pass; the
-	// ResizeObserver-based path runs one frame late and leaves the
+	// ResizeObserver-based path runs 1 frame late and leaves the
 	// panel painted at the old anchor with the new size for that frame.
 	#onChildMutation = () => {
 		const prevTrigger = this.#trigger;
@@ -513,7 +522,7 @@ export class NeoPopover extends HTMLElement {
 		}
 		if (this.hasAttribute("open")) this.#position();
 		if (refsChanged) {
-			// Only restore if the morph actually yanked focus out of
+			// Only restore if the morph actually moved focus out of
 			// content. Hosts may restore in a later microtask and supersede
 			// this.
 			if (this.#content && !this.#content.contains(deepActiveElement())) {
@@ -544,7 +553,7 @@ export class NeoPopover extends HTMLElement {
 		if (!this.#openIntent) this.#applyOpen();
 	}
 
-	// Open silently: a fat-morph rebuild mustn't re-fire load actions
+	// Open silently. A fat-morph rebuild mustn't re-fire load actions
 	// wired to neo-popover-open.
 	silentShow(): void {
 		if (!this.#openIntent) this.#applyOpen({ silent: true });
@@ -569,12 +578,12 @@ export class NeoPopover extends HTMLElement {
 		const finishOpen = () => {
 			if (!this.#openIntent || !this.#trigger || !this.#content) return;
 			if (!wasOpen || this.#triggerTrackingFrame === null) this.#startTriggerTracking();
-			// noFocus (hover-open): skipping focus avoids spurious :focus-visible
-			// on the panel: programmatic focus reads as keyboard-driven until a
-			// real click resets the heuristic.
+			// noFocus (hover-open) skips focus to avoid spurious :focus-visible
+			// on the panel, because programmatic focus reads as keyboard-driven
+			// until a real click resets the heuristic.
 			if (!opts.noFocus) {
-				// preventScroll under silent: a morph-driven restore mustn't yank
-				// the viewport.
+				// preventScroll under silent, because a morph-triggered restore
+				// mustn't scroll the viewport.
 				const target = this.#firstTabbable() ?? this.#content;
 				target.focus({ preventScroll: !!opts.silent });
 			}
@@ -640,7 +649,7 @@ export class NeoPopover extends HTMLElement {
 			return;
 		}
 		// `trigger-action` overrides default toggle. "show" is the
-		// submenu pattern: hover may have already opened it, and a
+		// submenu pattern, where hover may have already opened it and a
 		// click shouldn't close it.
 		const action = this.getAttribute("trigger-action");
 		if (action === "show") this.show();
@@ -650,8 +659,8 @@ export class NeoPopover extends HTMLElement {
 
 	// Hover: mouse only; touch fires synthetic mouseenter on tap and
 	// the companion click would then toggle closed. hover-* attrs are
-	// read live in handlers, so runtime toggling takes effect on the
-	// next pointer event without re-binding.
+	// read live in handlers; runtime toggling takes effect on the next
+	// pointer event without re-binding.
 	#onTriggerMouseEnter = () => {
 		if (!boolAttr(this, "hover", false)) return;
 		this.#scheduleHoverOpen();
@@ -664,7 +673,7 @@ export class NeoPopover extends HTMLElement {
 
 	#onContentMouseEnter = () => {
 		if (!boolAttr(this, "hover", false)) return;
-		// Cancel any pending close: pointer made it to the panel.
+		// Pointer made it to the panel. Cancel any pending close.
 		if (this.#hoverCloseTimer !== null) {
 			clearTimeout(this.#hoverCloseTimer);
 			this.#hoverCloseTimer = null;
@@ -746,15 +755,15 @@ export class NeoPopover extends HTMLElement {
 		// synchronous focus/pointer side effect doesn't dismiss state the
 		// host is about to re-establish on rebuild.
 		if (!this.isConnected) return;
-		// Inside interactions: the trigger and the shadow panel that hosts
+		// Inside interactions are the trigger and the shadow panel that hosts
 		// the slotted content. Checking the panel (not just content) also
-		// covers the panel surface itself: a text-selection drag or a press
-		// on the panel padding focuses the tabindex="-1" panel, which must
-		// not read as an outside dismiss. Other light-DOM descendants (an
+		// covers the panel surface itself, because a text-selection drag or a
+		// press on the panel padding focuses the tabindex="-1" panel, which
+		// must not read as an outside dismiss. Other light-DOM descendants (an
 		// input-group sibling sharing the trigger's wrapper) still dismiss.
 		if ((this.#trigger && eventEnters(e, this.#trigger)) || eventEnters(e, this.#panel)) return;
 		// Scoped light-dismiss: inside a <neo-boundary>, ignore presses
-		// outside it (e.g. surrounding UI driving the popover).
+		// outside it (e.g. surrounding UI controlling the popover).
 		const boundary = scopingBoundary(this, "dismiss");
 		if (boundary && !eventEnters(e, boundary)) return;
 		this.hide();
@@ -785,8 +794,8 @@ export class NeoPopover extends HTMLElement {
 		this.hide();
 	};
 
-	// Overflow lives on the shadow panel, so scroll fires on the panel,
-	// not on the user's content div.
+	// Overflow lives on the shadow panel. Scroll fires on the panel, not
+	// on the user's content div.
 	#onPanelScroll = () => {
 		this.#lastContentScrollTop = this.#panel.scrollTop;
 	};
@@ -825,9 +834,9 @@ export class NeoPopover extends HTMLElement {
 				// onWindowScroll because the rAF can't tell what moved the trigger.
 				const scopedScroll = !!scopingBoundary(this, "scroll");
 				if (followMode === "off" && !scopedScroll) {
-					// Skip the dismiss when focus is inside the panel: iOS lifts
-					// the focused input above the virtual keyboard via window
-					// scroll, and dismissing would collapse the keyboard.
+					// Skip the dismiss when focus is inside the panel, because iOS
+					// lifts the focused input above the virtual keyboard via
+					// window scroll, and dismissing would collapse the keyboard.
 					if (this.#content?.contains(document.activeElement)) {
 						this.#position();
 					} else {
@@ -861,9 +870,9 @@ export class NeoPopover extends HTMLElement {
 
 	// A scroll inside a scoped <neo-boundary> dismisses the panel, matching
 	// <neo-select>/<neo-combobox>. The rAF tracker follows the trigger on any
-	// movement; here we override only the case it can't see: the region's own
-	// scroll is a real scroll, so close. Outside-boundary scrolls (and the
-	// no-boundary case) are left to the tracker.
+	// movement; this handler covers only the case it can't see. The region's
+	// own scroll is a real scroll and closes the panel. Outside-boundary
+	// scrolls (and the no-boundary case) are left to the tracker.
 	#onWindowScroll = (e: Event) => {
 		if (!this.#openIntent || !this.#trigger) return;
 		// follow-scroll modes reposition on any scroll; the tracker handles them.
@@ -937,13 +946,13 @@ export class NeoPopover extends HTMLElement {
 	#measurePosition(opts: { ignorePositioningBoundary?: boolean } = {}): PositionResult {
 		const placement = (this.getAttribute("placement") as Placement | null) ?? "bottom-start";
 		// CSS max-height/max-width already clamp to viewport minus
-		// 2×edgeOffset, so positionPanel measures the rendered size.
+		// 2*edgeOffset; positionPanel measures the rendered size.
 		const edgeOffset = resolveCssLengthPx(this, "--neo-popover-screen-offset");
 		const minFitHeight = resolveCssLengthPxOrContent(this, "--neo-popover-min-fit-height", "content");
 		const minFitWidth = resolveCssLengthPxOrContent(this, "--neo-popover-min-fit-width", "content");
 		const minOpenHeight = resolveOptionalCssLengthPx(this, "--neo-popover-min-open-height");
 		const minOpenWidth = resolveOptionalCssLengthPx(this, "--neo-popover-min-open-width");
-		// --neo-popover-max-height isn't a kit token, so pass only the
+		// --neo-popover-max-height isn't a kit token; pass only the
 		// width cap. resolveCssLengthPx returns the fallback if a var is
 		// unset; --neo-popover-max-width is :root-defined (22rem) so this
 		// always reflects the resolved cap, host-overridden or default.
@@ -972,7 +981,7 @@ export class NeoPopover extends HTMLElement {
 		const effectivePlacement = result.placement;
 		this.dataset.neoPopoverPlacement = effectivePlacement;
 		this.#panel.dataset.neoPopoverPlacement = effectivePlacement;
-		// Gate the panel's visibility CSS in the shadow stylesheet: until
+		// Gate the panel's visibility CSS in the shadow stylesheet. Until
 		// the first position() writes inline top/left, the
 		// :not([data-neo-popover-positioned]) rule keeps the panel
 		// visibility: hidden so the CSS-default 0,0 corner never paints.

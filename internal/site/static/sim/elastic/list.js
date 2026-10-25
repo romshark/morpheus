@@ -1,8 +1,8 @@
 // Server handler for the "Growing list" example. Reads the current
 // `$elastic_count` signal, clamps the new value to [0, 8], and emits
-// both the updated signal and a morph patch for the `<ul>` body. Real
-// production would do the same: tweak server state, send the new
-// signal value and the re-rendered HTML fragment.
+// both the updated signal and a morph patch for the `<ul>` body.
+// A production server does the same. It updates its state,
+// then sends the new signal value and the re-rendered HTML fragment.
 
 import sim from "/static/datasim.js";
 

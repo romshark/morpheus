@@ -1,18 +1,15 @@
-/* -----------------------------------------------------------------------
- * <neo-slider>: global (light-DOM) half
- * -----------------------------------------------------------------------
- * The painted slider (header, track, fill, thumb, marks) lives in the
- * host's SHADOW root, styled by the adopted neo-slider.css. This file holds
- * only what must resolve OUTSIDE the shadow:
+/* The painted slider (header, track, fill, thumb, marks) lives in the
+ * host's shadow root, styled by the adopted neo-slider.css. This file holds
+ * only what must resolve outside the shadow:
  *
  *   - the shared `--neo-slider-*` token defaults the shadow rules read.
  *     These inherit across the boundary into every host's shadow tree and
- *     are also consumed by <neo-progress> and <neo-slider-range>, so this
- *     file stays globally imported even though the structural neo-slider.css
- *     is shadow-only.
- *   - the manual `data-pref-contrast-more` hook below.
+ *     are also consumed by <neo-progress> and <neo-slider-range>. This
+ *     file therefore stays globally imported even though the structural
+ *     neo-slider.css is shadow-only.
+ *   - the manual `:root[data-pref-contrast-more]` hook.
  *
- * First paint needs nothing here: before upgrade the host matches
+ * First paint needs nothing here. Before upgrade the host matches
  * `neo-slider:not(:defined)` (a skeleton placeholder in style.css); after
  * upgrade the adopted `:host` rules take over. */
 
@@ -58,8 +55,8 @@
 }
 
 /* Manual contrast toggle. The slider's anchors/track live in the shadow,
- * so the descendant `:root[data-pref-contrast-more] neo-slider > …` form
- * can't reach them. Override the tokens instead; they inherit into the
+ * where the descendant `:root[data-pref-contrast-more] neo-slider > ...`
+ * form can't reach them. Override the tokens instead; they inherit into the
  * shadow, where the structural rules already read them. Mirrors the OS
  * `@media (prefers-contrast: more) :host` block in neo-slider.css and
  * covers <neo-slider-range>, which shares the same tokens. */

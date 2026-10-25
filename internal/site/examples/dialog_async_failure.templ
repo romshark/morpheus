@@ -20,7 +20,7 @@ templ DialogAsyncFailure() {
 	}
 }
 
-// Wrapped in [data-neo-async-placeholder] by DialogAsync so the
+// Wrapped in [data-neo-async-placeholder] by [datastar.DialogAsync] so the
 // dialog restores it after close and before retry/reopen.
 templ dialogAsyncFailureLoading() {
 	<neo-skeleton class="dialog-async-failure-title"></neo-skeleton>
@@ -31,7 +31,7 @@ templ dialogAsyncFailureLoading() {
 
 // Swapped into <div id="<ID>-body"> once Datastar fires
 // retries-failed. The retry button carries
-// [data-neo-popover-async-retry] so DialogAsync re-fires the
+// [data-neo-popover-async-retry] so [datastar.DialogAsync] re-fires the
 // @post action when clicked.
 templ dialogAsyncFailureFailed() {
 	<div class="popover-async-loading popover-async-failed" role="alert">

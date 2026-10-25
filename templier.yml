@@ -6,14 +6,20 @@ format: true
 tls:
 
 # Skip pnpm's isolated `web/node_modules` tree. Without this, templier's
-# startup walk follows platform-binary directory symlinks (e.g.
-# @biomejs/cli-darwin-arm64) into os.Open → directory → io.Copy EISDIR
+# startup walk follows platform-binary directory symlinks
+# (e.g. @biomejs/cli-darwin-arm64) into os.Open -> directory -> io.Copy EISDIR
 # and crashes with "registering files from base dir: copying to xxhash:
 # is a directory". doublestar's trailing `/**` matches zero-or-more
-# segments including the preceding separator, so this one pattern
-# covers both the directory itself and every descendant.
+# segments including the preceding separator, which lets this single
+# pattern cover both the directory itself and every descendant.
 watcher-ignore:
   - "**/node_modules/**"
+  # fsnotify v1.10.1's kqueue backend can emit a Create event named "." after
+  # a watched directory is deleted with its files, as when git gc packs
+  # .git/objects/xx/. templier then exits with "can't make . relative".
+  # Nothing reads events from .git/ or the dst/ output.
+  - ".git/**"
+  - "dst/**"
 
 log:
   level: erronly
@@ -27,12 +33,11 @@ app:
   host: http://0.0.0.0:8080
   flags: "-addr 0.0.0.0:8080"
   exclude:
-    # fileserve has no embedded state — it just hands out dst/ off
-    # disk. Nothing in this repo should ever cause templier to
-    # rebuild and restart it. Excluding everything keeps the binary
-    # lifecycle to a single boot at templier startup; the custom
-    # watchers below run their own pipeline (lint, bundle, minify,
-    # render) and the browser is reloaded via `requires: reload`,
+    # fileserve has no embedded state and only serves dst/ from disk.
+    # Nothing in this repo should ever cause templier to rebuild and restart it.
+    # Excluding everything keeps the binary lifecycle to a single boot at
+    # templier startup; the custom watchers run their own pipeline
+    # (lint, bundle, minify, render) and the browser is reloaded via `requires: reload`,
     # not via a server restart. If you ever do edit
     # internal/cmd/fileserve/main.go, kill templier and re-run `make watch`.
     - "**/*"
@@ -71,7 +76,7 @@ custom-watchers:
 
   # Watches the unminified CSS sources at the top of internal/site/static/.
   # The minified outputs land in /min/ at the repo root, matched by the
-  # Render watcher's "min/**/*" include below — no feedback loop because
+  # Render watcher's "min/**/*" include. There is no feedback loop because
   # this watcher's include only matches the sources.
   - name: "Minify CSS (esbuild)"
     cmd: "cd web && pnpm run build -- --css"
@@ -85,12 +90,12 @@ custom-watchers:
 
   # Catch-all renderer. Includes internal/site/**/*.go so regenerated
   # _templ.go files (written by the background `templ generate --watch`)
-  # drive the rebuild; min/**/* picks up the minified CSS+JS outputs
-  # written by the bundle/minify watchers above; excludes the
+  # trigger the rebuild; min/**/* picks up the minified CSS+JS outputs
+  # written by the bundle/minify watchers; excludes the
   # unminified CSS sources under static/ so the cascade comes from
   # /min/*.css. examples/**/*.css are the per-example stylesheets
   # embedded raw into internal/site via //go:embed; gen re-reads them on
-  # recompile, so a re-render is the whole rebuild (no bundle step).
+  # recompile, which makes a re-render the whole rebuild (no bundle step).
   - name: "Render static site (internal/cmd/gen)"
     cmd: "go run ./internal/cmd/gen -dst dst"
     include:
@@ -101,6 +106,7 @@ custom-watchers:
       - "min/**/*"
       - "internal/cmd/gen/**/*.go"
       - "internal/cmd/gen/datasim.js"
+      - "internal/bundle/**/*.go"
       - "internal/href/**/*.go"
       - "neo/**/*.go"
       - "datastar/**/*.go"

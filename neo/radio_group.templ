@@ -4,7 +4,7 @@ type RadioGroupOpts struct {
 	// Value seeds the initially-checked radio's value.
 	Value Attr[string]
 	// Orientation is "" (vertical, default) or "horizontal". A display
-	// attribute: it sets the flex direction only. Arrow keys navigate on
+	// attribute that sets the flex direction only. Arrow keys navigate on
 	// either axis regardless.
 	Orientation Attr[Axis]
 	// Disabled disables every nested radio (per-radio disabled is
@@ -19,9 +19,8 @@ type RadioGroupOpts struct {
 }
 
 // RadioGroup renders <neo-radio-group> with `<neo-radio>` children
-// (use [Radio]). The host owns selection, keyboard nav, and
-// roving-tabindex; each radio is a marker the group reads `value` and
-// `disabled` from.
+// (use [Radio]). The host owns selection, keyboard nav, and roving-tabindex;
+// each radio is a marker the group reads `value` and `disabled` from.
 templ RadioGroup(opts RadioGroupOpts) {
 	@RadioGroupAttrs(opts, nil) {
 		{ children... }
@@ -43,15 +42,14 @@ templ RadioGroupAttrs(opts RadioGroupOpts, attrs templ.Attributes) {
 }
 
 type RadioOpts struct {
-	// Value is the option's identity (matched against the group's
-	// value).
+	// Value is the option's identity (matched against the group's value).
 	Value Attr[string]
 	// Disabled marks the option non-selectable; arrow nav skips it.
 	Disabled Attr[bool]
 }
 
-// Radio renders <neo-radio>, used as a child of [RadioGroup]. Wrap
-// the radio + label in a <label> so clicking the label activates the
+// Radio renders <neo-radio>, used as a child of [RadioGroup].
+// Wrap the radio + label in a <label> so clicking the label activates the
 // radio (same wrapping-label pattern as <neo-checkbox> / <neo-switch>).
 templ Radio(opts RadioOpts) {
 	@RadioAttrs(opts, nil) {

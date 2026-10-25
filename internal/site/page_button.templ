@@ -34,7 +34,7 @@ templ PageButton(morpheusVersion string) {
 				Variants & states
 			}
 			<p class="demo-note">
-				The six built-in <code>variant</code> values
+				The 6 built-in <code>variant</code> values
 				(<code>default</code>, <code>primary</code>,
 				<code>secondary</code>, <code>ghost</code>,
 				<code>danger</code>, <code>anchor</code>), the
@@ -69,8 +69,7 @@ templ PageButton(morpheusVersion string) {
 
 templ buttonValueDesc() {
 	Selection value inside a&nbsp;
-	@ComponentLink("neo-buttongroup", href.PageButtonGroup())
-	.
+	@ComponentLink("neo-buttongroup", href.PageButtonGroup())&period;
 }
 
 var buttonDoc = ComponentDoc{
@@ -80,7 +79,7 @@ var buttonDoc = ComponentDoc{
 		{Name: "disabled", Type: "boolean", Default: "false", Observed: true,
 			Description: templ.Raw("Removes the host from the tab order and swallows clicks.")},
 		{Name: "size", Type: `"sm" | "lg"`,
-			Description: templ.Raw("Control-size step: <code>sm</code> compact, <code>lg</code> large. Omit for the default size.")},
+			Description: templ.Raw("Control-size step, <code>sm</code> compact or <code>lg</code> large. Omit for the default size.")},
 		{Name: "value", Type: "string", Description: buttonValueDesc()},
 	},
 	Events: []DocEvent{

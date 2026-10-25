@@ -1,9 +1,6 @@
-/* -----------------------------------------------------------------------
- * <neo-alert>
- * -----------------------------------------------------------------------
- * CSS-only callout surface for status, warning, and error messages.
+/* CSS-only callout surface for status, warning, and error messages.
  * Markers keep the layout predictable while leaving the light-DOM
- * content fully author-owned. Variant tokens are intentionally exposed
+ * content author-owned. Variant tokens are intentionally exposed
  * so themes can tune each alert tone without changing markup.
  */
 

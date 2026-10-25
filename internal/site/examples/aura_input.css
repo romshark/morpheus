@@ -1,0 +1,10 @@
+.aura-input {
+	--neo-aura-gradient: conic-gradient(
+		in oklch longer hue,
+		transparent 15%,
+		oklch(0.8 0.15 0) 35%,
+		oklch(0.8 0.15 360) 80%,
+		transparent
+	);
+	width: min(100%, 28rem);
+}

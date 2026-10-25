@@ -1,10 +1,7 @@
-/* -----------------------------------------------------------------------
- * <neo-buttongroup>
- * -----------------------------------------------------------------------
- * Joins its buttons into a single segmented pill by overlapping their
- * 1px borders and re-rounding only the outermost corners. With `value`
- * on the host plus `value` on each button it becomes a radiogroup; the
- * selected button uses the primary-button colors. */
+/* <neo-buttongroup> joins its buttons into a single segmented pill by
+ * overlapping their 1px borders and re-rounding only the outermost corners.
+ * With `value` on the host plus `value` on each button it becomes a
+ * radiogroup; the selected button uses the primary-button colors. */
 
 neo-buttongroup {
 	display: inline-flex;
@@ -26,12 +23,13 @@ neo-buttongroup > * + * {
 }
 
 /* Primary's default `border-color: transparent` would leave no
- * divider on its right edge, so anchor it to its own bg. */
+ * divider on its right edge. Set it to its own bg. */
 neo-buttongroup > neo-button[variant="primary"] {
 	border-color: var(--neo-button-primary-bg);
 }
 
-neo-buttongroup > neo-button[variant="primary"]:hover {
+neo-buttongroup
+	> neo-button[variant="primary"]:hover:where(:not([disabled]:not([disabled="false"]), [aria-disabled="true"])) {
 	border-color: var(--neo-button-primary-hover-bg);
 }
 
@@ -64,7 +62,8 @@ neo-buttongroup > neo-button[aria-checked="true"] {
 	z-index: 2;
 }
 
-neo-buttongroup[value] > neo-button[aria-checked="true"]:hover {
+neo-buttongroup[value]
+	> neo-button[aria-checked="true"]:hover:where(:not([disabled]:not([disabled="false"]), [aria-disabled="true"])) {
 	background: var(--neo-button-primary-hover-bg);
 	color: var(--neo-button-primary-color);
 	border-color: var(--neo-button-border-color);
@@ -72,7 +71,8 @@ neo-buttongroup[value] > neo-button[aria-checked="true"]:hover {
 	transform: translateY(0);
 }
 
-neo-buttongroup[value] > neo-button[aria-checked="true"]:active {
+neo-buttongroup[value]
+	> neo-button[aria-checked="true"]:active:where(:not([disabled]:not([disabled="false"]), [aria-disabled="true"])) {
 	background: var(--neo-button-primary-active-bg);
 	color: var(--neo-button-primary-color);
 	border-color: var(--neo-button-border-color);
@@ -80,7 +80,8 @@ neo-buttongroup[value] > neo-button[aria-checked="true"]:active {
 	transform: translateY(0);
 }
 
-/* Vertical orientation: stack, reset left-radius rules, apply top/bottom. */
+/* Vertical orientation stacks, resets the left-radius rules and applies
+ * top/bottom ones. */
 neo-buttongroup[orientation="vertical"] {
 	flex-direction: column;
 }
@@ -106,7 +107,7 @@ neo-buttongroup[orientation="vertical"] > neo-button:only-child {
 	border-radius: var(--neo-button-radius);
 }
 
-/* High contrast: thicken to a 2px edge with box-shadow, never a wider
+/* In high contrast, thicken to a 2px edge with box-shadow, never a wider
  * border. A wider border reflows on toggle. An outset ring on the host
  * doubles the outer frame; an inset shadow on each non-last segment
  * doubles the shared divider. Both are layout-free. */

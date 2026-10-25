@@ -1,4 +1,4 @@
-// Server handler waits one second so the [data-neo-async-placeholder] slot stays
+// Server handler waits 1 second so the [data-neo-async-placeholder] slot stays
 // visible, then streams a fixed options fragment into the listbox.
 
 import sim from "/static/datasim.js";

@@ -1,5 +1,5 @@
-// Shared positioning helpers for <neo-popover> and <neo-tooltip>:
-// anchor a fixed-position panel to a trigger and clamp to the viewport.
+// Shared positioning helpers for <neo-popover> and <neo-tooltip>.
+// They anchor a fixed-position panel to a trigger and clamp it to the viewport.
 
 import { boolAttr } from "./command";
 import { boundaryRect, scopingBoundary } from "./shadow-utils";
@@ -44,8 +44,8 @@ export function applyOpenSizeDuringScroll(panel: HTMLElement, result: PositionRe
 	}
 }
 
-// Cached: an engine trait, not runtime state. null until first probed under a
-// non-zero visual-viewport offset, the only time the frames are distinguishable.
+// Cached because it is an engine trait, not runtime state. null until first probed
+// under a non-zero visual-viewport offset, the only time the frames are distinguishable.
 let rectFrameIsVisual: boolean | null = null;
 
 // position:fixed is layout-viewport-relative, but iOS Safari's
@@ -81,14 +81,14 @@ interface PositionOptions {
 	ignorePositioningBoundary?: boolean;
 	/** Keep the configured primary side even when the opposite side has more room. */
 	noFlip?: boolean;
-	/** Auto-flip threshold (px) on the primary axis: when the configured
+	/** Auto-flip threshold (px) on the primary axis. When the configured
 	 *  slot is shorter, flip if the opposite side has more room. */
 	minFitHeight?: MinFitValue;
 	/** Same as minFitHeight for the width axis. */
 	minFitWidth?: MinFitValue;
 	/** Caps (px) applied to the inline max-* in strict placement. Without
 	 *  these the slot-sized inline overrides the CSS rule's
-	 *  `min(var(--…-max-width), …)` so a host-set cap has no effect. */
+	 *  `min(var(--...-max-width), ...)` so a host-set cap has no effect. */
 	maxWidth?: number;
 	maxHeight?: number;
 	/** Minimum usable slot before callers should close instead. */
@@ -101,13 +101,12 @@ interface PositionOptions {
  * already have `position: fixed`; this writes inline `top` / `left`.
  *
  * Strict (default): inline `max-width` / `max-height` get the slot
- * between trigger and viewport (less `edgeOffset`), so overflow
+ * between trigger and viewport (less `edgeOffset`). Overflow then
  * scrolls inside the panel. `minFit*` flips the primary axis when
- * the configured slot is too short and the opposite side has more
- * room; `"content"` resolves from the panel's scroll size each pass.
+ * the configured slot is too short and the opposite side has more room;
+ * `"content"` resolves from the panel's scroll size each pass.
  *
- * Clamp: re-anchor inside the viewport, inline max-* cleared,
- * auto-flip skipped.
+ * Clamp: re-anchor inside the viewport, inline max-* cleared, auto-flip skipped.
  */
 export function positionPanel(
 	anchor: HTMLElement,
@@ -141,8 +140,9 @@ export function positionPanelResult(
 	const minFitHeight = resolveMinFit(opts.minFitHeight, contentSize?.height);
 	const minFitWidth = resolveMinFit(opts.minFitWidth, contentSize?.width);
 
-	// vw/vh from the visual viewport: iOS shrinks it for the keyboard without
-	// resizing the layout viewport, so the panel sizes to fit clear of it.
+	// vw/vh come from the visual viewport because iOS shrinks it for the keyboard
+	// without resizing the layout viewport. The panel then sizes to fit clear of
+	// the keyboard.
 	const visualViewport = window.visualViewport;
 	const vw = visualViewport?.width ?? document.documentElement.clientWidth;
 	const vh = visualViewport?.height ?? document.documentElement.clientHeight;
@@ -153,7 +153,7 @@ export function positionPanelResult(
 	// Containment window in visual-viewport coords. Defaults to the whole
 	// viewport; a <neo-boundary> ancestor of the anchor that scopes
 	// positioning shrinks it to the intersection of the viewport and the
-	// boundary's rect, so the flip/clamp/max-size math below keeps the panel
+	// boundary's rect. The flip, clamp and max-size math then keeps the panel
 	// inside the region instead of inside the viewport.
 	let wL = 0;
 	let wT = 0;
@@ -168,7 +168,7 @@ export function positionPanelResult(
 		wT = Math.max(0, bRect.top);
 		wR = Math.min(vw, bRect.right);
 		wB = Math.min(vh, bRect.bottom);
-		// Off-screen or inverted boundary: ignore it, keep the viewport.
+		// Ignore an off-screen or inverted boundary and keep the viewport.
 		if (wR <= wL || wB <= wT) {
 			wL = 0;
 			wT = 0;
@@ -177,9 +177,8 @@ export function positionPanelResult(
 		}
 	}
 
-	// Auto-flip: if strict placement's slot is below the requested
-	// minimum on the primary axis, try the opposite side. Skipped when
-	// clamping (clamp re-anchors anyway).
+	// Auto-flip to the opposite side if strict placement's slot is below the requested
+	// minimum on the primary axis. Skipped when clamping (clamp re-anchors anyway).
 	let effectivePlacement = placement;
 	if (!clamp && !opts.noFlip && (minFitHeight > 0 || minFitWidth > 0)) {
 		const [w0, h0] = strictMaxSize(t, placement, edgeOffset, triggerGap, wL, wT, wR, wB);
@@ -194,16 +193,14 @@ export function positionPanelResult(
 	}
 
 	let { top, left } = placementCoords(t, c, effectivePlacement, triggerGap);
-	// strictMaxSize below must size against the chosen (possibly
-	// flipped) side.
+	// strictMaxSize must size against the chosen (possibly flipped) side.
 	placement = effectivePlacement;
 	let availableWidth: number;
 	let availableHeight: number;
 
 	if (clamp) {
 		// Reset any inline caps left over from a previous strict pass and
-		// re-anchor the position to keep the rendered box inside the
-		// viewport.
+		// re-anchor the position to keep the rendered box inside the viewport.
 		panel.style.maxWidth = "";
 		panel.style.maxHeight = "";
 		availableWidth = Math.max(0, wR - wL - edgeOffset * 2);
@@ -229,11 +226,11 @@ export function positionPanelResult(
 
 	// A transformed ancestor (transform/filter/contain:paint/perspective/
 	// will-change, e.g. <neo-sidebar>'s translateX) becomes the fixed
-	// containing block, so inline top/left are relative to it.
+	// containing block. Inline top/left are then relative to it.
 	const cb = panel.offsetParent;
 	if (cb instanceof HTMLElement) {
 		// Containing block is the padding edge; getBoundingClientRect
-		// returns the border edge, so add clientLeft/Top to bridge.
+		// returns the border edge. Adding clientLeft/Top bridges the gap.
 		const cbRect = cb.getBoundingClientRect();
 		left -= cbRect.left + cb.clientLeft;
 		top -= cbRect.top + cb.clientTop;
@@ -269,8 +266,8 @@ function clampToWindow(value: number, size: number, edgeOffset: number, wMin: nu
 }
 
 /** Compute the inline top/left for a given placement using the
- *  trigger and panel boxes. Pure function: no clamping, no max-*
- *  side-effects. */
+ *  trigger and panel boxes. Pure function without clamping or max-*
+ *  side effects. */
 function placementCoords(
 	t: DOMRect,
 	c: DOMRect,
@@ -332,8 +329,8 @@ function placementCoords(
 	return { top, left };
 }
 
-/** Flip the primary axis of a placement: bottom↔top, left↔right.
- *  Cross-axis suffix (-start, -end, or none) is preserved. */
+/** Flip the primary axis of a placement (bottom<->top, left<->right),
+ *  keeping the cross-axis suffix (-start, -end or none). */
 function flipPrimaryAxis(p: Placement): Placement {
 	if (p.startsWith("bottom")) {
 		return p.replace("bottom", "top") as Placement;
@@ -399,8 +396,8 @@ export interface CssLengthSpec {
 }
 
 /** Resolves CSS custom properties on `host` (or inherited) to pixels via
- *  throwaway probes: one probe subtree and one forced layout for the whole
- *  list, instead of an append/measure/remove reflow per property. Accepts
+ *  throwaway probes. Uses 1 probe subtree and 1 forced layout for the whole
+ *  list instead of an append/measure/remove reflow per property. Accepts
  *  any CSS length (rem, vh, calc(), etc.). */
 export function resolveCssLengthsPx(host: HTMLElement, specs: CssLengthSpec[]): (number | "content")[] {
 	let styles: CSSStyleDeclaration | null = null;
@@ -450,11 +447,12 @@ export const POPOVER_ATTRS = [
 	"min-open-width",
 ] as const;
 
-// Single source of popover anchoring: place fixed-position `panel`
+// Single source of popover anchoring. Places fixed-position `panel`
 // against `anchor`, reading the shared placement / --neo-popover-* /
 // clamp / min-fit inputs every popover-bearing kit element honors. Sizes
-// the panel to the anchor width and returns the effective placement, so
-// <neo-select>, <neo-combobox>, and <neo-textinput> stay pixel-identical.
+// the panel to the anchor width and returns the effective placement.
+// <neo-select>, <neo-combobox> and <neo-textinput> all anchor through it,
+// which keeps them pixel-identical.
 export function anchorPopover(host: HTMLElement, anchor: HTMLElement, panel: HTMLElement): Placement {
 	return anchorPopoverResult(host, anchor, panel).placement;
 }
@@ -466,7 +464,7 @@ export function anchorPopoverResult(
 	opts: { ignorePositioningBoundary?: boolean } = {},
 ): PositionResult {
 	const placement = (host.getAttribute("placement") as Placement | null) ?? "bottom-start";
-	// `screen-offset` attr mirrors into the CSS var so either drives it.
+	// `screen-offset` attr mirrors into the CSS var so that either one sets it.
 	const screenOffset = host.getAttribute("screen-offset");
 	if (screenOffset) host.style.setProperty("--neo-popover-screen-offset", screenOffset);
 	const minFitHeightAttr = host.getAttribute("min-fit-height");
@@ -477,8 +475,8 @@ export function anchorPopoverResult(
 	if (minOpenHeightAttr !== null) host.style.setProperty("--neo-popover-min-open-height", minOpenHeightAttr);
 	const minOpenWidthAttr = host.getAttribute("min-open-width");
 	if (minOpenWidthAttr !== null) host.style.setProperty("--neo-popover-min-open-width", minOpenWidthAttr);
-	// One batched probe pass: position() runs per scroll frame in
-	// follow-scroll mode, and each separate resolve forces its own layout.
+	// One batched probe pass, because position() runs per scroll frame in
+	// follow-scroll mode and each separate resolve forces its own layout.
 	const lengths = resolveCssLengthsPx(host, [
 		{ varName: "--neo-popover-screen-offset", fallback: "8px" },
 		{ varName: "--neo-popover-min-fit-height", fallback: "content", content: true },
@@ -493,8 +491,8 @@ export function anchorPopoverResult(
 	const minOpenWidth = lengths[4] as number;
 	panel.style.boxSizing = "border-box";
 	// popover-fit-content sizes to its own content (CSS width:max-content,
-	// capped by max-width); an inline trigger width here would floor it, so
-	// leave width unset. Every other popover matches the trigger width.
+	// capped by max-width), and an inline trigger width would floor it.
+	// Every other popover matches the trigger width.
 	panel.style.width = boolAttr(host, "popover-fit-content", false) ? "" : `${anchor.getBoundingClientRect().width}px`;
 	return positionPanelResult(anchor, panel, placement, edgeOffset, 8, {
 		clamp: boolAttr(host, "clamp-placement", false),
@@ -522,7 +520,7 @@ function panelContentSize(panel: HTMLElement): { width: number; height: number }
 
 	// <neo-elastic> inside a closed popover starts at wrapper height 0
 	// and animates open. Measure its target content; otherwise placement
-	// chosen from the in-flight wrapper size flips one frame later when
+	// chosen from the in-flight wrapper size flips 1 frame later when
 	// ResizeObserver catches up.
 	for (const elastic of panel.querySelectorAll<HTMLElement>("neo-elastic")) {
 		const inner = elastic.querySelector<HTMLElement>(":scope > [data-neo-elastic-content]");

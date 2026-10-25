@@ -1,9 +1,6 @@
-/* -----------------------------------------------------------------------
- * <neo-textarea>
- * -----------------------------------------------------------------------
- * The field lives in the component's shadow root and is styled there (see
- * neo-textarea.ts). Only the shared `--neo-textarea-*` design tokens stay
- * here in the light DOM; they pierce the shadow boundary and are also
+/* The field lives in the component's shadow root and is styled there
+ * (see neo-textarea.ts). Only the shared `--neo-textarea-*` design tokens
+ * stay here in the light DOM; they pierce the shadow boundary and are also
  * consumed by <neo-textinput> and bare <input>s. */
 
 :root {

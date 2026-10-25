@@ -1,8 +1,8 @@
 // Trigger-face renderer shared by <neo-select> and <neo-combobox>. Clones
-// an option's "face" into a `slot="trigger"` host child (light DOM, so the
-// page's option CSS styles it) and toggles the host's
+// an option's "face" into a `slot="trigger"` host child (light DOM, where
+// the page's option CSS styles it) and toggles the host's
 // `data-neo-trigger-rich` attribute; plain text falls back to the shadow
-// label instead. The two components differ only in their view attribute.
+// label instead. The 2 components differ only in their view attribute.
 export class TriggerFace {
 	#view: HTMLElement | null = null;
 	readonly #host: HTMLElement;
@@ -22,8 +22,7 @@ export class TriggerFace {
 
 	// Precedence: a `[data-neo-option-trigger]` child (a compact face distinct
 	// from the list row), then the option's plain-text `label`, then the
-	// option's own body. `value` seeds the fallback text; null uses the
-	// placeholder.
+	// option's own body. `value` seeds the fallback text; null uses the placeholder.
 	fromSource(sourceEl: HTMLElement | null, value: string | null): void {
 		const sourceRoot = templateSourceRoot(sourceEl);
 		const face = Array.from(sourceRoot?.children ?? []).find((el) => el.matches("[data-neo-option-trigger]")) ?? null;
@@ -70,8 +69,8 @@ export class TriggerFace {
 		this.#host.toggleAttribute("data-neo-trigger-rich", on);
 	}
 
-	// Lazy + reused clone container, slotted into the shadow trigger. A fat
-	// morph detaches the view (no SSR counterpart), leaving this.view a stale
+	// Lazy + reused clone container, slotted into the shadow trigger.
+	// A fat morph detaches the view (no SSR counterpart), leaving this.view a stale
 	// pointer to an orphaned node; reconcile against the live DOM and recreate
 	// when it's gone so the trigger face survives the morph.
 	ensure(): HTMLElement {

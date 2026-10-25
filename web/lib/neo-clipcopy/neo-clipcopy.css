@@ -1,14 +1,12 @@
-/* -----------------------------------------------------------------------
- * <neo-clipcopy>
- * -----------------------------------------------------------------------
- * Pure wrapper: no visual styling of its own. Provides a conventional
- * idle/copied swap driven by the `copied` attribute, so consumers can
- * mark up two mutually-exclusive labels and let CSS handle the toggle:
+/* <neo-clipcopy> is a pure wrapper with no visual styling of its own. It
+ * provides a conventional idle/copied swap driven by the `copied` attribute
+ * so that consumers can mark up 2 mutually-exclusive labels and let CSS
+ * handle the toggle:
  *
- *   <neo-clipcopy value="…">
+ *   <neo-clipcopy value="...">
  *     <neo-button>
- *       <span data-neo-clipcopy-idle>📋 Copy</span>
- *       <span data-neo-clipcopy-copied>✓ Copied</span>
+ *       <span data-neo-clipcopy-idle>Copy</span>
+ *       <span data-neo-clipcopy-copied>Copied</span>
  *     </neo-button>
  *   </neo-clipcopy>
  *

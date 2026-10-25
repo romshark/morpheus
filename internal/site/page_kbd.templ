@@ -14,7 +14,7 @@ templ PageKbd(morpheusVersion string) {
 			}
 			<p class="intro">
 				Component <code>{ "<neo-kbd>" }</code> is a small
-				inline keyboard-key indicator: a monospaced glyph in
+				inline keyboard-key indicator, a monospaced glyph in
 				a subtle chip with a thin border and a 1px inset
 				bottom shadow that suggests depth. Sized off the
 				surrounding font so it nests cleanly inside button
@@ -69,7 +69,7 @@ templ PageKbd(morpheusVersion string) {
 				<code>key</code> accepts convenience aliases (<code>esc</code>,
 				<code>space</code>, <code>up</code>/<code>down</code>/<code>left</code>/<code>right</code>,
 				<code>del</code>, <code>plus</code>, <code>comma</code>) that resolve to
-				the canonical glyph (<code>esc</code> → ⎋ / Esc).
+				the canonical glyph (<code>esc</code> renders ⎋ / Esc).
 			</p>
 			@demoFrameWith(DemoFrameOpts{
 				StageMinHeight: "max-content",
@@ -115,7 +115,7 @@ templ PageKbd(morpheusVersion string) {
 			}
 			<p class="demo-note">
 				The kbd inherits the host font size and aligns to
-				baseline, so it drops in next to a button label
+				baseline. It drops in next to a button label
 				with no extra wrapper.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
@@ -160,13 +160,16 @@ templ PageKbd(morpheusVersion string) {
 				@examples.KbdShortcutTable()
 			}
 			<p class="demo-note">
-				The kbd sits on the text baseline, so it does
-				not push surrounding lines apart, handy for
-				shortcuts described in flowing copy: press
+				The kbd sits on the text baseline and does
+				not push surrounding lines apart, which suits
+				shortcuts described in flowing copy. Press
+				{ " " }
 				@neo.Kbd(neo.KbdOpts{Size: neo.Set("sm")}) {
 					Esc
 				}
+				{ " " }
 				to dismiss, or
+				{ " " }
 				@neo.KbdGroup() {
 					@neo.Kbd(neo.KbdOpts{Size: neo.Set("sm")}) {
 						⌘
@@ -175,7 +178,8 @@ templ PageKbd(morpheusVersion string) {
 						/
 					}
 				}
-				to focus this very page's search.
+				{ " " }
+				to focus this page's search.
 			</p>
 		</section>
 	}
@@ -184,7 +188,7 @@ templ PageKbd(morpheusVersion string) {
 var kbdDoc = ComponentDoc{
 	Attributes: []DocAttribute{
 		{Name: "key", Type: "string", Observed: true,
-			Description: templ.Raw(`Render the platform-correct glyph for a single key instead of slotted content (<code>mod</code> renders ⌘ on Apple, Ctrl elsewhere; <code>enter</code> → ↩ / Enter). One key per chip; compose a shortcut from several in a <code>&lt;neo-kbd-group&gt;</code>; bind it with <a href="` + href.PageKeys() + `"><code>&lt;neo-keys&gt;</code></a>.`)},
+			Description: templ.Raw(`Render the platform-correct glyph for a single key instead of slotted content (<code>mod</code> renders ⌘ on Apple, Ctrl elsewhere; <code>enter</code> renders ↩ / Enter). One key per chip; compose a shortcut from several in a <code>&lt;neo-kbd-group&gt;</code>; bind it with <a href="` + href.PageKeys() + `"><code>&lt;neo-keys&gt;</code></a>.`)},
 		{Name: "variant", Type: `"outline"`,
 			Description: templ.Raw("Visual style. Omit for the default subtle chip.")},
 		{Name: "size", Type: `"sm"`,
@@ -206,7 +210,7 @@ var kbdDoc = ComponentDoc{
 		{Name: "--neo-kbd-font-weight", Default: "500",
 			Description: templ.Raw("Glyph font weight.")},
 		{Name: "--neo-kbd-min-width", Default: "1.5em",
-			Description: templ.Raw("Minimum chip width, so single glyphs stay square.")},
+			Description: templ.Raw("Minimum chip width that keeps single glyphs square.")},
 		{Name: "--neo-kbd-color", Default: "color-mix(in srgb, currentColor 70%, transparent)",
 			Description: templ.Raw("Glyph color. Derived from <code>currentColor</code> so a chip stays legible in a colored container.")},
 		{Name: "--neo-kbd-bg", Default: "color-mix(in srgb, currentColor 5%, transparent)",

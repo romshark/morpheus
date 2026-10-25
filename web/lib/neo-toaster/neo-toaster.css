@@ -1,32 +1,29 @@
-/* -----------------------------------------------------------------------
- * <neo-toaster>
- * -----------------------------------------------------------------------
- * Fixed-positioned stack of <neo-toast> notifications, modelled on
+/* Fixed-positioned stack of <neo-toast> notifications, modelled on
  * Sonner's stacked-deck visualisation:
  *
- *   • Toasts are absolutely positioned at one corner of the host;
+ *   - Toasts are absolutely positioned at one corner of the host;
  *     all of them share the same anchor.
- *   • `stack="0"` (default) shows every toast in a normal vertical
+ *   - `stack="0"` (default) shows every toast in a normal vertical
  *     stack. Positive `stack` values keep that many full toasts
- *     visible, then tuck up to two older toasts behind the last full
+ *     visible, then tuck up to 2 older toasts behind the last full
  *     one as peek cards.
- *   • Hovering, focusing, or clicking the host adds :state(expanded)
+ *   - Hovering, focusing, or clicking the host adds :state(expanded)
  *     to it; every toast moves to its measured per-slot offset
  *     (cumulative heights from JS) at scale 1, i.e. a non-overlapping
  *     vertical list. All auto-dismiss timers pause for the duration.
- *   • Toasts past the visible cap fade to opacity 0 in collapsed
+ *   - Toasts past the visible cap fade to opacity 0 in collapsed
  *     mode and reappear in the expanded view.
- *   • Entry / exit are pure transitions: the pre-mount /
+ *   - Entry / exit are pure transitions. The pre-mount /
  *     [data-neo-toast-leaving] state has the toast translated off-
  *     screen along the anchor axis; flipping [data-neo-mounted] (or
  *     removing the leaving marker) lets the transform interpolate
  *     to / from the resting position.
  *
- * Architecture: the toaster's positioning + Sonner-pile transforms
- * are driven from this file, scoped to <neo-toast> children of a
- * <neo-toaster>. The inner stack wrapper (host's shadow root) and
- * each toast's markup (icon / body / close button, in <neo-toast>'s
- * shadow root) are styled via in-component <style> blocks. */
+ * This file holds the toaster's positioning + Sonner-pile transforms,
+ * scoped to <neo-toast> children of a <neo-toaster>. The inner stack
+ * wrapper (host's shadow root) and each toast's markup (icon / body /
+ * close button, in <neo-toast>'s shadow root) are styled via
+ * in-component <style> blocks. */
 
 :root {
 	--neo-toaster-z-index: 1200;
@@ -70,10 +67,10 @@ neo-toaster {
 	pointer-events: none;
 }
 
-/* Contained mode: anchor to the nearest positioned ancestor (a
- * preview frame, a split-view pane, …) instead of the viewport.
- * The per-corner offsets above still apply but are now measured
- * against that ancestor's padding box. The parent must have
+/* Contained mode anchors to the nearest positioned ancestor (a
+ * preview frame, a split-view pane, ...) instead of the viewport.
+ * The per-corner offsets still apply but are measured against that
+ * ancestor's padding box. The parent must have
  * `position: relative` (or absolute / fixed / sticky) for this to
  * work. See `.demo-frame-stage` for the doc-app's preview case. */
 neo-toaster[contained]:where(:not([contained="false"])) {
@@ -131,8 +128,8 @@ neo-toaster > neo-toast {
 	z-index: calc(100 - var(--toast-stack-index, 0));
 }
 
-/* Bottom-anchored: stack grows away from the screen edge upward.
- * Older toasts translate UP by `index * offset`; the expanded list
+/* A bottom-anchored stack grows away from the screen edge upward.
+ * Older toasts translate up by `index * offset`; the expanded list
  * lives entirely above the freshest toast. */
 neo-toaster[position*="bottom"] > neo-toast {
 	bottom: var(--neo-toast-shadow-bleed);
@@ -145,8 +142,8 @@ neo-toaster[position*="top"] > neo-toast {
 	transform: translateY(var(--toast-collapsed-offset, 0px)) scale(var(--toast-collapsed-scale, 1));
 }
 
-/* Pre-mount state: the toast hasn't received [data-neo-mounted] yet.
- * Park it off-screen along the anchor axis so the entry transition
+/* In the pre-mount state the toast hasn't received [data-neo-mounted]
+ * yet. Park it off-screen along the anchor axis so the entry transition
  * reads as "slid in from outside the corner". */
 neo-toaster[position*="bottom"] > neo-toast:not([data-neo-mounted]),
 neo-toaster[position*="bottom"] > neo-toast[data-neo-toast-leaving] {
@@ -164,9 +161,9 @@ neo-toaster > neo-toast[data-neo-toast-swipe-dismiss][data-neo-toast-leaving] {
 	opacity: 0;
 }
 
-/* Toasts beyond the visible cap fade to invisible in collapsed
- * mode; they're still in the DOM (and reappear in the expanded
- * view) so the reader can browse a long backlog by hovering. */
+/* Toasts beyond the visible cap fade to invisible in collapsed mode;
+ * they're still in the DOM (and reappear in the expanded view)
+ * so the reader can browse a long backlog by hovering. */
 neo-toaster > neo-toast[data-neo-toast-hidden] {
 	opacity: 0;
 	pointer-events: none;

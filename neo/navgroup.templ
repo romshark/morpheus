@@ -13,8 +13,8 @@ const (
 // NavGroupOpts assumes no ARIA role; set role via attrs to fit the
 // semantics.
 type NavGroupOpts struct {
-	// Orientation defaults to horizontal; OrientationVertical and
-	// OrientationGrid are also accepted.
+	// Orientation defaults to horizontal; [OrientationVertical] and
+	// [OrientationGrid] are also accepted.
 	Orientation Attr[Orientation]
 	// Columns fixes grid keyboard steps. Omit it for CSS-driven
 	// responsive grids.

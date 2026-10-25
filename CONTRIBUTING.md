@@ -1,6 +1,6 @@
 # Contributing to Morpheus
 
-Thank you for your interest in contributing to Morpheus, the web component UI kit!
+Thank you for your interest in contributing to Morpheus, the web component UI kit.
 This guide will help you get started.
 
 ## Reporting Bugs

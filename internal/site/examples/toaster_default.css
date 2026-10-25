@@ -10,7 +10,7 @@
 	justify-content: flex-start;
 }
 
-/* Descendant rule: the contained stack's cap can't be inlined onto the host. */
+/* The contained stack's cap is a descendant rule; the host can't inline it. */
 .toaster-demo-host > neo-toaster[contained] {
 	--neo-toaster-max-height: calc(
 		100% -

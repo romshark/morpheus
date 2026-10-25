@@ -55,7 +55,8 @@ export class NeoPagination extends HTMLElement {
 
 		// Self catches shrink, container catches grow. A collapsed host
 		// tracks content width, not parent slack. Skip `display:contents`
-		// ancestors: they generate no box so ResizeObserver never fires.
+		// ancestors, because they generate no box and ResizeObserver never
+		// fires for them.
 		this.#resizeObserver = new ResizeObserver(() => {
 			this.#appliedSibling = null;
 			this.#appliedBoundary = null;
@@ -166,7 +167,7 @@ export class NeoPagination extends HTMLElement {
 		this.#render();
 	}
 
-	// State → attribute, guarded so it isn't read back as a command.
+	// State -> attribute, guarded so it isn't read back as a command.
 	#reflectPage() {
 		this.#suppressAttrRender = true;
 		try {
@@ -230,7 +231,7 @@ export class NeoPagination extends HTMLElement {
 
 	// Constant-slot-count windowing: while
 	// `pages >= 2*siblingCount + 2*boundaryCount + 3`, the row holds
-	// the same number of items regardless of `page`, so navigating
+	// the same number of items regardless of `page`, and navigating
 	// doesn't shift chip positions. At edges the sibling window
 	// slides outward to fill what an ellipsis would vacate.
 	// Algorithm: MUI's `usePagination`.
@@ -360,7 +361,7 @@ export class NeoPagination extends HTMLElement {
 
 // First ancestor that generates a layout box. `display:contents`
 // passes its children through to its parent's flex/grid layout but
-// has no box of its own, so ResizeObserver never fires for it.
+// has no box of its own, and ResizeObserver never fires for it.
 function effectiveContainer(el: Element): Element | null {
 	let p = el.parentElement;
 	while (p) {
@@ -370,7 +371,7 @@ function effectiveContainer(el: Element): Element | null {
 	return null;
 }
 
-// `<template>`'s children live in its DocumentFragment `.content`, so
+// `<template>`'s children live in its DocumentFragment `.content`;
 // `template.innerHTML` is always "". Round-trip through a `<div>`.
 function serializeTemplate(tpl: HTMLTemplateElement | null): string | null {
 	if (!tpl) return null;

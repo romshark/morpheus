@@ -1,11 +1,10 @@
 package neo
 
 // Placement is the popover-host anchor enum, shared by every component
-// that opens a floating panel against an anchor (popover, tooltip,
-// menu, submenu). Zero value (PlacementDefault) defers to the host's
-// own default ("bottom-start") and emits no `placement` attribute, so
-// a struct literal without the field still produces the correct
-// pre-hydration markup.
+// that opens a floating panel against an anchor (popover, tooltip, menu, submenu).
+// Zero value ([PlacementDefault]) defers to the host's own default ("bottom-start")
+// and emits no `placement` attribute.
+// A struct literal without the field still produces the correct pre-hydration markup.
 type Placement string
 
 const (

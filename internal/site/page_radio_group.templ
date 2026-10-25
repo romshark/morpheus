@@ -18,7 +18,7 @@ templ PageRadioGroup(morpheusVersion string) {
 				<code>{ "<neo-radio>" }</code> options. The host
 				owns selection and roving-tabindex. Activation is
 				manual by default (like
-				<code>{ "<neo-tabs>" }</code>): arrow keys move
+				<code>{ "<neo-tabs>" }</code>). Arrow keys move
 				focus and <code>Enter</code> / <code>Space</code>
 				commit; add <code>auto-activate</code> to select on
 				arrow. Wrap a radio in a
@@ -60,7 +60,7 @@ templ PageRadioGroup(morpheusVersion string) {
 				Rich rows
 			}
 			<p class="demo-note">
-				Each radio's body can be multi-line markup: the
+				Each radio's body can be multi-line markup. The
 				radio sits in its own column while the label
 				column holds a title plus a muted caption,
 				as on a plan-picker settings page.
@@ -80,7 +80,7 @@ templ PageRadioGroup(morpheusVersion string) {
 				<code>disabled</code> on the host disables every
 				nested radio and skips them in arrow navigation,
 				regardless of per-radio state. The selected value
-				is preserved, so the form still submits a
+				is preserved. The form still submits a
 				meaningful answer if the gate later opens.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
@@ -107,8 +107,8 @@ templ PageRadioGroup(morpheusVersion string) {
 				}
 				@neo.AlertContent() {
 					@neo.AlertDescription() {
-						The difference is keyboard-only: Tab into the
-						group, then press an arrow key: the selection
+						The difference is keyboard-only. Tab into the
+						group, then press an arrow key. The selection
 						moves at once, with no Enter or Space. Clicking
 						behaves the same in every mode.
 					}
@@ -135,7 +135,7 @@ var radioGroupDoc = ComponentDoc{
 		{Name: "orientation", Type: `"horizontal" | "vertical"`, Default: "vertical",
 			Description: templ.Raw("Layout axis.")},
 		{Name: "auto-activate", Type: "boolean", Default: "false",
-			Description: templ.Raw("By default activation is manual: arrow keys move focus and <code>Enter</code> / <code>Space</code> commit the selection (like <code>&lt;neo-tabs&gt;</code>). Set <code>auto-activate</code> to select a radio as soon as an arrow key focuses it.")},
+			Description: templ.Raw("By default activation is manual. Arrow keys move focus and <code>Enter</code> / <code>Space</code> commit the selection (like <code>&lt;neo-tabs&gt;</code>). Set <code>auto-activate</code> to select a radio as soon as an arrow key focuses it.")},
 	},
 	Slots: []DocSlot{
 		{Name: "default",

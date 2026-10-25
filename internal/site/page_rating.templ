@@ -14,9 +14,9 @@ templ PageRating(morpheusVersion string) {
 			<p class="intro">
 				Component <code>{ "<neo-rating>" }</code> is a
 				symbol-based rating control (stars by default)
-				following the WAI-ARIA slider pattern: the host is
+				following the WAI-ARIA slider pattern. The host is
 				the single focusable slider and the symbols are
-				decorative, so screen readers announce one value
+				decorative, which makes screen readers announce a single value
 				instead of <code>max</code> separate widgets. Hover
 				or drag previews; click commits. Keyboard arrows,
 				<code>Home</code> / <code>End</code>, and digit keys
@@ -40,7 +40,7 @@ templ PageRating(morpheusVersion string) {
 				Basic
 			}
 			<p class="demo-note">
-				Five stars, whole-symbol steps. Click a star or focus
+				5 stars, whole-symbol steps. Click a star or focus
 				the control, preview with a digit / arrow key, and press
 				<code>Enter</code> to commit.
 			</p>
@@ -71,7 +71,7 @@ templ PageRating(morpheusVersion string) {
 				Read-only
 			}
 			<p class="demo-note">
-				<code>readonly</code> shows an aggregate score: it is
+				<code>readonly</code> shows an aggregate score. It is
 				still announced to assistive tech but takes no pointer
 				or keyboard input and stays out of the tab order.
 			</p>
@@ -102,7 +102,7 @@ templ PageRating(morpheusVersion string) {
 			}
 			<p class="demo-note">
 				<code>max</code> sets the symbol count; here a
-				score out of ten.
+				score out of 10.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
 				StageMinHeight: "max-content",
@@ -118,8 +118,7 @@ templ PageRating(morpheusVersion string) {
 			}
 			<p class="demo-note">
 				The symbol is any <code>neo-icon</code> via the
-				<code>icon</code> attribute, and three CSS custom
-				properties drive the look:
+				<code>icon</code> attribute. The look comes from
 				<code>{ `--neo-rating-color` }</code> (filled),
 				<code>{ `--neo-rating-empty-color` }</code> (track),
 				and <code>{ `--neo-rating-symbol-size` }</code> /
@@ -177,7 +176,7 @@ var ratingDoc = ComponentDoc{
 		{Name: "size", Type: `"" | "sm" | "lg"`, Default: `""`,
 			Description: templ.Raw("Symbol size shorthand for <code>--neo-rating-symbol-size</code>.")},
 		{Name: "readonly", Type: "boolean", Default: "false", Observed: true,
-			Description: templ.Raw("Display-only: announced to AT but not interactive and out of the tab order.")},
+			Description: templ.Raw("Display-only. Announced to AT but not interactive and out of the tab order.")},
 		{Name: "disabled", Type: "boolean", Default: "false", Observed: true,
 			Description: templ.Raw("Read-only plus a dimmed, non-interactive appearance.")},
 	},

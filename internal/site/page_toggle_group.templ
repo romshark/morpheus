@@ -14,18 +14,17 @@ templ PageToggleGroup(morpheusVersion string) {
 			<p class="intro">
 				Component <code>{ "<neo-toggle-group>" }</code> is a
 				cluster of&nbsp;
-				@ComponentLink("neo-toggle", href.PageToggle())
-				&nbsp;children sharing a selection model. Each child
+				@ComponentLink("neo-toggle", href.PageToggle())&nbsp;children
+				sharing a selection model. Each child
 				toggle remains independent. The group
 				<code>value</code> is a comma-separated list of the
 				pressed child values. For singular segmented choices,
 				use&nbsp;
-				@ComponentLink("neo-buttongroup", href.PageButtonGroup())
-				.
+				@ComponentLink("neo-buttongroup", href.PageButtonGroup())&period;
 			</p>
 			<p class="demo-note">
 				Use toggle group for independent on/off controls,
-				such as Bold + Italic. Use button group for one
+				such as Bold + Italic. Use button group for a single
 				selected value, such as Day / Week / Month.
 			</p>
 			@Playground(PlaygroundOpts{
@@ -63,8 +62,7 @@ templ PageToggleGroup(morpheusVersion string) {
 			<p class="demo-note">
 				The group allows any combination of values. For
 				exclusive choices, use&nbsp;
-				@ComponentLink("neo-buttongroup", href.PageButtonGroup())
-				.
+				@ComponentLink("neo-buttongroup", href.PageButtonGroup())&period;
 			</p>
 			@demoFrameWith(DemoFrameOpts{
 				StageMinHeight: "max-content",
@@ -79,7 +77,7 @@ templ PageToggleGroup(morpheusVersion string) {
 			<p class="demo-note">
 				<code>{ `orientation="vertical"` }</code> only
 				changes layout; selection semantics are unchanged
-				and any of the four arrow keys move focus.
+				and any of the 4 arrow keys move focus.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
 				StageMinHeight: "max-content",
@@ -97,7 +95,7 @@ var toggleGroupDoc = ComponentDoc{
 		{Name: "value", Type: "string", Default: `""`, Reflected: true, Observed: true,
 			Description: templ.Raw("Comma-separated active child values. A child value must not contain a comma; the separator is unescaped. Use <code>neo-buttongroup</code> for a single selected value.")},
 		{Name: "orientation", Type: `"horizontal" | "vertical"`, Default: "horizontal",
-			Description: templ.Raw("Layout axis only. All four arrow keys move focus regardless of orientation.")},
+			Description: templ.Raw("Layout axis only. All 4 arrow keys move focus regardless of orientation.")},
 	},
 	Events: []DocEvent{
 		{Name: "neo-toggle-group-change", Detail: "{ value: string, values: string[] }", Bubbles: true,

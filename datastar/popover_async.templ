@@ -2,18 +2,17 @@ package datastar
 
 import "github.com/romshark/morpheus/neo"
 
-// PopoverAsync renders a <neo-popover> wired to a Datastar SSE action
-// that fetches its body content on every open. The Loading template
-// shows during the request; on a successful response the server is
-// expected to morph the element with id `<ID>-body` (the wrapper
-// around the placeholder). When Datastar exhausts its retry budget
-// the Failed template is swapped in automatically, listening for
-// `datastar-fetch` with `evt.detail.type === 'retries-failed'`.
+// PopoverAsync renders a <neo-popover> wired to a Datastar SSE action that fetches
+// its body content on every open. The Loading template shows during the request;
+// on a successful response the server is expected to morph the element with
+// id `<ID>-body` (the wrapper around the placeholder). When Datastar exhausts
+// its retry budget the Failed template is swapped in automatically,
+// listening for `datastar-fetch` with `evt.detail.type === 'retries-failed'`.
 //
-// The trigger label is supplied via children, mirroring neo.Popover.
+// The trigger label is supplied via children, mirroring [neo.Popover].
 // Any descendant in the Loading or Failed template that carries
-// `data-neo-popover-async-retry` becomes a retry button: a click
-// aborts any in-flight fetch, swaps the body back to the loading
+// `data-neo-popover-async-retry` becomes a retry button.
+// A click aborts any in-flight fetch, swaps the body back to the loading
 // placeholder, and re-fires the action without closing the popover.
 //
 // PopoverAsync requires Datastar's retry mode to be anything other

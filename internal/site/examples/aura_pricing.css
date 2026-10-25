@@ -1,0 +1,33 @@
+.aura-pricing {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+	gap: 1.5rem;
+	width: 100%;
+}
+
+.aura-pricing-price {
+	margin: 0;
+	color: var(--muted);
+	font-size: 0.875rem;
+}
+
+.aura-pricing-price strong {
+	color: var(--page-fg);
+	font-size: 1.5rem;
+}
+
+.aura-pricing-features {
+	margin: 0.75rem 0 0;
+	padding-left: 1.1rem;
+	line-height: 1.7;
+}
+
+.aura-pricing-highlight {
+	--neo-aura-gradient: conic-gradient(
+		in oklch longer hue,
+		transparent 15%,
+		oklch(0.8 0.15 0) 35%,
+		oklch(0.8 0.15 360) 80%,
+		transparent
+	);
+}

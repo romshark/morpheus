@@ -1,9 +1,10 @@
 package neo
 
-// Boundary renders <neo-boundary>: a region that overlays inside it
-// (popover, select, menu, …) treat as their local document and viewport
+// Boundary renders <neo-boundary>, a region that overlays inside it
+// (popover, select, menu, ...) treat as their local document and viewport
 // for dismiss, positioning, scroll-follow, and stacking. Children stay in
-// light DOM. Scope which concerns the boundary owns via BoundaryOpts.Scopes.
+// light DOM. Scope which concerns the boundary owns via
+// [BoundaryOpts.Scopes].
 templ Boundary(opts BoundaryOpts) {
 	@BoundaryAttrs(opts, nil) {
 		{ children... }

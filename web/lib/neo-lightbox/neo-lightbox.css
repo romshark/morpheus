@@ -1,11 +1,9 @@
-/* -----------------------------------------------------------------------
- * <neo-lightbox>
- * -----------------------------------------------------------------------
- * Overlay that expands arbitrary content from one or more triggers. The
- * overlay, backdrop, and surface live in the host's shadow root (styled
- * inline there, see neo-lightbox.ts) so the open state and the top-layer
- * promotion survive a fat morph. These light-DOM rules carry the
- * themeable tokens, the host box, and the pre-upgrade guard.
+/* <neo-lightbox> is an overlay that expands arbitrary content from 1 or
+ * more triggers. The overlay, backdrop, and surface live in the host's
+ * shadow root (styled inline there, in LIGHTBOX_SHADOW_TEMPLATE) so the
+ * open state and the top-layer promotion survive a fat morph. These
+ * light-DOM rules carry the themeable tokens, the host box, and the
+ * pre-upgrade guard.
  *
  * Tokens cascade into the shadow root, where the overlay reads them.
  * Override at the host (or any ancestor) to retheme one lightbox or all.

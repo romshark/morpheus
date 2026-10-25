@@ -1,0 +1,56 @@
+.aura-lights-dual {
+	--neo-aura-gradient: repeating-conic-gradient(transparent 0 40%, var(--neo-aura-color) 50%);
+}
+
+.aura-lights-rainbow {
+	--neo-aura-gradient: conic-gradient(
+		in oklch longer hue,
+		transparent 15%,
+		oklch(0.8 0.15 0) 35%,
+		oklch(0.8 0.15 360) 80%,
+		transparent
+	);
+}
+
+/* 8 short bands; the slower spin keeps them from flickering. */
+.aura-lights-holo {
+	--neo-aura-gradient: repeating-conic-gradient(
+		oklch(0.85 0.13 330),
+		oklch(0.78 0.11 275),
+		oklch(0.85 0.1 195),
+		oklch(0.92 0.1 110),
+		oklch(0.88 0.08 65),
+		oklch(0.85 0.13 330) 12.5%
+	);
+	--neo-aura-spin-duration: 20s;
+}
+
+.aura-lights-gold {
+	--neo-aura-gradient: repeating-conic-gradient(
+		oklch(0.67 0.16 75),
+		oklch(0.95 0.08 100),
+		oklch(0.72 0.15 82),
+		oklch(0.95 0.07 100),
+		oklch(0.62 0.12 76),
+		oklch(0.67 0.16 75) 50%
+	);
+}
+
+.aura-lights-silver {
+	--neo-aura-gradient: repeating-conic-gradient(
+		oklch(0.35 0 0),
+		oklch(0.92 0 0),
+		oklch(0.62 0 0),
+		oklch(0.92 0 0),
+		oklch(0.5 0 0),
+		oklch(0.35 0 0) 50%
+	);
+}
+
+/* A still light that pulses. cq units measure the aura's box; the ellipse
+   passes through its corners. */
+.aura-lights-glow {
+	--neo-aura-gradient: radial-gradient(71cqw 71cqh, var(--neo-aura-color), transparent 90%);
+	--neo-aura-spin-duration: 0s;
+	--neo-aura-pulse-duration: 6s;
+}

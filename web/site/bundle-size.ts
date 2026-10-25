@@ -1,41 +1,46 @@
-// In-browser bundle builder for /bundle-builder. On every selection
-// change it assembles the *real* morpheus.min.js (esbuild-wasm bundles
-// + minifies the selected kit modules) and the selected component CSS
-// morpheus.min.css, then reports exact uncompressed / gzip / brotli
-// sizes.
+// Entry for min/bundlebuilder.min.js, the /bundle-builder page's builder.
+// On each selection or version change, esbuild-wasm builds morpheus.min.js,
+// morpheus.min.css and their unminified forms from the version's sources,
+// as web/build.ts builds min/, and the version's themes load as they are.
+// Reports sizes, zips the checked files, syncs ?version= and ?components=
+// and runs ?file= downloads.
 //
-// esbuild-wasm and brotli-wasm are imported dynamically inside their
-// getters so this module stays cheap when bundled together with
-// <bundle-graph> on the landing page (which never triggers a build):
-// the multi-MB wasm only loads on first size computation.
-//
-// CSS modules are copied from internal/site/static/morpheus, so the CSS
-// figure follows the same component boundaries as the source files.
+// internal/bundle/build.go is the same build for the morpheus command and
+// must produce the same bytes. Change both together.
 
-// esbuild is a devDependency, so its types resolve at compile time even
-// though the runtime module is loaded from the CDN; use them to type the
-// build plugin below.
 import type { OnLoadArgs, OnResolveArgs, Plugin, PluginBuild } from "esbuild";
+import { zip } from "./zip";
 
-const ESBUILD_ESM = "https://cdn.jsdelivr.net/npm/esbuild-wasm@0.24.2/esm/browser.min.js";
-const ESBUILD_WASM = "https://cdn.jsdelivr.net/npm/esbuild-wasm@0.24.2/esbuild.wasm";
-const BROTLI_ESM = "https://cdn.jsdelivr.net/npm/brotli-wasm@3.0.1/index.web.js";
+// A version's pinned esbuild-wasm reproduces its min/bundle.js.
+const esbuildURL = (version: string, file: string) => `https://cdn.jsdelivr.net/npm/esbuild-wasm@${version}/${file}`;
 
-const SRC_BASE = `${location.origin}/static/bundle-src/`;
-const CSS_BASE = `${location.origin}/static/bundle-css/`;
-const MANIFEST = "/static/bundle-manifest.json";
+// internal/cmd/gen writes this directory and rewrites "/static/" for -base.
+const versionDir = (version: string) => `${location.origin}/static/bundle/${encodeURIComponent(version)}/`;
 
 interface ManifestEntry {
 	id: string;
 	name: string;
 	bound: boolean;
 	js: string;
-	css: string;
 	owners?: string[];
 }
+interface ManifestSheet {
+	file: string;
+	// Absent for a base sheet, which ships in every bundle.
+	nodes?: string[];
+}
 interface Manifest {
-	base: string[];
+	banner: string;
+	// Pinned esbuild version.
+	esbuild: string;
+	css: ManifestSheet[];
 	entries: ManifestEntry[];
+	// File names in bundle-themes/.
+	themes: string[];
+}
+interface Source {
+	manifest: Manifest;
+	dir: string;
 }
 interface SizeResult {
 	raw: number;
@@ -43,155 +48,244 @@ interface SizeResult {
 	brotli: number | null;
 }
 
+// window.__bundleURL from the page's bundleURLBootstrap.
+// Datastar seeds $bundleVersion and $bundleSel from it.
+interface URLRequest {
+	components: { id: string; name: string; deps?: string[] }[];
+	ids: string[];
+	defaultVersion: string;
+	version: string;
+	selected: string[];
+	// ?components= names matching no component.
+	unknown: string[];
+	// ?components= names the version lacks.
+	missing: string[];
+	// A ?version= matching no version.
+	badVersion: string | null;
+	// Raw ?file= value.
+	file: string | null;
+	// Ids of the components a version lacks.
+	absent: (version: string) => string[];
+	// The ids and their requirements a version has.
+	withDeps: (ids: string[], version: string) => string[];
+}
+
 declare global {
 	interface Window {
-		__bundleSizeUpdate?: (selected: unknown) => void;
-		__bundleSizePending?: unknown;
+		__bundleSizeUpdate?: (selected: unknown, version: unknown) => void;
+		__bundleSizePending?: [unknown, unknown];
+		__bundleURL?: URLRequest;
 	}
 }
 
-// esbuild-wasm's browser ESM build (named API). esm.sh mangles the
-// shape, so it's loaded raw from jsDelivr; tolerate API-on-default.
-// biome-ignore lint/suspicious/noExplicitAny: esbuild-wasm browser API is loaded raw from the CDN at runtime; its value-level shape isn't statically known here.
-let esbuildReady: Promise<any> | undefined;
-// biome-ignore lint/suspicious/noExplicitAny: returns the runtime-loaded esbuild-wasm API (see above).
-async function getEsbuild(): Promise<any> {
-	if (!esbuildReady) {
-		esbuildReady = (async () => {
-			// biome-ignore lint/suspicious/noExplicitAny: raw dynamic import of the CDN module; shape is uncertain (API may sit on `default`).
-			const ns: any = await import(ESBUILD_ESM);
-			const api = typeof ns.initialize === "function" ? ns : ns.default;
-			if (!api || typeof api.initialize !== "function") {
-				throw new Error("esbuild-wasm browser API unavailable");
+const BUILT_NAMES = ["morpheus.min.js", "morpheus.min.css", "morpheus.js", "morpheus.css"] as const;
+type BuiltName = (typeof BUILT_NAMES)[number];
+const ARCHIVE_NAME = "morpheus.zip";
+
+// The data-file values of the size table rows, which are the built files
+// and the themes of all versions.
+const ROW_NAMES = Array.from(
+	document.querySelectorAll<HTMLElement>("#bundle-size tr[data-file]"),
+	(row) => row.dataset.file ?? "",
+);
+
+interface BuiltFile {
+	name: string;
+	text: string;
+	bytes: Uint8Array<ArrayBuffer>;
+	size: SizeResult;
+}
+
+// Loads once per key. A failed load is dropped and the next call retries.
+function memo<T>(cache: Map<string, Promise<T>>, key: string, load: () => Promise<T>): Promise<T> {
+	let p = cache.get(key);
+	if (!p) {
+		p = load().catch((err) => {
+			cache.delete(key);
+			throw err;
+		});
+		cache.set(key, p);
+	}
+	return p;
+}
+
+// esbuild-wasm by version, because a module initializes once. Loaded from
+// jsDelivr because esm.sh changes the module shape. The API may be on default.
+// biome-ignore lint/suspicious/noExplicitAny: untyped esbuild-wasm API from the CDN.
+const esbuildReady = new Map<string, Promise<any>>();
+// Load attempts by version. A failed import stays cached under its URL.
+// Retries add ?retry=n.
+const esbuildAttempts = new Map<string, number>();
+// biome-ignore lint/suspicious/noExplicitAny: see esbuildReady.
+function getEsbuild(version: string): Promise<any> {
+	return memo(esbuildReady, version, async () => {
+		const n = esbuildAttempts.get(version) ?? 0;
+		esbuildAttempts.set(version, n + 1);
+		// biome-ignore lint/suspicious/noExplicitAny: the API may be on default.
+		const ns: any = await import(esbuildURL(version, "esm/browser.min.js") + (n ? `?retry=${n}` : ""));
+		const api = typeof ns.initialize === "function" ? ns : ns.default;
+		if (!api || typeof api.initialize !== "function") {
+			throw new Error("esbuild-wasm browser API unavailable");
+		}
+		await api.initialize({ wasmURL: esbuildURL(version, "esbuild.wasm") });
+		return api;
+	});
+}
+
+// brotli-worker.ts, started on first use. Replaced after a failed load,
+// because the failed import stays cached in the worker.
+let brotli: Worker | undefined;
+// Runs 1 job at a time. A job superseded before its turn is dropped and
+// doesn't delay the current build.
+let brotliTail: Promise<number | null> = Promise.resolve(null);
+
+// Brotli quality 11 size, or null when unavailable or superseded.
+function brotliSize(bytes: Uint8Array<ArrayBuffer>, stale: () => boolean): Promise<number | null> {
+	brotliTail = brotliTail.then(() => (stale() ? null : runBrotli(bytes)));
+	return brotliTail;
+}
+
+function runBrotli(bytes: Uint8Array<ArrayBuffer>): Promise<number | null> {
+	brotli ??= new Worker(new URL("./brotli_worker.js", import.meta.url), { type: "module" });
+	const worker = brotli;
+	return new Promise((resolve) => {
+		const done = (size: number | null, failed: boolean) => {
+			if (failed) {
+				worker.terminate();
+				brotli = undefined;
 			}
-			await api.initialize({ wasmURL: ESBUILD_WASM });
-			return api;
-		})();
+			resolve(size);
+		};
+		worker.onmessage = (e: MessageEvent<{ size: number | null; failed: boolean }>) => done(e.data.size, e.data.failed);
+		// A worker that failed to load never replies.
+		worker.onerror = () => {
+			console.warn("[bundle-size] brotli worker failed to load");
+			done(null, true);
+		};
+		worker.postMessage(bytes);
+	});
+}
+
+// Sources don't change while the page is open. Each is fetched once,
+// and concurrent builds share a pending fetch.
+const texts = new Map<string, Promise<string>>();
+function fetchText(url: string): Promise<string> {
+	return memo(texts, url, async () => {
+		const res = await fetch(url);
+		if (!res.ok) throw new Error(`fetch ${url}: ${res.status}`);
+		return res.text();
+	});
+}
+
+async function getSource(version: string): Promise<Source> {
+	const dir = versionDir(version);
+	return {
+		manifest: JSON.parse(await fetchText(`${dir}bundle-manifest.json`)) as Manifest,
+		dir,
+	};
+}
+
+// biome-ignore lint/suspicious/noExplicitAny: see esbuildReady.
+async function minifyCSS(esbuild: any, css: string): Promise<string> {
+	return (await esbuild.transform(css, { loader: "css", minify: true })).code;
+}
+
+// Mirrors web/build.ts's minifyInlineStyles. esbuild does not minify
+// inside template literals, which hold the shadow <style> CSS.
+// biome-ignore lint/suspicious/noExplicitAny: see esbuildReady.
+async function minifyInlineStyles(esbuild: any, src: string): Promise<string> {
+	if (!src.includes("<style>")) return src;
+	const parts = src.split(/(<style>[\s\S]*?<\/style>)/);
+	for (let i = 1; i < parts.length; i += 2) {
+		const css = parts[i].slice("<style>".length, -"</style>".length);
+		if (/[`\\]|\$\{/.test(css)) continue;
+		parts[i] = `<style>${(await minifyCSS(esbuild, css)).trim()}</style>`;
 	}
-	return esbuildReady;
+	return parts.join("");
 }
 
-type Compressor = (bytes: Uint8Array) => Uint8Array;
-// undefined = not tried, null = unavailable, fn = ready compressor.
-let brotliCompress: Compressor | null | undefined;
-async function getBrotliCompress(): Promise<Compressor | null> {
-	if (brotliCompress !== undefined) return brotliCompress;
-	try {
-		// biome-ignore lint/suspicious/noExplicitAny: brotli-wasm CDN module; shape probed at runtime across init/promise/default wrapper forms.
-		let m: any = (await import(BROTLI_ESM)).default;
-		// init-function form, promise form, and the occasional extra
-		// { default } wrapper; peel until we find compress().
-		for (let i = 0; i < 4 && m && typeof m.compress !== "function"; i++) {
-			if (typeof m === "function") m = m();
-			else if (m.then) m = await m;
-			else if (m.default !== undefined) m = m.default;
-			else break;
-		}
-		brotliCompress =
-			m && typeof m.compress === "function" ? (bytes: Uint8Array) => m.compress(bytes, { quality: 11 }) : null;
-		if (!brotliCompress) {
-			console.warn("[bundle-size] brotli compress() not found on module");
-		}
-	} catch (err) {
-		console.warn("[bundle-size] brotli unavailable:", err);
-		brotliCompress = null;
-	}
-	return brotliCompress;
-}
-
-let manifestPromise: Promise<Manifest> | undefined;
-function getManifest(): Promise<Manifest> {
-	if (!manifestPromise) {
-		manifestPromise = fetch(MANIFEST).then((r) => r.json());
-	}
-	return manifestPromise;
-}
-
-// Fetched .ts sources are immutable for the page's life; cache them
-// so toggling doesn't refetch the kit on every rebuild.
-const srcCache = new Map<string, string>();
-async function fetchText(url: string): Promise<string> {
-	const cached = srcCache.get(url);
-	if (cached !== undefined) return cached;
-	const res = await fetch(url);
-	if (!res.ok) throw new Error(`fetch ${url}: ${res.status}`);
-	const text = await res.text();
-	srcCache.set(url, text);
-	return text;
-}
-
-// esbuild has no filesystem in the browser; this plugin resolves the
-// kit's relative imports to /static/bundle-src/*.ts over HTTP.
-function httpPlugin(): Plugin {
+// Resolves the kit's imports in srcDir over HTTP, because esbuild-wasm has
+// no filesystem. Paths stay relative to srcDir, because the unminified
+// output names modules by path. CSS loads as text, minified as by
+// web/build.ts's minifyCssText.
+// biome-ignore lint/suspicious/noExplicitAny: see esbuildReady.
+function httpPlugin(esbuild: any, minify: boolean, srcDir: string): Plugin {
+	const root = new URL(srcDir).href;
 	return {
 		name: "http",
 		setup(build: PluginBuild) {
 			build.onResolve({ filter: /.*/ }, (args: OnResolveArgs) => {
 				if (args.kind === "entry-point") return null;
-				let url: URL;
-				if (args.namespace === "http" && args.importer) {
-					url = new URL(args.path, args.importer);
-				} else {
-					url = new URL(args.path.replace(/^\.\//, ""), SRC_BASE);
-				}
+				const base = args.namespace === "morpheus" ? new URL(args.importer, root) : root;
+				const url = new URL(args.path, base);
 				if (!/\.[a-z]+$/.test(url.pathname)) url.pathname += ".ts";
-				return { path: url.href, namespace: "http" };
+				const path = url.href.startsWith(root) ? url.href.slice(root.length) : url.href;
+				return { path, namespace: "morpheus" };
 			});
-			build.onLoad({ filter: /.*/, namespace: "http" }, async (args: OnLoadArgs) => ({
-				contents: await fetchText(args.path),
-				loader: "ts",
-			}));
+			build.onLoad({ filter: /\.css$/, namespace: "morpheus" }, async (args: OnLoadArgs) => {
+				const css = await fetchText(new URL(args.path, root).href);
+				return { contents: minify ? await minifyCSS(esbuild, css) : css, loader: "text" };
+			});
+			build.onLoad({ filter: /.*/, namespace: "morpheus" }, async (args: OnLoadArgs) => {
+				const src = await fetchText(new URL(args.path, root).href);
+				return { contents: minify ? await minifyInlineStyles(esbuild, src) : src, loader: "ts" };
+			});
 		},
 	};
 }
 
-// enabledNodes mirrors the graph's rule: a selectable node ships when
-// it's selected; a bound child ships when any of its owners is.
+// A bound node ships when any of its owners does.
 function enabledNodes(manifest: Manifest, selected: string[]): ManifestEntry[] {
 	const sel = new Set(selected);
 	return manifest.entries.filter((e) => (e.bound ? (e.owners || []).some((o) => sel.has(o)) : sel.has(e.id)));
 }
 
-async function buildJS(nodes: ManifestEntry[]): Promise<string> {
-	const mods = nodes.filter((e) => e.js).map((e) => `./${e.js}`);
-	if (mods.length === 0) return "";
-	const entry = mods.map((m) => `import ${JSON.stringify(m)};`).join("\n");
-	const esbuild = await getEsbuild();
+// index.ts without the unselected imports. The rest stays, including the
+// missing-component watcher.
+async function bundleEntry(nodes: ManifestEntry[], srcDir: string): Promise<string> {
+	const modules = new Set(nodes.filter((e) => e.js).map((e) => e.js.replace(/\.ts$/, "")));
+	const index = await fetchText(`${srcDir}index.ts`);
+	return index
+		.split("\n")
+		.filter((line) => {
+			const m = line.match(/^import "\.\/(neo-[a-z0-9-]+)";$/);
+			return !m || modules.has(m[1]);
+		})
+		.join("\n");
+}
+
+async function buildJS({ manifest, dir }: Source, nodes: ManifestEntry[], minify: boolean): Promise<string> {
+	const esbuild = await getEsbuild(manifest.esbuild);
+	const srcDir = `${dir}bundle-src/`;
 	const result = await esbuild.build({
 		stdin: {
-			contents: entry,
+			contents: await bundleEntry(nodes, srcDir),
 			loader: "ts",
-			sourcefile: "morpheus.ts",
+			sourcefile: "index.ts",
 			resolveDir: "/",
 		},
 		bundle: true,
-		minify: true,
-		format: "iife",
-		target: ["es2020"],
+		minify,
+		format: "esm",
+		target: ["es2022"],
+		banner: { js: manifest.banner },
 		write: false,
 		logLevel: "silent",
-		plugins: [httpPlugin()],
+		plugins: [httpPlugin(esbuild, minify, srcDir)],
 	});
 	return result.outputFiles[0].text;
 }
 
-async function buildCSS(manifest: Manifest, nodes: ManifestEntry[]): Promise<string> {
-	const files = [...manifest.base, ...nodes.filter((e) => e.css).map((e) => e.css)];
-	const seen = new Set<string>();
-	let raw = "";
-	for (const f of files) {
-		if (seen.has(f)) continue;
-		seen.add(f);
-		try {
-			raw += `${await fetchText(CSS_BASE + f)}\n`;
-		} catch {
-			/* a node with no slice, ignore */
-		}
-	}
-	if (!raw.trim()) return "";
-	const esbuild = await getEsbuild();
-	const out = await esbuild.transform(raw, { loader: "css", minify: true });
-	return out.code;
+async function buildCSS({ manifest, dir }: Source, nodes: ManifestEntry[], minify: boolean): Promise<string> {
+	const enabled = new Set(nodes.map((e) => e.id));
+	const sheets = manifest.css.filter((s) => !s.nodes || s.nodes.some((id) => enabled.has(id)));
+	const css = (await Promise.all(sheets.map((s) => fetchText(`${dir}bundle-css/${s.file}`)))).join("\n");
+	return minify ? minifyCSS(await getEsbuild(manifest.esbuild), css) : css;
+}
+
+function buildFile(name: BuiltName, source: Source, nodes: ManifestEntry[]): Promise<string> {
+	const minify = name.includes(".min.");
+	return name.endsWith(".css") ? buildCSS(source, nodes, minify) : buildJS(source, nodes, minify);
 }
 
 const enc = new TextEncoder();
@@ -201,13 +295,8 @@ async function gzipSize(bytes: Uint8Array<ArrayBuffer>): Promise<number> {
 	return (await new Response(stream).arrayBuffer()).byteLength;
 }
 
-async function sizes(text: string): Promise<SizeResult> {
-	const bytes = enc.encode(text);
-	const compress = await getBrotliCompress();
-	const [gz, br] = await Promise.all([
-		gzipSize(bytes),
-		compress ? Promise.resolve(compress(bytes).length) : Promise.resolve(null),
-	]);
+async function sizes(bytes: Uint8Array<ArrayBuffer>, stale: () => boolean): Promise<SizeResult> {
+	const [gz, br] = await Promise.all([gzipSize(bytes), brotliSize(bytes, stale)]);
 	return { raw: bytes.length, gzip: gz, brotli: br };
 }
 
@@ -218,68 +307,229 @@ function setText(id: string, value: string): void {
 	if (el) el.textContent = value;
 }
 
-type State = "building" | "ready" | "error";
+let downloadURL: string | null = null;
 
-function statusText(state: State): string {
-	if (state === "building") return "Building bundle…";
-	if (state === "error") return "Bundle build failed, see console.";
-	return "";
+function setDownload(archive: Blob | null): void {
+	const link = document.getElementById("bundle-download");
+	if (!link) return;
+	if (downloadURL) URL.revokeObjectURL(downloadURL);
+	downloadURL = archive && URL.createObjectURL(archive);
+	if (!downloadURL) {
+		link.removeAttribute("href");
+		link.setAttribute("aria-disabled", "true");
+		link.setAttribute("tabindex", "-1");
+		return;
+	}
+	link.setAttribute("href", downloadURL);
+	link.removeAttribute("aria-disabled");
+	link.removeAttribute("tabindex");
 }
 
-function render(state: State, js?: SizeResult, css?: SizeResult): void {
+function fileRow(name: string): Element | null {
+	return document.querySelector(`#bundle-size tr[data-file="${name}"]`);
+}
+
+function totalRow(): Element | null {
+	return document.querySelector("#bundle-size .bundle-size-total");
+}
+
+function setSizes(row: Element | null, size: SizeResult | null): void {
+	const set = (cell: string, value: number | null | undefined) => {
+		const el = row?.querySelector(`[data-size="${cell}"]`);
+		if (el) el.textContent = size ? kb(value ?? null) : "-";
+	};
+	set("raw", size?.raw);
+	set("gzip", size?.gzip);
+	set("br", size?.brotli);
+}
+
+function setCopy(row: Element | null, text: string | null): void {
+	const copy = row?.querySelector("neo-clipcopy");
+	if (!copy) return;
+	if (text === null) copy.removeAttribute("value");
+	else copy.setAttribute("value", text);
+	copy.querySelector("neo-button")?.toggleAttribute("disabled", text === null);
+}
+
+// Whether the archive includes the file (its row's checkbox).
+function included(name: string): boolean {
+	return fileRow(name)?.querySelector<HTMLElement & { checked?: boolean }>("neo-checkbox")?.checked === true;
+}
+
+type State = "building" | "ready" | "error";
+
+const STATUS_TEXT: Record<State, string> = {
+	building: "Building bundle…",
+	ready: "",
+	error: "Bundle build failed, see console.",
+};
+
+// The ready build's files; null while building.
+let current: BuiltFile[] | null = null;
+let archiveSeq = 0;
+
+function render(state: State, files?: BuiltFile[], message?: string): void {
 	const root = document.getElementById("bundle-size");
 	if (root) root.dataset.state = state;
-	setText("bundle-size-status", statusText(state));
-	if (state !== "ready" || !js || !css) return;
-	const sum = (a: number | null, b: number | null) => (a == null || b == null ? null : a + b);
-	const total: SizeResult = {
-		raw: js.raw + css.raw,
-		gzip: js.gzip + css.gzip,
-		brotli: sum(js.brotli, css.brotli),
-	};
-	const rows: [string, SizeResult][] = [
-		["js", js],
-		["css", css],
-		["total", total],
-	];
-	for (const [k, v] of rows) {
-		setText(`bundle-size-${k}-raw`, kb(v.raw));
-		setText(`bundle-size-${k}-gzip`, kb(v.gzip));
-		setText(`bundle-size-${k}-br`, kb(v.brotli));
+	setText("bundle-size-status", message ?? STATUS_TEXT[state]);
+	current = state === "ready" && files ? files : null;
+	archiveSeq++;
+	setDownload(null);
+	// Building keeps the last sizes under the overlay; an error and a
+	// version without the theme clear them.
+	for (const name of ROW_NAMES) {
+		const file = files?.find((f) => f.name === name);
+		setCopy(fileRow(name), file ? file.text : null);
+		if (file || state !== "building") setSizes(fileRow(name), file ? file.size : null);
+	}
+	if (state === "error") setSizes(totalRow(), null);
+}
+
+// Totals and zips the checked files; resolves to null when none is
+// checked or a newer call or render superseded it.
+async function updateArchive(): Promise<Blob | null> {
+	if (!current) return null;
+	const files = current.filter((f) => included(f.name));
+	const total: SizeResult = { raw: 0, gzip: 0, brotli: 0 };
+	for (const { size } of files) {
+		total.raw += size.raw;
+		total.gzip += size.gzip;
+		total.brotli = total.brotli === null || size.brotli === null ? null : total.brotli + size.brotli;
+	}
+	setSizes(totalRow(), files.length ? total : null);
+	const mySeq = ++archiveSeq;
+	setDownload(null);
+	if (!files.length) return null;
+	const archive = await zip(files.map((f) => ({ name: f.name, data: f.bytes })));
+	if (mySeq !== archiveSeq) return null;
+	setDownload(archive);
+	return archive;
+}
+
+// Runs the ?file= download. Its object URL is not revoked because this
+// runs once per page.
+function download(file: string, files: BuiltFile[], archive: Blob | null): void {
+	const built = files.find((f) => f.name === file);
+	const type = file.endsWith(".css") ? "text/css" : "text/javascript";
+	const blob = file === ARCHIVE_NAME ? archive : built && new Blob([built.bytes], { type });
+	if (!blob) return;
+	const link = document.createElement("a");
+	link.href = URL.createObjectURL(blob);
+	link.download = file;
+	document.body.append(link);
+	link.click();
+	link.remove();
+}
+
+// Lists only the components no other selected one depends on, because
+// the bootstrap re-adds dependencies. Omits defaults, and drops ?file= to
+// keep a reload from downloading again.
+function writeURL(selected: string[], version: string): void {
+	const url = window.__bundleURL;
+	if (!url) return;
+	const sel = new Set(selected);
+	const absent = new Set(url.absent(version));
+	const deps = new Map(url.components.map((c) => [c.id, new Set(c.deps)]));
+	// Cycle members don't imply each other.
+	const implied = (id: string) => selected.some((o) => o !== id && deps.get(o)?.has(id) && !deps.get(id)?.has(o));
+	const names = url.components.filter((c) => sel.has(c.id) && !implied(c.id)).map((c) => c.name);
+	const params = new URLSearchParams(location.search);
+	params.delete("components");
+	params.delete("version");
+	params.delete("file");
+	if (version !== url.defaultVersion) params.set("version", version);
+	let search = params.toString();
+	// Appended by hand because URLSearchParams escapes the commas.
+	if (url.components.some((c) => !sel.has(c.id) && !absent.has(c.id))) {
+		search += `${search ? "&" : ""}components=${names.join(",")}`;
+	}
+	const next = `${location.pathname}${search ? `?${search}` : ""}${location.hash}`;
+	if (next !== location.pathname + location.search + location.hash) history.replaceState(history.state, "", next);
+}
+
+// The ?file= download, for the first build of the requested version and selection;
+// any change cancels it.
+let request: { file: string; selection: string } | null = null;
+// Replaces the first build when the URL names something unknown; no download runs.
+let requestError: string | null = null;
+
+const selectionKey = (selected: string[], version: string) => `${version}:${selected.join(",")}`;
+
+if (window.__bundleURL) {
+	const { unknown, missing, badVersion, file, selected, version } = window.__bundleURL;
+	const problems: string[] = [];
+	if (badVersion !== null) problems.push(`Unknown version: ${badVersion}.`);
+	if (unknown.length) problems.push(`Unknown component${unknown.length > 1 ? "s" : ""}: ${unknown.join(", ")}.`);
+	if (missing.length) problems.push(`Not in ${version}: ${missing.join(", ")}.`);
+	if (file !== null) {
+		// "morpheus." is optional, as in ?file=zip.
+		const name = file.trim().toLowerCase();
+		const known = [name, `morpheus.${name}`].find((n) => n === ARCHIVE_NAME || ROW_NAMES.includes(n));
+		if (known) request = { file: known, selection: selectionKey(selected, version) };
+		else problems.push(`Unknown file: ${file}.`);
+	}
+	if (problems.length) {
+		requestError = problems.join(" ");
+		request = null;
 	}
 }
 
 let seq = 0;
 let timer = 0;
 
-async function run(selected: string[], mySeq: number): Promise<void> {
-	render("building");
+async function run(selected: string[], version: string, mySeq: number): Promise<void> {
 	try {
-		const manifest = await getManifest();
-		const nodes = enabledNodes(manifest, selected);
-		const [js, css] = await Promise.all([buildJS(nodes), buildCSS(manifest, nodes)]);
-		const [jsSize, cssSize] = await Promise.all([sizes(js), sizes(css)]);
+		const source = await getSource(version);
+		const nodes = enabledNodes(source.manifest, selected);
+		const stale = () => mySeq !== seq;
+		const pending: [string, Promise<string>][] = [
+			...BUILT_NAMES.map((name): [string, Promise<string>] => [name, buildFile(name, source, nodes)]),
+			...source.manifest.themes.map((name): [string, Promise<string>] => [
+				name,
+				fetchText(`${source.dir}bundle-themes/${name}`),
+			]),
+		];
+		const files = await Promise.all(
+			pending.map(async ([name, load]): Promise<BuiltFile> => {
+				const text = await load;
+				const bytes = enc.encode(text);
+				return { name, text, bytes, size: await sizes(bytes, stale) };
+			}),
+		);
 		if (mySeq !== seq) return; // a newer selection superseded us
-		render("ready", jsSize, cssSize);
+		render("ready", files);
+		const archive = await updateArchive();
+		if (mySeq !== seq) return;
+		if (request) download(request.file, files, archive);
+		request = null;
 	} catch (err) {
 		console.error("[bundle-size]", err);
 		if (mySeq === seq) render("error");
 	}
 }
 
-// Called from the page's data-effect with the live $bundleSel array.
-// Debounced: esbuild is expensive and toggles can come in bursts.
-window.__bundleSizeUpdate = (selected: unknown): void => {
+// Called by the page's data-effect with $bundleSel and $bundleVersion.
+// Debounced because toggles come in bursts and builds are expensive.
+window.__bundleSizeUpdate = (selected: unknown, versionValue: unknown): void => {
 	const snapshot = Array.isArray(selected) ? (selected.slice() as string[]) : [];
+	const version = typeof versionValue === "string" ? versionValue : "main";
+	writeURL(snapshot, version);
 	const mySeq = ++seq;
-	render("building");
 	clearTimeout(timer);
-	timer = window.setTimeout(() => run(snapshot, mySeq), 500);
+	if (requestError !== null) {
+		render("error", undefined, requestError);
+		requestError = null;
+		return;
+	}
+	if (request && selectionKey(snapshot, version) !== request.selection) request = null;
+	render("building");
+	timer = window.setTimeout(() => run(snapshot, version, mySeq), 500);
 };
 
-// The inline stub buffered the latest selection while this module
-// loaded; replay it so the first build runs without another toggle.
+document.getElementById("bundle-size")?.addEventListener("neo-checkbox-change", () => updateArchive());
+
+// Replays what the page's stub buffered while this module loaded.
 if (window.__bundleSizePending !== undefined) {
-	window.__bundleSizeUpdate(window.__bundleSizePending);
+	window.__bundleSizeUpdate(...window.__bundleSizePending);
 	window.__bundleSizePending = undefined;
 }

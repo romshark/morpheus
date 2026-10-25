@@ -1,4 +1,5 @@
 import { boolAttr, openCommand } from "../command";
+import { retryWhileParsing, stillParsing } from "../document-parsing";
 import { deepActiveElement, eventEnters } from "../shadow-utils";
 
 let nextId = 0;
@@ -9,7 +10,7 @@ const FOCUSABLE =
 	'[tabindex]:not([tabindex="-1"]):not([tabindex=""])';
 
 // Module-scoped scroll lock for open screen-scope lightboxes. Mirrors
-// neo-dialog: the top layer inerts clicks but not wheel/touch scroll on
+// neo-dialog. The top layer inerts clicks but not wheel/touch scroll on
 // the page behind. CSS overflow locks reflow stickies; blocking the
 // scroll *input* outside any open surface reflows nothing. Ref-counted
 // so stacked lightboxes share one listener pair.
@@ -56,8 +57,8 @@ function unlockScroll(lb: NeoLightbox) {
 	document.removeEventListener("touchmove", blockScrollOutsideSurface);
 }
 
-// Shadow tree: a default slot for the triggers followed by an overlay
-// (backdrop + surface). The overlay is shadow-owned so the open state
+// The shadow tree holds a default slot for the triggers followed by an
+// overlay (backdrop + surface). The overlay is shadow-owned so the open state
 // and the popover top-layer promotion survive a fat morph (which only
 // reaches light DOM). The user's content lives in light DOM and is
 // projected into the surface via manual slot assignment; assign()
@@ -66,25 +67,25 @@ const LIGHTBOX_SHADOW_TEMPLATE = document.createElement("template");
 // Shadow CSS notes, kept out of the template string so the minifier drops
 // them from the bundle. Anchored by selector:
 // - [data-neo-lightbox-overlay] display: hidden until open. Author-origin
-//   display beats the UA popover rule, so a closed screen overlay must be
-//   explicitly none, else it stays a viewport-covering fixed box that eats
+//   display beats the UA popover rule. A closed screen overlay must be
+//   explicitly none, else it stays a viewport-covering fixed box that captures
 //   pointer / scroll input. The :popover-open / [open] rules flip it to flex.
 // - [data-neo-lightbox-overlay][popover]: screen scope, Popover API top layer
 //   covering the viewport.
 // - :host([contained]) [data-neo-lightbox-overlay]: container scope,
 //   absolute fill of the positioned host.
 // - [data-neo-lightbox-surface] opacity/transform: resting state, and the
-//   default for transition="zoom" / "none": no CSS entry animation. Zoom is
-//   driven by WAAPI (flipOpen/flipClose); none is instant. The fade variant
+//   default for transition="zoom" / "none", which have no CSS entry animation.
+//   Zoom runs on WAAPI (flipOpen/flipClose); none is instant. The fade variant
 //   adds the scale + opacity.
 // - [data-neo-lightbox-overlay]:popover-open [data-neo-lightbox-backdrop]:
 //   backdrop fades in for every transition mode, keyed on popover state
 //   (screen) or [open] (container). The FLIP reads its duration / easing from
-//   this transition, so it stays themed even when the surface has no CSS
+//   this transition, which keeps it themed even when the surface has no CSS
 //   transition of its own.
 // - :host([transition="fade"]) [data-neo-lightbox-surface]: the centered scale
-//   + opacity entry. The default "zoom" uses WAAPI and "none" is instant, so
-//   both leave the surface at its resting opacity:1 / transform:none above.
+//   + opacity entry. The default "zoom" uses WAAPI and "none" is instant; both
+//   leave the surface at its resting opacity:1 / transform:none.
 LIGHTBOX_SHADOW_TEMPLATE.innerHTML = `
 <style>
   :host { display: inline-block; }
@@ -255,7 +256,21 @@ export class NeoLightbox extends HTMLElement {
 	}
 
 	connectedCallback() {
-		if (!this.#bindChildren()) return;
+		// On connect, an explicit open/close command is obeyed; an absent
+		// one keeps prior intent (persists across reconnect / morph). A
+		// close command left on the host would outlive the next open
+		// (#reflectOpen skips an existing `open`). Drop it before
+		// #bindChildren mirrors `open` into aria-expanded.
+		const cmd = openCommand(this);
+		if (cmd === "open") this.#openIntent = true;
+		else if (cmd === "close") this.#openIntent = false;
+		if (!this.#openIntent) this.#reflectClose();
+		if (!this.#bindChildren()) {
+			retryWhileParsing(this, () => {
+				if (!this.#ready) this.connectedCallback();
+			});
+			return;
+		}
 		this.#applyScope();
 
 		this.addEventListener("click", this.#onContentClick);
@@ -268,15 +283,10 @@ export class NeoLightbox extends HTMLElement {
 		this.#childObserver = new MutationObserver(this.#onChildMutation);
 		this.#childObserver.observe(this, { childList: true, subtree: true });
 
-		// Command `open` on connect: explicit open/close obey; absent
-		// keeps prior intent (persists across reconnect / morph).
-		const cmd = openCommand(this);
-		if (cmd === "open") this.#openIntent = true;
-		else if (cmd === "close") this.#openIntent = false;
 		this.#ready = true;
 		if (this.#openIntent) {
-			// Silent re-establish: a morph rebuild must not re-fire load
-			// actions wired to neo-lightbox-open.
+			// Silent re-establish, because a morph rebuild must not re-fire
+			// load actions wired to neo-lightbox-open.
 			this.#applyOpen({ silent: true, noFocus: true });
 		}
 	}
@@ -336,8 +346,8 @@ export class NeoLightbox extends HTMLElement {
 		this.#scheduleRecover();
 	};
 
-	// contained → popover attribute + ARIA modality. Screen (default)
-	// rides the Popover API top layer; contained stays an in-flow overlay.
+	// contained -> popover attribute + ARIA modality. Screen (default)
+	// uses the Popover API top layer; contained stays an in-flow overlay.
 	#applyScope(): void {
 		if (this.#isContainer()) {
 			this.#overlay.removeAttribute("popover");
@@ -358,7 +368,7 @@ export class NeoLightbox extends HTMLElement {
 		const newTriggers = Array.from(this.querySelectorAll<HTMLElement>("[data-neo-lightbox-trigger]"));
 		const newContent = this.querySelector<HTMLElement>("[data-neo-lightbox-content]");
 		if (newTriggers.length === 0 || !newContent) {
-			if (this.#triggers.length === 0 || !this.#content) {
+			if ((this.#triggers.length === 0 || !this.#content) && !stillParsing()) {
 				console.warn(
 					"<neo-lightbox> requires at least one [data-neo-lightbox-trigger] and a [data-neo-lightbox-content] child.",
 				);
@@ -403,8 +413,8 @@ export class NeoLightbox extends HTMLElement {
 		}
 
 		// Project content into the surface, everything else into the
-		// default slot. slot.assign only takes the host's direct children,
-		// so route the top-level ancestor that contains the content.
+		// default slot. slot.assign only takes the host's direct children;
+		// route the top-level ancestor that contains the content.
 		const contentTop = this.#slottable(this.#content);
 		const others = Array.from(this.children).filter((c) => c !== contentTop);
 		this.#defaultSlot.assign(...others);
@@ -492,9 +502,9 @@ export class NeoLightbox extends HTMLElement {
 		}
 	}
 
-	// Enter the presentation layer: top-layer popover + scroll lock for
+	// Enter the presentation layer (top-layer popover + scroll lock) for
 	// screen scope; container scope shows purely through the [open] CSS.
-	// Idempotent, so callers never pre-check the presented state.
+	// Idempotent; callers never pre-check the presented state.
 	#present(): void {
 		if (this.#isContainer()) return;
 		if (this.isConnected && this.#overlay.hasAttribute("popover") && !this.#overlay.matches(":popover-open")) {
@@ -521,9 +531,9 @@ export class NeoLightbox extends HTMLElement {
 
 	// FLIP: morph the surface between the opening trigger's rect and its
 	// natural place. The surface is already laid out at its final position
-	// (present() ran / [open] is set), so we measure both rects and animate
-	// the transform that maps one onto the other. The surface has no CSS
-	// entry animation in zoom mode, so WAAPI solely owns the motion.
+	// (present() ran / [open] is set). Measure both rects and animate the
+	// transform that maps one onto the other. The surface has no CSS entry
+	// animation in zoom mode, which leaves WAAPI as the only source of motion.
 	#flipOpen(): void {
 		if (this.#prefersReducedMotion()) return;
 		const from = this.#triggerTransform();
@@ -562,7 +572,7 @@ export class NeoLightbox extends HTMLElement {
 	}
 
 	// Duration / easing come from the backdrop's live transition (the
-	// surface has none in zoom mode), so the FLIP follows the theme
+	// surface has none in zoom mode). The FLIP then follows the theme
 	// tokens and --neo-duration-scale.
 	#flipDurationMs(): number {
 		const d = parseFloat(getComputedStyle(this.#backdrop).transitionDuration);
@@ -627,7 +637,7 @@ export class NeoLightbox extends HTMLElement {
 		return out;
 	}
 
-	// State → attribute, guarded so it isn't read back as a command.
+	// State -> attribute, guarded so it isn't read back as a command.
 	#reflectOpen(): void {
 		if (this.hasAttribute("open")) return;
 		this.#reflecting = true;

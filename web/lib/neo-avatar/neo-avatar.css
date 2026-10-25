@@ -1,12 +1,9 @@
-/* -----------------------------------------------------------------------
- * <neo-avatar> / <neo-avatars>
- * -----------------------------------------------------------------------
- * <neo-avatar> is the visual primitive for one portrait/fallback. It is
- * intentionally style-only so it can be patched like ordinary light DOM.
+/* <neo-avatar> is the visual primitive for a single portrait/fallback.
+ * It's intentionally style-only so it can be patched like ordinary light DOM.
  *
- * Overlapping avatar rows. Authored children stay in light DOM; the
- * host only hides overflow children and inserts a generated +N circle
- * as needed. Corner rounding is intentionally its own token so themes
+ * <neo-avatars> is a row of overlapping avatars. Authored children stay in
+ * light DOM; the host only hides overflow children and inserts a generated +N
+ * circle as needed. Corner rounding is intentionally its own token so themes
  * can choose circles, squircle-ish rounds, or sharper framed portraits
  * without touching size / overlap tokens.
  */
@@ -37,7 +34,8 @@
 }
 
 neo-avatar {
-	/* Marks this stylesheet as loaded so the kit can flag a trimmed CSS-only component. */
+	/* Marks this stylesheet as loaded so the kit
+	 * can flag a trimmed CSS-only component. */
 	--neo-loaded: neo-avatar;
 	display: inline-flex;
 	align-items: center;
@@ -140,7 +138,7 @@ neo-avatars > :where(a, button, span, div) > neo-avatar {
 
 neo-avatars > [data-neo-avatars-hidden] {
 	/* biome-ignore lint/complexity/noImportantStyles: hard hide for JS-marked
-	 * overflow avatars; must beat the avatar's own display and any inline style. */
+	 * overflow avatars; overrides the avatar's display and any inline style. */
 	display: none !important;
 }
 
@@ -206,8 +204,8 @@ neo-avatars > neo-popover[data-neo-avatars-overflow] > [data-neo-popover-trigger
 	filter: var(--neo-avatars-filter);
 }
 
-/* The 8% chip bg collapses against Canvas; pin it to a high-contrast
- * fill. The page-bg border is load-bearing for the overlap gap. */
+/* The 8% chip bg collapses against Canvas; pin it to a high-contrast fill.
+ * The overlap gap depends on the page-bg border. */
 @media (forced-colors: active) {
 	neo-avatars > [data-neo-avatars-overflow] {
 		background: Highlight;

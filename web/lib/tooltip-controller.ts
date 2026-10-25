@@ -1,15 +1,16 @@
 // Tooltip behavior shared by the <neo-tooltip> element and components that
 // render a value bubble without registering that element (e.g. <neo-slider>,
-// <neo-slider-range>). Operates on a host element: resolves trigger + content
-// from the host's children, runs hover/focus show-hide with the same
-// pointer-events: none, role="tooltip", aria-describedby semantics, and
-// positions the content on the same primitives as <neo-popover>.
+// <neo-slider-range>). Operates on a host element. It resolves trigger +
+// content from the host's children, runs hover/focus show-hide with the same
+// pointer-events: none, role="tooltip", aria-describedby semantics,
+// and positions the content on the same primitives as <neo-popover>.
 //
 // The host carries the config attributes (text, placement,
-// hover-open-delay, hover-close-delay) and the reflected `open` state, so a caller reads `open` and
-// sets `text` on the host exactly as on the element. connect()/disconnect()
-// are idempotent and reconnect-safe: a shadow-internal host is re-bound by its
-// owner's connectedCallback (no nested element lifecycle fires for it).
+// hover-open-delay, hover-close-delay) and the reflected `open` state.
+// A caller reads `open` and sets `text` on the host exactly as on the element.
+// connect()/disconnect() are idempotent and reconnect-safe. A shadow-internal
+// host is re-bound by its owner's connectedCallback (no nested element
+// lifecycle fires for it).
 
 import { openCommand } from "./command";
 import { type Placement, positionPanel, resolveCssLengthPx } from "./neo-position";
@@ -34,7 +35,7 @@ export class TooltipController {
 	// each time inserts/measures/removes a throwaway node and forces a reflow.
 	#edgeOffset: number | null = null;
 	// Follow-drag baseline. During a drag the caller shifts the bubble by the
-	// trigger's delta from where the last real placement put it, so no layout
+	// trigger's delta from where the last real placement put it, and no layout
 	// is read per frame (see beginFollow / nudge / endFollow).
 	#following = false;
 	#baseLeft = 0;
@@ -84,8 +85,8 @@ export class TooltipController {
 		this.#childObserver = null;
 	}
 
-	// Resolve trigger + content from the live DOM and wire them. Idempotent:
-	// a no-op once the same nodes are bound, so a re-entrant observer call
+	// Resolve trigger + content from the live DOM and wire them. Idempotent,
+	// a no-op once the same nodes are bound. A re-entrant observer call
 	// after the auto-created content span settles is the loop fixpoint.
 	#bind() {
 		const wasReady = this.#ready;
@@ -130,8 +131,8 @@ export class TooltipController {
 		});
 		this.#resizeObserver.observe(content);
 		this.#ready = true;
-		// attributeChanged swallows the `open` command while #ready is false, so
-		// re-read it once binding completes (initial connect, or a trigger that
+		// attributeChanged swallows the `open` command while #ready is false.
+		// Re-read it once binding completes (initial connect, or a trigger that
 		// streams in after connect) to adopt or normalize an authored `open`.
 		if (!wasReady) this.#syncOpen();
 	}
@@ -175,8 +176,8 @@ export class TooltipController {
 	#syncOpen(): void {
 		const cmd = openCommand(this.#host);
 		if (cmd === null) {
-			// Re-assert `[open]` after a morph strip and reposition, since the
-			// trigger may have moved with it.
+			// Re-assert `[open]` after a morph strip and reposition,
+			// since the trigger may have moved with it.
 			if (this.#openIntent) {
 				this.#reflectOpen();
 				this.#position();
@@ -229,9 +230,9 @@ export class TooltipController {
 		this.#repositionFrame = null;
 	}
 
-	// State → attribute, guarded so the reflected write isn't read back as a
+	// State -> attribute, guarded so the reflected write isn't read back as a
 	// command. `open` (value-less) matches the `[open]` CSS the same as the
-	// author's `open`/`open="true"`, so leave an existing attribute in place.
+	// author's `open`/`open="true"`; leave an existing attribute in place.
 	#reflectOpen(): void {
 		if (this.#host.hasAttribute("open")) return;
 		this.#reflecting = true;
@@ -252,10 +253,10 @@ export class TooltipController {
 		}
 	}
 
-	// Public hook for triggers that move while open (e.g. <neo-slider>
-	// thumb): a CSS `left` change fires none of our existing listeners.
-	// Coalesced into one reflow per frame: a drag emits many pointermoves
-	// (and a two-way value binding echoes each back), so a synchronous
+	// Public hook for triggers that move while open (e.g. <neo-slider> thumb).
+	// A CSS `left` change fires none of our existing listeners.
+	// Coalesced into 1 reflow per frame. A drag emits many pointermoves
+	// (and a 2-way value binding echoes each back), and a synchronous
 	// #position() per call would relayout the document several times a frame.
 	reposition(): void {
 		if (!this.#openIntent || this.#repositionFrame !== null) return;
@@ -265,11 +266,11 @@ export class TooltipController {
 		});
 	}
 
-	// Follow-drag protocol for a trigger that moves along one axis (slider
-	// thumb). beginFollow places the bubble once and snapshots that inline
-	// position; nudge(dx, dy) then shifts it by the trigger's pixel delta with
-	// a plain style write and no layout read, so a drag over a heavy page
-	// costs no forced reflow per frame; endFollow settles the exact placement.
+	// Follow-drag protocol for a trigger that moves along a single axis (slider thumb).
+	// beginFollow places the bubble once and snapshots that inline position;
+	// nudge(dx, dy) then shifts it by the trigger's pixel delta with a plain style
+	// write and no layout read, which spares a drag over a heavy page a forced reflow
+	// per frame; endFollow settles the exact placement.
 	beginFollow(): void {
 		if (!this.#openIntent) return;
 		this.#cancelReposition();
@@ -300,10 +301,10 @@ export class TooltipController {
 		return null;
 	}
 
-	// Touch is excluded so a long-press doesn't open the tooltip: finger
-	// input has no real "hover" intent and the OS-level long-press
-	// (callout / context menu) competes for the gesture anyway. Mouse
-	// and pen still go through normally.
+	// Touch is excluded so a long-press doesn't open the tooltip, because
+	// finger input has no real "hover" intent and the OS-level long-press
+	// (callout / context menu) competes for the gesture anyway.
+	// Mouse and pen still go through normally.
 	#onPointerEnter = (e: PointerEvent) => {
 		if (e.pointerType === "touch") return;
 		this.#clearCloseTimer();
@@ -334,9 +335,9 @@ export class TooltipController {
 		}, delay);
 	};
 
-	// Focus reveals immediately: focus is intentional, hover delay would
-	// feel unresponsive. Gated on :focus-visible so a tap-induced focus
-	// (which fires after click on iOS Safari and similar) doesn't pop the
+	// Focus reveals immediately because focus is intentional and a hover
+	// delay would feel unresponsive. Gated on :focus-visible so a tap-induced
+	// focus (which fires after click on iOS Safari and similar) doesn't pop the
 	// tooltip back open after the user activated the trigger; keyboard
 	// focus still satisfies :focus-visible and opens normally.
 	#onFocus = () => {
@@ -346,7 +347,7 @@ export class TooltipController {
 		try {
 			if (!this.#trigger.matches(":focus-visible")) return;
 		} catch {
-			// Older browsers without :focus-visible: fall through and show.
+			// Older browsers without :focus-visible fall through and show.
 		}
 		this.show();
 	};

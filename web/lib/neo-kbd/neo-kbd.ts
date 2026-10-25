@@ -3,8 +3,8 @@ import { formatKey } from "../platform";
 export class NeoKbd extends HTMLElement {
 	static observedAttributes = ["key"];
 
-	// A fat-morph reconciles the glyph away: the authored source is the empty
-	// <neo-kbd key="…">, so the patch strips the rendered text and fires no
+	// A fat-morph reconciles the glyph away. The authored source is the empty
+	// <neo-kbd key="...">; the patch strips the rendered text and fires no
 	// lifecycle callback. Re-render whenever the light DOM is mutated back.
 	#observer = new MutationObserver(() => this.#render());
 
@@ -27,7 +27,7 @@ export class NeoKbd extends HTMLElement {
 		// Without `key`, the author-provided content stands as-is.
 		if (!key) return;
 		const glyph = formatKey(key);
-		// Write only on a real diff, so our own mutation can't loop the observer.
+		// Write only on a real diff so our own mutation can't loop the observer.
 		if (this.textContent !== glyph) this.textContent = glyph;
 	}
 }

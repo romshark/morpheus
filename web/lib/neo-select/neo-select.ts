@@ -1,6 +1,7 @@
 // Shadow DOM owns the trigger/panel/scroll shell. Light DOM stays the
-// option/template source and is projected into the shell, so rich option
-// content keeps its real custom-element lifecycle instead of being cloned.
+// option/template source and is projected into the shell. Rich option
+// content then keeps its real custom-element lifecycle instead of being
+// cloned.
 
 import { boolAttr } from "../command";
 import { NavEngine } from "../nav-engine";
@@ -32,10 +33,11 @@ const SELECT_SHADOW_TEMPLATE = document.createElement("template");
 //   card isn't shorter than a plain trigger.
 // - :host([popover-fit-content]) [data-neo-select-list]: size to the option
 //   rows instead of forcing the trigger width, capped like max-width.
-// - [data-neo-select-options] gap: options slot straight in (bare, or via a
-//   display:contents <neo-datalist> container), so the row gap lives here.
+// - [data-neo-select-options] gap: the row gap lives on this container
+//   because options slot straight in (bare, or via a display:contents
+//   <neo-datalist> container).
 // - ::slotted([hidden]): the inline <neo-datalist> source is hidden while its
-//   async placeholder is cloned into the loading slot. !important beats the
+//   async placeholder is cloned into the loading slot. !important overrides the
 //   component/source display rules so the template does not render alongside
 //   its clone.
 // - [data-neo-select-empty-message], ::slotted([slot="loading"]): reset the
@@ -149,7 +151,7 @@ SELECT_SHADOW_TEMPLATE.innerHTML = `
       display var(--neo-popover-enter-duration, calc(140ms * var(--neo-duration-scale, 1))) allow-discrete;
   }
   :host([popover-fit-content]:not([popover-fit-content="false"])) [data-neo-select-list] {
-    /* The positioner leaves width unset in this mode, so size to the option
+    /* The positioner leaves width unset in this mode. Size to the option
        rows, floored by min-width (trigger width) and capped by max-width. */
     width: max-content;
   }
@@ -205,31 +207,6 @@ SELECT_SHADOW_TEMPLATE.innerHTML = `
   </div>
 </div>
 `;
-
-export class NeoOption extends HTMLElement {}
-
-if (!customElements.get("neo-option")) {
-	customElements.define("neo-option", NeoOption);
-}
-
-// <neo-optgroup>: declarative section wrapper. The visual header lives
-// in CSS (`::before { content: attr(label) }`), and role/aria-label are
-// server-rendered, so the element has no JS-managed subtree that a
-// morph could strip and re-add. Sync aria-label when the label attr
-// changes after hydration.
-export class NeoOptgroup extends HTMLElement {
-	static readonly observedAttributes = ["label"];
-
-	attributeChangedCallback(name: string, _old: string | null, value: string | null) {
-		if (name !== "label") return;
-		if (value) this.setAttribute("aria-label", value);
-		else this.removeAttribute("aria-label");
-	}
-}
-
-if (!customElements.get("neo-optgroup")) {
-	customElements.define("neo-optgroup", NeoOptgroup);
-}
 
 export class NeoSelect extends NeoListbox {
 	static readonly observedAttributes = [
@@ -394,10 +371,10 @@ export class NeoSelect extends NeoListbox {
 		const scrollIntoView = opts.scrollIntoView ?? opts.focus !== false;
 		if (!this.position({ scrollIntoView })) return;
 		this.#dispatchOpen();
-		// `loading` means options need fetching now: `async` (every open)
-		// or a lazy select's first open. Fire the load request only then;
-		// neo-popover-open stays honest as "panel opened", nothing more, so
-		// a wired-up lazy select doesn't re-fetch (and re-morph) on reopen.
+		// `loading` means options need fetching now, on every open for
+		// `async` or on a lazy select's first open. Fire the load request
+		// only then. neo-popover-open means only "panel opened", which keeps
+		// a wired-up lazy select from re-fetching (and re-morphing) on reopen.
 		if (this.loading) this.#dispatchLoad();
 		// Hover-open passes focus:false so it can't pull the caret out of
 		// whatever the user is typing in.
@@ -424,15 +401,15 @@ export class NeoSelect extends NeoListbox {
 	}
 
 	#cacheTemplates() {
-		// Retain the last-seen placeholder when the live one is gone: an async
+		// Retain the last-seen placeholder when the live one is gone. An async
 		// select's first options morph replaces it, but reopen and reload()
 		// still render the author's skeleton from the retained ref. Lifecycle
 		// (lazy trigger, loading done) keys on live presence via
 		// #sourceHasAsyncPlaceholder(), never on this possibly detached ref.
 		this.loadingTemplateEl = this.#findLightTemplate("[data-neo-async-placeholder]") ?? this.loadingTemplateEl;
-		// Re-find each time (not ??=): a morph that replaces the source
-		// container also replaces its descendant template divs, so a cached
-		// ref would otherwise stay on the old detached element.
+		// Re-find each time (not ??=) because a morph that replaces the source
+		// container also replaces its descendant template divs, and a cached
+		// ref would stay on the old detached element.
 		this.#emptyTemplateEl = this.#findLightTemplate("[data-neo-select-empty]");
 	}
 
@@ -483,7 +460,7 @@ export class NeoSelect extends NeoListbox {
 		});
 	}
 
-	// Live placeholder presence, checked in the same two scopes
+	// Live placeholder presence, checked in the same 2 scopes
 	// #findLightTemplate reads (host child, source-root child).
 	#sourceHasAsyncPlaceholder(): boolean {
 		return !!this.#findLightTemplate("[data-neo-async-placeholder]");
@@ -504,8 +481,8 @@ export class NeoSelect extends NeoListbox {
 		return el;
 	}
 
-	// Stand-in when the author supplies no [data-neo-async-placeholder]:
-	// the kit's spinner plus a label. Carries the placeholder marker so
+	// Stand-in when the author supplies no [data-neo-async-placeholder],
+	// made of the kit's spinner plus a label. Carries the placeholder marker so
 	// it inherits the loading-content layout from neo-select.css.
 	#defaultLoadingNode(): HTMLElement {
 		const el = document.createElement("div");
@@ -520,7 +497,7 @@ export class NeoSelect extends NeoListbox {
 			this.loading = true;
 			return;
 		}
-		// Live presence, not the retained loadingTemplateEl: a morph that
+		// Live presence, not the retained loadingTemplateEl, because a morph that
 		// removed the placeholder without delivering options means loading is
 		// done (or was never wanted), not perpetually pending.
 		this.loading = this.#sourceHasAsyncPlaceholder() && this.optionData().length === 0;
@@ -573,8 +550,9 @@ export class NeoSelect extends NeoListbox {
 	}
 
 	// Effective selected value. An absent `value` resolves to the zero-value
-	// option ("") when the list has one: "no value" and the empty option are
-	// the same selection, like a native <select> defaulting to its "" option.
+	// option ("") when the list has one, because "no value" and the empty
+	// option are the same selection, like a native <select> defaulting to its
+	// "" option.
 	#selectedValue(options = this.optionData()): string | null {
 		const attr = this.getAttribute("value");
 		if (attr !== null) return attr;
@@ -600,7 +578,7 @@ export class NeoSelect extends NeoListbox {
 		const value = el.getAttribute("data-neo-value") ?? "";
 		const data = this.optionData().find((o) => o.value === value);
 		this.applyingValue = true;
-		// Paused: #applyValueFromAttr below re-renders synchronously; letting
+		// Paused because #applyValueFromAttr re-renders synchronously; letting
 		// the observer see the host's own value write would re-run the whole
 		// reconcile pass a microtask later for nothing.
 		this.withLightDomObserverPaused(() => {
@@ -655,9 +633,9 @@ export class NeoSelect extends NeoListbox {
 	}
 
 	// A click dispatched directly on the host (composedPath()[0] === host)
-	// opens the list, so a <neo-keys for> shortcut reaches a trigger that
-	// otherwise lives in the shadow root. Trigger/option clicks target
-	// those nodes, not the host, so this never double-toggles.
+	// opens the list. This lets a <neo-keys for> shortcut reach a trigger
+	// that otherwise lives in the shadow root. Trigger/option clicks target
+	// those nodes, not the host, and never double-toggle.
 	#onHostClick = (e: MouseEvent) => {
 		if (e.composedPath()[0] === this) this.toggle();
 	};

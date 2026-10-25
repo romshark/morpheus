@@ -1,8 +1,8 @@
 package neo
 
-// KeysOpts: see <neo-keys> attributes. Binds keyboard shortcuts in the
+// KeysOpts configures <neo-keys>, which binds keyboard shortcuts in the
 // scope of a target element (its parent by default) and emits an event
-// on a match. Renders nothing.
+// on a match. It renders nothing.
 type KeysOpts struct {
 	Keys            Attr[string] // chords; `+` joins, `,` sequences, `|` alternatives
 	Target          Attr[string] // parent | window | document | CSS selector
@@ -47,8 +47,8 @@ templ Keys(opts KeysOpts) {
 	@KeysAttrs(opts, nil)
 }
 
-// KeysAttrs is the form taking extra attributes (e.g. data-on:* event
-// handlers, data-attr:disabled). Caller attrs win on collision.
+// KeysAttrs is [Keys] with an extra attribute set (e.g. data-on:* event
+// handlers, data-attr:disabled). Caller attrs override on collision.
 templ KeysAttrs(opts KeysOpts, attrs templ.Attributes) {
 	<neo-keys { keysAttrs(opts, attrs)... }></neo-keys>
 }

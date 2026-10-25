@@ -14,7 +14,7 @@ templ PageTabs(morpheusVersion string) {
 			}
 			<p class="intro">
 				Component <code>{ "<neo-tabs>" }</code> is a tabbed
-				interface: clicking a <code>{ `<neo-tab>` }</code>
+				interface. Clicking a <code>{ `<neo-tab>` }</code>
 				commits its <code>value</code> to the host, which
 				reveals the matching
 				<code>{ `<neo-tabpanel>` }</code>. Arrow keys move
@@ -79,7 +79,7 @@ templ PageTabs(morpheusVersion string) {
 				<code>tabs-tilt</code> set here branches on the
 				host's <code>:state(forward)</code> /
 				<code>:state(backward)</code> custom state (set
-				when the active tab changes), so the panel
+				when the active tab changes). The panel
 				rotates and slides in from the side of travel.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
@@ -122,7 +122,7 @@ templ PageTabs(morpheusVersion string) {
 				}
 				@neo.AlertContent() {
 					@neo.AlertDescription() {
-						Only observable with the keyboard: focus a
+						Only observable with the keyboard. Focus a
 						tab, then press&nbsp;
 						@neo.Kbd(neo.KbdOpts{}) {
 							←

@@ -1,0 +1,11 @@
+.aura-width-none {
+	--neo-aura-width: 0;
+}
+
+.aura-width-thin {
+	--neo-aura-width: 1px;
+}
+
+.aura-width-thick {
+	--neo-aura-width: 4px;
+}

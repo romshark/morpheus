@@ -1,6 +1,6 @@
 // Hover/focus tooltip on the same positioning primitives as <neo-popover>
-// but with tooltip semantics: no focus stealing, no click dismissal,
-// pointer-events: none, role="tooltip", aria-describedby on the trigger.
+// but with tooltip semantics (no focus stealing, no click dismissal,
+// pointer-events: none, role="tooltip", aria-describedby on the trigger).
 //
 // Behavior lives in TooltipController so components can render the same
 // bubble without registering this element; this class is the custom-element

@@ -14,9 +14,9 @@ templ PageProgress(morpheusVersion string) {
 			}
 			<p class="intro">
 				Component <code>{ "<neo-progress>" }</code> is the
-				read-only sibling of <code>{ `<neo-slider>` }</code>:
-				same rail, fill, and anchor-mark styling, shared
-				<code>--neo-slider-*</code> tokens, but no thumb,
+				read-only sibling of <code>{ `<neo-slider>` }</code>.
+				It shares the rail, fill, and anchor-mark styling and the
+				<code>--neo-slider-*</code> tokens, but has no thumb,
 				keyboard, or editable readout.
 			</p>
 			@Playground(PlaygroundOpts{
@@ -36,8 +36,8 @@ templ PageProgress(morpheusVersion string) {
 				Marks with labels
 			}
 			<p class="demo-note">
-				Same slot convention as the slider:
-				<code>{ `<span data-neo-progress-mark="…">` }</code>
+				As on the slider,
+				<code>{ `<span data-neo-progress-mark="...">` }</code>
 				children render an anchor dot at the value plus
 				a label beneath. The dot and label flip to their
 				active colour once the bar's value reaches them.
@@ -74,7 +74,7 @@ templ PageProgress(morpheusVersion string) {
 				Omit <code>label</code> and set
 				<code>hide-value</code> to drop the header
 				entirely. The marks row still hides itself when
-				no mark carries a label, so this collapses to
+				no mark carries a label, which leaves
 				just the bar.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
@@ -107,12 +107,12 @@ templ PageProgress(morpheusVersion string) {
 				Custom indeterminate animation
 			}
 			<p class="demo-note">
-				The rail lives in the shadow root, so reach the
+				The rail lives in the shadow root. Reach the
 				fill across the boundary with
 				<code>{ `::part(fill)` }</code>, then override
 				<code>animation</code> from a per-instance class to
 				swap the kit's default left-to-right loop for any
-				custom keyframe. This one widens the segment to half
+				custom keyframe. This one widens the segment to 1/2
 				the rail and ping-pongs from end to end.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
@@ -151,7 +151,7 @@ templ PageProgress(morpheusVersion string) {
 				A Datastar app can fat-morph the page at any moment;
 				a server reporting progress just re-emits the bar
 				with a new <code>value</code>. The painted rail lives
-				in the component's shadow root, so a morph of the
+				in the component's shadow root. A morph of the
 				light host only changes the <code>value</code>
 				attribute and never touches the fill node, letting
 				the <code>easing</code> transition ease the fill to
@@ -171,14 +171,14 @@ templ PageProgress(morpheusVersion string) {
 				Clicking <em>Download</em> opens an SSE connection
 				to <code>/progress/download</code>. Each
 				<code>{ `sse.patchSignals` }</code> bumps the
-				value signal by 25% on a one-second beat; the
+				value signal by 25% on a 1-second beat; the
 				bar's <code>{ `data-attr:value` }</code> binding
 				renders the change without re-emitting the host.
 				A final patch flips the bar's <code>label</code>
 				through the same signal; its
 				<code>{ `data-attr:label` }</code> binding renders
-				"Done ✓" inside the component's frame; the rail is in
-				the shadow root, so the success state rides the label
+				"Done ✓" inside the component's frame. The rail is in
+				the shadow root, which is why the success state uses the label
 				attribute rather than a separate status row.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
@@ -235,9 +235,9 @@ var progressDoc = ComponentDoc{
 }
 
 // progressDownloadSimulator registers the streaming-patches route for
-// the server-driven download demo: value bumps on a 1-second beat plus a
-// final label flip to "Done", both via signals the host's data-attr
-// bindings render, since the rail now lives in the shadow root.
+// the server-driven download demo. It bumps the value on a 1-second beat
+// and finally flips the label to "Done", both via signals the host's
+// data-attr bindings render, because the rail lives in the shadow root.
 templ progressDownloadSimulator() {
 	<script type="module">
 		import sim from "/static/datasim.js";

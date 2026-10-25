@@ -1,13 +1,10 @@
-/* -----------------------------------------------------------------------
- * Pre-hydration placeholders
- * -----------------------------------------------------------------------
- * Components whose authored markup leaves real work for JS (building
+/* Components whose authored markup leaves real work for JS (building
  * inner structure, hiding inactive panels, lifting children into a popover)
  * get a `:not(:defined)` placeholder so the host reserves a sensible
- * box (and shimmer) before the bundle upgrades the element. The selector
- * auto-disengages the moment the element is upgraded.
+ * box (and shimmer) before the bundle upgrades the element.
+ * The selector auto-disengages the moment the element is upgraded.
  *
- * Two timing tweaks keep the placeholder from flashing on fast loads:
+ * 2 timing tweaks keep the placeholder from flashing on fast loads:
  *
  *   1. A delay (`--neo-placeholder-delay`) before the placeholder
  *      becomes visible. A bundle that upgrades within that window never
@@ -24,9 +21,28 @@
  * For dialog the modal is closed pre-upgrade and the trigger is just a
  * styled <neo-button>; there is nothing visible to placeholder.
  *
- * `neo-select:not(:defined)` lives next to its component above; its
+ * `neo-select:not(:defined)` lives in neo-select.css because its
  * placeholder needs the trigger-button styling verbatim and renders the
- * placeholder text via `attr(placeholder)`, so it stays inline. */
+ * placeholder text via `attr(placeholder)`. */
+
+/* The skeleton pulse, shared with <neo-skeleton>. It lives here because
+ * this sheet ships in every bundle and neo-skeleton.css only with the component.
+ * color-mix on --page-fg works on every theme without overrides. */
+:root {
+	--neo-skeleton-bg: color-mix(in srgb, var(--page-fg) 10%, transparent);
+	--neo-skeleton-bg-pulse: color-mix(in srgb, var(--page-fg) 20%, transparent);
+	--neo-skeleton-duration: 1.4s;
+}
+
+@keyframes neo-skeleton-pulse {
+	0%,
+	100% {
+		background-color: var(--neo-skeleton-bg);
+	}
+	50% {
+		background-color: var(--neo-skeleton-bg-pulse);
+	}
+}
 
 :root {
 	--neo-placeholder-delay: 200ms;
@@ -63,7 +79,7 @@ neo-spinner:not(:defined) {
 }
 
 /* Layer host and sub-elements lifted/managed on upgrade, hidden until
- * their parent host gathers them. No fade-in: there's nothing to fade,
+ * their parent host gathers them. No fade-in because there's nothing to fade,
  * and these would otherwise leak as plain text. */
 neo-toaster:not(:defined),
 neo-option:not(:defined),
@@ -71,16 +87,16 @@ neo-optgroup:not(:defined) {
 	display: none;
 }
 
-/* Concealed cover veil. The SAME ::after renders before AND after the
- * bundle upgrades (no `:defined` qualifier), so the box is visually
- * identical across hydration, no flash; the canvas only layers
+/* Concealed cover veil. The same ::after renders before and after the
+ * bundle upgrades (no `:defined` qualifier), which keeps the box visually
+ * identical across hydration with no flash; the canvas only layers
  * animated grain on top. Excluded for blur-content (shows a blurred
  * shape instead) and when revealed. `visibility: visible` is required
- * pre-upgrade (the host is hidden then, next rule); harmless after.
+ * pre-upgrade (the `:not(:defined)` rule hides the host then); harmless after.
  * z-index 1 keeps it under the canvas (2), over the hidden content.
  * base `neo-revealable` sets position/radius/--neo-revealable-veil
- * and matches regardless of :defined, so those resolve here too. */
-neo-revealable:not([open]):not([blur-content]:where(:not([blur-content="false"])))::after {
+ * and matches regardless of :defined; those resolve here too. */
+neo-revealable:not([open]:where(:not([open="false"]))):not([blur-content]:where(:not([blur-content="false"])))::after {
 	content: "";
 	position: absolute;
 	inset: 0;
@@ -90,19 +106,20 @@ neo-revealable:not([open]):not([blur-content]:where(:not([blur-content="false"])
 	visibility: visible;
 }
 
-/* Pre-upgrade only (no wrapper/canvas yet): hide the raw secret from
- * paint AND the a11y tree while reserving its box (no CLS); the
- * ::after veil above is the cover. Fails closed if JS never loads. */
-neo-revealable:not(:defined):not([open]):not([blur-content]:where(:not([blur-content="false"]))) {
+/* Pre-upgrade only (no wrapper/canvas yet). Hide the raw secret from
+ * paint and the a11y tree while reserving its box (no CLS); the
+ * concealed cover veil ::after is the cover. Fails closed if JS never loads. */
+neo-revealable:not(:defined):not([open]:where(:not([open="false"]))):not(
+	[blur-content]:where(:not([blur-content="false"]))
+) {
 	visibility: hidden;
 }
 
-/* blur-content pre-upgrade: no wrapper to blur yet, so blur+dim the
- * host so the shape teases and matches the post-upgrade look (no
- * flash). blur-content is the softer "shape only" mode; pre-upgrade
- * a screen reader can still reach the text; that's the documented
- * trade-off for showing the shape. */
-neo-revealable:not(:defined):not([open])[blur-content]:where(:not([blur-content="false"])) {
+/* Pre-upgrade blur-content has no wrapper to blur yet. Blur+dim the
+ * host so the shape teases and matches the post-upgrade look (no flash).
+ * blur-content is the softer "shape only" mode; pre-upgrade a screen reader
+ * can still reach the text; that's the documented trade-off for showing the shape. */
+neo-revealable:not(:defined):not([open]:where(:not([open="false"])))[blur-content]:where(:not([blur-content="false"])) {
 	filter: blur(var(--neo-revealable-blur));
 	opacity: 0.6;
 }

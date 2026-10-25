@@ -2,36 +2,35 @@
 #
 # Build pipeline:
 #   1. web/build.ts bundles the TypeScript web components into ./min/bundle.js
-#      and minifies internal/site/static/*.css into ./min/*.css (both via
-#      esbuild). /min/ is the tracked deliverable directory — checked in so
+#      and minifies internal/site/static/*.css into ./min/*.css (both via esbuild).
+#      /min/ is the tracked deliverable directory, checked in so
 #      downstream users can vendor straight from GitHub.
 #   2. templ generate refreshes internal/site/*_templ.go from .templ.
 #   3. internal/cmd/gen renders every page as static HTML into ./dst, copies
 #      internal/site/static/* alongside (skipping the unminified CSS sources),
 #      overlays ./min/ onto dst/static/min/, minifies sim/*.js demo snippets
-#      for dst, and emits minified datasim.js for page-local browser
-#      simulator scripts.
+#      for dst, and emits minified datasim.js for page-local browser simulator scripts.
 #
 # The `watch` target runs templier (github.com/romshark/templier),
-# which proxies internal/cmd/fileserve and drives the same pipeline as custom
-# watchers — see templier.yml for the wiring.
+# which proxies internal/cmd/fileserve and runs the same pipeline as custom watchers.
+# templier.yml holds the wiring.
 
 DST := dst
-TEMPL_VERSION := v0.3.1020
+TEMPL_VERSION := v0.3.1070
 
 .PHONY: all gen templ bundle bundle-size js-install clean watch check-pnpm
 
 all: gen
 
-# Fail fast with an actionable message when pnpm isn't on PATH. Mirrors
-# the templier check on `watch`; phony so it never short-circuits.
+# Fail fast with an actionable message when pnpm isn't on PATH.
+# Mirrors the templier check on `watch`; phony so it never short-circuits.
 check-pnpm:
 	@command -v pnpm >/dev/null || { \
 		echo "pnpm not found — install it first (https://pnpm.io/)"; \
 		exit 1; \
 	}
 
-# Prereqs (idempotent — keeps `make` self-bootstrapping for fresh checkouts).
+# Prereqs (idempotent, which keeps `make` self-bootstrapping for fresh checkouts).
 js-install: check-pnpm
 	cd web && pnpm install
 
@@ -39,8 +38,8 @@ js-install: check-pnpm
 bundle: check-pnpm
 	cd web && pnpm run build
 
-# Report raw/gzip/brotli sizes of the shippable kit deliverables in ./min/:
-# the kit JS bundle, the base CSS, and the default theme. Site-only bundles
+# Report raw/gzip/brotli sizes of the shippable kit deliverables in ./min/
+# (the kit JS bundle, the base CSS, and the default theme). Site-only bundles
 # (landing, bundle-builder, docs UI) are excluded.
 bundle-size: js-install bundle
 	@files="min/bundle.js min/morpheus.css min/theme-default.css"; \
@@ -73,8 +72,8 @@ clean:
 	rm -rf $(DST) min
 
 # Build once, then hand off to templier for incremental rebuilds and
-# browser live-reload. templier serves through internal/cmd/fileserve (which
-# serves ./dst on disk) and runs the lint/bundle/minify/render
+# browser live-reload. templier serves through internal/cmd/fileserve
+# (which serves ./dst on disk) and runs the lint/bundle/minify/render
 # watchers configured in templier.yml.
 watch: gen
 	@command -v templier >/dev/null || { \

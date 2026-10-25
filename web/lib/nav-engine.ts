@@ -1,13 +1,12 @@
 // Roving-tabindex keyboard engine shared by <neo-navgroup> and the listbox
 // controls (<neo-select>, <neo-combobox>). It owns arrow/Home/End movement,
 // grid column math, wrap, RTL, and typeahead over a host-supplied item list,
-// and reads the same attributes off whichever host drives it: `orientation`,
-// `columns`, `wrap`, `typeahead`, `typeahead-timeout`, `typeahead-match`.
+// and reads the same attributes off whichever host uses it (`orientation`,
+// `columns`, `wrap`, `typeahead`, `typeahead-timeout`, `typeahead-match`).
 //
-// The host owns lifecycle and change detection (observers); it calls
-// refresh() when its item set changes and supplies the current items via
-// getItems(). Disabled items must be excluded by getItems, matching the
-// roving set.
+// The host owns lifecycle and change detection (observers); it calls refresh()
+// when its item set changes and supplies the current items via getItems().
+// Disabled items must be excluded by getItems, matching the roving set.
 
 import { boolAttr } from "./command";
 
@@ -35,8 +34,8 @@ export class NavEngine {
 	#layoutColumns = 1;
 	#typeaheadBuffer = "";
 	#typeaheadTimer: ReturnType<typeof setTimeout> | null = null;
-	// Identity + position of the item that last held focus, so refresh() can
-	// reseat focus after a morph re-creates the items and blurs to <body>.
+	// Identity + position of the item that last held focus. refresh() uses them
+	// to reseat focus after a morph re-creates the items and blurs to <body>.
 	#focusedKey = "";
 	#focusedIndex = -1;
 
@@ -76,8 +75,8 @@ export class NavEngine {
 		this.#typeaheadBuffer = "";
 	}
 
-	// Recompute the item set, assign roving tabindex, and reseat focus if a
-	// morph dropped it.
+	// Recompute the item set, assign roving tabindex,
+	// and reseat focus if a morph dropped it.
 	refresh(): void {
 		const items = this.#cfg.getItems();
 		this.#items = items;
@@ -102,9 +101,9 @@ export class NavEngine {
 	}
 
 	// Reseat focus on the previously-focused item (by key, then index) if a
-	// morph blurred it to <body>. No-op while focus is still inside, so it
-	// never fights normal navigation; a consumer that restores first wins via
-	// its own already-focused guard.
+	// morph blurred it to <body>. No-op while focus is still inside, which
+	// keeps it from fighting normal navigation; a consumer that restores first
+	// takes precedence via its own already-focused guard.
 	#restoreFocusIfLost(): void {
 		if (this.#focusedIndex < 0 && this.#focusedKey === "") return;
 		if (this.#host.contains(document.activeElement)) return;
@@ -193,7 +192,8 @@ export class NavEngine {
 			this.#focusedIndex = -1;
 			return;
 		}
-		// Blur to nothing: a morph (refresh reseats first) or click-away.
+		// A blur to nothing comes from a morph (refresh reseats first) or
+		// click-away.
 		queueMicrotask(() => {
 			if (this.#host.contains(document.activeElement)) return;
 			this.#focusedKey = "";

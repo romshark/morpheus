@@ -2,9 +2,9 @@ package examples
 
 import "github.com/romshark/morpheus/neo"
 
-// PopoverCascading is a nested menu: each submenu is a child neo-popover
-// living inside its parent's content panel. Hover/keydown wiring on every
-// inner navgroup drives roving focus and submenu open/close.
+// PopoverCascading is a nested menu. Each submenu is a child neo-popover
+// inside its parent's content panel. Hover/keydown handlers on every inner
+// navgroup run roving focus and submenu open/close.
 templ PopoverCascading() {
 	@neo.PopoverAttrs(neo.PopoverOpts{}, templ.Attributes{
 		"data-on:neo-popover-open": "window.__neoMenuOpen(el, evt)",

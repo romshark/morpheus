@@ -158,9 +158,9 @@ export class NeoMenuItem extends HTMLElement {
 	};
 
 	#renderShortcutHint(): void {
-		// Dedup against the DOM, not an instance field: a fat-morph can
-		// re-attach an injected hint a JS pointer no longer tracks, so a
-		// reconnect would append a duplicate.
+		// Dedup against the DOM, not an instance field. A fat-morph can
+		// re-attach an injected hint a JS pointer no longer tracks, and a
+		// reconnect would then append a duplicate.
 		for (const el of this.querySelectorAll(`:scope > [${SHORTCUT_HINT_ATTR}]`)) {
 			el.remove();
 		}

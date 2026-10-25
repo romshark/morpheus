@@ -1,16 +1,14 @@
 // Datastar simulator. Intercepts window.fetch and, for routes registered via
-// sim.get/post/put/patch/delete/any, returns one of the four response shapes
+// sim.get/post/put/patch/delete/any, returns one of the 4 response shapes
 // Datastar's action plugins accept:
 //
-//   - text/event-stream  — handler uses sse.* to stream Datastar SSE events
-//                          (https://data-star.dev/reference/sse_events).
-//   - text/html          — handler returns { html, selector?, mode?,
-//                          useViewTransition? }; sent with the corresponding
-//                          datastar-* response headers.
-//   - application/json   — handler returns { json, onlyIfMissing? }; treated
-//                          by Datastar as a signal patch.
-//   - text/javascript    — handler returns { script, attributes? }; executed
-//                          by Datastar.
+//   - text/event-stream: handler uses sse.* to stream Datastar SSE events
+//     (https://data-star.dev/reference/sse_events).
+//   - text/html: handler returns { html, selector?, mode?, useViewTransition? };
+//     sent with the corresponding datastar-* response headers.
+//   - application/json: handler returns { json, onlyIfMissing? };
+//     treated by Datastar as a signal patch.
+//   - text/javascript: handler returns { script, attributes? }; executed by Datastar.
 //
 // Unmatched URLs fall through to the real fetch.
 
@@ -29,8 +27,8 @@ let unreachable = false;
 let errorResponse = 0;
 
 // Standard reason phrases for the codes the simulator settings expose.
-// Response() doesn't fill statusText from the status integer, so we pass
-// it explicitly — Datastar logs / DevTools surface this string.
+// Response() doesn't fill statusText from the status integer, and Datastar
+// logs and DevTools show this string.
 const HTTP_STATUS_TEXT = {
   200: 'OK',
   201: 'Created',
@@ -81,10 +79,10 @@ function setUnreachable(value) {
 
 // New requests get a forced HTTP response instead of running the handler.
 // Existing in-flight requests are not affected. Accepts:
-//   - falsy / "" / "off" / 0 / 200 / "200" — disable (handler runs)
-//   - true                                  — back-compat: 500 Internal Server Error
-//   - number                                — that HTTP status (1xx-5xx)
-//   - numeric string ("503")                — same, parsed
+//   - falsy / "" / "off" / 0 / 200 / "200" -> disable (handler runs)
+//   - true                                  -> back-compat: 500 Internal Server Error
+//   - number                                -> that HTTP status (1xx-5xx)
+//   - numeric string ("503")                -> same, parsed
 function setErrorResponse(value) {
   if (value === false || value == null || value === '' || value === 'off' ||
       value === 0 || value === 200 || value === '200') {
@@ -121,9 +119,9 @@ async function awaitLatency(signal) {
 let accessLogger = null;
 
 // Enable/disable per-request logging.
-//   setAccessLog(true)        — log to console.log
-//   setAccessLog(false|null)  — disable (default)
-//   setAccessLog(fn)          — call fn(entry) instead, where `entry` has shape:
+//   setAccessLog(true)        -> log to console.log
+//   setAccessLog(false|null)  -> disable (default)
+//   setAccessLog(fn)          -> call fn(entry) instead, where `entry` has shape:
 //     { phase: 'request', method, url, signals, params, query, rawBody, latencyMs }
 //     { phase: 'event',   method, url, event: { type, ... } }
 //     { phase: 'end',     method, url, durationMs, eventCount, aborted,
@@ -236,7 +234,8 @@ function matchRoute(method, pathname) {
   return null;
 }
 
-// Express-style: `/a/:id/b`, plus trailing `*` wildcard captured as `params.wildcard`.
+// Express-style patterns such as `/a/:id/b`, plus a trailing `*` wildcard
+// captured as `params.wildcard`.
 function compilePattern(pattern) {
   const paramNames = [];
   const escaped = pattern.replace(/[.+^${}()|[\]\\]/g, '\\$&');
@@ -302,8 +301,8 @@ function handleSimulated(req, url, match) {
   let responseType = 'sse';
   let responseStatus;
 
-  // Fires on client abort OR proactive kill (setUnreachable). Handlers see it
-  // via sse.signal so their loops can exit.
+  // Fires on client abort or proactive kill (setUnreachable).
+  // Handlers see it via sse.signal so their loops can exit.
   const ctrl = new AbortController();
   if (req.signal.aborted) {
     ctrl.abort(req.signal.reason);
@@ -367,8 +366,8 @@ function handleSimulated(req, url, match) {
   const onAbort = () => { aborted = true; closeWriter(); };
   req.signal.addEventListener('abort', onAbort);
 
-  // Tear-down for mid-flight requests on setUnreachable(true): abort the SSE
-  // writer if committed, otherwise reject the pending response with TypeError.
+  // Tears down a mid-flight request on setUnreachable(true). Aborts the SSE
+  // writer if committed, otherwise rejects the pending response with TypeError.
   let killed = false;
   const kill = async () => {
     if (killed) return;
@@ -389,7 +388,7 @@ function handleSimulated(req, url, match) {
   (async () => {
     // errorStatus seeds at 500 so an unexpected handler throw still returns
     // a sane response; the user-configured errorResponse overrides it on
-    // the synthetic-error path below.
+    // the synthetic-error path.
     let result, errored = false, errorStatus = 500;
     try {
       const ctx = await buildContext(req, url, match.params);
@@ -448,7 +447,8 @@ function handleSimulated(req, url, match) {
           responseStatus = nonSse[1].status;
           resolveResponse(nonSse[1]);
         } else {
-          // Handler emitted/returned nothing — empty SSE response.
+          // The handler emitted or returned nothing, which gives an empty SSE
+          // response.
           responseType = 'empty';
           responseStatus = 200;
           resolveResponse(new Response('', {
@@ -565,7 +565,7 @@ function makeEmitter(enqueue, isClosed, signal, record) {
       ];
       enqueue(formatSse('datastar-patch-elements', kvs));
     },
-    // ----- ExecuteScript convenience wrappers (mirrors the Go SDK) ------
+    // ExecuteScript convenience wrappers, mirroring the Go SDK.
     consoleLog(msg, opts = {}) {
       sse.executeScript(`console.log(${JSON.stringify(String(msg))})`, opts);
     },
@@ -610,7 +610,7 @@ function makeEmitter(enqueue, isClosed, signal, record) {
 }`;
       sse.executeScript(js);
     },
-    // ----- simulator-only ----------------------------------------------
+    // Simulator-only.
     raw(frame) {
       record?.({ type: 'raw', frame });
       enqueue(frame.endsWith('\n\n') ?

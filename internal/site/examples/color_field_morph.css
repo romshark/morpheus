@@ -12,8 +12,8 @@
 	gap: 0.5rem;
 }
 
-/* The swatch's background stays inline: it is the bound value, rewritten
-   by data-attr:style on every input. */
+/* The swatch's background stays inline because it is the bound value,
+   rewritten by data-attr:style on every input. */
 .color-field-morph-swatch {
 	width: 1.25rem;
 	height: 1.25rem;

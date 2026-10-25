@@ -27,8 +27,8 @@ templ popoverAsyncFailureLoading() {
 }
 
 // Swapped in once Datastar fires retries-failed. The retry button
-// carries [data-neo-popover-async-retry] so PopoverAsync re-fires
-// the @post action when clicked.
+// carries [data-neo-popover-async-retry] so [datastar.PopoverAsync]
+// re-fires the @post action when clicked.
 templ popoverAsyncFailureFailed() {
 	<div class="popover-async-loading popover-async-failed" role="alert">
 		@neo.Icon("triangle-alert")

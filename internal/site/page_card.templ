@@ -14,7 +14,7 @@ templ PageCard(morpheusVersion string) {
 			<p class="intro">
 				Component <code>{ "<neo-card>" }</code> is a styled
 				surface container. Wrap content in a single
-				<code>{ `<div data-neo-card-inner>` }</code>: the
+				<code>{ `<div data-neo-card-inner>` }</code>. The
 				host paints the border, background, and radius; the
 				inner element carries padding and gap rhythm.
 				Optional <code>{ `data-neo-card-*` }</code> markers
@@ -37,11 +37,10 @@ templ PageCard(morpheusVersion string) {
 				Variants
 			}
 			<p class="demo-note">
-				Three surface treatments via the
-				<code>variant</code> attribute: default (filled +
-				subtle border), <code>outline</code> (border
-				only, no fill), <code>elevated</code> (soft
-				shadow, no border).
+				The default <code>variant</code> is filled with a
+				subtle border, <code>outline</code> has a border
+				and no fill, and <code>elevated</code> has a soft
+				shadow and no border.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
 				StageMinHeight: "max-content",
@@ -55,10 +54,9 @@ templ PageCard(morpheusVersion string) {
 				Composed
 			}
 			<p class="demo-note">
-				A typical composition uses all four structural
-				slots: header (with title, description, and
-				right-aligned actions), body, and a footer row
-				of buttons. The header switches from vertical
+				A typical composition uses a header (with title,
+				description, and right-aligned actions), a body,
+				and a footer row of buttons. The header switches from vertical
 				stack to horizontal row via
 				<code>{ `:has([data-neo-card-actions])` }</code>
 				only when actions are present.
@@ -102,8 +100,8 @@ templ PageCard(morpheusVersion string) {
 				lays the card out as a row of
 				<code>[data-neo-card-media]</code> on the left
 				and a column of
-				<code>[data-neo-card-header]</code> →
-				<code>[data-neo-card-body]</code> →
+				<code>[data-neo-card-header]</code>,
+				<code>[data-neo-card-body]</code>, and
 				<code>[data-neo-card-footer]</code> on the right.
 				The media slot fills the left column edge-to-edge
 				and rounds the corners that touch the card's left
@@ -128,8 +126,8 @@ templ PageCard(morpheusVersion string) {
 				<code>{ `@container` }</code> query keyed on the
 				card's own inline size (default threshold
 				<code>{ `--neo-card-horizontal-collapse: 28rem` }</code>).
-				No <code>{ `@media` }</code> rule and no JavaScript:
-				drag the resize handle below 28rem to see the
+				No <code>{ `@media` }</code> rule and no JavaScript.
+				Drag the resize handle below 28rem to see the
 				card adapt to its own width.
 			</p>
 			@demoFrameWith(DemoFrameOpts{

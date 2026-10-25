@@ -1,6 +1,5 @@
 /* theme-sunshine.css: warm cream / parchment background with a
- * saturated yellow accent. The kit's original default theme;
- * preserved as a named option for users who want the sunny look. */
+ * saturated yellow accent. */
 
 :root.theme-sunshine {
 	color-scheme: light;

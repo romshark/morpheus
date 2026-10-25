@@ -1,12 +1,9 @@
-/* -----------------------------------------------------------------------
- * <neo-breadcrumb>
- * -----------------------------------------------------------------------
- * Adaptive horizontal trail that collapses middle items into a popover
- * menu when the host can't fit them all.
+/* <neo-breadcrumb> is an adaptive horizontal trail that collapses middle
+ * items into a popover menu when the host can't fit them all.
  *
- * The JS measures `scrollWidth > clientWidth` to switch render modes,
- * so children must keep their natural width (`flex-shrink: 0`) and
- * overflow rather than wrap (`overflow: hidden`, `flex-wrap: nowrap`). */
+ * The JS measures `scrollWidth > clientWidth` to switch render modes.
+ * Children must keep their natural width (`flex-shrink: 0`) and overflow
+ * rather than wrap (`overflow: hidden`, `flex-wrap: nowrap`). */
 
 :root {
 	--neo-breadcrumb-gap: calc(var(--page-spacing, 0.25rem) * 2);
@@ -44,8 +41,8 @@ neo-breadcrumb a:focus-visible {
 	text-decoration: underline;
 }
 
-/* Host's `overflow: hidden` (for JS layout detection) clips an outer
- * outline, so links use an inset ring. */
+/* Host's `overflow: hidden` (for JS layout detection) clips an outer outline.
+ * Links use an inset ring. */
 neo-breadcrumb a:focus-visible {
 	outline: 0;
 	box-shadow: 0 0 0 2px currentColor inset;
@@ -70,19 +67,17 @@ neo-breadcrumb > [data-neo-breadcrumb-sep] > neo-icon {
 }
 
 /* Items folded into the overflow popover. Markup stays in the DOM so
- * the menu can clone it and a resize can re-show it; this only hides
- * the box. */
+ * the menu can clone it and a resize can re-show it; this only hides the box. */
 neo-breadcrumb > [data-neo-breadcrumb-hidden] {
 	/* biome-ignore lint/complexity/noImportantStyles: hard hide for
-	 * JS-marked items: must beat an author's inline `display` (e.g. chip
-	 * wrappers), which a stylesheet `display:none` would lose to, leaving
-	 * the item visible and breaking collapse. */
+	 * JS-marked items. Must override an author's inline `display`
+	 * (e.g. chip wrappers), which a stylesheet `display:none` would lose to,
+	 * leaving the item visible and breaking collapse. */
 	display: none !important;
 }
 
 /* Strip the overflow trigger's inherited button padding/height so it
- * sits inline with the text instead of forcing button-height on the
- * row. */
+ * sits inline with the text instead of forcing button-height on the row. */
 neo-breadcrumb > [data-neo-breadcrumb-menu] {
 	display: inline-flex;
 	align-items: center;
@@ -115,7 +110,7 @@ neo-breadcrumb > [data-neo-breadcrumb-menu] > [data-neo-popover-trigger]:focus-v
 
 /* Popover defaults (1rem padding, 14rem min-width) over-pad and pin
  * the small crumb menu. Override via tokens since the padding/min-width
- * live on the shadow panel. Rows below own their padding. */
+ * live on the shadow panel. The navgroup rows own their padding. */
 neo-breadcrumb > [data-neo-breadcrumb-menu] {
 	--neo-popover-padding: 0.25rem;
 	--neo-popover-min-width: 0;

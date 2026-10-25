@@ -1,10 +1,11 @@
 // Host owns trigger/close wiring and ARIA; the platform <dialog> provides
-// the modal lifecycle, top layer, focus trap, and Esc handling. No portal,
-// so markup stays in light DOM and the kit's CSS can theme it directly.
+// the modal lifecycle, top layer, focus trap, and Esc handling. Without a
+// portal the markup stays in light DOM and the kit's CSS can theme it directly.
 
 let nextId = 0;
 
 import { boolAttr, openCommand } from "../command";
+import { retryWhileParsing, stillParsing } from "../document-parsing";
 import { DialogBackdropClickTracker, lockBodyScroll, unlockBodyScroll } from "../native-dialog";
 
 export class NeoDialog extends HTMLElement {
@@ -29,20 +30,25 @@ export class NeoDialog extends HTMLElement {
 	#focusedDescendantId = "";
 	#backdropClick = new DialogBackdropClickTracker();
 
-	// Captured once at connect: asyncSlot = parent of the
-	// [data-neo-async-placeholder]; asyncSlotInitialHTML = the
+	// Captured once at connect. asyncSlot is the parent of the
+	// [data-neo-async-placeholder]; asyncSlotInitialHTML is the
 	// placeholder content as authored. On close we restore so the
 	// next open shows the placeholder again.
 	#asyncSlot: Element | null = null;
 	#asyncSlotInitialHTML: string | null = null;
-	// The close event fires synchronously but the dialog is still
-	// mid-fade-out, so restoring innerHTML in that window flashes the
+	// The close event fires synchronously while the dialog is still
+	// mid-fade-out. Restoring innerHTML in that window flashes the
 	// skeleton through the closing dialog. Defer the restore until
 	// after the transition; a re-open clears the timer.
 	#asyncRestoreTimer: number | null = null;
 
 	connectedCallback() {
-		if (!this.#bindChildren()) return;
+		if (!this.#bindChildren()) {
+			retryWhileParsing(this, () => {
+				if (!this.#ready) this.connectedCallback();
+			});
+			return;
+		}
 
 		this.#captureAsyncSlot();
 
@@ -54,11 +60,15 @@ export class NeoDialog extends HTMLElement {
 		this.#childObserver = new MutationObserver(this.#onChildMutation);
 		this.#childObserver.observe(this, { childList: true });
 
-		// Command `open` on connect: explicit open/close obey; absent
-		// keeps prior intent (persists across reconnect/morph).
+		// On connect, an explicit open/close command is obeyed; an absent
+		// one keeps prior intent (persists across reconnect/morph).
 		const cmd = openCommand(this);
 		if (cmd === "open") this.#openIntent = true;
 		else if (cmd === "close") this.#openIntent = false;
+		// A close command left on the host would outlive the next open,
+		// because #reflectOpen skips an existing `open`.
+		if (this.#openIntent) this.#reflectOpen();
+		else this.#reflectClose();
 		this.#ready = true;
 		this.#sync();
 	}
@@ -85,9 +95,9 @@ export class NeoDialog extends HTMLElement {
 		this.#childObserver?.disconnect();
 		this.#childObserver = null;
 		// Browser closes the dialog implicitly on host teardown, but
-		// no `close` event fires for that path, so release the lock
-		// here too or it leaks on navigation away from any page with
-		// an open dialog.
+		// no `close` event fires for that path. Release the lock here
+		// too or it leaks on navigation away from any page with an
+		// open dialog.
 		if (this.#holdsScrollLock) {
 			unlockBodyScroll();
 			this.#holdsScrollLock = false;
@@ -142,7 +152,7 @@ export class NeoDialog extends HTMLElement {
 		else this.show();
 	}
 
-	// State → attribute, guarded so it isn't read back as a command.
+	// State -> attribute, guarded so it isn't read back as a command.
 	#reflectOpen(): void {
 		if (this.hasAttribute("open")) return;
 		this.#reflecting = true;
@@ -181,7 +191,7 @@ export class NeoDialog extends HTMLElement {
 	}
 
 	// After a morph settles (post-layout), re-enter the top layer if the
-	// <dialog> was dropped, then reseat focus. Silent: no open re-fire.
+	// <dialog> was dropped, then reseat focus. Silent (no open re-fire).
 	#scheduleRecover(): void {
 		if (this.#recoverScheduled) return;
 		this.#recoverScheduled = true;
@@ -228,7 +238,7 @@ export class NeoDialog extends HTMLElement {
 		const newTrigger = this.querySelector<HTMLElement>("[data-neo-dialog-trigger]");
 		const newDialog = this.querySelector<HTMLDialogElement>("dialog");
 		if (!newTrigger || !newDialog) {
-			if (!this.#trigger || !this.#dialog) {
+			if ((!this.#trigger || !this.#dialog) && !stillParsing()) {
 				console.warn("<neo-dialog> requires a [data-neo-dialog-trigger] and a <dialog> child.");
 			}
 			return false;
@@ -250,11 +260,11 @@ export class NeoDialog extends HTMLElement {
 			this.#dialog.addEventListener("click", this.#onDialogClick);
 			this.#dialog.addEventListener("close", this.#onDialogClose);
 			this.#dialog.addEventListener("cancel", this.#onDialogCancel);
-			// Capture-phase Esc swallow: belt-and-suspenders alongside the
-			// cancel handler. Some inner controls (popovers, combobox) also
-			// listen for Esc, and we don't want them snapping their own
-			// state when the dialog is locked open. Capture phase fires
-			// before any descendant listener.
+			// Capture-phase Esc swallow, a second guard next to the cancel
+			// handler. Some inner controls (popovers, combobox) also listen
+			// for Esc and must not change their own state when the dialog
+			// is locked open. Capture phase fires before any descendant
+			// listener.
 			this.#dialog.addEventListener("keydown", this.#onDialogKeydown, true);
 		}
 
@@ -291,7 +301,7 @@ export class NeoDialog extends HTMLElement {
 		const have = this.#dialog.open;
 		this.#trigger.setAttribute("aria-expanded", String(want));
 		if (want && !have) {
-			// Fallback capture for opens driven through [open] (Datastar
+			// Fallback capture for opens made through [open] (Datastar
 			// `data-attr:open`, imperative setAttribute) so focus still
 			// restores on close. show() also sets this; only fill when
 			// missing so we don't clobber its capture.

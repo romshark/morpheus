@@ -1,0 +1,148 @@
+/* <bundle-graph>'s shadow styles. Theme custom properties inherit into the
+ * shadow tree. */
+:host {
+	display: block;
+	width: 100%;
+	max-width: 56rem;
+	margin: 0 auto;
+}
+/* touch-action: none makes the whole ring take touch input. */
+.bundle-svg {
+	width: 100%;
+	height: auto;
+	display: block;
+	overflow: visible;
+	touch-action: none;
+	font-family: var(--page-font-family, ui-sans-serif, system-ui, sans-serif);
+}
+.link {
+	fill: none;
+	stroke: var(--muted);
+	stroke-width: 1;
+	opacity: 0.16;
+	transition:
+		opacity 0.15s,
+		stroke 0.15s,
+		stroke-width 0.15s;
+}
+.node-dot {
+	fill: var(--muted);
+	opacity: 0.55;
+	transition:
+		fill 0.15s,
+		opacity 0.15s;
+}
+.node-label {
+	fill: var(--page-fg);
+	font-size: 15px;
+	font-weight: 600;
+	cursor: default;
+	transition:
+		fill 0.15s,
+		opacity 0.15s;
+}
+.center {
+	pointer-events: none;
+}
+.center-head {
+	fill: var(--page-fg);
+	font-weight: 800;
+	font-size: 88px;
+}
+.center-tail {
+	fill: var(--muted);
+	font-weight: 600;
+	font-size: 30px;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+}
+.node {
+	outline: none;
+}
+.node:focus-visible .node-label {
+	text-decoration: underline;
+	text-underline-offset: 3px;
+}
+.bundle-svg.is-hovering .link {
+	opacity: 0.04;
+}
+.bundle-svg .link.is-active {
+	opacity: 0.9;
+	stroke: var(--accent, var(--link));
+	stroke-width: 1.6;
+}
+.bundle-svg.is-hovering .node.is-dim .node-label {
+	opacity: 0.22;
+}
+.bundle-svg.is-hovering .node.is-dim .node-dot {
+	opacity: 0.12;
+}
+.bundle-svg.is-hovering .node.is-active .node-label,
+.bundle-svg.is-hovering .node.is-active .node-dot {
+	fill: var(--accent, var(--link));
+	opacity: 1;
+}
+/* biome-ignore lint/style/noDescendingSpecificity: the compound .is-disabled selectors outrank .is-active and .is-dim, and the plain one matches only outside hover */
+.bundle-svg .node.is-disabled .node-label,
+.bundle-svg.is-hovering .node.is-disabled.is-active .node-label,
+.bundle-svg.is-hovering .node.is-disabled.is-dim .node-label {
+	fill: var(--muted);
+	opacity: 0.45;
+	cursor: not-allowed;
+	text-decoration: line-through;
+	text-decoration-thickness: 1px;
+}
+/* biome-ignore lint/style/noDescendingSpecificity: as for .node-label, the compound .is-disabled selectors outrank .is-active and .is-dim */
+.bundle-svg .node.is-disabled .node-dot,
+.bundle-svg.is-hovering .node.is-disabled.is-active .node-dot,
+.bundle-svg.is-hovering .node.is-disabled.is-dim .node-dot {
+	fill: none;
+	stroke: var(--muted);
+	stroke-width: 1;
+	opacity: 0.5;
+}
+.bundle-svg .link.is-disabled {
+	stroke-dasharray: 4 4;
+	opacity: 0.1;
+}
+.bundle-svg .link.is-disabled.is-active {
+	stroke: var(--muted);
+	stroke-width: 1.2;
+	opacity: 0.45;
+}
+@media (prefers-reduced-motion: reduce) {
+	.link,
+	.node-label,
+	.node-dot {
+		transition: none;
+	}
+}
+@media (forced-colors: active) {
+	.node-label,
+	.center-head {
+		fill: CanvasText;
+	}
+	.center-tail {
+		fill: GrayText;
+	}
+	.link {
+		stroke: GrayText;
+	}
+	.bundle-svg .node.is-disabled .node-label,
+	.bundle-svg.is-hovering .node.is-disabled.is-active .node-label {
+		fill: GrayText;
+	}
+	.bundle-svg .node.is-disabled .node-dot {
+		stroke: GrayText;
+	}
+	.bundle-svg .link.is-disabled {
+		stroke: GrayText;
+	}
+	/* biome-ignore lint/style/noDescendingSpecificity: the .is-disabled.is-active label selector outranks .is-active and keeps a disabled label GrayText */
+	.bundle-svg.is-hovering .node.is-active .node-label,
+	.bundle-svg.is-hovering .node.is-active .node-dot,
+	.bundle-svg .link.is-active {
+		stroke: Highlight;
+		fill: Highlight;
+	}
+}

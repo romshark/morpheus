@@ -20,8 +20,8 @@ templ SelectAsyncFailure() {
 	})
 }
 
-// selectAsyncFailureLoading is the placeholder SelectAsync clones above
-// the listbox on every open. The kit hides it once the server morphs
+// selectAsyncFailureLoading is the placeholder [datastar.SelectAsync]
+// clones above the listbox on every open. The kit hides it once the server morphs
 // the options fragment into <neo-datalist id="<ID>-options">.
 templ selectAsyncFailureLoading() {
 	<neo-skeleton class="select-async-failure-skeleton-1"></neo-skeleton>
@@ -32,8 +32,8 @@ templ selectAsyncFailureLoading() {
 
 // selectAsyncFailureFailed swaps into the visible loading clone once
 // Datastar fires retries-failed. The retry button carries
-// [data-neo-popover-async-retry] so SelectAsync re-fires the @post
-// action when clicked.
+// [data-neo-popover-async-retry] so [datastar.SelectAsync] re-fires the
+// @post action when clicked.
 templ selectAsyncFailureFailed() {
 	<div class="popover-async-loading popover-async-failed" role="alert">
 		@neo.Icon("triangle-alert")

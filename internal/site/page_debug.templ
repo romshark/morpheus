@@ -2,10 +2,11 @@ package site
 
 import "github.com/romshark/morpheus/neo"
 
-// PageDebug: hidden /debug/ harness, full-page fat morph every 2s.
-// Verifies popover-hosted components stay open + keep focus across
-// morph cycles. Simulator + injected trigger carry data-ignore-morph
-// so they survive each patch. Not linked from navigation.
+// PageDebug renders the hidden /debug/ harness, a full-page fat morph
+// every 2s. Verifies popover-hosted components stay open + keep focus
+// across morph cycles. Simulator + injected trigger carry
+// data-ignore-morph so they survive each patch. Not linked from
+// navigation.
 templ PageDebug(morpheusVersion string) {
 	<!DOCTYPE html>
 	<html lang="en">
@@ -26,8 +27,8 @@ templ PageDebug(morpheusVersion string) {
 			@debugSimulator()
 			<style>
 				/* Override style.css's site-wide
-				 * `html, body { height: 100vh; overflow: hidden }`:
-				 * no sidebar frame here, the viewport itself scrolls. */
+				 * `html, body { height: 100vh; overflow: hidden }`.
+				 * No sidebar frame here; the viewport itself scrolls. */
 				html:has(> .debug-body) {
 					height: auto;
 					overflow: auto;
@@ -84,7 +85,7 @@ templ PageDebug(morpheusVersion string) {
 					gap: 0.75rem;
 					align-items: center;
 				}
-				/* Rich option row: leading icon + two-line text body. */
+				/* Rich option row: leading icon + 2-line text body. */
 				.debug-rich-row {
 					display: inline-flex;
 					align-items: center;
@@ -147,7 +148,7 @@ templ debugPage(morpheusVersion string) {
 			</div>
 			// Popover whose body is replaced by a targeted patch each
 			// tick. The host is preserved by id; the content div is
-			// matched by id and morphed in place, so the popover should
+			// matched by id and morphed in place. The popover should
 			// stay open while heading + list cycle.
 			<div class="debug-card">
 				<h3>Popover (morphing content)</h3>
@@ -170,7 +171,7 @@ templ debugPage(morpheusVersion string) {
 					}
 				</neo-layout>
 			</div>
-			// One popover per anchor direction. Open each in turn to
+			// 1 popover per anchor direction. Open each in turn to
 			// verify auto-flip / clamp logic across the placement enum.
 			<div class="debug-card">
 				<h3>Popover (placement permutations)</h3>
@@ -196,7 +197,7 @@ templ debugPage(morpheusVersion string) {
 				</neo-layout>
 			</div>
 			// Attribute variants: hover, match-trigger-width, clamp,
-			// follow-scroll. One popover per knob so the symptoms are
+			// follow-scroll. 1 popover per knob so the symptoms are
 			// isolated and the morph still exercises the recovery path
 			// for each.
 			<div class="debug-card">
@@ -448,7 +449,7 @@ templ debugPage(morpheusVersion string) {
 					}
 				</neo-layout>
 			</div>
-			// Rich-content options (static): icon + two-line text per row.
+			// Rich-content options (static): icon + 2-line text per row.
 			// `Label` keeps the trigger to a plain-text name so the rich
 			// markup only renders inside the listbox.
 			<div class="debug-card">
@@ -570,7 +571,7 @@ templ debugPage(morpheusVersion string) {
 					})
 				</neo-layout>
 			</div>
-			// Option set flips per morph (set A ↔ set B). Tests focus
+			// Option set flips per morph (set A <-> set B). Tests focus
 			// across option churn and trigger-label degradation when
 			// the selected value vanishes.
 			<div class="debug-card">
@@ -613,10 +614,10 @@ templ debugPage(morpheusVersion string) {
 					}
 				</neo-layout>
 			</div>
-			// Rich-content options that toggle each patch: same
-			// option-set flip as the plain version above, but each row
-			// carries icon + two-line text. Exercises the rendering of
-			// rich option markup through a server-driven morph.
+			// Rich-content options that toggle each patch. Same
+			// option-set flip as the plain "option set toggles each patch"
+			// card, but each row carries icon + 2-line text. Exercises the
+			// rendering of rich option markup through a server-driven morph.
 			<div class="debug-card">
 				<h3>Select & Combobox (rich content, toggles each patch)</h3>
 				<neo-layout class="debug-card-row" wrap align-items="center">
@@ -746,7 +747,7 @@ templ debugPage(morpheusVersion string) {
 					}
 				</neo-layout>
 			</div>
-			// Sortable (static). Baseline: items never change across
+			// Sortable (static), the baseline. Items never change across
 			// patches. The full-body fat morph reconciles the host's
 			// id-keyed children in place; reorder semantics keep
 			// working because the harness lives in shadow.
@@ -775,9 +776,9 @@ templ debugPage(morpheusVersion string) {
 					}
 				</neo-layout>
 			</div>
-			// Sortable (order toggle). Same four items, reordered each
-			// tick. Verifies the patch path that reorders by id:
-			// items keep identity, only their position changes.
+			// Sortable (order toggle). Same 4 items, reordered each
+			// tick. Verifies the patch path that reorders by id.
+			// Items keep identity, only their position changes.
 			<div class="debug-card">
 				<h3>Sortable (order toggle each patch)</h3>
 				<neo-layout class="debug-card-row" wrap align-items="center">
@@ -805,10 +806,10 @@ templ debugPage(morpheusVersion string) {
 			</div>
 			// Sortable (item churn). Items themselves swap each tick;
 			// set X ids disjoint from set Y. Verifies insert/remove
-			// reconciliation; no items survive between ticks, so
-			// FLIP target hand-off is exercised. Row pinned at the
+			// reconciliation. No items survive between ticks, which
+			// exercises FLIP target hand-off. Row pinned at the
 			// 3-item height so a momentary empty state between morph's
-			// remove and add doesn't shove later cards around.
+			// remove and add doesn't shift later cards around.
 			<div class="debug-card">
 				<h3>Sortable (items swap each patch)</h3>
 				<neo-layout class="debug-card-row" wrap align-items="center" style="min-height: 10rem;">
@@ -832,7 +833,7 @@ templ debugPage(morpheusVersion string) {
 			</div>
 			// Sortable (mixed). Some ids stay across patches (and
 			// reorder), some get added/removed. The realistic
-			// "server pushes a fresh roster" scenario: exercises
+			// "server pushes a fresh roster" scenario, which exercises
 			// reorder + insert + remove in one go. Pinned at the
 			// 4-item max so the row doesn't shrink to 3-item height
 			// every other patch.
@@ -897,7 +898,7 @@ templ debugPage(morpheusVersion string) {
 				</neo-layout>
 			</div>
 			// Tree (order toggle). Same id set, reordered each patch;
-			// expanded state should ride through.
+			// expanded state should survive.
 			<div class="debug-card">
 				<h3>Tree (order toggle each patch)</h3>
 				<neo-layout class="debug-card-row" wrap align-items="center">
@@ -933,7 +934,7 @@ templ debugPage(morpheusVersion string) {
 					}
 				</neo-layout>
 			</div>
-			// Tree (swap). Two completely different shapes alternate;
+			// Tree (swap). 2 completely different shapes alternate;
 			// all ids change each tick. Pinned at the 4-visible-item
 			// max so the page below doesn't shift on every patch.
 			<div class="debug-card">
@@ -962,7 +963,7 @@ templ debugPage(morpheusVersion string) {
 				</neo-layout>
 			</div>
 			// Tabs (static). Selection, the active-ink indicator, and the
-			// hidden/shown panel split must ride through the full-body
+			// hidden/shown panel split must survive the full-body
 			// morph unchanged (this card gets no targeted patch).
 			<div class="debug-card">
 				<h3>Tabs (static)</h3>
@@ -1027,9 +1028,9 @@ templ debugPage(morpheusVersion string) {
 					}
 				</neo-layout>
 			</div>
-			// Tabs (reorder each patch). Same three tab values, rotated
+			// Tabs (reorder each patch). Same 3 tab values, rotated
 			// each tick; values keep identity, only their position
-			// changes; focus on the active tab should ride to its new slot.
+			// changes; focus on the active tab should move to its new slot.
 			<div class="debug-card">
 				<h3>Tabs (reorder each patch)</h3>
 				<neo-layout class="debug-card-row" wrap align-items="center">
@@ -1059,9 +1060,9 @@ templ debugPage(morpheusVersion string) {
 					}
 				</neo-layout>
 			</div>
-			// Tabs (tabs swap each patch). Two disjoint tab sets alternate;
-			// every tab is removed and a fresh set added each tick; the
-			// active value changes with the set, so a focused tab patched
+			// Tabs (tabs swap each patch). 2 disjoint tab sets alternate;
+			// every tab is removed and a fresh set added each tick. The
+			// active value changes with the set. A focused tab patched
 			// out must not be resurrected when its set returns.
 			<div class="debug-card">
 				<h3>Tabs (tabs swap each patch)</h3>
@@ -1092,9 +1093,10 @@ templ debugPage(morpheusVersion string) {
 					}
 				</neo-layout>
 			</div>
-			// Focus-across-morph coverage: each component below holds a
-			// roving / rebuilt focusable that a fat morph would otherwise
-			// blur to <body>. The full-body morph exercises them every tick.
+			// Focus-across-morph coverage. Each component in the radio group
+			// through drawer cards holds a roving / rebuilt focusable that a
+			// fat morph would otherwise blur to <body>. The full-body morph
+			// exercises them every tick.
 			<div class="debug-card">
 				<h3>Radio group</h3>
 				<neo-layout class="debug-card-row" wrap align-items="center">
@@ -1195,11 +1197,11 @@ templ debugPage(morpheusVersion string) {
 	</div>
 }
 
-// Inline simulator: one long-lived SSE stream emitting a signals+
-// elements patch every 2s, modelling a full-page fat morph of
-// `#debug-page-root`. data-ignore-morph keeps the script alive.
+// debugSimulator is an inline simulator with 1 long-lived SSE stream
+// emitting a signals+elements patch every 2s, modelling a full-page fat
+// morph of `#debug-page-root`. data-ignore-morph keeps the script alive.
 //
-// The data-init trigger is inserted by this script AFTER sim.post
+// The data-init trigger is inserted by this script after sim.post
 // registers; a cached Datastar bundle can otherwise out-race the
 // `import "/static/datasim.js"`, fire @post against the real fetch,
 // and never start the loop. Datastar's MO picks up the late insert.
@@ -1216,8 +1218,8 @@ templ debugSimulator() {
 			const tpl = document.getElementById("debug-body-template");
 			const html = tpl ? tpl.innerHTML.trim() : "";
 
-			// Targeted patchElements payload: just the <neo-navgroup>,
-			// so the morph hits options without touching trigger /
+			// Targeted patchElements payload of just the <neo-navgroup>,
+			// which lets the morph hit options without touching trigger /
 			// popover styling (matches a real `#<host>-options` patch).
 			const optionHTML = (v, label, disabled) =>
 				'<neo-option value="' + v + '" data-neo-value="' + v +
@@ -1231,7 +1233,7 @@ templ debugSimulator() {
 				specs.map(([v, l, d]) => optionHTML(v, l, !!d)).join('') +
 				'</neo-navgroup>';
 
-			// Rich option HTML: icon + two-line text body, mirrors the
+			// Rich option HTML (icon + 2-line text body) mirrors the
 			// templ structure for the static rich card so morphed-in
 			// rows look identical.
 			const richOptionHTML = (v, name, icon, meta, disabled) =>
@@ -1294,7 +1296,7 @@ templ debugSimulator() {
 			const rollDisabled = (specs) =>
 				specs.map(([v, l]) => [v, l, Math.random() < 0.4]);
 
-			// Rich toggle sets: same set-flip pattern as the plain
+			// Rich toggle sets use the same set-flip pattern as the plain
 			// version, structured as [value, name, icon, meta].
 			const richEnvsA = [
 				['prod', 'Production', 'circle-check', '12 nodes · healthy'],
@@ -1397,7 +1399,7 @@ templ debugSimulator() {
 
 			// Sortable payloads. Each emits a full <neo-sortable> with
 			// `data-ignore-morph` removed so the host's children list
-			// reconciles to the new roster: same id = item kept (possibly
+			// reconciles to the new roster. Same id = item kept (possibly
 			// reordered); missing id = item removed; new id = item added.
 			// prepareReorderPatch() runs immediately before the patch so
 			// the FLIP captures the pre-morph layout.
@@ -1416,7 +1418,7 @@ templ debugSimulator() {
 				'<neo-sortable' + (attrs ? ' ' + attrs : '') + ' id="' + id + '">' +
 				items.map(([itemId, label]) => sortableItemHTML(itemId, label)).join('') +
 				'</neo-sortable>';
-			// Card 2: same items, two alternating orders.
+			// Card 2: same items, 2 alternating orders.
 			const orderA = [
 				['debug-sortable-order-design', 'Design'],
 				['debug-sortable-order-build', 'Build'],
@@ -1440,7 +1442,7 @@ templ debugSimulator() {
 				['debug-sortable-items-epsilon', 'Epsilon'],
 				['debug-sortable-items-zeta', 'Zeta'],
 			];
-			// Card 4: combination of two pinned ids that survive and reorder;
+			// Card 4: combination of 2 pinned ids that survive and reorder;
 			// the rotate-A / rotate-B / rotate-C set churns.
 			const mixedA = [
 				['debug-sortable-mixed-pinned-1', 'Pinned 1'],
@@ -1458,10 +1460,10 @@ templ debugSimulator() {
 				sse.patchElements(sortableHTML(id, items, attrs));
 			};
 
-			// Tree payloads. Each tree is a tiny shape: outer is the
+			// Tree payloads. Each tree is a tiny shape. Outer is the
 			// <neo-tree> host with id reused so morph hits the same
 			// element; inner is a recursive renderer for nested items.
-			// Indices align with the static card shapes above so
+			// Indices align with the tree card shapes in debugPage so
 			// id-keyed reconciliation has live nodes to match.
 			const treeItemHTML = (id, label, children = '', expanded = false) =>
 				'<neo-tree-item id="' + id + '"' +
@@ -1500,7 +1502,7 @@ templ debugSimulator() {
 					true) +
 				treeItemHTML('debug-tree-order-pkg', 'package.json');
 
-			// Swap: two completely disjoint trees alternate.
+			// Swap: 2 disjoint trees alternate.
 			const treeSwapInnerA =
 				treeItemHTML('debug-tree-swap-A-root', 'animals',
 					treeItemHTML('debug-tree-swap-A-cat', 'cat') +
@@ -1535,11 +1537,11 @@ templ debugSimulator() {
 				tabs.map((t) => tabPanelHTML(t, active)).join('') +
 				'</neo-tabs>';
 
-			// Reorder: same three values rotated each tick; active
-			// "overview" rides along to its new position.
+			// Reorder: same 3 values rotated each tick; active
+			// "overview" moves to its new position.
 			const tabsReorderA = [['overview', 'Overview'], ['activity', 'Activity'], ['settings', 'Settings']];
 			const tabsReorderB = [['activity', 'Activity'], ['settings', 'Settings'], ['overview', 'Overview']];
-			// Swap: two disjoint sets alternate; every tab removed + a
+			// Swap: 2 disjoint sets alternate; every tab removed + a
 			// fresh set added each tick. Active is the live set's first value.
 			const tabsSwapA = [['alpha', 'Alpha'], ['beta', 'Beta'], ['gamma', 'Gamma']];
 			const tabsSwapB = [['delta', 'Delta'], ['epsilon', 'Epsilon'], ['zeta', 'Zeta']];
@@ -1602,7 +1604,7 @@ templ debugSimulator() {
 		});
 
 		// Inject the data-init trigger after sim.post; Datastar's MO
-		// picks it up; ordering rationale above.
+		// picks it up. See debugSimulator for the ordering rationale.
 		const trigger = document.createElement("div");
 		trigger.className = "debug-trigger";
 		trigger.setAttribute("aria-hidden", "true");

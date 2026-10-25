@@ -1,8 +1,3 @@
-/* -----------------------------------------------------------------------
- * <neo-card>
- * -----------------------------------------------------------------------
- */
-
 :root {
 	--neo-card-bg: var(--btn-bg, transparent);
 	--neo-card-color: var(--page-fg, currentColor);
@@ -111,7 +106,8 @@ neo-card [data-neo-card-header] > :where([data-neo-card-title], [data-neo-card-d
 }
 
 /* Actions split the header via :has(). */
-neo-card [data-neo-card-header]:has([data-neo-card-actions])
+neo-card
+	[data-neo-card-header]:has([data-neo-card-actions])
 	> :where([data-neo-card-title], [data-neo-card-description]) {
 	flex: 1 1 auto;
 }
@@ -213,7 +209,8 @@ neo-card[orientation="horizontal"]:not(:has(> [data-neo-card-inner] > [data-neo-
 }
 
 /* First text slot owns top padding. */
-neo-card[orientation="horizontal"]:not(:has(> [data-neo-card-inner] > [data-neo-card-header])) > [data-neo-card-inner]
+neo-card[orientation="horizontal"]:not(:has(> [data-neo-card-inner] > [data-neo-card-header]))
+	> [data-neo-card-inner]
 	> [data-neo-card-body] {
 	padding-top: var(--neo-card-padding);
 }

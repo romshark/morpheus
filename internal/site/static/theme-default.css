@@ -10,9 +10,9 @@
  *
  * The default palette has no theme- class; it lives on the bare
  * `:root` selector so a page with no JS (or before the app's theme
- * switcher runs) still reads as the kit's default look. The @media
- * block at the bottom gives no-JS users dark mode via their OS
- * preference. */
+ * switcher runs) still reads as the kit's default look.
+ * The prefers-color-scheme @media block gives no-JS users dark mode
+ * via their OS preference. */
 
 :root {
 	color-scheme: light;
@@ -32,9 +32,9 @@
 	--page-font-family: ui-sans-serif, system-ui, -apple-system,
 		"Segoe UI", Roboto, sans-serif;
 
-	/* Body-prose links. The neutral palette's --accent ≈ --page-fg
-	 * (near-black), so links need their own hue; a conventional blue
-	 * + the always-on underline in morpheus.css give links a clear,
+	/* Body-prose links. The neutral palette's --accent is close to
+	 * --page-fg (near-black). Links need their own hue; a conventional
+	 * blue + the always-on underline in morpheus.css give links a clear,
 	 * accessible style distinct from text and buttons. */
 	--link: #2563eb;
 	--link-hover: #1d4ed8;
@@ -43,7 +43,7 @@
 	/* Default button = outline button: background matches the page
 	 * (--page-bg), border = --btn-border, hover swaps in
 	 * --btn-hover-bg. Primary buttons (variant="primary") get
-	 * --accent / --accent-fg above. */
+	 * --accent / --accent-fg. */
 	--btn-bg: oklch(1 0 0);
 	--btn-fg: oklch(0.145 0 0);
 	--btn-border: oklch(0.922 0 0);
@@ -89,15 +89,15 @@
 	--neo-tooltip-bg: oklch(0.985 0 0);
 	--neo-tooltip-color: oklch(0.145 0 0);
 
-	/* Card fill is lighter than the page bg in dark mode, so the
-	 * translucent-white --btn-border that works for styling on page-bg
-	 * disappears here. Use an opaque, slightly lighter hairline. */
+	/* Card fill is lighter than the page bg in dark mode.
+	 * The translucent-white --btn-border that works on page-bg disappears
+	 * on a card. Use an opaque, slightly lighter hairline. */
 	--neo-card-border-color: #2e2e2e;
 }
 
 /* No-JS dark-mode fallback: if <html> has no component-applied mode
- * class (so neither .light nor .dark) and the OS asks for dark, fall
- * back to the default-dark palette (mirroring the rule above). */
+ * class (neither .light nor .dark) and the OS asks for dark, fall
+ * back to the default-dark palette (mirroring the :root.dark rule). */
 @media (prefers-color-scheme: dark) {
 	:root:not(.light):not(.dark) {
 		color-scheme: dark;

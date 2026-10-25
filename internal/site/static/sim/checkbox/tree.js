@@ -1,8 +1,8 @@
 // Server handler for "Tree selection". State lives here (a real server
-// keeps it in a DB); on every checkbox change the client @posts the
-// (key, checked) pair, the handler applies the change — branch click
+// keeps it in a DB). On every checkbox change the client @posts the
+// (key, checked) pair. The handler applies the change (a branch click
 // cascades to descendant leaves; ancestor branches auto-resolve from
-// their leaves on each render — re-renders the whole tree fragment,
+// their leaves on each render), re-renders the whole tree fragment,
 // and ships one element patch keyed by `#checkbox-tree-example`.
 
 import sim from "/static/datasim.js";
@@ -42,10 +42,11 @@ function cb(key, ariaLabel) {
 	const s = status(key);
 	const checked = s === "checked";
 	const indeterminate = s === "indeterminate";
-	// Explicit true/false on every render: an omitted boolean is "no command"
-	// to the morph-resilient checkbox, which then keeps its prior intent. A
-	// leaf the server unchecked would re-assert its stale checked intent and
-	// stay checked. Spelling out both states makes each morph authoritative.
+	// Write explicit true/false on every render. An omitted boolean is "no
+	// command" to the morph-resilient checkbox, which then keeps its prior
+	// intent. A leaf the server unchecked would re-assert its stale checked
+	// intent and stay checked. Spelling out both states makes each morph
+	// authoritative.
 	const aria = indeterminate ? "mixed" : String(checked);
 	return `<neo-checkbox role="checkbox" tabindex="0" aria-label="${ariaLabel}" ` +
 		`checked="${checked}" indeterminate="${indeterminate}" aria-checked="${aria}" ` +

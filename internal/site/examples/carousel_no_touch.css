@@ -2,8 +2,8 @@
 
 .cx-edge-btn {
 	position: absolute;
-	/* Auto-margin centering, not translateY(-50%): neo-button owns its
-	 * transform for hover/active lift and wins the cascade. */
+	/* Auto-margin centering, not translateY(-50%), because neo-button sets
+	 * its own transform for the hover/active lift and it takes precedence. */
 	top: 0;
 	bottom: 0;
 	margin-block: auto;

@@ -1,0 +1,43 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ AuraLights() {
+	<neo-layout wrap gap="lg" align-items="center">
+		@neo.Aura(neo.AuraOpts{}) {
+			@neo.Button(neo.ButtonOpts{}) {
+				Default
+			}
+		}
+		@neo.AuraAttrs(neo.AuraOpts{}, templ.Attributes{"class": "aura-lights-dual"}) {
+			@neo.Button(neo.ButtonOpts{}) {
+				Dual
+			}
+		}
+		@neo.AuraAttrs(neo.AuraOpts{}, templ.Attributes{"class": "aura-lights-rainbow"}) {
+			@neo.Button(neo.ButtonOpts{}) {
+				Rainbow
+			}
+		}
+		@neo.AuraAttrs(neo.AuraOpts{}, templ.Attributes{"class": "aura-lights-holo"}) {
+			@neo.Button(neo.ButtonOpts{}) {
+				Holo
+			}
+		}
+		@neo.AuraAttrs(neo.AuraOpts{}, templ.Attributes{"class": "aura-lights-gold"}) {
+			@neo.Button(neo.ButtonOpts{}) {
+				Gold
+			}
+		}
+		@neo.AuraAttrs(neo.AuraOpts{}, templ.Attributes{"class": "aura-lights-silver"}) {
+			@neo.Button(neo.ButtonOpts{}) {
+				Silver
+			}
+		}
+		@neo.AuraAttrs(neo.AuraOpts{}, templ.Attributes{"class": "aura-lights-glow"}) {
+			@neo.Button(neo.ButtonOpts{}) {
+				Glow
+			}
+		}
+	</neo-layout>
+}

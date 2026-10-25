@@ -56,10 +56,11 @@ func (w *cacheControlResponseWriter) Write(p []byte) (int, error) {
 	return w.ResponseWriter.Write(p)
 }
 
-// setCacheControl sets cache headers for this local preview server; production
-// runs on GitHub Pages, so these never reach users. The /static/min/ bundles
-// keep stable names, so a long cache would pin an old bundle and hide
-// rebuilds. no-cache makes the browser recheck, so a rebuild shows up.
+// setCacheControl sets cache headers for this local preview server.
+// Production runs on GitHub Pages, and users never get these headers.
+// Because the /static/min/ bundles keep stable names, a long cache would
+// pin an old bundle and hide rebuilds. no-cache makes the browser recheck,
+// which shows a rebuild.
 func setCacheControl(h http.Header, status int, urlPath string) {
 	if status < 200 || status >= 400 || h.Get("Cache-Control") != "" {
 		return

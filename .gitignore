@@ -9,7 +9,7 @@ dst/
 /gen
 
 # Build outputs from web/build.mjs (esbuild) land in /min/ at the repo
-# root and are checked in — that directory is the vendorable artifact
+# root and are checked in. That directory is the vendorable artifact
 # set for downstream users and the source the static-site gen copies
 # into dst/static/min/.
 

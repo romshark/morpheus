@@ -1,24 +1,22 @@
-/* -----------------------------------------------------------------------
- * <neo-progress>
- * -----------------------------------------------------------------------
- * Read-only sibling of <neo-slider>: same rail / fill / anchor-mark
- * markup and the same `--neo-slider-*` tokens (so themes apply
- * automatically), but no thumb, no keyboard interaction, no editable
- * value display. Header lays out exactly like the slider's header
- * (label + value + unit) so a row of mixed sliders and progress bars
- * stays vertically aligned. The track is `role="progressbar"` so AT
+/* Read-only sibling of <neo-slider>. It shares the rail / fill / anchor-mark
+ * markup and the `--neo-slider-*` tokens (themes apply automatically) but
+ * has no thumb, no keyboard interaction and no editable value display.
+ * Header lays out exactly like the slider's header (label + value + unit)
+ * so a row of mixed sliders and progress bars stays vertically aligned.
+ * The track is `role="progressbar"` so AT
  * announces the value from `aria-valuenow` instead of the slider's
  * `role="slider"` thumb.
  *
- * Shadow-scoped: this file is imported as raw text by neo-progress.ts and
- * adopted into the host's shadow root via scopeCssToHost() (which rewrites
- * `neo-progress` selectors to `:host`). It is NOT globally imported, so the
- * rules only reach the shadow internals. Depends on the `--neo-slider-*`
- * and `--neo-progress-*` tokens being defined globally above the host (they
+ * neo-progress.ts imports this file as raw text and adopts it into the
+ * host's shadow root via scopeCssToHost() (which rewrites `neo-progress`
+ * selectors to `:host`). It is not imported globally and its rules reach
+ * only the shadow internals. Depends on the `--neo-slider-*` and
+ * `--neo-progress-*` tokens being defined globally above the host (they
  * inherit across the boundary). See the global block in morpheus.css and
  * neo-slider.css. A future `prefers-contrast` override must be written
- * `@media (prefers-contrast: more) :host { … }`, never
- * `:root[…] neo-progress`: scopeCssToHost can't scope a leading `:root`. */
+ * `@media (prefers-contrast: more) :host { ... }`, never
+ * `:root[...] neo-progress`, because scopeCssToHost can't scope a leading
+ * `:root`. */
 
 neo-progress {
 	display: flex;
@@ -60,10 +58,10 @@ neo-progress [data-neo-progress-unit] {
 neo-progress > [data-neo-progress-track] {
 	position: relative;
 	height: var(--neo-slider-track-height);
-	/* No thumb to clear, so the track runs edge-to-edge; the small
-	 * inset the slider applies (`margin-inline: thumb-size / 2`)
-	 * would otherwise leave the bar floating away from any flush
-	 * neighbour (label column, mark labels). */
+	/* The track runs edge-to-edge because there is no thumb to clear. The
+	 * small inset the slider applies (`margin-inline: thumb-size / 2`)
+	 * would leave the bar floating away from any flush neighbour (label
+	 * column, mark labels). */
 	/* Layer the track-image over an opaque page-bg backdrop so the rail
 	 * and the anchor borders composite against the same base. See the
 	 * matching `<neo-slider>` rule for the full explanation. */
@@ -74,9 +72,9 @@ neo-progress > [data-neo-progress-track] {
 
 neo-progress[vertical]:where(:not([vertical="false"])) {
 	display: grid;
-	/* See the matching `<neo-slider>` rule for why col 1 is pinned to
-	 * the rail's length: it stops a wide header from padding col 1
-	 * out and pushing the marks away from the rail. */
+	/* Col 1 is pinned to the rail's length, which stops a wide header from
+	 * padding col 1 out and pushing the marks away from the rail. See the
+	 * matching `<neo-slider>` rule. */
 	grid-template-columns: var(--neo-slider-track-height) auto;
 	grid-template-rows: auto minmax(0, 1fr);
 	align-items: stretch;
@@ -116,16 +114,17 @@ neo-progress[vertical]:where(:not([vertical="false"])) > [data-neo-progress-trac
 /* Indeterminate: animate a narrow segment sliding along the rail
  * instead of painting a determinate fill. The fill width / height
  * inline styles set by syncValue() get cleared in the indeterminate
- * branch, so the keyframe rule wins. */
-neo-progress[indeterminate]:where(:not([indeterminate="false"])) > [data-neo-progress-track]
+ * branch, which lets the keyframe rule take effect. */
+neo-progress[indeterminate]:where(:not([indeterminate="false"]))
+	> [data-neo-progress-track]
 	> [data-neo-progress-fill] {
 	animation: neo-progress-indeterminate var(--neo-progress-indeterminate-duration) linear infinite;
-	/* The host lives in light DOM but the rail is in the shadow, so the
-	 * site's manual `:root[data-pref-reduced-motion]` toggle can't reach
-	 * this rule by descendant selector. It flips this inherited name to
-	 * `none` (see neo-progress.global.css) to stop the animation; the rail
-	 * falls back to its static 35% segment. OS reduced-motion is handled
-	 * directly by the @media block below. */
+	/* The host lives in light DOM but the rail is in the shadow. The site's
+	 * manual `:root[data-pref-reduced-motion]` toggle can't reach this rule
+	 * by descendant selector. It flips this inherited name to `none` (see
+	 * neo-progress.global.css) to stop the animation; the rail falls back
+	 * to its static 35% segment. The `prefers-reduced-motion` @media block
+	 * handles OS reduced-motion directly. */
 	animation-name: var(--neo-progress-indeterminate-name, neo-progress-indeterminate);
 }
 neo-progress[indeterminate]:where(:not([indeterminate="false"])):not([vertical]:where(:not([vertical="false"])))
@@ -264,7 +263,7 @@ neo-progress[vertical]:where(:not([vertical="false"])) > [data-neo-progress-mark
 	/* Match the rail's height so absolute-positioned mark labels can
 	 * resolve their `top: <pct>%` against the same coordinate space.
 	 * Without this the marks container shrinks to its content (the
-	 * absolutely-positioned children contribute zero to layout
+	 * absolutely-positioned children contribute 0 to layout
 	 * height), `top: <pct>%` resolves to 0 for everyone, and every
 	 * label stacks at the top of the row. */
 	height: var(--neo-slider-vertical-track-length);
@@ -276,14 +275,14 @@ neo-progress[vertical]:where(:not([vertical="false"])) > [data-neo-progress-mark
 	transform: translateY(-50%);
 }
 
-/* Edge-mark alignment for vertical bars: a label centred on `top: 0%`
- * (max, at the top) or `top: 100%` (min, at the bottom) hangs half
- * outside the rail's vertical extent. Flush the at-min label's
- * bottom to the rail's bottom and the at-max label's top to the
- * rail's top so neither clips. The horizontal versions of these
- * rules above use `left: 0 !important` / `right: 0` which doesn't
- * help vertical, hence the override here. */
-neo-progress[vertical]:where(:not([vertical="false"])) > [data-neo-progress-marks]
+/* In a vertical bar a label centred on `top: 0%` (max, at the top) or
+ * `top: 100%` (min, at the bottom) hangs half outside the rail's vertical
+ * extent. Flush the at-min label's bottom to the rail's bottom and the
+ * at-max label's top to the rail's top so neither clips. The horizontal
+ * edge rules use `left: 0 !important` / `right: 0`, which doesn't help
+ * vertical. */
+neo-progress[vertical]:where(:not([vertical="false"]))
+	> [data-neo-progress-marks]
 	> [data-neo-progress-mark-label][data-neo-mark-edge="end"] {
 	transform: none;
 	/* biome-ignore lint/complexity/noImportantStyles: resets the horizontal edge rule's left/right for vertical orientation. */

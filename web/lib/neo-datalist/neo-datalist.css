@@ -1,7 +1,5 @@
-/* -----------------------------------------------------------------------
- * <neo-datalist>: option-data container for select / combobox / textinput.
- * Not a rendered component: it only carries <neo-option> / <neo-optgroup>.
- * ----------------------------------------------------------------------- */
+/* <neo-datalist> holds option data for select / combobox / textinput.
+ * Not a rendered component. It only carries <neo-option> / <neo-optgroup>. */
 
 /* Shared (standalone) source: data only. The control(s) referencing it via
  * list="<id>" read it remotely and clone the options in; it renders nothing. */
@@ -11,7 +9,7 @@ neo-datalist {
 
 /* Inline source inside a control: transparent. Its options flow into the
  * host's own option layout (the projected navgroup / suggestions slot) as if
- * they were direct children, so it has no box of its own. */
+ * they were direct children. It has no box of its own. */
 :is(neo-select, neo-combobox, neo-textinput) neo-datalist {
 	display: contents;
 }

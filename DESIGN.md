@@ -20,18 +20,19 @@ Every decision in this document derives from this requirement.
 
 ## Custom Elements
 
-Components are custom elements (`<neo-*>`), driven declaratively through markup. No imperative API is exposed for normal use. Two kinds:
+Components are custom elements (`<neo-*>`), controlled declaratively through markup. No imperative API is exposed for normal use. Components come in 2 kinds:
 
 - **Behavioral**: JavaScript custom elements that read and reflect HTML attributes and dispatch DOM events. The rest of this document (the attribute contract, morph reconciliation, accessibility wiring) governs these.
-- **CSS-only**: pure styling with no JavaScript (for example, card, badge, alert, avatar, skeleton). They carry no client state, so a morph can replace them freely and they need none of the JS reconciliation below.
+- **CSS-only**: pure styling with no JavaScript (for example, card, badge, alert, avatar, skeleton). They carry no client state. A morph can replace them freely, and they need none of the JS reconciliation below.
 
-Framework-agnostic: Datastar is the documented integration, but HTMX, Alpine, React, or plain JS use the same attributes and events.
+Components are framework-agnostic. Datastar is the documented integration, but HTMX, Alpine, React, or plain JS use the same attributes and events.
 
 Each behavioral component assumes that, at any time:
 
 1. Light-DOM content can change (from a morph).
 2. The parent bounding box can resize dynamically.
-3. It is driven declaratively from a template render being patched in, not through imperative JavaScript.
+3. It is controlled declaratively from a template render being patched in, not through imperative JavaScript.
+4. Its children can arrive after it connects. When the bundle loads before the markup, the parser connects the element at its start tag.
 
 ## Attribute Contract
 
@@ -43,71 +44,71 @@ A boolean attribute is a command, not a presence flag:
 | `x="false"`                | command false                               |
 | present `x`, or `x="true"` | command true                                |
 
-Attributes fall into two categories by whether the component writes them:
+Attributes fall into 2 categories by whether the component writes them:
 
-- Interactive state (`open`, `checked`, `value`, `expanded`, `page`): the component sets it in response to user interaction and reflects it to the attribute, so CSS and the DOM mirror the state.
+- Interactive state (`open`, `checked`, `value`, `expanded`, `page`): the component sets it in response to user interaction and reflects it to the attribute so that CSS and the DOM mirror the state.
 - Configuration (`flip`, `hover`, `disabled`, `loop`): the component only reads it, never writes it.
 
-Either kind can also be driven from outside at runtime (author markup, a server morph, or a framework binding).
+Either kind can also be set from outside at runtime (author markup, a server morph, or a framework binding).
 
-Attribute names are positive (`flip`, not `no-flip`), so a double negative never arises.
+Attribute names are positive (`flip`, not `no-flip`), which prevents double negatives.
 
 ### Internal state
 
 State the component derives at runtime and no template renders (overlay vs in-flow mode, a drag in flight, etc.) is not an attribute. It is a CSS custom state on the element's `ElementInternals`, selected as `:state(name)` and, from inside the element's own shadow root, `:host(:state(name))`.
 
-Requirement: a morph reconciles the light DOM against the server template and strips every attribute the template does not carry, while keeping the same element instance, so no lifecycle callback fires to restore it. A derived marker written as an attribute therefore disappears mid-interaction and every rule keyed on it stops matching. A custom state is not part of the light DOM: a morph cannot reach it, and nothing outside the component can set it.
+Requirement: a morph reconciles the light DOM against the server template and strips every attribute the template does not carry. It keeps the same element instance, and no lifecycle callback fires to restore the attribute. A derived marker written as an attribute therefore disappears mid-interaction and every rule keyed on it stops matching. A custom state is not part of the light DOM. A morph cannot reach it, and nothing outside the component can set it.
 
-A state page CSS is meant to branch on is documented like an attribute, and renaming it is a breaking change. A state that only the component's own CSS reads (a one-frame transition suppression, an animation-direction flag) stays undocumented.
+A state page CSS is meant to branch on is documented like an attribute, and renaming it is a breaking change. A state that only the component's own CSS reads (a 1-frame transition suppression, an animation-direction flag) stays undocumented.
 
-Internal state a component sets on a child that is itself a kit element belongs to that child's `ElementInternals`, set through a method on the child, for the same reason. A generated node that no template renders (a backdrop, a drag proxy) keeps plain attributes: a morph deletes the node outright and the component rebuilds it.
+Internal state a component sets on a child that is itself a kit element belongs to that child's `ElementInternals`, set through a method on the child, for the same reason. A generated node that no template renders (a backdrop, a drag proxy) keeps plain attributes, because a morph deletes the node outright and the component rebuilds it.
 
 Disclosure state uses one attribute name, `open`, on every component that shows and hides content or a surface. `expanded` is used only where the state maps to `aria-expanded` on a `tree` or `treeitem`.
 
-The layout axis is the `orientation` enum: `horizontal` and `vertical` on components that arrange items along it (e.g. radio-group, toggle-group, tabs, carousel), plus `grid` on those that also lay out in two dimensions (e.g. navgroup, sortable). A single-value component with no items to arrange (e.g. slider, slider-range, progress) instead takes a positive `vertical` boolean, defaulting to horizontal. Where no behavior branches on the axis, `orientation` is a display attribute, not tracked state.
+The layout axis is the `orientation` enum. It takes `horizontal` and `vertical` on components that arrange items along it (e.g. radio-group, toggle-group, tabs, carousel), plus `grid` on those that also lay out in 2 dimensions (e.g. navgroup, sortable). A single-value component with no items to arrange (e.g. slider, slider-range, progress) instead takes a positive `vertical` boolean, defaulting to horizontal. Where no behavior branches on the axis, `orientation` is a display attribute, not tracked state.
 
-Rendering context, whether a surface floats over the page or sits in flow, is a positive boolean naming the non-default pole, like `vertical` for the axis: `overlay` on a component that renders in flow by default (sidebar), `contained` on one that floats by default (lightbox, toaster). It is not a shared `scope="screen|container"` enum, because a component's default is not always one of two plain values (sidebar has no always-contained mode, only a responsive switch by width).
+Rendering context, whether a surface floats over the page or sits in flow, is a positive boolean naming the non-default pole, like `vertical` for the axis. It is `overlay` on a component that renders in flow by default (sidebar) and `contained` on one that floats by default (lightbox, toaster). It is not a shared `scope="screen|container"` enum, because a component's default is not always one of 2 plain values (sidebar has no always-contained mode, only a responsive switch by width).
 
 Rationale: a morph that re-emits markup without an attribute must not change state the server did not set. A new element uses the default; an existing element keeps its current value.
 
 ## Events
 
-A behavioral component reports user actions and state changes through DOM events. Every event name follows one pattern: `neo-<tag>-<verb>`. The prefix is the component's own element tag in full, so `<neo-dialog>` fires `neo-dialog-open` and `<neo-resizable>` fires `neo-resizable-start`, never an abbreviated stem.
+A behavioral component reports user actions and state changes through DOM events. Every event name follows the pattern `neo-<tag>-<verb>`. The prefix is the component's own element tag in full. `<neo-dialog>` fires `neo-dialog-open` and `<neo-resizable>` fires `neo-resizable-start`, never an abbreviated stem.
 
-The one exception is `<neo-keys>`, a generic key-chord dispatcher with no single action to name: it fires a fixed `neo-keys` event, and you tell chords apart through the event `detail` or trigger an element directly with `for`.
+The one exception is `<neo-keys>`, a generic key-chord dispatcher with no single action to name. It fires a fixed `neo-keys` event, and you tell chords apart through the event `detail` or trigger an element directly with `for`.
 
-Events bubble, so an ancestor can handle them by delegation. An event that must cross a shadow boundary is also composed.
+Events bubble, which lets an ancestor handle them by delegation. An event that must cross a shadow boundary is also composed.
 
-Verbs mirror native DOM events where one fits, so an author who knows the DOM can predict them. Add a new verb only when the platform has none. The shared vocabulary:
+Verbs mirror native DOM events where one fits, which lets an author who knows the DOM predict them. Add a new verb only when the platform has none. The shared vocabulary:
 
 - `open` / `close`: a surface is shown or removed (dialog, drawer, popover, menu, toast).
 - `change`: a committed value or selection changed (tabs, pagination, select, slider).
 - `input`: a live value mid-interaction, before commit, paired with `change` on controls that preview continuously (slider, rating, text input).
-- `toggle`: a single event for an inline two-state disclosure, carrying the new state in its detail (tree item, revealable).
+- `toggle`: a single event for an inline 2-state disclosure, carrying the new state in its detail (tree item, revealable).
 - `start` / `end`: the bounds of a continuous gesture, with an optional continuous verb between them (`move` for reordering, `resize` for sizing) (sortable, resizable, elastic).
 - `navigate`: roving focus moved inside a navigation group that holds no selected value (navgroup). It is not `change`, because moving focus is not a committed selection.
 
-An event's `detail` names the changed state after the component's own attribute, so the key a handler reads is the key it would set (`value`, `page`, `checked`, `expanded`). An event about one element also carries `item`, the element itself; an event about a set names the set (`shown` / `hidden`).
+An event's `detail` names the changed state after the component's own attribute. The key a handler reads is the key it would set (`value`, `page`, `checked`, `expanded`). An event about one element also carries `item`, the element itself; an event about a set names the set (`shown` / `hidden`).
 
 Rationale: one scheme lets an author predict an event without checking each component's reference, and stops components inventing synonyms for one action. The full-tag prefix ties every event to the element that fired it.
 
 ## Light DOM and Shadow DOM
 
 - Component content stays in light DOM so the morph can reconcile it against the server template. Content inside a shadow root is not reachable by the morph.
-- Shadow DOM holds only what the morph must not touch: live-region announcers, structural styles, internal nodes the server never renders.
+- Shadow DOM holds only what the morph must not touch (live-region announcers, structural styles, internal nodes the server never renders).
 
-A morph can replace the host or its children at any time, so:
+Because a morph can replace the host or its children at any time:
 
-- Initialization is idempotent; a re-insert must not initialize twice.
+- Initialization is idempotent; a re-insert must not initialize 2 times.
 - The component finds the child elements it operates on by querying the live DOM when it needs them, not by holding a cached reference, because a morph can swap a child for an equivalent new node and strand the old reference.
 - Attributes the component sets at runtime (role, tabindex, ARIA) get stripped by a morph and must be re-applied, idempotently.
 - Morph targets carry stable ids so the morph pairs nodes correctly.
 
 ## Slots
 
-Three mechanisms customize a component's content.
+3 mechanisms customize a component's content.
 
-**Shadow slots.** A behavioral component with internal structure keeps that structure in its shadow root and exposes named `<slot>`s for the parts an author fills (`icon`, `title`, `description`, `action`, `trigger`, ...), plus a default slot for the primary content. Authors customize by placing light-DOM children and targeting a slot with `slot="name"`; an unfilled slot can render fallback content. Slotted content stays in light DOM, so a morph still reconciles it; only the shadow scaffolding around the slots is beyond the morph's reach.
+**Shadow slots.** A behavioral component with internal structure keeps that structure in its shadow root and exposes named `<slot>`s for the parts an author fills (`icon`, `title`, `description`, `action`, `trigger`, ...), plus a default slot for the primary content. Authors customize by placing light-DOM children and targeting a slot with `slot="name"`; an unfilled slot can render fallback content. Slotted content stays in light DOM, where a morph still reconciles it. Only the shadow scaffolding around the slots is beyond the morph's reach.
 
 **Template slots.** When the component generates content itself, an author supplies an inert `<template data-neo-<component>-<part>>` light-DOM child as a blueprint (the sortable drop placeholder, each carousel dot, a custom pagination control). The component clones the template's content into the nodes it creates, as many times as needed. The template renders nothing on its own; it only defines what the component stamps out.
 
@@ -115,15 +116,15 @@ Three mechanisms customize a component's content.
 
 ## Styling
 
-- Style hooks are `[data-neo-<component>-<part>]` attribute marks, not CSS classes, so they survive a morph like any other attribute. A mark names a part of the markup (which element is the header, the trigger, the panel), never a runtime state; derived state is a custom state (see [Internal state](#internal-state)).
+- Style hooks are `[data-neo-<component>-<part>]` attribute marks, not CSS classes. A mark survives a morph like any other attribute. A mark names a part of the markup (which element is the header, the trigger, the panel), never a runtime state; derived state is a custom state (see [Internal state](#internal-state)).
 - Theming uses CSS custom properties: `--neo-*` component tokens over `--page-*` page tokens. A theme overrides variables, not selectors.
-- The text and box row controls (button, toggle, text input, textarea, select, combobox) share one `size` scale, so a small or large button, input, and select still line up in the same row. Each step derives from the page spacing unit, so a theme's density change carries through every size. Small fixed-glyph controls (checkbox, radio, switch, rating, kbd) and the 2D color field carry their own sizing.
-- CSS that keys on a configuration boolean treats the explicit false form as off, not just absence.
+- The text and box row controls (button, toggle, text input, textarea, select, combobox) share one `size` scale, which keeps a small or large button, input, and select lined up in the same row. Each step derives from the page spacing unit, which carries a theme's density change through every size. Small fixed-glyph controls (checkbox, radio, switch, rating, kbd) and the 2D color field carry their own sizing.
+- CSS that keys on a boolean attribute treats the explicit false form as off, not just absence. This includes interactive state. Until the element upgrades and reflects its state, the attribute holds the value the template rendered, such as `checked="false"`.
 - Components respond to forced-colors, `prefers-reduced-motion`, text scaling, and target-size requirements, and do not encode meaning in color alone.
 
 ## Layering
 
-Three layers:
+The kit has 3 layers:
 
 - `web/lib`: the TypeScript custom elements. All client-side behavior is here.
 - `neo`: Templ wrappers that render the element markup for Go + Templ. They may run server-side render logic (conditional attributes, inlined icon SVG), but add no client-side behavior.
@@ -133,12 +134,12 @@ Custom elements contain no framework-specific code. Morph hints belong to the te
 
 ## Modularity
 
-The kit ships as a single default bundle, fine to use as-is (cached once from a CDN). Trimming it to only the components a deployment uses is an optional optimization, not a requirement. Components are not all independent: some depend on others (for example, neo-breadcrumb creates a neo-popover for its overflow menu).
+The kit ships as a single default bundle, fine to use as-is (cached once from a CDN). Trimming it to only the components a deployment uses is an optional optimization, not a requirement. Components are not all independent. Some depend on others (for example, neo-breadcrumb creates a neo-popover for its overflow menu).
 
-- A trimmed bundle contains the chosen components plus their transitive dependencies (other components and shared internals).
+- A trimmed bundle contains the chosen components plus their transitive dependencies, which are other components, shared internals, and the stylesheets that set the custom properties their CSS reads.
 - A component can be dropped only when nothing else in the bundle depends on it; cutting unused components cuts bundle size.
-- A component needs no setup beyond being in the bundle the page loads: its elements activate themselves, with no per-component registration or initialization call.
-- A `<neo-*>` used in markup but missing from the bundle must log a console warning naming the component, not fail silently.
+- A component needs no setup beyond being in the bundle the page loads. Its elements activate themselves, with no per-component registration or initialization call.
+- A component used in markup but missing from the bundle, a `<neo-*>` element or `<a data-neo-link>`, must log a console warning naming the component, not fail silently.
 
 ## Safety
 
@@ -150,7 +151,7 @@ A component must surface misuse to the developer rather than fail silently.
 
 ## Accessibility
 
-A custom element has no built-in semantics, so each interactive component wires them explicitly.
+A custom element has no built-in semantics. Each interactive component wires them explicitly.
 
 Required for every interactive component:
 
@@ -173,7 +174,7 @@ A wrapping `<label>` does not name a custom element as it names a native `<input
 
 ## Declarative Control
 
-Normal use is declarative: set attributes, nest children, listen for events. No imperative setup call is required, so the server template stays the single source of truth.
+Normal use is declarative. Authors set attributes, nest children, and listen for events. No imperative setup call is required, which keeps the server template the single source of truth.
 
 A few components expose optional public methods for special cases (for example, snapshotting layout before a known reorder morph). They are not needed for normal use.
 

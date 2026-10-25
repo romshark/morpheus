@@ -1,17 +1,17 @@
 // CodeMirror 6 syntax highlighter for templ (https://templ.guide)
 // templates. Implemented as a StreamLanguage so it runs at runtime
-// without a Lezer build step. Import it and register under
-// `language="templ"` in site-codemirror.ts, done.
+// without a Lezer build step. Import it and register it under
+// `language="templ"` in site-codemirror.ts.
 //
 // Coverage is pragmatic, not exhaustive. The state machine recognizes:
 //
 //   * templ block declarations: `templ Name(args) { body }`,
-//     `css Name() { … }`, `script Name() { … }`. The body is parsed
+//     `css Name() { ... }`, `script Name() { ... }`. The body is parsed
 //     in templ mode.
 //   * HTML elements inside templ bodies: tag names, attribute names,
 //     attribute values (quoted strings, single-quoted strings, and
 //     `{ expr }` Go expression holes), self-closing `/>`, closing
-//     `</tag>`, HTML comments `<!-- … -->`.
+//     `</tag>`, HTML comments `<!-- ... -->`.
 //   * Templ expression holes: `{ expr }` in element content and
 //     attribute values, with shallow Go highlighting inside (matches
 //     keyword/atom/type/string/number/identifier; nested `{ }` track
@@ -28,7 +28,7 @@
 //     mode changes.
 //   * Comments: `// line`, `/* block */`, `<!-- HTML -->`.
 //
-// Punted: full Go top-level constructs (the source is treated as a
+// Not handled: full Go top-level constructs (the source is treated as a
 // templ body fragment, common shape for the snippets we ship in
 // docs); generics in component-call args; conditional attributes
 // (`if cond { name="value" }`) are tokenized as control flow + an
@@ -116,20 +116,20 @@ interface ModeEntry {
 	isSignature?: boolean;
 }
 
-// State is a stack of mode entries; the top entry drives tokenization.
+// State is a stack of mode entries; the top entry selects the tokenizer.
 // Each entry carries its own bracket-depth counter so a closing token
-// only pops the entry when its own brackets are balanced. Three
-// scalar flags on the state object track the small look-ahead needed
-// to distinguish a body-opening `{` from an expression hole `{`:
+// only pops the entry when its own brackets are balanced. 3 scalar
+// flags on the state object track the small look-ahead needed to
+// distinguish a body-opening `{` from an expression hole `{`:
 //
-//   afterBlockKeyword   the previous token was `templ`/`css`/`script`,
-//                       so the next identifier is the block name and
+//   afterBlockKeyword   the previous token was `templ`/`css`/`script`;
+//                       the next identifier is the block name and
 //                       should highlight as `def`.
 //   signatureExpected   the previous token was a block name (after
 //                       afterBlockKeyword cleared) or a component-
 //                       call target (`@Pkg.Comp`); the next `(` opens
 //                       a Go-args signature go-paren.
-//   bodyExpected        we just popped a signature go-paren, so the
+//   bodyExpected        we just popped a signature go-paren; the
 //                       next `{` opens a templ body (push a fresh
 //                       templ scope) rather than an expression hole.
 interface TemplState {
@@ -203,13 +203,11 @@ function token(stream: StringStream, state: TemplState): string | null {
 	return null;
 }
 
-// ---------------------------------------------------------------- //
-// Templ body: recognizes HTML, component calls, interpolations,
-// control flow, and templ block declarations (which work whether
-// nested inside another templ block or sitting at top level, since
-// we treat the input as a fragment, top-level looks the same as the
-// nested case to the parser).
-// ---------------------------------------------------------------- //
+// Templ body. Recognizes HTML, component calls, interpolations,
+// control flow, and templ block declarations, which work whether
+// nested inside another templ block or at top level. The input is
+// treated as a fragment, and top-level looks the same as the nested
+// case to the parser.
 function tokenTempl(stream: StringStream, state: TemplState): string | null {
 	if (stream.eatSpace()) return null;
 
@@ -228,7 +226,7 @@ function tokenTempl(stream: StringStream, state: TemplState): string | null {
 		return "comment";
 	}
 
-	// `{`: the meaning depends on what we just consumed. After a
+	// The meaning of `{` depends on what we just consumed. After a
 	// block/component signature (bodyExpected) it opens a fresh
 	// templ scope; otherwise it's a Go expression hole inside the
 	// current templ body.
@@ -255,7 +253,7 @@ function tokenTempl(stream: StringStream, state: TemplState): string | null {
 		return "tag";
 	}
 
-	// Opening tag <tag: only when the `<` is followed by a letter,
+	// Opening tag <tag, only when the `<` is followed by a letter;
 	// otherwise it's text content (e.g. comparison ops inside prose).
 	if (stream.peek() === "<" && /[A-Za-z]/.test(stream.string.charAt(stream.pos + 1))) {
 		stream.next();
@@ -266,7 +264,7 @@ function tokenTempl(stream: StringStream, state: TemplState): string | null {
 		return "tag";
 	}
 
-	// Component call: @Pkg.Comp[.Sub]. The next `(` (whitespace /
+	// Component call @Pkg.Comp[.Sub]. The next `(` (whitespace /
 	// comments allowed in between) opens a signature go-paren.
 	if (stream.eat("@")) {
 		stream.match(/^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)*/);
@@ -292,7 +290,7 @@ function tokenTempl(stream: StringStream, state: TemplState): string | null {
 		return "string";
 	}
 
-	// `(`: signature opener if we just saw a block name or
+	// `(` is a signature opener if we just saw a block name or
 	// component-call target; otherwise a stray paren (unhighlighted).
 	if (stream.eat("(")) {
 		if (state.signatureExpected) {
@@ -317,7 +315,7 @@ function tokenTempl(stream: StringStream, state: TemplState): string | null {
 		return "number";
 	}
 
-	// Identifier: block-opening keyword, control-flow keyword,
+	// An identifier is a block-opening keyword, control-flow keyword,
 	// other Go keyword, type, atom, or plain text identifier.
 	const next = stream.peek();
 	if (next && /[A-Za-z_]/.test(next)) {
@@ -348,7 +346,7 @@ function tokenTempl(stream: StringStream, state: TemplState): string | null {
 		return "variable";
 	}
 
-	// Default: consume one char of plain content. Body-opener look-
+	// By default, consume 1 char of plain content. Body-opener look-
 	// ahead is invalidated by any non-whitespace, non-comment token
 	// so a `{` arriving much later doesn't accidentally trigger.
 	state.bodyExpected = false;
@@ -357,10 +355,8 @@ function tokenTempl(stream: StringStream, state: TemplState): string | null {
 	return null;
 }
 
-// ---------------------------------------------------------------- //
-// Inside an HTML opening tag: read attribute names + values until
+// Inside an HTML opening tag, read attribute names + values until
 // `>` or `/>` ends the tag.
-// ---------------------------------------------------------------- //
 function tokenTag(stream: StringStream, state: TemplState): string | null {
 	if (stream.eatSpace()) return null;
 
@@ -416,11 +412,9 @@ function tokenAttrString(stream: StringStream, state: TemplState, quote: string)
 	return "string-2";
 }
 
-// ---------------------------------------------------------------- //
-// Go expression hole `{ … }`. Tokenizes as Go; tracks inner `{ }`
+// Go expression hole `{ ... }`. Tokenizes as Go; tracks inner `{ }`
 // depth so a Go composite literal inside the hole doesn't terminate
 // the mode early.
-// ---------------------------------------------------------------- //
 function tokenGoBraced(stream: StringStream, state: TemplState): string | null {
 	if (stream.eatSpace()) return null;
 
@@ -464,10 +458,8 @@ function tokenGoBraced(stream: StringStream, state: TemplState): string | null {
 	return tokenGoCommon(stream, state);
 }
 
-// ---------------------------------------------------------------- //
-// Go args inside `( )`. Same as the brace variant but pivots on
-// matching parens rather than matching braces.
-// ---------------------------------------------------------------- //
+// Go args inside `( )`. Same as tokenGoBraced but ends on the
+// matching paren rather than the matching brace.
 function tokenGoParen(stream: StringStream, state: TemplState): string | null {
 	if (stream.eatSpace()) return null;
 
@@ -525,12 +517,10 @@ function tokenGoParen(stream: StringStream, state: TemplState): string | null {
 	return tokenGoCommon(stream, state);
 }
 
-// ---------------------------------------------------------------- //
-// `if`/`for`/`switch`/`else` condition body: Go tokens until the
+// `if`/`for`/`switch`/`else` condition body. Go tokens until the
 // next top-level `{`, which closes this mode and opens a templ body.
 // We track `(` and `[` depth so a brace inside (e.g. inside a
 // composite-literal in the cond expression) doesn't confuse us.
-// ---------------------------------------------------------------- //
 function tokenControlCond(stream: StringStream, state: TemplState): string | null {
 	if (stream.eatSpace()) return null;
 
@@ -569,7 +559,7 @@ function tokenControlCond(stream: StringStream, state: TemplState): string | nul
 
 	if (stream.eat("{")) {
 		// Composite literals can show up inside the cond
-		// (`if x == (Foo{}) { … }`), but those are wrapped in
+		// (`if x == (Foo{}) { ... }`), but those are wrapped in
 		// `(`/`[` and won't reach here at depth 0. Only a depth-0
 		// `{` closes the cond and opens the templ body.
 		if (cur.depth > 0) {
@@ -584,12 +574,10 @@ function tokenControlCond(stream: StringStream, state: TemplState): string | nul
 	return tokenGoCommon(stream, state);
 }
 
-// ---------------------------------------------------------------- //
-// Shared Go-token helpers: identifiers, keywords, numbers, operators.
-// Returns a token name (or null) and advances the stream by one
-// token's worth of characters. Callers handle bracket / quote /
+// Shared Go-token helper for identifiers, keywords, numbers and
+// operators. Returns a token name (or null) and advances the stream by
+// one token's worth of characters. Callers handle bracket / quote /
 // comment cases before delegating here.
-// ---------------------------------------------------------------- //
 function tokenGoCommon(stream: StringStream, _state: TemplState): string | null {
 	if (stream.match(/^0[xX][0-9a-fA-F_]+/)) return "number";
 	if (stream.match(/^0[oO][0-7_]+/)) return "number";
@@ -625,9 +613,7 @@ function tokenRune(stream: StringStream): string {
 	return "string";
 }
 
-// ---------------------------------------------------------------- //
 // Multi-char delimited tokens.
-// ---------------------------------------------------------------- //
 function tokenString(stream: StringStream, state: TemplState): string {
 	while (!stream.eol()) {
 		const c = stream.next();

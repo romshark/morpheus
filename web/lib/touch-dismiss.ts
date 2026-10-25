@@ -1,14 +1,14 @@
 // Shared parser for the `touch-dismiss` attribute across neo-drawer,
-// neo-sidebar, and neo-toaster. One grammar, one fallback vocabulary.
+// neo-sidebar, and neo-toaster, with a single grammar and fallback vocabulary.
 
-// Resolve a `touch-dismiss` attribute value to a pixel threshold, or
-// null when the gesture is explicitly disabled. `raw` is the raw
+// Resolve a `touch-dismiss` attribute value to a pixel threshold,
+// or null when the gesture is explicitly disabled. `raw` is the raw
 // attribute (null when absent). `reference` is the dimension a bare
 // number or `%` resolves against (the panel/toast width or size).
 // `fallback` is returned for a missing, bare, or unparseable value.
-// `container` is an in-document element the CSS-unit probe is appended
-// into, so `em`/`rem`/viewport units measure in the caller's own font
-// and layout context.
+// `container` is an in-document element the CSS-unit probe is appended into,
+// which makes `em`/`rem`/viewport units measure in the caller's own
+// font and layout context.
 export function resolveTouchDismiss(
 	raw: string | null,
 	reference: number,
@@ -34,8 +34,8 @@ export function resolveTouchDismiss(
 	if (typeof CSS === "undefined" || typeof CSS.supports !== "function" || !CSS.supports("width", v)) {
 		return fallback;
 	}
-	// Measurement is synchronous (append, read, remove within this call),
-	// so the probe never spans a morph window.
+	// The probe never spans a morph window because measurement is synchronous
+	// (append, read, remove within this call).
 	const probeBox = document.createElement("div");
 	const probe = document.createElement("div");
 	probeBox.style.cssText = [

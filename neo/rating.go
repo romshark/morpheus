@@ -5,10 +5,10 @@ import (
 	"strconv"
 )
 
-// RatingOpts is the attribute surface for <neo-rating>. Numeric
-// defaults match the JS host: Max=5, Precision=1, Value=0. Set a numeric
-// field when an explicit zero must still be emitted as an attribute
-// (e.g. for a Datastar binding) rather than omitted.
+// RatingOpts is the attribute surface for <neo-rating>.
+// Numeric defaults match the JS host (Max=5, Precision=1, Value=0).
+// Set a numeric field when an explicit zero must still be emitted as
+// an attribute (e.g. for a Datastar binding) rather than omitted.
 type RatingOpts struct {
 	Value, Max, Precision Attr[float64]
 
@@ -16,11 +16,11 @@ type RatingOpts struct {
 	Icon Attr[string]
 	// Label is the accessible name; also mirrored to aria-label.
 	Label Attr[string]
-	// Readonly renders the value but blocks interaction (still
-	// announced). Disabled also dims it. Both drop it from tab order.
+	// Readonly renders the value but blocks interaction (still announced).
+	// Disabled also dims it. Both drop it from tab order.
 	Readonly Attr[bool]
 	Disabled Attr[bool]
-	// Size scales the symbol: "" (default) | "sm" | "lg".
+	// Size scales the symbol. One of "" (default), "sm", "lg".
 	Size Attr[string]
 	// AriaLabel is used when Label is empty (e.g. an icon-only rating
 	// whose meaning is conveyed elsewhere).
@@ -62,9 +62,9 @@ func (o RatingOpts) icon() string {
 	return "star"
 }
 
-// symbolPct is the fill percentage of the i-th symbol (1-based) for
-// the current value: 100 for fully covered, a fraction for the
-// partially-covered one under a non-integer value, 0 beyond it.
+// symbolPct returns the fill percentage of the i-th symbol (1-based) for
+// the current value. It is 100 for a fully covered symbol, a fraction for
+// the partially covered one under a non-integer value and 0 beyond it.
 func (o RatingOpts) symbolPct(i int) float64 {
 	frac := o.value() - float64(i-1)
 	if frac <= 0 {

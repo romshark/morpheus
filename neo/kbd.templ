@@ -1,19 +1,19 @@
 package neo
 
 type KbdOpts struct {
-	// Variant: "" (subtle key chip with bottom shadow) or "outline"
+	// Variant is "" (subtle key chip with bottom shadow) or "outline"
 	// (transparent fill with border).
 	Variant Attr[string]
-	// Size: "" (default) or "sm" (compact).
+	// Size is "" (default) or "sm" (compact).
 	Size Attr[string]
-	// Key renders the platform-correct glyph for a single key (e.g. "mod" →
-	// ⌘ / Ctrl, "enter" → ↵ / Enter). Overrides any children. Compose
+	// Key renders the platform-correct glyph for a single key (e.g. "mod" ->
+	// ⌘ / Ctrl, "enter" -> ↩ / Enter). Overrides any children. Compose
 	// multi-key shortcuts from several [Kbd] in a [KbdGroup].
 	Key Attr[string]
-	// UserAgent enables server-side pre-rendering of the Key glyph: pass
+	// UserAgent enables server-side pre-rendering of the Key glyph. Pass
 	// the request User-Agent (r.UserAgent()) and the glyph is emitted for
-	// that OS, so it doesn't flash in after the bundle upgrades. The client
-	// then reconciles against the real platform. Leave empty on a
+	// that OS, which keeps it from flashing in after the bundle upgrades.
+	// The client then reconciles against the real platform. Leave empty on a
 	// static/CDN site that can't read the request UA.
 	UserAgent Attr[string]
 }

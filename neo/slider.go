@@ -6,16 +6,16 @@ import (
 	"strings"
 )
 
-// SliderMark describes one anchor mark on a Slider's rail. Value is
-// the numeric position. Label is the optional caption beneath the rail
-// (empty draws just the dot). Marks outside [Min, Max] are skipped.
+// SliderMark describes one anchor mark on a [Slider]'s rail.
+// Value is the numeric position. Label is the optional caption beneath
+// the rail (empty draws just the dot). Marks outside [Min, Max] are skipped.
 type SliderMark struct {
 	Value float64
 	Label string
 }
 
-// SliderOpts numeric defaults match the JS host: Min=0, Max=100,
-// Step=1, Value=Min. Set a numeric field when an explicit zero needs to
+// SliderOpts numeric defaults match the JS host (Min=0, Max=100,
+// Step=1, Value=Min). Set a numeric field when an explicit zero needs to
 // override the default (e.g. Set(0) on Min emits the attribute with "0"
 // verbatim for clarity / Datastar binding).
 type SliderOpts[N Number] struct {
@@ -42,8 +42,8 @@ type SliderOpts[N Number] struct {
 	AriaLabel Attr[string]
 }
 
-// formatNumber renders n in its shortest string form: minimum-precision
-// 'g' for floats, base 10 for integers. Matches the JS `String(num)`
+// formatNumber renders n in its shortest string form, minimum-precision
+// 'g' for floats and base 10 for integers. Matches the JS `String(num)`
 // pretty-print used in min/max/value attrs.
 func formatNumber[N Number](n N) string {
 	switch v := any(n).(type) {

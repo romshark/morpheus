@@ -3,10 +3,10 @@ package neo
 type SelectOpts struct {
 	// Value seeds the initial selection.
 	Value Attr[string]
-	// Name is the form field name. The control is form-associated, so with a
-	// Name set it submits its value in a native <form> like a <select>.
+	// Name is the form field name. The control is form-associated and, with
+	// a Name set, submits its value in a native <form> like a <select>.
 	Name Attr[string]
-	// Disabled makes the control non-interactive: the trigger drops out of
+	// Disabled makes the control non-interactive. The trigger drops out of
 	// the tab order and ignores clicks and keys.
 	Disabled Attr[bool]
 	// Size is the control-size step ("sm" | "lg"); empty is the default
@@ -35,17 +35,17 @@ type SelectOpts struct {
 	TypeaheadTimeout Attr[int]
 	TypeaheadMatch   Attr[TypeaheadMatch]
 	// Caret overrides the trigger's caret icon name (default
-	// "chevrons-up-down"). Resolved through <neo-icon>, so it follows
-	// the active icon theme. Set("") hides the caret entirely.
+	// "chevrons-up-down"). Resolved through <neo-icon> and follows the
+	// active icon theme. Set("") hides the caret entirely.
 	Caret        Attr[string]
 	AriaLabel    Attr[string]
 	Placement    Attr[Placement]
 	ScreenOffset Attr[CSSUnit]
 	// FollowScroll forwards a popover scroll-follow mode to the inner
-	// popover. Defaults to PopoverFollowScrollUntilTriggerInvisible so
+	// popover. Defaults to [PopoverFollowScrollUntilTriggerInvisible] so
 	// the listbox closes once its trigger scrolls off-screen; pass
-	// PopoverFollowScrollAlways to keep it anchored across scrolls, or
-	// PopoverFollowScrollOff to disable.
+	// [PopoverFollowScrollAlways] to keep it anchored across scrolls, or
+	// [PopoverFollowScrollOff] to disable.
 	FollowScroll   Attr[PopoverFollowScroll]
 	ClampPlacement Attr[bool]
 	MinFitHeight   Attr[CSSUnit]
@@ -58,13 +58,13 @@ type SelectOpts struct {
 	PopoverFitContent Attr[bool]
 }
 
-// Select renders <neo-select>. Children provide the option data:
+// Select renders <neo-select>. Children provide the option data as
 // [Option] / [OptGroup], optionally wrapped in a [Datalist]; a
 // [data-neo-async-placeholder] child marks async loading. This wrapper
-// never injects a container: to address the options from a server-driven
+// never injects a container. To address the options from a server-driven
 // patch, wrap them in a [Datalist] with id="<host-id>-options" yourself.
-// The browser component owns the trigger/panel/listbox in shadow DOM, so
-// patches target the light option data, never the live scroll container.
+// The browser component owns the trigger/panel/listbox in shadow DOM.
+// Patches target the light option data, never the live scroll container.
 templ Select(opts SelectOpts) {
 	@SelectAttrs(opts, nil) {
 		{ children... }
@@ -123,7 +123,7 @@ type OptionOpts struct {
 	Disabled Attr[bool]
 }
 
-// Option renders <neo-option> for use as a child of Select.
+// Option renders <neo-option> for use as a child of [Select].
 templ Option(opts OptionOpts) {
 	@OptionAttrs(opts, nil) {
 		{ children... }
@@ -149,14 +149,14 @@ templ OptionAttrs(opts OptionOpts, attrs templ.Attributes) {
 	</neo-option>
 }
 
-// OptionTrigger marks its children as an option's trigger face: the
+// OptionTrigger marks its children as an option's trigger face, the
 // markup the kit clones into the trigger when this option is selected,
 // distinct from the option's (often richer) listbox row. Hidden in the
-// list. Shared by Select and Combobox. Place it as a child of Option:
+// list. Shared by [Select] and [Combobox]. Place it as a child of [Option]:
 //
 //	@neo.Option(neo.OptionOpts{Value: neo.Set("evelyn")}) {
 //	    @neo.OptionTrigger() { <span class="chip">Evelyn</span> }
-//	    <div class="person-card">…rich list row…</div>
+//	    <div class="person-card">...rich list row...</div>
 //	}
 //
 // Without it the trigger falls back to the option's `label` (plain
@@ -182,7 +182,7 @@ type OptGroupOpts struct {
 }
 
 // OptGroup wraps related [Option] children under a non-focusable
-// section header inside a [Select]. Use it the same way as Option,
+// section header inside a [Select]. Use it the same way as [Option],
 // but nest options inside its body:
 //
 //	@neo.Select(neo.SelectOpts{...}) {
@@ -211,10 +211,10 @@ templ OptGroupAttrs(opts OptGroupOpts, attrs templ.Attributes) {
 }
 
 // SelectEmpty marks its children as the empty-state trigger face for a
-// Select: a <neo-option value="" data-neo-select-empty> cloned into the
-// trigger when nothing is selected, never shown as a listbox row. Mirrors
-// Combobox's ComboboxEmpty. Place it as a child of Select, typically with
-// Clearable so the user can return to it.
+// [Select]. It renders a <neo-option value="" data-neo-select-empty> that
+// is cloned into the trigger when nothing is selected and never shown as
+// a listbox row. Mirrors [ComboboxEmpty]. Place it as a child of [Select],
+// typically with Clearable so the user can return to it.
 templ SelectEmpty() {
 	@SelectEmptyAttrs(nil) {
 		{ children... }

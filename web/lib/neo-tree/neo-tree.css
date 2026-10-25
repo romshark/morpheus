@@ -1,12 +1,9 @@
-/* -----------------------------------------------------------------------
- * <neo-tree> + <neo-tree-item>
- * -----------------------------------------------------------------------
- * Disclosure tree. Row markup (chevron, animation wrapper) lives in
+/* Disclosure tree. Row markup (chevron, animation wrapper) lives in
  * the item's shadow stylesheet; only the design tokens are exposed
  * here so themes can re-tune them.
  *
- * The grid 0fr -> 1fr trick (in shadow) drives the open/close
- * animation, no JS height measurement, no max-height fudge. The
+ * The grid 0fr -> 1fr trick (in shadow) animates open/close with
+ * no JS height measurement and no max-height fudge. The
  * kit-wide --neo-easing / --neo-duration-scale flow through
  * --neo-tree-duration via cascade.
  */
@@ -21,7 +18,7 @@
 	--neo-tree-duration: calc(200ms * var(--neo-duration-scale, 1));
 }
 
-/* Pre-hydration: nested items would otherwise show as a flat list
+/* Before hydration nested items would otherwise show as a flat list
  * while the shadow hasn't installed its slots. */
 neo-tree-item:not(:defined) > neo-tree-item {
 	display: none;

@@ -19,7 +19,7 @@ templ PageLightbox(morpheusVersion string) {
 				with <code>[data-neo-lightbox-content]</code>; the
 				host owns the open / close animation, focus, the
 				backdrop, and <neo-kbd>Esc</neo-kbd> dismissal. By default it
-				rides the top layer to cover the viewport;
+				uses the top layer to cover the viewport;
 				<code>contained</code> confines the overlay to the host's own box.
 			</p>
 			@Playground(PlaygroundOpts{
@@ -77,8 +77,8 @@ templ PageLightbox(morpheusVersion string) {
 			}
 			<p class="demo-note">
 				<code>contained</code> confines the
-				overlay to the host's box instead of the viewport, so
-				the panel covers just this card. The host becomes the
+				overlay to the host's box instead of the viewport.
+				Here the panel covers just this card. The host becomes the
 				positioned containing block.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
@@ -117,10 +117,10 @@ templ PageLightbox(morpheusVersion string) {
 				Every thumbnail opens the same overlay, which holds a
 				<code>{ "<neo-carousel>" }</code> of the full images. A
 				<code>$gallery_active</code> signal tracks the last
-				thumbnail clicked: each trigger sets it
+				thumbnail clicked. Each trigger sets it
 				(<code>data-on:click</code>), and the carousel binds to
 				it (<code>data-attr:value</code>) and writes back on
-				navigation, so the photo you click opens first and the
+				navigation. The photo you click opens first and the
 				signal stays in sync as you swipe.
 			</p>
 			@demoFrameWith(DemoFrameOpts{

@@ -7,7 +7,7 @@ import (
 	"github.com/a-h/templ"
 )
 
-// ResizableHandles is a bitmask of the directions a Resizable exposes
+// ResizableHandles is a bitmask of the directions a [Resizable] exposes
 // drag handles for. Combine with `|`.
 type ResizableHandles uint16
 
@@ -23,7 +23,7 @@ const (
 )
 
 // names returns the CSS-friendly handle names for the set bits in
-// stable order. Mirrors ALL_HANDLES in web/src/neo-resizable/neo-resizable.ts.
+// stable order. Mirrors ALL_HANDLES in the neo-resizable TS source.
 func (h ResizableHandles) names() []string {
 	out := make([]string, 0, 8)
 	if h&ResizableTop != 0 {
@@ -59,8 +59,8 @@ func (h ResizableHandles) String() string {
 	return strings.Join(h.names(), " ")
 }
 
-// resizableIconByName mirrors DEFAULT_ICON in web/src/neo-resizable/neo-resizable.ts.
-// Keep the two in sync.
+// resizableIconByName mirrors DEFAULT_ICON in the neo-resizable TS source.
+// Keep the 2 in sync.
 var resizableIconByName = map[string]string{
 	"top":          "grip-horizontal",
 	"bottom":       "grip-horizontal",
@@ -76,8 +76,8 @@ var resizableIconByName = map[string]string{
 // The sizing fields are CSS lengths mirrored to inline style for first
 // paint and emitted as the element's observed attributes.
 type ResizableOpts[N Number] struct {
-	// Handles is the bitmask of edges/corners to expose drag handles
-	// for. Zero value exposes none (resize disabled).
+	// Handles is the bitmask of edges/corners to expose drag handles for.
+	// Zero value exposes none (resize disabled).
 	Handles Attr[ResizableHandles]
 	// Width / Height are the initial size.
 	Width, Height Attr[CSSUnit]
@@ -88,15 +88,15 @@ type ResizableOpts[N Number] struct {
 	// during resize. Zero (the default) means free resize on that axis.
 	StepHorizontal, StepVertical Attr[N]
 	// HandleIcons overrides the default glyph for specific handles, keyed
-	// by handle name ("bottom-right", "top", …). The supplied content
+	// by handle name ("bottom-right", "top", ...). The supplied content
 	// renders inside that handle instead of the default <neo-icon>, and is
 	// prerendered so the glyph survives morphs and matches first paint.
 	HandleIcons map[string]templ.Component
 }
 
 // resizableMergedAttrs flattens the opts sizing fields into the
-// attribute map (caller attrs win), then runs the existing
-// first-paint inline-style mirroring over the result.
+// attribute map (caller attrs override), then runs the first-paint
+// inline-style mirroring over the result.
 func resizableMergedAttrs[N Number](
 	opts ResizableOpts[N],
 	attrs templ.Attributes,
@@ -150,9 +150,7 @@ func resizableRenderAttrs(attrs templ.Attributes) templ.Attributes {
 	}
 
 	out := make(templ.Attributes, len(attrs)+1)
-	for k, v := range attrs {
-		out[k] = v
-	}
+	maps.Copy(out, attrs)
 
 	var b strings.Builder
 	for _, item := range resizableSizeAttrs {

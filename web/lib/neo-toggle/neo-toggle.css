@@ -1,8 +1,5 @@
-/* -----------------------------------------------------------------------
- * <neo-toggle>
- * -----------------------------------------------------------------------
- * Visually a clone of <neo-button> with an extra "pressed" state. The
- * pressed look reuses the secondary fill so it reads as "this is on"
+/* Visually a clone of <neo-button> with an extra "pressed" state.
+ * The pressed look reuses the secondary fill so it reads as "this is on"
  * without colliding with the primary-button accent (which a sibling
  * non-toggle CTA may already be using). */
 
@@ -34,15 +31,18 @@ neo-toggle {
 }
 
 /* `size` (sm/lg) is the shared control-size scale in _base.css; toggle
- * is in that selector group, so it needs no per-component size rule. */
+ * is in that selector group and needs no per-component size rule. */
 
-neo-toggle:hover {
+/* A disabled toggle keeps pointer events and matches :hover and :active.
+ * Each such rule excludes the disabled states inside :where() to leave
+ * its specificity unchanged. */
+neo-toggle:hover:where(:not([disabled]:not([disabled="false"]), [aria-disabled="true"])) {
 	background: var(--neo-button-hover-bg);
 	box-shadow: var(--neo-button-hover-shadow), var(--neo-contrast-ring);
 	transform: translateY(var(--neo-button-hover-lift));
 }
 
-neo-toggle:active {
+neo-toggle:active:where(:not([disabled]:not([disabled="false"]), [aria-disabled="true"])) {
 	background: var(--neo-button-active-bg);
 	color: var(--neo-button-active-color);
 	box-shadow: var(--neo-button-active-shadow), var(--neo-contrast-ring);
@@ -62,13 +62,13 @@ neo-toggle[variant="ghost"] {
 	transform: none;
 }
 
-neo-toggle[variant="ghost"]:hover {
+neo-toggle[variant="ghost"]:hover:where(:not([disabled]:not([disabled="false"]), [aria-disabled="true"])) {
 	background: var(--neo-button-ghost-hover-bg);
 	box-shadow: none;
 	transform: none;
 }
 
-neo-toggle[variant="ghost"]:active {
+neo-toggle[variant="ghost"]:active:where(:not([disabled]:not([disabled="false"]), [aria-disabled="true"])) {
 	background: var(--neo-button-ghost-active-bg);
 	color: var(--neo-button-ghost-color);
 	box-shadow: none;
@@ -86,8 +86,10 @@ neo-toggle[aria-pressed="true"] {
 	transform: translateY(0);
 }
 
-neo-toggle[pressed]:not([pressed="false" i]):hover,
-neo-toggle[aria-pressed="true"]:hover {
+neo-toggle[pressed]:not([pressed="false" i]):hover:where(
+	:not([disabled]:not([disabled="false"]), [aria-disabled="true"])
+),
+neo-toggle[aria-pressed="true"]:hover:where(:not([disabled]:not([disabled="false"]), [aria-disabled="true"])) {
 	background: color-mix(in srgb, var(--page-fg) 24%, transparent);
 }
 
@@ -98,8 +100,12 @@ neo-toggle[variant="primary"][aria-pressed="true"] {
 	border-color: transparent;
 }
 
-neo-toggle[variant="primary"][pressed]:not([pressed="false" i]):hover,
-neo-toggle[variant="primary"][aria-pressed="true"]:hover {
+neo-toggle[variant="primary"][pressed]:not([pressed="false" i]):hover:where(
+	:not([disabled]:not([disabled="false"]), [aria-disabled="true"])
+),
+neo-toggle[variant="primary"][aria-pressed="true"]:hover:where(
+	:not([disabled]:not([disabled="false"]), [aria-disabled="true"])
+) {
 	background: var(--neo-button-primary-hover-bg);
 }
 
@@ -110,8 +116,12 @@ neo-toggle[variant="danger"][aria-pressed="true"] {
 	border-color: transparent;
 }
 
-neo-toggle[variant="danger"][pressed]:not([pressed="false" i]):hover,
-neo-toggle[variant="danger"][aria-pressed="true"]:hover {
+neo-toggle[variant="danger"][pressed]:not([pressed="false" i]):hover:where(
+	:not([disabled]:not([disabled="false"]), [aria-disabled="true"])
+),
+neo-toggle[variant="danger"][aria-pressed="true"]:hover:where(
+	:not([disabled]:not([disabled="false"]), [aria-disabled="true"])
+) {
 	background: var(--neo-button-danger-hover-bg);
 }
 
@@ -122,8 +132,8 @@ neo-toggle[aria-disabled="true"] {
 	background-image: var(--neo-disabled-overlay);
 }
 
-/* `[data-neo-toggle-on]` / `[data-neo-toggle-off]` are the two-label slot
- * convention: mark up both states inline and let the `pressed`
+/* `[data-neo-toggle-on]` / `[data-neo-toggle-off]` are the 2-label slot
+ * convention. Mark up both states inline and let the `pressed`
  * attribute swap which one paints. `display: contents` keeps the
  * button's flex gap uniform whichever side is active. */
 neo-toggle [data-neo-toggle-off] {

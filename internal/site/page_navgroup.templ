@@ -82,7 +82,7 @@ templ PageNavgroup(morpheusVersion string) {
 			}
 			<p class="demo-note">
 				A horizontal row of formatting buttons
-				with <code>wrap</code> on, so arrow keys cycle
+				with <code>wrap</code> on, which makes arrow keys cycle
 				past either edge. <code>{ `role="toolbar"` }</code> and
 				<code>aria-label</code> turn the group into a
 				single labelled landmark for assistive tech.
@@ -116,8 +116,8 @@ templ PageNavgroup(morpheusVersion string) {
 			<p class="demo-note">
 				Set <code>{ `orientation="grid"` }</code> with a
 				<code>columns</code> count and arrow keys move in
-				two dimensions. <code>wrap</code> wraps both
-				axes, so a Right at the end of a row jumps to the
+				2 dimensions. <code>wrap</code> wraps both
+				axes. A Right at the end of a row jumps to the
 				start of the next row.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
@@ -134,7 +134,7 @@ templ PageNavgroup(morpheusVersion string) {
 			<p class="demo-note">
 				Disabled items stay in place so the toolbar's
 				visual order is preserved, but arrow keys skip
-				over them: they're dropped from the roving focus
+				over them. They're dropped from the roving focus
 				set and can't be activated. Useful for media
 				controls where the available actions change with
 				playback state.

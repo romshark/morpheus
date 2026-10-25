@@ -11,7 +11,7 @@ export class NeoButton extends HTMLElement {
 
 	connectedCallback() {
 		// A disabled host carries our own managed tabindex="-1". Never
-		// capture that as the caller's preference: a fat-morph can
+		// capture that as the caller's preference, because a fat-morph can
 		// reconnect a still-disabled button, and restoring "-1" on
 		// re-enable would silently drop it out of the tab order.
 		this.#callerTabIndex = boolAttr(this, "disabled", false) ? null : this.getAttribute("tabindex");
@@ -19,7 +19,7 @@ export class NeoButton extends HTMLElement {
 		this.addEventListener("keydown", this.#onKeyDown);
 		this.addEventListener("click", this.#onClickCapture, true);
 		// A button may host a dropdown <neo-menu> (it wires itself as the
-		// trigger). Exactly one is supported.
+		// trigger). Only 1 is supported.
 		if (this.querySelectorAll(":scope > neo-menu").length > 1) {
 			console.warn("<neo-button> expects at most one <neo-menu> child; extra menus are ignored.");
 		}

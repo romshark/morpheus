@@ -1,4 +1,4 @@
-// Server handlers for "Patch — replace all". Two endpoints:
+// Server handlers for "Patch: replace all", with 2 endpoints:
 //   - /pin/     appends a single pinned toast (mode: "append").
 //   - /replace/ replaces every toast with a fresh batch by morphing
 //               the host's inner HTML (mode: "inner"). The toaster's

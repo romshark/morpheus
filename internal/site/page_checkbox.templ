@@ -14,10 +14,11 @@ templ PageCheckbox(morpheusVersion string) {
 			}
 			<p class="intro">
 				Component <code>{ "<neo-checkbox>" }</code> is a
-				three-state checkbox: <code>checked</code>,
-				unchecked, or <code>indeterminate</code>
-				(<code>{ `aria-checked="mixed"` }</code>) for parent
-				rows whose children are partially selected.
+				3-state checkbox with <code>checked</code>,
+				unchecked, and <code>indeterminate</code>
+				(<code>{ `aria-checked="mixed"` }</code>) states.
+				Indeterminate is for parent rows whose children are
+				partially selected.
 				Participates
 				in a wrapping <code>{ `<label>` }</code> like a
 				native checkbox.
@@ -39,8 +40,8 @@ templ PageCheckbox(morpheusVersion string) {
 				States
 			}
 			<p class="demo-note">
-				Three states: unchecked, checked,
-				indeterminate. Click the box or focus with
+				Shows the unchecked, checked, and indeterminate
+				states. Click the box or focus with
 				<neo-kbd>Tab</neo-kbd> and toggle with <neo-kbd>Space</neo-kbd>.
 				Input on a mixed checkbox resolves it to
 				checked, matching the native rule.
@@ -89,7 +90,7 @@ templ PageCheckbox(morpheusVersion string) {
 			<p class="demo-note">
 				Wrapping a checkbox in a
 				<code>{ `<label>` }</code> makes the whole row
-				clickable: the host forwards clicks on its
+				clickable. The host forwards clicks on its
 				closest <code>{ `<label>` }</code> ancestor and
 				moves focus to itself, keeping the keyboard
 				target in sync.
@@ -106,7 +107,7 @@ templ PageCheckbox(morpheusVersion string) {
 				Settings group
 			}
 			<p class="demo-note">
-				A typical settings panel: each row is its own
+				A typical settings panel. Each row is its own
 				<code>{ `<label>` }</code>, with the checkbox
 				on the left and the description on the right.
 				The disabled row still shows its current
@@ -154,7 +155,7 @@ var checkboxDoc = ComponentDoc{
 		{Name: "checked", Type: "boolean", Default: "false", Reflected: true, Observed: true,
 			Description: templ.Raw("Mirrored to <code>aria-checked</code>.")},
 		{Name: "indeterminate", Type: "boolean", Default: "false", Reflected: true, Observed: true,
-			Description: templ.Raw("Three-state mixed indicator.")},
+			Description: templ.Raw("3-state mixed indicator.")},
 		{Name: "disabled", Type: "boolean", Default: "false", Observed: true,
 			Description: templ.Raw("Non-interactive state.")},
 		{Name: "size", Type: `"sm"`,

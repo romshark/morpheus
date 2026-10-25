@@ -17,8 +17,8 @@ type TabsOpts struct {
 	AutoActivate Attr[bool]
 }
 
-// Tabs prerenders <neo-tabs value="…"> in the upgraded state: inactive
-// panels get `hidden`; the active tab gets aria-selected="true" +
+// Tabs prerenders <neo-tabs value="..."> in the upgraded state.
+// Inactive panels get `hidden`; the active tab gets aria-selected="true" +
 // tabindex="0". Use with [Tab] and [TabPanel] children.
 templ Tabs(opts TabsOpts) {
 	@TabsAttrs(opts, nil) {
@@ -41,7 +41,7 @@ templ TabsAttrs(opts TabsOpts, attrs templ.Attributes) {
 	</neo-tabs>
 }
 
-// Tab emits <neo-tab value="…"> with ARIA + tabindex matching the
+// Tab emits <neo-tab value="..."> with ARIA + tabindex matching the
 // upgraded state (active tab focusable, inactive aria-selected="false").
 templ Tab(value, active string) {
 	<neo-tab
@@ -58,8 +58,7 @@ templ Tab(value, active string) {
 	</neo-tab>
 }
 
-// TabPanel emits <neo-tabpanel value="…"> with `hidden` set when
-// value != active.
+// TabPanel emits <neo-tabpanel value="..."> with `hidden` set when value != active.
 templ TabPanel(value, active string) {
 	<neo-tabpanel
 		value={ value }
@@ -71,9 +70,9 @@ templ TabPanel(value, active string) {
 	</neo-tabpanel>
 }
 
-// TabList emits <neo-tablist>, the row of Tab triggers. Place it as the
-// first child of Tabs, before the TabPanels. ariaLabel names the tablist
-// (omit for none).
+// TabList emits <neo-tablist>, the row of [Tab] triggers. Place it as the
+// first child of [Tabs], before the [TabPanel] elements. ariaLabel names
+// the tablist (omit for none).
 templ TabList(ariaLabel string) {
 	<neo-tablist
 		if ariaLabel != "" {

@@ -1,7 +1,7 @@
-# Continuous integration: lint, type-check, build, and test on every push
-# to main and every pull request. Site deployment lives in pages.yml.
+# Continuous integration. Lints, type-checks, builds and tests on every
+# push to main and every pull request. Site deployment lives in pages.yml.
 #
-# Three jobs run in parallel. The first two also verify that the checked-in
+# 3 jobs run in parallel. The first 2 also verify that the checked-in
 # generated artifacts they own are reproducible:
 #   go      - the *_templ.go files (templ generate)
 #   web     - the /min/ bundle and minified CSS (web/build.ts)
@@ -55,7 +55,7 @@ jobs:
       # git status (not git diff) so a new, uncommitted _templ.go is caught too.
       - name: templ generate is up to date
         run: |
-          go run github.com/a-h/templ/cmd/templ@v0.3.1020 generate
+          go run github.com/a-h/templ/cmd/templ@v0.3.1070 generate
           if [ -n "$(git status --porcelain)" ]; then
             echo "*_templ.go is stale; run 'make templ' and commit:"
             git status --porcelain
@@ -101,23 +101,23 @@ jobs:
             exit 1
           fi
 
-  # README hand-pins the jsDelivr URLs to a release tag, and VERSION is the
-  # single source for that tag (web/build.ts and internal/cmd/gen read it too).
+  # README pins the jsDelivr URLs and the go run command to the release tag
+  # in VERSION, which web/build.ts and internal/cmd/gen also read.
   # Catch a bumped VERSION with a stale README here, while it is still a normal commit;
   # after the tag is pushed, fixing it means moving a published tag.
-  # The getting-started page interpolates VERSION at render, so it cannot drift.
+  # The site reads VERSION at render time and cannot drift.
   version:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
 
-      - name: Documented CDN version matches VERSION
+      - name: Documented version matches VERSION
         run: |
           version=$(tr -d '[:space:]' < VERSION)
-          stale=$(grep -oE 'cdn\.jsdelivr\.net/gh/romshark/morpheus@[^/]+' README.md \
+          stale=$(grep -oE 'romshark/morpheus@[^/[:space:]]+' README.md \
             | grep -v "@${version}$" || true)
           if [ -n "$stale" ]; then
-            echo "README pins a CDN version other than ${version}:"
+            echo "README pins a version other than ${version}:"
             echo "$stale"
             exit 1
           fi

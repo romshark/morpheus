@@ -1,37 +1,40 @@
 # Publish a tagged release and make it available on the jsDelivr CDN.
 #
-# jsDelivr serves files straight out of a GitHub tag, so /min/ (the tracked
+# jsDelivr serves files straight out of a GitHub tag. /min/ (the tracked
 # deliverable directory) is reachable at
 #   https://cdn.jsdelivr.net/gh/romshark/morpheus@<tag>/min/<file>
-# the moment the tag is pushed. There is no upload step. What this workflow
-# guarantees instead:
-#   1. VERSION matches the tag, so the banner esbuild stamps into every
-#      bundle and the version the site renders agree with what is served.
-#   2. /min/ at the tag rebuilds byte-identically from the tagged sources,
-#      so the CDN cannot serve an artifact that no commit produces.
-#   3. The pinned CDN URLs actually resolve before the release is announced.
-#   4. The mutable aliases (@latest, @<major>.<minor>) are purged, since
+# the moment the tag is pushed. There is no upload step.
+# What this workflow guarantees instead:
+#   1. VERSION matches the tag, which makes the banner esbuild stamps into
+#      every bundle and the version the site renders agree with what is served.
+#   2. The release notes are the tag's section of CHANGELOG.md.
+#      A tag without a section or compare link fails before anything is built.
+#   3. /min/ at the tag rebuilds byte-identically from the tagged sources,
+#      which keeps the CDN from serving an artifact that no commit produces.
+#   4. The pinned CDN URLs actually resolve before the release is announced.
+#   5. The mutable aliases (@latest, @<major>.<minor>) are purged, since
 #      jsDelivr caches a range-to-tag resolution for up to 7 days and would
 #      otherwise keep pointing at the previous release.
 #
-# Pinned URLs (@v0.1.0) are immutable and cached permanently; only the
-# aliases need purging.
+# Pinned URLs (@v0.1.0) are immutable and cached permanently;
+# only the aliases need purging.
 name: Release
 
 on:
   push:
     tags: ["v*"]
-  # Re-run the publish/purge for a tag that already exists, e.g. after a
-  # failed CDN propagation check.
+  # Re-run the publish/purge for a tag that already exists,
+  # e.g. after a failed CDN propagation check.
   workflow_dispatch:
     inputs:
       tag:
         description: "Existing tag to (re-)publish"
         required: true
 
-# gh release create writes to the repo.
+# gh release create writes to the repo; gh workflow run dispatches the Pages deploy.
 permissions:
   contents: write
+  actions: write
 
 # Never cancel a publish midway; a half-created release needs manual cleanup.
 concurrency:
@@ -58,8 +61,6 @@ jobs:
       - uses: actions/checkout@v7
         with:
           ref: ${{ inputs.tag || github.ref }}
-          # Full history so --generate-notes can diff against the previous tag.
-          fetch-depth: 0
 
       - name: Resolve tag
         run: echo "TAG=${{ inputs.tag || github.ref_name }}" >> "$GITHUB_ENV"
@@ -73,6 +74,14 @@ jobs:
             echo "Update VERSION, rebuild, commit, and move the tag."
             exit 1
           fi
+
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+          cache-dependency-path: go.sum
+
+      - name: Cut the release notes from CHANGELOG.md
+        run: go run ./internal/cmd/release-notes -tag "$TAG" > "$RUNNER_TEMP/release-notes.md"
 
       - uses: pnpm/action-setup@v6
         with:
@@ -88,8 +97,8 @@ jobs:
         run: pnpm install --frozen-lockfile
         working-directory: web
 
-      # The CDN serves the committed bytes, so those bytes must be what the
-      # tagged sources produce. CI enforces this on main; re-check here
+      # Because the CDN serves the committed bytes, those bytes must be what
+      # the tagged sources produce. CI enforces this on main; re-check here
       # because a tag can point at any commit.
       - name: Committed /min/ rebuilds from the tagged sources
         run: pnpm run build
@@ -104,29 +113,29 @@ jobs:
             exit 1
           fi
 
-      # Pre-release for 0.x (the project is in open alpha) and for any tag
-      # carrying a suffix such as -rc1.
+      # Pre-release only for a tag carrying a suffix such as -rc1.
       - name: Publish the GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           prerelease=""
           case "$TAG" in
-            v0.*|*-*) prerelease="--prerelease" ;;
+            *-*) prerelease="--prerelease" ;;
           esac
           if gh release view "$TAG" >/dev/null 2>&1; then
-            echo "Release $TAG already exists; refreshing its assets."
+            echo "Release $TAG already exists; refreshing its notes and assets."
+            gh release edit "$TAG" --notes-file "$RUNNER_TEMP/release-notes.md"
             gh release upload "$TAG" $KIT_FILES --clobber
           else
             gh release create "$TAG" $KIT_FILES \
               --title "$TAG" \
-              --generate-notes \
+              --notes-file "$RUNNER_TEMP/release-notes.md" \
               $prerelease
           fi
 
       # jsDelivr resolves a gh tag through the GitHub API and caches the
-      # negative result briefly, so a just-pushed tag can 404 for a few
-      # seconds. Retry before failing.
+      # negative result briefly. A just-pushed tag can 404 for a few seconds.
+      # Retry before failing.
       - name: Pinned CDN URLs resolve
         run: |
           fail=0
@@ -147,8 +156,8 @@ jobs:
           exit $fail
 
       # Range URLs (@latest, @0.1) keep resolving to the previous tag for up
-      # to 7 days otherwise. Purging is best-effort: the pinned URLs above
-      # are the documented entry points, and purge.jsdelivr.net rate-limits.
+      # to 7 days otherwise. Purging is best-effort, because the pinned URLs
+      # are the documented entry points and purge.jsdelivr.net rate-limits.
       - name: Purge the mutable jsDelivr aliases
         continue-on-error: true
         run: |
@@ -160,3 +169,10 @@ jobs:
               curl -fsS -o /dev/null "$url" || echo "  purge failed (non-fatal)"
             done
           done
+
+      # The site's bundle builder offers the release tags gen finds at
+      # deploy time, and a tag push does not deploy the site.
+      - name: Redeploy the site
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run pages.yml --ref main

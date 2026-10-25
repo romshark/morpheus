@@ -17,20 +17,16 @@ export class NeoButtonGroup extends HTMLElement {
 
 	connectedCallback() {
 		warnBadAxis(this);
-		this.#segmented = this.hasAttribute("value");
+		this.#segmented = false;
 		this.#valueIntent = this.getAttribute("value");
 		this.addEventListener("click", this.#onClick);
-		if (this.#segmented) {
-			if (!this.hasAttribute("role")) this.setAttribute("role", "radiogroup");
-			this.addEventListener("keydown", this.#onKeyDown);
-			this.addEventListener("focusin", this.#onFocusIn);
-			this.addEventListener("focusout", this.#onFocusOut);
-		}
+		if (this.hasAttribute("value")) this.#enterSegmented();
 
 		// Re-sync segmented ARIA / roving tabindex on button add / remove /
 		// reorder (Datastar morph, dynamic option lists) and on child
 		// value/disabled changes. Children are queried live, never cached,
-		// so an in-place child morph can't strand selection on stale nodes.
+		// which means an in-place child morph can't strand selection on stale
+		// nodes.
 		// attributeFilter excludes the attributes syncSegmentedAttrs writes
 		// (role/aria-checked/tabindex) so it can't observe its own writes.
 		this.#childObserver = new MutationObserver(() => {
@@ -44,14 +40,24 @@ export class NeoButtonGroup extends HTMLElement {
 			childList: true,
 			subtree: true,
 			attributes: true,
-			// Not tabindex: neo-button re-asserts its own tabindex, so
-			// observing it here would ping-pong. The in-place strip is
+			// Not tabindex, because neo-button re-asserts its own tabindex
+			// and observing it here would ping-pong. The in-place strip is
 			// recovered via onFocusOut instead.
 			attributeFilter: ["disabled", "value", "aria-disabled"],
 		});
 
 		this.#ready = true;
 		if (this.#segmented) this.#syncSegmentedAttrs();
+	}
+
+	// A value makes the group segmented, at connect or when a binding or
+	// morph adds one later.
+	#enterSegmented() {
+		this.#segmented = true;
+		if (!this.hasAttribute("role")) this.setAttribute("role", "radiogroup");
+		this.addEventListener("keydown", this.#onKeyDown);
+		this.addEventListener("focusin", this.#onFocusIn);
+		this.addEventListener("focusout", this.#onFocusOut);
 	}
 
 	disconnectedCallback() {
@@ -92,9 +98,9 @@ export class NeoButtonGroup extends HTMLElement {
 			return;
 		}
 		// Blur to nothing. A morph strips the segment's tabindex in place
-		// (so it's absent at this synchronous focusout); neo-button re-adds
-		// one async, so reseat focus once it has. A genuine click-away
-		// leaves the tabindex intact, so stop tracking.
+		// (absent at this synchronous focusout) and neo-button re-adds one
+		// async. Reseat focus once it has. A genuine click-away leaves the
+		// tabindex intact and ends the tracking.
 		const btn = this.#buttons().find((b) => b === e.target || b.contains(e.target as Node));
 		if (btn && !btn.hasAttribute("tabindex")) {
 			queueMicrotask(() => {
@@ -111,18 +117,21 @@ export class NeoButtonGroup extends HTMLElement {
 	};
 
 	attributeChangedCallback(name: string, _oldValue: string | null, newValue: string | null) {
-		if (!this.#ready || !this.#segmented) return;
-		if (name !== "value") return;
-		// Our own re-reflect write (writeValue / keep-on-absent below); not a command.
+		if (!this.#ready || name !== "value") return;
+		// Our own re-reflect write (writeValue / keep-on-absent); not a command.
 		if (this.#applyingValue) return;
+		if (!this.#segmented) {
+			if (newValue === null) return;
+			this.#enterSegmented();
+		}
 		if (newValue === null) {
-			// Fat morph dropped `value`: no command, keep the current selection
-			// and re-reflect it so the attribute stays the state mirror and
-			// internal getAttribute("value") reads stay correct.
+			// Fat morph dropped `value`. Not a command; keep the current
+			// selection and re-reflect it so the attribute stays the state
+			// mirror and internal getAttribute("value") reads stay correct.
 			this.#writeValue(this.#valueIntent);
 			return;
 		}
-		// Explicit value="x" (incl. value=""): adopt it.
+		// Adopt an explicit value="x" (incl. value="").
 		this.#valueIntent = newValue;
 		this.#syncSegmentedAttrs();
 	}
@@ -135,7 +144,7 @@ export class NeoButtonGroup extends HTMLElement {
 		this.#writeValue(v);
 	}
 
-	// Single writer: intent is the source of truth, reflected to `value`
+	// Single writer. Intent is the source of truth, reflected to `value`
 	// (guarded so the reflection isn't read back as a command), then synced.
 	#writeValue(v: string | null) {
 		this.#valueIntent = v;

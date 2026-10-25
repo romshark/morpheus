@@ -1,8 +1,5 @@
-/* -----------------------------------------------------------------------
- * <neo-color-field>
- * -----------------------------------------------------------------------
- * Two-dimensional saturation/value field. The host is focusable and
- * owns the current color as a reflected `value`; JS writes x/y/hue
+/* <neo-color-field> is a 2D saturation/value field. The host is focusable
+ * and owns the current color as a reflected `value`; JS writes x/y/hue
  * custom properties while CSS paints the field and handle. */
 
 :root {
@@ -96,9 +93,9 @@ neo-color-field [data-neo-color-field-handle] {
 }
 
 /* Match the kit's 2px currentColor outline in contrast-more. The field
- * is a fixed-size border-box, so the wider border is absorbed and never
- * shifts layout. A real border here, not the inset ring the auto-sized
- * controls use. */
+ * is a fixed-size border-box, which absorbs the wider border without
+ * shifting layout. It takes a real border, not the inset ring the
+ * auto-sized controls use. */
 @media (prefers-contrast: more) {
 	neo-color-field {
 		--neo-color-field-border-width: 2px;

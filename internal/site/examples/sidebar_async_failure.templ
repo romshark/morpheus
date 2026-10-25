@@ -47,8 +47,8 @@ templ sidebarAsyncFailureFooter() {
 	<span>v0.1.0</span>
 }
 
-// Wrapped in [data-neo-async-placeholder] by SidebarAsync so the
-// sidebar restores it after close and before retry/reopen.
+// Wrapped in [data-neo-async-placeholder] by [datastar.SidebarAsync] so
+// the sidebar restores it after close and before retry/reopen.
 templ sidebarAsyncFailureLoading() {
 	<neo-skeleton immediate class="sb-async-failure-line-55"></neo-skeleton>
 	<neo-skeleton immediate class="sb-async-failure-line-80"></neo-skeleton>
@@ -58,8 +58,8 @@ templ sidebarAsyncFailureLoading() {
 }
 
 // Swapped into <div id="<ID>-body"> once Datastar fires retries-failed.
-// The retry button carries [data-neo-popover-async-retry] so SidebarAsync
-// re-fires the @post action when clicked.
+// The retry button carries [data-neo-popover-async-retry] so
+// [datastar.SidebarAsync] re-fires the @post action when clicked.
 templ sidebarAsyncFailureFailed() {
 	<div class="popover-async-loading popover-async-failed" role="alert">
 		@neo.Icon("triangle-alert")

@@ -1,28 +1,25 @@
-/* -----------------------------------------------------------------------
- * <neo-slider>
- * -----------------------------------------------------------------------
- * Three-row layout: a header row with the (optional) label on the left
- * and the editable value + (optional) unit suffix on the right, a flat
- * track with a coloured fill from `min` up to the current value and a
- * round thumb at the value position, and an optional mark-labels row
- * beneath the track. Anchor dots paint on the rail at each mark value;
+/* 3-row layout. The header row has the (optional) label on the left and
+ * the editable value + (optional) unit suffix on the right. The flat track
+ * has a coloured fill from `min` up to the current value and a round thumb
+ * at the value position. An optional mark-labels row sits beneath the
+ * track. Anchor dots paint on the rail at each mark value;
  * the dots and the labels both use `left: <pct>%; transform:
  * translateX(-50%)` so their centres land on the value, keeping the
  * positioning symmetric at both ends.
  *
  * The thumb is wrapped in a <neo-tooltip> so hover / focus / press
- * pop a value bubble above it. The tooltip host is `display: contents`,
- * so for layout the thumb is still effectively a direct child of the
- * track and the rules below select it with a descendant combinator
- * rather than `>`.
+ * pop a value bubble above it. The tooltip host is `display: contents`.
+ * For layout the thumb is still effectively a direct child of the track,
+ * and the thumb rules select it with a descendant combinator rather than
+ * `>`.
  *
- * Shadow-scoped: this file is imported as raw text by neo-slider.ts and
- * adopted into the host's shadow root via scopeCssToHost() (which rewrites
- * `neo-slider` selectors to `:host`). It is NOT globally imported, so the
- * rules only reach the shadow internals. Depends on the `--neo-slider-*`
+ * neo-slider.ts imports this file as raw text and adopts it into the
+ * host's shadow root via scopeCssToHost() (which rewrites `neo-slider`
+ * selectors to `:host`). It is not imported globally and its rules reach
+ * only the shadow internals. Depends on the `--neo-slider-*`
  * tokens being defined globally above the host (they inherit across the
  * boundary); see neo-slider.global.css. Contrast overrides are expressed
- * as `@media (prefers-contrast: more) :host { … }` setting tokens; the
+ * as `@media (prefers-contrast: more) :host { ... }` setting tokens; the
  * manual `:root[data-pref-contrast-more]` toggle lives in the global file
  * because a descendant selector can't cross the shadow boundary. */
 
@@ -80,22 +77,22 @@ neo-slider > [data-neo-slider-track] {
 	position: relative;
 	height: var(--neo-slider-track-height);
 	margin-inline: calc(var(--neo-slider-thumb-size) / 2);
-	/* Two-layer background: the translucent track-image on top of an
-	 * opaque page-bg backdrop (CSS shorthand only allows one
-	 * background-color, so the rail layer goes through track-image, a
+	/* 2-layer background with the translucent track-image on top of an
+	 * opaque page-bg backdrop (CSS shorthand only allows 1
+	 * background-color; the rail layer goes through track-image, a
 	 * gradient by default, but it can be any <image>). Anchor dots
 	 * composite their translucent border over their own opaque page-bg
-	 * fill (background-clip: border-box), so without this explicit
+	 * fill (background-clip: border-box). Without this explicit
 	 * backdrop the rail would composite against whatever the slider's
 	 * parent happens to paint while the anchor border composites against
-	 * page-bg. Same colour, two different backdrops, visibly different
+	 * page-bg. Same colour, 2 different backdrops, visibly different
 	 * shades in dark mode. */
 	background: var(--neo-slider-track-image) var(--page-bg);
 	border-radius: var(--neo-slider-track-radius);
 	cursor: pointer;
 	outline: none;
 	/* High-contrast outline ring. Set to a 1px currentColor box-shadow by
-	 * the OS `@media (prefers-contrast: more) :host` block below and by the
+	 * the OS `@media (prefers-contrast: more) :host` block and by the
 	 * manual `:root[data-pref-contrast-more]` token override in
 	 * neo-slider.global.css; `none` otherwise. */
 	box-shadow: var(--neo-slider-track-shadow, none);
@@ -122,9 +119,9 @@ neo-slider[vertical]:where(:not([vertical="false"])) > [data-neo-slider-track]::
 
 neo-slider[vertical]:where(:not([vertical="false"])) {
 	display: grid;
-	/* Col 1 is pinned to the rail's width (a length, so it doesn't
+	/* Col 1 is pinned to the rail's width (a length, which doesn't
 	 * grow). The header spans both cols and is typically wider than
-	 * `track + gap + marks`; with two `auto` cols that excess width
+	 * `track + gap + marks`; with 2 `auto` cols that excess width
 	 * gets distributed across both, padding col 1 out and pushing the
 	 * marks visibly away from the rail. Pinning col 1 routes all the
 	 * header excess into col 2 (marks) instead, and since the marks
@@ -218,7 +215,7 @@ neo-slider[vertical]:where(:not([vertical="false"]))
 	margin-bottom: calc(var(--neo-slider-anchor-size) * -1);
 }
 
-/* `static-marks` makes the dot purely decorative: the click handler
+/* `static-marks` makes the dot purely decorative. The click handler
  * on the host bails out, and we drop pointer-events so a click on the
  * dot passes through to the rail underneath like any other rail
  * click. */
@@ -306,7 +303,7 @@ neo-slider [data-neo-slider-thumb]:focus-visible {
  *
  * `:state(dragging)` is set on the host while a pointer drag is
  * active and disables the transition so the thumb tracks the cursor
- * without lag; pointer-driven scrubbing is always immediate
+ * without lag; pointer scrubbing is always immediate
  * regardless of the easing setting. `:state(rendering)` does the same
  * across a rebuild, until the browser has committed the fresh
  * geometry. */
@@ -429,8 +426,8 @@ neo-slider[disabled]:where(:not([disabled="false"])) {
  * the mark labels claim cursor:pointer. Without these overrides the
  * host's cursor would be masked the moment the pointer crossed onto
  * a more-specific child. We don't drop `pointer-events`; the JS
- * handlers (`onTrackPointerDown`, `onAnchorClick`, …) all early-out
- * on the `disabled` attribute, so no interaction fires anyway. */
+ * handlers (`onTrackPointerDown`, `onAnchorClick`, ...) all early-out
+ * on the `disabled` attribute and no interaction fires anyway. */
 neo-slider[disabled]:where(:not([disabled="false"])) > [data-neo-slider-track],
 neo-slider[disabled]:where(:not([disabled="false"])) [data-neo-slider-thumb],
 neo-slider[disabled]:where(:not([disabled="false"])) > [data-neo-slider-track] > [data-neo-slider-anchor],
@@ -439,7 +436,7 @@ neo-slider[disabled]:where(:not([disabled="false"])) [data-neo-slider-value] {
 	cursor: not-allowed;
 }
 
-/* Restrict the theme's disabled overlay (e.g. a 45° hatch) to
+/* Restrict the theme's disabled overlay (e.g. a 45deg hatch) to
  * the rail and the thumb; those are the "no touchy" surfaces. The
  * host itself stays transparent so the label, value field, and mark
  * labels read normally (just dimmed by the host's 50% opacity)

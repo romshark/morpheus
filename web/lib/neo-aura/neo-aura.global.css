@@ -1,0 +1,53 @@
+/* Global (light-DOM) half of <neo-aura>. The light layers live in the host's
+ * shadow root, styled by the adopted neo-aura.css. This file holds the token
+ * defaults, the host box (first paint reserves the ring before the upgrade),
+ * the radius tokens of controls the aura cannot measure, and the manual
+ * reduced-motion hook, all of which must resolve outside the shadow.
+ */
+
+/* Registered so that a unitless 0 computes to 0px. Unregistered, it substitutes as
+ * a number and invalidates the calc() corners and padding in neo-aura.css. */
+@property --neo-aura-width {
+	syntax: "<length>";
+	inherits: true;
+	initial-value: 0px;
+}
+
+/* No default for --neo-aura-gradient or --neo-aura-radius. Unset, the shadow
+ * sheet falls back to the default light and to the measured corners. */
+:root {
+	--neo-aura-color: var(--accent, currentColor);
+	--neo-aura-width: 0.125rem;
+	--neo-aura-spin-duration: 6s;
+	--neo-aura-pulse-duration: 0s;
+	--neo-aura-track-color: transparent;
+}
+
+neo-aura {
+	position: relative;
+	display: inline-grid;
+	padding: var(--neo-aura-width);
+}
+
+/* The explicit `display` on `neo-aura` overrides the UA `[hidden]` rule. */
+neo-aura[hidden] {
+	display: none;
+}
+
+/* These draw their rounded box inside their shadow root or on their
+ * children, not on the host, which means measuring the host reads 0. Use
+ * their radius tokens instead. :where() keeps type specificity, which lets an
+ * author's --neo-aura-radius on the aura take precedence. */
+neo-aura:where(:has(> :is(neo-buttongroup, neo-toggle-group, neo-select, neo-combobox))) {
+	--neo-aura-radius: var(--neo-button-radius);
+}
+
+neo-aura:where(:has(> neo-textinput)) {
+	--neo-aura-radius: var(--neo-textarea-radius);
+}
+
+/* The manual reduced-motion toggle can't select into the shadow; flip the
+ * inherited animation name instead. The shadow sheet handles the OS query. */
+:root[data-pref-reduced-motion] {
+	--neo-aura-animation-name: none;
+}

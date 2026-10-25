@@ -1,6 +1,6 @@
 // Server handler for the "Lazy load" example. One-shot datalist
-// population — the kit's lazy-by-default mode caches options on
-// subsequent opens, so this handler only ever runs the first time a
+// population. The kit's lazy-by-default mode caches options on
+// subsequent opens, and this handler only runs the first time a
 // given combobox is opened.
 
 import sim from "/static/datasim.js";

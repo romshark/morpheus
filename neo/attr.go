@@ -13,14 +13,14 @@ type Number interface {
 }
 
 // Attr is an optional Templ parameter. The zero value is "not set" and
-// renders no attribute, so an explicit zero/empty/false can be
-// represented distinctly from unset. Construct a set value with Set.
+// renders no attribute, which keeps an explicit zero/empty/false distinct
+// from unset. Construct a set value with [Set].
 type Attr[T any] struct {
 	value T
 	isSet bool
 }
 
-// Set marks a value present, so it renders even when it is the zero value
+// Set marks a value present. It renders even when it is the zero value
 // (Set("") renders name="", Set(false) renders name="false").
 func Set[T any](value T) Attr[T] {
 	return Attr[T]{value: value, isSet: true}

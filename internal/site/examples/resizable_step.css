@@ -21,7 +21,7 @@
 	background: rgba(127, 127, 127, 0.18);
 }
 
-/* Content styling; the .resizable-* flex container above centers it. */
+/* Content styling; the .resizable-* flex container centers it. */
 .resizable-step > neo-layout {
 	padding: 1rem;
 	box-sizing: border-box;

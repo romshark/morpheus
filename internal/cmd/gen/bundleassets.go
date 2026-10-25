@@ -1,147 +1,134 @@
 package main
 
 import (
+	"archive/tar"
+	"bytes"
 	"encoding/json"
+	"errors"
+	"fmt"
+	"io"
+	"io/fs"
 	"os"
+	"os/exec"
 	"path/filepath"
-	"regexp"
+	"slices"
 	"strings"
+	"testing/fstest"
 
-	"github.com/romshark/morpheus/internal/site"
+	"github.com/romshark/morpheus/internal/bundle"
 )
 
-// writeBundleAssets emits everything static/min/bundlebuilder.min.js needs
-// to assemble the selected bundle in the browser:
-//
-//   - bundle-src/*.ts       : the kit's TypeScript sources, fetched
-//     and bundled by esbuild-wasm on the fly.
-//   - bundle-css/*.css      : the kit's source CSS modules copied from
-//     web/lib/.
-//   - bundle-manifest.json  : node -> {js, css, owners} wiring.
-//
-// Both target directories are flat: each component lives at
-// web/lib/neo-X/neo-X.{ts,css} (per-component subfolder), but the in-
-// browser builder addresses sources by bare filename. copyTSSources
-// rewrites cross-subfolder relative imports (../neo-foo) back to
-// flat-sibling (./neo-foo) during the copy.
-func writeBundleAssets(staticDir string) error {
-	const libRoot = "web/lib"
+// The bundle builder page builds a release tag, or the working tree as
+// "main", from the [bundle.Version] files in static/bundle/<version>/.
 
-	libSrcDir := filepath.Join(staticDir, "bundle-src")
-	if err := copyTSSources(libRoot, libSrcDir); err != nil {
-		return err
-	}
-
-	cssDir := filepath.Join(staticDir, "bundle-css")
-	if err := os.MkdirAll(cssDir, 0o755); err != nil {
-		return err
-	}
-	// _base.css and _placeholders.css live at the top of web/lib/.
-	if err := copyCSSModule(libRoot, cssDir, "_base.css"); err != nil {
-		return err
-	}
-	if err := copyCSSModule(libRoot, cssDir, "_placeholders.css"); err != nil {
-		return err
-	}
-
-	entries := site.BundleManifestEntries()
-	for i := range entries {
-		e := &entries[i]
-		if e.JS != "" {
-			if _, err := os.Stat(filepath.Join(libSrcDir, e.JS)); err != nil {
-				e.JS = "" // no module shipped for this node
-			}
-		}
-		if e.CSS == "" {
-			continue
-		}
-		// Component CSS normally lives at web/lib/<slug>/<slug>.css.
-		// Top-level shared slices such as _layout.css stay in web/lib/.
-		srcDir := libRoot
-		if !strings.HasPrefix(e.CSS, "_") {
-			srcDir = filepath.Join(libRoot, e.Name)
-		}
-		if _, err := os.Stat(filepath.Join(srcDir, e.CSS)); err != nil {
-			e.CSS = ""
-			continue
-		}
-		if err := copyCSSModule(srcDir, cssDir, e.CSS); err != nil {
-			return err
-		}
-	}
-
-	manifest := struct {
-		Base    []string                   `json:"base"`
-		Entries []site.BundleManifestEntry `json:"entries"`
-	}{Base: []string{"_base.css", "_placeholders.css"}, Entries: entries}
-	data, err := json.Marshal(manifest)
-	if err != nil {
-		return err
-	}
-	return os.WriteFile(
-		filepath.Join(staticDir, "bundle-manifest.json"), data, 0o644,
-	)
+// bundleVersion is a tree the bundle builder can build, ready for
+// [writeBundleVersion].
+type bundleVersion struct {
+	name string
+	bundle.Version
 }
 
-func copyCSSModule(srcDir, dstDir, name string) error {
-	b, err := os.ReadFile(filepath.Join(srcDir, name))
-	if err != nil {
-		return err
-	}
-	return os.WriteFile(filepath.Join(dstDir, name), b, 0o644)
-}
-
-// `import "..."` / `from "..."` with a parent-relative path; we rewrite
-// "../X" to "./X" so the flattened bundle-src/ still resolves sibling
-// modules.
-var reParentImport = regexp.MustCompile(`(["'\x60])\.\./`)
-
-// copyTSSources mirrors *.ts from src into dst (flat). Top-level files
-// at web/lib/*.ts copy as-is; per-component files at web/lib/neo-X/neo-X.ts
-// flatten to dst/neo-X.ts and their "../foo" imports get rewritten to
-// "./foo". esbuild-wasm fetches the result over HTTP and bundles it on
-// the fly.
-func copyTSSources(src, dst string) error {
-	if err := os.MkdirAll(dst, 0o755); err != nil {
-		return err
-	}
-	ents, err := os.ReadDir(src)
-	if err != nil {
-		return err
-	}
-	for _, ent := range ents {
-		name := ent.Name()
-		if ent.IsDir() {
-			// Per-component subfolder: copy only neo-X.ts (drop
-			// index.ts re-exports and component CSS).
-			componentFile := name + ".ts"
-			b, err := os.ReadFile(filepath.Join(src, name, componentFile))
-			if err != nil {
-				if os.IsNotExist(err) {
-					continue
-				}
-				return err
-			}
-			out := reParentImport.ReplaceAll(b, []byte("$1./"))
-			if err := os.WriteFile(
-				filepath.Join(dst, componentFile), out, 0o644,
-			); err != nil {
-				return err
-			}
-			continue
+// prepareBundleVersions prepares the release tags, then the working tree
+// as "main". The newest release without a pre-release suffix comes first,
+// as the default, then the other tags newest first.
+// A tag the current graph cannot build is skipped with a warning.
+// main's banner gets the git describe name because VERSION names the last release.
+func prepareBundleVersions(release string) ([]bundleVersion, error) {
+	var versions []bundleVersion
+	for _, tag := range releaseTags() {
+		tree, err := treeAt(tag)
+		var v bundle.Version
+		if err == nil {
+			v, err = bundle.Prepare(tree)
 		}
-		if !strings.HasSuffix(name, ".ts") || name == "index.ts" {
-			continue
-		}
-		b, err := os.ReadFile(filepath.Join(src, name))
 		if err != nil {
+			_, _ = fmt.Fprintf(os.Stderr, "bundle builder: skipping %s: %v\n", tag, err)
+			continue
+		}
+		versions = append(versions, bundleVersion{name: tag, Version: v})
+	}
+	// Only a "-" suffix marks a pre-release, as in release.yml, which lets a v0
+	// release be the default.
+	if i := slices.IndexFunc(versions, func(v bundleVersion) bool {
+		return !strings.Contains(v.name, "-")
+	}); i > 0 {
+		v := versions[i]
+		versions = slices.Insert(slices.Delete(versions, i, i+1), 0, v)
+	}
+	main, err := bundle.Prepare(os.DirFS("."))
+	if err != nil {
+		return nil, err
+	}
+	if d := gitOutput("describe", "--tags", "--dirty"); d != "" {
+		main.Manifest.Banner = strings.Replace(main.Manifest.Banner,
+			" "+release+" ", " "+d+" ", 1)
+	}
+	return append(versions, bundleVersion{name: "main", Version: main}), nil
+}
+
+// writeBundleVersion writes v to dir, which is static/bundle/<version>/.
+func writeBundleVersion(dir string, v bundleVersion) error {
+	for name, b := range v.Files {
+		dst := filepath.Join(dir, filepath.FromSlash(name))
+		if err := os.MkdirAll(filepath.Dir(dst), 0o755); err != nil {
 			return err
 		}
-		if err := os.WriteFile(
-			filepath.Join(dst, name), b, 0o644,
-		); err != nil {
+		if err := os.WriteFile(dst, b, 0o644); err != nil {
 			return err
 		}
 	}
-	return nil
+	data, err := json.Marshal(v.Manifest)
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(filepath.Join(dir, "bundle-manifest.json"), data, 0o644)
+}
+
+// releaseTags lists the v* tags, newest first, or nil without git.
+// A release sorts above its pre-releases, as v1.0.0 above v1.0.0-rc1.
+func releaseTags() []string {
+	return strings.Fields(gitOutput(
+		"-c", "versionsort.suffix=-", "tag", "--list", "v*", "--sort=-v:refname",
+	))
+}
+
+func gitOutput(args ...string) string {
+	out, err := exec.Command("git", args...).Output()
+	if err != nil {
+		return ""
+	}
+	return strings.TrimSpace(string(out))
+}
+
+// treeAt returns [bundle.TreePaths] at tag.
+func treeAt(tag string) (fs.FS, error) {
+	cmd := exec.Command("git",
+		append([]string{"archive", "--format=tar", tag, "--"}, bundle.TreePaths...)...,
+	)
+	var stderr bytes.Buffer
+	cmd.Stderr = &stderr
+	out, err := cmd.Output()
+	if err != nil {
+		return nil, fmt.Errorf("git archive: %v: %s",
+			err, strings.TrimSpace(stderr.String()))
+	}
+	tree := fstest.MapFS{}
+	r := tar.NewReader(bytes.NewReader(out))
+	for {
+		h, err := r.Next()
+		if errors.Is(err, io.EOF) {
+			return tree, nil
+		}
+		if err != nil {
+			return nil, err
+		}
+		if h.Typeflag != tar.TypeReg {
+			continue
+		}
+		b, err := io.ReadAll(r)
+		if err != nil {
+			return nil, err
+		}
+		tree[h.Name] = &fstest.MapFile{Data: b}
+	}
 }

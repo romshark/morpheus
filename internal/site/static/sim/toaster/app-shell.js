@@ -1,7 +1,7 @@
 // Server handlers for the app-shell toaster examples. `/show` appends a
 // toast to the page-level toaster's stack and `/dismiss` clears it. The
-// async trio (`/loading`, `/resolve`, `/reject`) is the promise-style
-// flow — first a loading toast with duration 0 so it doesn't
+// async routes (`/loading`, `/resolve`, `/reject`) are the promise-style
+// flow. A loading toast with duration 0 comes first so it doesn't
 // auto-dismiss, then the resolution swaps the same id to a terminal
 // variant.
 

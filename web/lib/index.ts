@@ -1,3 +1,4 @@
+import "./neo-aura";
 import "./neo-avatars";
 import "./neo-breadcrumb";
 import "./neo-button";
@@ -7,13 +8,14 @@ import "./neo-checkbox";
 import "./neo-clipcopy";
 import "./neo-color-field";
 import "./neo-combobox";
-import "./neo-condition";
 import "./neo-contextmenu";
 import "./neo-datalist";
 import "./neo-dialog";
 import "./neo-drawer";
 import "./neo-elastic";
 import "./neo-icon";
+import "./neo-if-network";
+import "./neo-if-platform";
 import "./neo-input-group";
 import "./neo-kbd";
 import "./neo-keys";
@@ -48,6 +50,6 @@ import "./neo-tooltip";
 import "./neo-tree";
 import { watchMissingComponents } from "./missing-components";
 
-// Registration of all components above is synchronous, so this runs after
+// Registration of all imported components is synchronous. This call runs after
 // the bundle's full set is defined and can flag any <neo-*> the bundle omits.
 watchMissingComponents();

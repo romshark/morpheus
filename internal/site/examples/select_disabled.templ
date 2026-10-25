@@ -9,10 +9,10 @@ templ SelectDisabled() {
 		Placeholder: neo.Set("Shipping method"),
 	}) {
 		@neo.Option(neo.OptionOpts{Value: neo.Set("standard")}) {
-			Standard (3–5 days)
+			Standard (3-5 days)
 		}
 		@neo.Option(neo.OptionOpts{Value: neo.Set("express")}) {
-			Express (1–2 days)
+			Express (1-2 days)
 		}
 		@neo.Option(neo.OptionOpts{Value: neo.Set("overnight"), Disabled: neo.Set(true)}) {
 			Overnight (sold out)

@@ -9,8 +9,8 @@ import (
 )
 
 // TestExampleStylesScoped enforces that every <style> block in a doc
-// example is fully wrapped in `@scope { … }`. Example CSS lives in light
-// DOM (Datastar needs it there), so an unscoped rule leaks page-wide and
+// example is fully wrapped in `@scope { ... }`. Example CSS lives in light
+// DOM (Datastar needs it there), where an unscoped rule leaks page-wide and
 // silently styles other demos. @scope confines each block to its own demo
 // subtree; this guard fails the build if a block isn't scoped, instead of
 // letting the leak through with no error.

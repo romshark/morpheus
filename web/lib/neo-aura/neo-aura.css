@@ -1,0 +1,151 @@
+/* Shadow-scoped light layers of <neo-aura>. Imported as raw text by
+ * neo-aura.ts and adopted after rewriting `neo-aura` to `:host`.
+ * Token defaults and the host box live in neo-aura.global.css and inherit
+ * across the shadow boundary.
+ */
+
+/* The lights, and cq units in --neo-aura-gradient, measure this size container,
+ * which spans the host box. Each corner is the wrapped element's corner plus the ring.
+ * --neo-aura-radius overrides the corner NeoAura measures. */
+neo-aura > [data-neo-aura-layers] {
+	position: absolute;
+	inset: 0;
+	border-top-left-radius: calc(var(--neo-aura-radius, var(--neo-aura-tl-x, 0px)) + var(--neo-aura-width))
+		calc(var(--neo-aura-radius, var(--neo-aura-tl-y, 0px)) + var(--neo-aura-width));
+	border-top-right-radius: calc(var(--neo-aura-radius, var(--neo-aura-tr-x, 0px)) + var(--neo-aura-width))
+		calc(var(--neo-aura-radius, var(--neo-aura-tr-y, 0px)) + var(--neo-aura-width));
+	border-bottom-right-radius: calc(var(--neo-aura-radius, var(--neo-aura-br-x, 0px)) + var(--neo-aura-width))
+		calc(var(--neo-aura-radius, var(--neo-aura-br-y, 0px)) + var(--neo-aura-width));
+	border-bottom-left-radius: calc(var(--neo-aura-radius, var(--neo-aura-bl-x, 0px)) + var(--neo-aura-width))
+		calc(var(--neo-aura-radius, var(--neo-aura-bl-y, 0px)) + var(--neo-aura-width));
+	container-type: size;
+	pointer-events: none;
+	transition:
+		opacity calc(200ms * var(--neo-duration-scale, 1)) ease-out,
+		display calc(200ms * var(--neo-duration-scale, 1)) allow-discrete;
+}
+
+/* When disabled, the light fades out, then leaves the render tree, which
+ * stops its animations. The host keeps its padding, which keeps the wrapped
+ * element in place. */
+neo-aura[disabled]:where(:not([disabled="false"])) > [data-neo-aura-layers] {
+	display: none;
+	opacity: 0;
+}
+
+@starting-style {
+	neo-aura > [data-neo-aura-layers] {
+		opacity: 0;
+	}
+}
+
+/* Each layer clips its oversized light to the host's rounded box.
+ * The overflow clip applies before the layer's own filter. A glow still bleeds
+ * past the box as ink overflow, which adds no scrollable overflow. */
+neo-aura [data-neo-aura-glow],
+neo-aura [data-neo-aura-ring] {
+	position: absolute;
+	inset: 0;
+	border-radius: inherit;
+	overflow: hidden;
+}
+
+/* Both glows backlight the whole box, not only the ring. The wrapped element
+ * needs an opaque background to hide them. A 0s pulse duration ends the
+ * pulse at once and leaves these resting values. */
+neo-aura [data-neo-aura-glow="far"] {
+	filter: blur(1rem);
+	opacity: 0.3;
+	animation: neo-aura-pulse-far var(--neo-aura-pulse-duration) ease-out infinite;
+	animation-name: var(--neo-aura-animation-name, neo-aura-pulse-far);
+}
+
+neo-aura [data-neo-aura-glow="near"] {
+	filter: blur(0.25rem);
+	opacity: 0.7;
+	animation: neo-aura-pulse-near var(--neo-aura-pulse-duration) ease-out infinite;
+	animation-name: var(--neo-aura-animation-name, neo-aura-pulse-near);
+}
+
+/* The mask limits the ring to the padding, which keeps it from showing through
+ * the wrapped element. The extra 1px tucks the hole's edge under the element,
+ * because 2 antialiased edges that only touch let the page show through between them. */
+neo-aura [data-neo-aura-ring] {
+	padding: calc(var(--neo-aura-width) + 1px);
+	background-color: var(--neo-aura-track-color);
+	mask-image: linear-gradient(#000 0 0), linear-gradient(#000 0 0);
+	mask-clip: content-box, border-box;
+	mask-composite: exclude;
+}
+
+/* A centered square as wide as the box diagonal covers the box at every angle.
+ * Spin this HTML box, never the gradient angle. A transform
+ * animation composites (raster once, the GPU turns it), while an animated
+ * angle repaints every frame. The default image reads --neo-aura-color here, on
+ * the painting element, not where a gradient token would be declared. */
+neo-aura [data-neo-aura-light] {
+	position: absolute;
+	inset: calc(50% - hypot(100cqw, 100cqh) / 2 - 1px);
+	background: var(--neo-aura-gradient, conic-gradient(transparent 225deg, var(--neo-aura-color)));
+	animation: neo-aura-spin var(--neo-aura-spin-duration) linear infinite;
+	animation-name: var(--neo-aura-animation-name, neo-aura-spin);
+}
+
+/* Content paints after the layers because both are positioned and the slot
+ * comes later in tree order. No stacking context on the host, because one
+ * would trap a descendant overlay's z-index inside the aura. */
+neo-aura slot {
+	position: relative;
+	display: grid;
+}
+
+@keyframes neo-aura-spin {
+	to {
+		transform: rotate(1turn);
+	}
+}
+
+/* Opacity and transform only, because these composite.
+ * Chromium runs a filter keyframe on the main thread every frame. */
+@keyframes neo-aura-pulse-far {
+	20%,
+	80% {
+		opacity: 0.3;
+		transform: none;
+	}
+	50% {
+		opacity: 0.6;
+		transform: scale(1.06);
+	}
+}
+
+@keyframes neo-aura-pulse-near {
+	20%,
+	80% {
+		opacity: 0.7;
+		transform: none;
+	}
+	50% {
+		opacity: 1;
+		transform: scale(1.03);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	neo-aura [data-neo-aura-light],
+	neo-aura [data-neo-aura-glow] {
+		animation: none;
+	}
+}
+
+/* Forced colors drop gradient images; keep the emphasis as a solid ring. */
+@media (forced-colors: active) {
+	neo-aura [data-neo-aura-glow],
+	neo-aura [data-neo-aura-light] {
+		display: none;
+	}
+	neo-aura [data-neo-aura-ring] {
+		background-color: Highlight;
+		forced-color-adjust: none;
+	}
+}

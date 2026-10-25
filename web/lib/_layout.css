@@ -1,10 +1,7 @@
-/* -----------------------------------------------------------------------
- * Neo Layout: <neo-layout>
- * -----------------------------------------------------------------------
- * A single CSS-only Flexbox container. Attributes are the flex container
+/* A single CSS-only Flexbox container. Attributes are the flex container
  * properties, named and valued exactly as in CSS (flex-direction values
- * are boolean attributes: `row`, `column`, …). Child flex-item behaviour
- * rides on namespaced `neo-*` attributes so semantic elements stay
+ * are boolean attributes: `row`, `column`, ...). Child flex-item behaviour
+ * is set by namespaced `neo-*` attributes so semantic elements stay
  * semantic. No JS, no Shadow DOM, no media/container queries except the
  * `collapse` tiers. The spacing scale is the one attribute preset; fixed
  * widths use the --neo-size-* vars via style, not magic attribute values.
@@ -27,7 +24,8 @@
 /* Base: a row by default, like display:flex */
 
 neo-layout {
-	/* Marks this stylesheet as loaded so the kit can flag a trimmed CSS-only component. */
+	/* Marks this stylesheet as loaded so the kit
+	 * can flag a trimmed CSS-only component. */
 	--neo-loaded: neo-layout;
 	display: flex;
 	gap: var(--neo-gap, 0);
@@ -38,11 +36,11 @@ neo-layout[inline]:where(:not([inline="false"])) {
 	display: inline-flex;
 }
 
-/* Opt-in query container. `collapse` (below) reacts to the nearest
- * ancestor container's width, so the responsive region must be wrapped
- * in a neo-layout[container]:where(:not([container="false"])) (or any element with container-type). This
- * keeps collapse box-relative: it folds inside a sidebar, drawer, or
- * resized panel, not just at the viewport. */
+/* Opt-in query container. `collapse` reacts to the nearest ancestor
+ * container's width. The responsive region must be wrapped
+ * in a neo-layout[container]:where(:not([container="false"]))
+ * (or any element with container-type). This keeps collapse box-relative,
+ * folding inside a sidebar, drawer, or resized panel, not just at the viewport. */
 neo-layout[container]:where(:not([container="false"])) {
 	container-type: inline-size;
 }
@@ -294,14 +292,15 @@ neo-layout[min-height="100%"] {
 	text-overflow: ellipsis;
 }
 
-/* Responsive visibility: container-query based, like collapse, so it
- * needs a neo-layout[container]:where(:not([container="false"])) ancestor. neo-hide-below hides the child
- * while the container is narrower than the tier; neo-show-below shows it
- * only then (hidden at or above the tier). The < / >= ranges partition
- * exactly at the tier, so a hide/show pair never both vanish. */
+/* Responsive visibility is container-query based, like collapse, and
+ * needs a neo-layout[container]:where(:not([container="false"])) ancestor.
+ * neo-hide-below hides the child while the container is narrower than the tier;
+ * neo-show-below shows it only then (hidden at or above the tier).
+ * The < / >= ranges partition exactly at the tier, which keeps
+ * a hide/show pair from both vanishing. */
 
 /* biome-ignore-start lint/complexity/noImportantStyles: hide/show is a hard
- * visibility toggle: display:none must beat neo-layout[inline]:where(:not([inline="false"])) (specificity
+ * visibility toggle, and display:none must override neo-layout[inline]:where(:not([inline="false"])) (specificity
  * 0,1,1, above this 0,1,0 attribute selector) and any inline display style,
  * which only !important can override. */
 @container (width < 40rem) {
@@ -337,11 +336,11 @@ neo-layout[min-height="100%"] {
 }
 /* biome-ignore-end lint/complexity/noImportantStyles: end hide/show opt-out */
 
-/* Responsive collapse: a row folds to a single column when its nearest
- * ancestor container (a neo-layout[container]:where(:not([container="false"]))) is narrower than the tier.
- * Container-query based, so it reacts to the element's own available
- * width rather than the viewport. Last so it wins over an explicit
- * flex-direction when the query matches. */
+/* With responsive collapse a row folds to a single column when its nearest
+ * ancestor container (a neo-layout[container]:where(:not([container="false"])))
+ * is narrower than the tier. It is container-query based and reacts to the element's
+ * own available width rather than the viewport. Last so it takes precedence over an
+ * explicit flex-direction when the query matches. */
 
 @container (max-width: 40rem) {
 	neo-layout[collapse="sm"] {

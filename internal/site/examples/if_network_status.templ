@@ -1,0 +1,32 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ IfNetworkStatus() {
+	<div role="status">
+		@neo.IfNetwork(neo.IfNetworkOpts{Online: neo.Set(true), Delay: neo.Set(2000)}) {
+			@neo.Alert(neo.AlertOpts{Variant: neo.Set(neo.AlertVariantSuccess)}) {
+				@neo.AlertIcon() {
+					@neo.Icon("circle-check")
+				}
+				@neo.AlertContent() {
+					@neo.AlertDescription() {
+						Connected. Your changes save as you type.
+					}
+				}
+			}
+		}
+		@neo.IfNetwork(neo.IfNetworkOpts{Online: neo.Set(false), Delay: neo.Set(2000)}) {
+			@neo.Alert(neo.AlertOpts{Variant: neo.Set(neo.AlertVariantWarning)}) {
+				@neo.AlertIcon() {
+					@neo.Icon("triangle-alert")
+				}
+				@neo.AlertContent() {
+					@neo.AlertDescription() {
+						You're offline. Your changes save when the connection returns.
+					}
+				}
+			}
+		}
+	</div>
+}

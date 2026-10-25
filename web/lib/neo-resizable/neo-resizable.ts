@@ -68,8 +68,8 @@ export class NeoResizable extends HTMLElement {
 	#childObserver: MutationObserver | null = null;
 	#active: ActiveDrag | null = null;
 	// Tracks the previous pointerdown for synthetic double-tap detection.
-	// `dblclick` is mouse-only, so touch users never get the kit's
-	// built-in handle reset without this.
+	// `dblclick` is mouse-only; without this, touch users never get the
+	// kit's built-in handle reset.
 	#lastTap: {
 		time: number;
 		handle: Handle | null;
@@ -158,12 +158,12 @@ export class NeoResizable extends HTMLElement {
 	#syncHandles() {
 		const desired = this.#parseHandles();
 
-		// Reconcile against the live DOM, not the cached map: a morph can
-		// strip or replace handle spans while the host stays connected.
-		// Adopt the DOM's handles (prerendered or morph-preserved, so the
-		// inlined icon survives), drop undesired/duplicate ones, then
+		// Reconcile against the live DOM, not the cached map, because a morph
+		// can strip or replace handle spans while the host stays connected.
+		// Adopt the DOM's handles (prerendered or morph-preserved) so the
+		// inlined icon survives, drop undesired/duplicate ones, then
 		// create whatever's still missing. wireHandle self-guards against
-		// double-binding, so re-entrant observer calls converge.
+		// double-binding, which makes re-entrant observer calls converge.
 		const seen = new Map<Handle, HTMLElement>();
 		for (const el of this.querySelectorAll<HTMLElement>(":scope > [data-neo-resizable-handle]")) {
 			const dir = el.getAttribute("data-neo-resizable-handle") as Handle | null;
@@ -201,8 +201,8 @@ export class NeoResizable extends HTMLElement {
 		return wrap;
 	}
 
-	// Idempotent: a handle element is wired at most once even if
-	// syncHandles re-adopts it across morph-driven observer passes.
+	// Wires a handle element at most once, even if syncHandles re-adopts it
+	// across observer passes after a morph.
 	#wireHandle(wrap: HTMLElement) {
 		if (this.#wired.has(wrap)) return;
 		this.#wired.add(wrap);
@@ -244,7 +244,7 @@ export class NeoResizable extends HTMLElement {
 		if (!dir) return;
 		if (e.button !== 0) return;
 		// Synthetic double-tap -> handle reset, since touch devices never
-		// fire `dblclick`. Two pointerdowns on the same handle within
+		// fire `dblclick`. 2 pointerdowns on the same handle within
 		// 350ms and ~24px count as a tap-tap.
 		const now = performance.now();
 		const dx = e.clientX - this.#lastTap.x;
@@ -268,8 +268,8 @@ export class NeoResizable extends HTMLElement {
 		// Pin pixel values so the first move resolves cleanly even when the
 		// host was previously sized by the surrounding layout. Pin only the
 		// axis this handle controls; pinning the other axis freezes
-		// content-driven growth (a width drag would lock the height, so a
-		// taller layout can no longer stretch the host). Mirrors onPointerMove.
+		// content-driven growth (a width drag would lock the height and a
+		// taller layout could no longer stretch the host). Mirrors onPointerMove.
 		const setW = dir !== "top" && dir !== "bottom";
 		const setH = dir !== "left" && dir !== "right";
 		if (setW) {
@@ -317,7 +317,7 @@ export class NeoResizable extends HTMLElement {
 		const r = this.getBoundingClientRect();
 		// CSS min/max constraints can clamp the host away from the raw
 		// pointer-derived style width/height. Publish the used size so
-		// children driven by --neo-resizable-* stay aligned with the
+		// children sized by --neo-resizable-* stay aligned with the
 		// actual handle edge.
 		if (setW) this.#setSizeVar("width", `${r.width}px`);
 		if (setH) this.#setSizeVar("height", `${r.height}px`);
@@ -329,7 +329,7 @@ export class NeoResizable extends HTMLElement {
 		);
 	};
 
-	// Snap a pixel size to the axis step grid (origin 0, so the size lands
+	// Snap a pixel size to the axis step grid (origin 0, which puts the size
 	// on a multiple of the step). A missing or non-positive step disables
 	// snapping. CSS min/max still clamp the snapped value afterward.
 	#snapToStep(px: number, attr: "step-horizontal" | "step-vertical"): number {
@@ -343,9 +343,9 @@ export class NeoResizable extends HTMLElement {
 		this.#endDrag();
 	};
 
-	// `resizing` plus the active handle's own state, so the cursor rules
-	// can pick the axis. Custom states, not attributes: a morph mid-drag
-	// would strip attributes and drop the selection lock and cursor.
+	// `resizing` plus the active handle's own state, which lets the cursor
+	// rules pick the axis. Custom states, not attributes, because a morph
+	// mid-drag would strip attributes and drop the selection lock and cursor.
 	#setDragState(dir: Handle | null): void {
 		setState(this.#internals, "resizing", dir !== null);
 		for (const h of ALL_HANDLES) setState(this.#internals, `handle-${h}`, h === dir);

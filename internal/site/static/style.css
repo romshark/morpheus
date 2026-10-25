@@ -1,4 +1,4 @@
-/* Palette tokens (--accent, --page-bg, --btn-bg, …) come from themes.css
+/* Palette tokens (--accent, --page-bg, --btn-bg, ...) come from themes.css
  * and change when the user switches theme/mode. These mappings are
  * theme-agnostic; they pull from whichever palette is currently active. */
 :root {
@@ -52,7 +52,7 @@ body {
 	width: 100vw;
 	/* dvh tracks the mobile address bar; vh would leave shell content under it. */
 	height: 100dvh;
-	/* clip, not hidden: hidden still scrolls programmatically. */
+	/* clip, not hidden, because hidden still scrolls programmatically. */
 	overflow: clip;
 }
 
@@ -166,8 +166,8 @@ code {
 	height: 100dvh;
 }
 
-/* Single source for the shell-row height (app bar + sidebar header):
- * two independent calc passes would round to 1px-different values on
+/* Single source for the shell-row height (app bar + sidebar header).
+ * 2 independent calc passes would round to 1px-different values on
  * sub-pixel inputs. */
 :root {
 	--app-shell-height: calc(
@@ -198,7 +198,7 @@ code {
 	padding-inline: var(--page-edge-padding, 1.5rem);
 	box-sizing: border-box;
 	/* Height tracks the hamburger button's height. No separate
-	 * min-height: a parallel calc would round 1px differently
+	 * min-height, because a parallel calc would round 1px differently
 	 * from the sidebar header at sub-pixel --page-spacing values. */
 }
 
@@ -211,7 +211,7 @@ code {
 	font-size: 1.05rem;
 }
 
-/* Phone only (below the tablet tier): drop the Settings button's text
+/* Phone only (below the tablet tier). Drop the Settings button's text
  * label, leaving the cog icon. Tablets keep the full label. */
 @media (max-width: 35.99rem) {
 	.app-bar-btn-label {
@@ -338,8 +338,8 @@ code {
 }
 
 /* Warning tint on the settings cog when the simulator is
- * intentionally slow (latency on / handler-delay > 0), so the
- * slowdown is visible from the frame. */
+ * intentionally slow (latency on / handler-delay > 0), which makes
+ * the slowdown visible from the frame. */
 .app-settings-warning neo-icon,
 .app-settings-warning > span {
 	color: var(--neo-toast-warning);
@@ -506,9 +506,9 @@ header h1 {
 	color: var(--accent);
 }
 
-/* Section sub-heading size, excluding component titles rendered in demos:
- * they share this rule's specificity and style.css loads last, so without
- * the :where(:not(…)) guard they'd lose their own size to this one. */
+/* Section sub-heading size, excluding component titles rendered in demos.
+ * They share this rule's specificity and style.css loads last. Without
+ * the :where(:not(...)) guard they'd lose their own size to this one. */
 .demo h3:where(:not([data-neo-alert-title], [data-neo-card-title], [data-neo-dialog-title], [data-neo-drawer-title])) {
 	margin: 0;
 	font-size: 1.5rem;
@@ -516,9 +516,9 @@ header h1 {
 }
 
 /* Documentation body prose. Doc sections are flex columns (see the
- * `section` rule), where adjacent margins don't collapse, so a paragraph
- * (margin-bottom) followed by a list (margin-top) stacked two margins and
- * doubled the gap. Use bottom-only margins for a single, consistent
+ * `section` rule), where adjacent margins don't collapse. A paragraph
+ * (margin-bottom) followed by a list (margin-top) would stack 2 margins
+ * and double the gap. Use bottom-only margins for a single, consistent
  * rhythm. :where() keeps specificity 0 so classed variants (.intro,
  * .demo-note) and component demos still win. */
 :where(#app-main p, #app-main ul, #app-main ol) {
@@ -625,8 +625,8 @@ header h1 {
 	color: var(--muted);
 }
 
-/* Same pre-demo gap as .demo-note, but for a <neo-alert> callout:
- * no color override, the alert owns its own theming. */
+/* Same pre-demo gap as .demo-note, but for a <neo-alert> callout.
+ * No color override; the alert owns its own theming. */
 .demo-callout {
 	margin: 0 0 0.75rem;
 }
@@ -713,8 +713,7 @@ ul.demo-note li + li {
 }
 
 /* Separator between the previous settings section (Accessibility)
- * and Server Simulator; replaces the old card frame around the
- * simulator block. */
+ * and Server Simulator. */
 .sim-settings {
 	border-top: 1px solid var(--btn-border);
 	padding-top: 1rem;
@@ -731,9 +730,9 @@ ul.demo-note li + li {
 	color: var(--neo-toast-warning, oklch(0.78 0.16 80));
 }
 
-/* Inline-icon variant: zero line-height keeps the tooltip's vertical
+/* Inline-icon variant: line-height 0 keeps the tooltip's vertical
  * box hugging the icon's pixels. Badges sharing this class need normal
- * line-height for their text, so scope to the tooltip host. */
+ * line-height for their text; scope to the tooltip host. */
 neo-tooltip.sim-settings-warning {
 	display: inline-flex;
 	align-items: center;
@@ -822,8 +821,8 @@ neo-tooltip.sim-settings-warning {
 }
 
 /* Info popovers: tighter type so short paragraphs read as a tooltip,
- * not a dialog. The positioning helper writes an inline max-width, so
- * set an explicit compact width here instead. */
+ * not a dialog. The positioning helper writes an inline max-width;
+ * set an explicit compact width instead. */
 neo-popover:has(> .patch-mode-info) {
 	--neo-popover-max-width: min(22rem, calc(100vw - 2rem));
 }
@@ -942,8 +941,8 @@ neo-popover:has(> .patch-mode-info) {
 	}
 }
 
-/* Force host -> popover -> trigger to all fill; every layer of
- * neo-select / neo-combobox defaults to content-sized, so
+/* Force host -> popover -> trigger to all fill. Every layer of
+ * neo-select / neo-combobox defaults to content-sized, and
  * stretching only the host leaves the inner popover hugging. */
 .sim-settings-stack > neo-select,
 .sim-settings-stack > neo-combobox,
@@ -970,14 +969,14 @@ neo-popover:has(> .patch-mode-info) {
 	flex: 0 0 auto;
 }
 
-/* Trailing select/combobox addon. Trigger lives in shadow; reach it
- * via the --neo-button-* tokens (cross the shadow boundary). */
+/* Trailing select/combobox addon. Trigger lives in shadow;
+ * reach it via the --neo-button-* tokens (cross the shadow boundary). */
 neo-input-group > .demo-input-group-combobox,
 neo-input-group > .demo-input-group-select {
 	flex: 0 0 auto;
 	background: var(--neo-input-group-addon-bg);
 	/* Override :host { height: 2rem } from the shadow so the host
-	 * fits the group's border-box content area (2rem − 2×border). */
+	 * fits the group's border-box content area (2rem - 2*border). */
 	height: 100%;
 	/* Clip the trigger's square hover-bg to the host's rounded shape. */
 	overflow: hidden;
@@ -1007,8 +1006,8 @@ neo-input-group > .demo-input-group-select {
 	display: none;
 }
 
-/* Comparison example proportions: the operator is a fixed glyph-width
- * column (centered) between two operands that share the rest. */
+/* Comparison example proportions. The operator is a fixed glyph-width
+ * column (centered) between 2 operands that share the rest. */
 neo-input-group:has(> .demo-input-group-operator) > neo-textinput {
 	flex: 1 1 0;
 }
@@ -1046,17 +1045,14 @@ neo-input-group > .demo-input-group-operator {
 	}
 }
 
-/* Demo-frame styling lives further down, scoped to .demo-frame /
- * .demo-frame-stage. */
-
 /* Pagination is a flex row; the stage's `justify-content: flex-start`
- * would pin it to the left. Auto margins on the only flex child eat
+ * would pin it to the left. Auto margins on the only flex child take
  * the remaining horizontal space and centre it inside the frame. */
 .demo-frame-stage > neo-pagination {
 	margin: 0 auto;
 }
 
-/* Stage min-width defaults to 0, so it can drag below the row's
+/* Stage min-width defaults to 0, which lets it drag below the row's
  * smallest fit (adapt bottoms out at the 0,0 fallback). Pin a floor
  * so the resize handles stay meaningful for pagination demos. */
 .demo-frame-stage:has(> neo-pagination) {
@@ -1071,9 +1067,9 @@ neo-input-group > .demo-input-group-operator {
 
 /* Reset the chunky stage mins so the stage can shrink avatar-sized
  * (responsive collapse is width-driven); avatars then sit top-left in
- * normal flow, inheriting the base stage's flex-start. No container-type:
- * size/inline-size create a containing block for fixed descendants,
- * clipping the clickable-overflow popover. */
+ * normal flow, inheriting the base stage's flex-start. No container-type,
+ * because size/inline-size create a containing block for fixed
+ * descendants, clipping the clickable-overflow popover. */
 .demo-frame-stage.avatar-demo-stage {
 	min-width: 0;
 	min-height: 0;
@@ -1111,8 +1107,8 @@ neo-textinput.text-input-demo-live {
 	background: var(--btn-bg);
 }
 
-/* The footer body is both the scroll container and the field grid (no
- * inner wrapper). Keep it shrinkable so live params never widen the
+/* The footer body is both the scroll container and the field grid
+ * (no inner wrapper). Keep it shrinkable so live params never widen the
  * frame; wide code scrolls in CodeMirror's own scroller. */
 .demo-frame-footer-body {
 	flex: 1 1 auto;
@@ -1203,8 +1199,8 @@ site-codemirror[data-site-codemirror-loading] > .site-codemirror-loading {
  * neo-resizable's inline min-height:8rem (only way below the floor);
  * max-height:max-content clamps any previously-dragged height.
  * Match the hide tab structurally (it renders first) rather than by
- * `[value="hide"]`: Blink keys :has() attribute-invalidation by name, so a
- * `value`-argument :has() restyles the whole document on any `value`
+ * `[value="hide"]`. Blink keys :has() attribute-invalidation by name.
+ * A `value`-argument :has() restyles the whole document on any `value`
  * mutation anywhere, including every <neo-slider> drag frame. */
 .demo-frame-footer-resize:has(
 		neo-tab:first-child[aria-selected="true"]
@@ -1214,8 +1210,8 @@ site-codemirror[data-site-codemirror-loading] > .site-codemirror-loading {
 
 .demo-frame-footer-tabs {
 	/* Flex column so the active tabpanel fills the resizable height
-	 * (kit block sizes to content). Don't zero --neo-tabs-list-padding:
-	 * it clips the active-tab fill at the chip's rounded corners. */
+	 * (kit block sizes to content). Don't zero --neo-tabs-list-padding,
+	 * because that clips the active-tab fill at the chip's rounded corners. */
 	display: flex;
 	flex-direction: column;
 	flex: 1 1 auto;
@@ -1233,7 +1229,7 @@ site-codemirror[data-site-codemirror-loading] > .site-codemirror-loading {
 	/* Hide-tab active: add bottom-only inset matching the top so the
  * chip's vertical position doesn't shift during tab toggle. Structural
  * match, not `[value="hide"]`, to avoid value-keyed :has() invalidation
- * (see the .demo-frame-footer-resize rule above). */
+ * (see the .demo-frame-footer-resize rule). */
 	&:has(
 		neo-tab:first-child[aria-selected="true"]
 	)
@@ -1280,15 +1276,15 @@ site-codemirror[data-site-codemirror-loading] > .site-codemirror-loading {
 	--site-cm-gutter-border: 1px solid var(--btn-border);
 }
 
-/* tabindex="-1" sinks, focused only by stray clicks, never
- * :focus-visible, so suppress the ring, like #app-main:focus. */
+/* tabindex="-1" sinks are focused only by stray clicks, never
+ * :focus-visible. Suppress the ring, like #app-main:focus. */
 .demo-frame:focus,
 .demo-frame-stage:focus {
 	outline: none;
 }
 
 /* `.demo-frame`: fixed-size outer wrapper (border + dot grid).
- * The resizable lives on `.demo-frame-stage` inside, so shrinking
+ * The resizable lives on the inner `.demo-frame-stage`. Shrinking
  * the stage leaves the header, footer, and slack dot-grid in place. */
 .demo-frame {
 	display: flex;
@@ -1319,14 +1315,14 @@ site-codemirror[data-site-codemirror-loading] > .site-codemirror-loading {
 }
 
 .demo-frame-stage {
-	/* flex:0 0 auto pins the stage to neo-resizable's inline w/h (flex
-	 * would grow it past the configured size). Limits mirror
+	/* flex:0 0 auto pins the stage to neo-resizable's inline w/h
+	 * (flex would grow it past the configured size). Limits mirror
 	 * neo-resizable's defaults so first paint matches (no reflow). */
 	flex: 0 0 auto;
 	display: flex;
 	flex-wrap: wrap;
 	/* Grid-aligned padding (2 cells) + gap (1 cell), both from
-	 * --page-spacing, so element borders land on the dot grid and the
+	 * --page-spacing. Element borders land on the dot grid and the
 	 * stage follows the same spacing as its components. */
 	align-items: flex-start;
 	justify-content: flex-start;
@@ -1350,10 +1346,10 @@ site-codemirror[data-site-codemirror-loading] > .site-codemirror-loading {
 	}
 }
 
-/* Normal-flow stage: a demo whose content is inline prose (e.g.
- * <neo-condition>, which is display:contents: its text/inline children
+/* Normal-flow stage for a demo whose content is inline prose
+ * (e.g. <neo-if-platform>, which is display:contents). Its text/inline children
  * would otherwise become flex items of the stage, gaining the flex gap
- * and losing baseline alignment). */
+ * and losing baseline alignment. */
 .demo-frame-stage.demo-stage-flow {
 	display: block;
 }
@@ -1415,7 +1411,7 @@ site-codemirror[data-site-codemirror-loading] > .site-codemirror-loading {
 	flex: 0 0 auto;
 }
 
-/* The warning trigger sits inside a neo-popover wrapper, so make the
+/* The warning trigger sits inside a neo-popover wrapper. Make the
  * wrapper a flex box to pass the stretched row height to its button. */
 .component-playground-sim-warning {
 	display: flex;
@@ -1463,8 +1459,8 @@ site-codemirror[data-site-codemirror-loading] > .site-codemirror-loading {
 	}
 
 	&[data-active] {
-		/* A subtle wash + bold weight, not a solid accent fill: the fill
-		 * matched the accent focus ring on the name and the two washed
+		/* A subtle wash + bold weight, not a solid accent fill, because a
+		 * fill matches the accent focus ring on the name and the 2 blend
 		 * together. Stays just above the non-active items. */
 		background: color-mix(in srgb, var(--accent) 14%, var(--neo-button-secondary-bg));
 		border-color: color-mix(in srgb, var(--accent) 32%, var(--btn-border));
@@ -1533,7 +1529,7 @@ site-codemirror[data-site-codemirror-loading] > .site-codemirror-loading {
 }
 
 /* Forced-colors / Windows High Contrast also drops the author washes and
- * box-shadow rings, so pair the thicker border with system colors and an
+ * box-shadow rings. Pair the thicker border with system colors and an
  * outline for the active item and focus. */
 @media (forced-colors: active) {
 	.component-playground-state {
@@ -1565,8 +1561,7 @@ site-codemirror[data-site-codemirror-loading] > .site-codemirror-loading {
 	display: flex;
 	flex-direction: column;
 	box-sizing: border-box;
-	/* Full width by default; the resizable's right handle narrows it.
-	 * (Previously supplied by the removed PlaygroundOpts.Width inline.) */
+	/* Full width by default; the resizable's right handle narrows it. */
 	width: 100%;
 	border-bottom: 1px solid var(--btn-border);
 	background-color: var(--page-bg);
@@ -1592,7 +1587,7 @@ site-codemirror[data-site-codemirror-loading] > .site-codemirror-loading {
 	gap: 1rem;
 	/* Scroll the preview, not the neo-resizable host. min-height:0 lets
 	 * this flex item shrink below content so its own overflow scrolls.
-	 * No border here, so the box fits its content box exactly. */
+	 * With no border, the box fits its content box exactly. */
 	flex: 1 1 auto;
 	min-height: 0;
 	width: 100%;
@@ -1601,7 +1596,7 @@ site-codemirror[data-site-codemirror-loading] > .site-codemirror-loading {
 }
 
 /* Neutralize the wrapper <div data-signals> default states use so it
- * adds no layout. Scoped to div: a state may put data-signals on the
+ * adds no layout. Scoped to div because a state may put data-signals on the
  * component host itself (e.g. the combobox), and display:contents there
  * would strip the host box and reflow its shadow internals into the
  * stage flex; the trigger's height:100% then tracks the resizable. */
@@ -1609,9 +1604,9 @@ site-codemirror[data-site-codemirror-loading] > .site-codemirror-loading {
 	display: contents;
 }
 
-/* The breadcrumb adapts by measuring its own width against its content,
- * so it only collapses when its container constrains that width. The
- * preview is a column flex with align-items:flex-start, which would
+/* The breadcrumb adapts by measuring its own width against its content.
+ * It only collapses when its container constrains that width.
+ * The preview is a column flex with align-items:flex-start, which would
  * otherwise let the trail shrink-wrap to content and overflow; the
  * preview then scrolls horizontally instead of the trail collapsing.
  * Stretch it to the available inline width so the overflow is real. */
@@ -1658,8 +1653,8 @@ site-codemirror[data-site-codemirror-loading] > .site-codemirror-loading {
 		border-bottom-right-radius: calc(var(--page-radius, 0.5rem) - 1px);
 	}
 
-	/* Descendant, not child: the code pane nests its head inside
-	   <neo-tabs>, the signals pane has it as a direct child. */
+	/* Descendant, not child, because the code pane nests its head inside
+	   <neo-tabs> while the signals pane has it as a direct child. */
 	& .component-playground-pane-head {
 		display: flex;
 		align-items: center;
@@ -1961,7 +1956,7 @@ neo-popover[data-neo-avatars-overflow] {
 	color: var(--muted);
 }
 
-/* Menu-style popover navgroup used by the cascading-menus demo: strip
+/* Menu-style popover navgroup used by the cascading-menus demo. Strip
  * the button styling from items so they read as rows, keep a subtle
  * hover/expanded state, and let the chevron of submenu triggers sit
  * flush right via `space-between`. */
@@ -2000,7 +1995,7 @@ neo-popover:has(> [data-neo-popover-content] > .popover-menu) {
 /* PopoverLazy: loading slot is a centered spinner+label; once the
  * server morph swaps in popover-lazy-loaded, the same container
  * reflows into a small recent-activity list. The popover's FLIP
- * resize observer animates the size change between the two states. */
+ * resize observer animates the size change between the 2 states. */
 .popover-lazy-body {
 	display: flex;
 	flex-direction: row;
@@ -2078,7 +2073,7 @@ neo-popover:has(> [data-neo-popover-content] > .popover-menu) {
 }
 
 /* Drawer page: async-loading demo. Same shape as the dialog
- * variant: a single column shared by the skeleton placeholder and
+ * variant, a single column shared by the skeleton placeholder and
  * the loaded card so the morph is a straight content swap. */
 .drawer-async-slot {
 	display: flex;
@@ -2115,7 +2110,7 @@ neo-popover:has(> [data-neo-popover-content] > .popover-menu) {
 
 /* Steps list in a <neo-elastic> animates each streamed patch's height
  * delta. min-height anchors the skeleton tall enough that the first
- * one-row patch doesn't shrink the dialog. */
+ * 1-row patch doesn't shrink the dialog. */
 .dialog-patching-slot {
 	display: flex;
 	flex-direction: column;
@@ -2186,11 +2181,11 @@ neo-popover:has(> [data-neo-popover-content] > .popover-menu) {
 }
 
 /* Sidebar preview shell. container-type:inline-size + container-name
- * resolve the sidebar's overlay threshold against THIS box (narrowing
+ * resolve the sidebar's overlay threshold against this box (narrowing
  * the frame flips mobile mode on a wide desktop). contain:paint also
  * makes it the containing block for the fixed slide-in; Safari
- * (>= late 2024) ignores container-type's layout containment, so
- * fixed descendants escape without it. */
+ * (>= late 2024) ignores container-type's layout containment,
+ * and without contain:paint fixed descendants escape. */
 .sidebar-preview {
 	display: flex;
 	align-self: stretch;
@@ -2204,7 +2199,7 @@ neo-popover:has(> [data-neo-popover-content] > .popover-menu) {
 	container-name: neo-sidebar-shell;
 	contain: paint;
 	/* Variant that follows the parent demo-frame stage's resized height
- * instead of pinning a fixed minimum, so the tree demo can be
+ * instead of pinning a fixed minimum. The tree demo can then be
  * dragged smaller and the sidebar's body scrolls instead of
  * overflowing the frame. */
 	&.sidebar-preview--fill {
@@ -2214,12 +2209,10 @@ neo-popover:has(> [data-neo-popover-content] > .popover-menu) {
 }
 
 /* Suppress the sidebar header's separator inside the preview only;
- * the doc-app's main sidebar still wants the line to mark the frame
- * row. Scoped to .sidebar-preview so the override stays out of
- * morpheus.css. */
+ * the doc-app's main sidebar still wants the line to mark the frame row.
+ * Scoped to .sidebar-preview so the override stays out of morpheus.css. */
 /* [data-neo-active] (set by Datastar from the per-row signal) tints
- * the inlined star accent and bumps its weight so favourited rows
- * stand out. */
+ * the inlined star accent and bumps its weight so favourited rows stand out. */
 .bookmark-star[data-neo-active] {
 	color: var(--accent);
 	& neo-icon::part(svg) {
@@ -2231,10 +2224,10 @@ neo-popover:has(> [data-neo-popover-content] > .popover-menu) {
 	border-bottom: none;
 }
 
-/* neo-sidebar carries `height: 100%` so it fills a parent of definite
- * height. The preview's parent (demo-frame-stage) has no inline height
- * until the user drags; `height: 100%` then resolves to auto, the
- * sidebar shrinks to its own content, and the flex sibling stretches
+/* neo-sidebar carries `height: 100%` so it fills a parent of definite height.
+ * The preview's parent (demo-frame-stage) has no inline height
+ * until the user drags; `height: 100%` then resolves to auto,
+ * the sidebar shrinks to its own content, and the flex sibling stretches
  * past it (visible gap below the sidebar's right border). `align-self:
  * stretch` with `height: auto` lets the flex line stretch take over. */
 .sidebar-preview > neo-sidebar:not(:state(overlay)) {
@@ -2424,9 +2417,9 @@ neo-tabs[easing][exit-animation="tabs-tilt"]:state(backward)
 	opacity: 0.7;
 }
 
-/* API reference tables (one per group). Wide: grid with a sticky-ish
- * header. Narrow: rows collapse to stacked cards labelled from
- * data-label, so it stays scannable without horizontal scroll. */
+/* API reference tables (one per group). Wide: grid with a sticky-ish header.
+ * Narrow: rows collapse to stacked cards labelled from data-label,
+ * which keeps it scannable without horizontal scroll. */
 .api-table {
 	width: 100%;
 	border-collapse: collapse;
@@ -2493,9 +2486,9 @@ neo-tabs[easing][exit-animation="tabs-tilt"]:state(backward)
 	font-weight: 600;
 }
 
-/* Subhead for pages documenting multiple elements (menu page covers
- * <neo-menu>/<neo-menuitem>/<neo-submenu>): one tier above
- * .api-heading so each element block reads as a section. */
+/* Subhead for pages documenting multiple elements
+ * (menu page covers <neo-menu>/<neo-menuitem>/<neo-submenu>),
+ * 1 tier above .api-heading so each element block reads as a section. */
 .api-element {
 	margin: 2.25rem 0 0.25rem;
 	padding-top: 1rem;
@@ -2519,8 +2512,8 @@ neo-tabs[easing][exit-animation="tabs-tilt"]:state(backward)
 }
 
 /* Below ~40rem of main-content width the table stacks into cards.
- * A container query, not viewport: the docs sidebar can be in-flow on
- * iPad-ish widths (viewport wide while the main column is narrow). */
+ * A container query, not viewport, because the docs sidebar can be in-flow
+ * on iPad-ish widths (viewport wide while the main column is narrow). */
 @container app-main (max-width: 40rem) {
 	.api-table,
 	.api-table thead,
@@ -2590,7 +2583,7 @@ neo-tabs[easing][exit-animation="tabs-tilt"]:state(backward)
 	}
 }
 
-/* Fixed-height scroll container for the persist demo: needs to
+/* Fixed-height scroll container for the persist demo. It needs to
  * overflow for the snapshot/restore round-trip to be visible. */
 .persist-scroll-demo {
 	height: 12rem;
@@ -2613,8 +2606,7 @@ neo-tabs[easing][exit-animation="tabs-tilt"]:state(backward)
 }
 
 /* <neo-keys> demo panels. Focusable so a parent-scoped shortcut only
- * fires while focus is inside the panel; the visible focus ring is
- * the cue. */
+ * fires while focus is inside the panel; the visible focus ring is the cue. */
 .keys-demo {
 	display: flex;
 	flex-direction: column;
@@ -2684,16 +2676,14 @@ neo-tabs[easing][exit-animation="tabs-tilt"]:state(backward)
 	}
 }
 
-/* -----------------------------------------------------------------------
- * Pre-upgrade skeletons (site-only, CDN-hosted static HTML).
+/* Pre-upgrade skeletons (site-only, CDN-hosted static HTML).
  *
- * The kit prerenders full markup, but the deferred bundle takes a
- * frame or two to upgrade; until then prerendered children have no
- * JS-driven sizing -> layout shift (and scroll-restore drift). These
- * paint a same-sized skeleton over the host until :defined, hiding
- * children via `> *`. In style.css, not morpheus.css: kit consumers
- * may want different FOUC tradeoffs.
- * ----------------------------------------------------------------------- */
+ * The kit prerenders full markup, but the deferred bundle takes 1-2
+ * frames to upgrade; until then prerendered children have no
+ * JS-driven sizing -> layout shift (and scroll-restore drift).
+ * These paint a same-sized skeleton over the host until :defined,
+ * hiding children via `> *`. They live in style.css, not morpheus.css,
+ * because kit consumers may want different FOUC tradeoffs. */
 
 neo-switch:not(:defined) {
 	display: inline-block;
@@ -2711,8 +2701,8 @@ neo-switch:not(:defined) {
 }
 
 /* Sliders: header stub above a track-height bar so the upgraded layout
- * (label row + track) lands without vertical reflow. The host fades in
- * once; the pseudo-elements pulse independently. */
+ * (label row + track) lands without vertical reflow. The host fades in once;
+ * the pseudo-elements pulse independently. */
 neo-slider:not(:defined),
 neo-slider-range:not(:defined) {
 	display: flex;
@@ -2762,9 +2752,8 @@ neo-tree:not(:defined) > * {
 	display: none;
 }
 
-/* Tab parts: hide pre-upgrade so the stacked tablist + every panel
- * doesn't flash before <neo-tabs> upgrades and applies `hidden` to
- * inactive panels. */
+/* Tab parts: hide pre-upgrade so the stacked tablist + every panel doesn't flash
+ * before <neo-tabs> upgrades and applies `hidden` to inactive panels. */
 neo-tabs > neo-tablist:not(:defined),
 neo-tabs > neo-tablist:not(:defined) neo-tab:not(:defined),
 neo-tabs > neo-tabpanel:not(:defined) {
@@ -2778,9 +2767,9 @@ neo-tree neo-tree-item:not(:defined) {
 	display: none;
 }
 
-/* Text input: the templ helper emits the inner <input> up front, but
- * pre-upgrade the field shows raw browser styling instead of the kit
- * styling. Cover with a same-sized placeholder. */
+/* Text input: the templ helper emits the inner <input> up front,
+ * but pre-upgrade the field shows raw browser styling instead of the kit styling.
+ * Cover with a same-sized placeholder. */
 neo-textinput:not(:defined) {
 	display: inline-block;
 	box-sizing: border-box;
@@ -2826,7 +2815,7 @@ neo-progress:not(:defined) {
 
 /* Theming preview + swatch grid. Vertical wrap-flex rows so each
  * component band reads distinctly yet wraps on narrow stages.
- * Swatches read var(--<token>) directly, so flipping theme/mode
+ * Swatches read var(--<token>) directly. Switching theme/mode
  * repaints every chip with no markup change. */
 .theming-preview {
 	display: flex;
@@ -2889,8 +2878,7 @@ neo-progress:not(:defined) {
 	background: color-mix(in srgb, var(--page-fg) 4%, transparent);
 	
 	/* Editor internals are styled in the shadow sheet (see site-codemirror.ts);
-	 * cap the host height here and pass the gutter tint in via custom
-	 * properties. */
+	 * cap the host height here and pass the gutter tint in via custom properties. */
 	& site-codemirror {
 		display: flex;
 		flex-direction: column;
@@ -2949,29 +2937,24 @@ neo-progress:not(:defined) {
 
 .framework-demo-readout > neo-textinput {
 	flex: 1 1 auto;
-	/* The field's inner part defaults to min-width: 12rem; clear it (host
-	 * + variable) so the input shrinks to share the row instead of
+	/* The field's inner part defaults to min-width: 12rem; clear it
+	 * (host + variable) so the input shrinks to share the row instead of
 	 * overflowing the card. */
 	min-width: 0;
 	--neo-input-min-width: 0;
 }
 
-/* The /layout/ page demos are built only from kit components
- * (neo-layout, neo-card, neo-badge, neo-button) and plain HTML, so they
- * need no page-specific CSS. */
-
-/* ⌘K command palette (<site-command-palette>). The element (with the
- * dialog) is mounted in the sidebar, above the Sections heading. The
- * host is layout-neutral. The dialog box, backdrop, shadow, and open
- * animation come from neo-dialog.css; this only overrides a few tokens
- * and styles the search field + result list. */
+/* Mod+K command palette (<site-command-palette>). The element (with the dialog)
+ * is mounted in the sidebar, above the Sections heading. The host is layout-neutral.
+ * The dialog box, backdrop, shadow, and open animation come from neo-dialog.css;
+ * this only overrides a few tokens and styles the search field + result list. */
 site-command-palette {
 	display: contents;
 }
 
-/* Trigger reads as a full-width search field, not a button: left-aligned,
- * muted, spaced from the Sections heading, with the shortcut hint at the
- * trailing edge (pushed there by the label's neo-flex-grow). */
+/* Trigger reads as a full-width search field, not a button.
+ * It's left-aligned, muted, spaced from the Sections heading, with the shortcut
+ * hint at the trailing edge (pushed there by the label's neo-flex-grow). */
 .site-cmdk-trigger {
 	width: 100%;
 	justify-content: flex-start;
@@ -2983,7 +2966,7 @@ site-command-palette {
 
 /* Search shows only while the sidebar is in-flow (desktop / large tablets
  * like iPad Air portrait). On overlay sizes (phones, small tablets) the
- * sidebar is hidden/hamburger-driven, so the search button is dropped;
+ * sidebar is hidden/hamburger-driven and the search button is dropped;
  * there's no app-bar search either. */
 @media (max-width: 50rem) {
 	.site-cmdk-trigger {
@@ -2991,16 +2974,13 @@ site-command-palette {
 	}
 }
 
-/* The shortcut hint is a <neo-kbd keys="mod+k">: chip styling, platform
- * glyph, and touch auto-hide all come from neo-kbd; no per-page CSS. */
-
 .site-cmdk-dialog {
 	/* Header + list own their padding; drop the box's default inset. */
 	--neo-dialog-padding: 0;
-	/* Pin the top instead of viewport-centering (the native modal default):
-	 * neo-elastic animates the box height as rows filter, so centering would
-	 * drift the search field on every keystroke. The cap is symmetric to the
-	 * top offset, so a long (capped) list fills to a centered-looking box.
+	/* Pin the top instead of viewport-centering (the native modal default).
+	 * neo-elastic animates the box height as rows filter, and centering would
+	 * move the search field on every keystroke. The cap is symmetric to the
+	 * top offset, which makes a long (capped) list fill to a centered-looking box.
 	 * Horizontal margin stays auto (from neo-dialog's margin shorthand). */
 	--site-cmdk-top: 18dvh;
 	--site-cmdk-header: 3.25rem; /* ~header height, slight over-estimate */
@@ -3011,11 +2991,11 @@ site-command-palette {
 	overflow: hidden;
 }
 
-/* Override the dialog's default header slot (neo-dialog
- * [data-neo-dialog-header], specificity 0,1,1), which stacks children in
+/* Override the dialog's default header slot
+ * (neo-dialog [data-neo-dialog-header], specificity 0,1,1), which stacks children in
  * a column with a bottom margin; here the icon and input share one row.
- * The bottom border doubles as the field's focus indicator (see below),
- * so the suppressed input outline has an accessible equivalent. */
+ * The bottom border doubles as the field's focus indicator, which gives
+ * the suppressed input outline an accessible equivalent. */
 .site-cmdk-dialog .site-cmdk-header {
 	display: flex;
 	flex-direction: row;
@@ -3030,13 +3010,13 @@ site-command-palette {
 	border-bottom-color: var(--accent);
 }
 
-/* Flex-item sizing (shrink/grow/min-width) rides on neo-* attributes in
+/* Flex-item sizing (shrink/grow/min-width) comes from neo-* attributes in
  * the markup; this only carries the icon colour. */
 .site-cmdk-search-icon {
 	color: var(--muted);
 }
 
-/* Borderless: the header is the visual field. Zero the kit's input
+/* Borderless, because the header is the visual field. Zero the kit's input
  * border-radius so no rounded box peeks through. (Grow + min-width:0
  * come from neo-flex-grow / neo-min-width on the element.) */
 .site-cmdk-input {
@@ -3088,7 +3068,7 @@ site-command-palette {
 	background: var(--btn-hover-bg);
 }
 
-/* Truncation rides on the neo-truncate attribute in the markup. */
+/* Truncation comes from the neo-truncate attribute in the markup. */
 .site-cmdk-row-label mark {
 	background: none;
 	color: var(--accent);
@@ -3104,4 +3084,237 @@ site-command-palette {
 	margin: 0;
 	padding: 1rem 0.6rem;
 	color: var(--muted);
+}
+
+/* neo-navgroup's base style outranks a bare class. */
+neo-navgroup.bundle-toggle-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr));
+	gap: 0.4rem;
+	width: 100%;
+	max-width: 56rem;
+	margin: 0 auto 2rem;
+}
+.bundle-toggle-grid neo-toggle {
+	width: 100%;
+	min-width: 0;
+	padding: 0.75rem;
+}
+.bundle-bulk-actions {
+	margin: 0 0 1rem;
+}
+/* width: 100% keeps the table's min-content width from widening this
+ * auto-margin flex item past the column. */
+.bundle-size {
+	position: relative;
+	overflow: hidden;
+	width: 100%;
+	max-width: 34rem;
+	margin: 0 auto 1.5rem;
+	padding: 1rem 1.25rem;
+	border: 1px solid color-mix(in srgb, var(--page-fg) 12%, transparent);
+	border-radius: var(--page-radius, 0.5rem);
+}
+.bundle-size-overlay {
+	position: absolute;
+	inset: 0;
+	z-index: 1;
+	display: none;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 0.6rem;
+	color: var(--muted);
+	font-size: 0.85rem;
+	background: color-mix(in srgb, var(--page-bg) 62%, transparent);
+	backdrop-filter: blur(1.5px);
+}
+.bundle-size[data-state="building"] .bundle-size-overlay {
+	display: flex;
+}
+.bundle-size[data-state="building"] .bundle-size-body {
+	opacity: 0.45;
+	filter: grayscale(1);
+	pointer-events: none;
+	user-select: none;
+}
+.bundle-size-head h2 {
+	margin: 0;
+	font-size: 1rem;
+}
+/* Stays at the end of the line after the row wraps. */
+.bundle-size-count {
+	margin-inline-start: auto;
+	color: var(--muted);
+	font-size: 0.9rem;
+}
+.bundle-size-status {
+	margin: 0.5rem 0 0;
+	color: var(--muted);
+	font-size: 0.85rem;
+}
+/* Visually hidden while the overlay shows the text.
+ * The live region still announces it. */
+.bundle-size:not([data-state="error"]) .bundle-size-status {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+	clip-path: inset(50%);
+	white-space: nowrap;
+}
+/* Scrolls a table wider than the card; the padding keeps edge focus rings unclipped. */
+.bundle-size-scroll {
+	overflow-x: auto;
+	margin: 0.5rem -0.25rem -0.25rem;
+	padding: 0.25rem;
+}
+.bundle-size-table {
+	width: 100%;
+	border-collapse: collapse;
+	font-variant-numeric: tabular-nums;
+}
+.bundle-size-table th,
+.bundle-size-table td {
+	padding: 0.3rem 0.5rem;
+	text-align: right;
+	font-size: 0.9rem;
+	white-space: nowrap;
+}
+.bundle-size-table :is(th, td):first-child {
+	padding-inline-start: 0;
+}
+.bundle-size-table :is(th, td):last-child {
+	padding-inline-end: 0;
+}
+/* Same specificity as .bundle-size-total th, which wins by source order
+ * and keeps the total label bold. */
+.bundle-size-table th {
+	color: var(--muted);
+	font-weight: 600;
+}
+/* Middle alignment lifts labels beside info buttons off the baseline. */
+.bundle-size-table thead th {
+	vertical-align: baseline;
+}
+/* A file name wraps only at its <wbr> or hyphen. */
+.bundle-size-table tbody th[scope="row"] {
+	text-align: left;
+	color: var(--page-fg);
+	white-space: normal;
+}
+.bundle-size-file {
+	display: inline-flex;
+	align-items: flex-start;
+	gap: 0.4rem;
+	cursor: pointer;
+}
+/* Centered on the first line of a wrapped name. */
+.bundle-size-file neo-checkbox {
+	margin-block-start: calc((1lh - var(--neo-checkbox-size)) / 2);
+}
+/* A file left out of the archive. */
+.bundle-size-table tr:has(neo-checkbox:not([checked]:where(:not([checked="false"])))) :is(th, td) {
+	color: var(--muted);
+}
+.bundle-size-total td,
+.bundle-size-total th {
+	border-top: 1px solid color-mix(in srgb, var(--page-fg) 14%, transparent);
+	font-weight: 700;
+}
+/* Also sizes the total row's empty slot, keeping numbers aligned. */
+.bundle-size-copy {
+	display: inline-flex;
+	vertical-align: middle;
+	inline-size: 1.75rem;
+	margin-inline-start: 0.25rem;
+}
+.bundle-size-copy neo-button {
+	inline-size: 100%;
+	padding-inline: 0;
+	justify-content: center;
+}
+.bundle-size-info {
+	vertical-align: middle;
+	margin-inline-start: 0.125rem;
+}
+.bundle-size-info neo-button {
+	padding: 0.25rem;
+}
+/* Resets the bold, right-aligned style inherited from the header. */
+.bundle-size-info-text {
+	max-width: 18rem;
+	text-align: start;
+	font-size: 0.85rem;
+	font-weight: 400;
+	line-height: 1.45;
+	white-space: normal;
+}
+.bundle-size-info-text p {
+	margin: 0;
+}
+.bundle-size-theme-alert {
+	display: none;
+	margin: 0.75rem 0 0;
+}
+.bundle-size:has(tr[data-file="theme-default.css"] neo-checkbox:not([checked]:where(:not([checked="false"]))))
+	.bundle-size-theme-alert {
+	display: grid;
+}
+.bundle-size-theme-alert code {
+	white-space: nowrap;
+}
+.bundle-size-downloads {
+	margin: 0.75rem 0 0;
+}
+.bundle-size-note {
+	margin: 0.75rem 0 0;
+	text-align: center;
+	color: var(--muted);
+	font-size: 0.78rem;
+	line-height: 1.4;
+}
+/* At phone width, tighter padding and type fit the table. */
+@container app-main (max-width: 30rem) {
+	.bundle-size {
+		padding-inline: 0.75rem;
+	}
+	.bundle-size-count {
+		font-size: 0.8rem;
+	}
+	.bundle-size-table th,
+	.bundle-size-table td {
+		padding-inline: 0.25rem;
+		font-size: 0.8rem;
+	}
+	/* Visually hidden because every built file name starts with "morpheus". */
+	.bundle-size-file-base {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		overflow: hidden;
+		clip-path: inset(50%);
+		white-space: nowrap;
+	}
+}
+/* Down to the site's narrowest column, at a 340px viewport. */
+@container app-main (max-width: 21rem) {
+	.bundle-size {
+		padding-inline: 0.5rem;
+	}
+	.bundle-size-table th,
+	.bundle-size-table td {
+		font-size: 0.75rem;
+	}
+	.bundle-size-table thead th {
+		font-size: 0.7rem;
+	}
+	.bundle-size-file {
+		gap: 0.25rem;
+	}
+	/* 1.5rem keeps the 24px minimum target size (WCAG 2.5.8). */
+	.bundle-size-copy {
+		inline-size: 1.5rem;
+		margin-inline-start: 0.125rem;
+	}
 }

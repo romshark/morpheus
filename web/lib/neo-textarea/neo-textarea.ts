@@ -6,9 +6,9 @@
 import { boolAttr } from "../command";
 
 // Standard <textarea> attributes mirrored verbatim to the inner field.
-// `name` is intentionally absent: the host is the form-associated element
-// and submits via internals.setFormValue; a name on the inner field too
-// would submit the value twice under the same key.
+// `name` is intentionally absent because the host is the form-associated
+// element and submits via internals.setFormValue; a name on the inner field
+// too would submit the value 2 times under the same key.
 // Native boolean attributes use the command contract; copying
 // disabled="false" verbatim would still disable the field.
 const BOOL_PASSTHROUGH_ATTRS = ["disabled", "readonly", "required", "autofocus"];
@@ -28,8 +28,8 @@ const PASSTHROUGH_ATTRS = [
 	"spellcheck",
 	"autocapitalize",
 	"inputmode",
-	// The field is in the shadow root, so a host-level accessible name must
-	// be forwarded; the host itself isn't the focusable control.
+	// A host-level accessible name must be forwarded because the field is in
+	// the shadow root; the host itself isn't the focusable control.
 	"aria-label",
 	"aria-labelledby",
 	"aria-describedby",
@@ -40,10 +40,10 @@ const TEMPLATE = document.createElement("template");
 // them from the bundle. Anchored by selector:
 // - :host overflow:hidden: clip the field to the rounded corner and make the
 //   host resizable.
-// - :host([rows]): author rows wins over the min-height floor, so rows="1" is
-//   one row.
+// - :host([rows]): author rows takes precedence over the min-height floor,
+//   and rows="1" is 1 row.
 // - :host(:focus-within): focus ring on the host; :focus-within matches when
-//   the shadow field is focused, so no JS focus mirroring is needed.
+//   the shadow field is focused, which makes JS focus mirroring unnecessary.
 // - :host([auto-resize-width]) textarea: auto-resize-width implies no wrapping
 //   so scrollWidth is the longest line.
 TEMPLATE.innerHTML = `
@@ -175,10 +175,10 @@ export class NeoTextarea extends HTMLElement {
 	attributeChangedCallback(name: string, _old: string | null, value: string | null) {
 		if (!this.#ready) return;
 		if (name === "value") {
-			// An absent attribute is no command: a fat morph that omits
+			// An absent attribute is no command. A fat morph that omits
 			// `value` leaves the current value untouched, like the `open`
-			// command contract. An explicit value="" still clears. Skip while
-			// the field is focused so a write never stomps live typing.
+			// command contract. An explicit value="" still clears.
+			// Skip while the field is focused so a write never stomps live typing.
 			if (value !== null && this.shadowRoot!.activeElement !== this.#textarea) {
 				this.#textarea.value = value;
 				this.#internals.setFormValue(this.#textarea.value);
@@ -255,8 +255,8 @@ export class NeoTextarea extends HTMLElement {
 	}
 
 	#applyResize() {
-		// Resize handle on the host so the dragged size lands in the host's
-		// light-DOM inline style (observable, persistable). auto-resize wins.
+		// Resize handle on the host so the dragged size lands in the host's light-DOM
+		// inline style (observable, persistable). auto-resize takes precedence.
 		const canH = boolAttr(this, "scale-horizontal", false) && !boolAttr(this, "auto-resize-width", false);
 		const canV = boolAttr(this, "scale-vertical", false) && !boolAttr(this, "auto-resize-height", false);
 		this.style.resize = canH && canV ? "both" : canH ? "horizontal" : canV ? "vertical" : "none";
@@ -266,8 +266,8 @@ export class NeoTextarea extends HTMLElement {
 		const ta = this.#textarea;
 		if (boolAttr(this, "auto-resize-width", false)) {
 			// Reset to auto so scrollWidth reflects natural content width, not
-			// the previously-grown value. Gate on value: with wrap="off" a long
-			// placeholder also drives scrollWidth, so an empty field stays put.
+			// the previously-grown value. Gate on value because with wrap="off" a
+			// long placeholder also widens scrollWidth. An empty field stays put.
 			this.style.width = "auto";
 			if (ta.value.length > 0) this.style.width = `${ta.scrollWidth + this.#borderX()}px`;
 		}

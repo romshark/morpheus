@@ -21,7 +21,7 @@ templ PageServerDriven(morpheusVersion string) {
 				abstraction; as opposed to <code>JSON -> [vDOM ->] DOM</code>.
 			</p>
 			<p>
-				Morpheus components make it easy to drive your application with just a
+				Morpheus components make it easy to run your application with just a
 				single HTML template for each page using "fat morph" patches (see
 				<a target="_blank" href="https://data-star.dev/guide/the_tao_of_datastar/">
 					The Tao of Datastar
@@ -48,9 +48,9 @@ templ PageServerDriven(morpheusVersion string) {
 							target="_blank"
 							href="https://github.com/romshark/datastar-simulator"
 						>
-							An in-browser simulator script
+							an in-browser simulator script
 						</a>
-						which hijacks Datastar's <code>fetch</code> requests, executes the
+						which intercepts Datastar's <code>fetch</code> requests, executes the
 						JavaScript handler and then fires a Datastar-native
 						{ " " }
 						<a
@@ -59,7 +59,7 @@ templ PageServerDriven(morpheusVersion string) {
 						>
 							<code>datastar-patch-elements</code>
 						</a>
-						{ " " } event.
+						{ " " } event,
 						which is similar to a regular Datastar request handler.
 					}
 				}
@@ -127,30 +127,30 @@ templ PageServerDriven(morpheusVersion string) {
 				unless the server explicitly needs it to happen.
 			</p>
 			<p>
-				Therefore every Morpheus attribute follows one rule:
+				Therefore every Morpheus attribute follows the rule that
 				<b>an absent attribute is not a command.</b> A brand-new element
 				falls back to the attribute's default; an element already in the
 				DOM keeps its current value. Every boolean attribute also accepts
 				an explicit <code>{ `="true"` }</code> or <code>{ `="false"` }</code>,
-				so the server can command either state or stay silent and leave the
+				which lets the server command either state or stay silent and leave the
 				client's alone.
 			</p>
 			<p>
-				Two kinds of attribute, one rule:
+				The rule applies to 2 kinds of attribute:
 			</p>
 			<ul>
 				<li>
-					<b>Interactive state</b> the user drives
+					<b>Interactive state</b> the user controls
 					(<code>open</code>, <code>value</code>, <code>checked</code>,
 					<code>pressed</code>, <code>expanded</code>, <code>page</code>):
-					an absent attribute keeps the current client state, so a fat
+					an absent attribute keeps the current client state. A fat
 					morph that omits it can't reset what the user just did.
 				</li>
 				<li>
 					<b>Configuration</b> the server owns (<code>flip</code>,
 					<code>hover</code>, <code>disabled</code>,
 					<code>clamp-placement</code>): an absent attribute falls back to
-					the default. The client never changes these, so the server stays
+					the default. The client never changes these, which keeps the server
 					the source of truth.
 				</li>
 			</ul>
@@ -168,7 +168,7 @@ templ PageServerDriven(morpheusVersion string) {
 				</li>
 			</ul>
 			<p>
-				Every boolean attribute reads the same three ways. Taking
+				Every boolean attribute reads the same 3 ways. Taking
 				<code>open</code>, which applies to
 				<code>{ "<neo-popover>" }</code>,
 				<code>{ "<neo-menu>" }</code>,
@@ -180,7 +180,7 @@ templ PageServerDriven(morpheusVersion string) {
 			<ul>
 				<li>
 					<code>open</code> absent is no command. The component keeps
-					its current state, so a morph that omits <code>open</code>
+					its current state. A morph that omits <code>open</code>
 					can't disturb it.
 				</li>
 				<li>
@@ -202,8 +202,8 @@ templ PageServerDriven(morpheusVersion string) {
 				States: serverDrivenCommandStates(),
 			})
 			<p>
-				Essentially, an absent attribute means "no command", the client may keep
-				its current state until the server genuinely needs to take control.
+				An absent attribute means "no command". The client may keep
+				its current state until the server needs to take control.
 			</p>
 			@anchoredH3("loading-indication") {
 				Loading indication
@@ -243,7 +243,7 @@ templ PageServerDriven(morpheusVersion string) {
 			<p class="demo-note">
 				In the following example, the server always returns a
 				<code>500 Internal Server Error</code> immediately. Datastar retries
-				on <code>error</code> twice, waiting 1s between attempts; once the
+				on <code>error</code> 2 times, waiting 1s between attempts; once the
 				retry budget is exhausted, the combobox swaps in a failure state
 				with a retry button.
 				{ " " }

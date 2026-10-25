@@ -1,0 +1,28 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ AuraWidth() {
+	<neo-layout wrap gap="lg" align-items="center">
+		@neo.AuraAttrs(neo.AuraOpts{}, templ.Attributes{"class": "aura-width-none"}) {
+			@neo.Button(neo.ButtonOpts{}) {
+				Glow only
+			}
+		}
+		@neo.AuraAttrs(neo.AuraOpts{}, templ.Attributes{"class": "aura-width-thin"}) {
+			@neo.Button(neo.ButtonOpts{}) {
+				1px
+			}
+		}
+		@neo.Aura(neo.AuraOpts{}) {
+			@neo.Button(neo.ButtonOpts{}) {
+				2px
+			}
+		}
+		@neo.AuraAttrs(neo.AuraOpts{}, templ.Attributes{"class": "aura-width-thick"}) {
+			@neo.Button(neo.ButtonOpts{}) {
+				4px
+			}
+		}
+	</neo-layout>
+}

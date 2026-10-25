@@ -1,10 +1,10 @@
 // Server handler for the "Async loading" sidebar example. Each open @posts
 // here; after a delay the simulator morphs the account panel into
 // #sidebar-async-content, replacing the skeleton placeholder (match-by-id).
-// No reset route: neo-sidebar owns the [data-neo-async-placeholder] slot and
-// reinstates the skeleton on close, so the next open loads fresh. The close
-// handler aborts any in-flight request so a late response can't overwrite the
-// restored placeholder.
+// There is no reset route. neo-sidebar owns the [data-neo-async-placeholder]
+// slot and reinstates the skeleton on close, which makes the next open load
+// fresh. The close handler aborts any in-flight request so a late response
+// can't overwrite the restored placeholder.
 
 import sim from "/static/datasim.js";
 

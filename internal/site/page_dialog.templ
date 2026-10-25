@@ -19,7 +19,7 @@ templ PageDialog(morpheusVersion string) {
 				<code>{ `<dialog>` }</code> element. The host wires
 				trigger, close, and aria plumbing; the browser owns
 				top-layer rendering, focus trap, scroll lock, and
-				Esc. No portal: markup stays in light DOM so kit
+				Esc. No portal. Markup stays in light DOM so kit
 				CSS themes it directly.
 			</p>
 			@Playground(PlaygroundOpts{
@@ -41,8 +41,8 @@ templ PageDialog(morpheusVersion string) {
 			}
 			<p class="demo-note">
 				For must-decide flows, set
-				<code>{ `dismissible="false"` }</code>: backdrop
-				clicks and <neo-kbd>Esc</neo-kbd> are ignored, so the user
+				<code>{ `dismissible="false"` }</code>. Backdrop
+				clicks and <neo-kbd>Esc</neo-kbd> are then ignored and the user
 				must pick an action. Pair it with a clearly
 				destructive primary button.
 			</p>
@@ -67,7 +67,7 @@ templ PageDialog(morpheusVersion string) {
 					backdrop blur over a heavier overlay dim.
 				</li>
 				<li>
-					Holds up in light and dark modes: the dialog
+					Holds up in light and dark modes. The dialog
 					stays dark and the blurred page reads through
 					the glass either way.
 				</li>
@@ -97,7 +97,7 @@ templ PageDialog(morpheusVersion string) {
 				<li>
 					A <code>{ "<neo-elastic>" }</code> wrapper around
 					the body animates the dialog's height between the
-					two layouts.
+					2 layouts.
 				</li>
 				<li>
 					Autoplay cycles the states below to simulate the
@@ -118,8 +118,8 @@ templ PageDialog(morpheusVersion string) {
 			</p>
 			<ul class="demo-note">
 				<li>
-					On close the host reinstates the placeholder, so
-					each open shows it again until the new request
+					On close the host reinstates the placeholder.
+					Each open shows it again until the new request
 					resolves.
 				</li>
 				<li>
@@ -199,7 +199,7 @@ var dialogDoc = ComponentDoc{
 	},
 }
 
-// asyncDialogDemo: a dialog whose body is loaded on every open via a
+// asyncDialogDemo renders a dialog whose body is loaded on every open via a
 // Datastar action. The AbortController and the simulator's response
 // HTML are seeded with `data-signals` on the host.
 templ asyncDialogDemo() {
@@ -231,7 +231,7 @@ templ dialogAsyncFailureDemo() {
 		<li>
 			The loader lives in the dialog's
 			<code>{ "[data-neo-async-placeholder]" }</code> slot,
-			so close/reopen restores it; on success the server
+			and close/reopen restores it. On success the server
 			morphs <code>{ "<div id=\"<host-id>-body\">" }</code>
 			in place.
 		</li>
@@ -263,7 +263,7 @@ templ dialogAsyncFailureDemo() {
 	}
 }
 
-// dialogAsyncFailureSimulator seeds the retry-success payload: on a
+// dialogAsyncFailureSimulator seeds the retry-success payload. On a
 // reachable retry the simulator morphs this template into the body.
 templ dialogAsyncFailureSimulator() {
 	<template id="dialogAsyncDemo-success-template">
@@ -273,7 +273,7 @@ templ dialogAsyncFailureSimulator() {
 	</template>
 }
 
-// asyncPatchingDialogDemo: a dialog whose body grows as the server
+// asyncPatchingDialogDemo renders a dialog whose body grows as the server
 // streams progress patches. The steps wrapper is morph-targeted by
 // id (`#dialog-patching-steps`) so each patch is a child diff rather
 // than a wrapper replacement; the wrapper lives inside a
@@ -293,8 +293,8 @@ templ asyncPatchingDialogDemo() {
 	}
 }
 
-// dialogSimulator: /dialog/async-load and /dialog/work-stream for the
-// async-loading and continuous-patching examples.
+// dialogSimulator serves /dialog/async-load and /dialog/work-stream for
+// the async-loading and continuous-patching examples.
 templ dialogSimulator() {
 	<script type="module">
 		import sim from "/static/datasim.js";
@@ -305,7 +305,7 @@ templ dialogSimulator() {
 				.replace(/</g, "&lt;")
 				.replace(/>/g, "&gt;");
 
-		// Async-loading demo: each dialog open POSTs here. The
+		// Async-loading demo. Each dialog open POSTs here. The
 		// response payload is read from the `dialog_async_html`
 		// signal (seeded on the host).
 		sim.post("/dialog/async-load", async (ctx, sse) => {
@@ -320,7 +320,7 @@ templ dialogSimulator() {
 			);
 		});
 
-		// Failure-swap demo: each retry/open POSTs here. The handler
+		// Failure-swap demo. Each retry/open POSTs here. The handler
 		// always returns success; failures are injected globally by the
 		// server-error controls. On a reachable response it morphs the
 		// retry-success template into the body.
@@ -332,9 +332,9 @@ templ dialogSimulator() {
 		});
 
 		// Continuous-patching demo. Each `await sse.delay(...)` is a
-		// cancellation point: closing the dialog while the stream is
+		// cancellation point. Closing the dialog while the stream is
 		// in flight aborts the requestCancellation controller wired on
-		// the host, so the next delay rejects and no further patches
+		// the host; the next delay then rejects and no further patches
 		// land.
 		const patchingStep = (state, label) => {
 			const glyph = state === "done"

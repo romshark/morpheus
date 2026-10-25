@@ -1,6 +1,6 @@
-// Stack of transient toasts: app-level (fixed to a viewport corner) or
-// contained (absolute, anchored to a positioned ancestor). A
-// MutationObserver adopts any <neo-toast> child that appears (including
+// Stack of transient toasts, either app-level (fixed to a viewport corner) or
+// contained (absolute, anchored to a positioned ancestor).
+// A MutationObserver adopts any <neo-toast> child that appears (including
 // via a Datastar SSE morph), assigning it a stack id and tracking its
 // `duration`. The <neo-toast> element renders its own icon and close button.
 
@@ -13,23 +13,23 @@ import { setState } from "../internal-state";
 import { resolveTouchDismiss } from "../touch-dismiss";
 
 type ToastVariant = "default" | "success" | "error" | "warning" | "info" | "loading";
+type ToastCloseReason = "close" | "action" | "timeout" | "swipe" | "dismiss" | "remove";
 
-// Shadow tree: a positioning stack wrapper around a single slot that
-// projects every <neo-toast> child. Both the stack markup and the
-// slot live in shadow, so a fat morph reaching into the toaster can
-// only touch the projected toasts themselves, never the wrapper.
+// The shadow tree is a positioning stack wrapper around a single slot
+// that projects every <neo-toast> child. Both the stack markup and the
+// slot live in shadow. A fat morph reaching into the toaster can only
+// touch the projected toasts themselves, never the wrapper.
 const TOASTER_SHADOW_TEMPLATE = document.createElement("template");
 // Shadow CSS notes, kept out of the template string so the minifier drops
 // them from the bundle. Anchored by selector:
-// - [data-neo-toaster-stack]: inner positioning + scroll container. Toasts
-//   (light-DOM children of the host) project through the slot and
-//   absolutely-position themselves relative to this wrapper. The wrapper's
-//   explicit height (set inline by updateLayout) gives the host real
-//   overflow content in expanded mode; without it the host's overflow-y:
+// - [data-neo-toaster-stack]: inner positioning + scroll container.
+//   Toasts (light-DOM children of the host) project through the slot and
+//   absolutely-position themselves relative to this wrapper.
+//   The wrapper's explicit height (set inline by updateLayout) gives the host
+//   real overflow content in expanded mode; without it the host's overflow-y:
 //   auto wouldn't trigger a scrollbar because absolutely-positioned
 //   children contribute nothing to scroll size. Collapsed mode leaves the
-//   height unset (= 0) so the stack doesn't reserve space behind the front
-//   toast.
+//   height unset (= 0) so the stack doesn't reserve space behind the front toast.
 TOASTER_SHADOW_TEMPLATE.innerHTML = `
 <style>
   :host { display: block; }
@@ -76,10 +76,10 @@ interface ToastEntry {
 	duration: number;
 	timer: number | null;
 	removalTimer: number | null;
-	// Absolute auto-dismiss timestamp (0 = not started). Tracking a
-	// deadline rather than pause/resume with `remaining` makes hover
-	// behave naturally: while expanded the timer is cleared but the
-	// deadline keeps counting down, so a long read doesn't leak extra
+	// Absolute auto-dismiss timestamp (0 = not started).
+	// Tracking a deadline rather than pause/resume with `remaining` makes
+	// hover behave naturally. While expanded the timer is cleared but the
+	// deadline keeps counting down, and a long read doesn't leak extra
 	// dwell time after un-hover.
 	deadline: number;
 }
@@ -102,12 +102,11 @@ const TOUCH_FLICK_PX_PER_MS = 0.6;
 
 let nextId = 0;
 
-// A <neo-toast> element. Tag name only; by upgrade time the class is
-// registered, and unupgraded instances still have the right tag
-// (HTMLUnknownElement until customElements.define resolves). Returns
-// a plain boolean (no type predicate) because narrowing-by-tag-name
-// isn't a thing in TS: a predicate of `el is HTMLElement` here would
-// over-narrow the else branch to `never`.
+// A <neo-toast> element. Tag name only; by upgrade time the class is registered,
+// and unupgraded instances still have the right tag
+// (HTMLUnknownElement until customElements.define resolves).
+// Returns a plain boolean (no type predicate) because TS can't narrow by tag name.
+// A predicate of `el is HTMLElement` would over-narrow the else branch to `never`.
 function isToast(el: Element): boolean {
 	return el.tagName.toLowerCase() === "neo-toast";
 }
@@ -121,8 +120,8 @@ export class NeoToaster extends HTMLElement {
 	constructor() {
 		super();
 		this.#internals = this.attachInternals();
-		// The stack lives in shadow, so morphs can't reach it. Toasts are
-		// direct light-DOM children projected through the default slot.
+		// Morphs can't reach the stack because it lives in shadow.
+		// Toasts are direct light-DOM children projected through the default slot.
 		const root = this.attachShadow({ mode: "open" });
 		root.appendChild(TOASTER_SHADOW_TEMPLATE.content.cloneNode(true));
 		this.#stack = root.querySelector<HTMLElement>("[data-neo-toaster-stack]")!;
@@ -183,10 +182,10 @@ export class NeoToaster extends HTMLElement {
 	#resizeObserver: ResizeObserver | null = null;
 	#mutationObserver: MutationObserver | null = null;
 	// Inner positioning + scroll container, owned by the shadow root.
-	// Toasts stay `position: absolute` (preserving the translateY
-	// animation) while the wrapper's measured height (set in
-	// `updateLayout`) gives the host real overflow content for native
-	// scrolling. Morph-immune because it lives in shadow DOM.
+	// Toasts stay `position: absolute` (preserving the translateY animation)
+	// while the wrapper's measured height (set in `updateLayout`)
+	// gives the host real overflow content for native scrolling.
+	// Morph-immune because it lives in shadow DOM.
 	#stack: HTMLElement;
 	#touchDrag: TouchDrag | null = null;
 	#clickExpanded = false;
@@ -199,11 +198,10 @@ export class NeoToaster extends HTMLElement {
 		if (!this.hasAttribute("position")) {
 			this.setAttribute("position", "bottom-right");
 		}
-		// Only app-level (non-contained) toasters claim the static-API
-		// instance. Contained ones are scoped to their parent frame and
-		// mustn't intercept window-attached NeoToast calls; otherwise
-		// an in-frame demo toaster appearing earlier in document order
-		// would swallow every page-level `NeoToast.show()`.
+		// Only app-level (non-contained) toasters claim the static-API instance.
+		// Contained ones are scoped to their parent frame and mustn't intercept
+		// window-attached NeoToast calls; otherwise an in-frame demo toaster appearing
+		// earlier in document order would swallow every page-level `NeoToast.show()`.
 		if (!boolAttr(this, "contained", false)) {
 			NeoToaster.instance = this;
 		}
@@ -217,23 +215,21 @@ export class NeoToaster extends HTMLElement {
 		this.addEventListener("touchend", this.#onTouchEnd);
 		this.addEventListener("touchcancel", this.#onTouchCancel);
 		document.addEventListener("pointerdown", this.#onDocumentPointerDown);
-		// Close button presses inside each <neo-toast> bubble up as a
-		// composed event; one delegate handles every toast.
-		this.addEventListener("neo-toast-close", this.#onToastDismiss);
+		this.addEventListener("click", this.#onCloseClick);
 
 		this.#resizeObserver = new ResizeObserver(() => this.#updateLayout());
 
 		// Declaratively-inserted toasts get the same entry animation,
 		// timer, and stacking as imperative `show()`. subtree: true lets
-		// us notice content morphs *inside* a toast (e.g. patched title)
+		// us notice content morphs inside a toast (e.g. patched title)
 		// so the duration can refresh; child neo-toast adds/removes are
 		// direct light-DOM children of the host.
 		this.#mutationObserver = new MutationObserver((records) => {
 			for (const record of records) {
-				// Datastar's morph removes any attribute the source doesn't
-				// list. Re-apply kit bookkeeping the tracking entry still
-				// holds: `data-neo-mounted` loss re-triggers the pre-mount
-				// slide-off; `data-neo-toast-id` loss breaks `dismiss(id)`.
+				// Datastar's morph removes any attribute the source doesn't list.
+				// Re-apply kit bookkeeping the tracking entry still holds.
+				// `data-neo-mounted` loss re-triggers the pre-mount slide-off;
+				// `data-neo-toast-id` loss breaks `dismiss(id)`.
 				if (record.type === "attributes") {
 					const el = record.target;
 					if (!(el instanceof HTMLElement) || !isToast(el)) continue;
@@ -276,10 +272,10 @@ export class NeoToaster extends HTMLElement {
 					}
 				}
 
-				// Fat morph presenting a same-id toast as remove+add (or a
-				// duplicated id) is treated as an update. HTML id is the
-				// declarative identity boundary; preserving the entry keeps
-				// timers, mounted state, and stack position intact.
+				// Fat morph presenting a same-id toast as remove+add (or a duplicated id)
+				// is treated as an update. HTML id is the declarative identity boundary;
+				// preserving the entry keeps timers, mounted state,
+				// and stack position intact.
 				record.addedNodes.forEach((n) => {
 					if (!(n instanceof HTMLElement) || !isToast(n)) return;
 					const patched = this.#patchToastByHtmlId(n);
@@ -294,11 +290,11 @@ export class NeoToaster extends HTMLElement {
 					}
 					const entry = this.#toasts.find((t) => t.el === n);
 					if (entry) {
-						// Tracked toast removed by a fat morph: re-attach and
+						// A fat morph removed a tracked toast. Re-attach it and
 						// run the animated leave; `removeToast` pulls it out for
 						// real after `REMOVE_DELAY_MS`.
 						this.appendChild(n);
-						this.#removeToast(entry);
+						this.#removeToast(entry, "remove");
 						return;
 					}
 					this.#releaseToast(n);
@@ -311,7 +307,6 @@ export class NeoToaster extends HTMLElement {
 				});
 
 				for (const entry of refreshedToasts) {
-					this.#bindCloseButton(entry.el, entry.id);
 					this.#refreshToastDuration(entry);
 					this.#updateLayout();
 				}
@@ -343,6 +338,7 @@ export class NeoToaster extends HTMLElement {
 		this.removeEventListener("touchend", this.#onTouchEnd);
 		this.removeEventListener("touchcancel", this.#onTouchCancel);
 		document.removeEventListener("pointerdown", this.#onDocumentPointerDown);
+		this.removeEventListener("click", this.#onCloseClick);
 		this.#cancelTouchDrag();
 		for (const t of this.#toasts.slice()) {
 			if (t.timer !== null) window.clearTimeout(t.timer);
@@ -367,20 +363,20 @@ export class NeoToaster extends HTMLElement {
 		// Direct light-DOM child of the host; the shadow stack's <slot>
 		// projects it into the positioning wrapper.
 		this.insertBefore(el, this.firstChild);
-		// Adopt synchronously so the caller gets back a fully-wired
-		// toast. The observer sees the node a microtask later but skips
-		// it (data-neo-toast-tracked already set).
+		// Adopt synchronously so the caller gets back a fully-wired toast.
+		// The observer sees the node a microtask later but skips it
+		// (data-neo-toast-tracked already set).
 		this.#adoptToast(el, { id, action: options.action });
 		return id;
 	}
 
 	dismiss(id?: number): void {
 		if (id === undefined) {
-			for (const t of this.#toasts.slice()) this.#removeToast(t);
+			for (const t of this.#toasts.slice()) this.#removeToast(t, "dismiss");
 			return;
 		}
 		const t = this.#toasts.find((t) => t.id === id);
-		if (t) this.#removeToast(t);
+		if (t) this.#removeToast(t, "dismiss");
 	}
 
 	// Idempotent. The optional `seed` lets `show()` thread a
@@ -411,7 +407,8 @@ export class NeoToaster extends HTMLElement {
 					try {
 						cb();
 					} finally {
-						this.dismiss(id);
+						const t = this.#toasts.find((t) => t.id === id);
+						if (t) this.#removeToast(t, "action");
 					}
 				});
 			}
@@ -502,10 +499,9 @@ export class NeoToaster extends HTMLElement {
 		this.#refreshToastDuration(entry);
 	}
 
-	// For animated dismiss call `NeoToast.dismiss(id)` first, or
-	// render `[data-neo-toast-leaving]` in the patch a frame before
-	// the actual removal; by the time releaseToast runs the element
-	// is already detached.
+	// For animated dismiss call `NeoToast.dismiss(id)` first, or render
+	// `[data-neo-toast-leaving]` in the patch a frame before the actual removal;
+	// by the time releaseToast runs the element is already detached.
 	#releaseToast(el: HTMLElement): void {
 		const entry = this.#toasts.find((t) => t.el === el);
 		if (!entry) return;
@@ -522,21 +518,13 @@ export class NeoToaster extends HTMLElement {
 		this.#updateLayout();
 	}
 
-	// Toast markup (variant icon, close button, aria-live semantics)
-	// lives in <neo-toast>'s shadow root, nothing to enhance from the
-	// toaster side. The close button fires a composed `neo-toast-
-	// dismiss` event; the host listens via event delegation, so there
-	// are no per-button click bindings to register either.
-	#bindCloseButton(_el: HTMLElement, _id: number): void {
-		/* no-op, kept for call-site stability */
-	}
-
-	#onToastDismiss = (e: Event) => {
-		const target = (e.composedPath()[0] ?? e.target) as Element | null;
-		const toast = target?.closest<HTMLElement>("neo-toast");
-		if (!toast) return;
-		const entry = this.#toasts.find((t) => t.el === toast);
-		if (entry) this.dismiss(entry.id);
+	// The close button sits in the toast's shadow root, which retargets
+	// `e.target` to the toast. Match it on the composed path instead.
+	#onCloseClick = (e: MouseEvent) => {
+		const path = e.composedPath();
+		if (!path.some((n) => n instanceof Element && n.hasAttribute("data-neo-toast-close"))) return;
+		const entry = this.#toasts.find((t) => path.includes(t.el));
+		if (entry) this.#removeToast(entry, "close");
 	};
 
 	#getTouchDismissThreshold(width: number): number | null {
@@ -665,7 +653,7 @@ export class NeoToaster extends HTMLElement {
 		entry.el.setAttribute("data-neo-toast-swipe-dismiss", "");
 		entry.el.style.setProperty("--toast-swipe-exit", `${closeDir * 120}%`);
 		entry.el.style.transition = "";
-		this.#removeToast(entry);
+		this.#removeToast(entry, "swipe");
 		entry.el.style.transform = "";
 	}
 
@@ -726,8 +714,8 @@ export class NeoToaster extends HTMLElement {
 			expandedOffset += el.offsetHeight + gap;
 		}
 
-		// Total expanded vertical extent (no trailing gap). The
-		// wrapper takes this height in expanded mode so the host gets
+		// Total expanded vertical extent (no trailing gap).
+		// The wrapper takes this height in expanded mode so the host gets
 		// real overflow content and the cursor-gaps between toasts
 		// stay inside the host's bounding rect (no mid-read mouseleave).
 		const stackHeight = Math.max(0, expandedOffset - gap);
@@ -744,7 +732,7 @@ export class NeoToaster extends HTMLElement {
 		return Number.isFinite(n) ? n : fallback;
 	}
 
-	// Opt-in auto-dismiss via the `duration` attribute: only a strictly
+	// Opt-in auto-dismiss via the `duration` attribute. Only a strictly
 	// positive number arms the timer; anything else = persistent.
 	#readToastDuration(el: HTMLElement): number {
 		const durAttr = el.getAttribute("duration");
@@ -763,10 +751,9 @@ export class NeoToaster extends HTMLElement {
 		this.#startTimer(entry);
 	}
 
-	// Builds a <neo-toast> for the imperative API. Variant icon and
-	// close button come from the toast's own shadow markup; the
-	// toaster only attaches user-authored body / action via named
-	// slots.
+	// Builds a <neo-toast> for the imperative API.
+	// Variant icon and close button come from the toast's own shadow markup;
+	// the toaster only attaches user-authored body / action via named slots.
 	#makeToastElement(id: number, options: ToastOptions, variant: ToastVariant, dismissible: boolean): HTMLElement {
 		const el = document.createElement("neo-toast") as HTMLElement;
 		if (variant !== "default") el.setAttribute("variant", variant);
@@ -809,13 +796,13 @@ export class NeoToaster extends HTMLElement {
 		const remaining = Math.max(0, entry.deadline - now);
 		if (remaining === 0) {
 			// Deadline elapsed during a previous hover.
-			this.#removeToast(entry);
+			this.#removeToast(entry, "timeout");
 			return;
 		}
 
 		entry.timer = window.setTimeout(() => {
 			entry.timer = null;
-			this.#removeToast(entry);
+			this.#removeToast(entry, "timeout");
 		}, remaining);
 	}
 
@@ -823,32 +810,36 @@ export class NeoToaster extends HTMLElement {
 		if (entry.timer === null) return;
 		window.clearTimeout(entry.timer);
 		entry.timer = null;
-		// Deadline is intentionally NOT shifted; see ToastEntry comment.
+		// Deadline is intentionally not shifted; see ToastEntry comment.
 	}
 
-	#removeToast(entry: ToastEntry): void {
+	#removeToast(entry: ToastEntry, reason: ToastCloseReason): void {
 		if (entry.el.hasAttribute("data-neo-toast-leaving")) return;
 		if (entry.timer !== null) {
 			window.clearTimeout(entry.timer);
 			entry.timer = null;
 		}
-		if (!entry.el.isConnected) {
+		if (entry.el.isConnected) {
+			entry.el.setAttribute("data-neo-toast-leaving", "");
+			this.#updateLayout();
+
+			entry.removalTimer = window.setTimeout(() => {
+				entry.removalTimer = null;
+				this.#resizeObserver?.unobserve(entry.el);
+				this.#toasts = this.#toasts.filter((t) => t !== entry);
+				entry.el.remove();
+				this.#updateLayout();
+			}, REMOVE_DELAY_MS);
+		} else {
 			this.#resizeObserver?.unobserve(entry.el);
 			this.#toasts = this.#toasts.filter((t) => t !== entry);
 			this.#updateLayout();
-			return;
 		}
-
-		entry.el.setAttribute("data-neo-toast-leaving", "");
-		this.#updateLayout();
-
-		entry.removalTimer = window.setTimeout(() => {
-			entry.removalTimer = null;
-			this.#resizeObserver?.unobserve(entry.el);
-			this.#toasts = this.#toasts.filter((t) => t !== entry);
-			entry.el.remove();
-			this.#updateLayout();
-		}, REMOVE_DELAY_MS);
+		// Dispatched after the state update, which makes a listener that
+		// dismisses the same toast a no-op instead of a 2nd event.
+		entry.el.dispatchEvent(
+			new CustomEvent("neo-toast-close", { bubbles: true, composed: true, detail: { reason, item: entry.el } }),
+		);
 	}
 
 	#cancelToastRemoval(entry: ToastEntry): void {
@@ -872,8 +863,8 @@ export class NeoToaster extends HTMLElement {
 		for (const t of this.#toasts) this.#pauseTimer(t);
 		// Pin scroll to the anchor edge so the freshest toast stays
 		// visible when the stack unfolds. Bottom-anchored stacks
-		// default to scrollTop=0 (= oldest toasts), so we jump to the
-		// bottom; top-anchored already match scrollTop=0 by default.
+		// default to scrollTop=0 (= oldest toasts) and need a jump to the bottom;
+		// top-anchored already match scrollTop=0 by default.
 		if (this.getAttribute("position")?.includes("bottom")) {
 			requestAnimationFrame(() => {
 				this.scrollTop = this.scrollHeight;
@@ -902,22 +893,24 @@ export class NeoToaster extends HTMLElement {
 		const next = (e as FocusEvent).relatedTarget as Node | null;
 		if (next && this.contains(next)) return;
 		// Stay expanded while the cursor is still over the toaster.
-		// Clicking a close button fires `focusout` (button removed from
-		// DOM); a naive collapse would tear down the whole stack mid-
-		// interaction even though the user is still hovering.
+		// Clicking a close button fires `focusout` (button removed from DOM);
+		// a naive collapse would tear down the whole stack mid-interaction
+		// even though the user is still hovering.
 		this.#collapseStackIfIdle();
 	};
 
+	// The close and action buttons sit in the toast's shadow root, which
+	// retargets `e.target` to the toast. Walk the composed path instead.
 	#onHostClick = (e: MouseEvent) => {
-		const target = e.target instanceof Element ? e.target : null;
-		if (!target?.closest("neo-toast")) return;
-		if (
-			target.closest("[data-neo-toast-close],[data-neo-toast-action]," + "button,a,input,select,textarea,neo-button")
-		) {
-			return;
+		for (const n of e.composedPath()) {
+			if (!(n instanceof Element)) continue;
+			if (n.localName === "neo-toast") {
+				this.#clickExpanded = true;
+				this.#expandStack();
+				return;
+			}
+			if (n.matches("[data-neo-toast-close],[data-neo-toast-action],button,a,input,select,textarea,neo-button")) return;
 		}
-		this.#clickExpanded = true;
-		this.#expandStack();
 	};
 
 	#onDocumentPointerDown = (e: PointerEvent) => {

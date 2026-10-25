@@ -1,13 +1,12 @@
-// Package href centralises URL paths used in href attributes: page
-// paths as PageX() functions and an Asset(p) helper that prefixes
-// "/static/". A path rename is then a one-file change.
+// Package href centralises the URL paths used in href attributes,
+// as PageX() functions for pages and the [Asset] helper that
+// prefixes "/static/". A path rename is then a 1-file change.
 package href
 
 import "path"
 
-// External returns url as-is. Kept as a function so call sites read
-// the same as the rest of href, and to leave room for a runtime
-// validation hook later.
+// External returns url as-is. Kept as a function so call sites read the same
+// as the rest of href, and to leave room for a runtime validation hook later.
 func External(url string) string { return url }
 
 // Asset returns the URL path for a static asset file
@@ -24,6 +23,7 @@ func PageLayout() string         { return "/layout/" }
 func PageProjectStatus() string  { return "/project-status/" }
 func PageBundleBuilder() string  { return "/bundle-builder/" }
 func PageAlert() string          { return "/alert/" }
+func PageAura() string           { return "/aura/" }
 func PageAvatar() string         { return "/avatar/" }
 func PageAvatars() string        { return "/avatars/" }
 func PageBadge() string          { return "/badge/" }
@@ -36,7 +36,6 @@ func PageCarousel() string       { return "/carousel/" }
 func PageCheckbox() string       { return "/checkbox/" }
 func PageClipcopy() string       { return "/clipcopy/" }
 func PageCombobox() string       { return "/combobox/" }
-func PageCondition() string      { return "/condition/" }
 func PageContextMenu() string    { return "/context-menu/" }
 func PageColorField() string     { return "/color-field/" }
 func PageDatalist() string       { return "/datalist/" }
@@ -44,6 +43,8 @@ func PageDialog() string         { return "/dialog/" }
 func PageDrawer() string         { return "/drawer/" }
 func PageElastic() string        { return "/elastic/" }
 func PageIcon() string           { return "/icon/" }
+func PageIfNetwork() string      { return "/if-network/" }
+func PageIfPlatform() string     { return "/if-platform/" }
 func PageInputGroup() string     { return "/input-group/" }
 func PageKbd() string            { return "/kbd/" }
 func PageKeys() string           { return "/keys/" }

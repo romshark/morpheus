@@ -15,8 +15,8 @@ templ PageBreadcrumb(morpheusVersion string) {
 				Component <code>{ "<neo-breadcrumb>" }</code> is a
 				horizontal trail of links ending in the current
 				page. A <code>ResizeObserver</code> watches the host
-				width and switches between three modes: full trail,
-				middle items collapsed into a popover, or just
+				width and switches between the full trail, middle
+				items collapsed into a popover, and just
 				<em>menu + last</em> when even that doesn't fit.
 			</p>
 			@Playground(PlaygroundOpts{
@@ -39,7 +39,7 @@ templ PageBreadcrumb(morpheusVersion string) {
 				A deeper trail that exercises every render
 				mode. The frame opens at a width that already
 				forces the middle items into the
-				<code>…</code> menu, with the tail kept
+				<code>...</code> menu, with the tail kept
 				visible. Drag the frame wider to recover the
 				full trail, or narrower to collapse to
 				<em>menu + last</em>.
@@ -76,7 +76,7 @@ templ PageBreadcrumb(morpheusVersion string) {
 			<p class="demo-note">
 				Write whatever you like as the
 				<code>{ `[data-neo-breadcrumb-sep]` }</code>
-				element between two items. Here a slash.
+				element between 2 items. Here a slash.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
 				Width:          "100%",
@@ -90,8 +90,8 @@ templ PageBreadcrumb(morpheusVersion string) {
 				Dot separator
 			}
 			<p class="demo-note">
-				Same idea with a middle-dot character:
-				softer, more typographic.
+				Same idea with a middle-dot character, which is
+				softer and more typographic.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
 				Width:          "100%",

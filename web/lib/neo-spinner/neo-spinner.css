@@ -1,22 +1,19 @@
-/* -----------------------------------------------------------------------
- * <neo-spinner>
- * -----------------------------------------------------------------------
- * Shadow-scoped spinner structure. Imported as raw text by
+/* Shadow-scoped spinner structure. Imported as raw text by
  * neo-spinner.ts and adopted after rewriting `neo-spinner` to `:host`.
  * Token defaults and manual preference hooks live in
  * neo-spinner.global.css and inherit across the shadow boundary.
  */
 
-/* Both modes render the *same* SVG ring markup (a faint track behind a
- * currentColor arc). The arc's geometry is what differs:
+/* Both modes render the same SVG ring markup
+ * (a faint track behind a currentColor arc). The arc's geometry is what differs:
  *   determinate:   full-circle arc with stroke-dashoffset tweened to
- *                    (1 − value/max).
+ *                    (1 - value/max).
  *   indeterminate: a 3/4-arc (stroke-dasharray) rotating around the
  *                    centre; the track is hidden so the result reads
- *                    like a partial ring spinning, the original visual.
+ *                    like a partial ring spinning.
  * Sharing the rendering pipeline keeps stroke thickness, outer
- * diameter, and sub-pixel anti-aliasing identical between modes; the
- * earlier CSS-border vs SVG-stroke split could never match. */
+ * diameter, and sub-pixel anti-aliasing identical between modes;
+ * a CSS-border vs SVG-stroke split can't match. */
 
 neo-spinner {
 	display: inline-flex;
@@ -53,9 +50,10 @@ neo-spinner [data-neo-spinner-arc] {
 	stroke-width: var(--neo-spinner-ring-width);
 	/* Radius tracks the stroke so the ring's outer edge always lands on
 	 * the viewBox boundary (= the host box). The SVG attribute r="10.5"
-	 * stays as a no-CSS fallback; the CSS geometry property wins when
-	 * supported. Lets a theme bump --neo-spinner-ring-width without
-	 * the ring punching out of its own box. */
+	 * stays as a no-CSS fallback; the CSS geometry property takes
+	 * precedence when supported. Lets a theme bump
+	 * --neo-spinner-ring-width without the ring punching out of its own
+	 * box. */
 	r: calc(12px - var(--neo-spinner-ring-width) * 0.5px);
 }
 
@@ -66,15 +64,15 @@ neo-spinner [data-neo-spinner-track] {
 neo-spinner [data-neo-spinner-arc] {
 	stroke: currentColor;
 	stroke-linecap: round;
-	/* SVG <circle> path starts at 3 o'clock; offset by -90° so both modes
+	/* SVG <circle> path starts at 3 o'clock; offset by -90deg so both modes
 	 * draw clockwise from 12 o'clock. Static base only; the indeterminate
 	 * spin runs on the [data-neo-spinner-spin] wrapper, not on the arc. */
 	transform: rotate(-90deg);
 	transform-origin: 12px 12px;
 }
 
-/* The eight-ray "sun" starburst, hidden by default; revealed only
- * under reduced motion in indeterminate mode (see below). Shares the
+/* The 8-ray "sun" starburst, hidden by default; revealed only
+ * under reduced motion in indeterminate mode. Shares the
  * arc's stroke styling so themes that bump --neo-spinner-ring-width
  * thicken the rays too. */
 neo-spinner [data-neo-spinner-sun] {
@@ -92,11 +90,6 @@ neo-spinner[indeterminate]:where(:not([indeterminate="false"])) [data-neo-spinne
 	display: var(--neo-spinner-sun-display, none);
 }
 
-/* Determinate: arc tweens to value via stroke-dashoffset. */
-neo-spinner[value]:not([indeterminate]:where(:not([indeterminate="false"]))) [data-neo-spinner-arc] {
-	transition: stroke-dashoffset var(--neo-spinner-manual-arc-transition, var(--neo-spinner-arc-transition, 0s linear));
-}
-
 /* Indeterminate: hide the track ring, rotate the partial arc. */
 neo-spinner:not([value]) [data-neo-spinner-track],
 neo-spinner[indeterminate]:where(:not([indeterminate="false"])) [data-neo-spinner-track] {
@@ -108,7 +101,12 @@ neo-spinner[indeterminate]:where(:not([indeterminate="false"])) [data-neo-spinne
 	display: var(--neo-spinner-indeterminate-arc-display, inline);
 }
 
-/* Spin the composited wrapper, never the SVG arc: a transform animation on an
+/* Determinate: arc tweens to value via stroke-dashoffset. */
+neo-spinner[value]:not([indeterminate]:where(:not([indeterminate="false"]))) [data-neo-spinner-arc] {
+	transition: stroke-dashoffset var(--neo-spinner-manual-arc-transition, var(--neo-spinner-arc-transition, 0s linear));
+}
+
+/* Spin the composited wrapper, never the SVG arc. A transform animation on an
  * HTML element rasters the ring once and spins the layer on the GPU, whereas the
  * same animation on an inner SVG element repaints it every frame. */
 neo-spinner:not([value]) [data-neo-spinner-spin],
@@ -123,11 +121,11 @@ neo-spinner[indeterminate]:where(:not([indeterminate="false"])) [data-neo-spinne
 }
 
 @media (prefers-reduced-motion: reduce) {
-	/* Vestibular guidance: drop motion once the user has opted out.
-	 * Indeterminate: swap the (would-be-rotating) arc for the static
-	 * sun starburst: unmistakably "loading" and visually distinct
+	/* Drop motion once the user has opted out (vestibular guidance).
+	 * Indeterminate swaps the (would-be-rotating) arc for the static
+	 * sun starburst, which reads as "loading" and stays distinct
 	 * from a determinate value at ~75% (which the frozen 3/4 arc
-	 * would otherwise look like). Determinate: keep the arc but drop
+	 * would otherwise look like). Determinate keeps the arc but drops
 	 * the commit tween so values jump rather than sweep. */
 	neo-spinner:not([value]) [data-neo-spinner-spin],
 	neo-spinner[indeterminate]:where(:not([indeterminate="false"])) [data-neo-spinner-spin] {

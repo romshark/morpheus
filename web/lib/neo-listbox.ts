@@ -27,7 +27,7 @@ export function readOptionData(el: HTMLElement): OptionData {
 	return {
 		value: el.getAttribute("value") ?? el.getAttribute("data-neo-value") ?? "",
 		label: el.getAttribute("label") ?? el.textContent?.trim() ?? "",
-		// `disabled` is a command: an explicit value wins over the ARIA hint.
+		// `disabled` is a command; an explicit value overrides the ARIA hint.
 		// `disabled="false"` re-enables an option whose aria-disabled the
 		// wiring already stamped. Absent falls back to authored aria-disabled.
 		disabled: boolCommand(el, "disabled") ?? el.getAttribute("aria-disabled") === "true",
@@ -43,10 +43,10 @@ export function cloneTemplateSource(source: HTMLElement | null, fallback: () => 
 
 // Instantiate a loading placeholder for the light-DOM loading slot. Unlike
 // cloneTemplateSource, the [data-neo-async-placeholder] marker element itself
-// must land in the clone: the loading-content CSS and author styling key on
-// it. An element source clones wholesale; a <template> source instantiates as
-// a div carrying the template's attributes (marker included) around its
-// content clone.
+// must land in the clone, because the loading-content CSS and author styling
+// key on it. An element source clones wholesale; a <template> source
+// instantiates as a div carrying the template's attributes (marker included)
+// around its content clone.
 export function cloneAsyncPlaceholder(source: HTMLElement | null, fallback: () => HTMLElement): HTMLElement {
 	if (!source) return fallback();
 	if (!(source instanceof HTMLTemplateElement)) return source.cloneNode(true) as HTMLElement;
@@ -64,11 +64,10 @@ export function setHiddenIfChanged(el: HTMLElement, hidden: boolean) {
 
 // Shared option wiring for the listbox controls (<neo-select>, <neo-combobox>)
 // and <neo-textinput>'s suggestions. Options are keyed by data-neo-value and
-// never get an `id`, so a fat morph patches them in place instead of replacing
+// never get an `id`. A fat morph then patches them in place instead of replacing
 // id-mismatched nodes (which tears down and re-animates an open popover).
-// `roving` gives each option a focusable tabindex so the control can move
-// focus into the list; a textbox-with-suggestions keeps focus in the field and
-// omits it.
+// `roving` gives each option a focusable tabindex so the control can move focus
+// into the list; a textbox-with-suggestions keeps focus in the field and omits it.
 export function wireOptionEl(el: HTMLElement, opt: OptionData, roving: boolean) {
 	setAttrIfChanged(el, "role", "option");
 	setAttrIfChanged(el, "data-neo-value", opt.value);
@@ -82,7 +81,7 @@ export function wireOptionEl(el: HTMLElement, opt: OptionData, roving: boolean) 
 // (a morph patching disabled/value/etc. without replacing the node).
 export const OPTION_OBSERVE_ATTRS = ["value", "label", "disabled", "aria-disabled", "slot", "hidden"];
 
-// Shared base for <neo-select> and <neo-combobox>: a trigger button opening a
+// Shared base for <neo-select> and <neo-combobox>, a trigger button opening a
 // fixed-position listbox of <neo-option> children. Holds the option wiring,
 // caret, popover positioning, outside-dismiss, Escape, and light-DOM observer
 // the two share verbatim. The search input, multi-select, filtering, and the
@@ -92,8 +91,8 @@ export abstract class NeoListbox extends HTMLElement {
 	protected abstract readonly ns: string;
 
 	// Form-associated so a bare control submits its value under `name` like a
-	// native <select>, no framework binding required. setFormValue tracks the
-	// value; the browser reads `name` and the disabled state at submit time.
+	// native <select>. setFormValue tracks the value; the browser reads `name`
+	// and the disabled state at submit time.
 	static readonly formAssociated = true;
 	protected internals: ElementInternals;
 
@@ -143,10 +142,10 @@ export abstract class NeoListbox extends HTMLElement {
 	}
 
 	// hover: a mouse over the trigger opens the panel (after hover-open-delay)
-	// without moving focus, so hovering can't pull the caret out of a field
-	// the user is typing in; leaving the trigger or panel closes it after
-	// hover-close-delay, long enough to bridge the gap between them. Mouse
-	// only. Touch fires a synthetic mouseenter, so the click path (which
+	// without moving focus, which keeps hovering from pulling the caret out of
+	// a field the user is typing in; leaving the trigger or panel closes it
+	// after hover-close-delay, long enough to bridge the gap between them.
+	// Mouse only. Touch fires a synthetic mouseenter; the click path (which
 	// always shows, never toggles, while `hover` is set) is the touch and
 	// keyboard route to the panel. Same contract and defaults as <neo-popover>.
 	protected wireHoverOpen() {
@@ -179,8 +178,8 @@ export abstract class NeoListbox extends HTMLElement {
 		if (boolAttr(this, "hover", false)) this.#scheduleHoverOpen();
 	};
 
-	// Pointer reached the panel, so cancel the pending close so crossing the
-	// trigger→panel gap doesn't dismiss it.
+	// Pointer reached the panel. Cancel the pending close so crossing the
+	// trigger-to-panel gap doesn't dismiss it.
 	protected onPanelMouseEnter = () => {
 		if (!boolAttr(this, "hover", false) || this.#hoverCloseTimer === null) return;
 		clearTimeout(this.#hoverCloseTimer);
@@ -230,8 +229,8 @@ export abstract class NeoListbox extends HTMLElement {
 		return Number.isFinite(n) && n >= 0 ? n : fallback;
 	}
 
-	// Click always shows (never toggles) while `hover` is set: the
-	// touch/keyboard path to the panel, not a dismiss; cancels a pending
+	// Click always shows (never toggles) while `hover` is set, because it is
+	// the touch/keyboard path to the panel, not a dismiss. Cancels a pending
 	// hover-open so the show is instant. Returns true if it handled the click.
 	protected hoverClickShow(): boolean {
 		if (!boolAttr(this, "hover", false)) return false;
@@ -253,10 +252,10 @@ export abstract class NeoListbox extends HTMLElement {
 		return this.formDisabled || boolAttr(this, "disabled", false);
 	}
 
-	// Host `disabled` is config (read, never written by the kit). It drives the
+	// Host `disabled` is config (read, never written by the kit). It sets the
 	// native disabled flag on the shadow trigger, which owns focus, keyboard,
-	// clicks, and the AT announcement; the trigger lives in the shadow root, so
-	// a light-DOM morph never strips that flag and no morph re-assert is needed.
+	// clicks, and the AT announcement. The trigger lives in the shadow root,
+	// where a light-DOM morph never strips that flag; no morph re-assert is needed.
 	// A runtime disable dismisses an open panel.
 	protected syncDisabledState(): void {
 		const disabled = this.isDisabled();
@@ -264,8 +263,8 @@ export abstract class NeoListbox extends HTMLElement {
 		if (disabled && this.open) this.hide();
 	}
 
-	// Fired when a containing <fieldset disabled> or the host's own `disabled`
-	// toggles. A disabled form control is barred from submission by the browser.
+	// Fired when a containing <fieldset disabled> or the host's own `disabled` toggles.
+	// A disabled form control is barred from submission by the browser.
 	formDisabledCallback(disabled: boolean): void {
 		this.formDisabled = disabled;
 		this.syncDisabledState();
@@ -278,14 +277,14 @@ export abstract class NeoListbox extends HTMLElement {
 		else this.setAttribute("value", this.defaultValue);
 	}
 
-	// Submit the current value under the host `name`; no value present submits
-	// nothing. Multi-select overrides this to emit one entry per value.
+	// Submit the current value under the host `name`; no value present submits nothing.
+	// Multi-select overrides this to emit 1 entry per value.
 	protected updateFormValue(): void {
 		this.internals.setFormValue(this.getAttribute("value"));
 	}
 
-	// The trigger owns focus (shadow DOM), so delegate host focus to it; a
-	// wrapping <label> then reaches the real control.
+	// The trigger owns focus (shadow DOM). Delegate host focus to it;
+	// a wrapping <label> then reaches the real control.
 	override focus(opts?: FocusOptions): void {
 		this.trigger?.focus(opts);
 	}
@@ -346,16 +345,17 @@ export abstract class NeoListbox extends HTMLElement {
 	}
 
 	// Read options from the external <neo-datalist> this control's list="<id>"
-	// points at, when it has no inline source. Public so a datalist can re-trigger it (duck-typed)
-	// when patched; called on connect so a control upgrading after its datalist
-	// still picks it up. Clones land in a managed container, so the normal
-	// source-root projection and keyboard model drive them unchanged.
+	// points at, when it has no inline source. Public so a datalist can
+	// re-trigger it (duck-typed) when patched; called on connect so a control
+	// upgrading after its datalist still picks it up. Clones land in a managed
+	// container, where the normal source-root projection and keyboard model
+	// handle them unchanged.
 	syncDatalist(): void {
 		if (!this.ready) return;
 		const datalist = externalDatalistFor(this);
 		const managed = this.querySelector<HTMLElement>(":scope > [data-neo-datalist-managed]");
 		if (!datalist) {
-			// Inline source won (or none matches): drop prior clones. A
+			// Inline source present (or none matches): drop prior clones. A
 			// container we created goes entirely; a reused author/wrapper
 			// container is just emptied. Either reconciles via the observer.
 			if (managed?.hasAttribute("data-neo-datalist-created")) managed.remove();
@@ -368,8 +368,8 @@ export abstract class NeoListbox extends HTMLElement {
 		cloneDatalistOptionsInto(managed ?? this.#ensureManagedContainer(), datalist);
 	}
 
-	// The container external-datalist clones live in: the control's own
-	// `#<id>-options` container (the wrapper ships one), else a fresh
+	// The container external-datalist clones live in, which is the control's
+	// own `#<id>-options` container (the wrapper ships one), else a fresh
 	// <neo-datalist> (the kit's option-data container, display: contents).
 	// Mark a freshly created one so cleanup removes it rather than an author's.
 	#ensureManagedContainer(): HTMLElement {
@@ -443,7 +443,7 @@ export abstract class NeoListbox extends HTMLElement {
 	}
 
 	// Trigger caret glyph: absent -> the up/down chevrons; caret="<name>"
-	// swaps the icon (routed through <neo-icon>, so it follows the active
+	// swaps the icon (routed through <neo-icon>, which follows the active
 	// icon theme); caret="" (present but empty) hides the caret entirely.
 	protected syncCaret() {
 		const caret = this.getAttribute("caret");
@@ -452,9 +452,9 @@ export abstract class NeoListbox extends HTMLElement {
 	}
 
 	// Mirror the trigger's live :focus-visible onto the host, which paints
-	// the ring (the trigger's own outline is suppressed). A custom state,
-	// so a fat morph reconciling the host's attributes against SSR can't
-	// strip the ring off a trigger that still holds focus.
+	// the ring (the trigger's own outline is suppressed). It is a custom
+	// state, which a fat morph reconciling the host's attributes against SSR
+	// can't strip off a trigger that still holds focus.
 	protected syncFocusVisible() {
 		setState(this.internals, "focus-visible", this.trigger?.matches(":focus-visible") === true);
 	}
@@ -483,7 +483,7 @@ export abstract class NeoListbox extends HTMLElement {
 
 	protected onDocFocusIn = (e: FocusEvent) => {
 		if (!this.open) return;
-		// `contains` stops at the shadow boundary, so it misses the trigger
+		// `contains` stops at the shadow boundary and misses the trigger
 		// (shadow DOM); use the composed path. Otherwise focusing the
 		// trigger to close reads as focus leaving and we hide-then-reopen.
 		if (eventEnters(e, this) || eventEnters(e, this.listEl)) return;
@@ -499,8 +499,8 @@ export abstract class NeoListbox extends HTMLElement {
 		// anchor movement, not to unrelated scrollable regions.
 		if (!this.#triggerRectMoved()) return;
 		// Scoped scroll: an independent scroller outside the boundary follows
-		// the trigger instead of dismissing. Scrollers inside the boundary, and
-		// ancestor scrollers that carry it, keep the default behavior.
+		// the trigger instead of dismissing. Scrollers inside the boundary,
+		// and ancestor scrollers that carry it, keep the default behavior.
 		const sb = scopingBoundary(this, "scroll");
 		if (sb && isIndependentBoundaryScroll(sb, e.target)) {
 			this.position();
@@ -532,13 +532,13 @@ export abstract class NeoListbox extends HTMLElement {
 		if (this.open) this.position();
 	};
 
-	// Re-anchor when the panel's own size changes (slotted options grew or
-	// shrank, an icon finished loading) or the trigger's does (multi-select
-	// chips wrapping onto a new row). The mutation-driven position() is
+	// Re-anchor when the panel's own size changes (slotted options grew or shrank,
+	// an icon finished loading) or the trigger's does (multi-select
+	// chips wrapping onto a new row). The mutation-triggered position() is
 	// synchronous and catches childList swaps; this catches the async size
-	// changes those miss. Safe from a resize loop: position() writes only
-	// panel top/left/max-*, derived from the trigger position, so a stable
-	// layout re-triggers neither observation.
+	// changes those miss. No resize loop, because position() writes only
+	// panel top/left/max-*, derived from the trigger position;
+	// a stable layout re-triggers neither observation.
 	protected observePanelResize() {
 		this.#resizeObserver ??= new ResizeObserver(() => {
 			if (this.open) this.position();
@@ -589,17 +589,17 @@ export abstract class NeoListbox extends HTMLElement {
 	}
 
 	// The scrollable box holding the option rows; the panel itself by default.
-	// The combobox overrides this: its panel is a flex column whose inner
-	// options container scrolls.
+	// The combobox overrides this, because its panel is a flex column whose
+	// inner options container scrolls.
 	protected optionsScroller(): HTMLElement {
 		return this.listEl;
 	}
 
 	// anchorPopoverResult clears the panel's inline max-* to measure its
 	// natural size. While cleared, the options scroller fits its whole
-	// content, which clamps scrollTop to 0; re-applying max-height does not
-	// bring the scroll back, so every reposition would reset the list to the
-	// top. Snapshot and restore around the pass.
+	// content, which clamps scrollTop to 0. Re-applying max-height does not
+	// bring the scroll back, and every reposition would reset the list to the top.
+	// Snapshot and restore around the pass.
 	#anchorPreservingScroll(opts?: { ignorePositioningBoundary?: boolean }): ReturnType<typeof anchorPopoverResult> {
 		const scroller = this.optionsScroller();
 		const scrollTop = scroller.scrollTop;
@@ -676,12 +676,12 @@ export abstract class NeoListbox extends HTMLElement {
 		this.#openScrollPositionFrame = requestAnimationFrame(tick);
 	}
 
-	// Hook after the panel is placed, before the position event. Default
-	// no-op; the combobox uses it to reorder the search field when opening up.
+	// Hook after the panel is placed, before the position event. Default no-op;
+	// the combobox uses it to reorder the search field when opening up.
 	protected afterPosition(_placement: Placement): void {}
 
-	// Center `el` in `scroller` (open-with-selection UX). Not
-	// scrollIntoView({block:"center"}): that would also center every
+	// Center `el` in `scroller` (open-with-selection UX).
+	// Not scrollIntoView({block:"center"}), which would also center every
 	// scrollable ancestor, and a page scroll under an open listbox trips
 	// the scroll-dismiss path.
 	protected centerOptionInScroller(scroller: HTMLElement, el: HTMLElement) {
@@ -703,8 +703,8 @@ export abstract class NeoListbox extends HTMLElement {
 	};
 
 	#shouldCloseForHiddenTrigger(): boolean {
-		// Layout viewport, not visual: the keyboard shrinks the visual viewport
-		// but leaves the trigger in place (see intersectsLayoutViewport).
+		// Layout viewport, not visual, because the keyboard shrinks the visual
+		// viewport but leaves the trigger in place (see intersectsLayoutViewport).
 		return this.#followScrollMode() === "until-trigger-invisible" && !intersectsLayoutViewport(this.trigger);
 	}
 
@@ -721,7 +721,7 @@ export abstract class NeoListbox extends HTMLElement {
 }
 
 // Intersects the layout viewport, ignoring the visual-viewport inset the mobile
-// keyboard adds: a keyboard-covered trigger has not scrolled away, so
+// keyboard adds. A keyboard-covered trigger has not scrolled away, and
 // until-trigger-invisible must not dismiss for it. Genuine scroll-away still hides.
 function intersectsLayoutViewport(el: HTMLElement): boolean {
 	const rect = el.getBoundingClientRect();

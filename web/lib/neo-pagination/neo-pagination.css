@@ -1,12 +1,9 @@
-/* -----------------------------------------------------------------------
- * <neo-pagination>
- * -----------------------------------------------------------------------
- * Adaptive page navigation: prev / boundary / window / boundary /
- * next. Host is a flex row; chips lay out as standalone ghost
- * <neo-button>s with their own border + radius (gap separates them
- * rather than seamless dividers from a buttongroup). The active
- * chip is reflected via `aria-current="page"` on the markup level so
- * the kit's CSS (and any author override) can fill it without a
+/* <neo-pagination> is adaptive page navigation (prev / boundary /
+ * window / boundary / next). Host is a flex row; chips lay out as
+ * standalone ghost <neo-button>s with their own border + radius (gap
+ * separates them rather than shared dividers from a buttongroup). The
+ * active chip is reflected via `aria-current="page"` on the markup level
+ * so the kit's CSS (and any author override) can fill it without a
  * stateful class. */
 
 :root {
@@ -15,9 +12,9 @@
 	--neo-pagination-active-bg: var(--accent, currentColor);
 	--neo-pagination-active-color: var(--accent-fg, var(--page-bg, #fff));
 	/* Darker fills for hover/:active, mirroring the filled neo-button
-	 * variants. The chip is a ghost <neo-button>, so without these the
-	 * ghost hover bg wins and leaves accent-fg text on a near-page-bg
-	 * surface: the low-contrast bug the button variants already fixed. */
+	 * variants. The chip is a ghost <neo-button>. Without these the ghost
+	 * hover bg takes precedence and leaves accent-fg text on a
+	 * near-page-bg surface, which is low-contrast. */
 	--neo-pagination-active-hover-bg: color-mix(in srgb, var(--neo-pagination-active-bg), #000 12%);
 	--neo-pagination-active-active-bg: color-mix(in srgb, var(--neo-pagination-active-hover-bg), #000 8%);
 }
@@ -39,13 +36,13 @@ neo-pagination > [data-neo-pagination-page][aria-current="page"] {
 	background: var(--neo-pagination-active-bg);
 	color: var(--neo-pagination-active-color);
 	border-color: transparent;
-	&:hover {
+	&:hover:where(:not([disabled]:not([disabled="false"]), [aria-disabled="true"])) {
 		background: var(--neo-pagination-active-hover-bg);
 		color: var(--neo-pagination-active-color);
 	}
-	&:active {
-		/* Re-pin colour: the ghost :active rule also matches and would
-		 * otherwise leak --neo-button-ghost-color onto the fill. */
+	&:active:where(:not([disabled]:not([disabled="false"]), [aria-disabled="true"])) {
+		/* Re-pin colour, because the ghost :active rule also matches and
+		 * would otherwise leak --neo-button-ghost-color onto the fill. */
 		background: var(--neo-pagination-active-active-bg);
 		color: var(--neo-pagination-active-color);
 	}

@@ -1,0 +1,29 @@
+package neo
+
+type AuraOpts struct {
+	// Disabled turns the light off. The aura keeps its padding,
+	// and the wrapped element stays enabled.
+	Disabled Attr[bool]
+}
+
+// Aura renders <neo-aura>, a decorative light that circles the element it
+// wraps, with a glow behind it. Wrap one element with an opaque background.
+// CSS sets the look, with --neo-aura-gradient for the light and
+// --neo-aura-spin-duration and --neo-aura-pulse-duration for the motion.
+// The ring follows the wrapped element's measured corner radius;
+// --neo-aura-radius overrides it.
+templ Aura(opts AuraOpts) {
+	@AuraAttrs(opts, nil) {
+		{ children... }
+	}
+}
+
+// AuraAttrs is [Aura] with an extra attribute set.
+templ AuraAttrs(opts AuraOpts, attrs templ.Attributes) {
+	<neo-aura
+		{ opts.Disabled.Attrs("disabled")... }
+		{ attrs... }
+	>
+		{ children... }
+	</neo-aura>
+}

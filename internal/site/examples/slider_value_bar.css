@@ -8,8 +8,8 @@ neo-slider.slider-value-bar-pg {
 }
 
 /* Value + unit centred over the rail instead of in a header row above it.
-   pointer-events: none keeps the whole rail draggable under the readout, so
-   the value is display-only in this styling. */
+   pointer-events: none keeps the whole rail draggable under the readout,
+   which makes the value display-only in this styling. */
 neo-slider.slider-value-bar-pg::part(header) {
 	position: absolute;
 	inset: 0;
@@ -29,7 +29,7 @@ neo-slider.slider-value-bar-pg::part(unit) {
 	font-size: 0.8em;
 }
 
-/* No thumb marker: the fill's right edge is the position indicator.
+/* No thumb marker. The fill's right edge is the position indicator.
    display: none also drops the thumb from the tab order; the rail still drags
    with the pointer and the centred value stays keyboard-editable. */
 neo-slider.slider-value-bar-pg::part(thumb) {

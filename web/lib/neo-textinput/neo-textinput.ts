@@ -1,6 +1,6 @@
 // The native <input> lives in the host's shadow root so the author's light
-// DOM stays clean and immune to fat morphs: a server can re-render the host
-// without disturbing the field's focus, caret, or value. Use a plain
+// DOM stays clean and immune to fat morphs, which lets a server re-render the
+// host without disturbing the field's focus, caret, or value. Use a plain
 // <input> when no formatting is needed (and for type=date/color/file, where
 // native UI would clash); the kit's CSS styles bare <input>s identically.
 
@@ -30,17 +30,17 @@ const ATTR_SUBMIT_RAW = "submit-raw";
 const ATTR_OPEN = "open";
 const TEXTINPUT_TAG = "<neo-textinput>";
 
-// Standard <input> attributes mirrored verbatim to the inner field.
-// `name` is intentionally absent: the host is the form-associated
-// element and submits its value via internals.setFormValue. Putting
-// name on the inner input as well would make it a second named
-// submittable in the same form (the spec collects both), so the
-// value would land in the form payload twice under the same key.
 // Passthrough attrs that are booleans on the native input; mirrored via the
 // command contract (bare/="true" set, ="false"/absent clear) rather than
 // copied verbatim.
 const BOOL_PASSTHROUGH_ATTRS = ["disabled", "readonly", "required", "autofocus"];
 
+// Standard <input> attributes mirrored verbatim to the inner field.
+// `name` is intentionally absent, because the host is the form-associated
+// element and submits its value via internals.setFormValue. Putting
+// name on the inner input as well would make it a second named
+// submittable in the same form (the spec collects both), and the
+// value would land in the form payload 2 times under the same key.
 const PASSTHROUGH_ATTRS = [
 	"type",
 	"placeholder",
@@ -53,8 +53,9 @@ const PASSTHROUGH_ATTRS = [
 	"minlength",
 	"pattern",
 	"autofocus",
-	// The field lives in the shadow root, so a host-level accessible name
-	// must be forwarded to it; the host itself isn't the focusable control.
+	// The field lives in the shadow root, which means a host-level accessible
+	// name must be forwarded to it; the host itself isn't the focusable
+	// control.
 	"aria-label",
 	"aria-labelledby",
 	"aria-describedby",
@@ -65,10 +66,10 @@ const PASSTHROUGH_ATTRS = [
 	"step",
 ];
 
-// `literal` slots emit a fixed char; `class` slots consume one
-// raw char satisfying `test` and optionally apply `transform` (case
-// coercion for U/l/A/a: accept either case, store the canonical
-// case so rawValue and display agree).
+// `literal` slots emit a fixed char; `class` slots consume 1
+// raw char satisfying `test` and optionally apply `transform`
+// (case coercion for U/l/A/a, which accepts either case and stores the
+// canonical case so rawValue and display agree).
 type MaskSlot =
 	| { kind: "literal"; ch: string }
 	| { kind: "class"; test: (c: string) => boolean; transform?: (c: string) => string };
@@ -78,9 +79,8 @@ interface FormatResult {
 	raw: string;
 }
 
-// format + extractRaw together drive cursor preservation: count raw
-// chars up to the cursor, then walk the new formatted value until we
-// have that many.
+// format + extractRaw together implement cursor preservation. Count raw chars up to
+// the cursor, then walk the new formatted value until it has that many.
 interface Formatter {
 	format(raw: string): FormatResult;
 	extractRaw(formatted: string): string;
@@ -208,10 +208,10 @@ class MaskFormatter implements Formatter {
 	}
 
 	acceptsChar(ch: string): boolean {
-		// Accept any char that some class slot would accept, OR any
+		// Accept any char that some class slot would accept, or any
 		// char that matches a literal in the mask. Format strips the
-		// duplicate when the literal is already in place, so "type
-		// through" a delimiter is a harmless no-op rather than a
+		// duplicate when the literal is already in place, which makes "type
+		// through" a delimiter a harmless no-op rather than a
 		// blocked keystroke (e.g. pressing "-" in "###-###").
 		for (const slot of this.#slots) {
 			if (slot.kind === "class" ? slot.test(ch) : slot.ch === ch) return true;
@@ -314,7 +314,7 @@ class MaskFormatter implements Formatter {
 			}
 			// Class slot doesn't match. If the char matches an upcoming
 			// literal, treat the current slot as empty so alignment
-			// catches up; otherwise it's noise, so skip it.
+			// catches up; otherwise it's noise and gets skipped.
 			let upcoming = false;
 			for (let s2 = s + 1; s2 < this.#slots.length; s2++) {
 				const ahead = this.#slots[s2];
@@ -389,8 +389,8 @@ class NumberFormatter implements Formatter {
 		if (dot >= 0) {
 			intPart = s.slice(0, dot);
 			if (this.#decimalPlaces === 0) {
-				// No decimals allowed: drop the mark too, not just the
-				// trailing digits, so "1.5" → "1" instead of "1.".
+				// No decimals allowed. Drop the mark too, not just the
+				// trailing digits, so that "1.5" -> "1" instead of "1.".
 				decPart = undefined;
 			} else {
 				decPart = s.slice(dot + 1).replace(/\./g, "");
@@ -404,9 +404,9 @@ class NumberFormatter implements Formatter {
 
 		// Don't seed "0" for ".5"; it would surprise mid-typing users.
 		if (this.#thousandsSep && intPart.length > 0) {
-			// Function form to bypass replacement-string specials:
+			// Function form to bypass replacement-string specials, because
 			// a separator containing "$" would otherwise be parsed as
-			// a backreference ("$1" → captured digits, "$$" → "$"),
+			// a backreference ("$1" -> captured digits, "$$" -> "$"),
 			// corrupting the output.
 			const sep = this.#thousandsSep;
 			intPart = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, () => sep);
@@ -446,10 +446,10 @@ class NumberFormatter implements Formatter {
 // Shadow shell. The native <input> lives in the shadow root (styled
 // here via the inherited --neo-textarea-* tokens, which pierce the
 // shadow boundary). The named "suggestions" slot still projects light-DOM
-// <neo-option> children into a fixed-position listbox: an autocomplete
+// <neo-option> children into a fixed-position listbox, an autocomplete
 // popover the field owns. Those stay light so they keep their lifecycle
 // and a server can patch them. The slot is inert until an option is
-// slotted, so a plain text field pays nothing at runtime.
+// slotted, which means a plain text field costs nothing at runtime.
 const SUGGEST_SHADOW_TEMPLATE = document.createElement("template");
 // Shadow CSS notes, kept out of the template string so the minifier drops
 // them from the bundle. Anchored by selector:
@@ -459,7 +459,7 @@ const SUGGEST_SHADOW_TEMPLATE = document.createElement("template");
 // - input border: width tokenized so neo-input-group can zero it (the field
 //   merges into the group's shared border instead of drawing its own).
 // - input height: an <input> floors its content box at the font's normal line
-//   height, ignoring line-height:1, so it lands ~2px taller than a
+//   height, ignoring line-height:1, and lands ~2px taller than a
 //   button/select trigger. Pin the height to the shared control height so
 //   single-line controls line up; --neo-input-height lets neo-input-group set
 //   100% so the field fills the group instead.
@@ -467,8 +467,10 @@ const SUGGEST_SHADOW_TEMPLATE = document.createElement("template");
 //   adjacent field doesn't inherit the body's ~1.5 and land ~0.5em taller.
 // - input:focus-visible outline: tokenized so neo-input-group can drop the
 //   per-field ring (the group owns the focus outline for the whole control).
-// - :host([popover-fit-content]:not([popover-fit-content="false"])) [data-neo-suggest-list]: size to the
-//   suggestions instead of forcing the field width, capped like max-width.
+// - :host([popover-fit-content]:not([popover-fit-content="false"]))
+//   [data-neo-suggest-list]: the positioner leaves width unset in this mode.
+//   Size to the suggestions instead of forcing the field width, floored by
+//   min-width and capped by max-width.
 SUGGEST_SHADOW_TEMPLATE.innerHTML = `
 <style>
   input {
@@ -532,8 +534,6 @@ SUGGEST_SHADOW_TEMPLATE.innerHTML = `
       display var(--neo-popover-enter-duration, calc(140ms * var(--neo-duration-scale, 1))) allow-discrete;
   }
   :host([popover-fit-content]:not([popover-fit-content="false"])) [data-neo-suggest-list] {
-    /* The positioner leaves width unset in this mode, so size to the
-       suggestions, floored by min-width and capped by max-width. */
     width: max-content;
   }
   [data-neo-suggest-list][hidden] {
@@ -588,7 +588,7 @@ export class NeoTextInput extends HTMLElement {
 	#beforeInputState: { value: string; selectionStart: number; raw: string } | null = null;
 	// Watches light-DOM children so a server-patched suggestion option set
 	// (added / removed <neo-option>) reconciles into the popover. The field
-	// itself lives in the shadow root, so a morph can't disturb it.
+	// itself lives in the shadow root, out of a morph's reach.
 	#childObserver: MutationObserver | null = null;
 
 	// Suggestions popover (autocomplete). Dormant until an option is
@@ -599,18 +599,20 @@ export class NeoTextInput extends HTMLElement {
 	#suggestPrefix = `neo-ti-sug-${suggestInstanceCounter++}`;
 	#suggestOpen = false;
 	// Escape (or a commit) suppresses auto-reopen until the next keystroke
-	// or a fresh focus, so a still-populated slot can't immediately reopen.
+	// or a fresh focus so that a still-populated slot can't immediately
+	// reopen.
 	#suggestDismissed = false;
 	// An explicit open command (open / open="true") received while the slot
 	// has no content yet, e.g. a morph applies `open` before slotting the
 	// options. Recorded so the next reconcile honors the intent once content
 	// lands, instead of falling through to the focus-gated auto-open path.
 	#suggestOpenCommanded = false;
-	// Active option tracked by element reference (not id), so it survives an
-	// in-place morph and the idle rows stay id-less / morph-stable.
+	// Active option tracked by element reference (not id) so that it survives
+	// an in-place morph and the idle rows stay id-less / morph-stable.
 	#suggestActiveEl: HTMLElement | null = null;
-	// The one row currently carrying the transient aria-activedescendant IDREF
-	// id, so #pointActiveDescendant can strip it when the active row moves.
+	// The single row currently carrying the transient aria-activedescendant
+	// IDREF id, so that #pointActiveDescendant can strip it when the active
+	// row moves.
 	#activeIdEl: HTMLElement | null = null;
 	#observerPauseDepth = 0;
 	#suggestAnchorRect: DOMRect | null = null;
@@ -634,9 +636,9 @@ export class NeoTextInput extends HTMLElement {
 		this.#suggestList = root.querySelector("[data-neo-suggest-list]")!;
 		this.#suggestSlot = root.querySelector('slot[name="suggestions"]')!;
 		this.#suggestList.id = `${this.#suggestPrefix}-list`;
-		// Keep focus in the field when an option is clicked: mousedown's
-		// default would blur the input, and the blur handler would close the
-		// popover before `click` could commit the selection.
+		// Keep focus in the field when an option is clicked, because
+		// mousedown's default would blur the input, and the blur handler would
+		// close the popover before `click` could commit the selection.
 		this.#suggestList.addEventListener("mousedown", (e) => e.preventDefault());
 	}
 
@@ -666,8 +668,8 @@ export class NeoTextInput extends HTMLElement {
 		// list="<id>" points at (it may have upgraded first).
 		this.syncDatalist();
 		this.#updateComboboxRole();
-		// Command `open`: explicit true/false commands obey; absent keeps
-		// prior client intent across reconnect/morph.
+		// For the `open` command, explicit true/false commands obey; absent
+		// keeps prior client intent across reconnect/morph.
 		const cmd = openCommand(this);
 		if (cmd === "open") {
 			this.#suggestDismissed = false;
@@ -715,16 +717,16 @@ export class NeoTextInput extends HTMLElement {
 
 	#onHostFocusOut = (e: FocusEvent) => {
 		// relatedTarget is retargeted to the host while focus stays inside the
-		// shadow field, so a focusout with no related target (or one outside)
-		// means focus genuinely left. The shadow field can't be morphed away,
-		// so there's no transient blur to debounce.
+		// shadow field. A focusout with no related target (or one outside)
+		// means focus left. The shadow field can't be morphed away and
+		// there's no transient blur to debounce.
 		const next = e.relatedTarget as Node | null;
 		if (next && this.contains(next)) return;
 		this.#closeSuggest();
 	};
 
-	// Focus check that works across the shadow boundary: document.activeElement
-	// reports the host, so compare against the shadow root's active element.
+	// Focus check that works across the shadow boundary. document.activeElement
+	// reports the host; compare against the shadow root's active element.
 	#isInputFocused(): boolean {
 		return this.shadowRoot?.activeElement === this.#innerInput;
 	}
@@ -736,7 +738,7 @@ export class NeoTextInput extends HTMLElement {
 			const cmd = openCommand(this);
 			if (cmd === null) {
 				// A fat morph omitted the reflected attribute. Absence is no
-				// command, so preserve and re-assert client-open state.
+				// command. Preserve and re-assert client-open state.
 				if (this.#suggestOpen) {
 					this.#reflectSuggestOpen();
 					this.#scheduleSuggestionsChanged();
@@ -754,10 +756,11 @@ export class NeoTextInput extends HTMLElement {
 			return;
 		}
 		if (name === ATTR_VALUE) {
-			// An absent attribute is no command: a fat morph that omits
-			// `value` leaves the current value untouched, like the `open`
+			// An absent attribute is no command, which means a fat morph that
+			// omits `value` leaves the current value untouched, like the `open`
 			// command contract. An explicit value="" still clears. Skip while
-			// the inner field is focused so a write never stomps live typing.
+			// the inner field is focused so that a write never overwrites live
+			// typing.
 			if (_new !== null && !this.#isInputFocused()) {
 				this.#applyValue(_new);
 			}
@@ -775,8 +778,8 @@ export class NeoTextInput extends HTMLElement {
 			this.syncDatalist();
 			return;
 		}
-		// Any other watched attribute changes the formatter shape, so
-		// rebuild and re-apply against the current displayed value.
+		// Any other watched attribute changes the formatter shape.
+		// Rebuild and re-apply against the current displayed value.
 		this.#rebuildFormatter();
 		if (this.#innerInput) {
 			this.#applyValue(this.#innerInput.value);
@@ -801,9 +804,9 @@ export class NeoTextInput extends HTMLElement {
 	}
 
 	// Reflect `prefix` as a settable property. It shadows the read-only
-	// inherited `Element.prefix`, so framework property bindings (React 19
-	// assigns `el.prefix`) write the attribute instead of throwing on the
-	// getter-only DOM builtin. Parity with `value`.
+	// inherited `Element.prefix`, which makes framework property bindings
+	// (React 19 assigns `el.prefix`) write the attribute instead of throwing
+	// on the getter-only DOM builtin. Parity with `value`.
 	override get prefix(): string {
 		return this.getAttribute(ATTR_PREFIX) ?? "";
 	}
@@ -862,7 +865,7 @@ export class NeoTextInput extends HTMLElement {
 	}
 
 	// A server patch can add or remove suggestion <neo-option> children; the
-	// field is in the shadow root, so a morph never touches it.
+	// field is in the shadow root, out of a morph's reach.
 	#observeChildren() {
 		if (!this.#childObserver) {
 			this.#childObserver = new MutationObserver(() => {
@@ -877,10 +880,11 @@ export class NeoTextInput extends HTMLElement {
 		this.#connectChildObserver();
 	}
 
-	// Watch option attributes (disabled/value/…) too, not just childList, so an
-	// in-place morph patch reconciles, not only a node swap. The component's
-	// own slot/role/aria/data-neo-value writes happen inside #withObserverPaused
-	// (observer disconnected), so wiring can't feed back and loop.
+	// Watch option attributes (disabled/value/...) too, not just childList, so
+	// that an in-place morph patch reconciles, not only a node swap. The
+	// component's own slot/role/aria/data-neo-value writes happen inside
+	// #withObserverPaused (observer disconnected), which keeps wiring from
+	// feeding back into a loop.
 	#connectChildObserver() {
 		this.#childObserver?.observe(this, {
 			childList: true,
@@ -890,9 +894,10 @@ export class NeoTextInput extends HTMLElement {
 		});
 	}
 
-	// Disconnect while the component writes its own option attributes, so those
-	// writes are dropped rather than observed (the flag-based pause couldn't
-	// suppress async attribute records). Mirrors NeoListbox.withLightDomObserverPaused.
+	// Disconnect while the component writes its own option attributes so that
+	// those writes are dropped rather than observed (the flag-based pause
+	// couldn't suppress async attribute records). Mirrors
+	// NeoListbox.withLightDomObserverPaused.
 	#withObserverPaused(fn: () => void) {
 		this.#observerPauseDepth += 1;
 		if (this.#observerPauseDepth === 1) this.#childObserver?.disconnect();
@@ -969,9 +974,9 @@ export class NeoTextInput extends HTMLElement {
 
 	#syncOnePassthrough(attr: string) {
 		if (!this.#innerInput) return;
-		// Boolean passthroughs follow the command contract: a native input
-		// reads bare presence, so copying x="false" verbatim would leave it
-		// set. Resolve to bare / removed via boolAttr instead.
+		// Boolean passthroughs follow the command contract. A native input
+		// reads bare presence, which means copying x="false" verbatim would
+		// leave it set. Resolve to bare / removed via boolAttr instead.
 		if (BOOL_PASSTHROUGH_ATTRS.includes(attr)) {
 			if (boolAttr(this, attr, false)) this.#innerInput.setAttribute(attr, "");
 			else this.#innerInput.removeAttribute(attr);
@@ -985,9 +990,8 @@ export class NeoTextInput extends HTMLElement {
 	#syncFormValue() {
 		if (!this.#innerInput) return;
 		// Number format always submits the canonical numeric string;
-		// thousands separators are presentation, never part of the
-		// number a form should receive. For other formats, submit-raw
-		// is opt-in.
+		// thousands separators are presentation, never part of the number
+		// a form should receive. For other formats, submit-raw is opt-in.
 		const submitRaw = boolAttr(this, ATTR_SUBMIT_RAW, false) || this.#formatter instanceof NumberFormatter;
 		const v = submitRaw ? this.rawValue : this.#innerInput.value;
 		this.#internals.setFormValue(v);
@@ -999,9 +1003,8 @@ export class NeoTextInput extends HTMLElement {
 
 	#onCompositionEnd = (e: Event) => {
 		this.#composing = false;
-		// The trailing input event isn't fired in every browser, so run
-		// the format pass synchronously so the IME's final string
-		// lands formatted.
+		// The trailing input event isn't fired in every browser. Run the format
+		// pass synchronously so the IME's final string lands formatted.
 		this.#onInput(e as InputEvent);
 	};
 
@@ -1015,12 +1018,12 @@ export class NeoTextInput extends HTMLElement {
 					raw: this.#formatter.extractRaw(this.#innerInput.value),
 				}
 			: null;
-		// Mask + selection-replace with fewer chars than slots: type-
-		// through the selection one class slot per char, skipping mask
+		// For mask + selection-replace with fewer chars than slots,
+		// type through the selection 1 class slot per char, skipping mask
 		// literals. The default path lets the browser collapse the
 		// selection to the inserted run; reformat then reflows raw
 		// left-to-right and trailing raw chars shift left, dropping the
-		// last one ("123-456" with "123" selected + typing "777" →
+		// last one ("123-456" with "123" selected + typing "777" ->
 		// "777-45" because each intermediate keystroke re-packs raw).
 		if (
 			this.#innerInput &&
@@ -1036,9 +1039,8 @@ export class NeoTextInput extends HTMLElement {
 			this.#applyMaskTypeThrough(this.#innerInput, this.#formatter, e.data);
 			return;
 		}
-		// Mask + collapsed cursor: route the keystroke to the next class
-		// slot from the cursor, skipping any literal in between. Three
-		// outcomes:
+		// For mask + collapsed cursor, route the keystroke to the next class
+		// slot from the cursor, skipping any literal in between. 3 outcomes:
 		//   - char doesn't fit the slot: reject silently. The
 		//     pre-flight is loose (acceptsChar returns true if any slot
 		//     would accept) and lets through 'a' on a digit slot; the
@@ -1084,7 +1086,7 @@ export class NeoTextInput extends HTMLElement {
 		if (e.inputType.startsWith("delete")) return;
 		if (e.inputType === "insertReplacementText") return;
 		if (e.inputType === "insertFromPaste") {
-			// Let paste through and reformat after: better UX for
+			// Let paste through and reformat after, which is better UX for
 			// "$1,234.50" into a number input than wholesale rejection.
 			return;
 		}
@@ -1092,7 +1094,7 @@ export class NeoTextInput extends HTMLElement {
 		if (!data) return;
 		const fmt = this.#formatter;
 		if (!fmt.acceptsChar) return;
-		// Reject only when EVERY char in the run is rejected; one valid
+		// Reject only when every char in the run is rejected; 1 valid
 		// char keeps the run (format() strips the rest); stops 'a' on a
 		// digit mask without breaking mixed pastes. Call as a method so
 		// acceptsChar keeps its `this` (the formatter).
@@ -1119,10 +1121,10 @@ export class NeoTextInput extends HTMLElement {
 		);
 	}
 
-	// Replace one class slot per data char, walking selection from
+	// Replace 1 class slot per data char, walking selection from
 	// start to end and skipping mask literals so trailing raw stays
 	// aligned. The remaining selection is left behind for subsequent
-	// keystrokes to chew through. See onBeforeInput for the why.
+	// keystrokes to consume. See onBeforeInput for the why.
 	#applyMaskTypeThrough(inp: HTMLInputElement, fmt: MaskFormatter, data: string) {
 		const selStart = inp.selectionStart!;
 		const selEnd = inp.selectionEnd!;
@@ -1145,9 +1147,9 @@ export class NeoTextInput extends HTMLElement {
 		this.#emitInput(v, fmt.extractRaw(v));
 	}
 
-	// Overstrike: replace the class slot under the cursor with each
-	// typed char, walking forward and skipping mask literals. After
-	// the last placed char, park the cursor past any trailing literal
+	// Overstrike. Replace the class slot under the cursor with each
+	// typed char, walking forward and skipping mask literals.
+	// After the last placed char, park the cursor past any trailing literal
 	// run so the next keystroke lands on the next class slot.
 	#applyMaskOverstrike(inp: HTMLInputElement, fmt: MaskFormatter, data: string, startPos: number) {
 		const literals = fmt.literalPositions(inp.value);
@@ -1178,13 +1180,12 @@ export class NeoTextInput extends HTMLElement {
 		const raw = this.#formatter.extractRaw(inp.value);
 		let { formatted, raw: canonRaw } = this.#formatter.format(raw);
 
-		// Backspace-at-literal: if a backward delete didn't change raw,
-		// the deleted char was a literal, so drop the preceding raw char
-		// too. Otherwise the literal gets re-inserted on reformat and
-		// backspace looks like a no-op. (Don't gate on `formatted ===
-		// inp.value`: the mask formatter re-emits trailing literals,
-		// so after deleting one the new formatted is *longer* than
-		// inp.value; raw-equality is the load-bearing signal.)
+		// Backspace-at-literal. If a backward delete didn't change raw,
+		// the deleted char was a literal; drop the preceding raw char too.
+		// Otherwise the literal gets re-inserted on reformat and backspace looks
+		// like a no-op. (Don't gate on `formatted === inp.value`, because the mask
+		// formatter re-emits trailing literals and after deleting one the new
+		// formatted is longer than inp.value; raw-equality is the signal to use.)
 		const ie = e as InputEvent;
 		if (ie.inputType === "deleteContentBackward" && beforeInputState?.raw === canonRaw && canonRaw.length > 0) {
 			const rawCursor = this.#formatter.extractRaw(
@@ -1201,14 +1202,14 @@ export class NeoTextInput extends HTMLElement {
 		}
 
 		// Skip the rewrite + cursor reset when format produced an
-		// identical string. The browser's post-edit cursor is already
-		// correct, and writing the same value back fires spurious
-		// selectionchange events and can nudge IME / autofill state.
+		// identical string. The browser's post-edit cursor is already correct,
+		// and writing the same value back fires spurious selectionchange events
+		// and can nudge IME / autofill state.
 		if (formatted !== inp.value) {
-			// Cursor preservation: largest p where formatted[0..p] still
-			// has oldRawCursor raw chars, i.e. just past any leading
+			// Cursor preservation picks the largest p where formatted[0..p]
+			// still has oldRawCursor raw chars, i.e. just past any leading
 			// literals after the oldRawCursor-th raw char. Walk forward
-			// until c exceeds oldRawCursor, then back up one. Stopping at
+			// until c exceeds oldRawCursor, then back up by 1. Stopping at
 			// the first c >= oldRawCursor lands at p=1 whenever
 			// oldRawCursor=0, e.g. backspace from position 1 in plain
 			// text would bounce the cursor back to position 1.
@@ -1219,7 +1220,7 @@ export class NeoTextInput extends HTMLElement {
 
 			let newCursor = formatted.length;
 			if (oldRawCursor < canonRaw.length) {
-				// Linear walk. O(N²) extractRaw is fine for typical input
+				// Linear walk. O(N^2) extractRaw is fine for typical input
 				// lengths (<100 chars); a per-formatter index map isn't
 				// worth the extra code.
 				let p = 0;
@@ -1253,16 +1254,15 @@ export class NeoTextInput extends HTMLElement {
 		);
 	};
 
-	// ---- Suggestions (autocomplete) -------------------------------------
-	// Inert until a <neo-option> is slotted. The server patches options
-	// into the "suggestions" slot; the field stays the value, focus never
-	// leaves it, arrow keys move aria-activedescendant.
+	// Suggestions (autocomplete) stay inert until a <neo-option> is slotted.
+	// The server patches options into the "suggestions" slot; the field stays
+	// the value, focus never leaves it, arrow keys move aria-activedescendant.
 
-	// Read suggestions from the external <neo-datalist> this field's list="<id>"
-	// points at, when it has no inline source. Public so a patched datalist can re-trigger it;
-	// clones land in a managed, slot-assigned container the suggestion wiring
-	// reads through. Inline datalists need none of this; they project via the
-	// suggestions slot directly.
+	// Read suggestions from the external <neo-datalist> this field's
+	// list="<id>" points at, when it has no inline source. Public so a patched
+	// datalist can re-trigger it; clones land in a managed, slot-assigned
+	// container the suggestion wiring reads through. Inline datalists need
+	// none of this; they project via the suggestions slot directly.
 	syncDatalist(): void {
 		if (!this.#rendered) return;
 		const datalist = externalDatalistFor(this);
@@ -1325,28 +1325,29 @@ export class NeoTextInput extends HTMLElement {
 		return null;
 	}
 
-	// Something worth showing: selectable options, or a "No results" row.
+	// True when there is something to show, meaning selectable options or a
+	// "No results" row.
 	#hasSuggestContent(): boolean {
 		return this.#suggestEnabledEls().length > 0 || this.#suggestEmptyEl() !== null;
 	}
 
 	// Shared role/value/disabled parity with <neo-select>/<neo-combobox>
-	// options (wireOptionEl). No id is stamped: options are keyed by
-	// data-neo-value, so a fat morph patches them in place instead of replacing
-	// id-mismatched nodes, which would tear down and re-animate the open
-	// popover. The active row's transient IDREF id lives in
-	// #pointActiveDescendant; `false` omits the navgroup roving-focus attrs
-	// (focus stays in the field, the active row is tracked by aria-activedescendant).
+	// options (wireOptionEl). No id is stamped, because options are keyed by
+	// data-neo-value and a fat morph patches them in place instead of
+	// replacing id-mismatched nodes, which would tear down and re-animate the
+	// open popover. The active row's transient IDREF id lives in #pointActiveDescendant;
+	// `false` omits the navgroup roving-focus attrs (focus stays in the field,
+	// the active row is tracked by aria-activedescendant).
 	#wireSuggestions() {
 		for (const el of this.#suggestOptionEls()) {
 			wireOptionEl(el, readOptionData(el), false);
 		}
 	}
 
-	// Combobox semantics only while suggestions exist (or the popover is
-	// open); a plain field stays a plain textbox. aria-controls is omitted:
-	// it can't resolve from the shadow field to the light-DOM options across
-	// roots. The active-option link is carried by #pointActiveDescendant.
+	// Combobox semantics only while suggestions exist (or the popover is open);
+	// a plain field stays a plain textbox. aria-controls is omitted,
+	// because it can't resolve from the shadow field to the light-DOM options
+	// across roots. The active-option link is carried by #pointActiveDescendant.
 	#updateComboboxRole() {
 		const inp = this.#innerInput;
 		if (!inp) return;
@@ -1364,17 +1365,17 @@ export class NeoTextInput extends HTMLElement {
 		}
 	}
 
-	// The field lives in the shadow root and the options in light DOM, so the
-	// aria-activedescendant IDREF can't resolve across roots. Use the element-
-	// reference IDL (ariaActiveDescendantElement) as the primary link where
-	// supported; keep the IDREF as a same-root fallback / extra signal.
+	// The field lives in the shadow root and the options in light DOM, which
+	// means the aria-activedescendant IDREF can't resolve across roots. Use
+	// the element-reference IDL (ariaActiveDescendantElement) as the primary
+	// link where supported; keep the IDREF as a same-root fallback / extra signal.
 	#pointActiveDescendant(el: HTMLElement | null) {
 		const inp = this.#innerInput;
 		if (!inp) return;
-		// Only the active row carries an id, so the idle option set stays
-		// id-less and a morph patches it in place. Strip our id off the row that
-		// was active before, then stamp the new one. Firefox lacks the
-		// ariaActiveDescendantElement IDL, so the IDREF is its only link.
+		// Only the active row carries an id so that the idle option set stays
+		// id-less and a morph patches it in place. Strip our id off the row
+		// that was active before, then stamp the new one. Firefox lacks the
+		// ariaActiveDescendantElement IDL, which leaves the IDREF as its only link.
 		const activeId = `${this.#suggestPrefix}-active`;
 		if (this.#activeIdEl && this.#activeIdEl !== el && this.#activeIdEl.id === activeId) {
 			this.#activeIdEl.removeAttribute("id");
@@ -1396,8 +1397,8 @@ export class NeoTextInput extends HTMLElement {
 		if (this.#suggestActiveEl && !this.#activeEl()) this.#clearActive();
 		if (this.#suggestOpen) {
 			// Close only when nothing's left to show. A "No results" row
-			// counts as content, so the slot going option-less keeps the
-			// popover open with the message.
+			// counts as content, which keeps the popover open with the
+			// message when the slot goes option-less.
 			if (!this.#hasSuggestContent()) this.#closeSuggest();
 			else {
 				this.#reflectSuggestOpen();
@@ -1406,8 +1407,8 @@ export class NeoTextInput extends HTMLElement {
 				this.#scheduleSuggestReposition();
 			}
 		} else if (this.#suggestOpenCommanded && this.#hasSuggestContent()) {
-			// A deferred open command (see #openSuggest): the options have now
-			// arrived, so honor it without requiring focus.
+			// A deferred open command (see #openSuggest).
+			// The options have now arrived; honor it without requiring focus.
 			this.#openSuggest();
 		} else {
 			this.#maybeOpenSuggest();
@@ -1451,8 +1452,7 @@ export class NeoTextInput extends HTMLElement {
 		if (!this.#hasSuggestContent()) {
 			// Commanded open before any option is slotted (a morph applies
 			// `open` ahead of the suggestions). Defer to the next reconcile,
-			// which honors the intent once content lands. See
-			// #afterSuggestionsChanged.
+			// which honors the intent once content lands. See #afterSuggestionsChanged.
 			this.#suggestOpenCommanded = true;
 			return;
 		}
@@ -1506,8 +1506,8 @@ export class NeoTextInput extends HTMLElement {
 		}
 	}
 
-	// Same anchoring as <neo-select>/<neo-combobox>: honors placement,
-	// screen-offset, clamp-placement, min-fit-*/min-open-*, and tracks the field width.
+	// Same anchoring as <neo-select>/<neo-combobox>. Honors placement, screen-offset,
+	// clamp-placement, min-fit-*/min-open-*, and tracks the field width.
 	#positionSuggest(opts: { scrollIntoView?: boolean; keepWhenUnfit?: boolean } = {}): boolean {
 		const inp = this.#innerInput;
 		if (!inp || !this.#suggestOpen) return false;
@@ -1612,12 +1612,13 @@ export class NeoTextInput extends HTMLElement {
 	#onSuggestWindowScroll = (e: Event) => {
 		if (!this.#suggestOpen) return;
 		// Slotted options remain light-DOM children of <neo-textinput>.
-		// Native scroll events are not composed through the shadow slot, so
-		// listbox-only checks miss option scrolls caused by morph animation.
+		// Native scroll events are not composed through the shadow slot.
+		// Listbox-only checks miss option scrolls caused by morph animation.
 		// Both host-originated and shadow-list-originated scrolls are internal.
 		if (eventEnters(e, this) || eventEnters(e, this.#suggestList)) return;
-		// Scoped scroll: only independent outside scrollers follow the field;
-		// scrollers that carry the boundary keep the default close behavior.
+		// For a scoped scroll, only independent outside scrollers follow the
+		// field; scrollers that carry the boundary keep the default close
+		// behavior.
 		const sb = scopingBoundary(this, "scroll");
 		if (sb && isIndependentBoundaryScroll(sb, e.target)) {
 			this.#positionSuggest();
@@ -1648,7 +1649,7 @@ export class NeoTextInput extends HTMLElement {
 		return this.#suggestEnabledEls().includes(el) ? el : null;
 	}
 
-	// One option is active at a time. Per APG's listbox-popup combobox the
+	// A single option is active at a time. Per APG's listbox-popup combobox the
 	// active row carries aria-selected; neo-option.css paints it from that.
 	#setActive(el: HTMLElement | null) {
 		this.#clearActive();
@@ -1675,8 +1676,8 @@ export class NeoTextInput extends HTMLElement {
 		this.#setActive(enabled[(idx + delta + enabled.length) % enabled.length]);
 	}
 
-	// Commit a suggestion: the field is free text, so the visible label
-	// becomes the value. Callers needing a canonical id read it off
+	// Commit a suggestion. The field is free text, which makes the visible
+	// label the value. Callers needing a canonical id read it off
 	// neo-textinput-select.detail.value.
 	#selectOption(el: HTMLElement) {
 		if (el.getAttribute("aria-disabled") === "true") return;
@@ -1763,7 +1764,7 @@ export class NeoTextInput extends HTMLElement {
 }
 
 function numAttr(s: string | null, fallback: number): number {
-	// Empty string is "unset", not zero: `Number("")` coerces to 0
+	// Empty string is "unset", not zero, because `Number("")` coerces to 0
 	// and would silently flip decimal-places="" into 0 decimals.
 	if (s === null || s === "") return fallback;
 	const n = Number(s);

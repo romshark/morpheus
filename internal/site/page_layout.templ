@@ -14,12 +14,12 @@ templ PageLayout(morpheusVersion string) {
 			<p class="intro">
 				Component <code>{ "<neo-layout>" }</code> is a CSS-only
 				Flexbox container whose attributes are CSS flex
-				properties and whose values are CSS values: one element
-				that covers stacks, rows, wrapping clusters, and centered
+				properties and whose values are CSS values. One element
+				covers stacks, rows, wrapping clusters, and centered
 				boxes, with no utility classes and no build step.
-				Per-child flex behaviour rides on namespaced
+				Per-child flex behaviour comes from namespaced
 				<code>neo-*</code> attributes on any flex child. You write
-				no media queries of your own: a row that
+				no media queries of your own. A row that
 				<code>wrap</code>s reflows on its own as its width changes,
 				and children that grow or shrink
 				(<code>neo-flex-grow</code>, <code>neo-flex-shrink</code>)
@@ -27,8 +27,8 @@ templ PageLayout(morpheusVersion string) {
 				it does have (<code>collapse</code>,
 				<code>neo-hide-below</code>, <code>neo-show-below</code>)
 				are CSS container queries keyed to the nearest
-				<code>container</code> ancestor’s width, not the viewport,
-				so the same markup adapts inside a sidebar, a drawer, or a
+				<code>container</code> ancestor's width, not the viewport,
+				which lets the same markup adapt inside a sidebar, a drawer, or a
 				full page. Everything on this page is built only from the
 				kit with no page-specific CSS; resize the live example to
 				simulate a narrower screen, or reshape it with the
@@ -61,11 +61,11 @@ templ PageLayout(morpheusVersion string) {
 			}
 			<p class="demo-note">
 				A whole dashboard nested several levels deep and filling
-				the stage. The root is a <code>container</code>, so as you
-				drag the corner the navbar morphs across three layouts
-				(links → search-icon, full buttons → an icon group) via
+				the stage. The root is a <code>container</code>. As you
+				drag the corner, the navbar switches between 3 layouts
+				(links become a search icon, full buttons become an icon group) via
 				<code>neo-hide-below</code> / <code>neo-show-below</code>,
-				the cards reflow 3 → 2 → 1, and the dashboard scrolls
+				the cards reflow from 3 to 2 to 1 per row, and the dashboard scrolls
 				vertically when it overflows. All box-relative, no
 				viewport media queries.
 			</p>
@@ -85,7 +85,7 @@ templ PageLayout(morpheusVersion string) {
 			}
 			<p class="demo-note">
 				A <code>row</code> with <code>wrap</code> flows its
-				children onto new lines as the stage narrows: the
+				children onto new lines as the stage narrows. This is the
 				"cluster" shape for tags, chips, and filters.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
@@ -140,9 +140,9 @@ templ PageLayout(morpheusVersion string) {
 			<p class="demo-note">
 				A <code>row</code> folds to a single <code>column</code>
 				when its nearest <code>container</code> ancestor drops below
-				a tier. Drag the stage under <code>40rem</code> and the three
-				panels reflow from a row into a stack via a container query, so
-				it tracks the box, not the viewport.
+				a tier. Drag the stage under <code>40rem</code> and the 3
+				panels reflow from a row into a stack via a container query,
+				which tracks the box, not the viewport.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
 				Width:          "44rem",
@@ -226,9 +226,9 @@ templ PageLayout(morpheusVersion string) {
 				Spacer
 			}
 			<p class="demo-note">
-				A spacer is just an empty child that grows: drop a child
-				with <code>{ `neo-flex-grow="1"` }</code> between two
-				groups and it soaks up the leftover space,
+				A spacer is just an empty child that grows. Drop a child
+				with <code>{ `neo-flex-grow="1"` }</code> between 2
+				groups and it takes up the leftover space,
 				pinning whatever follows to the far edge. Here it keeps
 				<strong>Save</strong> to the right while <strong>Back</strong>
 				and the title stay on the left.
@@ -248,8 +248,8 @@ templ PageLayout(morpheusVersion string) {
 			<p class="demo-note">
 				<code>column-gap</code> spaces the children along the row;
 				<code>row-gap</code> spaces the wrapped lines. Columns are
-				tight (<code>xs</code>) and rows are loose (<code>lg</code>),
-				so the chips stay close while wrapped lines get room. Narrow
+				tight (<code>xs</code>) and rows are loose (<code>lg</code>).
+				The chips stay close while wrapped lines get room. Narrow
 				the stage to wrap them.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
@@ -285,8 +285,8 @@ templ PageLayout(morpheusVersion string) {
 			}
 			<p class="demo-note">
 				<code>inline</code> switches the container to
-				<code>{ `display: inline-flex` }</code>, so it sits in the
-				text flow instead of forcing its own line, handy for an
+				<code>{ `display: inline-flex` }</code>. It then sits in the
+				text flow instead of forcing its own line, which suits an
 				icon-and-label cluster inside running prose.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
@@ -311,11 +311,11 @@ var layoutDoc = ComponentDoc{
 		{Name: "nowrap, wrap, wrap-reverse", Type: "boolean",
 			Description: templ.Raw("flex-wrap, as a boolean attribute. Default nowrap.")},
 		{Name: "align-items", Type: `"flex-start" | "flex-end" | "center" | "stretch" | "baseline"`,
-			Description: templ.Raw("Cross-axis alignment. Its value is the literal CSS keyword, so the attribute reads like the flex rule it emits.")},
+			Description: templ.Raw("Cross-axis alignment. Its value is the literal CSS keyword, which makes the attribute read like the flex rule it emits.")},
 		{Name: "justify-content", Type: `"flex-start" | "flex-end" | "center" | "space-between" | "space-around" | "space-evenly"`,
-			Description: templ.Raw("Main-axis distribution. Its value is the literal CSS keyword, so the attribute reads like the flex rule it emits.")},
+			Description: templ.Raw("Main-axis distribution. Its value is the literal CSS keyword, which makes the attribute read like the flex rule it emits.")},
 		{Name: "align-content", Type: `"flex-start" | "flex-end" | "center" | "space-between" | "space-around" | "space-evenly" | "stretch"`,
-			Description: templ.Raw("Cross-axis distribution of wrapped lines; takes effect only with <code>wrap</code>. Its value is the literal CSS keyword, so the attribute reads like the flex rule it emits.")},
+			Description: templ.Raw("Cross-axis distribution of wrapped lines; takes effect only with <code>wrap</code>. Its value is the literal CSS keyword, which makes the attribute read like the flex rule it emits.")},
 		{Name: "gap", Type: layoutGapType,
 			Description: templ.Raw("Spacing between children on both axes. <code>column-gap</code> and <code>row-gap</code> override it per axis.")},
 		{Name: "column-gap", Type: layoutGapType,
@@ -329,7 +329,7 @@ var layoutDoc = ComponentDoc{
 		{Name: "container", Type: "boolean",
 			Description: templ.Raw("Neo extension: make this a query container (<code>container-type: inline-size</code>) so a descendant's <code>collapse</code> reacts to this element's width.")},
 		{Name: "collapse", Type: `"sm" | "md" | "lg"`,
-			Description: templ.Raw("Neo extension: fold a row to a column when the nearest <code>container</code> ancestor is narrower than the tier (40 / 48 / 64rem). Container-query based: reacts to the box, not the viewport.")},
+			Description: templ.Raw("Neo extension: fold a row to a column when the nearest <code>container</code> ancestor is narrower than the tier (40 / 48 / 64rem). Container-query based. Reacts to the box, not the viewport.")},
 	},
 }
 

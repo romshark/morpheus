@@ -126,11 +126,11 @@ export class NeoTree extends HTMLElement {
 		this.addEventListener("focusin", this.#onFocusIn);
 		this.addEventListener("focusout", this.#onFocusOut);
 		queueMicrotask(() => this.#ensureEntry());
-		// The roving tabindex is kit-set, absent from SSR, so a fat morph
+		// The roving tabindex is kit-set and absent from SSR. A fat morph
 		// strips it (leaving no tab stop) and blurs a focused item to
 		// <body>. connectedCallback runs once; re-establish a tab stop and
-		// reseat focus after every morph. Callbacks are idempotent, so the
-		// observer settles even though they write tabindex themselves.
+		// reseat focus after every morph. The observer settles even though
+		// the callbacks write tabindex themselves because they are idempotent.
 		this.#observer = new MutationObserver(() => {
 			this.#ensureEntry();
 			this.#restoreFocusIfLost();
@@ -199,9 +199,9 @@ export class NeoTree extends HTMLElement {
 			this.#focusedItemId = "";
 			return;
 		}
-		// Blur to nothing: a morph strip (the observer reseats focus first,
-		// same microtask checkpoint) or a real click-away. Drop the target
-		// only if focus is still gone after the observer ran.
+		// A blur to nothing comes from a morph strip (the observer reseats
+		// focus first, same microtask checkpoint) or a real click-away. Drop
+		// the target only if focus is still gone after the observer ran.
 		queueMicrotask(() => {
 			if (this.contains(document.activeElement)) return;
 			this.#focusedItemId = "";
@@ -304,9 +304,9 @@ export class NeoTreeItem extends HTMLElement {
 			this.#childObserver.observe(this, { childList: true });
 			// Click delegation lives on the shadow row, not the host. A
 			// click on the chevron (in shadow) would be retargeted to the
-			// host at the shadow boundary, so a host-level listener can't
+			// host at the shadow boundary, and a host-level listener can't
 			// tell it apart from a click outside the row; binding to the
-			// row makes the chevron + padding + slotted label one click
+			// row makes the chevron + padding + slotted label a single click
 			// surface and lets us use composedPath() to gate on author
 			// controls.
 			this.#row.addEventListener("click", this.#onClick);
@@ -344,9 +344,9 @@ export class NeoTreeItem extends HTMLElement {
 		);
 	}
 
-	// State → attribute, guarded so it isn't read back as a command. The bare
-	// `expanded` attribute stays in sync with intent, so the keyboard-nav and
-	// visibility helpers can keep reading hasAttribute("expanded").
+	// State -> attribute, guarded so it isn't read back as a command. The bare
+	// `expanded` attribute stays in sync with intent, which lets the
+	// keyboard-nav and visibility helpers keep reading hasAttribute("expanded").
 	#reflectExpanded() {
 		this.#reflectingExpanded = true;
 		try {
@@ -361,7 +361,7 @@ export class NeoTreeItem extends HTMLElement {
 		this.#syncAria();
 	}
 
-	// True when at least one child <neo-tree-item> is assigned.
+	// True when at least 1 child <neo-tree-item> is assigned.
 	hasSubtree(): boolean {
 		return this.#branch;
 	}
@@ -391,14 +391,14 @@ export class NeoTreeItem extends HTMLElement {
 		this.#childrenSlot.assign(...items);
 		this.#branch = items.length > 0;
 		const hasUserIcon = icon !== null;
-		// Show the chevron span when there's anything to show: a branch
-		// (default chevron) or an author-supplied icon (even on leaves).
-		// Inline style on shadow elements: host attributes get stripped
+		// Show the chevron span when there's anything to show, which is a
+		// branch (default chevron) or an author-supplied icon (even on leaves).
+		// Inline style on shadow elements because host attributes get stripped
 		// by morph (source HTML doesn't carry them) and a `hidden`
 		// attribute is outranked by our `display:inline-flex` rule.
 		this.#chevron.style.display = this.#branch || hasUserIcon ? "" : "none";
 		this.#childrenWrapper.style.display = this.#branch ? "" : "none";
-		// Custom icon → suppress the 90° rotation on expand; the class
+		// Custom icon -> suppress the 90deg rotation on expand; the class
 		// gates the shadow CSS rule.
 		this.#chevron.classList.toggle("has-user-icon", hasUserIcon);
 		this.#syncAria();
@@ -416,8 +416,8 @@ export class NeoTreeItem extends HTMLElement {
 	#onClick = (e: MouseEvent) => {
 		if (e.defaultPrevented) return;
 		// Walk composedPath from the click target up to the shadow row.
-		// Any author-supplied interactive control between them claims the
-		// click: buttons / links / form fields inside the slotted label.
+		// Any author-supplied interactive control between them (buttons /
+		// links / form fields inside the slotted label) claims the click.
 		// Once we cross the row we stop; ancestors above the row aren't
 		// part of it.
 		const path = e.composedPath();

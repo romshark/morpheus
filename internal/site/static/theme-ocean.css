@@ -4,9 +4,9 @@
 /* Nunito by Nunito Project Authors, OFL-licensed (see
  * /static/fonts/nunito-OFL.txt). Rounded humanist sans whose soft
  * terminals echo ocean's large --page-radius. One variable latin file
- * covers the 400–900 weights the site uses, so a single @font-face
- * serves body and bold. Only fetched when the ocean theme is active
- * (its --page-font-family below names "Nunito"); `font-display: swap`
+ * covers the 400-900 weights the site uses, which lets a single
+ * @font-face serve body and bold. Only fetched when the ocean theme is
+ * active (its --page-font-family names "Nunito"); `font-display: swap`
  * paints the rounded fallback during the fetch. */
 @font-face {
 	font-family: "Nunito";
@@ -36,20 +36,18 @@
 	--page-radius: 0.6rem;
 	--page-spacing: 0.3rem;
 
-	/* Nunito (vendored, see top of file) with a rounded-sans fallback
+	/* Nunito (vendored, see @font-face) with a rounded-sans fallback
 	 * chain while the webfont loads. Set on the light variant only;
 	 * dark ocean inherits via the cascade. */
 	--page-font-family:
 		"Nunito", ui-rounded, "SF Pro Rounded", "Segoe UI",
 		system-ui, sans-serif;
 
-	/* Sine-wave hatch on disabled surfaces, same plumbing as
-	 * matrix's stripes, just a different SVG. The accent hex has
-	 * to be inlined (CSS vars don't substitute into url() values),
-	 * so each ocean variant carries its own copy with the right
-	 * shade. The mask softens the pattern at the element's
-	 * horizontal edges so the lines fade in/out rather than
-	 * starting and stopping abruptly. */
+	/* Sine-wave hatch on disabled surfaces. The accent hex is
+	 * inlined because CSS vars don't substitute into url() values.
+	 * Each ocean variant carries its own copy with the right shade.
+	 * The mask softens the pattern at the element's horizontal edges so
+	 * the lines fade in/out rather than starting and stopping abruptly. */
 	--neo-disabled-overlay: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='10' viewBox='0 0 24 10'><path d='M0 5 Q 6 0 12 5 T 24 5' stroke='%230891b2' stroke-opacity='0.18' stroke-width='1' fill='none'/></svg>");
 	--neo-disabled-overlay-mask: linear-gradient(
 		to right,

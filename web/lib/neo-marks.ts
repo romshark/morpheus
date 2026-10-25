@@ -3,13 +3,12 @@
 // The rail/fill is component-specific (the slider is interactive with a
 // thumb + tooltip; progress is read-only), but mark collection,
 // prerender reconstruction, dot + label rendering (edge flushing,
-// vertical layout, empty-row hiding) and active-state sync are
-// identical and must not drift. This is the canonical implementation,
-// lifted from neo-slider; both components call it.
+// vertical layout, empty-row hiding) and active-state sync are identical and
+// must not drift. This is the canonical implementation; both components call it.
 //
 // `data-neo-mark-value`, `data-neo-mark-edge` and `data-neo-active` are
-// the same literal names on both components; only the prefixed inputs /
-// markup attributes differ, so the per-component names come from cfg.
+// the same literal names on both components. Only the prefixed inputs /
+// markup attributes differ, and the per-component names come from cfg.
 
 export interface MarkSpec {
 	value: number;
@@ -58,7 +57,7 @@ export function collectMarks(host: Element, cfg: MarkRailConfig): MarkSpec[] {
 }
 
 // Reconstruct specs from prerendered markup when templ emitted no slot
-// inputs (the common SSR case), so a later min/max/vertical change has
+// inputs (the common SSR case). A later min/max/vertical change then has
 // the full list to re-render. Returns [] when nothing prerendered.
 export function reconstructMarks(trackEl: Element | null, marksEl: Element | null, cfg: MarkRailConfig): MarkSpec[] {
 	if (!trackEl) return [];
@@ -89,8 +88,8 @@ export interface RenderMarksOptions {
 	anchorTemplate?: DocumentFragment | null;
 }
 
-// Clear and re-render every dot (into the track) and label (into the
-// marks row). Marks outside [min, max] are skipped.
+// Clear and re-render every dot (into the track) and label (into the marks row).
+// Marks outside [min, max] are skipped.
 export function renderMarks(
 	marks: MarkSpec[],
 	trackEl: HTMLElement,

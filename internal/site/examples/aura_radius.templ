@@ -1,0 +1,13 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ AuraRadius() {
+	@neo.Aura(neo.AuraOpts{}) {
+		<img
+			class="aura-radius-image"
+			src="/static/cheshire_cat.webp"
+			alt="The Cheshire cat"
+		/>
+	}
+}

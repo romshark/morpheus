@@ -1,18 +1,14 @@
-/* -----------------------------------------------------------------------
- * <neo-dialog>
- * -----------------------------------------------------------------------
- * Modal dialog wrapping a native <dialog>. The host owns the trigger /
- * close wiring; the browser owns the modal lifecycle (top layer, focus
- * trap, scroll lock, Esc). Backgrounds, surface tint, and overlay
- * opacity are all driven by `--neo-dialog-*` tokens defined here and
- * overridden per-theme in theme-*.css, so flipping the theme picker in
- * the settings sidebar repaints the dialog the same way it repaints
- * every other surface.
+/* <neo-dialog> is a modal dialog wrapping a native <dialog>. The host owns
+ * the trigger / close wiring; the browser owns the modal lifecycle (top
+ * layer, focus trap, scroll lock, Esc). Backgrounds, surface tint, and
+ * overlay opacity all come from `--neo-dialog-*` tokens defined here and
+ * overridden per-theme in theme-*.css. Flipping the theme picker in the
+ * settings sidebar repaints the dialog the same way it repaints every
+ * other surface.
  *
  * `<dialog>::backdrop` styles only the overlay layer; the dialog box
  * itself is the host. We animate both via `display`/`overlay` discrete
- * transitions plus `@starting-style`, the same modern-CSS recipe as
- * the popover block at the top of the file. */
+ * transitions plus `@starting-style`, the same recipe as <neo-popover>. */
 
 :root {
 	/* Surface tokens derive from the page palette so swapping themes in
@@ -33,7 +29,7 @@
 	/* Backdrop: a dimming wash over the page behind the modal. Fixed
 	 * dark rgba (not theme-derived) because most modal conventions
 	 * dim the page regardless of mode. Deriving from --page-fg would
-	 * flip to a *bright* overlay in dark mode (page-fg goes light),
+	 * flip to a bright overlay in dark mode (page-fg goes light),
 	 * which reads as the page going washed-out instead of dimmed.
 	 * Themes that want a tinted or lighter overlay still override
 	 * this single token. */
@@ -42,8 +38,8 @@
 	/* Surface blur: applied as backdrop-filter on the dialog box
 	 * itself. With a translucent --neo-dialog-bg this produces a
 	 * "frosted glass" look (the page behind the dialog blurs through
-	 * the surface). Default 0 = no blur, so themes that paint a
-	 * solid surface aren't paying for a no-op filter. */
+	 * the surface). Default 0 means no blur. Themes that paint a
+	 * solid surface don't pay for a no-op filter. */
 	--neo-dialog-blur: 0px;
 }
 
@@ -114,7 +110,7 @@ neo-dialog > dialog[open]::backdrop {
 }
 
 /* Optional structural slots, purely for spacing rhythm. Authors who
- * want a different layout (split header, image hero, …) can ignore
+ * want a different layout (split header, image hero, ...) can ignore
  * these and style their own children. */
 neo-dialog [data-neo-dialog-header] {
 	display: flex;

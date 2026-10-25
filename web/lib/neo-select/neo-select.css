@@ -1,21 +1,17 @@
-/* -----------------------------------------------------------------------
- * <neo-select>
- * ----------------------------------------------------------------------- */
-
 :root {
 	--neo-select-min-width: 12rem;
 }
 
-/* No fixed height: the trigger sizes to its intrinsic button box
- * (--neo-control-height), so a plain select matches a button/input in a
- * row. The trigger's `height: 100%` resolves to that against the
+/* No fixed height. The trigger sizes to its intrinsic button box
+ * (--neo-control-height), which makes a plain select match a button/input
+ * in a row. The trigger's `height: 100%` resolves to that against the
  * shrink-wrapped host. */
 neo-select {
 	display: inline-block;
 }
 
 /* A rich trigger holds a multi-line card; the host already follows it
- * (auto height), so its focus ring wraps the card. Floor it so a
+ * (auto height) and its focus ring wraps the card. Floor it so a
  * near-empty card isn't shorter than a plain control. */
 neo-select[data-neo-trigger-rich] {
 	min-height: var(--neo-control-height);
@@ -74,7 +70,7 @@ neo-select:not(:defined)[disabled]:not([disabled="false"]) {
 }
 
 /* Author-provided async placeholders are copied into the shadow
- * listbox when needed, so the raw light-DOM template should not occupy
+ * listbox when needed. The raw light-DOM template should not occupy
  * host-level layout. Options themselves may be projected through a
  * shadow slot; do not hide them here or direct-child option usage
  * becomes invisible inside the opened listbox too. */
@@ -89,8 +85,8 @@ neo-select [data-neo-option-trigger] {
 	display: none;
 }
 
-/* Empty-state trigger face: a plain element (not a real
- * <neo-option value="">) is cloned into the trigger only, so hide it from
+/* Empty-state trigger face. A plain element (not a real
+ * <neo-option value="">) is cloned into the trigger only; hide it from
  * the list. An option-form empty marker stays a selectable row. */
 neo-select [data-neo-select-empty]:not(neo-option) {
 	display: none;
@@ -116,7 +112,7 @@ neo-select > [data-neo-select-trigger-view] {
  * skeleton placeholder drops it and each row supplies its own margin
  * to match the option rhythm so the panel height doesn't jump when
  * options morph in. Author inline styles (e.g. flex-direction:row for
- * a spinner+label) still win over these defaults. */
+ * a spinner+label) still override these defaults. */
 neo-select > [data-neo-select-loading-content] [data-neo-async-placeholder] {
 	display: flex;
 	flex-direction: column;

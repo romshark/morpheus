@@ -1,7 +1,8 @@
-// Wraps exactly one <neo-menu> and opens it at the pointer; all menu
+// Wraps exactly 1 <neo-menu> and opens it at the pointer; all menu
 // behavior comes from <neo-menu>, none of it reimplemented here.
 
 import { openCommand } from "../command";
+import { retryWhileParsing, stillParsing } from "../document-parsing";
 
 interface NeoMenuLike extends HTMLElement {
 	panel: HTMLElement | null;
@@ -27,18 +28,28 @@ export class NeoContextMenu extends HTMLElement {
 
 	connectedCallback() {
 		if (this.#ready) return;
-		if (!this.#bindStructure()) return;
+		if (!this.#bindStructure()) {
+			retryWhileParsing(this, () => this.connectedCallback());
+			return;
+		}
 		this.#hostObserver = new MutationObserver(() => this.#checkForReset());
 		this.#hostObserver.observe(this, { childList: true });
 		this.#ready = true;
-		// Command `open` on connect: explicit open/close obey; absent
-		// keeps prior intent (persists across reconnect/morph).
+		// On connect, an explicit open/close command is obeyed; an absent
+		// one keeps prior intent (persists across reconnect/morph).
 		const cmd = openCommand(this);
 		if (cmd === "open") {
 			this.#openIntent = true;
-			this.#openFromTrigger();
+			// The <neo-menu> child upgrades after this host (tree order, and
+			// it is defined later in the bundle). Open once it has.
+			void customElements.whenDefined("neo-menu").then(() => {
+				if (this.#ready && this.#openIntent) this.#openFromTrigger();
+			});
 		} else if (cmd === "close") {
 			this.#openIntent = false;
+			this.#reflecting = true;
+			this.removeAttribute("open");
+			this.#reflecting = false;
 		}
 	}
 
@@ -77,12 +88,12 @@ export class NeoContextMenu extends HTMLElement {
 	#bindStructure(): boolean {
 		const trigger = this.#findTrigger();
 		if (!trigger) {
-			console.warn("<neo-contextmenu> requires a [data-neo-contextmenu-trigger] descendant.");
+			if (!stillParsing()) console.warn("<neo-contextmenu> requires a [data-neo-contextmenu-trigger] descendant.");
 			return false;
 		}
 		const menus = Array.from(this.querySelectorAll<NeoMenuLike>(":scope > neo-menu"));
 		if (menus.length === 0) {
-			console.warn("<neo-contextmenu> requires a <neo-menu> child.");
+			if (!stillParsing()) console.warn("<neo-contextmenu> requires a <neo-menu> child.");
 			return false;
 		}
 		if (menus.length > 1) {
@@ -94,12 +105,12 @@ export class NeoContextMenu extends HTMLElement {
 		this.#menu = menus[0];
 
 		if (!trigger.hasAttribute("tabindex")) trigger.setAttribute("tabindex", "0");
-		// No role stamp: the trigger opens the menu only on right-click and
+		// No role stamp. The trigger opens the menu only on right-click and
 		// the context-menu key, never on primary activation (left-click /
-		// Enter / Space), so it is not a button. role="button" would promise
+		// Enter / Space). It is not a button. role="button" would promise
 		// an activation that never happens and would mask the surface from
 		// other components that reason about roles (e.g. <neo-tree>'s
-		// click-to-toggle). The primary, keyboard-activatable affordance for
+		// click-to-toggle). The primary, keyboard-activatable control for
 		// these actions belongs on a real button elsewhere; aria-haspopup /
 		// aria-expanded remain as popup hints.
 		trigger.setAttribute("aria-haspopup", "menu");
@@ -114,8 +125,8 @@ export class NeoContextMenu extends HTMLElement {
 		return true;
 	}
 
-	// Trigger may sit inside a transparent wrapper (e.g. <neo-tooltip>),
-	// so we can't use `:scope > ...`. Walk descendants and pick the first
+	// `:scope > ...` misses a trigger inside a transparent wrapper (e.g.
+	// <neo-tooltip>). Walk descendants and pick the first
 	// marker whose nearest <neo-menu>/<neo-contextmenu> ancestor is us.
 	// Skips items inside our own <neo-menu> and any nested contextmenu.
 	#findTrigger(): HTMLElement | null {
@@ -151,7 +162,7 @@ export class NeoContextMenu extends HTMLElement {
 			if (this.#openIntent) {
 				// neo-menu self-recovers its panel/position. Only keep our
 				// reflected `open` (trigger aria-expanded, styling); re-opening
-				// here would yank a point-anchored menu to the trigger box.
+				// here would move a point-anchored menu to the trigger box.
 				if (!this.hasAttribute("open")) {
 					this.#reflecting = true;
 					this.setAttribute("open", "");

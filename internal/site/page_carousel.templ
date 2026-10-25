@@ -28,8 +28,8 @@ templ PageCarousel(morpheusVersion string) {
 			</p>
 			@Playground(PlaygroundOpts{
 				ID: "carousel-playground",
-				// Carousels fill the stage (height:100%), so they need a
-				// definite canvas: vertical and touch="false" require it outright.
+				// Carousels fill the stage (height:100%) and need a definite
+				// canvas. Vertical and touch="false" require it outright.
 				Height: "14rem",
 				States: carouselPlaygroundStates(),
 			})
@@ -104,7 +104,7 @@ templ PageCarousel(morpheusVersion string) {
 				(<code>{ `::part(dot-partial)` }</code>,
 				<code>{ `::part(dot-full)` }</code>,
 				<code>{ `::part(dot-current)` }</code>) so you can
-				style the three visibility states and the active dot.
+				style the 3 visibility states and the active dot.
 				Here a scoped <code>{ "<style>" }</code> block turns the
 				buttons into bars.
 			</p>
@@ -208,7 +208,7 @@ var carouselDoc = ComponentDoc{
 				"Active slide value. Falls back to the " +
 					"first slide when unset. An external patch sets the " +
 					"slide instantly (jump); a fat morph that drops it is " +
-					"no command, so the current slide stays. The " +
+					"no command, and the current slide stays. The " +
 					"carousel's own navigation always animates.",
 			)},
 		{Name: "orientation", Type: `"horizontal" | "vertical"`, Default: "horizontal", Observed: true,
@@ -273,7 +273,7 @@ var carouselDoc = ComponentDoc{
 			Description: templ.Raw(
 				"Animate external <code>value</code> patches (using " +
 					"<code>easing</code>) instead of jumping. Read per " +
-					"patch: set it alongside <code>value</code> to glide " +
+					"patch. Set it alongside <code>value</code> to glide " +
 					"one transition, omit it to jump the next.",
 			)},
 		{Name: "highlight-active", Type: "boolean", Default: "false",

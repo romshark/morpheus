@@ -1,7 +1,7 @@
 package neo
 
-// ToasterPosition picks one of the six viewport corners. Zero value
-// defers to the host's default (bottom-right).
+// ToasterPosition picks 1 of 6 viewport positions.
+// Zero value defers to the host's default (bottom-right).
 type ToasterPosition string
 
 const (
@@ -28,8 +28,8 @@ type ToasterOpts struct {
 	// by default); renders `touch-dismiss="off"` on the host.
 	NoTouchDismiss Attr[bool]
 	// TouchDismissThreshold overrides the default swipe threshold
-	// (one third of the toast width, minimum 40px). Any CSS length is
-	// accepted, including px, rem, ch, and percent.
+	// (1/3 of the toast width, minimum 40px). Any CSS length is accepted,
+	// including px, rem, ch, and percent.
 	TouchDismissThreshold Attr[CSSUnit]
 }
 
@@ -50,11 +50,10 @@ const (
 type ToastOpts struct {
 	Variant Attr[ToastVariant]
 	// Duration is the auto-dismiss delay in ms. A positive value emits
-	// `duration`; zero leaves the toast pinned, matching the
-	// declarative default.
+	// `duration`; zero leaves the toast pinned, matching the declarative default.
 	Duration Attr[int]
 	// Dismissible controls whether the generated close button is added.
-	// Default adds it; DismissibleOff omits it for pinned notices that
+	// Default adds it; [DismissibleOff] omits it for pinned notices that
 	// must be cleared through app flow.
 	Dismissible Attr[Dismissible]
 }
@@ -68,11 +67,10 @@ func toasterTouchDismissAttr(opts ToasterOpts) string {
 	return opts.TouchDismissThreshold.Or("")
 }
 
-// Toaster renders <neo-toaster>: lays out and animates <neo-toast>
-// children. Authors can drop toasts in declaratively (the host adopts
-// via MutationObserver) or call the imperative API
-// (NeoToast.success / .error / .promise / …); both flow through the
-// same lifecycle.
+// Toaster renders <neo-toaster>, which lays out and animates <neo-toast> children.
+// Authors can drop toasts in declaratively (the host adopts via MutationObserver)
+// or call the imperative API (NeoToast.success / .error / .promise / ...);
+// both flow through the same lifecycle.
 templ Toaster(opts ToasterOpts) {
 	@ToasterAttrs(opts, nil) {
 		{ children... }
@@ -94,15 +92,15 @@ templ ToasterAttrs(opts ToasterOpts, attrs templ.Attributes) {
 	</neo-toaster>
 }
 
-// Toast renders a <neo-toast> child for <neo-toaster>. The markup
-// (variant icon, close button, role/aria-live) lives in the toast's
-// own shadow root; author content goes into named slots ("title",
-// "description", "action"). Example:
+// Toast renders a <neo-toast> child for <neo-toaster>.
+// The markup (variant icon, close button, role/aria-live) lives in the toast's
+// own shadow root; author content goes into named slots
+// ("title", "description", "action"). Example:
 //
-//   @neo.Toast(neo.ToastOpts{Variant: [ToastVariantSuccess]}) {
-//     <span slot="title">Saved</span>
-//     <span slot="description">Profile updated.</span>
-//   }
+//	@neo.Toast(neo.ToastOpts{Variant: neo.Set(neo.ToastVariantSuccess)}) {
+//		<span slot="title">Saved</span>
+//		<span slot="description">Profile updated.</span>
+//	}
 templ Toast(opts ToastOpts) {
 	@ToastAttrs(opts, nil) {
 		{ children... }

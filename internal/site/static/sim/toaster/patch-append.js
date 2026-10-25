@@ -1,4 +1,4 @@
-// Server handler for "Patch — append a toast". The button @posts here;
+// Server handler for "Patch: append a toast". The button @posts here;
 // the simulator streams an SSE patch-elements event targeting the
 // toaster host with `mode: "append"`, dropping a freshly-rendered
 // <neo-toast> into the stack. Datastar's morph preserves existing

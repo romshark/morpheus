@@ -1,4 +1,4 @@
-/* neo-slider-range paints its two thumbs and rail anchors into a shadow
+/* neo-slider-range paints its 2 thumbs and rail anchors into a shadow
    root; page CSS reaches them only through ::part(...) and the inherited
    --neo-slider-* / --neo-icon-* custom properties. Both thumbs and every
    dot clone the <template data-neo-slider-thumb|anchor> glyph, a <neo-icon>
@@ -15,8 +15,8 @@ neo-slider-range.slider-range-stars-pg {
 }
 
 /* Rail anchor: a muted outline star. margin-left + translateX re-center
-   every dot on its exact value; the component flushes the min/max dots
-   inward, which would leave an active dot peeking out beside a thumb. */
+   every dot on its exact value; the component flushes the min/max dots inward,
+   which would leave an active dot peeking out beside a thumb. */
 neo-slider-range.slider-range-stars-pg::part(anchor) {
 	display: grid;
 	place-items: center;
@@ -29,8 +29,8 @@ neo-slider-range.slider-range-stars-pg::part(anchor) {
 
 /* Active anchor (a mark inside the selected [valueMin, valueMax] band):
    a filled dot. The cloned outline glyph can't be filled from page CSS
-   (its SVG is a shadow boundary too deep), so the dot paints a solid
-   circle by masking a currentColor background; the circle stays small
+   (its SVG is a shadow boundary too deep). The dot paints a solid circle
+   instead by masking a currentColor background; the circle stays small
    enough to tuck inside the thumb star that covers the band's endpoints. */
 neo-slider-range.slider-range-stars-pg::part(anchor active) {
 	color: var(--accent);
@@ -39,7 +39,7 @@ neo-slider-range.slider-range-stars-pg::part(anchor active) {
 	mask: radial-gradient(circle at center, #000 0 0.3rem, #0000 0.32rem);
 }
 
-/* Both drag thumbs: a larger filled accent star with no dot chrome. */
+/* Both drag thumbs: a larger filled accent star with no dot styling. */
 neo-slider-range.slider-range-stars-pg::part(thumb-min),
 neo-slider-range.slider-range-stars-pg::part(thumb-max) {
 	display: grid;

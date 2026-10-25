@@ -1,0 +1,17 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ AuraInput() {
+	@neo.AuraAttrs(neo.AuraOpts{}, templ.Attributes{"class": "aura-input"}) {
+		<neo-input-group>
+			@neo.Icon("sparkles")
+			@neo.TextInputAttrs(neo.TextInputOpts{
+				Placeholder: neo.Set("Summarize this week's incidents"),
+			}, templ.Attributes{"aria-label": "Ask the assistant"})
+			@neo.Button(neo.ButtonOpts{Variant: neo.Set(neo.ButtonVariantPrimary)}) {
+				Ask
+			}
+		</neo-input-group>
+	}
+}

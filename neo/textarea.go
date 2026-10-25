@@ -7,17 +7,18 @@ import (
 )
 
 // TextareaOpts is the typed attribute surface for <neo-textarea>. The
-// field lives in the component's shadow root, so these become host
-// attributes (the component forwards the native ones to the inner field).
-// The zero value renders a plain multi-line field. Native attributes not
-// modelled here and arbitrary attributes (style, aria-*, data-* / Datastar
-// bindings) go through the trailing templ.Attributes of TextareaAttrs.
+// field lives in the component's shadow root. These become host
+// attributes, and the component forwards the native ones to the inner
+// field. The zero value renders a plain multi-line field. Native
+// attributes not modelled here and arbitrary attributes (style, aria-*,
+// data-* / Datastar bindings) go through the trailing [templ.Attributes]
+// of [TextareaAttrs].
 type TextareaOpts struct {
 	Name        Attr[string]
 	Value       Attr[string]
 	Placeholder Attr[string]
 	// Rows / Cols set the field's intrinsic size. Rows also drops the
-	// min-height floor, so Rows: Set(1) renders a single row.
+	// min-height floor, which lets Rows: Set(1) render a single row.
 	Rows      Attr[int]
 	Cols      Attr[int]
 	MaxLength Attr[int]
@@ -32,11 +33,11 @@ type TextareaOpts struct {
 
 	// ScaleHorizontal / ScaleVertical show the manual resize handle on
 	// that axis. Setting AutoResize* on an axis disables manual resize
-	// on that axis (auto-resize wins).
+	// on that axis (auto-resize takes precedence).
 	ScaleHorizontal Attr[bool]
 	ScaleVertical   Attr[bool]
 
-	// AutoResizeWidth / AutoResizeHeight auto-grow the field: Set("") means
+	// AutoResizeWidth / AutoResizeHeight auto-grow the field. Set("") means
 	// "unlimited growth" (no cap); Set of a non-empty CSS length (e.g.
 	// "100%", "40rem") caps growth and starts scrolling; unset leaves the
 	// axis fixed.
@@ -45,8 +46,8 @@ type TextareaOpts struct {
 }
 
 // textareaMergedAttrs flattens opts into host attributes, then lets caller
-// attrs override (templ's last-attribute-wins order, so the escape hatch
-// can patch any field).
+// attrs override (templ's last-attribute-wins order lets the escape hatch
+// patch any field).
 func textareaMergedAttrs(opts TextareaOpts, attrs templ.Attributes) templ.Attributes {
 	a := templ.Attributes{}
 	maps.Copy(a, opts.Name.Attrs("name"))

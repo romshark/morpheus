@@ -1,14 +1,16 @@
 # Build the static demo site and publish it to GitHub Pages.
 #
-# The project repo serves Pages at https://romshark.github.io/morpheus/,
-# a subpath. `make gen BASE=/morpheus` prefixes every root-absolute URL
-# in the generated artifact with /morpheus so assets and links resolve
-# there. See internal/cmd/gen (the -base flag) and the Makefile gen target.
+# The project repo serves Pages at https://romshark.github.io/morpheus/, a subpath.
+# `make gen BASE=/morpheus` prefixes every root-absolute URL in the generated artifact
+# with /morpheus so assets and links resolve there.
+# See internal/cmd/gen (the -base flag) and the Makefile gen target.
 name: Deploy site to GitHub Pages
 
 on:
   push:
     branches: [main]
+  # release.yml dispatches a run on main after publishing a tag,
+  # so that the bundle builder lists the new release.
   workflow_dispatch:
 
 # deploy-pages resolves the uploaded artifact by ID, which needs actions:read;
@@ -28,7 +30,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      # internal/cmd/gen reads every release tag for the bundle builder's
+      # version select, which needs the full history.
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
 
       - uses: actions/setup-go@v7
         with:

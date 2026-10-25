@@ -1,0 +1,37 @@
+package neo
+
+// IfNetworkOpts configures <neo-if-network>, the client-side connection
+// gate. It shows its children only in the connection state Online names;
+// otherwise the subtree is removed from layout. The server can't know the
+// client's connection state. A branch never renders visible before the
+// bundle upgrades it.
+type IfNetworkOpts struct {
+	// Online is a boolean command, where true shows the children while
+	// online, false while offline and unset in both. Offline is reliable;
+	// online only means a network is connected, not that the server is
+	// reachable.
+	Online Attr[bool]
+	// Delay is the milliseconds a connection change must last before the
+	// branch switches. A shorter drop shows nothing. Unset switches at
+	// once. The state on page load always applies at once.
+	Delay Attr[int]
+}
+
+// IfNetwork shows its children only in the connection state opts.Online
+// names.
+templ IfNetwork(opts IfNetworkOpts) {
+	@IfNetworkAttrs(opts, nil) {
+		{ children... }
+	}
+}
+
+// IfNetworkAttrs is [IfNetwork] with an extra attribute set.
+templ IfNetworkAttrs(opts IfNetworkOpts, attrs templ.Attributes) {
+	<neo-if-network
+		{ opts.Online.Attrs("online")... }
+		{ opts.Delay.Attrs("delay")... }
+		{ attrs... }
+	>
+		{ children... }
+	</neo-if-network>
+}

@@ -1,14 +1,11 @@
-/* -----------------------------------------------------------------------
- * <neo-revealable>
- * -----------------------------------------------------------------------
- * Spoiler. The cover is a CSS ::after veil, identical before and after
- * the bundle upgrades, so there's no hydration flash; the canvas only
+/* Spoiler. The cover is a CSS ::after veil, identical before and after
+ * the bundle upgrades, which avoids a hydration flash; the canvas only
  * adds grain on top. Grain defaults to the element's `color` (in-key
  * per theme); tune via the --neo-revealable-* tokens. */
 neo-revealable {
 	--neo-revealable-radius: var(--page-radius, 0.375rem);
 	--neo-revealable-blur: 14px;
-	/* Theme-adaptive frosted cover (fg↔bg mix), not a near-black slab. */
+	/* Theme-adaptive frosted cover (fg/bg mix), not a near-black slab. */
 	--neo-revealable-veil: color-mix(in srgb, var(--page-fg) 26%, var(--page-bg));
 	--neo-revealable-focus-ring: color-mix(in srgb, var(--accent) 45%, transparent);
 
@@ -16,8 +13,9 @@ neo-revealable {
 	display: inline-block;
 	/* No overflow:hidden; on an inline-block it shifts the baseline to
 	 * the bottom edge, lifting the spoiler off the text line. The canvas
-	 * self-clips via border-radius:inherit; media clips below. */
-	/* Content-sized, never full-width: the cover must match the box. */
+	 * self-clips via border-radius:inherit; the media variant clips with
+	 * overflow:hidden. */
+	/* Content-sized, never full-width, because the cover must match the box. */
 	width: fit-content;
 	max-width: 100%;
 	isolation: isolate;
@@ -63,15 +61,15 @@ neo-revealable:not([open]) > [data-neo-revealable-content] {
 }
 
 /* blur-content (media only): tease the shape with heavy blur + partial
- * opacity, never readable. Scoped to media because text is already
- * hidden by opacity:0, so blurring it would just waste a composite. */
+ * opacity, never readable. Scoped to media because opacity:0 already
+ * hides text and blurring it would only waste a composite. */
 neo-revealable[variant="media"][blur-content]:where(:not([blur-content="false"])):not([open])
 > [data-neo-revealable-content] {
 	opacity: 0.6;
 	filter: blur(var(--neo-revealable-blur));
 }
 
-neo-revealable[open] {
+neo-revealable[open]:where(:not([open="false"])) {
 	cursor: default;
 	user-select: text;
 }
@@ -90,8 +88,8 @@ neo-revealable > [data-neo-revealable-canvas] {
 	height: 100%;
 	border-radius: inherit;
 	pointer-events: none;
-	/* Veil is continuous across hydration; only the grain is new, so
-	 * ease it in instead of popping. Re-runs on each re-conceal. */
+	/* Veil is continuous across hydration; only the grain is new. Ease
+	 * it in instead of popping. Re-runs on each re-conceal. */
 	animation: neo-revealable-grain-in 220ms var(--neo-easing, ease) both;
 }
 
@@ -109,7 +107,6 @@ neo-revealable[open] > [data-neo-revealable-canvas] {
 }
 
 @media (prefers-reduced-motion: reduce) {
-	/* biome-ignore lint/style/noDescendingSpecificity: sets transition:none; the higher-specificity neo-revealable[variant="inline"] content rule sets display; disjoint, no conflict */
 	neo-revealable > [data-neo-revealable-content] {
 		transition: none;
 	}

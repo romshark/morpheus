@@ -1,20 +1,17 @@
-/* -----------------------------------------------------------------------
- * <neo-slider-range>
- * -----------------------------------------------------------------------
- * Two-handle range slider. Reuses every `--neo-slider-*` variable so
- * themes apply automatically; the rules below mirror the structural
- * styling from <neo-slider> for markup the two components share
+/* 2-handle range slider. Reuses every `--neo-slider-*` variable so
+ * themes apply automatically. These rules mirror the structural
+ * styling from <neo-slider> for markup the 2 components share
  * (rail, thumb, header, value field) and add range-specific rules for
  * the fill (anchored at both ends rather than left-aligned with a
- * variable width) and the dash separator between the two values.
+ * variable width) and the dash separator between the 2 values.
  *
- * Shadow-scoped: imported as raw text by neo-slider-range.ts and adopted
+ * Shadow-scoped. neo-slider-range.ts imports it as raw text and adopts it
  * into the host's shadow root via scopeCssToHost() (which rewrites
- * `neo-slider-range` selectors to `:host`). It is NOT globally imported, so
- * the rules only reach the shadow internals. Depends on the shared
+ * `neo-slider-range` selectors to `:host`). It is not globally imported,
+ * and the rules only reach the shadow internals. Depends on the shared
  * `--neo-slider-*` tokens being defined globally above the host (they
  * inherit across the boundary). See neo-slider.global.css. Contrast
- * overrides are `@media (prefers-contrast: more) :host { … }` setting
+ * overrides are `@media (prefers-contrast: more) :host { ... }` setting
  * tokens; the manual `:root[data-pref-contrast-more]` toggle lives in
  * neo-slider.global.css (a descendant selector can't cross the boundary). */
 
@@ -84,13 +81,13 @@ neo-slider-range > [data-neo-slider-track] {
 	border-radius: var(--neo-slider-track-radius);
 	cursor: pointer;
 	outline: none;
-	/* High-contrast outline ring: see the matching `<neo-slider>` rule and
-	 * the `@media (prefers-contrast: more) :host` block below. */
+	/* High-contrast outline ring. See the matching `<neo-slider>` rule and
+	 * this file's `@media (prefers-contrast: more) :host` block. */
 	box-shadow: var(--neo-slider-track-shadow, none);
 	touch-action: none;
 }
 
-/* Touch hit-area overlay: see the matching `<neo-slider>` rule. */
+/* Touch hit-area overlay. See the matching `<neo-slider>` rule. */
 neo-slider-range > [data-neo-slider-track]::before {
 	content: "";
 	position: absolute;
@@ -106,7 +103,7 @@ neo-slider-range[vertical]:where(:not([vertical="false"])) > [data-neo-slider-tr
 neo-slider-range[vertical]:where(:not([vertical="false"])) {
 	display: grid;
 	/* See the matching `<neo-slider>` rule for why col 1 is pinned to
-	 * the rail's length: it stops a wide header from padding col 1
+	 * the rail's length. It stops a wide header from padding col 1
 	 * out and pushing the marks away from the rail. */
 	grid-template-columns: var(--neo-slider-track-height) auto;
 	grid-template-rows: auto minmax(0, 1fr);
@@ -132,7 +129,7 @@ neo-slider-range[vertical]:where(:not([vertical="false"])) > [data-neo-slider-tr
 	margin-inline: 0;
 }
 
-/* Range fill spans between the two thumbs. The component sets `left`
+/* Range fill spans between the 2 thumbs. The component sets `left`
  * and `right` (or `top`/`bottom` in vertical) inline on every commit;
  * the rule here only seeds `top`/`bottom` so the band fills the full
  * rail height (or width, when vertical) without a per-commit write. */
@@ -183,7 +180,7 @@ neo-slider-range [data-neo-slider-thumb]:active {
 	cursor: grabbing;
 }
 
-/* Easing: same custom property, same drag-suppression flag, same
+/* Easing uses the same custom property, drag-suppression flag and
  * shape as <neo-slider>'s easing block. The fill transitions both
  * `left` and `right` (horizontal) or `top` and `bottom` (vertical)
  * because the band is anchored at both ends; the single-value
@@ -259,11 +256,12 @@ neo-slider-range > [data-neo-slider-track] > [data-neo-slider-anchor] {
 	cursor: pointer;
 }
 
-/* `static-marks` makes the dot purely decorative: the click handler
+/* `static-marks` makes the dot purely decorative. The click handler
  * on the host bails out, and we drop pointer-events so a click on
  * the dot passes through to the rail underneath like any other rail
  * click. Mirrors the same opt-out on `<neo-slider>`. */
-neo-slider-range[static-marks]:where(:not([static-marks="false"])) > [data-neo-slider-track]
+neo-slider-range[static-marks]:where(:not([static-marks="false"]))
+	> [data-neo-slider-track]
 	> [data-neo-slider-anchor] {
 	pointer-events: none;
 	cursor: default;
@@ -379,7 +377,7 @@ neo-slider-range > [data-neo-slider-marks] > [data-neo-slider-mark-label][data-n
 	color: var(--neo-slider-mark-label-active-color);
 }
 
-/* High contrast (OS): set the anchor/track tokens on the host so the
+/* High contrast (OS) sets the anchor/track tokens on the host so the
  * shadow rules pick them up. Mirrors the matching `<neo-slider>` block; the
  * manual `:root[data-pref-contrast-more]` toggle sets the same tokens from
  * neo-slider.global.css. The track-shadow outlines the low-contrast empty
