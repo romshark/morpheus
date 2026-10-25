@@ -2,9 +2,6 @@
 
 ## BUGS
 
-Button and popover ignore the theme outside the doc site (2026-10-25):
-- `internal/site/static/style.css:4-41` maps the palette (`--btn-*`, `--accent*`, `--danger-*`, `--page-fg`) onto `--neo-button-*`, `--neo-popover-*` and `--neo-select-option-*`. style.css is site-only. A consumer page (morpheus.css + theme-default.css) gets the hardcoded defaults in `web/lib/neo-button/neo-button.css:22-75` and `web/lib/neo-popover/neo-popover.css:5-26`: blue primary instead of `--accent`, white buttons and popovers under `:root.dark`. PR #2 fixes 7 of the button tokens. Fix: move the mapping block into the component sheets, delete it from style.css.
-
 - Unsure: landing: different color from background (fixed, but there's still these weird trails from the glow effect of the matrix rain - ghosting)
 - Focus of links is not accent color
 Carousel doc page:
@@ -60,7 +57,6 @@ Stale comments (2026-10-24 comment sweep; the comment contradicts the code):
 - `web/site/landing.ts:1`: says the output is `../site/static/landing.js`. `build.ts` writes `../min/landing.js`.
 - `web/site/landing-sim.ts:80`: names Idiomorph. Datastar 1.0 uses its own morph.
 - `internal/site/site.templ:1032`: `assigneeOptions` doc says navgroup. The element is a `<neo-datalist>`.
-- `internal/site/static/style.css:1`: points to `themes.css`. The palettes are in `theme-*.css`.
 - `internal/site/static/style.css:715`: names the preceding section "Accessibility". In `site.templ` it is Playgrounds.
 - `internal/site/static/theme-rose.css:48`: credits a `morpheus.css` `r: calc(...)` rule. It is in `neo-spinner.css`, which `morpheus.css` does not import.
 - `internal/site/page_index.templ:847`: says `data-motion`/`data-contrast` scope the simulation. The switches toggle `data-pref-*` on `<html>` (:1487).

@@ -121,7 +121,7 @@ func PageFrameworks(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</code>; it animates in and auto-dismisses after 4 seconds. It emits a <code>neo-toast-close</code> event when the user clicks its close button.</li></ul>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</code>; it animates in and auto-dismisses after 4 seconds. It emits a <code>neo-toast-close</code> event when it closes, with the cause in <code>detail.reason</code>.</li></ul>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
