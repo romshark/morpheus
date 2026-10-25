@@ -65,10 +65,12 @@ custom-watchers:
     requires:
     debounce:
 
+  # Shadow-DOM components import their .css as text, which bundle.js inlines.
   - name: "Bundle web components (esbuild)"
     cmd: "cd web && pnpm run build -- --js"
     include:
       - "web/**/*.ts"
+      - "web/lib/**/*.css"
     exclude:
     fail-on-error: true
     requires:

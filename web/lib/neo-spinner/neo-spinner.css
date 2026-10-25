@@ -120,16 +120,23 @@ neo-spinner[indeterminate]:where(:not([indeterminate="false"])) [data-neo-spinne
 	}
 }
 
+/* Reduced motion: opacity only. WCAG 2.3.3 excludes opacity changes from
+ * motion animation. Animated on the composited wrapper, like the spin. */
+@keyframes neo-spinner-pulse {
+	50% {
+		opacity: 0.35;
+	}
+}
+
 @media (prefers-reduced-motion: reduce) {
-	/* Drop motion once the user has opted out (vestibular guidance).
-	 * Indeterminate swaps the (would-be-rotating) arc for the static
-	 * sun starburst, which reads as "loading" and stays distinct
-	 * from a determinate value at ~75% (which the frozen 3/4 arc
-	 * would otherwise look like). Determinate keeps the arc but drops
-	 * the commit tween so values jump rather than sweep. */
+	/* Indeterminate swaps the rotating arc for the sun starburst, which
+	 * stays distinct from a determinate value at ~75% (which the frozen
+	 * 3/4 arc would otherwise look like). The pulse shows the page is still
+	 * working. Determinate keeps the arc but drops the commit tween so
+	 * values jump rather than sweep. */
 	neo-spinner:not([value]) [data-neo-spinner-spin],
 	neo-spinner[indeterminate]:where(:not([indeterminate="false"])) [data-neo-spinner-spin] {
-		animation: none;
+		animation: neo-spinner-pulse 2s ease-in-out infinite;
 	}
 	neo-spinner:not([value]) [data-neo-spinner-arc],
 	neo-spinner[indeterminate]:where(:not([indeterminate="false"])) [data-neo-spinner-arc] {

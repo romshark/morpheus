@@ -17,10 +17,6 @@ Slider:
 
 - (+ range slider) tooltip kind of broken?
 
-Spinner:
-
-- WIP: in reduced motion mode it should still have some motion?
-
 Carousel:
 
 - Active status set on carousel and on slides, e.g. check landing page example.

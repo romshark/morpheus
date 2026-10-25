@@ -9,6 +9,7 @@ This file records the notable changes of each release in the format of [Keep a C
 #### Components
 
 - Fire `neo-toast-close` on every close of a toast, not only on a close-button click. `detail.reason` names the cause: `close`, `action`, `timeout`, `swipe`, `dismiss` or `remove`. To handle only close-button clicks, check `detail.reason === "close"`.
+- Pulse the opacity of an indeterminate `<neo-spinner>` under reduced motion. Its static starburst looked the same as a stalled page.
 
 ### Fixed
 

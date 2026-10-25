@@ -557,7 +557,7 @@ func PageSpinner(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</code>, the indeterminate spinner swaps the rotating arc for a static 8-ray <em>sun starburst</em> (the canonical lucide <code>loader</code> glyph). That keeps it visually distinct from a determinate ring sitting at ~75%, which is what the frozen 3/4 arc would look like otherwise. The determinate ring keeps its fill and only drops its commit tween. Values jump rather than sweep. The kit's <code>--neo-spinner-duration</code> token sits on its own (not routed through the global <code>--neo-duration-scale</code>) so the spin isn't accidentally stopped when other kit motion is dialed down.</p></section><section class=\"demo\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</code>, the indeterminate spinner swaps the rotating arc for an 8-ray <em>sun starburst</em> (the canonical lucide <code>loader</code> glyph) that slowly pulses its opacity. That keeps it visually distinct from a determinate ring sitting at ~75%, which is what the frozen 3/4 arc would look like otherwise, and shows the work is still running without rotation. An opacity change is not motion animation according to <a target=\"_blank\" href=\"https://www.w3.org/WAI/WCAG22/Understanding/animation-from-interactions.html\">WCAG 2.3.3</a>. The determinate ring keeps its fill and only drops its commit tween. Values jump rather than sweep. The kit's <code>--neo-spinner-duration</code> token sits on its own (not routed through the global <code>--neo-duration-scale</code>) so the spin isn't accidentally stopped when other kit motion is dialed down.</p></section><section class=\"demo\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -650,7 +650,7 @@ var spinnerDoc = ComponentDoc{
 		{Name: "ring", Description: templ.Raw("The SVG element holding the track and arc.")},
 		{Name: "track", Description: templ.Raw("Faint full-circle backing ring.")},
 		{Name: "arc", Description: templ.Raw("The currentColor stroke that spins or fills to the value.")},
-		{Name: "sun", Description: templ.Raw("Static 8-ray starburst shown under reduced motion.")},
+		{Name: "sun", Description: templ.Raw("8-ray starburst shown under reduced motion. Pulses its opacity in indeterminate mode.")},
 	},
 	CSSProps: []DocCSSProp{
 		{Name: "--neo-spinner-size", Default: "1em",

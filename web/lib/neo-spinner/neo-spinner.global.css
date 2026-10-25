@@ -10,10 +10,11 @@
 }
 
 /* The manual accessibility preview cannot select shadow internals.
- * It switches the shadow rules through inherited tokens. */
+ * It switches the shadow rules through inherited tokens.
+ * neo-spinner-pulse resolves against the shadow sheet's @keyframes. */
 :root[data-pref-reduced-motion] {
 	--neo-spinner-indeterminate-arc-display: none;
-	--neo-spinner-indeterminate-animation: none;
+	--neo-spinner-indeterminate-animation: neo-spinner-pulse 2s ease-in-out infinite;
 	--neo-spinner-sun-display: inline;
 	--neo-spinner-manual-arc-transition: none;
 }
