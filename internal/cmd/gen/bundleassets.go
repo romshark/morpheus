@@ -84,11 +84,17 @@ func writeBundleVersion(dir string, v bundleVersion) error {
 	return os.WriteFile(filepath.Join(dir, "bundle-manifest.json"), data, 0o644)
 }
 
-// releaseTags lists the v* tags, newest first, or nil without git.
+// oldestBundleTag is the oldest release the bundle builder builds.
+// Older tags import components the current graph lacks, such as neo-condition.
+const oldestBundleTag = "v0.2.0"
+
+// releaseTags lists the v* tags from [oldestBundleTag] on, newest first,
+// or nil without git.
 // A release sorts above its pre-releases, as v1.0.0 above v1.0.0-rc1.
 func releaseTags() []string {
 	return strings.Fields(gitOutput(
-		"-c", "versionsort.suffix=-", "tag", "--list", "v*", "--sort=-v:refname",
+		"-c", "versionsort.suffix=-", "tag", "--list", "v*",
+		"--contains", oldestBundleTag, "--sort=-v:refname",
 	))
 }
 
