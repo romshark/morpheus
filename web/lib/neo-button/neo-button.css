@@ -22,8 +22,8 @@
 :root {
 	--neo-button-bg: var(--btn-bg);
 	--neo-button-color: var(--btn-fg);
-	--neo-button-border-color: rgba(0, 0, 0, 0.12);
-	--neo-button-hover-bg: rgba(0, 0, 0, 0.04);
+	--neo-button-border-color: var(--btn-border);
+	--neo-button-hover-bg: var(--btn-hover-bg);
 	/* Pressed feedback (`:active`); darker than hover so a tap reads as
 	 * a distinct step. The per-variant overrides mirror the structure. */
 	--neo-button-active-bg: rgba(0, 0, 0, 0.08);
@@ -51,18 +51,18 @@
 
 	--neo-button-primary-bg: var(--accent);
 	--neo-button-primary-color: var(--accent-fg);
-	--neo-button-primary-hover-bg: #1d4ed8;
+	--neo-button-primary-hover-bg: var(--accent-hover);
 	/* One small notch past hover, not a full shade jump. */
 	--neo-button-primary-active-bg: color-mix(in srgb, var(--neo-button-primary-hover-bg), #000 8%);
 
-	--neo-button-secondary-bg: rgba(0, 0, 0, 0.06);
-	--neo-button-secondary-color: currentColor;
-	--neo-button-secondary-hover-bg: rgba(0, 0, 0, 0.1);
+	--neo-button-secondary-bg: color-mix(in srgb, var(--page-fg) 10%, transparent);
+	--neo-button-secondary-color: var(--page-fg);
+	--neo-button-secondary-hover-bg: color-mix(in srgb, var(--page-fg) 16%, transparent);
 	--neo-button-secondary-active-bg: rgba(0, 0, 0, 0.14);
 
 	--neo-button-ghost-bg: transparent;
-	--neo-button-ghost-color: currentColor;
-	--neo-button-ghost-hover-bg: rgba(0, 0, 0, 0.06);
+	--neo-button-ghost-color: var(--page-fg);
+	--neo-button-ghost-hover-bg: var(--btn-hover-bg);
 	--neo-button-ghost-active-bg: rgba(0, 0, 0, 0.1);
 
 	--neo-button-danger-bg: var(--danger-bg);
@@ -72,7 +72,7 @@
 
 	--neo-button-anchor-underline-offset: 0.25em;
 
-	--neo-button-focus-ring: currentColor;
+	--neo-button-focus-ring: var(--accent);
 
 	--neo-link-radius: 2px;
 }

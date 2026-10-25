@@ -2,9 +2,9 @@
 	--neo-select-option-radius: var(--page-radius, 0.25rem);
 	--neo-select-option-padding: calc(var(--page-spacing, 0.25rem) * 1.5) calc(var(--page-spacing, 0.25rem) * 2.5);
 	--neo-select-option-gap: calc(var(--page-spacing, 0.25rem) * 2);
-	--neo-select-option-hover-bg: rgba(127, 127, 127, 0.12);
-	--neo-select-option-selected-bg: var(--neo-button-focus-ring);
-	--neo-select-option-selected-color: var(--neo-popover-bg);
+	--neo-select-option-hover-bg: color-mix(in srgb, var(--accent) 16%, transparent);
+	--neo-select-option-selected-bg: var(--accent);
+	--neo-select-option-selected-color: var(--accent-fg);
 }
 
 neo-option {
