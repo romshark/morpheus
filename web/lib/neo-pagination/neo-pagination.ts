@@ -371,8 +371,6 @@ function effectiveContainer(el: Element): Element | null {
 	return null;
 }
 
-// `<template>`'s children live in its DocumentFragment `.content`;
-// `template.innerHTML` is always "". Round-trip through a `<div>`.
 function serializeTemplate(tpl: HTMLTemplateElement | null): string | null {
 	if (!tpl) return null;
 	const div = document.createElement("div");

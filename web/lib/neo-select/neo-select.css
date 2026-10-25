@@ -29,9 +29,8 @@ neo-select:not(:defined) {
 	gap: 0.5rem;
 	min-width: var(--neo-select-min-width);
 	font: inherit;
-	/* Match post-upgrade trigger button's line-height so the host
-	 * doesn't shrink/grow when the customElement upgrades and
-	 * replaces this placeholder render with a real neo-button. */
+	/* Match the shadow trigger <button>'s line-height so the host
+	 * doesn't shrink/grow when the element upgrades and renders it. */
 	line-height: 1;
 	padding: var(--neo-button-padding);
 	border-radius: var(--neo-button-radius);

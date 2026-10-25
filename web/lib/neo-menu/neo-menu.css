@@ -1,6 +1,6 @@
 /* <neo-menu>, <neo-contextmenu>, <neo-submenu> and <neo-menuitem> form a
- * self-contained dropdown menu. Trigger is a regular element the author
- * picks (typically <neo-button>); the panel and submenu fly-outs are
+ * self-contained dropdown menu. The trigger is the enclosing <neo-button>
+ * or <neo-contextmenu>; the panel and submenu fly-outs are
  * rendered as `position: fixed` cards so they escape any parent overflow
  * the way <neo-popover> does. */
 

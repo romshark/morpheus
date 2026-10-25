@@ -8,7 +8,7 @@ dst/
 # (gen is normally invoked via `go run`, not built to disk).
 /gen
 
-# Build outputs from web/build.mjs (esbuild) land in /min/ at the repo
+# Build outputs from web/build.ts (esbuild) land in /min/ at the repo
 # root and are checked in. That directory is the vendorable artifact
 # set for downstream users and the source the static-site gen copies
 # into dst/static/min/.

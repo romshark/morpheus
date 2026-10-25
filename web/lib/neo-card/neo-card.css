@@ -26,14 +26,6 @@ neo-card {
 	color: var(--neo-card-color);
 	border: var(--neo-card-border-width) solid var(--neo-card-border-color);
 	border-radius: var(--neo-card-radius);
-	/* Clip children to the rounded corners so child backgrounds and
-	 * borders don't poke past the host's border-radius. Consumers that
-	 * need fixed-position descendants (popovers, etc.) escape this
-	 * naturally: fixed-positioning resolves against the viewport, not
-	 * the closest overflow ancestor, as long as no transform/filter/
-	 * contain on an ancestor creates a containing block. Cards that
-	 * specifically need visible overflow can override with
-	 * `overflow: visible`. */
 }
 
 neo-card[orientation="horizontal"] {

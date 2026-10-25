@@ -9,9 +9,8 @@ import { setState } from "../internal-state";
 let nextCarouselId = 0;
 
 // Shadow template for <neo-carousel>. Holds dot markup + autoplay sweep
-// + the slot for slides/track/buttons. The dots container sits after
-// the slot in source order so it stacks below the slotted content by
-// default; pages override layout via `::part(dots)` from outside.
+// + the slot for slides/track/buttons. Pages override layout via
+// `::part(dots)` from outside.
 // Shadow CSS notes, kept out of the template string so the minifier drops
 // them from the bundle. Anchored by selector:
 // - :host flex column (not plain block) lets a CSS `order` on the dots
@@ -870,10 +869,8 @@ export class NeoCarousel extends HTMLElement {
 			this.#updateActiveFromScroll();
 			this.#endUserScroll();
 		}
-		// Always refresh dot visibility on settle. Programmatic scrolls
-		// suppress mid-scroll updateDotsFromScroll via scrollLock, so a
-		// dot click that triggers the scroll would otherwise leave the
-		// dots stuck on the pre-click visibility set.
+		// Always refresh dots on settle. After a user scroll, aria-current
+		// moves from the live snap candidate to the settled `value`.
 		this.#updateDotsFromScroll();
 	};
 

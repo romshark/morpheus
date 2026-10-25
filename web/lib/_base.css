@@ -1,7 +1,9 @@
 /* morpheus.css: styles for the UI kit components.
  *
- * Components render in the light DOM, and every rule is a plain CSS
- * selector you can override from your app's stylesheet. Theming is done
+ * Most components render in the light DOM, where every rule is a plain
+ * CSS selector you can override from your app's stylesheet. Shadow-DOM
+ * internals are styled through `::part()` and the inherited `--neo-*`
+ * custom properties. Theming is done
  * entirely through CSS custom properties declared on :root; scope them
  * to a subtree (e.g. a dark section) by redeclaring on an ancestor.
  */

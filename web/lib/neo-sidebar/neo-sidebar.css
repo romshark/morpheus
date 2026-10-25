@@ -1,11 +1,11 @@
 /* 2 layout modes, selected by a single breakpoint
- * (`--neo-sidebar-overlay-breakpoint`, default 50rem):
+ * (the `overlay-breakpoint` attribute, default 50rem):
  *   - wide: the host is an in-flow column whose width animates to/from
  *           0. The parent layout (typically a CSS grid) decides
  *           what the rest of the page does with the freed space.
  *   - narrow: the host becomes `position: fixed` and slides in from
  *             its `side`, paired with a backdrop the JS appends to
- *             <body>.
+ *             the host's parent element.
  */
 
 :root {

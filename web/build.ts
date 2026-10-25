@@ -1,6 +1,6 @@
 // Build script run by Make and templier custom watchers.
 //
-// Default invocation (`node build.mjs`) runs both stages. It bundles the
+// Default invocation (`node build.ts`) runs both stages. It bundles the
 // TypeScript (the kit -> ../min/bundle.js, the bundle builder ->
 // ../min/bundlebuilder.min.js and ../min/brotli_worker.js, the landing-page
 // graph -> ../min/bundle_graph.js, the landing-page bundle ->
@@ -91,7 +91,7 @@ async function buildJS() {
 	console.log("building JS");
 	fs.mkdirSync(MIN_DIR, { recursive: true });
 
-	// The kit: every web component, IIFE, into bundle.js. Shadow-DOM
+	// The kit: every web component, ESM, into bundle.js. Shadow-DOM
 	// components import their .css module as raw text (the `text` loader)
 	// to adopt it into a shadow root via scopeCssToHost; no .css enters
 	// the JS graph as a stylesheet, which makes this loader safe here.

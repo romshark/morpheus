@@ -43,8 +43,8 @@ neo-sortable[orientation="grid"] {
 	grid-template-columns: repeat(auto-fill, minmax(var(--neo-sortable-grid-min), 1fr));
 }
 
-/* Disable selection site-wide for any reorder gesture (pointer or
- * keyboard) so a fast pointer off the grip doesn't deselect text. */
+/* Disable selection in the host subtree for any reorder gesture (pointer
+ * or keyboard) so a fast pointer off the grip doesn't deselect text. */
 neo-sortable:state(active) {
 	user-select: none;
 	-webkit-user-select: none;

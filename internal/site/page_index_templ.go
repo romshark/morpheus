@@ -406,7 +406,7 @@ func PageIndex(morpheusVersion string) templ.Component {
 	})
 }
 
-// landingHowWorks renders the entire "Let the server drive it" section
+// landingHowWorks renders the entire "Let the server drive your UI" section
 // for a given pipeline stage. The same component renders 3 states:
 //
 //	1: initial / post-reset: placeholder slot inside the select,
@@ -2346,10 +2346,10 @@ func landingOpenAlpha(morpheusVersion string) templ.Component {
 // `prefers-reduced-motion` and `prefers-contrast: more` on a small
 // set of sample components so a sighted visitor can see the effect
 // without changing their OS prefs. The kit also responds to those
-// real OS prefs natively (see the @media blocks in morpheus.css);
-// the simulation is scoped via `data-motion` / `data-contrast` on
-// the demo's samples wrapper so toggling doesn't disturb the rest
-// of the page.
+// real OS prefs natively (see the @media blocks in morpheus.css).
+// The switches toggle `data-pref-reduced-motion` /
+// `data-pref-contrast-more` on <html>, which applies the simulation
+// to the whole page.
 func landingAccessibility() templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context

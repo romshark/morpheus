@@ -7,8 +7,9 @@
  * translateX(-50%)` so their centres land on the value, keeping the
  * positioning symmetric at both ends.
  *
- * The thumb is wrapped in a <neo-tooltip> so hover / focus / press
- * pop a value bubble above it. The tooltip host is `display: contents`.
+ * The thumb is wrapped in a [data-neo-tooltip-host] div driven by
+ * TooltipController, which pops a value bubble above it on hover / focus /
+ * press. The tooltip host is `display: contents`.
  * For layout the thumb is still effectively a direct child of the track,
  * and the thumb rules select it with a descendant combinator rather than
  * `>`.

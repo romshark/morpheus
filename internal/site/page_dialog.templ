@@ -293,8 +293,9 @@ templ asyncPatchingDialogDemo() {
 	}
 }
 
-// dialogSimulator serves /dialog/async-load and /dialog/work-stream for
-// the async-loading and continuous-patching examples.
+// dialogSimulator serves /dialog/async-load, /dialog/asyncload/ and
+// /dialog/work-stream for the async-loading, failure-swap and
+// continuous-patching examples.
 templ dialogSimulator() {
 	<script type="module">
 		import sim from "/static/datasim.js";

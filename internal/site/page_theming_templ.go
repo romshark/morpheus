@@ -691,7 +691,7 @@ func PageTheming(morpheusVersion string) templ.Component {
 }
 
 // themingSwatch renders a token-name + colour-chip cell for the
-// Tokens demo. Colour comes from a CSS variable so the cell follows
+// swatch grid. Colour comes from a CSS variable so the cell follows
 // theme/mode swaps with no JS and no per-theme branching.
 func themingSwatch(name, color string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {

@@ -408,9 +408,8 @@ export class NeoRevealable extends HTMLElement {
 		const maxCount = media ? 3500 : 420;
 		// Clamp the area-derived baseline to the ceiling before applying
 		// density, then density scales it within [24, maxCount]. Applying
-		// density and clamping afterwards pins inline at the cap for every
-		// density (area * 0.22 >> 420 for any real text run), which leaves
-		// the parameter with no visible effect.
+		// density first lets a large area absorb a low density. A 400x50px
+		// inline run at density 0.5 gives 500, still clamped to 420.
 		const base = Math.min(area * (media ? 0.007 : 0.05), maxCount);
 		const count = Math.max(24, Math.min(Math.round(base * this.#density), maxCount));
 

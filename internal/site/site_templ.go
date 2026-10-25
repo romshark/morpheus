@@ -2480,7 +2480,7 @@ func simSlider(a simSliderArgs) templ.Component {
 }
 
 // assigneeOptions's root id must equal `<host-id>-options` so Datastar's default morph
-// finds and updates the existing navgroup in place; the component's MutationObserver
+// finds and updates the existing <neo-datalist> in place; the component's MutationObserver
 // wires each newly-inserted <neo-option>.
 func assigneeOptions(optionsID string, items []Assignee) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {

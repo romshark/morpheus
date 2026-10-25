@@ -45,7 +45,7 @@
 
 	/* Chunkier spinner stroke to match rose's softer, decorative feel.
 	 * Default is 3 (viewBox units); 5 reads as "soft heavy ring".
-	 * The radius compensates via the morpheus.css `r: calc(...)` rule,
+	 * The radius compensates via the neo-spinner.css `r: calc(...)` rule,
 	 * which keeps the ring inside the host box. */
 	--neo-spinner-ring-width: 5;
 }

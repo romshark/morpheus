@@ -669,7 +669,7 @@ ul.demo-note li + li {
 	}
 }
 
-/* Separator between the previous settings section (Accessibility)
+/* Separator between the previous settings section (Playgrounds)
  * and Server Simulator. */
 .sim-settings {
 	border-top: 1px solid var(--btn-border);

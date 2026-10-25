@@ -1,10 +1,7 @@
 /* <neo-dialog> is a modal dialog wrapping a native <dialog>. The host owns
  * the trigger / close wiring; the browser owns the modal lifecycle (top
  * layer, focus trap, scroll lock, Esc). Backgrounds, surface tint, and
- * overlay opacity all come from `--neo-dialog-*` tokens defined here and
- * overridden per-theme in theme-*.css. Flipping the theme picker in the
- * settings sidebar repaints the dialog the same way it repaints every
- * other surface.
+ * overlay opacity all come from `--neo-dialog-*` tokens defined here.
  *
  * `<dialog>::backdrop` styles only the overlay layer; the dialog box
  * itself is the host. We animate both via `display`/`overlay` discrete

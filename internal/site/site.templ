@@ -1020,7 +1020,7 @@ templ simSlider(a simSliderArgs) {
 }
 
 // assigneeOptions's root id must equal `<host-id>-options` so Datastar's default morph
-// finds and updates the existing navgroup in place; the component's MutationObserver
+// finds and updates the existing <neo-datalist> in place; the component's MutationObserver
 // wires each newly-inserted <neo-option>.
 templ assigneeOptions(optionsID string, items []Assignee) {
 	<neo-datalist id={ optionsID }>

@@ -664,7 +664,7 @@ export class NeoSliderRange extends HTMLElement {
 	}
 
 	// ARIA that depends on min/max/label/orientation, not the live values.
-	// Kept out of #syncValues so a drag doesn't rewrite 8 unchanging
+	// Kept out of #syncValues so a drag doesn't rewrite 12 unchanging
 	// attributes each frame; the relevant attribute handlers and #syncAll call
 	// it. The cross-coupled bounds (min field capped at the max thumb, and vice
 	// versa) do change per value and stay in #syncValues.

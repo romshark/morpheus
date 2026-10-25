@@ -10,7 +10,7 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import "github.com/romshark/morpheus/neo"
 
-// One reflowing project card. Only kit pieces, no custom CSS.
+// One reflowing project card. Kit pieces plus a flex-basis from layout_overview.css.
 func layoutOverviewCard(title, owner, status string, variant neo.BadgeVariant) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context

@@ -715,11 +715,11 @@ func comboboxAsyncRetry(opts ComboboxAsyncOpts) string {
 // [popoverAsyncOnFetch]. retries-failed exhausts the retry budget.
 // An `error` event bumps $<id>_errors so we can distinguish a clean
 // `finished` from a finished-after-failure (`retry: 'auto' / 'never'` +
-// HTTP error). The swap writes the failed template into the listbox's
-// navgroup as a [data-neo-empty-results] child. The kit's mutation
+// HTTP error). The swap writes the failed template into `<id>-options`,
+// the <neo-datalist>, as a [data-neo-empty-results] child. The kit's mutation
 // observer treats that as "no results, show inline empty-results",
 // and the kit's CSS suppresses its default "No results" hint when the listbox
-// already has a descendant carrying that attribute. Mutating the navgroup
+// already has a descendant carrying that attribute. Mutating the datalist
 // (rather than the loading clone) avoids tripping the same observer into
 // showing the default "No results" text.
 func comboboxAsyncOnFetch(opts ComboboxAsyncOpts) string {

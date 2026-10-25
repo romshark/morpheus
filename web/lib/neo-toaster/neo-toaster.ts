@@ -384,7 +384,7 @@ export class NeoToaster extends HTMLElement {
 	// generate their own id and don't get an action callback (those
 	// would be wired declaratively, e.g. via `data-on:click`).
 	#adoptToast(el: HTMLElement, seed?: { id?: number; action?: ToastAction }): void {
-		// Tracking lives in `this.toasts` (not on the element) so a
+		// Tracking lives in `#toasts` (not on the element) so a
 		// morph stripping `data-neo-toast-tracked` can't make us
 		// double-track.
 		if (this.#toasts.some((t) => t.el === el)) return;

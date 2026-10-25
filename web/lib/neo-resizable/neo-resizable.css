@@ -25,9 +25,8 @@ neo-resizable {
 	box-sizing: border-box;
 }
 
-/* During a drag, lock selection / cursor reflow site-wide for the duration
- * of the gesture so quick mouse moves outside the handle don't deselect
- * or hand off the cursor to the underlying content. */
+/* Disable selection in the host subtree during a drag so quick mouse
+ * moves off the handle don't select or deselect its content. */
 neo-resizable:state(resizing) {
 	user-select: none;
 	-webkit-user-select: none;

@@ -128,8 +128,6 @@ neo-alert [data-neo-alert-actions] {
 	margin-top: calc(var(--page-spacing, 0.25rem) * 1.5);
 }
 
-/* Match the 2px stroke the kit applies to controls inside the alert
- * so the styling reads consistently. Variant accent keeps the tone. */
 @media (forced-colors: active) {
 	neo-alert {
 		border-color: CanvasText;

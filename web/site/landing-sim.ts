@@ -77,7 +77,7 @@ sim.post("/lf-eq/preset/:name/", async (ctx, sse) => {
 });
 
 // Fat-morph demo. Replays the templ-baked
-// <template id="lf-how-section-stage-{2,3}"> payloads. Idiomorph
+// <template id="lf-how-section-stage-{2,3}"> payloads. Datastar's morph
 // matches by id, which rebuilds the live <section id="lf-how-section">
 // in place.
 const stageHTML = (id: string): string => {

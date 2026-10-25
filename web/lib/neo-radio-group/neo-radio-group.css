@@ -52,8 +52,8 @@ neo-radio {
 		box-shadow var(--neo-duration-hover, var(--neo-radio-transition-duration)) var(--neo-easing, ease);
 }
 
-/* The inner dot is a square pseudo-element clipped to a circle by mask,
- * scaled down so it leaves a visible ring of the parent's bg colour
+/* The inner dot is a pseudo-element rounded by border-radius, scaled
+ * down so it leaves a visible ring of the parent's bg colour
  * around it. Pops in on the active state with the same easing as the
  * checkbox's mark. */
 neo-radio::before {

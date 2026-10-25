@@ -2,7 +2,7 @@ package examples
 
 import "github.com/romshark/morpheus/neo"
 
-// One reflowing project card. Only kit pieces, no custom CSS.
+// One reflowing project card. Kit pieces plus a flex-basis from layout_overview.css.
 templ layoutOverviewCard(title, owner, status string, variant neo.BadgeVariant) {
 	@neo.CardAttrs(neo.CardOpts{}, templ.Attributes{"neo-flex-grow": "1", "class": "layout-overview-card"}) {
 		@neo.Layout(neo.LayoutOpts{Direction: neo.Set(neo.Column), Gap: neo.Set(neo.GapSm)}) {

@@ -15,7 +15,7 @@ templ PageSidebar(morpheusVersion string) {
 			}
 			<p class="intro">
 				Component <code>{ "<neo-sidebar>" }</code> is a
-				responsive navigation rail. Below the
+				responsive navigation rail. At or below the
 				<code>overlay-breakpoint</code> width (50rem
 				default) it switches to a fixed overlay with a
 				backdrop; dismiss via the header X, backdrop click,
@@ -230,9 +230,9 @@ templ PageSidebar(morpheusVersion string) {
 	}
 }
 
-// sidebarSimulator loads the per-demo handler module under
-// /static/sim/sidebar/ that serves the async-loading example (also
-// surfaced in its Server-script tab via [sidebarAsyncScript]).
+// sidebarSimulator loads the handler modules under /static/sim/sidebar/
+// for the async-loading and failure-swap examples, also surfaced in their
+// Server-script tabs via [sidebarAsyncScript] and [sidebarAsyncFailureScript].
 templ sidebarSimulator() {
 	<script type="module" src="/static/sim/sidebar/async.js"></script>
 	<script type="module" src="/static/sim/sidebar/asyncfail.js"></script>
@@ -248,7 +248,7 @@ var sidebarDoc = ComponentDoc{
 		{Name: "overlay", Type: "boolean", Default: "false",
 			Description: templ.Raw("Always render as a fixed overlay.")},
 		{Name: "overlay-breakpoint", Type: "string", Default: `"50rem"`, Observed: true,
-			Description: templ.Raw("CSS length below which the sidebar acts as an overlay.")},
+			Description: templ.Raw("CSS length at or below which the sidebar acts as an overlay.")},
 		{Name: "touch-dismiss", Type: `"off" | CSS length`, Default: "on",
 			Description: templ.Raw("Drag-to-close gesture in overlay mode. " +
 				"On by default; set <code>touch-dismiss=\"off\"</code> " +
@@ -303,8 +303,6 @@ var sidebarDoc = ComponentDoc{
 			Description: templ.Raw("Gap within header and footer rows.")},
 		{Name: "--neo-sidebar-transition-duration", Default: "calc(200ms * var(--neo-duration-scale, 1))",
 			Description: templ.Raw("Open / close animation duration.")},
-		{Name: "--neo-sidebar-overlay-breakpoint", Default: "50rem",
-			Description: templ.Raw("Width below which the sidebar acts as an overlay. The <code>overlay-breakpoint</code> attribute overrides this per instance.")},
 		{Name: "--neo-sidebar-minimized-width", Default: "3.5rem",
 			Description: templ.Raw("Width of the minimized wide-mode rail.")},
 		{Name: "--neo-sidebar-z-index", Default: "60",

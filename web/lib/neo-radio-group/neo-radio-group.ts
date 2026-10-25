@@ -3,11 +3,9 @@ import { nameFromLabel } from "../label-name";
 import { observeManagedAttrs, setAttrIfChanged } from "../neo-morph-resilient";
 
 // `aria-checked` and `tabindex` are written by the enclosing group's
-// refresh(); when the morph strips them and bypasses the group's
-// observer (which only watches child `disabled`/`value` and childList),
-// the radio's own observer re-asserts a safe default. The group's
-// next refresh, fired by any subsequent click/value/disabled, will
-// overwrite both to the correct roving-state value.
+// #refresh. The group's observer catches a morph stripping `tabindex`
+// but not `aria-checked`. The radio's own observer re-asserts a safe
+// default until the group's next refresh writes the roving state.
 const RESILIENT_ATTRS = ["role", "aria-checked", "aria-disabled", "tabindex", "aria-label"];
 
 export class NeoRadio extends HTMLElement {
@@ -74,8 +72,8 @@ export class NeoRadioGroup extends HTMLElement {
 	// Value of the radio that last held focus, for restoration after a morph.
 	#focusedValue: string | null = null;
 	// Source of truth for the selected value. The attribute is a state mirror
-	// (kept reflected so refresh()'s getAttribute reads stay correct); the
-	// client keeps this on a morph that strips `value`.
+	// for CSS and DOM readers; the client keeps this on a morph that strips
+	// `value`.
 	#valueIntent: string | null = null;
 
 	connectedCallback() {
@@ -182,7 +180,7 @@ export class NeoRadioGroup extends HTMLElement {
 	}
 
 	// Single writer for the selected value. Intent is the source of truth, the
-	// attribute its guarded mirror so refresh()'s getAttribute reads stay true.
+	// attribute its guarded mirror.
 	#writeValue(value: string | null) {
 		this.#valueIntent = value;
 		this.#reflectValue();

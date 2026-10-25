@@ -3,9 +3,8 @@
  * has no thumb, no keyboard interaction and no editable value display.
  * Header lays out exactly like the slider's header (label + value + unit)
  * so a row of mixed sliders and progress bars stays vertically aligned.
- * The track is `role="progressbar"` so AT
- * announces the value from `aria-valuenow` instead of the slider's
- * `role="slider"` thumb.
+ * The host is `role="progressbar"` so AT announces the value from
+ * `aria-valuenow` instead of the slider's `role="slider"` thumb.
  *
  * neo-progress.ts imports this file as raw text and adopts it into the
  * host's shadow root via scopeCssToHost() (which rewrites `neo-progress`

@@ -298,7 +298,7 @@ templ PageIndex(morpheusVersion string) {
 	}
 }
 
-// landingHowWorks renders the entire "Let the server drive it" section
+// landingHowWorks renders the entire "Let the server drive your UI" section
 // for a given pipeline stage. The same component renders 3 states:
 //
 //   1: initial / post-reset: placeholder slot inside the select,
@@ -843,10 +843,10 @@ templ landingOpenAlpha(morpheusVersion string) {
 // `prefers-reduced-motion` and `prefers-contrast: more` on a small
 // set of sample components so a sighted visitor can see the effect
 // without changing their OS prefs. The kit also responds to those
-// real OS prefs natively (see the @media blocks in morpheus.css);
-// the simulation is scoped via `data-motion` / `data-contrast` on
-// the demo's samples wrapper so toggling doesn't disturb the rest
-// of the page.
+// real OS prefs natively (see the @media blocks in morpheus.css).
+// The switches toggle `data-pref-reduced-motion` /
+// `data-pref-contrast-more` on <html>, which applies the simulation
+// to the whole page.
 templ landingAccessibility() {
 	<section
 		class="landing-how landing-a11y"
@@ -3447,10 +3447,10 @@ templ lfTreeFolder(name string, expanded bool) {
 	@neo.TreeItem(expanded) {
 		@neo.TreeLabel() {
 			@neo.ContextMenu(neo.ContextMenuOpts{}) {
-				// display:contents trigger, which keeps the row the label's
-				// flex child while right-click anywhere on it opens the
-				// same actions as the kebab. tabindex=-1 keeps the tree's
-				// roving focus on neo-tree-item.
+				// The contextmenu is display:contents and its flex trigger
+				// takes over the label's row, which lets right-click
+				// anywhere on it open the same actions as the kebab.
+				// tabindex=-1 keeps the tree's roving focus on neo-tree-item.
 				<neo-layout
 					data-neo-contextmenu-trigger
 					class="lf-tree-row"
