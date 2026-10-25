@@ -1,2 +1,2 @@
-/*! Morpheus v0.2.0 | MIT License | https://github.com/romshark/morpheus */
+/*! Morpheus v0.3.0 | MIT License | https://github.com/romshark/morpheus */
 var a="https://cdn.jsdelivr.net/npm/brotli-wasm@3.0.1/index.web.js",n=!1,t;function l(){return t??=(async()=>{try{let e=await(await import(a)).default;return r=>e.compress(r,{quality:11})}catch(e){console.warn("[bundle-size] brotli unavailable:",e),n=!0}return null})(),t}self.addEventListener("message",async e=>{let r=null;try{let s=await l();s&&(r=s(e.data).length)}catch(s){console.warn("[bundle-size] brotli failed:",s)}self.postMessage({size:r,failed:n})});
