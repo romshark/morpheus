@@ -40,8 +40,8 @@ templ PageFrameworks(morpheusVersion string) {
 					<code>{ "<neo-toast duration=\"4000\">" }</code> inside the
 					<code>{ "<neo-toaster>" }</code>; it animates in and
 					auto-dismisses after 4 seconds. It emits a
-					<code>neo-toast-close</code> event when the user clicks its
-					close button.
+					<code>neo-toast-close</code> event when it closes, with the
+					cause in <code>detail.reason</code>.
 				</li>
 			</ul>
 			@anchoredH3("datastar-signals") {

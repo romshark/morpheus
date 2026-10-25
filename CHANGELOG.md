@@ -4,12 +4,19 @@ This file records the notable changes of each release in the format of [Keep a C
 
 ## [Unreleased]
 
+### Changed
+
+#### Components
+
+- Fire `neo-toast-close` on every close of a toast, not only on a close-button click. `detail.reason` names the cause: `close`, `action`, `timeout`, `swipe`, `dismiss` or `remove`. To handle only close-button clicks, check `detail.reason === "close"`.
+
 ### Fixed
 
 #### Components
 
 - Show the `not-allowed` cursor on a disabled `<neo-button>`. The button showed the cursor of the element behind it, and a `title` on it never showed.
 - Stop the hover and press styles on a disabled `<neo-toggle>`, `<neo-tab>` and `<neo-option>`, on the handles of a disabled `<neo-sortable>` and on the button of a disabled file input.
+- Collapse the `<neo-toaster>` stack when the pointer leaves after a click on a close button. The stack stayed expanded, with every auto-dismiss timer paused, until a click outside the toaster.
 
 ## [0.2.0] - 2026-10-24
 

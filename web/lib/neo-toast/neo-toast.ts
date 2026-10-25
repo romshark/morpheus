@@ -140,7 +140,6 @@ export class NeoToast extends HTMLElement {
 	static readonly observedAttributes = ["variant"];
 
 	#iconSlot!: HTMLSlotElement;
-	#closeBtn!: HTMLButtonElement;
 	#emptyTrackers: Array<[HTMLSlotElement, HTMLElement]> = [];
 
 	constructor() {
@@ -148,7 +147,6 @@ export class NeoToast extends HTMLElement {
 		const root = this.attachShadow({ mode: "open" });
 		root.appendChild(TEMPLATE.content.cloneNode(true));
 		this.#iconSlot = root.querySelector<HTMLSlotElement>("slot[name='icon']")!;
-		this.#closeBtn = root.querySelector<HTMLButtonElement>("[data-neo-toast-close]")!;
 		// Pair each "row" slot with its wrapper so we can collapse the row
 		// when no light-DOM nodes were projected into the slot.
 		for (const name of ["title", "description", "action"] as const) {
@@ -161,7 +159,6 @@ export class NeoToast extends HTMLElement {
 	connectedCallback() {
 		this.#syncDefaultIcon();
 		this.#syncAriaLive();
-		this.#closeBtn.addEventListener("click", this.#onCloseClick);
 		for (const [slot, wrap] of this.#emptyTrackers) {
 			const update = () => {
 				wrap.toggleAttribute("data-empty", slot.assignedNodes().length === 0);
@@ -169,10 +166,6 @@ export class NeoToast extends HTMLElement {
 			slot.addEventListener("slotchange", update);
 			update();
 		}
-	}
-
-	disconnectedCallback() {
-		this.#closeBtn.removeEventListener("click", this.#onCloseClick);
 	}
 
 	attributeChangedCallback(name: string) {
@@ -208,10 +201,6 @@ export class NeoToast extends HTMLElement {
 			this.setAttribute("aria-live", variant === "error" ? "assertive" : "polite");
 		}
 	}
-
-	#onCloseClick = () => {
-		this.dispatchEvent(new CustomEvent("neo-toast-close", { bubbles: true, composed: true }));
-	};
 }
 
 if (!customElements.get("neo-toast")) {

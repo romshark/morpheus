@@ -271,6 +271,10 @@ var toasterDoc = ComponentDoc{
 		{Name: "<neo-toast>",
 			Description: templ.Raw("Declarative toast children. Each toast takes the slots <code>title</code>, <code>description</code>, <code>action</code>, and <code>icon</code>. The imperative API is <code>NeoToast.show({...})</code>.")},
 	},
+	Events: []DocEvent{
+		{Name: "neo-toast-close", Detail: "{ reason: string, item: HTMLElement }", Bubbles: true,
+			Description: templ.Raw("Fires on a <code>&lt;neo-toast&gt;</code> when it starts to close. <code>reason</code> is <code>\"close\"</code> (close button), <code>\"action\"</code> (action button of <code>NeoToast.show()</code>), <code>\"timeout\"</code> (<code>duration</code> elapsed), <code>\"swipe\"</code> (touch swipe), <code>\"dismiss\"</code> (<code>NeoToast.dismiss()</code>) or <code>\"remove\"</code> (the element was removed, for example by a morph).")},
+	},
 	CSSProps: []DocCSSProp{
 		{Name: "--neo-toaster-z-index", Default: "1200",
 			Description: templ.Raw("Stacking order of the fixed toaster relative to the rest of the page.")},

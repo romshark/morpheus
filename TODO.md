@@ -2,8 +2,8 @@
 
 ## BUGS
 
-neo-toast-close fires only on manual close (2026-07-07):
-- `web/lib/neo-toast/neo-toast.ts:212` dispatches `neo-toast-close` only from `#onCloseClick` (the × button). Auto-dismiss (timer), swipe-to-dismiss, and `NeoToast.dismiss()` remove the toast via `neo-toaster.ts` `#removeToast` (`web/lib/neo-toaster/neo-toaster.ts:825`) without emitting any event. Consumers cannot observe non-manual dismissals. Convention is one close/dismiss event on every removal. Fix: dispatch `neo-toast-close` for every dismissal cause (e.g. from `#removeToast`).
+Button and popover ignore the theme outside the doc site (2026-10-25):
+- `internal/site/static/style.css:4-41` maps the palette (`--btn-*`, `--accent*`, `--danger-*`, `--page-fg`) onto `--neo-button-*`, `--neo-popover-*` and `--neo-select-option-*`. style.css is site-only. A consumer page (morpheus.css + theme-default.css) gets the hardcoded defaults in `web/lib/neo-button/neo-button.css:22-75` and `web/lib/neo-popover/neo-popover.css:5-26`: blue primary instead of `--accent`, white buttons and popovers under `:root.dark`. PR #2 fixes 7 of the button tokens. Fix: move the mapping block into the component sheets, delete it from style.css.
 
 - Unsure: landing: different color from background (fixed, but there's still these weird trails from the glow effect of the matrix rain - ghosting)
 - Focus of links is not accent color

@@ -13,6 +13,7 @@ import { setState } from "../internal-state";
 import { resolveTouchDismiss } from "../touch-dismiss";
 
 type ToastVariant = "default" | "success" | "error" | "warning" | "info" | "loading";
+type ToastCloseReason = "close" | "action" | "timeout" | "swipe" | "dismiss" | "remove";
 
 // The shadow tree is a positioning stack wrapper around a single slot
 // that projects every <neo-toast> child. Both the stack markup and the
@@ -214,9 +215,7 @@ export class NeoToaster extends HTMLElement {
 		this.addEventListener("touchend", this.#onTouchEnd);
 		this.addEventListener("touchcancel", this.#onTouchCancel);
 		document.addEventListener("pointerdown", this.#onDocumentPointerDown);
-		// Close button presses inside each <neo-toast> bubble up as a
-		// composed event; a single delegate handles every toast.
-		this.addEventListener("neo-toast-close", this.#onToastDismiss);
+		this.addEventListener("click", this.#onCloseClick);
 
 		this.#resizeObserver = new ResizeObserver(() => this.#updateLayout());
 
@@ -295,7 +294,7 @@ export class NeoToaster extends HTMLElement {
 						// run the animated leave; `removeToast` pulls it out for
 						// real after `REMOVE_DELAY_MS`.
 						this.appendChild(n);
-						this.#removeToast(entry);
+						this.#removeToast(entry, "remove");
 						return;
 					}
 					this.#releaseToast(n);
@@ -308,7 +307,6 @@ export class NeoToaster extends HTMLElement {
 				});
 
 				for (const entry of refreshedToasts) {
-					this.#bindCloseButton(entry.el, entry.id);
 					this.#refreshToastDuration(entry);
 					this.#updateLayout();
 				}
@@ -340,6 +338,7 @@ export class NeoToaster extends HTMLElement {
 		this.removeEventListener("touchend", this.#onTouchEnd);
 		this.removeEventListener("touchcancel", this.#onTouchCancel);
 		document.removeEventListener("pointerdown", this.#onDocumentPointerDown);
+		this.removeEventListener("click", this.#onCloseClick);
 		this.#cancelTouchDrag();
 		for (const t of this.#toasts.slice()) {
 			if (t.timer !== null) window.clearTimeout(t.timer);
@@ -373,11 +372,11 @@ export class NeoToaster extends HTMLElement {
 
 	dismiss(id?: number): void {
 		if (id === undefined) {
-			for (const t of this.#toasts.slice()) this.#removeToast(t);
+			for (const t of this.#toasts.slice()) this.#removeToast(t, "dismiss");
 			return;
 		}
 		const t = this.#toasts.find((t) => t.id === id);
-		if (t) this.#removeToast(t);
+		if (t) this.#removeToast(t, "dismiss");
 	}
 
 	// Idempotent. The optional `seed` lets `show()` thread a
@@ -408,7 +407,8 @@ export class NeoToaster extends HTMLElement {
 					try {
 						cb();
 					} finally {
-						this.dismiss(id);
+						const t = this.#toasts.find((t) => t.id === id);
+						if (t) this.#removeToast(t, "action");
 					}
 				});
 			}
@@ -518,21 +518,13 @@ export class NeoToaster extends HTMLElement {
 		this.#updateLayout();
 	}
 
-	// Toast markup (variant icon, close button, aria-live semantics)
-	// lives in <neo-toast>'s shadow root, with nothing to enhance from the
-	// toaster side. The close button fires a composed `neo-toast-
-	// dismiss` event. The host listens via event delegation and needs no
-	// per-button click bindings either.
-	#bindCloseButton(_el: HTMLElement, _id: number): void {
-		/* no-op, kept for call-site stability */
-	}
-
-	#onToastDismiss = (e: Event) => {
-		const target = (e.composedPath()[0] ?? e.target) as Element | null;
-		const toast = target?.closest<HTMLElement>("neo-toast");
-		if (!toast) return;
-		const entry = this.#toasts.find((t) => t.el === toast);
-		if (entry) this.dismiss(entry.id);
+	// The close button sits in the toast's shadow root, which retargets
+	// `e.target` to the toast. Match it on the composed path instead.
+	#onCloseClick = (e: MouseEvent) => {
+		const path = e.composedPath();
+		if (!path.some((n) => n instanceof Element && n.hasAttribute("data-neo-toast-close"))) return;
+		const entry = this.#toasts.find((t) => path.includes(t.el));
+		if (entry) this.#removeToast(entry, "close");
 	};
 
 	#getTouchDismissThreshold(width: number): number | null {
@@ -661,7 +653,7 @@ export class NeoToaster extends HTMLElement {
 		entry.el.setAttribute("data-neo-toast-swipe-dismiss", "");
 		entry.el.style.setProperty("--toast-swipe-exit", `${closeDir * 120}%`);
 		entry.el.style.transition = "";
-		this.#removeToast(entry);
+		this.#removeToast(entry, "swipe");
 		entry.el.style.transform = "";
 	}
 
@@ -804,13 +796,13 @@ export class NeoToaster extends HTMLElement {
 		const remaining = Math.max(0, entry.deadline - now);
 		if (remaining === 0) {
 			// Deadline elapsed during a previous hover.
-			this.#removeToast(entry);
+			this.#removeToast(entry, "timeout");
 			return;
 		}
 
 		entry.timer = window.setTimeout(() => {
 			entry.timer = null;
-			this.#removeToast(entry);
+			this.#removeToast(entry, "timeout");
 		}, remaining);
 	}
 
@@ -821,29 +813,33 @@ export class NeoToaster extends HTMLElement {
 		// Deadline is intentionally not shifted; see ToastEntry comment.
 	}
 
-	#removeToast(entry: ToastEntry): void {
+	#removeToast(entry: ToastEntry, reason: ToastCloseReason): void {
 		if (entry.el.hasAttribute("data-neo-toast-leaving")) return;
 		if (entry.timer !== null) {
 			window.clearTimeout(entry.timer);
 			entry.timer = null;
 		}
-		if (!entry.el.isConnected) {
+		if (entry.el.isConnected) {
+			entry.el.setAttribute("data-neo-toast-leaving", "");
+			this.#updateLayout();
+
+			entry.removalTimer = window.setTimeout(() => {
+				entry.removalTimer = null;
+				this.#resizeObserver?.unobserve(entry.el);
+				this.#toasts = this.#toasts.filter((t) => t !== entry);
+				entry.el.remove();
+				this.#updateLayout();
+			}, REMOVE_DELAY_MS);
+		} else {
 			this.#resizeObserver?.unobserve(entry.el);
 			this.#toasts = this.#toasts.filter((t) => t !== entry);
 			this.#updateLayout();
-			return;
 		}
-
-		entry.el.setAttribute("data-neo-toast-leaving", "");
-		this.#updateLayout();
-
-		entry.removalTimer = window.setTimeout(() => {
-			entry.removalTimer = null;
-			this.#resizeObserver?.unobserve(entry.el);
-			this.#toasts = this.#toasts.filter((t) => t !== entry);
-			entry.el.remove();
-			this.#updateLayout();
-		}, REMOVE_DELAY_MS);
+		// Dispatched after the state update, which makes a listener that
+		// dismisses the same toast a no-op instead of a 2nd event.
+		entry.el.dispatchEvent(
+			new CustomEvent("neo-toast-close", { bubbles: true, composed: true, detail: { reason, item: entry.el } }),
+		);
 	}
 
 	#cancelToastRemoval(entry: ToastEntry): void {
@@ -903,16 +899,18 @@ export class NeoToaster extends HTMLElement {
 		this.#collapseStackIfIdle();
 	};
 
+	// The close and action buttons sit in the toast's shadow root, which
+	// retargets `e.target` to the toast. Walk the composed path instead.
 	#onHostClick = (e: MouseEvent) => {
-		const target = e.target instanceof Element ? e.target : null;
-		if (!target?.closest("neo-toast")) return;
-		if (
-			target.closest("[data-neo-toast-close],[data-neo-toast-action]," + "button,a,input,select,textarea,neo-button")
-		) {
-			return;
+		for (const n of e.composedPath()) {
+			if (!(n instanceof Element)) continue;
+			if (n.localName === "neo-toast") {
+				this.#clickExpanded = true;
+				this.#expandStack();
+				return;
+			}
+			if (n.matches("[data-neo-toast-close],[data-neo-toast-action],button,a,input,select,textarea,neo-button")) return;
 		}
-		this.#clickExpanded = true;
-		this.#expandStack();
 	};
 
 	#onDocumentPointerDown = (e: PointerEvent) => {
