@@ -23,6 +23,9 @@ export class NeoPagination extends HTMLElement {
 	// setPage()/reflect write `page` via setAttribute, which would otherwise
 	// re-enter render() through attributeChangedCallback.
 	#suppressAttrRender = false;
+	// An upgrade calls attributeChangedCallback before connectedCallback.
+	// Rendering then would replace the slot templates before #captureSlots reads them.
+	#ready = false;
 	#prevSlotHTML = DEFAULT_PREV_HTML;
 	#nextSlotHTML = DEFAULT_NEXT_HTML;
 	// Cached fit. Re-used across page / disabled changes so chip count
@@ -46,6 +49,7 @@ export class NeoPagination extends HTMLElement {
 			if (Number.isFinite(n)) this.#pageValue = Math.max(1, Math.floor(n));
 		}
 		this.#captureSlots();
+		this.#ready = true;
 		this.addEventListener("click", this.#onClick);
 		this.addEventListener("focusin", this.#onFocusIn);
 		this.addEventListener("focusout", this.#onFocusOut);
@@ -74,6 +78,7 @@ export class NeoPagination extends HTMLElement {
 	}
 
 	disconnectedCallback() {
+		this.#ready = false;
 		this.removeEventListener("click", this.#onClick);
 		this.removeEventListener("focusin", this.#onFocusIn);
 		this.removeEventListener("focusout", this.#onFocusOut);
@@ -138,7 +143,7 @@ export class NeoPagination extends HTMLElement {
 	};
 
 	attributeChangedCallback(name: string, _old: string | null, newValue: string | null) {
-		if (!this.isConnected || this.#suppressAttrRender) return;
+		if (!this.#ready || this.#suppressAttrRender) return;
 		if (name === ATTR_PAGE) {
 			// Absent: no command, keep the current page; re-reflect so the
 			// active chip survives a morph that stripped `page`.
@@ -192,8 +197,8 @@ export class NeoPagination extends HTMLElement {
 	#captureSlots() {
 		const prev = this.querySelector<HTMLTemplateElement>(":scope > template[data-neo-pagination-prev]");
 		const next = this.querySelector<HTMLTemplateElement>(":scope > template[data-neo-pagination-next]");
-		this.#prevSlotHTML = serializeTemplate(prev) ?? DEFAULT_PREV_HTML;
-		this.#nextSlotHTML = serializeTemplate(next) ?? DEFAULT_NEXT_HTML;
+		this.#prevSlotHTML = prev?.innerHTML ?? DEFAULT_PREV_HTML;
+		this.#nextSlotHTML = next?.innerHTML ?? DEFAULT_NEXT_HTML;
 	}
 
 	setPage(p: number) {
@@ -369,13 +374,6 @@ function effectiveContainer(el: Element): Element | null {
 		p = p.parentElement;
 	}
 	return null;
-}
-
-function serializeTemplate(tpl: HTMLTemplateElement | null): string | null {
-	if (!tpl) return null;
-	const div = document.createElement("div");
-	div.appendChild(tpl.content.cloneNode(true));
-	return div.innerHTML;
 }
 
 if (!customElements.get("neo-pagination")) {

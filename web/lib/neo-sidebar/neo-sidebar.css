@@ -21,7 +21,6 @@
 	--neo-sidebar-padding: round(calc(var(--page-spacing, 0.25rem) * 3), 1px);
 	--neo-sidebar-gap: round(calc(var(--page-spacing, 0.25rem) * 2), 1px);
 	--neo-sidebar-transition-duration: calc(200ms * var(--neo-duration-scale, 1));
-	--neo-sidebar-overlay-breakpoint: 50rem;
 	--neo-sidebar-minimized-width: 3.5rem;
 	--neo-sidebar-z-index: 60;
 	--neo-sidebar-backdrop-bg: rgba(0, 0, 0, 0.45);

@@ -21,11 +21,6 @@ Carousel:
 
 - Active status set on carousel and on slides, e.g. check landing page example.
 
-Leftovers from the 2026-10-24 comment sweep (code, not prose):
-- `web/lib/neo-sidebar/neo-sidebar.css:24` declares `--neo-sidebar-overlay-breakpoint`, which nothing reads. The doc row is removed. Delete the declaration or make the CSS read it.
-- `web/lib/neo-pagination/neo-pagination.ts` `serializeTemplate` round-trips through a `<div>`. `tpl.innerHTML` already serializes the template content.
-- `internal/site/examples/layout_align_items.css`: `border: 1px solid --accent` is invalid (no `var()`), so the boxes have no border.
-
 # Nice to have
 
 - NavGroup: Grid diagonal navigation (nice to have? I'm not sure this would be good).

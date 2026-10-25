@@ -17,6 +17,12 @@ This file records the notable changes of each release in the format of [Keep a C
 - Fire `neo-toast-close` on every close of a toast, not only on a close-button click. `detail.reason` names the cause: `close`, `action`, `timeout`, `swipe`, `dismiss` or `remove`. To handle only close-button clicks, check `detail.reason === "close"`.
 - Pulse the opacity of an indeterminate `<neo-spinner>` under reduced motion. Its static starburst looked the same as a stalled page.
 
+### Removed
+
+#### Components
+
+- Remove `--neo-sidebar-overlay-breakpoint`, which had no effect. Set the `overlay-breakpoint` attribute instead.
+
 ### Fixed
 
 #### Components
@@ -25,6 +31,7 @@ This file records the notable changes of each release in the format of [Keep a C
 - Stop the hover and press styles on a disabled `<neo-toggle>`, `<neo-tab>` and `<neo-option>`, on the handles of a disabled `<neo-sortable>` and on the button of a disabled file input.
 - Collapse the `<neo-toaster>` stack when the pointer leaves after a click on a close button. The stack stayed expanded, with every auto-dismiss timer paused, until a click outside the toaster.
 - Stop `theme-ocean.css` and `theme-matrix.css` from requesting fonts from `/static/fonts/`, a doc-site path that returns 404 elsewhere. The themes still name Nunito and VT323 first. To use them, host the fonts and declare their `@font-face`.
+- Render the `<template data-neo-pagination-prev>` and `<template data-neo-pagination-next>` content of a `<neo-pagination>` that is on the page before the bundle loads. It showed the default chevrons.
 - Fire `neo-avatars-change` whenever `<neo-avatars>` changes which avatars it shows. It fired only when no avatar fit.
 - Take the colours of `<neo-button>`, `<neo-popover>` and `<neo-option>` from the theme. Outside the doc site they used fixed colours, such as a blue primary button and white buttons and popovers in dark mode.
 

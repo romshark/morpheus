@@ -9,7 +9,7 @@
 	width: 2rem;
 	min-height: 2rem;
 	background: color-mix(in srgb, var(--accent) 15%, transparent);
-	border: 1px solid --accent;
+	border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
 	border-radius: var(--page-radius);
 	line-height: 1.2;
 	white-space: nowrap;
