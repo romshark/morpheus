@@ -4,6 +4,13 @@ This file records the notable changes of each release in the format of [Keep a C
 
 ## [Unreleased]
 
+### Fixed
+
+#### Components
+
+- Show the `not-allowed` cursor on a disabled `<neo-button>`. The button showed the cursor of the element behind it, and a `title` on it never showed.
+- Stop the hover and press styles on a disabled `<neo-toggle>`, `<neo-tab>` and `<neo-option>`, on the handles of a disabled `<neo-sortable>` and on the button of a disabled file input.
+
 ## [0.2.0] - 2026-10-24
 
 ### Added

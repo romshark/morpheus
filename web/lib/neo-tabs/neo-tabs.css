@@ -226,7 +226,7 @@ neo-tab {
 	transition: none;
 }
 
-neo-tab:hover {
+neo-tab:hover:where(:not([disabled]:not([disabled="false"]), [aria-disabled="true"])) {
 	color: var(--neo-tabs-tab-hover-color);
 }
 

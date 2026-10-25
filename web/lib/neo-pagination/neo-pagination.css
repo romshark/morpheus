@@ -36,11 +36,11 @@ neo-pagination > [data-neo-pagination-page][aria-current="page"] {
 	background: var(--neo-pagination-active-bg);
 	color: var(--neo-pagination-active-color);
 	border-color: transparent;
-	&:hover {
+	&:hover:where(:not([disabled]:not([disabled="false"]), [aria-disabled="true"])) {
 		background: var(--neo-pagination-active-hover-bg);
 		color: var(--neo-pagination-active-color);
 	}
-	&:active {
+	&:active:where(:not([disabled]:not([disabled="false"]), [aria-disabled="true"])) {
 		/* Re-pin colour, because the ghost :active rule also matches and
 		 * would otherwise leak --neo-button-ghost-color onto the fill. */
 		background: var(--neo-pagination-active-active-bg);

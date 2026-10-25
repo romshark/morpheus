@@ -124,7 +124,7 @@ neo-sortable[disabled]:where(:not([disabled="false"])) [data-neo-sortable-handle
 	transition: color var(--neo-duration-hover, calc(120ms * var(--neo-duration-scale, 1))) var(--neo-easing, ease);
 }
 
-[data-neo-sortable-grip][data-neo-sortable-handle]:hover,
+[data-neo-sortable-grip][data-neo-sortable-handle]:hover:where(:not(neo-sortable[disabled]:not([disabled="false"]) *)),
 [data-neo-sortable-grip][data-neo-sortable-handle]:focus-visible {
 	color: var(--neo-sortable-handle-hover-color);
 }

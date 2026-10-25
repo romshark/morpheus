@@ -224,7 +224,7 @@ input[type="file"]::file-selector-button {
 		var(--neo-easing, ease);
 }
 
-input[type="file"]::file-selector-button:hover {
+input[type="file"]:where(:enabled)::file-selector-button:hover {
 	background: var(--neo-button-hover-bg);
 }
 

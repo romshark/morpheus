@@ -28,7 +28,8 @@ neo-buttongroup > neo-button[variant="primary"] {
 	border-color: var(--neo-button-primary-bg);
 }
 
-neo-buttongroup > neo-button[variant="primary"]:hover {
+neo-buttongroup
+	> neo-button[variant="primary"]:hover:where(:not([disabled]:not([disabled="false"]), [aria-disabled="true"])) {
 	border-color: var(--neo-button-primary-hover-bg);
 }
 
@@ -61,7 +62,8 @@ neo-buttongroup > neo-button[aria-checked="true"] {
 	z-index: 2;
 }
 
-neo-buttongroup[value] > neo-button[aria-checked="true"]:hover {
+neo-buttongroup[value]
+	> neo-button[aria-checked="true"]:hover:where(:not([disabled]:not([disabled="false"]), [aria-disabled="true"])) {
 	background: var(--neo-button-primary-hover-bg);
 	color: var(--neo-button-primary-color);
 	border-color: var(--neo-button-border-color);
@@ -69,7 +71,8 @@ neo-buttongroup[value] > neo-button[aria-checked="true"]:hover {
 	transform: translateY(0);
 }
 
-neo-buttongroup[value] > neo-button[aria-checked="true"]:active {
+neo-buttongroup[value]
+	> neo-button[aria-checked="true"]:active:where(:not([disabled]:not([disabled="false"]), [aria-disabled="true"])) {
 	background: var(--neo-button-primary-active-bg);
 	color: var(--neo-button-primary-color);
 	border-color: var(--neo-button-border-color);

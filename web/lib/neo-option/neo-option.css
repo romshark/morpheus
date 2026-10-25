@@ -28,7 +28,7 @@ neo-option[role="option"] {
 	-webkit-user-select: none;
 }
 
-neo-option[role="option"]:hover {
+neo-option[role="option"]:hover:where(:not([aria-disabled="true"])) {
 	background: var(--neo-select-option-hover-bg);
 }
 

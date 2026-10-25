@@ -220,7 +220,8 @@ neo-input-group > :is(button, neo-button, neo-toggle) {
 	--neo-button-active-lift: 0px;
 }
 
-neo-input-group > :is(button, neo-button, neo-toggle):hover {
+neo-input-group
+	> :is(button, neo-button, neo-toggle):hover:where(:not([disabled]:not([disabled="false"]), [aria-disabled="true"])) {
 	background: var(--neo-button-hover-bg);
 }
 

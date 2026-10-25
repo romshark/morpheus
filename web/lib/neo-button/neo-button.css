@@ -122,15 +122,18 @@ a[data-neo-link]:where(:not([data-neo-link="false"])):not([variant="default"]) {
 		transform var(--neo-duration-hover, calc(120ms * var(--neo-duration-scale, 1))) var(--neo-easing, ease);
 }
 
+/* A disabled <neo-button> keeps pointer events and matches :hover and
+ * :active. Each such rule excludes the disabled states inside :where()
+ * to leave its specificity unchanged. */
 neo-button:not([variant="anchor"]),
 a[data-neo-link]:where(:not([data-neo-link="false"])):not([variant]),
 a[data-neo-link]:where(:not([data-neo-link="false"])):not([variant="default"]) {
-	&:hover {
+	&:hover:where(:not([disabled]:not([disabled="false"]), [aria-disabled="true"])) {
 		background: var(--neo-button-hover-bg);
 		box-shadow: var(--neo-button-hover-shadow);
 		transform: translateY(var(--neo-button-hover-lift));
 	}
-	&:active {
+	&:active:where(:not([disabled]:not([disabled="false"]), [aria-disabled="true"])) {
 		background: var(--neo-button-active-bg);
 		color: var(--neo-button-active-color);
 		box-shadow: var(--neo-button-active-shadow);
@@ -177,10 +180,10 @@ a[data-neo-link]:where(:not([data-neo-link="false"]))[variant="button-primary"] 
 	background: var(--neo-button-primary-bg);
 	color: var(--neo-button-primary-color);
 	border-color: transparent;
-	&:hover {
+	&:hover:where(:not([disabled]:not([disabled="false"]), [aria-disabled="true"])) {
 		background: var(--neo-button-primary-hover-bg);
 	}
-	&:active {
+	&:active:where(:not([disabled]:not([disabled="false"]), [aria-disabled="true"])) {
 		background: var(--neo-button-primary-active-bg);
 		/* Re-pin, because the neutral :active rule also matches and
 		 * would otherwise leak --neo-button-active-color here. */
@@ -192,10 +195,10 @@ a[data-neo-link]:where(:not([data-neo-link="false"]))[variant="button-secondary"
 	background: var(--neo-button-secondary-bg);
 	color: var(--neo-button-secondary-color);
 	border-color: transparent;
-	&:hover {
+	&:hover:where(:not([disabled]:not([disabled="false"]), [aria-disabled="true"])) {
 		background: var(--neo-button-secondary-hover-bg);
 	}
-	&:active {
+	&:active:where(:not([disabled]:not([disabled="false"]), [aria-disabled="true"])) {
 		background: var(--neo-button-secondary-active-bg);
 		color: var(--neo-button-secondary-color);
 	}
@@ -208,12 +211,12 @@ a[data-neo-link]:where(:not([data-neo-link="false"]))[variant="button-ghost"] {
 	/* A low-emphasis, transparent surface shouldn't cast or lift. */
 	box-shadow: none;
 	transform: none;
-	&:hover {
+	&:hover:where(:not([disabled]:not([disabled="false"]), [aria-disabled="true"])) {
 		background: var(--neo-button-ghost-hover-bg);
 		box-shadow: none;
 		transform: none;
 	}
-	&:active {
+	&:active:where(:not([disabled]:not([disabled="false"]), [aria-disabled="true"])) {
 		background: var(--neo-button-ghost-active-bg);
 		color: var(--neo-button-ghost-color);
 		box-shadow: none;
@@ -225,10 +228,10 @@ a[data-neo-link]:where(:not([data-neo-link="false"]))[variant="button-danger"] {
 	background: var(--neo-button-danger-bg);
 	color: var(--neo-button-danger-color);
 	border-color: transparent;
-	&:hover {
+	&:hover:where(:not([disabled]:not([disabled="false"]), [aria-disabled="true"])) {
 		background: var(--neo-button-danger-hover-bg);
 	}
-	&:active {
+	&:active:where(:not([disabled]:not([disabled="false"]), [aria-disabled="true"])) {
 		background: var(--neo-button-danger-active-bg);
 		color: var(--neo-button-danger-color);
 	}
@@ -265,7 +268,7 @@ a[data-neo-link]:where(:not([data-neo-link="false"]))[variant="default"] {
 neo-button[variant="anchor"],
 a[data-neo-link]:where(:not([data-neo-link="false"])):not([variant]),
 a[data-neo-link]:where(:not([data-neo-link="false"]))[variant="default"] {
-	&:hover,
+	&:hover:where(:not([disabled]:not([disabled="false"]), [aria-disabled="true"])),
 	&:focus-visible {
 		background: transparent;
 		color: var(--link-hover, var(--link, var(--accent, currentColor)));
@@ -292,13 +295,29 @@ a[data-neo-link]:where(:not([data-neo-link="false"]))[variant="default"] {
 	}
 }
 
+/* <neo-button> swallows disabled clicks in JS and keeps pointer events,
+ * which shows the cursor. */
+neo-button {
+	&[disabled]:not([disabled="false"]),
+	&[aria-disabled="true"] {
+		cursor: not-allowed;
+	}
+}
+
 neo-button,
 a[data-neo-link]:where(:not([data-neo-link="false"])) {
 	&[disabled]:not([disabled="false"]),
 	&[aria-disabled="true"] {
-		cursor: not-allowed;
 		opacity: 0.55;
 		background-image: var(--neo-disabled-overlay);
+	}
+}
+
+/* A native anchor has no JS. `pointer-events: none` blocks navigation
+ * and hides the cursor. */
+a[data-neo-link]:where(:not([data-neo-link="false"])) {
+	&[disabled]:not([disabled="false"]),
+	&[aria-disabled="true"] {
 		pointer-events: none;
 	}
 }
