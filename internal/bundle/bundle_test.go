@@ -35,13 +35,17 @@ func TestBuildAll(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	for name, got := range map[string][]byte{"min/bundle.js": js, "min/morpheus.css": css} {
+	for name, got := range map[string][]byte{
+		"min/bundle.js":    js,
+		"min/morpheus.css": css,
+	} {
 		want, err := fs.ReadFile(repo, name)
 		if err != nil {
 			t.Fatal(err)
 		}
 		if !bytes.Equal(got, want) {
-			t.Errorf("Build output is not %s: %d bytes, want %d", name, len(got), len(want))
+			t.Errorf("Build output is not %s: %d bytes, want %d",
+				name, len(got), len(want))
 		}
 	}
 }
@@ -54,7 +58,10 @@ func TestBuildSelection(t *testing.T) {
 		t.Fatal(err)
 	}
 	// Unminified output names each module by its path.
-	for module, want := range map[string]bool{"neo-dialog.ts": true, "neo-select.ts": false} {
+	for module, want := range map[string]bool{
+		"neo-dialog.ts": true,
+		"neo-select.ts": false,
+	} {
 		if got := bytes.Contains(js, []byte("\n// morpheus:"+module+"\n")); got != want {
 			t.Errorf("bundle has %s: %v, want %v", module, got, want)
 		}
@@ -68,7 +75,13 @@ func TestBuildSelection(t *testing.T) {
 // no other file, unchanged.
 func TestThemes(t *testing.T) {
 	v := prepare(t)
-	want := []string{"theme-default.css", "theme-rose.css", "theme-sunshine.css"}
+	want := []string{
+		"theme-default.css",
+		"theme-matrix.css",
+		"theme-ocean.css",
+		"theme-rose.css",
+		"theme-sunshine.css",
+	}
 	if !slices.Equal(v.Manifest.Themes, want) {
 		t.Errorf("Themes = %v, want %v", v.Manifest.Themes, want)
 	}
@@ -102,7 +115,10 @@ func TestEsbuildPin(t *testing.T) {
 
 func TestSelect(t *testing.T) {
 	s := Select([]string{" NEO-Select, dialog", "nope,option", ""}, nil)
-	if want := []string{"graph-neo-dialog", "graph-neo-select"}; !slices.Equal(s.Named, want) {
+	if want := []string{
+		"graph-neo-dialog",
+		"graph-neo-select",
+	}; !slices.Equal(s.Named, want) {
 		t.Errorf("Named = %v, want %v", s.Named, want)
 	}
 	want := []string{

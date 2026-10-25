@@ -5,20 +5,6 @@
  * dims the greens down so the same surfaces feel like a screen at
  * low brightness. Either way --page-radius collapses to 0 for hard edges. */
 
-/* VT323 by Peter Hull, OFL-licensed (see /static/fonts/LICENSE).
- * The font is only requested when the matrix theme is active (its
- * --page-font-family names "VT323"). Users on every other theme don't
- * download it. `font-display: swap` shows the monospace fallback during
- * the ~18 KB fetch and swaps in cleanly when ready, instead of blocking
- * first paint on a webfont. */
-@font-face {
-	font-family: "VT323";
-	src: url("/static/fonts/vt323-latin-400.woff2") format("woff2");
-	font-weight: 400;
-	font-style: normal;
-	font-display: swap;
-}
-
 :root.theme-matrix {
 	/* Both modes are dark-bg (bright vs dimmed phosphor). */
 	color-scheme: dark;
@@ -40,10 +26,11 @@
 	--page-radius: 0;
 	--page-spacing: 0.18rem;
 
-	/* VT323 is a pixel-grid CRT terminal font (vendored, see @font-face).
-	 * The monospace stack is the fallback chain while the webfont is
-	 * loading and for any glyph VT323 doesn't cover. Set on the light
-	 * variant only; dark matrix inherits via the cascade. */
+	/* VT323 is a pixel-grid CRT terminal font. The theme ships no
+	 * @font-face, which means VT323 applies only where the page loads it.
+	 * The monospace stack is the fallback chain otherwise, while the
+	 * webfont loads and for any glyph VT323 doesn't cover. Set on the
+	 * light variant only; dark matrix inherits via the cascade. */
 	--page-font-family:
 		"VT323", ui-monospace, "SF Mono", Menlo, Consolas,
 		"Liberation Mono", monospace;

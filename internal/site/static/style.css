@@ -1,3 +1,28 @@
+/* Fonts that themes name in --page-font-family. The theme files ship no
+ * @font-face because /static/fonts/ exists only on this site. A font
+ * downloads only while the active theme uses it, and `font-display: swap`
+ * paints the theme's fallback chain during the fetch.
+ *
+ * Nunito by Nunito Project Authors, OFL-licensed (see
+ * /static/fonts/nunito-OFL.txt). 1 variable latin file covers the
+ * 400-900 weights. */
+@font-face {
+	font-family: "Nunito";
+	src: url("/static/fonts/nunito-latin-variable.woff2") format("woff2");
+	font-weight: 400 900;
+	font-style: normal;
+	font-display: swap;
+}
+
+/* VT323 by Peter Hull, OFL-licensed (see /static/fonts/LICENSE). */
+@font-face {
+	font-family: "VT323";
+	src: url("/static/fonts/vt323-latin-400.woff2") format("woff2");
+	font-weight: 400;
+	font-style: normal;
+	font-display: swap;
+}
+
 * {
 	box-sizing: border-box;
 }

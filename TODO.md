@@ -26,9 +26,6 @@ Leftovers from the 2026-10-24 comment sweep (code, not prose):
 - `web/lib/neo-pagination/neo-pagination.ts` `serializeTemplate` round-trips through a `<div>`. `tpl.innerHTML` already serializes the template content.
 - `internal/site/examples/layout_align_items.css`: `border: 1px solid --accent` is invalid (no `var()`), so the boxes have no border.
 
-Theme fonts (2026-10-24):
-- `min/theme-ocean.css` and `min/theme-matrix.css` load fonts from `/static/fonts/*.woff2`, a doc-site path. From jsDelivr (README install) it resolves to `cdn.jsdelivr.net/static/fonts/...`, which does not exist. `min/` has no fonts. The bundle builder and `morpheus bundle` leave both themes out for this (`internal/bundle/version.go` `themes`).
-
 # Nice to have
 
 - NavGroup: Grid diagonal navigation (nice to have? I'm not sure this would be good).

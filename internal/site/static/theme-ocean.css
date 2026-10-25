@@ -1,21 +1,6 @@
 /* theme-ocean.css: cyan on near-white / deep navy. Bigger corner
  * curve and a roomier spacing scale to match the soft, watery feel. */
 
-/* Nunito by Nunito Project Authors, OFL-licensed (see
- * /static/fonts/nunito-OFL.txt). Rounded humanist sans whose soft
- * terminals echo ocean's large --page-radius. One variable latin file
- * covers the 400-900 weights the site uses, which lets a single
- * @font-face serve body and bold. Only fetched when the ocean theme is
- * active (its --page-font-family names "Nunito"); `font-display: swap`
- * paints the rounded fallback during the fetch. */
-@font-face {
-	font-family: "Nunito";
-	src: url("/static/fonts/nunito-latin-variable.woff2") format("woff2");
-	font-weight: 400 900;
-	font-style: normal;
-	font-display: swap;
-}
-
 :root.theme-ocean {
 	color-scheme: light;
 
@@ -36,9 +21,11 @@
 	--page-radius: 0.6rem;
 	--page-spacing: 0.3rem;
 
-	/* Nunito (vendored, see @font-face) with a rounded-sans fallback
-	 * chain while the webfont loads. Set on the light variant only;
-	 * dark ocean inherits via the cascade. */
+	/* Rounded humanist sans whose soft terminals echo the large
+	 * --page-radius. The theme ships no @font-face, which means Nunito
+	 * applies only where the page loads it; otherwise the rounded-sans
+	 * fallback chain does. Set on the light variant only; dark ocean
+	 * inherits via the cascade. */
 	--page-font-family:
 		"Nunito", ui-rounded, "SF Pro Rounded", "Segoe UI",
 		system-ui, sans-serif;
