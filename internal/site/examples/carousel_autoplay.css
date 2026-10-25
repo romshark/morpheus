@@ -8,7 +8,6 @@
 }
 
 .cx-pill > neo-carousel-track,
-.cx-pill > .cx-nav,
 .cx-pill::part(dots) { grid-area: slides; }
 
 .cx-pill::part(dots) {
@@ -19,24 +18,6 @@
 	z-index: 1;
 	pointer-events: auto;
 }
-
-.cx-pill > .cx-nav {
-	align-self: center;
-	z-index: 1;
-	width: 2.25rem;
-	height: 2.25rem;
-	padding: 0;
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	border-radius: 999px;
-	background: color-mix(in srgb, var(--page-bg) 88%, transparent);
-	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18);
-}
-
-.cx-pill > [data-neo-carousel-prev].cx-nav { justify-self: start; margin-left: 0.5rem; }
-
-.cx-pill > [data-neo-carousel-next].cx-nav { justify-self: end; margin-right: 0.5rem; }
 
 .cx-pill > .cx-controls {
 	grid-area: controls;

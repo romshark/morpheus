@@ -525,83 +525,6 @@ header h1 {
 	margin: 0.25rem 0 0;
 }
 
-/* Toaster-page Datastar examples: triggers beside a contained
- * <neo-toaster>. position:relative is the key bit (also on
- * .demo-frame-stage; defensive here). */
-.datastar-toast-host {
-	position: relative;
-	display: flex;
-	flex-wrap: wrap;
-	align-items: center;
-	justify-content: center;
-	gap: 0.5rem;
-	width: 100%;
-	height: 100%;
-}
-
-.datastar-toast-host--controls-top {
-	align-content: flex-start;
-	align-items: flex-start;
-	justify-content: flex-start;
-}
-
-.datastar-toast-host > neo-toaster[contained]:where(:not([contained="false"])) {
-	--neo-toaster-max-height:
-		calc(
-			100% -
-				var(--neo-toaster-padding, 1rem) -
-				var(--neo-toaster-padding, 1rem) +
-				var(--neo-toast-shadow-bleed, 1.5rem) +
-				var(--neo-toast-shadow-bleed, 1.5rem)
-		);
-}
-
-.datastar-action-demo {
-	position: relative;
-	width: 100%;
-	height: 100%;
-}
-
-.datastar-action-panel {
-	width: min(28rem, 100%);
-	padding: 0.85rem;
-	border: 1px solid var(--btn-border);
-	border-radius: var(--page-radius, 0.5rem);
-	background: var(--btn-bg);
-	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
-}
-
-.datastar-action-item {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	gap: 1rem;
-	& > div {
-		display: flex;
-		flex-direction: column;
-		gap: 0.15rem;
-		min-width: 0;
-	}
-	& strong {
-		font-weight: 600;
-	}
-	& span {
-		color: var(--muted);
-		font-size: 0.86rem;
-	}
-}
-
-.datastar-action-demo > neo-toaster[contained]:where(:not([contained="false"])) {
-	--neo-toaster-max-height:
-		calc(
-			100% -
-				var(--neo-toaster-padding, 1rem) -
-				var(--neo-toaster-padding, 1rem) +
-				var(--neo-toast-shadow-bleed, 1.5rem) +
-				var(--neo-toast-shadow-bleed, 1.5rem)
-		);
-}
-
 .demo-note {
 	margin: 0 0 0.75rem;
 	color: var(--muted);
@@ -762,73 +685,6 @@ neo-tooltip.sim-settings-warning {
 	width: fit-content;
 }
 
-.sim-settings-field {
-	display: grid;
-	grid-template-columns: minmax(6.5rem, 0.35fr) minmax(7rem, 1fr) 4.75rem;
-	align-items: center;
-	gap: 0.6rem;
-	min-width: 0;
-	& > span {
-		color: var(--muted);
-		font-size: 0.86rem;
-		line-height: 1.2;
-	}
-}
-
-/* Control column for the patch-mode row: button group + the
- * icon-only info popover trigger sitting right after it. */
-.sim-settings-mode-control {
-	display: flex;
-	align-items: center;
-	gap: 0.35rem;
-	min-width: 0;
-}
-
-/* Icon-only help-glyph popover trigger: transparent bg/border but
- * keep the kit padding/line-height so its height matches the
- * adjacent button group. */
-.sim-settings-info-btn {
-	--neo-button-bg: transparent;
-	--neo-button-border-color: transparent;
-	--neo-button-color: var(--muted);
-	&:hover {
-		--neo-button-color: var(--accent);
-	}
-	&:hover {
-		color: var(--accent);
-	}
-	& neo-icon {
-		font-size: 0.95em;
-	}
-}
-
-/* Info popovers: tighter type so short paragraphs read as a tooltip,
- * not a dialog. The positioning helper writes an inline max-width;
- * set an explicit compact width instead. */
-neo-popover:has(> .patch-mode-info) {
-	--neo-popover-max-width: min(22rem, calc(100vw - 2rem));
-}
-
-.patch-mode-info {
-	box-sizing: border-box;
-	width: min(22rem, calc(100vw - 2rem));
-	min-width: 0;
-	padding: 0.75rem 0.9rem;
-	font-size: 0.86rem;
-	line-height: 1.4;
-	overflow-wrap: anywhere;
-	& h4 {
-		margin: 0 0 0.4rem;
-		font-size: 0.9rem;
-	}
-	& p {
-		margin: 0.4rem 0 0;
-	}
-	& p:first-of-type {
-		margin-top: 0;
-	}
-}
-
 /* Inline copy of the simulator's unreachable/error controls, above
  * failure-path demos. Bound to the same global signals as the sidebar
  * panel so either copy syncs both; borderless so it reads inline. */
@@ -855,37 +711,9 @@ neo-popover:has(> .patch-mode-info) {
 	}
 }
 
-.sim-settings-field input[type="range"] {
-	width: 100%;
-	min-width: 0;
-}
-
 .sim-settings-slider {
 	width: 100%;
 	min-width: 0;
-}
-
-.sim-settings-field select {
-	width: fit-content;
-	font: inherit;
-	color: var(--btn-fg);
-	background: var(--btn-bg);
-	border: 1px solid var(--btn-border);
-	border-radius: var(--page-radius, 0.5rem);
-	padding: 0.28rem 0.5rem;
-}
-
-.sim-settings-field > neo-select {
-	--neo-select-min-width: 7rem;
-	width: fit-content;
-	max-width: 100%;
-}
-
-.sim-settings-field output {
-	color: var(--muted);
-	font-size: 0.86rem;
-	font-variant-numeric: tabular-nums;
-	text-align: right;
 }
 
 .sim-settings-toggle {
@@ -1001,20 +829,6 @@ neo-input-group > .demo-input-group-operator {
 .demo-input-group-operator::part(label) {
 	justify-content: center;
 	text-align: center;
-}
-
-@media (max-width: 36rem) {
-	.sim-settings-field {
-		grid-template-columns: minmax(0, 1fr) 4.75rem;
-	}
-
-	.sim-settings-field > span {
-		grid-column: 1 / -1;
-	}
-
-	.sim-settings-field select {
-		grid-column: 1 / -1;
-	}
 }
 
 .checkbox-tree {
@@ -1831,8 +1645,7 @@ site-codemirror[data-site-codemirror-loading] > .site-codemirror-loading {
 	text-align: left;
 }
 
-.person-title,
-.person-name {
+.person-title {
 	font-weight: 600;
 	/* line-height bumped from the popover panel's inherited `1` so
 	 * descenders (g, j, p, y) fit inside the box; `overflow: hidden`
@@ -1858,14 +1671,6 @@ site-codemirror[data-site-codemirror-loading] > .site-codemirror-loading {
 	--neo-avatar-size: 2.25rem;
 	width: 2.25rem;
 	height: 2.25rem;
-}
-
-/* Compact avatar for an option's trigger face (cloned onto the trigger
- * via [data-neo-option-trigger]); smaller than the full list-row card. */
-.person-avatar-sm {
-	--neo-avatar-size: 1.5rem;
-	width: 1.5rem;
-	height: 1.5rem;
 }
 
 /* Let the panel size to content (kit's 14rem default is too wide for
@@ -2215,15 +2020,6 @@ neo-popover:has(> [data-neo-popover-content] > .popover-menu) {
 .sidebar-preview > neo-sidebar:not(:state(overlay)) {
 	height: auto;
 	align-self: stretch;
-}
-
-.sidebar-mini-rail {
-	justify-content: flex-start;
-	& > neo-button {
-		width: 100%;
-		aspect-ratio: 1;
-		padding: 0;
-	}
 }
 
 /* flex-shrink:0 so the drag-set inline width holds; default shrink:1
