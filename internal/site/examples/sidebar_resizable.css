@@ -40,11 +40,6 @@
 	flex-basis: 0;
 }
 
-.sb-shell > neo-resizable:has(> neo-sidebar:defined:not([open])) > [data-neo-resize-handle],
-.sb-shell > neo-resizable:has(> neo-sidebar:state(overlay)) > [data-neo-resize-handle] {
-	display: none;
-}
-
 .sb-shell .sb-main {
 	flex: 1 1 auto;
 	display: flex;

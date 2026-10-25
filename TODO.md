@@ -23,7 +23,7 @@ Carousel:
 
 Styles that never apply (fixing changes rendering or API):
 
-- `[data-neo-resize-handle]` in `sidebar_resizable.css:43-44`, `sidebar_mixed_breakpoints.css:43-44`, `sidebar_touch_dismiss.css:43-44` never matches; kit sets `data-neo-resizable-handle`. Handle stays visible on a closed/overlay sidebar.
+- Unsure: `sidebar_resizable.css`, `sidebar_mixed_breakpoints.css`, `sidebar_touch_dismiss.css` collapse the `neo-resizable` wrapper on a closed/overlay sidebar but don't hide its `[data-neo-resizable-handle]`. The handle may stay visible at the edge.
 - `landing.css:2276-2277` sets `--neo-button-padding-inline/-block`; neo-button reads only `--neo-button-padding`. Tree action buttons get default padding.
 - `--neo-card-horizontal-collapse` (`neo-card.css:17`) has no effect, the `@container` at `:219` is literal 28rem. `page_card.templ:128,199` documents it as tunable.
 - `--neo-alert-title-line-size` (`neo-alert.css:37`) is never read; documented at `page_alert.templ:153`.
