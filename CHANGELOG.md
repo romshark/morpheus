@@ -4,6 +4,12 @@ This file records the notable changes of each release in the format of [Keep a C
 
 ## [Unreleased]
 
+### Changed
+
+#### Templ wrappers
+
+- Require templ v0.3.1100 in the `neo` and `datastar` packages. Upgrade the templ CLI to the same version and regenerate. This version replaces the string value of a spread attribute whose name starts with `on`, such as `online`, unless it is a `templ.ComponentScript`.
+
 ## [0.3.0] - 2026-10-25
 
 ### Added

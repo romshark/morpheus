@@ -64,7 +64,7 @@ neo-revealable:not([open]) > [data-neo-revealable-content] {
  * opacity, never readable. Scoped to media because opacity:0 already
  * hides text and blurring it would only waste a composite. */
 neo-revealable[variant="media"][blur-content]:where(:not([blur-content="false"])):not([open])
-> [data-neo-revealable-content] {
+	> [data-neo-revealable-content] {
 	opacity: 0.6;
 	filter: blur(var(--neo-revealable-blur));
 }

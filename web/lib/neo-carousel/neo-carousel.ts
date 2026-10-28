@@ -1249,7 +1249,7 @@ export class NeoCarousel extends HTMLElement {
 		const slides = this.#slides();
 		const value = this.#resolvedValue();
 		const idx = slides.findIndex((s) => s.getAttribute("value") === value);
-		return idx >= 0 ? idx : 0;
+		return Math.max(idx, 0);
 	}
 
 	#onClick = (e: MouseEvent) => {

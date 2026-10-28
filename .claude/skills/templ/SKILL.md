@@ -24,6 +24,12 @@ Reword, or write the word as the string expression `{ "for" }`.
 
 In text, `@` preceded by a space or tab starts a templ element expression, and `no @media query` calls `media`. `user@example.com` stays text. Write a literal `@` after whitespace as a string expression such as `{ "@media" }`.
 
+`@` after other punctuation, as in `&#34;@neo.X()`, renders as text, and templ warns that a future release will call it. To call it, put the call on its own line.
+
+### Attributes named `on*`
+
+templ reads every attribute name starting with `on` as an event handler, written literally or spread, and replaces a string value with a `failed sanitization` comment. This hits `on` and `online`. In the `neo` package, pass such values through `attrValue`, which `Attr.Attrs` already does.
+
 ### Spaces around component calls in prose
 
 Line breaks around a `@call` render as follows:

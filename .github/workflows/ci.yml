@@ -55,7 +55,7 @@ jobs:
       # git status (not git diff) so a new, uncommitted _templ.go is caught too.
       - name: templ generate is up to date
         run: |
-          go run github.com/a-h/templ/cmd/templ@v0.3.1070 generate
+          go run github.com/a-h/templ/cmd/templ@v0.3.1100 generate
           if [ -n "$(git status --porcelain)" ]; then
             echo "*_templ.go is stale; run 'make templ' and commit:"
             git status --porcelain

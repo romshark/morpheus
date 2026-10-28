@@ -16,7 +16,7 @@
 # templier.yml holds the wiring.
 
 DST := dst
-TEMPL_VERSION := v0.3.1070
+TEMPL_VERSION := v0.3.1100
 
 .PHONY: all gen templ bundle bundle-size js-install clean watch check-pnpm
 

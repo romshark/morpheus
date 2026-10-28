@@ -2,6 +2,7 @@ package neo
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/a-h/templ"
 )
@@ -54,8 +55,18 @@ func (a Attr[T]) Attrs(name string) templ.Attributes {
 		if v {
 			return templ.Attributes{name: true}
 		}
-		return templ.Attributes{name: "false"}
+		return templ.Attributes{name: attrValue(name, "false")}
 	default:
-		return templ.Attributes{name: fmt.Sprintf("%v", v)}
+		return templ.Attributes{name: attrValue(name, fmt.Sprintf("%v", v))}
 	}
+}
+
+// attrValue returns v as the value of the spread attribute name. templ reads
+// every name starting with "on" as an event handler and replaces a string
+// value; [templ.JSUnsafeFuncCall] renders v HTML-escaped instead.
+func attrValue(name, v string) any {
+	if len(name) >= 2 && strings.EqualFold(name[:2], "on") {
+		return templ.JSUnsafeFuncCall(v)
+	}
+	return v
 }

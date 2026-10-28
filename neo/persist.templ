@@ -12,8 +12,8 @@ type PersistOpts struct {
 	For     Attr[string]
 }
 
-// Spread instead of literal `on=...`; templ's parser treats `on*`
-// attributes as JS event handlers requiring templ.ComponentScript.
+// templ reads `on` as an event handler, written literally or spread.
+// [attrValue] keeps its value.
 func persistAttrs(opts PersistOpts, extra templ.Attributes) templ.Attributes {
 	a := templ.Attributes{}
 	for k, v := range opts.Key.Attrs("key") {
@@ -23,7 +23,7 @@ func persistAttrs(opts PersistOpts, extra templ.Attributes) templ.Attributes {
 		a["props"] = strings.Join(opts.Props, " ")
 	}
 	if len(opts.On) > 0 {
-		a["on"] = strings.Join(opts.On, " ")
+		a["on"] = attrValue("on", strings.Join(opts.On, " "))
 	}
 	for k, v := range opts.Session.Attrs("session") {
 		a[k] = v
