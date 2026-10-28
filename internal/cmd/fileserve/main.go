@@ -61,11 +61,18 @@ func (w *cacheControlResponseWriter) Write(p []byte) (int, error) {
 // Because the /static/min/ bundles keep stable names, a long cache would
 // pin an old bundle and hide rebuilds. no-cache makes the browser recheck,
 // which shows a rebuild.
+//
+// The per-page simulator handlers under /static/sim/ need the same header.
+// A page is served no-cache, and a cached handler pairs fresh markup with a
+// stale simulator on an ordinary reload. Without a header the browser caches
+// them heuristically and only a cache-dropping reload picks up a rebuild.
 func setCacheControl(h http.Header, status int, urlPath string) {
 	if status < 200 || status >= 400 || h.Get("Cache-Control") != "" {
 		return
 	}
-	if strings.HasPrefix(urlPath, "/static/min/") || urlPath == "/static/datasim.js" {
+	if strings.HasPrefix(urlPath, "/static/min/") ||
+		strings.HasPrefix(urlPath, "/static/sim/") ||
+		urlPath == "/static/datasim.js" {
 		h.Set("Cache-Control", "no-cache")
 		return
 	}

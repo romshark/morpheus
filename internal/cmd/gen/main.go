@@ -147,6 +147,7 @@ func buildPages(
 		{href.PageFrameworks(), site.PageFrameworks(morpheusVersion)},
 		{href.PageTheming(), site.PageTheming(morpheusVersion)},
 		{href.PageServerDriven(), site.PageServerDriven(morpheusVersion)},
+		{href.PageDemoKanban(), site.PageDemoKanban(morpheusVersion)},
 		{href.PageLayout(), site.PageLayout(morpheusVersion)},
 		{href.PageProjectStatus(), site.PageProjectStatus(morpheusVersion)},
 		{

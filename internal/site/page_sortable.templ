@@ -22,7 +22,8 @@ templ PageSortable(morpheusVersion string) {
 				so <code>neo-sortable-start</code> /
 				<code>-move</code> / <code>-end</code> events
 				identify which item moved and its
-				<code>from</code> / <code>to</code> position.
+				<code>from</code> / <code>to</code> position. Hosts
+				sharing a <code>group</code> name exchange items.
 			</p>
 			@Playground(PlaygroundOpts{
 				ID:     "sortable-playground",
@@ -32,6 +33,32 @@ templ PageSortable(morpheusVersion string) {
 				Reference
 			}
 			@ComponentDocs(sortableDoc)
+			@anchoredH3("event-target") {
+				Event target
+			}
+			<p class="demo-note">
+				All three events are dispatched on the item the gesture
+				concerns and bubble from there. A listener on the host sees
+				every event; a listener on one item sees only that item's.
+				Bind per-item state to the item and the id in
+				<code>detail</code> no longer has to be demultiplexed:
+			</p>
+			<ul class="demo-note">
+				<li>
+					The moved item is
+					<code>event.target</code>, the listening element is
+					<code>event.currentTarget</code>.
+				</li>
+				<li>
+					An item removed by a patch mid-drag is no longer in the
+					tree, so its
+					{ " " }
+					<code>aborted: true</code>
+					{ " " }
+					end event is dispatched on the host instead. A listener
+					on the host always hears the drag end.
+				</li>
+			</ul>
 			@anchoredH3("keyboard") {
 				Keyboard
 			}
@@ -214,12 +241,26 @@ templ PageSortable(morpheusVersion string) {
 				Custom move easing
 			}
 			<p class="demo-note">
-				The <code>easing</code> attribute tunes how the
-				displaced items glide. Here a slow
-				<code>{ `easing="420ms ease-in-out"` }</code>
-				makes the reflow obvious; an empty
-				<code>{ `easing=""` }</code> would turn it off
-				and snap instantly.
+				Reorder motion is CSS. The component measures and inverts;
+				the stylesheet owns the transition. Set
+				<code>{ `--neo-sortable-move-duration` }</code>
+				{ " " }
+				to say how long the displaced items take, and
+				{ " " }
+				<code>{ `--neo-easing` }</code>
+				{ " " }
+				to pick the curve. Here a slow 420ms ease-in-out makes the
+				reflow obvious.
+			</p>
+			<p class="demo-note">
+				Because it is CSS, a media query reaches it. The kit drops
+				every glide under
+				{ " " }
+				<code>{ `prefers-reduced-motion: reduce` }</code>
+				, and a theme scales all of them at once through
+				{ " " }
+				<code>{ `--neo-duration-scale` }</code>
+				.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
 				Width:          "20rem",
@@ -230,6 +271,36 @@ templ PageSortable(morpheusVersion string) {
 				CSSSource:      sortableEasingCSS,
 			}) {
 				@examples.SortableEasing()
+			}
+			@anchoredH3("drop-docking") {
+				Drop docking
+			}
+			<p class="demo-note">
+				The dragged item follows the pointer, so it is the one
+				thing not sitting in a slot when the gesture ends. It
+				glides from wherever it was let go to the slot it landed
+				in, on the same curve as the displaced rows but at
+				{ " " }
+				<code>{ `--neo-sortable-dock-duration` }</code>
+				. The same
+				glide carries an item that
+				{ " " }
+				<code>rollbackDrop</code>
+				{ " " }
+				sends back.
+			</p>
+			<p class="demo-note">
+				Drag a row to the other list to see it. Within one list a
+				drop usually has little ground to cover, because the gap
+				the item will fill is already under the pointer.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     sortableDockHTML,
+				TemplSource:    sortableDockTempl,
+				CSSSource:      sortableDockCSS,
+			}) {
+				@examples.SortableDock()
 			}
 			@anchoredH3("custom-placement-indicator") {
 				Custom placement indicator
@@ -268,6 +339,81 @@ templ PageSortable(morpheusVersion string) {
 			}) {
 				@examples.SortableDisabled()
 			}
+			@anchoredH3("connected-lists") {
+				Connected lists
+			}
+			<p class="demo-note">
+				Three columns share
+				{ " " }
+				<code>{ `group="sprint"` }</code>. An item dragged out of
+				one lands in another. Each host carries an
+				<code>id</code>, which the events report as
+				<code>fromList</code> / <code>toList</code>. The empty
+				column is a drop target like any other; it only needs a
+				<code>min-height</code> to keep a box the pointer can
+				reach. Drag a row across, or pick one up with
+				<code>Space</code> and press <code>ArrowLeft</code> /
+				<code>ArrowRight</code>: the axis the reorder doesn't use
+				carries the item to the adjacent list.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				Width:          "34rem",
+				StageMinWidth:  "16rem",
+				StageMinHeight: "max-content",
+				HTMLSource:     sortableGroupHTML,
+				TemplSource:    sortableGroupTempl,
+				CSSSource:      sortableGroupCSS,
+			}) {
+				@examples.SortableGroup()
+			}
+			@anchoredH3("connected-rows") {
+				Connected rows
+			}
+			<p class="demo-note">
+				A group of
+				{ " " }
+				<code>{ `orientation="horizontal"` }</code>
+				{ " " }
+				hosts. Reordering runs along the row and leaves the
+				vertical axis free: <code>ArrowUp</code> /
+				<code>ArrowDown</code> carry the held item to the other
+				lane. A grouped host never locks the cross-axis for the
+				pointer either, keeping a peer off the reorder axis
+				reachable mid-drag. A <code>grid</code> host spends all
+				four arrows on reordering and has no keyboard hand-off.
+				Each lane scrolls once its items no longer fit; hold an
+				item at the edge of a narrowed lane to pan it.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				Width:          "30rem",
+				StageMinWidth:  "16rem",
+				StageMinHeight: "max-content",
+				HTMLSource:     sortableGroupRowHTML,
+				TemplSource:    sortableGroupRowTempl,
+				CSSSource:      sortableGroupRowCSS,
+			}) {
+				@examples.SortableGroupRow()
+			}
+			@anchoredH3("locked-list-in-a-group") {
+				Locked list in a group
+			}
+			<p class="demo-note">
+				<code>disabled</code> takes a host out of the group in
+				both directions: its own items don't move, and it is
+				skipped as a drop target. An item dragged over it stays in
+				the list it came from. Drag a draft onto Published to see
+				the drop refused.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				Width:          "30rem",
+				StageMinWidth:  "16rem",
+				StageMinHeight: "max-content",
+				HTMLSource:     sortableGroupLockedHTML,
+				TemplSource:    sortableGroupLockedTempl,
+				CSSSource:      sortableGroupLockedCSS,
+			}) {
+				@examples.SortableGroupLocked()
+			}
 		</section>
 		<section class="demo">
 			@anchoredH2("examples-datastar") {
@@ -292,22 +438,30 @@ templ PageSortable(morpheusVersion string) {
 				</li>
 				<li>
 					<strong>Different order</strong>: same ids, reordered.
-					With <code>tolerate-reorder</code> the kit reconciles
-					the new order in place and the drag survives; the held
-					row keeps its grip.
+					From <code>{ `morph-tolerance="reorder"` }</code> up, the
+					kit reconciles the new order in place and the drag
+					survives; the held row keeps its grip.
 				</li>
 				<li>
 					<strong>Different items</strong>: the morph swaps an
-					<code>id</code> in or out. The kit can't map the
-					in-flight drag onto the new set. It cancels the drag
-					and lets the server's order stand.
+					<code>id</code> in or out. Below
+					{ " " }
+					<code>{ `morph-tolerance="all"` }</code>
+					{ " " }
+					the kit can't map the in-flight drag onto the new set.
+					It cancels the drag and lets the server's order
+					stand.
 				</li>
 			</ul>
 			<p class="demo-note">
-				Tolerating an order-only morph needs
-				<code>tolerate-reorder</code>. In the strict default,
-				reordering the other rows already counts as a change and
-				cancels the drag.
+				Each tolerance level is a superset of the one before it, so
+				pick the lowest that covers what the server actually
+				patches. The default cancels on any change, including a
+				reorder of the other rows. A list a server patches while the
+				user drags (a live board, a queue several people edit) wants
+				{ " " }
+				<code>{ `morph-tolerance="all"` }</code>, which cancels only
+				when the dragged item itself is patched away.
 			</p>
 			@Playground(PlaygroundOpts{
 				ID:       "sortable-morph-playground",
@@ -326,10 +480,12 @@ var sortableDoc = ComponentDoc{
 			Description: templ.Raw("Freezes reordering and removes the keyboard grip (grips become <code>tabindex=-1</code>).")},
 		{Name: "unbounded", Type: "boolean", Default: "false",
 			Description: templ.Raw("By default the floating dragged element is clamped to the host's bounding box so an item can't be dragged outside the list (the lower bound takes precedence if an item is larger than the host). <code>unbounded</code> opts out, letting it follow the pointer anywhere on the page.")},
-		{Name: "easing", Type: "string", Default: "theme easing",
-			Description: templ.Raw("Transition for the displaced (non-dragged) items as they glide to their new slot. When absent, the theme easing (<code>--neo-easing</code>) applies at <code>--neo-sortable-move-duration</code>. An empty string means no animation (instant). A bare duration (<code>220ms</code>) pairs with <code>--neo-easing</code>; a full pair (<code>220ms ease-in-out</code>) is used verbatim.")},
-		{Name: "tolerate-reorder", Type: "boolean", Default: "false",
-			Description: templ.Raw("Controls how an in-flight drag survives an external morph (e.g. a Datastar fat-morph). By default only a no-op morph (same item ids, same per-id content, same order of the other rows) keeps a drag alive. <code>tolerate-reorder</code> loosens that to the same id set, which treats an order-only morph as a no-op and continues the gesture. Any added, removed, or swapped id still cancels the drag.")},
+		{Name: "morph-tolerance", Type: `"none" | "reorder" | "content" | "all"`, Default: `"none"`,
+			Description: templ.Raw("How much external light-DOM change (e.g. a Datastar fat morph) an in-flight drag survives. The levels nest. <code>none</code> keeps the drag only across a no-op morph: same item ids, same per-id content, same order of the other rows. <code>reorder</code> loosens that to the same id set, which treats an order-only morph as a no-op and continues the gesture. <code>content</code> additionally lets each item's content change, for a server that patches a row's own state mid-drag. <code>all</code> cancels only when the dragged item itself disappears, which is what a list a multi-user server patches continuously needs. Losing the dragged item always cancels.")},
+		{Name: "group", Type: "string", Default: "(none)",
+			Description: templ.Raw("Connects sortables: hosts sharing a non-empty group name exchange items, so an item dragged out of one lands in another. The reorder events name the lists involved (<code>fromList</code> / <code>toList</code>). A grouped host floats a body-level copy of the dragged item, so no ancestor can clip it in flight, and it never locks the cross-axis, so peers off the reorder axis stay reachable. <code>unbounded</code> aside, the drag is clamped to the union of the group's boxes rather than one host. Keyboard: the arrows the reorder axis leaves free carry the held item to the adjacent list (left/right for a vertical host, up/down for a horizontal one); a <code>grid</code> host spends all four on reordering and so has no keyboard hand-off. A disabled host is skipped as a drop target.")},
+		{Name: "commit", Type: `"local" | "server"`, Default: `"local"`,
+			Description: templ.Raw("Who owns a completed drop. <code>local</code> makes it final at once, and a later patch may reorder it away. <code>server</code> treats it as an intent: after every patch that disagrees, the host puts the item back at the position it was dropped at. Order is the one interactive state a fat morph cannot leave alone, because a child's position is the markup's structure rather than an attribute the server could omit. See <a href=\"/server-driven/#uncommitted-state\">Uncommitted state</a>. A hold lasts until the command is answered: <code>commitDrop(id)</code> on success lets the next patch stand, <code>rollbackDrop(id)</code> on failure returns the item to where its drag started. Both are required, since the component never releases itself. Read the outstanding ids from <code>heldDrops</code>.")},
 	},
 	States: []DocState{
 		{Name: "active",
@@ -345,25 +501,27 @@ var sortableDoc = ComponentDoc{
 		{Name: "[data-neo-sortable-handle]",
 			Description: templ.Raw("Optional drag grip inside an item. With a handle, only that subtree starts a drag; without one the whole item is the grip.")},
 		{Name: "[data-neo-sortable-nodrag]",
-			Description: templ.Raw("Marks a region inside a whole-item grip that must not start a drag. Pressing it interacts normally. Native controls (links, buttons, form fields, <code>contenteditable</code>) are already exempt; use this for anything else. Ignored when the item has an explicit <code>data-neo-sortable-handle</code>.")},
+			Description: templ.Raw("Marks a region inside a whole-item grip that must not start a drag. Pressing it interacts normally. The exemption covers the keyboard too: a marked region keeps Enter, Space, and the arrow keys instead of losing them to the reorder gesture. Native controls (links, buttons, form fields, <code>contenteditable</code>) are already exempt; use this for anything else. Ignored when the item has an explicit <code>data-neo-sortable-handle</code>.")},
 		{Name: "template[data-neo-sortable-placeholder]",
 			Description: templ.Raw("Optional <code>&lt;template&gt;</code> whose content replaces the default dashed placement indicator (the gap shown where the dragged item will land). The gap keeps the dragged item's size; the slotted markup renders inside it.")},
 	},
 	Events: []DocEvent{
-		{Name: "neo-sortable-start", Detail: "{ id: string, index: number }", Bubbles: true,
-			Description: templ.Raw("Fires when a drag (pointer or keyboard pick-up) begins. <code>index</code> is the picked-up item's position.")},
-		{Name: "neo-sortable-move", Detail: "{ id: string, from: number, to: number }", Bubbles: true,
-			Description: templ.Raw("Fires on every reorder during the gesture. Item <code>id</code> moved from index <code>from</code> to index <code>to</code>.")},
-		{Name: "neo-sortable-end", Detail: "{ id: string, from: number, to: number, changed: boolean, aborted?: boolean }", Bubbles: true,
-			Description: templ.Raw("Fires when the drag ends (drop, cancel, or blur). <code>from</code> / <code>to</code> are the item's start and final positions; <code>changed</code> is false when they match or the gesture was cancelled. An external patch that aborts an in-flight drag sets <code>aborted: true</code> with <code>to: -1</code>.")},
+		{Name: "neo-sortable-start", Detail: "{ id: string, index: number, list: string }", Bubbles: true,
+			Description: templ.Raw("Fires when a drag (pointer or keyboard pick-up) begins. <code>index</code> is the picked-up item's position and <code>list</code> the id of the host it was picked up from.")},
+		{Name: "neo-sortable-move", Detail: "{ id: string, from: number, to: number, fromList: string, toList: string }", Bubbles: true,
+			Description: templ.Raw("Fires on every reorder during the gesture. Item <code>id</code> moved from index <code>from</code> to index <code>to</code>. In a <code>group</code>, <code>fromList</code> and <code>toList</code> are the host ids the item moved between; they match while the item stays in one list.")},
+		{Name: "neo-sortable-end", Detail: "{ id: string, from: number, to: number, changed: boolean, fromList: string, toList: string, aborted?: boolean }", Bubbles: true,
+			Description: templ.Raw("Fires when the drag ends (drop, cancel, or blur). <code>from</code> / <code>to</code> are the item's start and final positions, and <code>fromList</code> / <code>toList</code> the hosts it started and landed in. <code>changed</code> is false when nothing moved or the gesture was cancelled, and true for any cross-list drop. An external patch that aborts an in-flight drag sets <code>aborted: true</code> with <code>to: -1</code>.")},
 	},
 	CSSProps: []DocCSSProp{
 		{Name: "--neo-sortable-gap", Default: "0.5rem",
 			Description: templ.Raw("Gap between items.")},
 		{Name: "--neo-sortable-grid-min", Default: "7rem",
 			Description: templ.Raw("Minimum column width in <code>grid</code> orientation.")},
-		{Name: "--neo-sortable-move-duration", Default: "180ms",
-			Description: templ.Raw("Default glide duration for displaced items when the <code>easing</code> attribute is absent.")},
+		{Name: "--neo-sortable-move-duration", Default: "calc(180ms * var(--neo-duration-scale, 1))",
+			Description: templ.Raw("Glide duration for the items a drag displaces. Reorder motion is CSS: the component measures and inverts, the stylesheet owns the transition, so a theme, a media query, or a per-item rule reaches it without going through an attribute. The timing function is the kit-wide <code>--neo-easing</code>.")},
+		{Name: "--neo-sortable-dock-duration", Default: "calc(160ms * var(--neo-duration-scale, 1))",
+			Description: templ.Raw("Glide duration for the one item travelling to a slot on its own (see <a href=\"#drop-docking\">Drop docking</a>). Separate from the move duration because it covers more ground.")},
 		{Name: "--neo-sortable-drag-shadow", Default: "var(--neo-card-shadow)",
 			Description: templ.Raw("Box shadow on the lifted item.")},
 		{Name: "--neo-sortable-drag-ring", Default: "inset 0 0 0 2px var(--accent, #6366f1)",

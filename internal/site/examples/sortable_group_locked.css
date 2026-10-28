@@ -1,0 +1,18 @@
+/* Fixed lengths stay out of the layout attribute surface: one shared
+   basis keeps both columns equal, and wraps them to full width once
+   two no longer fit. */
+.sortable-group-locked-column {
+	flex-basis: 10rem;
+}
+
+.sortable-group-locked-title {
+	color: var(--muted);
+	font-size: 0.85rem;
+}
+
+.sortable-group-locked-list {
+	min-height: 4rem;
+	padding: 0.5rem;
+	border: 1px solid var(--btn-border);
+	border-radius: var(--page-radius, 0.5rem);
+}

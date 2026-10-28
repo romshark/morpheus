@@ -1,0 +1,67 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ SortableGroupLocked() {
+	@neo.LayoutAttrs(
+		neo.LayoutOpts{
+			Direction:  neo.Set(neo.Row),
+			Wrap:       neo.Set(neo.Wrap),
+			Gap:        neo.Set(neo.GapMd),
+			AlignItems: neo.Set(neo.AlignItemsStretch),
+		},
+		neo.Item(neo.ItemOpts{Width: neo.Set(neo.ItemSizeFull)}),
+	) {
+		@neo.LayoutAttrs(
+			neo.LayoutOpts{Direction: neo.Set(neo.Column), Gap: neo.Set(neo.GapSm)},
+			templ.Attributes{
+				"class":         "sortable-group-locked-column",
+				"neo-flex-grow": "1",
+				"neo-min-width": "0",
+			},
+		) {
+			<strong class="sortable-group-locked-title">Drafts</strong>
+			@neo.SortableAttrs(neo.SortableOpts{
+				Group: neo.Set("release-notes"),
+			}, templ.Attributes{
+				"id":            "notes-drafts",
+				"aria-label":    "Drafts",
+				"class":         "sortable-group-locked-list",
+				"neo-flex-grow": "1",
+			}) {
+				@neo.SortableItem("note-webhooks") {
+					Webhook retries
+				}
+				@neo.SortableItem("note-sso") {
+					SSO for teams
+				}
+			}
+		}
+		@neo.LayoutAttrs(
+			neo.LayoutOpts{Direction: neo.Set(neo.Column), Gap: neo.Set(neo.GapSm)},
+			templ.Attributes{
+				"class":         "sortable-group-locked-column",
+				"neo-flex-grow": "1",
+				"neo-min-width": "0",
+			},
+		) {
+			<strong class="sortable-group-locked-title">Published</strong>
+			@neo.SortableAttrs(neo.SortableOpts{
+				Group:    neo.Set("release-notes"),
+				Disabled: neo.Set(true),
+			}, templ.Attributes{
+				"id":            "notes-published",
+				"aria-label":    "Published",
+				"class":         "sortable-group-locked-list",
+				"neo-flex-grow": "1",
+			}) {
+				@neo.SortableItem("note-usage-api") {
+					Usage API
+				}
+				@neo.SortableItem("note-audit-export") {
+					Audit export
+				}
+			}
+		}
+	}
+}

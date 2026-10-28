@@ -2,6 +2,31 @@
 
 ## BUGS
 
+`internal/cmd/fileserve` served `/static/sim/**` with no `Cache-Control` (fixed 2026-08-08):
+- Pages are `no-cache` but their simulator handlers were not, so an ordinary reload could pair fresh markup with a stale simulator. It affected every sim-driven demo, not just the kanban page. Worth a regression test on `setCacheControl`; the package has none.
+- Not the cause of the Brave skeleton-on-reload report, which was a lost ready signal. Kept because the mismatch is a real hazard either way.
+
+`internal/cmd/gen/datasim.js` misreported two things about SSE (fixed 2026-08-09), and has no tests:
+- A client abort closed the response body instead of erroring it, so a consumer could not tell an abort from the server ending the stream. Datastar tells them apart: it keeps a stream reopenable after an abort but drops its `visibilitychange` listener on a clean end. Every simulated stream therefore died for good the first time its tab went to the background. Real `fetch` rejects the body on abort; `abortWriter` now does too.
+- Each frame timed its latency from the front of the write queue, not from when the handler wrote it, so a stream emitting faster than one frame per latency fell further behind on every frame. Frames written together now arrive together.
+
+Kanban demo (2026-08-07):
+- The simulated second user can move a card while another client is mid-drag. The drag survives (the shell freezes morphs), but the drop then races the peer's write. Real presence would pin a grabbed card server-side.
+- Cards are whole-item drag grips, so the kit puts `touch-action: none` on the whole card. Touch-scrolling a column has to start on a gap between cards. A handle avoids this; the trade was made deliberately.
+- The board is a fixed-height frame (`--kb-board-height`, default 34rem) and only a column's card list scrolls. neo-elastic is on the cards alone; a column wrapped in one animated its height on load and could not coexist with a scrolling list, which has nothing to animate.
+
+CSS-only motion: `neo-sortable` converted (2026-08-09), `neo-carousel` and `neo-tabs` still on the `easing` attribute:
+- The attribute was a JS mini-language (`"220ms ease-in-out"` split by regex) written to an inline `style`, which beats any media query. Verified: before the change, `prefers-reduced-motion: reduce` left the sortable reorder glide running at full duration. `neo-sortable.css` had no reduced-motion rule and could not have had a working one.
+- Sortable now marks a moving item with `[data-neo-sortable-moving]` (+ `[data-neo-sortable-docking]`) and the stylesheet owns the transition, keyed on `--neo-easing`, `--neo-sortable-move-duration`, `--neo-sortable-dock-duration`. Reduced motion works.
+- `neo-carousel` cannot use CSS transitions at all: it animates `scrollLeft` on a rAF loop. Equivalent fix is to drop the attribute and read `--neo-easing` plus a duration property via `getComputedStyle`, which its `#resolveEasing` half does already.
+- `neo-tabs` uses `[easing]` as a **presence gate** in six selectors (`neo-tabs[easing] > neo-tabpanel`, the slide variants), not only as a timing value. Removing it needs a replacement opt-in for "animate panels" before the timing can move to properties. Decide that first.
+- `--neo-duration-scale` has no global default or global reduced-motion rule in `web/lib`; only `theme-matrix` sets it to 0. Every component composing `calc(x * var(--neo-duration-scale, 1))` therefore ignores reduced motion outside that theme.
+
+templ parses a text node that begins with `for` / `if` / `switch` as a Go control statement, so prose after a closing tag cannot start with one. Cost an hour on `page_sortable.templ`; worth a note in the templ skill.
+
+`data-attr:checked` uses the bare-boolean form in `internal/site/site.templ:1006` (`simToggle`):
+- The doc-page skill and `web/lib/neo-*` require `$sig ? 'true' : 'false'` plus a write-back; a bare `$sig` makes Datastar remove the attribute on false, which the command contract reads as "keep current state". Every settings-panel toggle goes through this helper. Verify whether the write-back masks it, and align the helper either way.
+
 - Unsure: landing: different color from background (fixed, but there's still these weird trails from the glow effect of the matrix rain - ghosting)
 - Focus of links is not accent color
 Carousel doc page:

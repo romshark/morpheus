@@ -4,6 +4,47 @@ This file records the notable changes of each release in the format of [Keep a C
 
 ## [Unreleased]
 
+### Added
+
+#### Components
+
+- Add the `group` attribute to `<neo-sortable>`. Hosts with the same group name exchange items by pointer and keyboard.
+- Add `commit="server"` to `<neo-sortable>`. It holds a dropped item at its new position across patches until `commitDrop(id)` or `rollbackDrop(id)` is called. `heldDrops` lists the held ids.
+- Add the host ids to the `<neo-sortable>` events: `list` on `neo-sortable-start`, `fromList` and `toList` on `neo-sortable-move` and `neo-sortable-end`.
+
+#### Templ wrappers
+
+- Add `SortableOpts.Group` and `SortableOpts.Commit` with the `neo.CommitMode` type.
+
+### Changed
+
+#### Components
+
+- Replace the `tolerate-reorder` attribute of `<neo-sortable>` with `morph-tolerance`, which takes `reorder`, `content` or `all`. Migrate `tolerate-reorder` to `morph-tolerance="reorder"`.
+- Fire the `<neo-sortable>` events on the moved item instead of the host. They still bubble to the host, but `event.target` is now the item.
+- Scale the `<neo-sortable>` reorder glide with `--neo-duration-scale`.
+
+#### Templ wrappers
+
+- Replace `SortableOpts.TolerateReorder` with `SortableOpts.MorphTolerance`. Migrate `TolerateReorder: neo.Set(true)` to `MorphTolerance: neo.Set(neo.MorphToleranceReorder)`.
+
+### Removed
+
+#### Components
+
+- Remove the `easing` attribute of `<neo-sortable>`. Set `--neo-easing` and `--neo-sortable-move-duration` on the host instead, and `--neo-sortable-dock-duration` for a dropped item settling into its slot. For `easing=""`, set both durations to `0s`.
+
+#### Templ wrappers
+
+- Remove `SortableOpts.Easing`. Set the CSS properties named above instead.
+
+### Fixed
+
+#### Components
+
+- Stop the `<neo-sortable>` reorder glide under `prefers-reduced-motion: reduce`. It ran at full duration.
+- Keep Enter, Space and the arrow keys for a control or `data-neo-sortable-nodrag` region inside a `<neo-sortable>` item without a handle. A space typed into such a field picked up the item.
+
 ## [0.3.0] - 2026-10-25
 
 ### Added

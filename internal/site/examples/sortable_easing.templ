@@ -5,7 +5,6 @@ import "github.com/romshark/morpheus/neo"
 templ SortableEasing() {
 	@neo.SortableAttrs(neo.SortableOpts{
 		Orientation: neo.Set(neo.OrientationVertical),
-		Easing:      neo.Set("420ms ease-in-out"),
 	}, templ.Attributes{"class": "sortable-easing"}) {
 		@neo.SortableItem("first") {
 			First

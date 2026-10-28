@@ -1,0 +1,230 @@
+package site
+
+import (
+	"github.com/romshark/morpheus/internal/href"
+	"github.com/romshark/morpheus/neo"
+)
+
+// PageDemoKanban renders /demo-kanban/, a multi-user kanban board.
+// The page ships only the shell: every column and card is rendered by
+// the server simulator and delivered as one fat morph of
+// `#kanban-columns` over a single SSE projection stream.
+templ PageDemoKanban(morpheusVersion string) {
+	@PageDoc(href.PageDemoKanban(), "Demo: Kanban board", morpheusVersion) {
+		<link rel="stylesheet" href={ href.Asset("min/kanban.css") }/>
+		<script type="module" src="/static/sim/kanban/board.js"></script>
+		<section class="demo">
+			@anchoredH2("kanban") {
+				Kanban board
+			}
+			<p class="intro">
+				A kanban board on one SSE stream. The server owns the board.
+				The browser sends commands and renders nothing itself.
+			</p>
+			<p>
+				Every command shows its progress until the server confirms it.
+				A command that fails is undone and reported. Nothing is drawn
+				as saved before the server says it is.
+			</p>
+			<p>
+				The Settings panel drives the server. Raise latency to see the
+				progress state. Make the server fail to watch a command be
+				undone. Open the page twice to see both windows follow the same
+				stream.
+			</p>
+			@kanbanBoard()
+			@anchoredH3("kanban-how") {
+				How it works
+			}
+			<ul class="demo-note">
+				<li>
+					Every change patches the whole column strip. One code path
+					serves the client that acted and every client watching.
+				</li>
+				<li>
+					Each field ships both a label and an input. A double-click
+					only flips a signal, so the editor opens with no request.
+					Saving is the part that reaches the server.
+				</li>
+				<li>
+					Columns share one
+					{ " " }
+					<code>{ `<neo-sortable group="board">` }</code>. Cards move
+					between them.
+				</li>
+			</ul>
+		</section>
+	}
+}
+
+// kanbanBoard is the shell the simulator renders into. It owns the
+// command payload signals, the drag-time morph freeze, and the
+// client-side failure path; no board markup is authored here.
+templ kanbanBoard() {
+	<div
+		id="kanban-board"
+		class="kanban-shell"
+		data-signals="{_kb_dragging: false, _kb_open: false, _kb_edit: '', _kb_revert: '', _kb_moves: '', _kb_acklabel: '', _kb_ackdone: false, _kb_cmds: 0, kb_card: '', kb_col: '', kb_to_list: '', kb_to_index: 0, kb_value: '', _kb_ack: '', kb_collab: false, _kb_errors: 0}"
+		data-on:kanban-sim-ready={ kanbanOpenStream }
+		data-attr:data-ignore-morph="$_kb_dragging"
+		data-on:neo-sortable-start="$_kb_dragging = true"
+		data-on:neo-sortable-end={ kanbanOnDrop }
+		data-on:datastar-fetch={ kanbanOnFetch }
+	>
+		<div class="kanban-toolbar">
+			<span class="kanban-conn">
+				<span class="kanban-conn-dot" aria-hidden="true"></span>
+				Projection stream
+			</span>
+			<span class="kanban-toolbar-spacer"></span>
+			<label class="sim-settings-toggle">
+				@neo.SwitchAttrs(neo.SwitchOpts{
+					Checked:   neo.Set(false),
+					Size:      neo.Set("sm"),
+					AriaLabel: neo.Set("Simulate a second user editing the board"),
+				}, templ.Attributes{
+					"data-attr:checked":         "$kb_collab ? 'true' : 'false'",
+					"data-on:neo-switch-change": "$kb_collab = evt.detail.checked; $_kb_cmds = $_kb_cmds + 1; @post('/kanban/collab', " + kanbanPostOpts + ")",
+				})
+				Second user
+			</label>
+		</div>
+		<div id="kanban-columns" class="kanban-columns" aria-busy="true">
+			@kanbanSkeletonColumn()
+			@kanbanSkeletonColumn()
+			@kanbanSkeletonColumn()
+		</div>
+	</div>
+}
+
+// kanbanSkeletonColumn is the pre-stream placeholder. The first patch
+// replaces the whole strip, so this is never reconciled against real
+// board markup.
+templ kanbanSkeletonColumn() {
+	<div class="kb-skeleton">
+		<neo-skeleton shape="line" style="width: 7em;"></neo-skeleton>
+		<neo-skeleton shape="rect" style="height: 3.5rem;"></neo-skeleton>
+		<neo-skeleton shape="rect" style="height: 3.5rem;"></neo-skeleton>
+	</div>
+}
+
+// kanbanOpenStream opens the single projection stream, once.
+// openWhenHidden keeps it open while the tab is in the background.
+// Datastar otherwise aborts an SSE connection on tab hide and reopens it
+// on return; a board that is meant to track what other people are doing
+// has no reason to stop tracking while the user looks elsewhere.
+const kanbanOpenStream = "if (!$_kb_open) { $_kb_open = true; " +
+	"@get('/kanban/stream', {openWhenHidden: true}) }"
+
+// kanbanPostOpts is used by every command that has no entity to cancel
+// against, and by the ones the simulator renders.
+//
+// requestCancellation defaults to "auto", which aborts the previous
+// request sharing this element and URL. Every card moves through one
+// handler on the board, so moving a second card would cancel the first
+// card's save. A controller per request scopes cancellation to nothing.
+//
+// retryMaxCount bounds the retries. Datastar retries a network failure
+// indefinitely by default, so without a bound the command never reports
+// a terminal failure and the user is told nothing at all.
+const kanbanPostOpts = "{requestCancellation: new AbortController(), retryMaxCount: 2}"
+
+// kanbanMoveOpts narrows that back down to per-card cancellation: moving
+// a card again while its last move is still in flight drops the request
+// nobody is waiting for, and moving a different card leaves it alone.
+// The controllers hang off the board element rather than a signal
+// because they are keyed by card id, which a signal path cannot be.
+const kanbanMoveOpts = "{requestCancellation: (el._kbMove ??= {})[evt.detail.id] = new AbortController(), " +
+	"retryMaxCount: 2}"
+
+// kanbanAbortPrevious cancels this card's outstanding move, if any,
+// before the new one goes out.
+const kanbanAbortPrevious = "el._kbMove?.[evt.detail.id]?.abort(); "
+
+// kanbanOnDrop turns a completed reorder into a move command. The kit
+// reports the receiving list and index, so the payload needs no DOM
+// reading. `changed` is false for a drop back into the same slot.
+//
+// _kb_revert remembers the list the card came from. It is the only way
+// back if the command never reaches the server: the board is repaired
+// by the projection, and an unreachable server has no projection.
+const kanbanOnDrop = "$_kb_dragging = false; " +
+	"if (evt.detail.changed) { " +
+	"$kb_card = evt.detail.id; " +
+	"$kb_to_list = evt.detail.toList; " +
+	"$kb_to_index = evt.detail.to; " +
+	"$_kb_ack = $_kb_ack + '|' + evt.detail.id + '|'; " +
+	"$_kb_acklabel = 'Moving\u2026'; " +
+	"$_kb_revert = evt.detail.id + '|' + evt.detail.fromList; " +
+	"$_kb_moves = $_kb_moves + '|' + evt.detail.id + '>' + evt.detail.toList + '>' + evt.detail.to; " +
+	"$_kb_cmds = $_kb_cmds + 1; " +
+	kanbanAbortPrevious +
+	"@post('/kanban/card/move', " + kanbanMoveOpts + ") }"
+
+// kanbanOnFetch is the transport-failure path, following the same
+// contract as the datastar package's async wrappers: `retries-failed`
+// means the retry budget is gone, while an `error` followed by
+// `finished` covers an HTTP failure Datastar stops retrying silently.
+// The board itself is not repaired here; the next stream patch carries
+// the server's truth, which is what puts a rejected card back.
+const kanbanOnFetch = "if (evt.detail.type === 'error') { $_kb_errors = $_kb_errors + 1 } " +
+	// Hold the unacknowledged drop against the projection. Until the
+	// command reaches the server the board it sends still has the card in
+	// the list it came from, so every patch in that window drags the card
+	// back and the user watches it bounce. The move is the client's
+	// intent until the server owns it, so it is re-asserted after each
+	// patch. Queued so it runs once the patch has been applied, and
+	// skipped for a card back under the pointer.
+	// The local marker outlives the request by one patch. Its job is to
+	// cover the wait for the server's own marker, and under latency that
+	// marker is still on the wire when the response lands, so clearing on
+	// `finished` blinks the card empty between the two.
+	"if (evt.detail.type === 'datastar-patch-elements' && $_kb_ackdone && $_kb_cmds === 0) { " +
+	"$_kb_ackdone = false; $_kb_ack = ''; $_kb_revert = ''; $_kb_moves = '' } " +
+	"if (evt.detail.type === 'datastar-patch-elements' && $_kb_moves) { " +
+	"const _mv = $_kb_moves; queueMicrotask(() => { " +
+	"for (const _e of _mv.split('|')) { " +
+	"if (!_e) continue; " +
+	"const _f = _e.split('>'), _c = document.getElementById(_f[0]), " +
+	"_t = document.getElementById(_f[1]), _want = Number(_f[2]); " +
+	"if (!_c || !_t || _c.hasAttribute('data-neo-sortable-dragging')) continue; " +
+	"const _items = [..._t.children].filter(_x => _x.hasAttribute('data-neo-sortable-item')); " +
+	"if (_c.parentElement === _t && _items.indexOf(_c) === _want) continue; " +
+	"const _others = _items.filter(_x => _x !== _c); " +
+	"_t.insertBefore(_c, _others[_want] ?? null); } }) } " +
+	"if (evt.detail.type === 'retries-failed' || " +
+	"(evt.detail.type === 'finished' && $_kb_errors > 0)) { " +
+	"$_kb_errors = 0; $_kb_ack = ''; $_kb_cmds = 0; $_kb_moves = ''; $_kb_ackdone = false; " +
+	// The command definitively failed, so the card is sitting somewhere
+	// the server never agreed to. Put it back in the list it came from.
+	// A resync would do this too, but only while the server is
+	// reachable, and the case that needs it most is the one where it is
+	// not. Skipped while the card is held: the user's hand wins.
+	"const _p = $_kb_revert.split('|'), _c = document.getElementById(_p[0]), " +
+	"_l = document.getElementById(_p[1]); " +
+	"if (_c && _l && !_c.hasAttribute('data-neo-sortable-dragging')) _l.appendChild(_c); " +
+	"$_kb_revert = ''; " +
+	"document.getElementById('app-toaster').show({" +
+	"variant: 'error', title: 'Command did not reach the server', " +
+	"description: 'The card is back where the server has it. Retry the change.', " +
+	"duration: 6000}) } " +
+	// A commit that landed closes its editor. Keyed on the acting entity
+	// so an unrelated command finishing cannot shut an editor the user is
+	// still in, and left open on failure so the typed text survives.
+	//
+	// The local marker is cleared only once no command is outstanding.
+	// It names one entity, so a fast command finishing while a slower one
+	// is still going would otherwise take the slower one's marker with
+	// it, leaving that card with nothing to show. _kb_cmds counts only
+	// commands: the projection stream never finishes, so it never counts.
+	"if (evt.detail.type === 'finished') { " +
+	"$_kb_cmds = Math.max(0, $_kb_cmds - 1); " +
+	"if ($_kb_errors === 0 && $_kb_edit && " +
+	"$_kb_ack.includes('|' + $_kb_edit.split(':')[0] + '|')) { $_kb_edit = '' } " +
+	// Wait for one more patch before dropping the local marker, but not
+	// forever: the last patch of a command often lands before its
+	// response does, and the next one after that may be a resync seconds
+	// away. A marker left up that long also leaves its button inert.
+	"if ($_kb_cmds === 0) { $_kb_ackdone = true; setTimeout(() => { " +
+	"if ($_kb_ackdone && $_kb_cmds === 0) { " +
+	"$_kb_ackdone = false; $_kb_ack = ''; $_kb_revert = ''; $_kb_moves = '' } }, 400) } }"

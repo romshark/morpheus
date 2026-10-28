@@ -18,6 +18,9 @@ var serverDrivenAsyncLoadScript string
 //go:embed static/sim/serverdriven/asyncfail.js
 var serverDrivenAsyncFailScript string
 
+//go:embed static/sim/serverdriven/uncommitted.js
+var serverDrivenUncommittedScript string
+
 //go:embed examples/server_driven_command_open.html
 var serverDrivenCommandOpenHTML string
 
@@ -50,3 +53,11 @@ var serverDrivenAsyncFailTempl string
 
 //go:embed examples/server_driven_async_fail.css
 var serverDrivenAsyncFailCSS string
+
+var serverDrivenUncommittedHTML = renderExampleHTML(examples.ServerDrivenUncommitted())
+
+//go:embed examples/server_driven_uncommitted.templ
+var serverDrivenUncommittedTempl string
+
+//go:embed examples/server_driven_uncommitted.css
+var serverDrivenUncommittedCSS string

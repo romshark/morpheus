@@ -336,8 +336,12 @@ function handleSimulated(req, url, match) {
     }));
   };
 
-  // Per-frame response latency, serialized so frames stay in order when the
-  // handler emits faster than the simulated network can deliver.
+  // Each frame carries the one-way latency from the moment the handler
+  // writes it, and the chain only keeps them in order. Timing the latency
+  // from the front of the queue instead would charge a frame for every
+  // frame ahead of it: a stream emitting faster than one frame per
+  // latency falls further behind on every frame and never recovers, which
+  // no connection does. Frames written together arrive together.
   let pendingWrites = Promise.resolve();
   const enqueue = (frame) => {
     if (writerClosed || aborted) {
@@ -346,9 +350,10 @@ function handleSimulated(req, url, match) {
     if (!committedSse) {
       commitSse();
     }
+    const arrival = awaitLatency(ctrl.signal).catch(() => { });
     pendingWrites = pendingWrites.then(async () => {
       if (writerClosed || aborted) return;
-      try { await awaitLatency(ctrl.signal); } catch { return; }
+      await arrival;
       if (writerClosed || aborted) return;
       try { await writer.write(encoder.encode(frame)); } catch { }
     });
@@ -363,7 +368,20 @@ function handleSimulated(req, url, match) {
     }
   };
 
-  const onAbort = () => { aborted = true; closeWriter(); };
+  // Error the body instead of ending it. A real fetch's body rejects when
+  // its signal is aborted, and a consumer is entitled to tell that apart
+  // from the server closing a stream it was done with: Datastar keeps a
+  // stream reopenable after an abort but tears it down for good on a
+  // clean end, so closing here strands every stream the client aborts —
+  // which is every stream, since Datastar aborts them on tab hide.
+  const abortWriter = async (reason) => {
+    if (writer && !writerClosed) {
+      writerClosed = true;
+      try { await writer.abort(reason); } catch { }
+    }
+  };
+
+  const onAbort = () => { aborted = true; abortWriter(req.signal.reason); };
   req.signal.addEventListener('abort', onAbort);
 
   // Tears down a mid-flight request on setUnreachable(true). Aborts the SSE
@@ -375,10 +393,7 @@ function handleSimulated(req, url, match) {
     aborted = true;
     ctrl.abort(new TypeError('Failed to fetch'));
     if (committedSse) {
-      if (writer && !writerClosed) {
-        writerClosed = true;
-        try { await writer.abort(new TypeError('Failed to fetch')); } catch { }
-      }
+      await abortWriter(new TypeError('Failed to fetch'));
     } else {
       rejectResponse(new TypeError('Failed to fetch'));
     }

@@ -1,0 +1,23 @@
+/* One shared basis makes the short column as wide as the tall one, and
+   wraps the row into full-width columns once both no longer fit. */
+.sortable-dock-column {
+	flex-basis: 10rem;
+}
+
+.sortable-dock-title {
+	color: var(--muted);
+	font-size: 0.85rem;
+}
+
+/* min-height keeps a short list a drop target: a host with no box
+   catches no pointer. */
+/* Slow, and overshooting slightly before it settles, so the item reads
+   as dropping into the slot rather than sliding to a stop. */
+.sortable-dock-list {
+	--neo-sortable-dock-duration: 380ms;
+	--neo-easing: cubic-bezier(0.34, 1.4, 0.64, 1);
+	min-height: 6rem;
+	padding: 0.5rem;
+	border: 1px solid var(--btn-border);
+	border-radius: var(--page-radius, 0.5rem);
+}

@@ -1,0 +1,68 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+// SortableDock shows dock-easing. A cross-list drop leaves the item far
+// from the slot it lands in, which is where the glide is worth seeing.
+templ SortableDock() {
+	@neo.LayoutAttrs(
+		neo.LayoutOpts{
+			Direction:  neo.Set(neo.Row),
+			Wrap:       neo.Set(neo.Wrap),
+			Gap:        neo.Set(neo.GapMd),
+			AlignItems: neo.Set(neo.AlignItemsStretch),
+		},
+		neo.Item(neo.ItemOpts{Width: neo.Set(neo.ItemSizeFull)}),
+	) {
+		@neo.LayoutAttrs(
+			neo.LayoutOpts{Direction: neo.Set(neo.Column), Gap: neo.Set(neo.GapSm)},
+			templ.Attributes{
+				"class":         "sortable-dock-column",
+				"neo-flex-grow": "1",
+				"neo-min-width": "0",
+			},
+		) {
+			<strong class="sortable-dock-title">Queued</strong>
+			@neo.SortableAttrs(neo.SortableOpts{
+				Group: neo.Set("dock"),
+			}, templ.Attributes{
+				"id":            "dock-queued",
+				"aria-label":    "Queued",
+				"class":         "sortable-dock-list",
+				"neo-flex-grow": "1",
+			}) {
+				@neo.SortableItem("dock-compress") {
+					Compress payload
+				}
+				@neo.SortableItem("dock-warm") {
+					Warm cache
+				}
+				@neo.SortableItem("dock-retry") {
+					Retry upload
+				}
+			}
+		}
+		@neo.LayoutAttrs(
+			neo.LayoutOpts{Direction: neo.Set(neo.Column), Gap: neo.Set(neo.GapSm)},
+			templ.Attributes{
+				"class":         "sortable-dock-column",
+				"neo-flex-grow": "1",
+				"neo-min-width": "0",
+			},
+		) {
+			<strong class="sortable-dock-title">Running</strong>
+			@neo.SortableAttrs(neo.SortableOpts{
+				Group: neo.Set("dock"),
+			}, templ.Attributes{
+				"id":            "dock-running",
+				"aria-label":    "Running",
+				"class":         "sortable-dock-list",
+				"neo-flex-grow": "1",
+			}) {
+				@neo.SortableItem("dock-rotate") {
+					Rotate keys
+				}
+			}
+		}
+	}
+}

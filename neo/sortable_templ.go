@@ -8,6 +8,43 @@ package neo
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
+// MorphTolerance is how much external light-DOM change an in-flight
+// <neo-sortable> drag survives. The levels nest: each one allows
+// everything the level before it allows.
+type MorphTolerance string
+
+const (
+	// MorphToleranceNone aborts the drag on any external change. Zero
+	// value, emits no attribute.
+	MorphToleranceNone MorphTolerance = ""
+	// MorphToleranceReorder keeps the drag alive across an order-only
+	// change: same item ids, same per-item content.
+	MorphToleranceReorder MorphTolerance = "reorder"
+	// MorphToleranceContent additionally lets each item's content
+	// change, so a server can patch a row's own state mid-drag.
+	MorphToleranceContent MorphTolerance = "content"
+	// MorphToleranceAll aborts only when the dragged item itself
+	// disappears. Items may be added, removed, reordered, and rewritten
+	// around it. For lists a multi-user server patches continuously.
+	MorphToleranceAll MorphTolerance = "all"
+)
+
+// CommitMode is who owns a completed <neo-sortable> drop: the client at
+// once, or the server once its own markup agrees.
+type CommitMode string
+
+const (
+	// CommitModeLocal makes a drop final the moment it happens. A later
+	// patch is free to reorder it away. Zero value, emits no attribute.
+	CommitModeLocal CommitMode = ""
+	// CommitModeServer treats a drop as an intent: after every patch that
+	// disagrees, the host puts the item back at the position it was
+	// dropped at. The hold lasts until the command is answered, and the
+	// component never releases itself: call commitDrop on success and
+	// rollbackDrop on failure.
+	CommitModeServer CommitMode = "server"
+)
+
 // SortableOpts is the attribute surface for <neo-sortable>, whose
 // direct element children drag-reorder via pointer, touch, or keyboard.
 type SortableOpts struct {
@@ -21,18 +58,26 @@ type SortableOpts struct {
 	// floating dragged element to the host's bounding box, letting it
 	// follow the pointer anywhere on the page.
 	Unbounded Attr[bool]
-	// Easing is the easing for displaced (non-dragged) items. Empty omits
-	// the attribute (theme --neo-easing at default duration), a bare
-	// duration ("220ms") pairs with --neo-easing, a full pair is
-	// verbatim. Explicit empty via [SortableAttrs] disables it.
-	Easing Attr[string]
-	// TolerateReorder relaxes the mid-drag abort rule. By default a
-	// server morph that reorders items aborts the user's drag (the
-	// slot data semantically changed). With TolerateReorder set,
-	// order-only changes are treated as a no-op (same set of ids
-	// and same per-id content, just shuffled) and the drag continues
-	// against the new layout. Content/set changes still abort.
-	TolerateReorder Attr[bool]
+	// Reorder motion is CSS, not an option here: the transition lives
+	// in the stylesheet, so it is set with --neo-easing,
+	// --neo-sortable-move-duration and --neo-sortable-dock-duration,
+	// and a media query or a per-item rule can reach it.
+	// MorphTolerance relaxes the mid-drag abort rule. By default a
+	// server morph that changes the list aborts the user's drag,
+	// because the slot data it was working against is gone. Each
+	// higher level keeps the drag alive across more of that change.
+	MorphTolerance Attr[MorphTolerance]
+	// Group connects sortables: hosts sharing a non-empty group name
+	// exchange items, so an item dragged out of one lands in another.
+	// A grouped host always floats a body-level copy of the dragged
+	// item, so no ancestor can clip it in flight.
+	Group Attr[string]
+	// Commit decides whether a drop is final at once or is held until
+	// the server confirms it. Order is the one interactive state a fat
+	// morph cannot leave alone, because a child's position is the
+	// markup's structure rather than an attribute it could omit, so a
+	// server-driven list needs this to survive its own patches.
+	Commit Attr[CommitMode]
 }
 
 // Sortable renders <neo-sortable>. Give each child item a stable `id`
@@ -122,11 +167,15 @@ func SortableAttrs(opts SortableOpts, attrs templ.Attributes) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templ.RenderAttributes(ctx, templ_7745c5c3_Buffer, opts.Easing.Attrs("easing"))
+		templ_7745c5c3_Err = templ.RenderAttributes(ctx, templ_7745c5c3_Buffer, opts.MorphTolerance.Attrs("morph-tolerance"))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templ.RenderAttributes(ctx, templ_7745c5c3_Buffer, opts.TolerateReorder.Attrs("tolerate-reorder"))
+		templ_7745c5c3_Err = templ.RenderAttributes(ctx, templ_7745c5c3_Buffer, opts.Group.Attrs("group"))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templ.RenderAttributes(ctx, templ_7745c5c3_Buffer, opts.Commit.Attrs("commit"))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -229,7 +278,7 @@ func SortableItemAttrs(id string, attrs templ.Attributes) templ.Component {
 		var templ_7745c5c3_Var7 string
 		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.ResolveAttributeValue(id)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `neo/sortable.templ`, Line: 63, Col: 13}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `neo/sortable.templ`, Line: 109, Col: 13}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var7)
 		if templ_7745c5c3_Err != nil {

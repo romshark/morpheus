@@ -205,6 +205,101 @@ templ PageServerDriven(morpheusVersion string) {
 				An absent attribute means "no command". The client may keep
 				its current state until the server needs to take control.
 			</p>
+			@anchoredH3("uncommitted-state") {
+				Uncommitted state
+			}
+			<p>
+				An absent attribute handles the case where the server says nothing. It
+				does not handle the case where the server says something different.
+				The client sends a command. The server needs time to apply it. Every
+				patch sent in that time still shows the old state. That markup is not
+				wrong. It matches the revision it was built from. The client is ahead
+				of the server.
+			</p>
+			<p>
+				This is <b>uncommitted state</b>. The user made a change. The server
+				has not confirmed it yet. This is not an optimistic update. Nothing is
+				shown as saved. The change stays where the user put it and is marked
+				as in progress. The server decides if it stays.
+			</p>
+			<p>
+				<b>Why an absent attribute is not enough.</b>
+				The server can leave out <code>open</code> or <code>checked</code>.
+				Then there is no conflict. Order has no such option. The position of a
+				child is the structure of the markup. It is not an attribute. Every
+				fat morph states the full order of every list it contains. There is
+				nothing to leave out.
+			</p>
+			<p>
+				Order is the one interactive state the client must defend, not just
+				keep. That is what
+				{ " " }
+				<a href={ href.PageSortable() }>
+					<code>{ `commit="server"` }</code>
+				</a>
+				{ " " }
+				on <code>{ "<neo-sortable>" }</code> does. It records the drop as an
+				intent. After every patch that disagrees, it puts the item back where
+				the user dropped it.
+			</p>
+			<p>
+				<b>Two outcomes.</b>
+				The hold lasts until the command is answered. The answer decides how
+				it ends:
+			</p>
+			<ul>
+				<li>
+					<b>The command succeeded.</b> Call <code>commitDrop(id)</code>. The
+					host stops resisting. The next patch wins, even if the server put
+					the item somewhere else. The server owns the order. The hold only
+					covered the wait.
+				</li>
+				<li>
+					<b>The command failed.</b> Call <code>rollbackDrop(id)</code>. The
+					item goes back to where the drag started. A patch could repair the
+					list too. But the worst case is when no patch arrives. A command
+					that never reached the server did not change the server. Every patch
+					it sends still shows the old order.
+				</li>
+			</ul>
+			<p>
+				Requirement: call one of the two. A held drop is held until then. The
+				component does not release itself when a patch agrees. The drop's own
+				DOM change already agrees with itself. The component sees it as a
+				normal mutation. That rule would end every hold before the first patch
+				arrived.
+			</p>
+			<p>
+				The server below refuses every move. It takes 1.5 seconds to answer.
+				It re-sends its order every 0.9 seconds. Drag a row. It stays where
+				you put it while those patches arrive. Then the answer comes and it
+				goes back.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				Height:         "20rem",
+				HTMLSource:     serverDrivenUncommittedHTML,
+				TemplSource:    serverDrivenUncommittedTempl,
+				CSSSource:      serverDrivenUncommittedCSS,
+				ScriptSource:   serverDrivenUncommittedScript,
+				DefaultTab:     "templ",
+			}) {
+				@examples.ServerDrivenUncommitted()
+			}
+			<p>
+				<b>Marking work in progress.</b>
+				Show uncommitted state while it lasts. The server knows which commands
+				it has accepted and not yet finished. It can render that marker. But
+				the marker is one round trip away. The user needs an answer now.
+				Datastar's
+				{ " " }
+				<code>data-indicator</code>
+				{ " " }
+				fills the gap. It is true from the moment the request leaves the
+				element until the request settles. Put it on the element that fires
+				the request. Show the marker when that signal is true or the server's
+				flag is set. The two overlap. The user does not see the handover.
+			</p>
 			@anchoredH3("loading-indication") {
 				Loading indication
 			}
@@ -274,4 +369,5 @@ templ PageServerDriven(morpheusVersion string) {
 templ serverDrivenSimulator() {
 	<script type="module" src="/static/sim/serverdriven/asyncload.js"></script>
 	<script type="module" src="/static/sim/serverdriven/asyncfail.js"></script>
+	<script type="module" src="/static/sim/serverdriven/uncommitted.js"></script>
 }

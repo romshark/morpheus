@@ -1,0 +1,48 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+// ServerDrivenUncommitted demonstrates commit="server" against a server
+// that refuses every move.
+//
+// The order never changes, so every patch keeps describing the original
+// order. The drop holds against them until the answer arrives, then goes
+// back.
+templ ServerDrivenUncommitted() {
+	// The stream is opened here and not on the list. data-indicator counts
+	// every request its own element fires, and the stream never finishes,
+	// so a stream opened on the list would hold the indicator on forever.
+	<div
+		class="sd-uncommitted"
+		data-signals="{sd_open: false, sd_item: '', sd_to: 0, sd_refused: false}"
+		data-on:sd-uncommitted-ready="if (!$sd_open) { $sd_open = true; @get('/serverdriven/uncommitted/stream', {openWhenHidden: true}) }"
+	>
+		@neo.SortableAttrs(neo.SortableOpts{
+			// The drop is an intent until the server answers.
+			Commit: neo.Set(neo.CommitModeServer),
+			// The stream rewrites this list continuously, and only losing
+			// the dragged item should end a gesture.
+			MorphTolerance: neo.Set(neo.MorphToleranceAll),
+		}, templ.Attributes{
+			"id":         "sd-uncommitted-list",
+			"class":      "sd-uncommitted-list",
+			"aria-label": "Release checklist",
+			// True while this list's own request is in flight.
+			"data-indicator": "sd_moving",
+			"data-on:neo-sortable-end": "if (evt.detail.changed) { $sd_item = evt.detail.id; $sd_to = evt.detail.to; " +
+				"$sd_refused = false; @post('/serverdriven/uncommitted/move') }",
+			// The server sets sd_refused. Put the item back: the server
+			// never moved it, and no patch will.
+			"data-on:datastar-fetch": "if (evt.detail.type === 'finished' && $sd_refused) { el.rollbackDrop($sd_item) }",
+		}) {
+			<div id="sd-a" class="sd-uncommitted-item">1. First</div>
+			<div id="sd-b" class="sd-uncommitted-item">2. Second</div>
+			<div id="sd-c" class="sd-uncommitted-item">3. Third</div>
+			<div id="sd-d" class="sd-uncommitted-item">4. Fourth</div>
+		}
+		<p class="sd-uncommitted-status" role="status" data-show="$sd_moving || $sd_refused">
+			<neo-spinner data-show="$sd_moving"></neo-spinner>
+			<span data-text="$sd_moving ? 'Moving…' : 'The server refused the move'"></span>
+		</p>
+	</div>
+}

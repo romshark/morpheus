@@ -1156,11 +1156,6 @@ site-codemirror[data-site-codemirror-loading] > .site-codemirror-loading {
 	max-inline-size: 100%;
 }
 
-.demo-frame-stage neo-sortable[orientation="horizontal"] > [data-neo-sortable-item] {
-	flex: 1 1 0;
-	min-inline-size: 0;
-}
-
 /* Component-doc playground: one reusable shell owns state selection,
  * preview patching, code editing, and parsed signal controls. */
 .component-playground {

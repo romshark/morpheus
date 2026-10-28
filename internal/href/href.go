@@ -19,6 +19,7 @@ func PageGettingStarted() string { return "/getting-started/" }
 func PageFrameworks() string     { return "/frameworks/" }
 func PageTheming() string        { return "/theming/" }
 func PageServerDriven() string   { return "/server-driven/" }
+func PageDemoKanban() string     { return "/demo-kanban/" }
 func PageLayout() string         { return "/layout/" }
 func PageProjectStatus() string  { return "/project-status/" }
 func PageBundleBuilder() string  { return "/bundle-builder/" }

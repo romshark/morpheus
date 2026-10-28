@@ -1,0 +1,84 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ SortableGroup() {
+	@neo.LayoutAttrs(
+		neo.LayoutOpts{
+			Direction:  neo.Set(neo.Row),
+			Wrap:       neo.Set(neo.Wrap),
+			Gap:        neo.Set(neo.GapMd),
+			AlignItems: neo.Set(neo.AlignItemsStretch),
+		},
+		neo.Item(neo.ItemOpts{Width: neo.Set(neo.ItemSizeFull)}),
+	) {
+		@neo.LayoutAttrs(
+			neo.LayoutOpts{Direction: neo.Set(neo.Column), Gap: neo.Set(neo.GapSm)},
+			templ.Attributes{
+				"class":         "sortable-group-column",
+				"neo-flex-grow": "1",
+				"neo-min-width": "0",
+			},
+		) {
+			<strong class="sortable-group-title">Backlog</strong>
+			@neo.SortableAttrs(neo.SortableOpts{
+				Group: neo.Set("sprint"),
+			}, templ.Attributes{
+				"id":            "sprint-backlog",
+				"aria-label":    "Backlog",
+				"class":         "sortable-group-list",
+				"neo-flex-grow": "1",
+			}) {
+				@neo.SortableItem("rate-limits") {
+					Rate limits
+				}
+				@neo.SortableItem("audit-log") {
+					Audit log
+				}
+				@neo.SortableItem("bulk-import") {
+					Bulk import
+				}
+			}
+		}
+		@neo.LayoutAttrs(
+			neo.LayoutOpts{Direction: neo.Set(neo.Column), Gap: neo.Set(neo.GapSm)},
+			templ.Attributes{
+				"class":         "sortable-group-column",
+				"neo-flex-grow": "1",
+				"neo-min-width": "0",
+			},
+		) {
+			<strong class="sortable-group-title">In review</strong>
+			@neo.SortableAttrs(neo.SortableOpts{
+				Group: neo.Set("sprint"),
+			}, templ.Attributes{
+				"id":            "sprint-review",
+				"aria-label":    "In review",
+				"class":         "sortable-group-list",
+				"neo-flex-grow": "1",
+			}) {
+				@neo.SortableItem("oauth-refresh") {
+					OAuth refresh
+				}
+			}
+		}
+		@neo.LayoutAttrs(
+			neo.LayoutOpts{Direction: neo.Set(neo.Column), Gap: neo.Set(neo.GapSm)},
+			templ.Attributes{
+				"class":         "sortable-group-column",
+				"neo-flex-grow": "1",
+				"neo-min-width": "0",
+			},
+		) {
+			<strong class="sortable-group-title">Done</strong>
+			@neo.SortableAttrs(neo.SortableOpts{
+				Group: neo.Set("sprint"),
+			}, templ.Attributes{
+				"id":            "sprint-done",
+				"aria-label":    "Done",
+				"class":         "sortable-group-list",
+				"neo-flex-grow": "1",
+			})
+		}
+	}
+}

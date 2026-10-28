@@ -135,7 +135,6 @@ func SortableEasing() templ.Component {
 		})
 		templ_7745c5c3_Err = neo.SortableAttrs(neo.SortableOpts{
 			Orientation: neo.Set(neo.OrientationVertical),
-			Easing:      neo.Set("420ms ease-in-out"),
 		}, templ.Attributes{"class": "sortable-easing"}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err

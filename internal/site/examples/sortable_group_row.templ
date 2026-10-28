@@ -1,0 +1,67 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ SortableGroupRow() {
+	@neo.LayoutAttrs(
+		neo.LayoutOpts{Direction: neo.Set(neo.Column), Gap: neo.Set(neo.GapMd)},
+		neo.Item(neo.ItemOpts{Width: neo.Set(neo.ItemSizeFull)}),
+	) {
+		@neo.Layout(neo.LayoutOpts{Direction: neo.Set(neo.Column), Gap: neo.Set(neo.GapSm)}) {
+			<strong class="sortable-group-row-title">Shown</strong>
+			@neo.SortableAttrs(neo.SortableOpts{
+				Orientation: neo.Set(neo.OrientationHorizontal),
+				Group:       neo.Set("table-columns"),
+			}, templ.Attributes{
+				"id":           "columns-shown",
+				"aria-label":   "Shown",
+				"class":        "sortable-group-row-list",
+				"neo-overflow": "auto",
+			}) {
+				@neo.SortableItemAttrs("column-name", neo.Item(neo.ItemOpts{
+					NoShrink:  neo.Set(true),
+					AlignSelf: neo.Set(neo.AlignSelfCenter),
+				})) {
+					Name
+				}
+				@neo.SortableItemAttrs("column-status", neo.Item(neo.ItemOpts{
+					NoShrink:  neo.Set(true),
+					AlignSelf: neo.Set(neo.AlignSelfCenter),
+				})) {
+					Status
+				}
+				@neo.SortableItemAttrs("column-owner", neo.Item(neo.ItemOpts{
+					NoShrink:  neo.Set(true),
+					AlignSelf: neo.Set(neo.AlignSelfCenter),
+				})) {
+					Owner
+				}
+			}
+		}
+		@neo.Layout(neo.LayoutOpts{Direction: neo.Set(neo.Column), Gap: neo.Set(neo.GapSm)}) {
+			<strong class="sortable-group-row-title">Hidden</strong>
+			@neo.SortableAttrs(neo.SortableOpts{
+				Orientation: neo.Set(neo.OrientationHorizontal),
+				Group:       neo.Set("table-columns"),
+			}, templ.Attributes{
+				"id":           "columns-hidden",
+				"aria-label":   "Hidden",
+				"class":        "sortable-group-row-list",
+				"neo-overflow": "auto",
+			}) {
+				@neo.SortableItemAttrs("column-created", neo.Item(neo.ItemOpts{
+					NoShrink:  neo.Set(true),
+					AlignSelf: neo.Set(neo.AlignSelfCenter),
+				})) {
+					Created
+				}
+				@neo.SortableItemAttrs("column-region", neo.Item(neo.ItemOpts{
+					NoShrink:  neo.Set(true),
+					AlignSelf: neo.Set(neo.AlignSelfCenter),
+				})) {
+					Region
+				}
+			}
+		}
+	}
+}

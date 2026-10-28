@@ -1,0 +1,349 @@
+/* Styles for the /demo-kanban/ board. The board markup itself is
+ * rendered by the server simulator and delivered as fat morphs, so
+ * every class here is matched against server-authored HTML. */
+
+/* The board is a fixed-height frame: the strip fills what the toolbar
+ * leaves, each column fills the strip, and only a column's card list
+ * scrolls. Sizing the frame rather than the content also keeps the page
+ * from resizing every time a card is added. */
+.kanban-shell {
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
+	height: var(--kb-board-height, 34rem);
+}
+
+.kanban-toolbar {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.75rem;
+	padding: 0.6rem 0.75rem;
+	border: 1px solid var(--btn-border);
+	border-radius: 0.6rem;
+	background: color-mix(in srgb, var(--page-fg) 3%, transparent);
+}
+
+.kanban-toolbar-spacer {
+	flex: 1 1 auto;
+}
+
+/* Connection pill. The stream owns the board, so its state is the
+ * first thing a reader needs when a patch stops arriving. */
+.kanban-conn {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4rem;
+	font-size: 0.85rem;
+	color: var(--muted);
+}
+
+.kanban-conn-dot {
+	width: 0.55rem;
+	height: 0.55rem;
+	border-radius: 50%;
+	background: var(--muted);
+}
+
+.kanban-shell:has(#kanban-columns [data-kb-col]) .kanban-conn-dot {
+	background: #16a34a;
+}
+
+/* Horizontal scroller holding the columns. overflow-x makes it a
+ * scroll container the sortable's edge auto-scroll can pan. */
+.kanban-columns {
+	display: flex;
+	align-items: stretch;
+	gap: 0.75rem;
+	overflow-x: auto;
+	flex: 1 1 auto;
+	min-height: 0;
+	padding-bottom: 0.5rem;
+}
+
+.kb-col {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+	flex: 0 0 17rem;
+	/* min-height: 0 lets the list below shrink and scroll instead of
+	 * pushing the column past the frame. */
+	min-height: 0;
+	padding: 0.6rem;
+	border: 1px solid var(--btn-border);
+	border-radius: 0.6rem;
+	background: color-mix(in srgb, var(--page-fg) 4%, transparent);
+}
+
+.kb-col-head {
+	display: flex;
+	align-items: center;
+	gap: 0.4rem;
+	flex: 0 0 auto;
+	min-height: 2rem;
+}
+
+/* Editable text. A label and the field that replaces it share one box:
+ * same padding, same radius, and a transparent border on the label to
+ * stand in for the field's real one. Without that the card resizes the
+ * moment an editor opens.
+ *
+ * The card titles are real headings, so each rule needs two classes to
+ * outrank the doc-page typography (`.demo h2`, `.demo h3`) that would
+ * otherwise render them at article size. Two classes and not the board
+ * id: a drag clones the card to <body> as the floating proxy, where a
+ * selector anchored to the board no longer matches and the heading
+ * would snap back to the browser default mid-drag. */
+.kb-col .kb-col-title,
+.kb-card .kb-card-title,
+.kb-card .kb-card-desc {
+	box-sizing: border-box;
+	margin: 0;
+	padding: 0.15rem 0.3rem;
+	border: 1px solid transparent;
+	border-radius: 0.25rem;
+}
+
+.kb-col .kb-col-title {
+	flex: 1 1 auto;
+	min-width: 0;
+	font-size: 0.95rem;
+	font-weight: 600;
+	line-height: 1.35;
+	cursor: text;
+}
+
+.kb-col-title:hover {
+	background: color-mix(in srgb, var(--page-fg) 7%, transparent);
+}
+
+/* Card count. Leads the header, so min-width holds one- and two-digit
+ * counts at the same width and adding a card doesn't shift the title. */
+.kb-count {
+	--neo-badge-padding-x: 0.4rem;
+	flex: 0 0 auto;
+	min-width: 2rem;
+	color: var(--muted);
+	font-variant-numeric: tabular-nums;
+}
+
+/* The drop list: the only thing in a column that scrolls. flex column
+ * so an empty list still presents a target band; min-height keeps that
+ * band reachable at zero cards. */
+.kb-list {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+	flex: 1 1 auto;
+	min-height: 3.5rem;
+	overflow-y: auto;
+	padding: 0.15rem;
+	border-radius: 0.4rem;
+}
+
+/* align-items: stretch overrides the kit's sortable-item default of
+ * center. Centered children size to their content, so a title would
+ * change width the moment a field replaced it. */
+.kb-card.kb-card {
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
+	/* 3px of the card's padding is moved inside the elastic below, so
+	 * the total is unchanged. */
+	padding: calc(0.5rem - 3px) calc(0.55rem - 3px);
+	border: 1px solid var(--neo-card-border-color, var(--btn-border));
+	border-radius: 0.45rem;
+	background: var(--page-bg);
+}
+
+/* The elastic's inner wrapper is a flow-root, so the card's column
+ * layout is restored here. The 3px inset is room for the editor's focus
+ * ring, which the elastic's overflow: hidden would otherwise clip. */
+.kb-card-body > [data-neo-elastic-content] {
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
+	gap: 0.35rem;
+	padding: 3px;
+}
+
+.kb-card .kb-card-title {
+	font-size: 0.9rem;
+	font-weight: 600;
+	line-height: 1.35;
+}
+
+/* The whole card is the grip, so the labels carry no text cursor of
+ * their own. The hover tint and the title attribute are what say the
+ * text is editable. */
+.kb-card .kb-card-title:hover,
+.kb-card .kb-card-desc:hover {
+	background: color-mix(in srgb, var(--page-fg) 7%, transparent);
+}
+
+.kb-card .kb-card-desc {
+	font-size: 0.82rem;
+	line-height: 1.4;
+	color: var(--muted);
+	white-space: pre-wrap;
+}
+
+.kb-card-desc[data-kb-empty] {
+	font-style: italic;
+	opacity: 0.7;
+}
+
+/* The card takes the keyboard tab stop now that it is its own grip. */
+.kb-card.kb-card:focus-visible {
+	outline: var(--neo-focus-ring, 2px solid var(--accent));
+	outline-offset: 2px;
+}
+
+/* Intent row: the operation is at the server but not confirmed. It
+ * is rendered by the server from its pending set, so it survives a
+ * reload and appears for every client watching the board. */
+.kb-intent {
+	display: flex;
+	align-items: center;
+	gap: 0.35rem;
+	font-size: 0.75rem;
+	color: var(--muted);
+}
+
+.kb-card:has(.kb-intent) {
+	border-style: dashed;
+	border-color: color-mix(in srgb, var(--accent) 45%, var(--btn-border));
+}
+
+/* Local acknowledgement: shown from the moment the request leaves the
+ * browser until it settles, so latency between click and the server's
+ * own intent patch is never silent. */
+.kb-ack {
+	display: none;
+	align-items: center;
+	gap: 0.35rem;
+	font-size: 0.75rem;
+	color: var(--muted);
+}
+
+.kb-ack[data-kb-on] {
+	display: flex;
+}
+
+/* A button reporting its own command swaps its label for the progress
+ * line. Both labels are always in the markup; only one is shown, so the
+ * swap needs no patch and cannot arrive late. */
+.kb-btn-busy {
+	display: none;
+	align-items: center;
+	gap: 0.35rem;
+}
+
+[data-kb-busy] .kb-btn-idle {
+	display: none;
+}
+
+[data-kb-busy] .kb-btn-busy {
+	display: inline-flex;
+}
+
+/* The server disables the button once it owns the command. This covers
+ * the gap before that patch lands, so one click cannot become two. */
+[data-kb-busy] {
+	pointer-events: none;
+}
+
+/* A card the server reports as pending already shows its own row;
+ * two spinners on one card would read as two operations. */
+.kb-card:has(.kb-intent) .kb-ack {
+	display: none;
+}
+
+/* The field draws its own box from tokens, on the element inside its
+ * shadow root, so the host carries no padding or border of its own.
+ * Left alone the field takes the shared control height and a minimum
+ * width, both sized for a form, which is what made the card jump.
+ *
+ * The field inherits the host's font, so matching the label it replaces
+ * is enough for the two boxes to agree line for line. */
+.kb-edit-field.kb-edit-field {
+	--neo-textarea-min-width: 0;
+	--neo-textarea-min-height: 0;
+	--neo-textarea-padding: 0.15rem 0.3rem;
+	--neo-textarea-radius: 0.25rem;
+	/* flex, not block: the field inside the host is a flex child that
+	 * fills it. Making the host a block leaves the field at its `rows`
+	 * height, so the text scrolls inside a box that no longer fits it. */
+	display: flex;
+	width: 100%;
+	margin: 0;
+	padding: 0;
+	border: 0;
+}
+
+.kb-edit-card-title.kb-edit-card-title,
+.kb-edit-col-title.kb-edit-col-title {
+	font-weight: 600;
+	line-height: 1.35;
+}
+
+.kb-edit-card-title.kb-edit-card-title {
+	font-size: 0.9rem;
+}
+
+/* The column header is a row, so this one is a flex item; the card
+ * title sits in a column and must not grow along it. */
+.kb-edit-col-title.kb-edit-col-title {
+	flex: 1 1 auto;
+	min-width: 0;
+	font-size: 0.95rem;
+}
+
+.kb-edit-desc.kb-edit-desc {
+	font-size: 0.82rem;
+	line-height: 1.4;
+}
+
+.kb-editor {
+	display: flex;
+	flex-direction: column;
+	gap: 0.35rem;
+	width: 100%;
+}
+
+.kb-editor-actions {
+	display: flex;
+	gap: 0.35rem;
+}
+
+.kb-col-foot {
+	display: flex;
+	flex: 0 0 auto;
+}
+
+.kb-add-card {
+	width: 100%;
+}
+
+.kb-add-col {
+	flex: 0 0 12rem;
+	align-self: flex-start;
+}
+
+.kb-skeleton {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+	flex: 0 0 17rem;
+	padding: 0.6rem;
+	border: 1px solid var(--btn-border);
+	border-radius: 0.6rem;
+}
+
+/* Reduced motion: the drop animation is the kit's; only the local
+ * pulse used for the acknowledgement row is ours to silence. */
+@media (prefers-reduced-motion: reduce) {
+	.kb-ack {
+		animation: none;
+	}
+}

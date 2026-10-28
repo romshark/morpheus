@@ -197,6 +197,41 @@ templ Page(currentPath, title, morpheusVersion string) {
 							}
 						</neo-navgroup>
 						<h3 class="app-nav-section">
+							<neo-icon name="play"></neo-icon>
+							Demos
+						</h3>
+						<neo-navgroup
+							orientation="vertical"
+							wrap
+							typeahead
+							class="app-nav-group"
+						>
+							for _, link := range DemoLinks {
+								if link.Path == currentPath {
+									@neo.LinkAttrs(neo.LinkOpts{
+										Href:    neo.Set(href.External(link.Path)),
+										Variant: neo.Set(neo.LinkVariantButtonGhost),
+									}, templ.Attributes{
+										"data-neo-navgroup-item": "",
+										"class":                  "app-nav-link app-nav-link-current",
+										"aria-current":           "page",
+									}) {
+										{ link.Label }
+									}
+								} else {
+									@neo.LinkAttrs(neo.LinkOpts{
+										Href:    neo.Set(href.External(link.Path)),
+										Variant: neo.Set(neo.LinkVariantButtonGhost),
+									}, templ.Attributes{
+										"data-neo-navgroup-item": "",
+										"class":                  "app-nav-link",
+									}) {
+										{ link.Label }
+									}
+								}
+							}
+						</neo-navgroup>
+						<h3 class="app-nav-section">
 							<neo-icon name="component"></neo-icon>
 							Components
 						</h3>

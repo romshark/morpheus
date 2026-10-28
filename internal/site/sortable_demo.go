@@ -6,6 +6,9 @@ import (
 	"github.com/romshark/morpheus/internal/site/examples"
 )
 
+// sortablePlaygroundStates omits the group examples. A group is document
+// wide: the playground copy and the demo frame copy of one example would
+// connect into a single group spanning the page.
 func sortablePlaygroundStates() []PlaygroundState {
 	return []PlaygroundState{
 		{Label: "Default", HTML: sortablePlaygroundDefaultHTML},
@@ -125,3 +128,35 @@ var sortableDisabledTempl string
 
 //go:embed examples/sortable_disabled.css
 var sortableDisabledCSS string
+
+var sortableDockHTML = renderExampleHTML(examples.SortableDock())
+
+//go:embed examples/sortable_dock.templ
+var sortableDockTempl string
+
+//go:embed examples/sortable_dock.css
+var sortableDockCSS string
+
+var sortableGroupHTML = renderExampleHTML(examples.SortableGroup())
+
+//go:embed examples/sortable_group.templ
+var sortableGroupTempl string
+
+//go:embed examples/sortable_group.css
+var sortableGroupCSS string
+
+var sortableGroupRowHTML = renderExampleHTML(examples.SortableGroupRow())
+
+//go:embed examples/sortable_group_row.templ
+var sortableGroupRowTempl string
+
+//go:embed examples/sortable_group_row.css
+var sortableGroupRowCSS string
+
+var sortableGroupLockedHTML = renderExampleHTML(examples.SortableGroupLocked())
+
+//go:embed examples/sortable_group_locked.templ
+var sortableGroupLockedTempl string
+
+//go:embed examples/sortable_group_locked.css
+var sortableGroupLockedCSS string

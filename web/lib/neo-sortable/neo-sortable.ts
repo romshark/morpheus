@@ -9,6 +9,24 @@ import { setAttrIfChanged } from "../neo-morph-resilient";
 
 type Orientation = "vertical" | "horizontal" | "grid";
 
+// How much external light-DOM change an in-flight drag survives. Each
+// level is a superset of the one before it.
+type MorphTolerance = "none" | "reorder" | "content" | "all";
+
+// Who owns a completed drop. "local": the drop is final at once, and a
+// later patch may reorder it away. "server": the drop is an intent, held
+// against patches until the server's own markup agrees with it.
+type CommitMode = "local" | "server";
+
+// A drop this host is holding against incoming patches, keyed by item id.
+interface HeldDrop {
+	// Index in this host the item is kept at.
+	index: number;
+	// Where the drag started, for rollbackDrop.
+	fromHost: NeoSortable;
+	fromIndex: number;
+}
+
 const SHADOW_TEMPLATE = document.createElement("template");
 // Shadow CSS notes, kept out of the template string so the minifier drops
 // them from the bundle. Anchored by selector:
@@ -37,7 +55,29 @@ SHADOW_TEMPLATE.innerHTML = `
 
 const ORIENTATIONS: readonly Orientation[] = ["vertical", "horizontal", "grid"] as const;
 
+const TOLERANCES: readonly MorphTolerance[] = ["none", "reorder", "content", "all"] as const;
+
 const DRAG_THRESHOLD = 4;
+
+// Backstop for dropping the move marks when no transitionend arrives:
+// a transition of no duration never fires one, and a mark left behind
+// would go on transitioning the author's own transforms. Comfortably
+// past any reorder glide a theme would ask for.
+const MOVE_MARK_MAX_MS = 1500;
+
+// The host that received the current gesture, or null. A grouped drag
+// carries the item into peer hosts, so a peer can't find the drag on
+// its own #pointer / #keyboard field and reaches it through here.
+// One gesture at a time: #onPointerDown and #keyboardPick both bail
+// while this is set by another host.
+let dragOwner: NeoSortable | null = null;
+
+// Set while a host re-asserts held drops. Re-inserting an item mutates
+// children, which re-enters the child observer; without this the hold
+// answers its own mutations forever. One flag for every host, not one
+// per host: the hold moves items between group members, so a sibling's
+// observer would recurse where this host's would not.
+let holdingOrder = false;
 
 // Whole-item grips must not steal native control gestures.
 const INTERACTIVE =
@@ -46,6 +86,9 @@ const INTERACTIVE =
 interface PointerDrag {
 	pointerId: number;
 	item: HTMLElement;
+	// Group member the item currently sits in. Starts as the host that
+	// received the gesture and follows the pointer across the group.
+	host: NeoSortable;
 	placeholder: HTMLElement;
 	proxy: HTMLElement | null;
 	pressX: number;
@@ -74,19 +117,25 @@ interface PointerDrag {
 	lastIndex: number;
 	startOrderEls: HTMLElement[];
 	startOrder: string[];
-	// id -> trimmed textContent at drag start. Compared against the
-	// post-morph state to decide keep-dragging vs abort.
-	startContent: ReadonlyMap<string, string>;
+	// Snapshot of d.host, re-taken on every migration: the morph
+	// reconcile compares the live list against the host the item is in
+	// now, not against the one the gesture started in.
+	hostOrder: readonly string[];
+	// id -> trimmed textContent, same scope as hostOrder. Compared against
+	// the post-morph state to decide keep-dragging vs abort.
+	hostContent: ReadonlyMap<string, string>;
 	active: boolean;
 }
 
 interface KeyboardDrag {
 	item: HTMLElement;
+	host: NeoSortable;
 	startIndex: number;
 	lastIndex: number;
 	startOrderEls: HTMLElement[];
 	startOrder: string[];
-	startContent: ReadonlyMap<string, string>;
+	hostOrder: readonly string[];
+	hostContent: ReadonlyMap<string, string>;
 }
 
 interface LayoutSnapshot {
@@ -99,6 +148,10 @@ function arraysEqual(a: readonly string[], b: readonly string[]): boolean {
 	if (a.length !== b.length) return false;
 	for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return false;
 	return true;
+}
+
+function isPointerDrag(drag: PointerDrag | KeyboardDrag): drag is PointerDrag {
+	return "pointerId" in drag;
 }
 
 export class NeoSortable extends HTMLElement {
@@ -115,6 +168,9 @@ export class NeoSortable extends HTMLElement {
 	#attrObserver: MutationObserver | null = null;
 	#flipRaf: number | null = null;
 	#pendingPatchLayout: LayoutSnapshot | null = null;
+	// Drops this host holds against patches, by item id. Only ever
+	// non-empty under commit="server".
+	#held = new Map<string, HeldDrop>();
 	#ownsRole = false;
 	// Pointer id of an externally aborted drag. While the button is
 	// still down, pointermove is absorbed (preventDefault) so the
@@ -148,6 +204,16 @@ export class NeoSortable extends HTMLElement {
 	#setDragState(kind: "pointer" | "keyboard" | null): void {
 		setState(this.#internals, "active", kind !== null);
 		setState(this.#internals, "pointer", kind === "pointer");
+	}
+
+	#claimDrag(): void {
+		dragOwner = this;
+	}
+
+	// Idempotent: only the owner clears, and only once both its gesture
+	// fields are back to null.
+	#releaseDrag(): void {
+		if (dragOwner === this && !this.#pointer && !this.#keyboard) dragOwner = null;
 	}
 
 	connectedCallback() {
@@ -186,10 +252,13 @@ export class NeoSortable extends HTMLElement {
 		this.#ready = false;
 		this.#cancelPointer();
 		this.#keyboard = null;
+		this.#releaseDrag();
 		// A sortable disconnected mid-drag must not leave overflow-anchor
 		// pinned globally or an auto-scroll frame queued.
 		while (this.#scrollAnchorLockDepth > 0) this.#unlockScrollAnchor();
 		this.#stopAutoScroll();
+		// Nothing left to hold anything against.
+		this.#held.clear();
 		this.#childObserver?.disconnect();
 		this.#childObserver = null;
 		this.#attrObserver?.disconnect();
@@ -215,6 +284,43 @@ export class NeoSortable extends HTMLElement {
 		this.#pendingPatchLayout = this.#snapshotOf(this.#items());
 	}
 
+	// Item ids this host is holding at their dropped position, waiting for
+	// the server to agree. Empty unless commit="server".
+	get heldDrops(): string[] {
+		return [...this.#held.keys()];
+	}
+
+	// Stop holding: whatever the next patch says about these items wins.
+	// For a command that succeeded but whose result differs from what the
+	// user asked for, and which the hold would otherwise fight forever.
+	// No id clears every held drop on this host.
+	commitDrop(id?: string): void {
+		if (id === undefined) this.#held.clear();
+		else this.#held.delete(id);
+	}
+
+	// Stop holding and put the item back where its drag started.
+	//
+	// For a command that failed. A patch would repair the list on its own,
+	// but the case that needs this most is the one where no patch arrives:
+	// a command that never reached the server left the server's state, and
+	// so every patch it sends, unaware the item ever moved.
+	rollbackDrop(id?: string): void {
+		for (const key of id === undefined ? [...this.#held.keys()] : [id]) {
+			const held = this.#held.get(key);
+			if (!held) continue;
+			this.#held.delete(key);
+			const el = document.getElementById(key);
+			// Never yank an item out from under a hand that has it again.
+			if (!el || el.hasAttribute("data-neo-sortable-dragging")) continue;
+			// Animated: the user put the item here and is about to see it
+			// leave, which is a fact worth showing rather than a jump.
+			this.#relocate(held.fromHost, el as HTMLElement, held.fromIndex);
+			held.fromHost.#syncItems();
+		}
+		this.#syncItems();
+	}
+
 	get #orientation(): Orientation {
 		const v = this.getAttribute("orientation");
 		return (ORIENTATIONS as readonly string[]).includes(v ?? "") ? (v as Orientation) : "vertical";
@@ -229,10 +335,58 @@ export class NeoSortable extends HTMLElement {
 		return boolAttr(this, "unbounded", false);
 	}
 
-	// tolerate-reorder: an order-only morph
-	// (same id set, same per-id content) doesn't abort an in-flight drag.
-	get #tolerateReorder(): boolean {
-		return boolAttr(this, "tolerate-reorder", false);
+	// morph-tolerance: how much external light-DOM change an in-flight
+	// drag survives. Levels nest: "reorder" allows an order-only morph,
+	// "content" additionally allows per-item content to change, "all"
+	// aborts only when the dragged item itself disappears.
+	get #morphTolerance(): MorphTolerance {
+		const v = this.getAttribute("morph-tolerance");
+		return (TOLERANCES as readonly string[]).includes(v ?? "") ? (v as MorphTolerance) : "none";
+	}
+
+	// commit: who owns a completed drop. Config attribute, so absent falls
+	// back to the default rather than keeping a previous value.
+	get #commitMode(): CommitMode {
+		return this.getAttribute("commit")?.trim().toLowerCase() === "server" ? "server" : "local";
+	}
+
+	// group: non-empty names a set of hosts that exchange items.
+	get #groupName(): string {
+		return this.getAttribute("group")?.trim() ?? "";
+	}
+
+	// Connected hosts, in document order, that can send and receive
+	// items: same group name, not disabled. Ungrouped hosts are alone.
+	#groupMembers(): NeoSortable[] {
+		const name = this.#groupName;
+		if (!name) return [this];
+		const out: NeoSortable[] = [];
+		for (const el of document.querySelectorAll("neo-sortable")) {
+			if (!(el instanceof NeoSortable)) continue;
+			if (el.#groupName !== name) continue;
+			if (el !== this && el.#isDisabled) continue;
+			out.push(el);
+		}
+		return out.length > 0 ? out : [this];
+	}
+
+	// The drag whose item currently sits in this host, own or adopted
+	// from a group peer. Bookkeeping that describes the list the item is
+	// in (item filtering, grip stamping, FLIP) reads this, not #pointer.
+	get #pointerHere(): PointerDrag | null {
+		const d = dragOwner ? dragOwner.#pointer : null;
+		return d?.host === this ? d : null;
+	}
+
+	get #keyboardHere(): KeyboardDrag | null {
+		const k = dragOwner ? dragOwner.#keyboard : null;
+		return k?.host === this ? k : null;
+	}
+
+	// Name for announcements: the accessible name if the author gave one,
+	// else the id.
+	get #listLabel(): string {
+		return this.getAttribute("aria-label")?.trim() || this.id || "list";
 	}
 
 	#items(): HTMLElement[] {
@@ -249,7 +403,7 @@ export class NeoSortable extends HTMLElement {
 	}
 
 	#logicalEls(): HTMLElement[] {
-		const d = this.#pointer;
+		const d = this.#pointerHere;
 		if (!d?.active) return this.#items();
 		if (d.proxy) return this.#items();
 		const out: HTMLElement[] = [];
@@ -333,7 +487,7 @@ export class NeoSortable extends HTMLElement {
 		const grips = new Set<HTMLElement>();
 		const listSemantics = this.getAttribute("role") === "list";
 		for (const item of items) {
-			if (item === this.#pointer?.placeholder) continue;
+			if (item === this.#pointerHere?.placeholder) continue;
 			if (listSemantics && !item.hasAttribute("role")) {
 				setAttrIfChanged(item, "role", "listitem");
 			}
@@ -422,53 +576,116 @@ export class NeoSortable extends HTMLElement {
 		this.#restoreFocusIfLost();
 		const items = this.#items();
 
-		// On a mid-drag morph, a semantic no-op (same ids/order/content) keeps
-		// the drag alive by re-linking refs; a real change aborts. Drag-
-		// internal mutations land here too and slip through as no-ops.
-		const drag: PointerDrag | KeyboardDrag | null = this.#pointer?.active ? this.#pointer : (this.#keyboard ?? null);
+		// Mid-drag morph: a change within this host's morph-tolerance
+		// keeps the drag alive by re-linking refs; anything beyond it
+		// aborts. Drag-internal mutations land here too and slip through
+		// as no-ops. A grouped drag reconciles against the host holding
+		// the item, so the tolerance that applies is the receiving list's.
+		const ptr = this.#pointerHere;
+		const drag: PointerDrag | KeyboardDrag | null = ptr?.active ? ptr : (this.#keyboardHere ?? null);
 		if (drag) {
 			this.#reconcileDragAgainstMutation(drag, items);
 			return;
 		}
 
+		// Before measuring: the hold is part of what this patch leaves on
+		// screen, so the glide below has to animate to the held order and
+		// not to the one the patch asked for.
+		const settled = holdingOrder || !this.#reassertHeld() ? items : this.#items();
+
 		if (!first) return;
-		const changedIds = this.#externalChangedIds(first.order, items);
+		const changedIds = this.#externalChangedIds(first.order, settled);
 		if (changedIds === null || changedIds.size === 0) {
 			return;
 		}
-		this.#animateFromSnapshot(first, items, changedIds);
+		this.#animateFromSnapshot(first, settled, changedIds);
 	};
 
-	// Same per-id content as the drag-start snapshot, plus:
-	//   - strict (default): same id order, dragged item free to roam.
-	//   - tolerate-reorder: same id set, order ignored.
-	// Any added/removed id or per-id content swap counts as a change.
+	// Put every held item back at the index it was dropped at. Returns
+	// whether anything was moved.
+	//
+	// Runs over the whole group rather than this host alone: a patch that
+	// has not caught up puts the item back in the list it came from, so
+	// the host whose children changed is not the host doing the holding.
+	//
+	// Nothing is released here. Releasing on "the markup already agrees"
+	// looks right and is not: the drop's own DOM change agrees with itself,
+	// and it reaches this observer as an ordinary mutation batch, so the
+	// hold would end before the first patch ever arrived. Telling our
+	// mutations from a patch's needs the observer to attribute records it
+	// is not given, so a held drop ends only when the author says how it
+	// ended.
+	#reassertHeld(): boolean {
+		let moved = false;
+		holdingOrder = true;
+		try {
+			for (const host of this.#groupMembers()) {
+				for (const [id, held] of host.#held) {
+					const el = document.getElementById(id);
+					if (!el) continue;
+					// The user picked it up again; their hand outranks both
+					// the patch and the hold.
+					if (el.hasAttribute("data-neo-sortable-dragging")) continue;
+					const items = host.#items();
+					if (el.parentElement === host && items.indexOf(el) === held.index) continue;
+					const rest = items.filter((x) => x !== el);
+					host.insertBefore(el, rest[held.index] ?? null);
+					moved = true;
+				}
+			}
+		} finally {
+			holdingOrder = false;
+		}
+		if (moved) for (const host of this.#groupMembers()) host.#syncItems();
+		return moved;
+	}
+
+	// Record a drop the server has not confirmed. No id means nothing can
+	// be matched against a later patch, so there is nothing to hold.
+	#holdDrop(id: string, index: number, fromHost: NeoSortable, fromIndex: number): void {
+		if (!id || this.#commitMode !== "server") return;
+		this.#held.set(id, { index, fromHost, fromIndex });
+	}
+
+	// Whether the live list is still within this host's morph-tolerance
+	// of the snapshot taken when the drag entered it. Levels nest:
+	//   - none (default): same id order, same content; dragged item free
+	//     to roam.
+	//   - reorder: same id set, same per-id content, order ignored.
+	//   - content: same id set, per-id content free to change.
+	//   - all: only the dragged item's survival matters.
 	#semanticsUnchanged(drag: PointerDrag | KeyboardDrag, items: HTMLElement[], dragId: string): boolean {
-		if (items.length !== drag.startContent.size) return false;
+		// Losing the dragged item ends the drag at every level: there is
+		// nothing left to carry.
 		const liveDragEl = items.find((el) => this.#idOf(el) === dragId);
 		if (!liveDragEl) return false;
-		if (this.#tolerateReorder) {
+		const tolerance = this.#morphTolerance;
+		if (tolerance === "all") return true;
+
+		if (items.length !== drag.hostContent.size) return false;
+		if (tolerance === "reorder" || tolerance === "content") {
+			const compareContent = tolerance === "reorder";
 			const seen = new Set<string>();
 			for (const el of items) {
 				const id = this.#idOf(el);
 				if (!id) return false;
 				if (seen.has(id)) return false;
 				seen.add(id);
-				if (!drag.startContent.has(id)) return false;
-				if (drag.startContent.get(id) !== this.#contentOf(el)) return false;
+				if (!drag.hostContent.has(id)) return false;
+				if (compareContent && drag.hostContent.get(id) !== this.#contentOf(el)) return false;
 			}
-			// Set-equality holds because same length + every live id in
-			// startContent + no duplicates -> every startContent id in live.
+			// Set-equality holds here: same length + every live id in
+			// hostContent + no duplicates -> every hostContent id in live.
 			return true;
 		}
-		// Strict: compare ordered ids with the dragged slot dropped on
+		// none: compare ordered ids with the dragged slot dropped on
 		// both sides (the user is moving it).
-		const startNoDrag = drag.startOrder.filter((id) => id !== dragId);
+		const startNoDrag = drag.hostOrder.filter((id) => id !== dragId);
 		const liveNoDrag = items.filter((el) => el !== liveDragEl).map((el) => this.#idOf(el));
 		if (!arraysEqual(liveNoDrag, startNoDrag)) return false;
 		for (const el of items) {
 			const id = this.#idOf(el);
-			if (drag.startContent.get(id) !== this.#contentOf(el)) return false;
+			if (drag.hostContent.get(id) !== this.#contentOf(el)) return false;
 		}
 		return true;
 	}
@@ -485,9 +702,10 @@ export class NeoSortable extends HTMLElement {
 		// On a no-op morph, re-link the dragged ref by id so future
 		// pointer/key events act on the live node.
 		const liveDragEl = items.find((el) => this.#idOf(el) === dragId)!;
+		const keyboard = isPointerDrag(drag) ? null : drag;
 		drag.item.removeAttribute("data-neo-sortable-dragging");
 		liveDragEl.setAttribute("data-neo-sortable-dragging", "");
-		if (drag === this.#keyboard && liveDragEl !== drag.item) {
+		if (keyboard && liveDragEl !== drag.item) {
 			drag.item.removeAttribute("aria-grabbed");
 			liveDragEl.setAttribute("aria-grabbed", "true");
 		}
@@ -495,14 +713,19 @@ export class NeoSortable extends HTMLElement {
 		// Re-stamp the role stripped by morph when the component owns it.
 		// The drag states are custom states, out of a morph's reach.
 		if (this.#ownsRole) setAttrIfChanged(this, "role", "list");
-		if (drag === this.#keyboard) {
+		if (keyboard) {
 			drag.item.setAttribute("aria-grabbed", "true");
 			// Morph stripped tabindex (or replaced the grip span) and the
 			// browser blurred synchronously. #onFocusOut deferred its drop;
 			// this refocus runs first.
 			this.#gripOf(drag.item).focus?.();
 		}
-		const ptr = drag === this.#pointer ? this.#pointer : null;
+		// A tolerated morph can have reordered or replaced the items this
+		// host holds, so the baseline the next mutation is judged against
+		// is the list as it stands now, not as it stood at pick-up.
+		drag.hostOrder = this.order;
+		drag.hostContent = this.#snapshotContent(items);
+		const ptr = isPointerDrag(drag) ? drag : null;
 		if (ptr) {
 			// Morph reconciled d.item's inline style to source; the
 			// position:fixed block is gone. Re-apply to keep it floating.
@@ -580,14 +803,21 @@ export class NeoSortable extends HTMLElement {
 	// because the morph owns the new state. Emit neo-sortable-end with aborted:
 	// true so hosts can distinguish from cancel / clean drop.
 	#abortDragForExternalChange(drag: PointerDrag | KeyboardDrag): void {
-		if (drag === this.#pointer) {
-			const d = this.#pointer;
+		// Gesture state lives on the host that received it; the DOM to
+		// clean up lives in the host the item ended up in. For an
+		// ungrouped drag the two are the same element.
+		const owner = dragOwner ?? this;
+		const host = drag.host;
+		if (isPointerDrag(drag)) {
+			const d = drag;
 			// Latch before clearing #pointer. The document listeners stay attached
 			// but switch to absorb-only until pointerup. This stops the browser from
 			// growing a native text-selection drag from the original mousedown anchor.
-			this.#abortedPointerId = d.pointerId;
-			this.#pointer = null;
-			this.#clearFlip();
+			owner.#abortedPointerId = d.pointerId;
+			owner.#pointer = null;
+			owner.#releaseDrag();
+			owner.#clearFlip();
+			host.#clearFlip();
 			d.proxy?.remove();
 			// Morph can position-pair our unkey'd placeholder into a real item,
 			// and d.placeholder by identity may then be a live entry.
@@ -597,7 +827,7 @@ export class NeoSortable extends HTMLElement {
 			}
 			// Sweep stray placeholder-marked nodes
 			// (re-emitted by morph, nested-sortable leakage).
-			for (const stray of this.querySelectorAll<HTMLElement>(":scope > [data-neo-sortable-placeholder]")) {
+			for (const stray of host.querySelectorAll<HTMLElement>(":scope > [data-neo-sortable-placeholder]")) {
 				stray.remove();
 			}
 			// d.item may have been removed by morph; touch only if attached.
@@ -605,35 +835,43 @@ export class NeoSortable extends HTMLElement {
 				d.item.style.cssText = d.savedCss;
 				d.item.removeAttribute("data-neo-sortable-dragging");
 			}
-			this.#setDragState(null);
+			host.#setDragState(null);
+			owner.#setDragState(null);
 			// Drop any text selection the browser grew between mousedown
 			// and now (pre-threshold move, or a selection inside the item).
 			const sel = document.getSelection();
 			sel?.removeAllRanges?.();
-			this.#emit("neo-sortable-end", {
+			owner.#emit("neo-sortable-end", d.item, {
 				id: this.#idOf(d.item),
 				from: d.startIndex,
 				to: -1,
 				changed: false,
 				aborted: true,
+				fromList: owner.id,
+				toList: host.id,
 			});
-		} else if (drag === this.#keyboard) {
-			const k = this.#keyboard;
-			this.#keyboard = null;
-			this.#clearFlip();
+		} else {
+			const k = drag;
+			owner.#keyboard = null;
+			owner.#releaseDrag();
+			owner.#clearFlip();
+			host.#clearFlip();
 			if (k.item.isConnected) {
 				k.item.removeAttribute("data-neo-sortable-dragging");
 				k.item.removeAttribute("aria-grabbed");
 			}
-			this.#setDragState(null);
-			this.#unlockScrollAnchor();
-			this.#announce("Reordering cancelled. List updated by another source.");
-			this.#emit("neo-sortable-end", {
+			host.#setDragState(null);
+			owner.#setDragState(null);
+			owner.#unlockScrollAnchor();
+			host.#announce("Reordering cancelled. List updated by another source.");
+			owner.#emit("neo-sortable-end", k.item, {
 				id: this.#idOf(k.item),
 				from: k.startIndex,
 				to: -1,
 				changed: false,
 				aborted: true,
+				fromList: owner.id,
+				toList: host.id,
 			});
 		}
 	}
@@ -658,21 +896,6 @@ export class NeoSortable extends HTMLElement {
 			if (before[i] !== after[i]) changed.add(after[i]);
 		}
 		return changed;
-	}
-
-	// Same easing grammar as carousel (unset, "", duration, duration+fn).
-	#resolveTransition(): string {
-		const themed = getComputedStyle(this).getPropertyValue("--neo-easing").trim();
-		const raw = this.getAttribute("easing");
-		if (raw === null) {
-			return `var(--neo-sortable-move-duration, 180ms) ${themed || "ease"}`;
-		}
-		const t = raw.trim();
-		if (t === "") return "";
-		const m = t.match(/^(\d+(?:\.\d+)?(?:ms|s))\b\s*(.*)$/);
-		if (!m) return "";
-		const fn = m[2].trim() || themed || "ease";
-		return `${m[1]} ${fn}`;
 	}
 
 	// Hit-test settled layout, not in-flight FLIP boxes.
@@ -802,7 +1025,7 @@ export class NeoSortable extends HTMLElement {
 	}
 
 	#gridFlowEls(): HTMLElement[] {
-		const d = this.#pointer;
+		const d = this.#pointerHere;
 		const out: HTMLElement[] = [];
 		for (const el of Array.from(this.children)) {
 			if (!(el instanceof HTMLElement)) continue;
@@ -821,19 +1044,18 @@ export class NeoSortable extends HTMLElement {
 		return Number.isFinite(n) ? n : 0;
 	}
 
-	#flipReorder(mutate: () => void) {
-		const dragged = this.#pointer?.active ? this.#pointer.item : null;
-		const els = this.#items().filter((el) => el !== dragged && el !== this.#pointer?.placeholder);
+	// moving names the node the mutation relocates, for the migration
+	// case where it isn't in this host's drag state yet.
+	#flipReorder(mutate: () => void, moving: HTMLElement | null = null) {
+		const d = this.#pointerHere;
+		const dragged = moving ?? (d?.active ? d.item : null);
+		const els = this.#items().filter((el) => el !== dragged && el !== d?.placeholder);
 		const first = this.#snapshotOf(els);
 		mutate();
 		this.#animateFromSnapshot(first, els);
 	}
 
 	#animateFromSnapshot(first: LayoutSnapshot, els: HTMLElement[], onlyIds: ReadonlySet<string> | null = null) {
-		const trans = this.#resolveTransition();
-		if (!trans) {
-			return;
-		}
 		if (this.#flipRaf !== null) cancelAnimationFrame(this.#flipRaf);
 		// Clear in-flight FLIP before measuring final boxes.
 		for (const el of els) {
@@ -858,12 +1080,71 @@ export class NeoSortable extends HTMLElement {
 		if (invert.length === 0) return;
 		this.#flipRaf = requestAnimationFrame(() => {
 			this.#flipRaf = null;
-			for (const [el] of invert) {
-				el.style.transition = `transform ${trans}`;
-				el.style.transform = "";
-				el.addEventListener("transitionend", this.#onFlipEnd);
-			}
+			for (const [el] of invert) this.#startMove(el, false);
 		});
+	}
+
+	// Hand the element to the stylesheet. The mark is what selects the
+	// transition rule, clearing the inline `transition: none` lets it
+	// apply, and clearing the transform is the change it animates. Nothing
+	// about the timing is decided here, which is what lets a theme, a
+	// media query, or a per-item rule reach it.
+	#startMove(el: HTMLElement, docking: boolean): void {
+		el.setAttribute("data-neo-sortable-moving", "");
+		if (docking) el.setAttribute("data-neo-sortable-docking", "");
+		el.style.transition = "";
+		el.style.transform = "";
+		el.addEventListener("transitionend", this.#onFlipEnd);
+		// A transition of no duration (reduced motion, or an author rule
+		// that turns it off) never fires transitionend, and a mark left
+		// behind would go on transitioning the author's own transforms.
+		el.removeEventListener("transitioncancel", this.#onFlipEnd);
+		el.addEventListener("transitioncancel", this.#onFlipEnd);
+		window.setTimeout(() => this.#endMove(el), MOVE_MARK_MAX_MS);
+	}
+
+	#endMove(el: HTMLElement): void {
+		el.removeEventListener("transitionend", this.#onFlipEnd);
+		el.removeEventListener("transitioncancel", this.#onFlipEnd);
+		el.removeAttribute("data-neo-sortable-moving");
+		el.removeAttribute("data-neo-sortable-docking");
+		el.style.transition = "";
+		el.style.transform = "";
+	}
+
+	// Glide one item from where it was to where it now is. FLIP, but for a
+	// single node whose "before" is a rect rather than a snapshot: the
+	// dragged item has been following the pointer instead of sitting in a
+	// slot, so there is no earlier layout pass to read it from.
+	//
+	// Both rects are viewport-relative and measured within the same frame,
+	// so no scroll can happen between them.
+	#dock(item: HTMLElement, from: DOMRectReadOnly): void {
+		const to = item.getBoundingClientRect();
+		const dx = from.left - to.left;
+		const dy = from.top - to.top;
+		if (Math.abs(dx) < 0.5 && Math.abs(dy) < 0.5) return;
+		item.removeEventListener("transitionend", this.#onFlipEnd);
+		item.style.transition = "none";
+		item.style.transform = `translate(${dx}px, ${dy}px)`;
+		requestAnimationFrame(() => this.#startMove(item, true));
+	}
+
+	// Move an item to a slot and animate everything the move disturbs: the
+	// item travels with #dock, the lists it leaves and joins glide their
+	// own rows. For a relocation nobody is dragging, which is why the item
+	// is animated at all: no pointer is already showing where it went.
+	#relocate(toHost: NeoSortable, item: HTMLElement, index: number): void {
+		const fromHost = item.parentElement instanceof NeoSortable ? item.parentElement : null;
+		const itemFrom = item.getBoundingClientRect();
+		const crossed = fromHost !== null && fromHost !== toHost ? fromHost : null;
+		const fromFirst = crossed ? crossed.#snapshotOf(crossed.#items().filter((x) => x !== item)) : null;
+		toHost.#flipReorder(() => {
+			const rest = toHost.#items().filter((x) => x !== item);
+			toHost.insertBefore(item, rest[index] ?? null);
+		}, item);
+		if (crossed && fromFirst) crossed.#animateFromSnapshot(fromFirst, crossed.#items());
+		toHost.#dock(item, itemFrom);
 	}
 
 	#snapshotRectFor(snapshot: LayoutSnapshot, el: HTMLElement): DOMRectReadOnly | undefined {
@@ -875,10 +1156,7 @@ export class NeoSortable extends HTMLElement {
 
 	#onFlipEnd = (e: TransitionEvent) => {
 		if (e.propertyName !== "transform") return;
-		const el = e.currentTarget as HTMLElement;
-		el.style.transition = "";
-		el.style.transform = "";
-		el.removeEventListener("transitionend", this.#onFlipEnd);
+		this.#endMove(e.currentTarget as HTMLElement);
 	};
 
 	#clearFlip() {
@@ -887,12 +1165,75 @@ export class NeoSortable extends HTMLElement {
 			this.#flipRaf = null;
 		}
 		for (const el of this.#items()) {
-			if (el.style.transition || el.style.transform) {
-				el.removeEventListener("transitionend", this.#onFlipEnd);
-				el.style.transition = "";
-				el.style.transform = "";
+			if (el.style.transition || el.style.transform || el.hasAttribute("data-neo-sortable-moving")) {
+				this.#endMove(el);
 			}
 		}
+	}
+
+	// Group member under the point, innermost first so a nested sortable
+	// wins over its container. Off every member (the gap between columns,
+	// outside the board) keeps the current host, so travel between two
+	// lists never drops the item back home mid-flight.
+	#groupHostAt(d: PointerDrag, clientX: number, clientY: number, members: NeoSortable[]): NeoSortable {
+		let best: NeoSortable | null = null;
+		let bestArea = Number.POSITIVE_INFINITY;
+		for (const member of members) {
+			const r = member.getBoundingClientRect();
+			if (clientX < r.left || clientX > r.right) continue;
+			if (clientY < r.top || clientY > r.bottom) continue;
+			const area = r.width * r.height;
+			if (area < bestArea) {
+				best = member;
+				bestArea = area;
+			}
+		}
+		return best ?? d.host;
+	}
+
+	// Viewport box the floating element is clamped to: the host for a
+	// lone sortable, the union of the group for connected ones, so an
+	// item can be carried between lists without escaping the board.
+	// Null when unbounded.
+	#dragBounds(members: NeoSortable[]): { left: number; top: number; right: number; bottom: number } | null {
+		if (this.#isUnbounded) return null;
+		let left = Number.POSITIVE_INFINITY;
+		let top = Number.POSITIVE_INFINITY;
+		let right = Number.NEGATIVE_INFINITY;
+		let bottom = Number.NEGATIVE_INFINITY;
+		for (const member of members) {
+			const r = member.getBoundingClientRect();
+			left = Math.min(left, r.left);
+			top = Math.min(top, r.top);
+			right = Math.max(right, r.right);
+			bottom = Math.max(bottom, r.bottom);
+		}
+		return Number.isFinite(left) ? { left, top, right, bottom } : null;
+	}
+
+	// Hand the item to another group member: reparent inside a FLIP on
+	// both lists so the vacated slot closes as the new one opens, then
+	// re-baseline the morph snapshot against the receiving list.
+	#migrate(d: PointerDrag | KeyboardDrag, target: NeoSortable, ref: HTMLElement | null, moving: HTMLElement): void {
+		const from = d.host;
+		const fromEls = from.#items().filter((el) => el !== moving);
+		const fromFirst = from.#snapshotOf(fromEls);
+		target.#flipReorder(() => {
+			target.insertBefore(moving, ref);
+		}, moving);
+		from.#animateFromSnapshot(fromFirst, fromEls);
+		d.host = target;
+		// `this` is the gesture owner, which keeps its drag state for the
+		// whole gesture (selection stays suppressed in the list the item
+		// came from). A peer only carries it while it holds the item.
+		// To style just the receiving list, match
+		// neo-sortable:has([data-neo-sortable-dragging]).
+		if (from !== this) from.#setDragState(null);
+		target.#setDragState(isPointerDrag(d) ? "pointer" : "keyboard");
+		from.#syncItems();
+		target.#syncItems();
+		d.hostOrder = target.order;
+		d.hostContent = target.#snapshotContent(target.#items());
 	}
 
 	#placeItemAt(item: HTMLElement, index: number): boolean {
@@ -908,12 +1249,27 @@ export class NeoSortable extends HTMLElement {
 		for (const el of els) this.appendChild(el);
 	}
 
-	#emit(type: "neo-sortable-start" | "neo-sortable-move" | "neo-sortable-end", detail: Record<string, unknown>) {
-		this.dispatchEvent(new CustomEvent(type, { detail, bubbles: true, composed: true }));
+	// Dispatched on the item the gesture concerns, and bubbling, so a
+	// listener on the host still sees every event while a listener on an
+	// item sees only its own. Per-item delivery is what lets an author
+	// bind state to the thing that moved (a request indicator, a pending
+	// marker) instead of demultiplexing one host-level event by id.
+	//
+	// The host is the fallback for a detached item: the external-change
+	// abort runs because a morph took the item out of the tree, and an
+	// event fired on a parentless node reaches nobody, least of all the
+	// host that has to hear the drag ended.
+	#emit(
+		type: "neo-sortable-start" | "neo-sortable-move" | "neo-sortable-end",
+		item: HTMLElement,
+		detail: Record<string, unknown>,
+	) {
+		const target = item.isConnected ? item : this;
+		target.dispatchEvent(new CustomEvent(type, { detail, bubbles: true, composed: true }));
 	}
 
 	#onPointerDown = (e: PointerEvent) => {
-		if (this.#isDisabled || this.#pointer || this.#keyboard) return;
+		if (this.#isDisabled || dragOwner) return;
 		if (e.pointerType === "mouse" && e.button !== 0) return;
 		const target = e.target as Element | null;
 		if (!target) return;
@@ -930,9 +1286,11 @@ export class NeoSortable extends HTMLElement {
 		}
 
 		const startIndex = items.indexOf(item);
+		this.#claimDrag();
 		this.#pointer = {
 			pointerId: e.pointerId,
 			item,
+			host: this,
 			placeholder: document.createElement("div"),
 			proxy: null,
 			pressX: e.clientX,
@@ -953,7 +1311,8 @@ export class NeoSortable extends HTMLElement {
 			lastIndex: startIndex,
 			startOrderEls: items.slice(),
 			startOrder: this.order,
-			startContent: this.#snapshotContent(items),
+			hostOrder: this.order,
+			hostContent: this.#snapshotContent(items),
 			active: false,
 		};
 		document.addEventListener("pointermove", this.#onPointerMove);
@@ -990,7 +1349,13 @@ export class NeoSortable extends HTMLElement {
 			ph.setAttribute("data-neo-sortable-custom-placeholder", "");
 		}
 
-		if (this.#orientation === "grid") {
+		// Proxy mode: a body-level clone floats while the real item stays
+		// in flow as its own gap. Grid needs it because a 2-D reorder has
+		// no single stable axis; a group needs it because the item has to
+		// cross into a host that would otherwise clip it, and because
+		// moving one node (rather than item plus detached placeholder)
+		// keeps the hand-off atomic.
+		if (this.#orientation === "grid" || this.#groupName !== "") {
 			const proxy = d.item.cloneNode(true) as HTMLElement;
 			proxy.removeAttribute("id");
 			for (const el of proxy.querySelectorAll<HTMLElement>("[id]")) {
@@ -1043,11 +1408,14 @@ export class NeoSortable extends HTMLElement {
 		d.item.setAttribute("data-neo-sortable-dragging", "");
 		this.setPointerCapture?.(e.pointerId);
 		this.#lockScrollAnchor();
-		d.scrollers = this.#scrollers();
+		// Every group member's scrollers, so edge auto-scroll still pans
+		// the list the item is being carried into.
+		d.scrollers = [...new Set(this.#groupMembers().flatMap((m) => m.#scrollers()))];
 		this.#autoScrollRaf ??= requestAnimationFrame(this.#autoScrollTick);
-		this.#emit("neo-sortable-start", {
+		this.#emit("neo-sortable-start", d.item, {
 			id: this.#idOf(d.item),
 			index: d.startIndex,
+			list: this.id,
 		});
 	}
 
@@ -1076,20 +1444,27 @@ export class NeoSortable extends HTMLElement {
 	// the slot under it. Shared by the pointer move and the auto-scroll
 	// tick, which calls it with the last pointer position after a scroll.
 	#dragMoveTo(d: PointerDrag, clientX: number, clientY: number) {
-		const o = this.#orientation;
+		// One membership read per move: both the hit-test and the clamp
+		// need it, and a pointer move is a per-frame path.
+		const members = this.#groupMembers();
+		const target = this.#groupHostAt(d, clientX, clientY, members);
+		const o = target.#orientation;
 		const dragEl = d.proxy ?? d.item;
 		// Natural (unclamped) position the floating element would take.
-		const rawLeft = o === "vertical" ? d.homeLeft : clientX - d.grabX;
-		const rawTop = o === "horizontal" ? d.homeTop : clientY - d.grabY;
+		// A grouped list never locks an axis: the peer lists sit off the
+		// reorder axis, so locking would make them unreachable.
+		const grouped = this.#groupName !== "";
+		const rawLeft = !grouped && o === "vertical" ? d.homeLeft : clientX - d.grabX;
+		const rawTop = !grouped && o === "horizontal" ? d.homeTop : clientY - d.grabY;
 		let left = rawLeft;
 		let top = rawTop;
-		if (!this.#isUnbounded) {
-			// Clamp only the visual position (fixed = viewport coords);
-			// the hit-test stays on unclamped coords so clamping can't block the
-			// last slot. The lower bound takes precedence for over-sized items.
-			const host = this.getBoundingClientRect();
-			left = Math.min(Math.max(left, host.left), Math.max(host.left, host.right - d.w));
-			top = Math.min(Math.max(top, host.top), Math.max(host.top, host.bottom - d.h));
+		// Clamp only the visual position (fixed = viewport coords);
+		// the hit-test stays on unclamped coords so clamping can't block the
+		// last slot. The lower bound takes precedence for over-sized items.
+		const bounds = this.#dragBounds(members);
+		if (bounds) {
+			left = Math.min(Math.max(left, bounds.left), Math.max(bounds.left, bounds.right - d.w));
+			top = Math.min(Math.max(top, bounds.top), Math.max(bounds.top, bounds.bottom - d.h));
 		}
 		dragEl.style.left = `${left}px`;
 		dragEl.style.top = `${top}px`;
@@ -1098,7 +1473,8 @@ export class NeoSortable extends HTMLElement {
 		d.lastLeft = left;
 		d.lastTop = top;
 
-		const siblings = this.#items().filter((el) => el !== d.item && el !== d.placeholder);
+		const migrating = target !== d.host;
+		const siblings = target.#items().filter((el) => el !== d.item && el !== d.placeholder);
 		let targetX = clientX;
 		let targetY = clientY;
 		if (o === "grid") {
@@ -1107,29 +1483,45 @@ export class NeoSortable extends HTMLElement {
 			targetX = rawLeft + d.w / 2;
 			targetY = rawTop + d.h / 2;
 		}
-		const idx = this.#targetIndexIn(siblings, targetX, targetY);
-		if (this.#logicalIndex(d.item) === idx) return;
+		const idx = target.#targetIndexIn(siblings, targetX, targetY);
+		if (!migrating && target.#logicalIndex(d.item) === idx) return;
 		const ref = siblings[idx] ?? null;
+		const from = d.host;
+		// Proxy mode moves the real item (it is its own gap); otherwise
+		// the placeholder holds the slot and the item floats detached.
+		const moving = d.proxy ? d.item : d.placeholder;
 
-		this.#flipReorder(() => {
-			this.insertBefore(d.proxy ? d.item : d.placeholder, ref);
-		});
-		const to = this.#logicalIndex(d.item);
-		this.#emit("neo-sortable-move", {
+		if (migrating) {
+			this.#migrate(d, target, ref, moving);
+		} else {
+			target.#flipReorder(() => {
+				target.insertBefore(moving, ref);
+			}, moving);
+		}
+		const to = target.#logicalIndex(d.item);
+		this.#emit("neo-sortable-move", d.item, {
 			id: this.#idOf(d.item),
 			from: d.lastIndex,
 			to,
+			fromList: from.id,
+			toList: target.id,
 		});
 		d.lastIndex = to;
 	}
 
-	// Scrollable element ancestors of the host (nearest first), excluding
-	// the document root. Edge auto-scroll pans these so a lifted item can
-	// reach slots scrolled out of view. The page itself is left alone;
-	// the drag holds overflow-anchor:none and must not move it.
+	// The host and its scrollable element ancestors (nearest first),
+	// excluding the document root. Edge auto-scroll pans these so a
+	// lifted item can reach slots scrolled out of view. The page itself
+	// is left alone; the drag holds overflow-anchor:none and must not
+	// move it.
+	//
+	// The walk starts at the host, not above it: a list that scrolls its
+	// own overflow is the ordinary way to cap one, and skipping it left
+	// exactly the list the item is being dragged through unable to
+	// scroll.
 	#scrollers(): HTMLElement[] {
 		const out: HTMLElement[] = [];
-		let el = this.parentElement;
+		let el: HTMLElement | null = this;
 		while (el && el !== document.body && el !== document.documentElement) {
 			const s = getComputedStyle(el);
 			const y = (s.overflowY === "auto" || s.overflowY === "scroll") && el.scrollHeight > el.clientHeight;
@@ -1178,24 +1570,37 @@ export class NeoSortable extends HTMLElement {
 		}
 		const EDGE = 48;
 		const MAX = 16;
+		// The lifted element's own edges drive the pan, not the pointer.
+		// The item reaches the boundary first, and where it was grabbed
+		// should not decide when the list moves: held near its top, a
+		// pointer-driven band would make the item overhang the edge long
+		// before anything scrolled.
+		const box = (d.proxy ?? d.item).getBoundingClientRect();
 		let scrolled = false;
 		for (const sc of d.scrollers) {
 			if (!sc.isConnected) continue;
 			const r = sc.getBoundingClientRect();
 			let dy = 0;
 			if (sc.scrollHeight > sc.clientHeight) {
-				if (d.lastClientY < r.top + EDGE && sc.scrollTop > 0) {
-					dy = -MAX * Math.min(1, (r.top + EDGE - d.lastClientY) / EDGE);
-				} else if (d.lastClientY > r.bottom - EDGE && sc.scrollTop < sc.scrollHeight - sc.clientHeight) {
-					dy = MAX * Math.min(1, (d.lastClientY - (r.bottom - EDGE)) / EDGE);
+				// How far each edge has pushed into its band. An item
+				// taller than the band leaves both positive, so the deeper
+				// one wins rather than whichever is tested first.
+				const above = r.top + EDGE - box.top;
+				const below = box.bottom - (r.bottom - EDGE);
+				if (above > below && above > 0 && sc.scrollTop > 0) {
+					dy = -MAX * Math.min(1, above / EDGE);
+				} else if (below > 0 && sc.scrollTop < sc.scrollHeight - sc.clientHeight) {
+					dy = MAX * Math.min(1, below / EDGE);
 				}
 			}
 			let dx = 0;
 			if (sc.scrollWidth > sc.clientWidth) {
-				if (d.lastClientX < r.left + EDGE && sc.scrollLeft > 0) {
-					dx = -MAX * Math.min(1, (r.left + EDGE - d.lastClientX) / EDGE);
-				} else if (d.lastClientX > r.right - EDGE && sc.scrollLeft < sc.scrollWidth - sc.clientWidth) {
-					dx = MAX * Math.min(1, (d.lastClientX - (r.right - EDGE)) / EDGE);
+				const before = r.left + EDGE - box.left;
+				const after = box.right - (r.right - EDGE);
+				if (before > after && before > 0 && sc.scrollLeft > 0) {
+					dx = -MAX * Math.min(1, before / EDGE);
+				} else if (after > 0 && sc.scrollLeft < sc.scrollWidth - sc.clientWidth) {
+					dx = MAX * Math.min(1, after / EDGE);
 				}
 			}
 			if (dx !== 0 || dy !== 0) {
@@ -1238,6 +1643,7 @@ export class NeoSortable extends HTMLElement {
 	// Tear down absorb-mode after the button finally lifted.
 	#releaseAbortedPointer(): void {
 		this.#abortedPointerId = null;
+		this.#releaseDrag();
 		document.removeEventListener("pointermove", this.#onPointerMove);
 		document.removeEventListener("pointerup", this.#onPointerUp);
 		document.removeEventListener("pointercancel", this.#onPointerCancel);
@@ -1252,32 +1658,58 @@ export class NeoSortable extends HTMLElement {
 		document.removeEventListener("pointerup", this.#onPointerUp);
 		document.removeEventListener("pointercancel", this.#onPointerCancel);
 		this.#pointer = null;
+		this.#releaseDrag();
 		this.#stopAutoScroll();
 
 		// A click, not a drag, never promoted and never locked the anchor.
 		if (!d.active) return;
 		this.#unlockScrollAnchor();
 
+		const host = d.host;
+		// Where the item was left, measured before teardown puts it back in
+		// flow. In proxy mode the item itself never moved and the proxy is
+		// what the user was carrying.
+		const releasedAt = (d.proxy ?? d.item).getBoundingClientRect();
 		this.#clearFlip();
+		host.#clearFlip();
 		d.proxy?.remove();
 		if (d.proxy) d.placeholder.remove();
 		d.item.style.cssText = d.savedCss;
 		d.item.removeAttribute("data-neo-sortable-dragging");
+		host.#setDragState(null);
 		this.#setDragState(null);
 
 		if (cancelled) {
 			if (!d.proxy) d.placeholder.remove();
+			// startOrderEls belong to the origin, so this pulls a migrated
+			// item back out of whichever host it reached.
 			this.#restore(d.startOrderEls);
+			d.host = this;
+			host.#syncItems();
+			this.#syncItems();
 		} else {
 			if (!d.proxy) d.placeholder.replaceWith(d.item);
 		}
 
-		const changed = !cancelled && !arraysEqual(d.startOrder, this.order);
-		this.#emit("neo-sortable-end", {
+		const dropHost = cancelled ? this : host;
+		// Close the gap the release opened: the pointer let go somewhere
+		// between slots, and the item would otherwise appear in its slot on
+		// the next frame with nothing connecting the two positions.
+		dropHost.#dock(d.item, releasedAt);
+		// A cross-list drop changed the board even when the origin's own
+		// order came back identical.
+		const changed = !cancelled && (dropHost !== this || !arraysEqual(d.startOrder, this.order));
+		const to = dropHost.#items().indexOf(d.item);
+		// Held before the event, so a handler that commits or rolls back
+		// synchronously acts on a drop that is already recorded.
+		if (changed) dropHost.#holdDrop(this.#idOf(d.item), to, this, d.startIndex);
+		this.#emit("neo-sortable-end", d.item, {
 			id: this.#idOf(d.item),
 			from: d.startIndex,
-			to: this.#items().indexOf(d.item),
+			to,
 			changed,
+			fromList: this.id,
+			toList: dropHost.id,
 		});
 	}
 
@@ -1305,38 +1737,59 @@ export class NeoSortable extends HTMLElement {
 		if (!grip || !this.contains(grip)) return;
 		const item = this.#items().find((it) => it === grip || it.contains(grip));
 		if (!item) return;
+		// Same exemption the pointer path applies: with no handle the
+		// whole item is the grip, so a field inside it would otherwise
+		// lose Enter, Space, and the arrows to the reorder gesture.
+		if (!item.querySelector("[data-neo-sortable-handle]")) {
+			const hit = target.closest(INTERACTIVE);
+			if (hit && item.contains(hit)) return;
+		}
 
+		// A held item carries focus into the host it was moved to, so the
+		// keydown lands on a peer that holds no gesture state. Drive the
+		// owner throughout; for a lone sortable it is this element.
+		const owner = dragOwner ?? this;
 		const key = e.key;
 		// Space/Enter picks the focused item up, or drops the held one.
 		if (key === " " || key === "Enter") {
 			e.preventDefault();
-			if (this.#keyboard) this.#keyboardDrop();
-			else this.#keyboardPick(item);
+			if (owner.#keyboard) owner.#keyboardDrop();
+			else if (!dragOwner) this.#keyboardPick(item);
 			return;
 		}
 		if (key === "Escape") {
-			if (!this.#keyboard) return;
+			if (!owner.#keyboard) return;
 			e.preventDefault();
-			this.#keyboardCancel();
+			owner.#keyboardCancel();
 			return;
 		}
 
 		// Reorder keys move the held item only; pick it up with Space/Enter first.
 		// Without a pickup, defer to the browser so the focused grip
 		// scrolls/navigates normally. Tab/blur drops, Escape reverts.
-		if (!this.#keyboard) return;
+		const k = owner.#keyboard;
+		if (!k) return;
 		const isHome = key === "Home";
 		const isEnd = key === "End";
-		const step = this.#keyStep(key);
+		// Grouped lists spend the cross-axis arrows on list-to-list
+		// travel, so check that before the in-list step.
+		const listStep = owner.#keyListStep(key);
+		if (listStep !== 0) {
+			e.preventDefault();
+			owner.#keyboardMoveToList(listStep);
+			return;
+		}
+		const step = owner.#keyStep(key);
 		if (!isHome && !isEnd && step === 0) return;
 		e.preventDefault();
-		if (isHome) this.#keyboardMoveTo(0);
-		else if (isEnd) this.#keyboardMoveTo(this.#items().length - 1);
-		else this.#keyboardMove(step);
+		if (isHome) owner.#keyboardMoveTo(0);
+		else if (isEnd) owner.#keyboardMoveTo(k.host.#items().length - 1);
+		else owner.#keyboardMove(step);
 	};
 
 	#keyStep(key: string): number {
-		const o = this.#orientation;
+		const k = this.#keyboard;
+		const o = k ? k.host.#orientation : this.#orientation;
 		if (o === "vertical") {
 			if (key === "ArrowUp") return -1;
 			if (key === "ArrowDown") return 1;
@@ -1355,28 +1808,78 @@ export class NeoSortable extends HTMLElement {
 		return 0;
 	}
 
+	// Cross-list step for a grouped drag: the arrows the reorder axis
+	// leaves free. A grid host uses all four, so it has no keyboard
+	// hand-off.
+	#keyListStep(key: string): number {
+		const k = this.#keyboard;
+		if (!k || this.#groupName === "") return 0;
+		const o = k.host.#orientation;
+		if (o === "vertical") {
+			if (key === "ArrowLeft") return -1;
+			if (key === "ArrowRight") return 1;
+		} else if (o === "horizontal") {
+			if (key === "ArrowUp") return -1;
+			if (key === "ArrowDown") return 1;
+		}
+		return 0;
+	}
+
+	// Carry the held item to the adjacent group member, keeping its
+	// index so it lands beside where it left.
+	#keyboardMoveToList(step: number) {
+		const k = this.#keyboard;
+		if (!k) return;
+		const members = this.#groupMembers();
+		const at = members.indexOf(k.host);
+		const next = members[at + step];
+		if (at < 0 || !next) return;
+		const from = k.host;
+		const index = from.#items().indexOf(k.item);
+		const siblings = next.#items();
+		const ref = siblings[Math.min(Math.max(index, 0), siblings.length)] ?? null;
+		this.#migrate(k, next, ref, k.item);
+		k.lastIndex = next.#items().indexOf(k.item);
+		this.#emit("neo-sortable-move", k.item, {
+			id: this.#idOf(k.item),
+			from: index,
+			to: k.lastIndex,
+			fromList: from.id,
+			toList: next.id,
+		});
+		this.#gripOf(k.item).focus?.({ preventScroll: true });
+		next.#scrollItemIntoView(k.item);
+		next.#announce(`${next.#listLabel}. Position ${k.lastIndex + 1} of ${next.#items().length}.`);
+	}
+
 	#keyboardPick(item: HTMLElement) {
 		const items = this.#items();
 		const startIndex = items.indexOf(item);
+		this.#claimDrag();
 		this.#keyboard = {
 			item,
+			host: this,
 			startIndex,
 			lastIndex: startIndex,
 			startOrderEls: items.slice(),
 			startOrder: this.order,
-			startContent: this.#snapshotContent(items),
+			hostOrder: this.order,
+			hostContent: this.#snapshotContent(items),
 		};
 		this.#setDragState("keyboard");
 		item.setAttribute("data-neo-sortable-dragging", "");
 		item.setAttribute("aria-grabbed", "true");
 		this.#lockScrollAnchor();
-		this.#emit("neo-sortable-start", {
+		this.#emit("neo-sortable-start", item, {
 			id: this.#idOf(item),
 			index: startIndex,
+			list: this.id,
 		});
+		const across = this.#groupName !== "" && this.#orientation !== "grid";
 		this.#announce(
 			`Moving. Position ${startIndex + 1} of ${items.length}. ` +
 				`Arrow keys or home and end to move, ` +
+				(across ? `${this.#orientation === "vertical" ? "left and right" : "up and down"} to change list, ` : "") +
 				`tab away to drop, escape to cancel.`,
 		);
 	}
@@ -1384,73 +1887,102 @@ export class NeoSortable extends HTMLElement {
 	#keyboardMove(step: number) {
 		const k = this.#keyboard;
 		if (!k) return;
-		const cur = this.#items().indexOf(k.item);
+		const cur = k.host.#items().indexOf(k.item);
 		this.#keyboardMoveTo(cur + step);
 	}
 
 	#keyboardMoveTo(index: number) {
 		const k = this.#keyboard;
 		if (!k) return;
-		const items = this.#items();
+		const host = k.host;
+		const items = host.#items();
 		const cur = items.indexOf(k.item);
 		const next = Math.max(0, Math.min(items.length - 1, index));
 		if (next === cur) return;
 		let changed = false;
-		this.#flipReorder(() => {
-			changed = this.#placeItemAt(k.item, next);
-		});
+		host.#flipReorder(() => {
+			changed = host.#placeItemAt(k.item, next);
+		}, k.item);
 		if (!changed) return;
-		const to = this.#items().indexOf(k.item);
-		this.#emit("neo-sortable-move", {
+		const to = host.#items().indexOf(k.item);
+		this.#emit("neo-sortable-move", k.item, {
 			id: this.#idOf(k.item),
 			from: k.lastIndex,
 			to,
+			fromList: host.id,
+			toList: host.id,
 		});
 		k.lastIndex = to;
 		// ATs may drop focus on reparenting. preventScroll because the
 		// default focus scroll targets the in-flight FLIP box;
 		// our own scroll uses the settled layout rect.
 		this.#gripOf(k.item).focus?.({ preventScroll: true });
-		this.#scrollItemIntoView(k.item);
-		this.#announce(`Position ${to + 1} of ${items.length}.`);
+		host.#scrollItemIntoView(k.item);
+		host.#announce(`Position ${to + 1} of ${items.length}.`);
 	}
 
 	#keyboardDrop() {
 		const k = this.#keyboard;
 		if (!k) return;
+		const host = k.host;
 		this.#keyboard = null;
+		this.#releaseDrag();
 		k.item.removeAttribute("data-neo-sortable-dragging");
 		k.item.removeAttribute("aria-grabbed");
+		host.#setDragState(null);
 		this.#setDragState(null);
 		this.#unlockScrollAnchor();
-		const count = this.#items().length;
-		const to = this.#items().indexOf(k.item);
-		const changed = !arraysEqual(k.startOrder, this.order);
-		this.#emit("neo-sortable-end", {
+		const items = host.#items();
+		const count = items.length;
+		const to = items.indexOf(k.item);
+		const changed = host !== this || !arraysEqual(k.startOrder, this.order);
+		if (changed) host.#holdDrop(this.#idOf(k.item), to, this, k.startIndex);
+		this.#emit("neo-sortable-end", k.item, {
 			id: this.#idOf(k.item),
 			from: k.startIndex,
 			to,
 			changed,
+			fromList: this.id,
+			toList: host.id,
 		});
-		this.#announce(changed ? `Dropped at position ${to + 1} of ${count}.` : `Dropped. Order unchanged.`);
+		host.#announce(
+			changed
+				? host === this
+					? `Dropped at position ${to + 1} of ${count}.`
+					: `Dropped in ${host.#listLabel} at position ${to + 1} of ${count}.`
+				: `Dropped. Order unchanged.`,
+		);
 	}
 
 	#keyboardCancel() {
 		const k = this.#keyboard;
 		if (!k) return;
+		const host = k.host;
 		this.#keyboard = null;
+		this.#releaseDrag();
 		this.#clearFlip();
+		host.#clearFlip();
+		// startOrderEls belong to the origin, so a held item that
+		// travelled comes back with them.
 		this.#restore(k.startOrderEls);
+		k.host = this;
+		if (host !== this) {
+			host.#syncItems();
+			this.#syncItems();
+		}
 		k.item.removeAttribute("data-neo-sortable-dragging");
 		k.item.removeAttribute("aria-grabbed");
+		host.#setDragState(null);
 		this.#setDragState(null);
 		this.#unlockScrollAnchor();
 		this.#gripOf(k.item).focus?.();
-		this.#emit("neo-sortable-end", {
+		this.#emit("neo-sortable-end", k.item, {
 			id: this.#idOf(k.item),
 			from: k.startIndex,
 			to: k.startIndex,
 			changed: false,
+			fromList: this.id,
+			toList: this.id,
 		});
 		this.#announce("Reordering cancelled.");
 	}
@@ -1473,6 +2005,10 @@ export class NeoSortable extends HTMLElement {
 	#onFocusOut = (e: FocusEvent) => {
 		const next = e.relatedTarget as Node | null;
 		if (next && this.contains(next)) return;
+		// A held item carries focus into the host it travelled to; that
+		// is still inside the gesture, not a tab-out.
+		const held = this.#keyboard?.host;
+		if (held && held !== this && next && held.contains(next)) return;
 		if (next) {
 			this.#focusedItemId = "";
 		} else {
@@ -1488,8 +2024,10 @@ export class NeoSortable extends HTMLElement {
 		}
 		if (!this.#keyboard) return;
 		queueMicrotask(() => {
-			if (!this.#keyboard) return;
+			const k = this.#keyboard;
+			if (!k) return;
 			if (this.contains(document.activeElement)) return;
+			if (k.host !== this && k.host.contains(document.activeElement)) return;
 			this.#keyboardDrop();
 		});
 	};

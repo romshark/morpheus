@@ -1,0 +1,20 @@
+/* Fixed lengths stay out of the layout attribute surface: one shared
+   basis makes an empty column as wide as a full one, and wraps the row
+   into full-width columns once three no longer fit. */
+.sortable-group-column {
+	flex-basis: 9rem;
+}
+
+.sortable-group-title {
+	color: var(--muted);
+	font-size: 0.85rem;
+}
+
+/* min-height keeps an empty list a drop target: a host with no box
+   catches no pointer. */
+.sortable-group-list {
+	min-height: 4rem;
+	padding: 0.5rem;
+	border: 1px solid var(--btn-border);
+	border-radius: var(--page-radius, 0.5rem);
+}

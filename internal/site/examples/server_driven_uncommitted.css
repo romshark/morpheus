@@ -1,0 +1,33 @@
+/* The stage is a flex row: without a grow the list sizes to its longest
+ * row instead of the space it was given. */
+.sd-uncommitted {
+	display: flex;
+	flex-direction: column;
+	gap: 0.6rem;
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+.sd-uncommitted-list {
+	display: flex;
+	flex-direction: column;
+	gap: 0.4rem;
+}
+
+.sd-uncommitted-item {
+	padding: 0.5rem 0.7rem;
+	border: 1px solid var(--btn-border);
+	border-radius: 0.4rem;
+	background: var(--page-bg);
+	font-size: 0.9rem;
+}
+
+.sd-uncommitted-status {
+	display: flex;
+	align-items: center;
+	gap: 0.4rem;
+	margin: 0;
+	font-size: 0.85rem;
+	color: var(--muted);
+	--neo-spinner-size: 0.85rem;
+}

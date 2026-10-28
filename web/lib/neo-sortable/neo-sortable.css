@@ -5,14 +5,14 @@
  * drag the grabbed item is `data-neo-sortable-dragging` and pinned
  * `position: fixed` by JS (CSS only lends elevation); a same-size
  * `[data-neo-sortable-placeholder]` holds its slot, and the displaced
- * items FLIP-glide via a JS transition tuned by the `easing` attribute
- * (--neo-sortable-move-duration is the unset-attribute default).
+ * items FLIP-glide on the transition declared below.
  */
 
 :root {
 	--neo-sortable-gap: 0.5rem;
 	--neo-sortable-grid-min: 7rem;
-	--neo-sortable-move-duration: 180ms;
+	--neo-sortable-move-duration: calc(180ms * var(--neo-duration-scale, 1));
+	--neo-sortable-dock-duration: calc(160ms * var(--neo-duration-scale, 1));
 	/* The lifted item reuses the elevated-card shadow so it reads as
 	 * the same elevation and stays dark in every theme; a --page-fg
 	 * mix turns into a bright halo in dark mode. */
@@ -89,9 +89,7 @@ neo-sortable [data-neo-sortable-dragging] {
 	}
 }
 
-/* The gap left behind is a dashed outline of the grabbed item's slot.
- * JS applies sibling FLIP transitions inline, not this file, which keeps
- * the `easing` attribute the single source of truth. */
+/* The gap left behind is a dashed outline of the grabbed item's slot. */
 neo-sortable [data-neo-sortable-placeholder] {
 	box-sizing: border-box;
 	border: 1px dashed var(--neo-sortable-placeholder-color);
@@ -140,6 +138,37 @@ neo-sortable[disabled]:where(:not([disabled="false"])) [data-neo-sortable-handle
 	background: var(--surface, var(--page-bg, #fff));
 	border: 1px solid var(--border, color-mix(in srgb, currentColor 15%, transparent));
 	border-radius: var(--neo-radius, 0.5rem);
+}
+
+/* Reorder motion. The component measures and inverts; the transition
+ * itself lives here, so a theme, a media query, or a per-item rule can
+ * reach it. JS suppresses it for the invert frame with an inline
+ * `transition: none`, then clears that inline value to hand control back.
+ *
+ * Marked rather than applied to every child: these are author elements,
+ * and the shorthand would replace whatever transition they declare for
+ * themselves. The mark is only present while the item is moving.
+ *
+ * [data-neo-sortable-docking] is the one item travelling to a slot under
+ * its own power (a released item settling, or one sent back by
+ * rollbackDrop). It covers more ground than a displaced row, so it gets
+ * its own duration. */
+neo-sortable > [data-neo-sortable-moving] {
+	transition: transform var(--neo-sortable-move-duration, 180ms) var(--neo-easing, ease);
+}
+
+neo-sortable > [data-neo-sortable-moving][data-neo-sortable-docking] {
+	transition-duration: var(--neo-sortable-dock-duration, 160ms);
+}
+
+/* Both selectors, because the docking rule above outranks the plain one:
+ * a single `transition: none` at the lower specificity is overruled by
+ * its `transition-duration` and the glide comes back. */
+@media (prefers-reduced-motion: reduce) {
+	neo-sortable > [data-neo-sortable-moving],
+	neo-sortable > [data-neo-sortable-moving][data-neo-sortable-docking] {
+		transition: none;
+	}
 }
 
 /* The visually-hidden keyboard-reorder announcer is owned by the

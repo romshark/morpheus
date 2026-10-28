@@ -1,3 +1,8 @@
+/* Reorder motion is CSS. --neo-easing is the kit-wide timing function,
+   overridden here for this list alone; the duration property is the
+   component's own. */
 .sortable-easing {
 	width: 100%;
+	--neo-sortable-move-duration: 420ms;
+	--neo-easing: ease-in-out;
 }

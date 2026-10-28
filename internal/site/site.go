@@ -195,6 +195,12 @@ var SectionLinks = []NavLink{
 	{href.PageProjectStatus(), "Status & Contribution"},
 }
 
+// DemoLinks lists the full application demos: pages that use the kit to
+// build something, rather than documenting one component.
+var DemoLinks = []NavLink{
+	{href.PageDemoKanban(), "Kanban Board"},
+}
+
 var UtilityLinks = []NavLink{
 	{href.PageBoundary(), "Boundary"},
 	{href.PageIfNetwork(), "If network"},

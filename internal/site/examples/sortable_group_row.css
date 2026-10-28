@@ -1,0 +1,14 @@
+.sortable-group-row-title {
+	color: var(--muted);
+	font-size: 0.85rem;
+}
+
+/* Room for a horizontal scrollbar under the centred items: the row
+   scrolls once the items no longer fit, and the height has to cover
+   both or the scrollbar forces a vertical one as well. */
+.sortable-group-row-list {
+	min-height: 4.5rem;
+	padding: 0.5rem;
+	border: 1px solid var(--btn-border);
+	border-radius: var(--page-radius, 0.5rem);
+}

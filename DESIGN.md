@@ -18,6 +18,8 @@ Requirement: a component must keep its current client state across a morph to av
 
 Every decision in this document derives from this requirement.
 
+A continuous gesture over a set of items is the one case the requirement cannot always satisfy. The gesture is anchored to the items present when it began, so a morph that changes that set can leave it with no defined meaning. How much change a gesture survives is not a fixed rule, because it depends on what the server patches: a list only its own client writes to can treat any change as a conflict, while a list several clients edit continuously would abort on every peer's edit under the same rule. The choice therefore belongs to the author, as a documented attribute per component, with the strictest level as the default. The one level no setting crosses is the loss of the item the gesture is acting on, which ends the gesture everywhere.
+
 ## Custom Elements
 
 Components are custom elements (`<neo-*>`), controlled declaratively through markup. No imperative API is exposed for normal use. Components come in 2 kinds:

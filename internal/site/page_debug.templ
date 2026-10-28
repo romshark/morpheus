@@ -782,7 +782,7 @@ templ debugPage(morpheusVersion string) {
 			<div class="debug-card">
 				<h3>Sortable (order toggle each patch)</h3>
 				<neo-layout class="debug-card-row" wrap align-items="center">
-					@neo.SortableAttrs(neo.SortableOpts{TolerateReorder: neo.Set(true)}, templ.Attributes{
+					@neo.SortableAttrs(neo.SortableOpts{MorphTolerance: neo.Set(neo.MorphToleranceReorder)}, templ.Attributes{
 						"id": "debug-sortable-order",
 					}) {
 						@neo.SortableItem("debug-sortable-order-design") {
@@ -1410,7 +1410,7 @@ templ debugSimulator() {
 				'</span>' +
 				'<span>' + label + '</span>' +
 				'</div>';
-			// The order card opts into tolerate-reorder so a patch that
+			// The order card opts into morph-tolerance="reorder" so a patch that
 			// only reshuffles ids doesn't abort an in-flight drag; the
 			// attribute has to survive each patch or the next morph
 			// strips it and the drag aborts on the following tick.
@@ -1578,7 +1578,7 @@ templ debugSimulator() {
 				const isA = count % 2 === 1;
 				// Sortable card 1 (static) deliberately gets no patch;
 				// the full-body morph already exercises it.
-				patchSortable('debug-sortable-order', isA ? orderA : orderB, 'tolerate-reorder');
+				patchSortable('debug-sortable-order', isA ? orderA : orderB, 'morph-tolerance="reorder"');
 				patchSortable('debug-sortable-items', isA ? itemsA : itemsB);
 				patchSortable('debug-sortable-mixed', isA ? mixedA : mixedB);
 
