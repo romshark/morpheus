@@ -4,6 +4,8 @@ This file records the notable changes of each release in the format of [Keep a C
 
 ## [Unreleased]
 
+## [0.3.1] - 2026-10-29
+
 ### Changed
 
 #### Templ wrappers
@@ -91,6 +93,7 @@ This file records the notable changes of each release in the format of [Keep a C
 
 - Pre-render `enter` and `delete` in `neo.Kbd` with the labels the client shows. They changed after the script loaded.
 
-[Unreleased]: https://github.com/romshark/morpheus/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/romshark/morpheus/compare/v0.3.1...HEAD
+[0.3.1]: https://github.com/romshark/morpheus/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/romshark/morpheus/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/romshark/morpheus/compare/v0.1.0...v0.2.0
