@@ -16,6 +16,7 @@ This file records the notable changes of each release in the format of [Keep a C
 
 - Keep popup rows concentric with their panel in `<neo-select>`, `<neo-combobox>`, `<neo-textinput>`, `<neo-menu>`, `<neo-contextmenu>` and `<neo-breadcrumb>`, and the `<input type="color">` swatch with its field. The corner gaps were uneven.
 - Drop the 2px floor of `--neo-tabs-tab-radius`. A tablist with a radius under 6px got tabs rounder than concentric, such as 2px tabs in a square tablist.
+- Round all 4 corners of the only `<neo-toggle>` in a vertical `<neo-toggle-group>`. Its top corners were square.
 - Set `--page-radius: 0px` in `theme-matrix.css`. The unitless `0` gave some `<neo-aura>` rings square corners. Use `0px` in your own themes too.
 
 ## [0.3.1] - 2026-10-29

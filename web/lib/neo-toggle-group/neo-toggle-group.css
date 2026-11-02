@@ -69,6 +69,10 @@ neo-toggle-group[orientation="vertical"] > neo-toggle:not(:first-child):not(:las
 	border-radius: 0;
 }
 
+neo-toggle-group[orientation="vertical"] > neo-toggle:only-child {
+	border-radius: var(--neo-button-radius);
+}
+
 /* High contrast thickens to a 2px edge with box-shadow, never a wider
  * border or a wider overlap, both of which reflow on toggle. An outset ring on
  * the host doubles the outer frame; an inset shadow on each non-last
