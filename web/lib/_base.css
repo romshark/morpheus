@@ -16,7 +16,9 @@
 
 	/* Base corner radius. Component radii in morpheus.css scale from this
 	 * via calc(var(--page-radius) * <multiplier>). Themes that want
-	 * sharp corners only need to set this to 0. Default 10px. */
+	 * sharp corners only need to set this to 0px. A unitless 0 is a number,
+	 * which invalidates every calc() that adds or subtracts a length.
+	 * Default 10px. */
 	--page-radius: 0.625rem;
 
 	/* Base spacing unit. Component paddings and gaps in morpheus.css scale

@@ -23,7 +23,7 @@
 	--link-hover: #9dffc4;
 	--link-visited: #2da55a;
 
-	--page-radius: 0;
+	--page-radius: 0px;
 	--page-spacing: 0.18rem;
 
 	/* VT323 is a pixel-grid CRT terminal font. The theme ships no
@@ -144,7 +144,7 @@
 	--link-hover: #9dffc4;
 	--link-visited: #1f7a42;
 
-	--page-radius: 0;
+	--page-radius: 0px;
 	--page-spacing: 0.18rem;
 
 	--neo-switch-track-radius: 0;
