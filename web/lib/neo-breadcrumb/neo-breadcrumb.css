@@ -121,12 +121,16 @@ neo-breadcrumb [data-neo-breadcrumb-menu] > [data-neo-popover-content] {
 	max-width: calc(100vw - 2 * var(--neo-popover-screen-offset));
 }
 
-/* Items lifted into the popover render as navgroup links; pad/hover
- * them as menu rows, not inline crumbs. */
+/* Items lifted into the popover render as navgroup links;
+ * pad/hover them as menu rows, not inline crumbs.
+ * The radius keeps the rows concentric with the panel's corners. */
 neo-breadcrumb [data-neo-breadcrumb-menu] neo-navgroup > [data-neo-navgroup-item] {
 	display: block;
 	padding: 0.4rem 0.6rem;
-	border-radius: var(--page-radius, 0.5rem);
+	border-radius: max(
+		0px,
+		calc(var(--neo-popover-radius) - var(--neo-popover-border-width) - var(--neo-popover-padding))
+	);
 	color: inherit;
 	text-decoration: none;
 	white-space: nowrap;

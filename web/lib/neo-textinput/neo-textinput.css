@@ -260,21 +260,24 @@ input[type="color"]:disabled {
 	background-image: var(--neo-disabled-overlay);
 }
 
-/* Inset the swatch so the field's border stays visible around it. */
+/* Inset the swatch so the field's border stays visible around it.
+ * Firefox has no swatch wrapper and draws the swatch flush with the border. */
 input[type="color"]::-webkit-color-swatch-wrapper {
 	padding: 0.2rem;
 }
 
 /* Vendor-prefixed pseudos can't share a selector list; an unrecognised
- * one invalidates the whole rule. ::-webkit and ::-moz stay split. */
+ * one invalidates the whole rule. ::-webkit and ::-moz stay split.
+ * Each radius subtracts the engine's inset around the swatch, which keeps
+ * the swatch corners concentric with the field's. */
 input[type="color"]::-webkit-color-swatch {
 	border: 1px solid var(--neo-textarea-border-color);
-	border-radius: calc(var(--neo-textarea-radius) - 2px);
+	border-radius: max(0px, calc(var(--neo-textarea-radius) - 1px - 0.2rem));
 }
 
 input[type="color"]::-moz-color-swatch {
 	border: 1px solid var(--neo-textarea-border-color);
-	border-radius: calc(var(--neo-textarea-radius) - 2px);
+	border-radius: max(0px, calc(var(--neo-textarea-radius) - 1px));
 }
 
 /* <input type="range"> reuses `--neo-slider-*` tokens so themes track both.

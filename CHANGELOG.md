@@ -4,6 +4,19 @@ This file records the notable changes of each release in the format of [Keep a C
 
 ## [Unreleased]
 
+### Added
+
+#### Components
+
+- Add `--neo-select-list-padding`, the padding of the option panels in `<neo-select>`, `<neo-combobox>` and `<neo-textinput>`. It defaults to `--page-spacing` and replaces a fixed `0.25rem`.
+
+### Fixed
+
+#### Components
+
+- Keep row corners concentric with the panel corners in the popups of `<neo-select>`, `<neo-combobox>`, `<neo-textinput>`, `<neo-menu>`, `<neo-contextmenu>` and `<neo-breadcrumb>`, and keep the `<input type="color">` swatch concentric with its field. The inner radius ignored the border and padding between the 2, which left an uneven gap at the corners. `--neo-select-option-radius` and `--neo-menu-item-radius` now default to the panel radius minus the border and padding.
+- Drop the 2px floor of `--neo-tabs-tab-radius`. A tablist with a radius under 6px got tabs rounder than concentric, such as 2px tabs in a square tablist.
+
 ## [0.3.1] - 2026-10-29
 
 ### Changed

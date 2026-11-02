@@ -259,7 +259,7 @@ COMBOBOX_SHADOW_TEMPLATE.innerHTML = `
     flex-direction: column;
     width: 100%;
     gap: var(--neo-navgroup-gap, 0.5rem);
-    padding: 0.25rem;
+    padding: var(--neo-select-list-padding, calc(var(--page-spacing, 0.25rem) * 1));
     box-sizing: border-box;
     flex: 1 1 auto;
     min-height: 0;

@@ -518,7 +518,7 @@ SUGGEST_SHADOW_TEMPLATE.innerHTML = `
     max-height: calc(100dvh - 1rem);
     overflow: auto;
     overscroll-behavior: contain;
-    padding: 0.25rem;
+    padding: var(--neo-select-list-padding, calc(var(--page-spacing, 0.25rem) * 1));
     box-sizing: border-box;
     background: var(--neo-popover-bg, #ffffff);
     color: var(--neo-popover-color, var(--page-fg, #111827));

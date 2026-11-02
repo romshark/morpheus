@@ -1291,6 +1291,10 @@ var selectDoc = ComponentDoc{
 	CSSProps: []DocCSSProp{
 		{Name: "--neo-select-min-width", Default: "12rem",
 			Description: templ.Raw("Minimum trigger width.")},
+		{Name: "--neo-select-list-padding", Default: "calc(var(--page-spacing, 0.25rem) * 1)",
+			Description: templ.Raw("Padding inside the options panel. The combobox options panel and the text input suggestions panel use it too.")},
+		{Name: "--neo-select-option-radius", Default: "max(0px, calc(var(--neo-popover-radius) - var(--neo-popover-border-width) - var(--neo-select-list-padding)))",
+			Description: templ.Raw("Option row corner radius. The default keeps the row corners concentric with the panel's. Combobox options and text input suggestions use it too.")},
 	},
 }
 

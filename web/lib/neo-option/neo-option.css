@@ -1,5 +1,10 @@
 :root {
-	--neo-select-option-radius: var(--page-radius, 0.25rem);
+	--neo-select-list-padding: calc(var(--page-spacing, 0.25rem) * 1);
+	/* Concentric with the list panel's corners. */
+	--neo-select-option-radius: max(
+		0px,
+		calc(var(--neo-popover-radius) - var(--neo-popover-border-width) - var(--neo-select-list-padding))
+	);
 	--neo-select-option-padding: calc(var(--page-spacing, 0.25rem) * 1.5) calc(var(--page-spacing, 0.25rem) * 2.5);
 	--neo-select-option-gap: calc(var(--page-spacing, 0.25rem) * 2);
 	--neo-select-option-hover-bg: color-mix(in srgb, var(--accent) 16%, transparent);

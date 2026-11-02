@@ -9,7 +9,7 @@
 	--neo-tabs-radius: var(--page-radius, 0.5rem);
 	--neo-tabs-focus-outline-width: 2px;
 	--neo-tabs-focus-outline-offset: 2px;
-	--neo-tabs-tab-radius: max(2px, calc(var(--neo-tabs-radius) - var(--neo-tabs-list-padding)));
+	--neo-tabs-tab-radius: max(0px, calc(var(--neo-tabs-radius) - var(--neo-tabs-list-padding)));
 	--neo-tabs-tab-padding-y: 0.4rem;
 	--neo-tabs-tab-padding-x: 0.85rem;
 	--neo-tabs-tab-padding: var(--neo-tabs-tab-padding-y) var(--neo-tabs-tab-padding-x);

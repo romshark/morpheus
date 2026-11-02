@@ -14,7 +14,11 @@
 	--neo-menu-shadow: 0 1px 2px rgba(0, 0, 0, 0.06), 0 8px 28px rgba(0, 0, 0, 0.18);
 	--neo-menu-min-width: 12rem;
 	--neo-menu-z-index: 1200;
-	--neo-menu-item-radius: calc(var(--page-radius, 0.625rem) * 0.6);
+	/* Concentric with the panel's corners. */
+	--neo-menu-item-radius: max(
+		0px,
+		calc(var(--neo-menu-radius) - var(--neo-menu-border-width) - var(--neo-menu-padding))
+	);
 	--neo-menu-item-padding-y: calc(var(--page-spacing, 0.25rem) * 1.5);
 	--neo-menu-item-padding-x: calc(var(--page-spacing, 0.25rem) * 2.5);
 	--neo-menu-item-hover-bg: color-mix(in srgb, var(--page-fg) 8%, transparent);
