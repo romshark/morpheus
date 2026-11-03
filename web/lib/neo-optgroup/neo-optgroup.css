@@ -6,9 +6,9 @@ neo-optgroup {
 	display: flex;
 	flex-direction: column;
 	width: 100%;
-	/* Mirror the navgroup's own gap so grouped options don't read as
+	/* Same gap as the options panel, so grouped options don't read as
 	 * tighter than the surrounding ungrouped ones. */
-	gap: var(--neo-navgroup-gap, 0.5rem);
+	gap: var(--neo-select-list-gap, calc(var(--page-spacing, 0.25rem) * 1));
 }
 
 /* Same reason as neo-option[hidden]. The search filter hides whole

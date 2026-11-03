@@ -173,13 +173,13 @@ SELECT_SHADOW_TEMPLATE.innerHTML = `
     display: flex;
     flex-direction: column;
     width: 100%;
-    gap: var(--neo-navgroup-gap, 0.5rem);
+    gap: var(--neo-select-list-gap, calc(var(--page-spacing, 0.25rem) * 1));
   }
   ::slotted([data-neo-select-options]) {
     display: flex;
     flex-direction: column;
     width: 100%;
-    gap: var(--neo-navgroup-gap, 0.5rem);
+    gap: var(--neo-select-list-gap, calc(var(--page-spacing, 0.25rem) * 1));
   }
   ::slotted([hidden]) {
     display: none !important;

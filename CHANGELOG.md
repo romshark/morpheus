@@ -4,6 +4,18 @@ This file records the notable changes of each release in the format of [Keep a C
 
 ## [Unreleased]
 
+### Added
+
+#### Components
+
+- Add `--neo-select-list-gap`, the gap between the rows of the option panels in `<neo-select>`, `<neo-combobox>` and `<neo-textinput>` and inside `<neo-optgroup>`. It defaults to `--neo-select-list-padding`.
+
+### Changed
+
+#### Components
+
+- Space option rows by `--neo-select-list-gap` (0.25rem) instead of `--neo-navgroup-gap` (0.5rem), equal to the panel padding. Set `--neo-select-list-gap: calc(var(--page-spacing) * 2)` on `:root` to restore the old spacing.
+
 ## [0.3.2] - 2026-11-03
 
 ### Added

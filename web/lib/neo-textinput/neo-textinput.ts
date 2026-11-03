@@ -512,7 +512,7 @@ SUGGEST_SHADOW_TEMPLATE.innerHTML = `
     left: 0;
     display: flex;
     flex-direction: column;
-    gap: var(--neo-navgroup-gap, 0.5rem);
+    gap: var(--neo-select-list-gap, calc(var(--page-spacing, 0.25rem) * 1));
     min-width: var(--neo-input-min-width, 12rem);
     max-width: min(var(--neo-popover-max-width, 22rem), calc(100vw - 1rem));
     max-height: calc(100dvh - 1rem);
