@@ -27,7 +27,6 @@ Styles that never apply (fixing changes rendering or API):
 - `landing.css:2276-2277` sets `--neo-button-padding-inline/-block`; neo-button reads only `--neo-button-padding`. Tree action buttons get default padding.
 - `--neo-card-horizontal-collapse` (`neo-card.css:17`) has no effect, the `@container` at `:219` is literal 28rem. `page_card.templ:128,199` documents it as tunable.
 - `--neo-alert-title-line-size` (`neo-alert.css:37`) is never read; documented at `page_alert.templ:153`.
-- `--page-max-width` (`_base.css:38`) ships in `morpheus.css`, only site `style.css` reads it.
 - `--page-font-family`: no kit rule reads it, only site `style.css`. `_base.css:40-42` claims it swaps the kit font.
 - `--neo-size-panel`, `--neo-size-content` (`_layout.css:20-21`) undocumented; layout page has no CSS var table.
 

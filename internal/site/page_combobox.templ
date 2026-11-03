@@ -525,9 +525,9 @@ var comboboxDoc = ComponentDoc{
 	CSSProps: []DocCSSProp{
 		{Name: "--neo-combobox-min-width", Default: "var(--neo-select-min-width, 12rem)",
 			Description: templ.Raw("Minimum trigger width.")},
-		{Name: "--neo-combobox-search-padding", Default: "calc(var(--page-spacing, 0.25rem) * 2) calc(var(--page-spacing, 0.25rem) * 2.5)",
+		{Name: "--neo-combobox-search-padding", Default: "calc(var(--page-spacing, 0.25rem) * 2) calc(var(--page-spacing, 0.25rem) * 3)",
 			Description: templ.Raw("Padding around the search field.")},
-		{Name: "--neo-combobox-search-divider", Default: "color-mix(in srgb, var(--page-fg) 10%, transparent)",
+		{Name: "--neo-combobox-search-divider", Default: "color-mix(in srgb, currentColor 12%, transparent)",
 			Description: templ.Raw("Divider color between the search field and the options list.")},
 		{Name: "--neo-combobox-search-divider-width", Default: "1px",
 			Description: templ.Raw("Divider width between the search field and the options list.")},
