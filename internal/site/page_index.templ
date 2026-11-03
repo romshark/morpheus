@@ -1703,8 +1703,10 @@ templ lfDeployRef() {
 				for _, c := range b.Commits {
 					@neo.Option(neo.OptionOpts{
 						Value: neo.Set(b.Branch + ":" + c.Hash),
-						Label: neo.Set(c.Hash),
 					}) {
+						@neo.OptionTrigger() {
+							{ c.Hash }
+						}
 						<span class="lf-deploy-ref-row-branch">{ b.Branch }</span>
 						<span class="lf-deploy-ref-row-sep" aria-hidden="true">·</span>
 						<span class="lf-deploy-ref-row-hash">{ c.Hash }</span>

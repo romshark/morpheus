@@ -2539,8 +2539,9 @@ neo-sidebar.landing-a11y-demo-nav:not(:defined) {
 }
 
 /* Deploy ref picker. The --neo-button-* tokens cross into the combobox's
- * shadow trigger and style it as a pill showing the option's `label` (the hash).
- *  The rich option rows below live in light DOM. */
+ * shadow trigger and style it as a pill showing the option's
+ * [data-neo-option-trigger] face (the hash). Options carry no `label`,
+ * which lets search match every field of the rich rows below. */
 .lf-deploy-ref {
 	flex: 0 0 auto;
 	font-family:
@@ -2549,6 +2550,8 @@ neo-sidebar.landing-a11y-demo-nav:not(:defined) {
 	/* Drop the shadow trigger's 12rem min-width so the host shrinks
 	 * to the hash + caret width. */
 	--neo-combobox-min-width: 0;
+	/* A trigger face floors the pill at the control height. Keep it 1 text line tall. */
+	--neo-control-height: 0px;
 	/* Popover width is capped by --neo-popover-max-width, separate from
 	 * the trigger's --neo-combobox-min-width. Widen the list so commit
 	 * messages don't truncate, without growing the pill. */
