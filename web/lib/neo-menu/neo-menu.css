@@ -11,6 +11,7 @@
 	--neo-menu-border-width: 1px;
 	--neo-menu-radius: var(--page-radius, 0.625rem);
 	--neo-menu-padding: calc(var(--page-spacing, 0.25rem) * 1);
+	--neo-menu-gap: var(--neo-menu-padding);
 	--neo-menu-shadow: 0 1px 2px rgba(0, 0, 0, 0.06), 0 8px 28px rgba(0, 0, 0, 0.18);
 	--neo-menu-min-width: 12rem;
 	--neo-menu-z-index: 1200;
@@ -70,7 +71,7 @@ neo-submenu > [data-neo-submenu-panel] {
 	left: 0;
 	display: flex;
 	flex-direction: column;
-	gap: 0.05rem;
+	gap: var(--neo-menu-gap);
 	background: var(--neo-menu-bg);
 	color: var(--neo-menu-color);
 	border: var(--neo-menu-border-width) solid var(--neo-menu-border-color);
@@ -199,7 +200,7 @@ neo-menuitem[disabled]:not([disabled="false"]),
 [data-neo-menu-panel] > hr,
 [data-neo-submenu-panel] > hr {
 	height: var(--neo-menu-separator-width);
-	margin: 0.25rem 0;
+	margin: 0;
 	border: 0;
 	background: var(--neo-menu-separator-color);
 }

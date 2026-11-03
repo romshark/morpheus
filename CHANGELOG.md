@@ -9,12 +9,22 @@ This file records the notable changes of each release in the format of [Keep a C
 #### Components
 
 - Add `--neo-select-list-gap`, the gap between the rows of the option panels in `<neo-select>`, `<neo-combobox>` and `<neo-textinput>` and inside `<neo-optgroup>`. It defaults to `--neo-select-list-padding`.
+- Add `--neo-menu-gap`, the gap between the rows of `<neo-menu>`, `<neo-contextmenu>` and `<neo-submenu>` panels. It defaults to `--neo-menu-padding`.
+- Add `--neo-tabs-list-gap`, the gap between tabs. It defaults to `--neo-tabs-list-padding`.
 
 ### Changed
 
 #### Components
 
 - Space option rows by `--neo-select-list-gap` (0.25rem) instead of `--neo-navgroup-gap` (0.5rem), equal to the panel padding. Set `--neo-select-list-gap: calc(var(--page-spacing) * 2)` on `:root` to restore the old spacing.
+- Space menu rows by `--neo-menu-gap` (0.25rem) instead of a fixed 0.05rem, equal to the panel padding. Separators drop their 0.25rem margin, which the gap replaces. Set `--neo-menu-gap: 0.05rem` on `:root` to restore the old row spacing.
+- Default `--neo-tabs-list-padding` to `--page-spacing` instead of a fixed 0.25rem. Themes that change `--page-spacing` now change the tablist padding and the gap between tabs.
+
+### Fixed
+
+#### Components
+
+- Space the rows of the `<neo-breadcrumb>` overflow menu by its panel padding. They were 0.5rem apart and 0.25rem from the border. The panel padding now follows `--page-spacing`.
 
 ## [0.3.2] - 2026-11-03
 

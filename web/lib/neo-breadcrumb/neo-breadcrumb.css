@@ -110,10 +110,12 @@ neo-breadcrumb > [data-neo-breadcrumb-menu] > [data-neo-popover-trigger]:focus-v
 
 /* Popover defaults (1rem padding, 14rem min-width) over-pad and pin
  * the small crumb menu. Override via tokens since the padding/min-width
- * live on the shadow panel. The navgroup rows own their padding. */
+ * live on the shadow panel. The navgroup rows own their padding and
+ * sit as far apart as from the panel border. */
 neo-breadcrumb > [data-neo-breadcrumb-menu] {
-	--neo-popover-padding: 0.25rem;
+	--neo-popover-padding: calc(var(--page-spacing, 0.25rem) * 1);
 	--neo-popover-min-width: 0;
+	--neo-navgroup-gap: var(--neo-popover-padding);
 }
 
 neo-breadcrumb [data-neo-breadcrumb-menu] > [data-neo-popover-content] {

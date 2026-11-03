@@ -594,6 +594,8 @@ var menuDoc = ComponentDoc{
 			Description: templ.Raw("Panel corner radius.")},
 		{Name: "--neo-menu-padding", Default: "calc(var(--page-spacing, 0.25rem) * 1)",
 			Description: templ.Raw("Padding around the panel rows.")},
+		{Name: "--neo-menu-gap", Default: "var(--neo-menu-padding)",
+			Description: templ.Raw("Gap between the panel rows.")},
 		{Name: "--neo-menu-shadow", Default: "0 1px 2px rgba(0, 0, 0, 0.06), 0 8px 28px rgba(0, 0, 0, 0.18)",
 			Description: templ.Raw("Panel box shadow.")},
 		{Name: "--neo-menu-min-width", Default: "12rem",

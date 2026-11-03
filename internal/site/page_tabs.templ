@@ -198,8 +198,10 @@ var tabsDoc = ComponentDoc{
 	CSSProps: []DocCSSProp{
 		{Name: "--neo-tabs-list-bg", Default: "color-mix(in srgb, var(--page-fg) 6%, transparent)",
 			Description: templ.Raw("Tablist pill background.")},
-		{Name: "--neo-tabs-list-padding", Default: "0.25rem",
+		{Name: "--neo-tabs-list-padding", Default: "calc(var(--page-spacing, 0.25rem) * 1)",
 			Description: templ.Raw("Padding inside the tablist pill.")},
+		{Name: "--neo-tabs-list-gap", Default: "var(--neo-tabs-list-padding)",
+			Description: templ.Raw("Gap between tabs.")},
 		{Name: "--neo-tabs-list-border-width", Default: "2px",
 			Description: templ.Raw("Tablist border width in forced-colors and high-contrast modes.")},
 		{Name: "--neo-tabs-radius", Default: "var(--page-radius, 0.5rem)",

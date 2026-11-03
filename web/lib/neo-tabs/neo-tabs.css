@@ -4,7 +4,8 @@
 
 :root {
 	--neo-tabs-list-bg: color-mix(in srgb, var(--page-fg) 6%, transparent);
-	--neo-tabs-list-padding: 0.25rem;
+	--neo-tabs-list-padding: calc(var(--page-spacing, 0.25rem) * 1);
+	--neo-tabs-list-gap: var(--neo-tabs-list-padding);
 	--neo-tabs-list-border-width: 2px;
 	--neo-tabs-radius: var(--page-radius, 0.5rem);
 	--neo-tabs-focus-outline-width: 2px;
@@ -145,7 +146,7 @@ neo-tablist {
 	background: var(--neo-tabs-list-bg);
 	padding: var(--neo-tabs-list-padding);
 	border-radius: var(--neo-tabs-radius);
-	gap: 0.25rem;
+	gap: var(--neo-tabs-list-gap);
 	/* Sizes to content but caps at the host. Overflow scrolls
 	 * horizontally; <neo-tabs> centers the active tab on commit. */
 	width: max-content;
