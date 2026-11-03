@@ -13,6 +13,7 @@
 	--neo-sortable-gap: 0.5rem;
 	--neo-sortable-grid-min: 7rem;
 	--neo-sortable-move-duration: 180ms;
+	--neo-sortable-radius: var(--page-radius, 0.5rem);
 	/* The lifted item reuses the elevated-card shadow so it reads as
 	 * the same elevation and stays dark in every theme; a --page-fg
 	 * mix turns into a bright halo in dark mode. */
@@ -95,7 +96,7 @@ neo-sortable [data-neo-sortable-dragging] {
 neo-sortable [data-neo-sortable-placeholder] {
 	box-sizing: border-box;
 	border: 1px dashed var(--neo-sortable-placeholder-color);
-	border-radius: var(--neo-radius, 0.5rem);
+	border-radius: var(--neo-sortable-radius);
 	background: color-mix(in srgb, var(--neo-sortable-placeholder-color) 12%, transparent);
 }
 
@@ -139,7 +140,7 @@ neo-sortable[disabled]:where(:not([disabled="false"])) [data-neo-sortable-handle
 	padding: 0.6rem 0.8rem;
 	background: var(--surface, var(--page-bg, #fff));
 	border: 1px solid var(--border, color-mix(in srgb, currentColor 15%, transparent));
-	border-radius: var(--neo-radius, 0.5rem);
+	border-radius: var(--neo-sortable-radius);
 }
 
 /* The visually-hidden keyboard-reorder announcer is owned by the

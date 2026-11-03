@@ -11,6 +11,7 @@ This file records the notable changes of each release in the format of [Keep a C
 - Add `--neo-select-list-gap`, the gap between the rows of the option panels in `<neo-select>`, `<neo-combobox>` and `<neo-textinput>` and inside `<neo-optgroup>`. It defaults to `--neo-select-list-padding`.
 - Add `--neo-menu-gap`, the gap between the rows of `<neo-menu>`, `<neo-contextmenu>` and `<neo-submenu>` panels. It defaults to `--neo-menu-padding`.
 - Add `--neo-tabs-list-gap`, the gap between tabs. It defaults to `--neo-tabs-list-padding`.
+- Add `--neo-sortable-radius`, the corner radius of `<neo-sortable>` items and the drop placeholder. It defaults to `--page-radius`.
 
 ### Changed
 
@@ -26,6 +27,7 @@ This file records the notable changes of each release in the format of [Keep a C
 
 - Space the rows of the `<neo-breadcrumb>` overflow menu by its panel padding. They were 0.5rem apart and 0.25rem from the border. The panel padding now follows `--page-spacing`.
 - Inset the `<input type="color">` swatch from the field border in Firefox. It was drawn flush with the border.
+- Round `<neo-sortable>` items and the drop placeholder by `--page-radius`. They read the undefined `--neo-radius` and stayed 0.5rem in every theme. If you set `--neo-radius`, set `--neo-sortable-radius` instead.
 
 ## [0.3.2] - 2026-11-03
 

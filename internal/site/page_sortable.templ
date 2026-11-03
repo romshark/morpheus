@@ -364,6 +364,8 @@ var sortableDoc = ComponentDoc{
 			Description: templ.Raw("Minimum column width in <code>grid</code> orientation.")},
 		{Name: "--neo-sortable-move-duration", Default: "180ms",
 			Description: templ.Raw("Default glide duration for displaced items when the <code>easing</code> attribute is absent.")},
+		{Name: "--neo-sortable-radius", Default: "var(--page-radius, 0.5rem)",
+			Description: templ.Raw("Corner radius of items and the drop placeholder.")},
 		{Name: "--neo-sortable-drag-shadow", Default: "var(--neo-card-shadow)",
 			Description: templ.Raw("Box shadow on the lifted item.")},
 		{Name: "--neo-sortable-drag-ring", Default: "inset 0 0 0 2px var(--accent, #6366f1)",
