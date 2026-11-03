@@ -25,6 +25,7 @@ This file records the notable changes of each release in the format of [Keep a C
 #### Components
 
 - Space the rows of the `<neo-breadcrumb>` overflow menu by its panel padding. They were 0.5rem apart and 0.25rem from the border. The panel padding now follows `--page-spacing`.
+- Inset the `<input type="color">` swatch from the field border in Firefox. It was drawn flush with the border.
 
 ## [0.3.2] - 2026-11-03
 
