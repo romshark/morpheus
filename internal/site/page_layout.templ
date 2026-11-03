@@ -331,6 +331,28 @@ var layoutDoc = ComponentDoc{
 		{Name: "collapse", Type: `"sm" | "md" | "lg"`,
 			Description: templ.Raw("Neo extension: fold a row to a column when the nearest <code>container</code> ancestor is narrower than the tier (40 / 48 / 64rem). Container-query based. Reacts to the box, not the viewport.")},
 	},
+	CSSProps: []DocCSSProp{
+		{Name: "--neo-space-none", Default: "0",
+			Description: templ.Raw("The <code>none</code> step of <code>gap</code>, <code>column-gap</code> and <code>row-gap</code>.")},
+		{Name: "--neo-space-xs", Default: "0.25rem",
+			Description: templ.Raw("The <code>xs</code> step of <code>gap</code>, <code>column-gap</code> and <code>row-gap</code>.")},
+		{Name: "--neo-space-sm", Default: "0.5rem",
+			Description: templ.Raw("The <code>sm</code> step of <code>gap</code>, <code>column-gap</code> and <code>row-gap</code>.")},
+		{Name: "--neo-space-md", Default: "1rem",
+			Description: templ.Raw("The <code>md</code> step of <code>gap</code>, <code>column-gap</code> and <code>row-gap</code>.")},
+		{Name: "--neo-space-lg", Default: "1.5rem",
+			Description: templ.Raw("The <code>lg</code> step of <code>gap</code>, <code>column-gap</code> and <code>row-gap</code>.")},
+		{Name: "--neo-space-xl", Default: "2rem",
+			Description: templ.Raw("The <code>xl</code> step of <code>gap</code>, <code>column-gap</code> and <code>row-gap</code>.")},
+		{Name: "--neo-space-2xl", Default: "3rem",
+			Description: templ.Raw("The <code>2xl</code> step of <code>gap</code>, <code>column-gap</code> and <code>row-gap</code>.")},
+		{Name: "--neo-size-sidebar", Default: "16rem",
+			Description: templ.Raw("Sidebar width preset. Set it as a child's <code>flex-basis</code> via <code>style</code>.")},
+		{Name: "--neo-size-panel", Default: "24rem",
+			Description: templ.Raw("Panel width preset. Set it as a child's <code>flex-basis</code> via <code>style</code>.")},
+		{Name: "--neo-size-content", Default: "48rem",
+			Description: templ.Raw("Content column width preset. Set it as a child's <code>flex-basis</code> via <code>style</code>.")},
+	},
 }
 
 var layoutItemDoc = ComponentDoc{
