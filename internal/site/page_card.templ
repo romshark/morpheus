@@ -124,8 +124,7 @@ templ PageCard(morpheusVersion string) {
 				The same horizontal-mode markup auto-collapses to
 				a vertical stack via an
 				<code>{ `@container` }</code> query keyed on the
-				card's own inline size (default threshold
-				<code>{ `--neo-card-horizontal-collapse: 28rem` }</code>).
+				card's own inline size, below a fixed 28rem.
 				No <code>{ `@media` }</code> rule and no JavaScript.
 				Drag the resize handle below 28rem to see the
 				card adapt to its own width.
@@ -196,7 +195,5 @@ var cardDoc = ComponentDoc{
 			Description: templ.Raw("Body minimum width in horizontal orientation.")},
 		{Name: "--neo-card-media-default-height", Default: "8rem",
 			Description: templ.Raw("Default height of the media slot.")},
-		{Name: "--neo-card-horizontal-collapse", Default: "28rem",
-			Description: templ.Raw("Inline-size threshold below which a horizontal card collapses to vertical.")},
 	},
 }

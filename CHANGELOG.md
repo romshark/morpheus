@@ -27,6 +27,7 @@ This file records the notable changes of each release in the format of [Keep a C
 
 - Remove `--page-max-width` from `morpheus.css`, since no component uses it. If your own styles use it, define it yourself with `:root { --page-max-width: 64rem; }`.
 - Remove `--neo-alert-title-line-size`. No rule read it, and setting it had no effect.
+- Remove `--neo-card-horizontal-collapse`. Setting it had no effect, because CSS can't read a custom property in a container query. A horizontal `<neo-card>` still collapses below 28rem.
 
 ### Fixed
 

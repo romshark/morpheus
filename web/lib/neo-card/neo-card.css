@@ -13,8 +13,6 @@
 	--neo-card-horizontal-media-width: 12rem;
 	--neo-card-horizontal-body-min-width: 12rem;
 	--neo-card-media-default-height: 8rem;
-	/* Keep mirrored with the literal @container condition. */
-	--neo-card-horizontal-collapse: 28rem;
 }
 
 neo-card {
@@ -215,7 +213,7 @@ neo-card[orientation="horizontal"]:not(:has(> [data-neo-card-inner] > [data-neo-
 	padding-top: var(--neo-card-padding);
 }
 
-/* Container queries can only restyle descendants. */
+/* Container queries can only restyle descendants and can't read custom properties. */
 @container (max-width: 28rem) {
 	neo-card[orientation="horizontal"] > [data-neo-card-inner] {
 		grid-template-columns: minmax(0, 1fr);
