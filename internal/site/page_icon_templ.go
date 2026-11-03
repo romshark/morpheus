@@ -506,6 +506,12 @@ var iconDoc = ComponentDoc{
 		{Name: "base", Type: "string", Observed: true,
 			Description: templ.Raw("Override the icon directory; defaults to the <code>--neo-icon-base</code> CSS custom property (which itself defaults to <code>/static/icons</code>).")},
 	},
+	CSSProps: []DocCSSProp{
+		{Name: "--neo-icon-base", Default: `"/static/icons"`,
+			Description: templ.Raw("Icon directory, as a quoted string. The <code>base</code> attribute overrides it per icon.")},
+		{Name: "--neo-icon-size", Default: "1em",
+			Description: templ.Raw("Glyph width and height.")},
+	},
 }
 
 var _ = templruntime.GeneratedTemplate

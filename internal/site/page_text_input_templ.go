@@ -902,6 +902,12 @@ var textInputDoc = ComponentDoc{
 		{Name: "neo-textinput-select", Detail: "{ value: string, label: string }", Bubbles: true,
 			Description: templ.Raw("A suggestion was committed (click or Enter). <code>value</code> is the option's value, <code>label</code> its visible text.")},
 	},
+	CSSProps: []DocCSSProp{
+		{Name: "--neo-input-min-width", Default: "12rem",
+			Description: templ.Raw("Minimum field width.")},
+		{Name: "--neo-textarea-border-width", Default: "1px",
+			Description: templ.Raw("Border width of text inputs and native <code>&lt;input&gt;</code> fields.")},
+	},
 }
 
 var _ = templruntime.GeneratedTemplate

@@ -211,8 +211,39 @@ templ PageTheming(morpheusVersion string) {
 					and scrollbars match.
 				</li>
 			</ul>
+			@anchoredH3("kit-variables") {
+				Kit-wide variables
+			}
+			<p>
+				These apply across components. Set them on
+				<code>:root</code> or on any ancestor.
+			</p>
+			@docCSSProps(themingCSSProps)
 		</section>
 	}
+}
+
+var themingCSSProps = []DocCSSProp{
+	{Name: "--page-radius", Default: "0.625rem",
+		Description: templ.Raw("Base corner radius. Component radius tokens default to it.")},
+	{Name: "--page-spacing", Default: "0.25rem",
+		Description: templ.Raw("Base spacing unit. Component paddings and gaps are multiples of it.")},
+	{Name: "--neo-control-height", Default: "calc(1em + 2 * round(calc(var(--page-spacing, 0.25rem) * 2), 1px) + 2px)",
+		Description: templ.Raw("Height of single-line controls, which keeps a button, input and select lined up in a row. The <code>size</code> attribute changes it.")},
+	{Name: "--neo-duration-scale", Default: "1",
+		Description: templ.Raw("Multiplier on every kit animation and transition duration. <code>prefers-reduced-motion: reduce</code> sets it to <code>0</code>.")},
+	{Name: "--neo-easing", Default: "unset",
+		Description: templ.Raw("Easing of kit transitions. Unset, each rule uses its own curve, mostly <code>ease</code> or <code>ease-out</code>.")},
+	{Name: "--neo-duration-hover", Default: "calc(120ms * var(--neo-duration-scale, 1))",
+		Description: templ.Raw("Duration of hover color and border transitions.")},
+	{Name: "--neo-disabled-overlay", Default: "none",
+		Description: templ.Raw("Background image painted over disabled controls, such as a hatch pattern.")},
+	{Name: "--neo-disabled-overlay-mask", Default: "none",
+		Description: templ.Raw("Mask over the disabled overlay of tabs, such as a gradient that fades it out at the edges.")},
+	{Name: "--neo-placeholder-delay", Default: "200ms",
+		Description: templ.Raw("Delay before a component that hasn't upgraded yet shows its placeholder. A component that upgrades within it shows none.")},
+	{Name: "--neo-placeholder-fade", Default: "240ms",
+		Description: templ.Raw("Fade-in duration of that placeholder.")},
 }
 
 // themingSwatch renders a token-name + colour-chip cell for the

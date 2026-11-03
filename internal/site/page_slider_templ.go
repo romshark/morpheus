@@ -1031,6 +1031,12 @@ var sliderDoc = ComponentDoc{
 			Description: templ.Raw("Unit text color.")},
 		{Name: "--neo-slider-focus-ring", Default: "color-mix(in srgb, var(--accent) 50%, transparent)",
 			Description: templ.Raw("Focus outline color.")},
+		{Name: "--neo-slider-hit-area", Default: "max(var(--neo-slider-thumb-size), 1.75rem)",
+			Description: templ.Raw("Pointer target size across the track.")},
+		{Name: "--neo-slider-thumb-offset-x", Default: "-50%",
+			Description: templ.Raw("Thumb shift along a horizontal track. <code>-50%</code> centers the thumb on the value.")},
+		{Name: "--neo-slider-thumb-offset-y", Default: "50%",
+			Description: templ.Raw("Thumb shift along a vertical track. <code>50%</code> centers the thumb on the value.")},
 	},
 }
 

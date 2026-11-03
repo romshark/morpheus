@@ -164,4 +164,8 @@ var elasticDoc = ComponentDoc{
 		{Name: "neo-elastic-end", Detail: "{ height: number }", Bubbles: true,
 			Description: templ.Raw("Fires once the height transition ends.")},
 	},
+	CSSProps: []DocCSSProp{
+		{Name: "--neo-elastic-duration", Default: "calc(300ms * var(--neo-duration-scale, 1))",
+			Description: templ.Raw("Duration of the height transition.")},
+	},
 }

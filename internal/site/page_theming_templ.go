@@ -673,7 +673,41 @@ func PageTheming(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "<ul><li>Apply the classes from an inline <code>&lt;script&gt;</code> at the top of <code>&lt;head&gt;</code>, before stylesheets, for no FOUC once your framework hydrates.</li><li>Keep the default palette on bare <code>:root</code> (no class) so a pre-JS render still looks right.</li><li>Pair every <code>:root.theme-X</code> with a <code>:root.theme-X.dark</code> that only overrides what dark mode changes. The cascade carries the rest.</li><li>Touch the structural vars (<code>--page-radius</code>, <code>--page-spacing</code>, <code>--page-font-family</code>) only when a theme wants a different feel.</li><li>Set <code>color-scheme</code> so native controls and scrollbars match.</li></ul></section>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "<ul><li>Apply the classes from an inline <code>&lt;script&gt;</code> at the top of <code>&lt;head&gt;</code>, before stylesheets, for no FOUC once your framework hydrates.</li><li>Keep the default palette on bare <code>:root</code> (no class) so a pre-JS render still looks right.</li><li>Pair every <code>:root.theme-X</code> with a <code>:root.theme-X.dark</code> that only overrides what dark mode changes. The cascade carries the rest.</li><li>Touch the structural vars (<code>--page-radius</code>, <code>--page-spacing</code>, <code>--page-font-family</code>) only when a theme wants a different feel.</li><li>Set <code>color-scheme</code> so native controls and scrollbars match.</li></ul>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Var28 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+				templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+				templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+				if !templ_7745c5c3_IsBuffer {
+					defer func() {
+						templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+						if templ_7745c5c3_Err == nil {
+							templ_7745c5c3_Err = templ_7745c5c3_BufErr
+						}
+					}()
+				}
+				ctx = templ.InitializeContext(ctx)
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "Kit-wide variables")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				return nil
+			})
+			templ_7745c5c3_Err = anchoredH3("kit-variables").Render(templ.WithChildren(ctx, templ_7745c5c3_Var28), templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "<p>These apply across components. Set them on <code>:root</code> or on any ancestor.</p>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = docCSSProps(themingCSSProps).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "</section>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -685,6 +719,29 @@ func PageTheming(morpheusVersion string) templ.Component {
 		}
 		return nil
 	})
+}
+
+var themingCSSProps = []DocCSSProp{
+	{Name: "--page-radius", Default: "0.625rem",
+		Description: templ.Raw("Base corner radius. Component radius tokens default to it.")},
+	{Name: "--page-spacing", Default: "0.25rem",
+		Description: templ.Raw("Base spacing unit. Component paddings and gaps are multiples of it.")},
+	{Name: "--neo-control-height", Default: "calc(1em + 2 * round(calc(var(--page-spacing, 0.25rem) * 2), 1px) + 2px)",
+		Description: templ.Raw("Height of single-line controls, which keeps a button, input and select lined up in a row. The <code>size</code> attribute changes it.")},
+	{Name: "--neo-duration-scale", Default: "1",
+		Description: templ.Raw("Multiplier on every kit animation and transition duration. <code>prefers-reduced-motion: reduce</code> sets it to <code>0</code>.")},
+	{Name: "--neo-easing", Default: "unset",
+		Description: templ.Raw("Easing of kit transitions. Unset, each rule uses its own curve, mostly <code>ease</code> or <code>ease-out</code>.")},
+	{Name: "--neo-duration-hover", Default: "calc(120ms * var(--neo-duration-scale, 1))",
+		Description: templ.Raw("Duration of hover color and border transitions.")},
+	{Name: "--neo-disabled-overlay", Default: "none",
+		Description: templ.Raw("Background image painted over disabled controls, such as a hatch pattern.")},
+	{Name: "--neo-disabled-overlay-mask", Default: "none",
+		Description: templ.Raw("Mask over the disabled overlay of tabs, such as a gradient that fades it out at the edges.")},
+	{Name: "--neo-placeholder-delay", Default: "200ms",
+		Description: templ.Raw("Delay before a component that hasn't upgraded yet shows its placeholder. A component that upgrades within it shows none.")},
+	{Name: "--neo-placeholder-fade", Default: "240ms",
+		Description: templ.Raw("Fade-in duration of that placeholder.")},
 }
 
 // themingSwatch renders a token-name + colour-chip cell for the
@@ -707,33 +764,33 @@ func themingSwatch(name, color string) templ.Component {
 		}
 		ctx = templ.InitializeContext(ctx)
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "<neo-layout class=\"theming-swatch\" align-items=\"center\"><span class=\"theming-swatch-chip\" style=\"")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var29 string
-		templ_7745c5c3_Var29, templ_7745c5c3_Err = templruntime.SanitizeStyleAttributeValues("background:" + color + ";")
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_theming.templ`, Line: 225, Col: 38}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var29))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "\" aria-hidden=\"true\"></span> <span class=\"theming-swatch-name\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "<neo-layout class=\"theming-swatch\" align-items=\"center\"><span class=\"theming-swatch-chip\" style=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var30 string
-		templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.JoinStringErrs(name)
+		templ_7745c5c3_Var30, templ_7745c5c3_Err = templruntime.SanitizeStyleAttributeValues("background:" + color + ";")
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_theming.templ`, Line: 228, Col: 42}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_theming.templ`, Line: 256, Col: 38}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var30))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "</span></neo-layout>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "\" aria-hidden=\"true\"></span> <span class=\"theming-swatch-name\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var31 string
+		templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.JoinStringErrs(name)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_theming.templ`, Line: 259, Col: 42}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var31))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "</span></neo-layout>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
