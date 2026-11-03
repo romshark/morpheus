@@ -26,6 +26,7 @@ This file records the notable changes of each release in the format of [Keep a C
 #### Components
 
 - Remove `--page-max-width` from `morpheus.css`, since no component uses it. If your own styles use it, define it yourself with `:root { --page-max-width: 64rem; }`.
+- Remove `--neo-alert-title-line-size`. No rule read it, and setting it had no effect.
 
 ### Fixed
 

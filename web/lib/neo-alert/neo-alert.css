@@ -34,7 +34,6 @@
 	--neo-alert-description-color: color-mix(in srgb, var(--neo-alert-color) 70%, transparent);
 	--neo-alert-title-size: 0.95rem;
 	--neo-alert-title-line-height: 1.35;
-	--neo-alert-title-line-size: 1.2825rem;
 	--neo-alert-title-weight: 600;
 	--neo-alert-icon-size: 1.1rem;
 	--neo-alert-icon-margin-top: 0.25rem;
