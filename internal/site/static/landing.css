@@ -2563,8 +2563,9 @@ neo-sidebar.landing-a11y-demo-nav:not(:defined) {
 
 /* Rich option rows in the popover. The option is a direct grid container;
  * its child spans place themselves by class.
- * Slotted options live in light DOM, where these selectors reach them. */
-neo-combobox.lf-deploy-ref neo-option[role="option"] {
+ * Slotted options live in light DOM, where these selectors reach them.
+ * :not([hidden]) keeps search-filtered rows hidden. */
+neo-combobox.lf-deploy-ref neo-option[role="option"]:not([hidden]) {
 	display: grid;
 	grid-template-columns: auto 1fr auto;
 	grid-template-rows: auto auto;
