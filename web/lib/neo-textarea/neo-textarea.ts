@@ -55,7 +55,7 @@ TEMPLATE.innerHTML = `
     min-height: var(--neo-textarea-min-height, 4rem);
     background: var(--neo-textarea-bg);
     color: var(--neo-textarea-color);
-    border: 1px solid var(--neo-textarea-border-color);
+    border: var(--neo-textarea-border-width, 1px) solid var(--neo-textarea-border-color);
     border-radius: var(--neo-textarea-radius);
     overflow: hidden;
     transition: border-color var(--neo-duration-hover, calc(120ms * var(--neo-duration-scale, 1))) var(--neo-easing, ease);

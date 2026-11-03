@@ -34,6 +34,7 @@ This file records the notable changes of each release in the format of [Keep a C
 - Space the rows of the `<neo-breadcrumb>` overflow menu by its panel padding. They were 0.5rem apart and 0.25rem from the border. The panel padding now follows `--page-spacing`.
 - Inset the `<input type="color">` swatch from the field border in Firefox. It was drawn flush with the border.
 - Round `<neo-sortable>` items and the drop placeholder by `--page-radius`. They read the undefined `--neo-radius` and stayed 0.5rem in every theme. If you set `--neo-radius`, set `--neo-sortable-radius` instead.
+- Apply `--neo-textarea-border-width` to `<neo-textarea>`. It always drew a 1px border.
 
 ## [0.3.2] - 2026-11-03
 

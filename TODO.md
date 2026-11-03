@@ -28,7 +28,6 @@ Styles that never apply (fixing changes rendering or API):
 - `--neo-card-horizontal-collapse` (`neo-card.css:17`) has no effect, the `@container` at `:219` is literal 28rem. `page_card.templ:128,199` documents it as tunable.
 - `--neo-alert-title-line-size` (`neo-alert.css:37`) is never read; documented at `page_alert.templ:153`.
 - `--page-font-family`: no kit rule reads it, only site `style.css`. `_base.css:40-42` claims it swaps the kit font.
-- `--neo-size-panel`, `--neo-size-content` (`_layout.css:20-21`) undocumented; layout page has no CSS var table.
 
 # Nice to have
 

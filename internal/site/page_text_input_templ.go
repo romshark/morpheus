@@ -904,10 +904,7 @@ var textInputDoc = ComponentDoc{
 	},
 	CSSProps: []DocCSSProp{
 		{Name: "--neo-input-min-width", Default: "12rem",
-			Description: templ.Raw("Minimum field width.")},
-		{Name: "--neo-textarea-border-width", Default: "1px",
-			Description: templ.Raw("Border width of text inputs and native <code>&lt;input&gt;</code> fields.")},
-	},
+			Description: templ.Raw("Minimum field width.")}},
 }
 
 var _ = templruntime.GeneratedTemplate
