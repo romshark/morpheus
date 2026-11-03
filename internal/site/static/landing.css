@@ -2271,11 +2271,6 @@ neo-sidebar.landing-a11y-demo-nav:not(:defined) {
 	& > neo-badge {
 		opacity: 1;
 	}
-
-	& > neo-button {
-		--neo-button-padding-inline: 0.3rem;
-		--neo-button-padding-block: 0.2rem;
-	}
 }
 
 /* The row content sits inside a neo-contextmenu trigger (.lf-tree-row)
@@ -2543,19 +2538,9 @@ neo-sidebar.landing-a11y-demo-nav:not(:defined) {
 	gap: 0.5rem;
 }
 
-/* Deploy ref picker: <neo-combobox> with a <neo-badge> trigger.
- * The badge replaces the static "main · 8a3f1c2" chip; clicking it
- * opens a popover of commits grouped by branch.
- *
- * The kit clones the selected option's children verbatim into the
- * trigger's label slot. We pack every searchable field into each
- * option row (so the local filter matches branch, hash, message, and author),
- * then hide the rich parts inside the badge trigger so it stays
- * compact (branch, hash, caret) while the popover row shows everything. */
-/* Branch / commit picker. Trigger lives in the combobox shadow.
- * Tokens cross the shadow boundary, which lets badge-style styling land
- * via --neo-button-*. The trigger shows the option's `label` attribute
- * (compact "branch · hash"); rich rows below live in light DOM. */
+/* Deploy ref picker. The --neo-button-* tokens cross into the combobox's
+ * shadow trigger and style it as a pill showing the option's `label` (the hash).
+ *  The rich option rows below live in light DOM. */
 .lf-deploy-ref {
 	flex: 0 0 auto;
 	font-family:

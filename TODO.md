@@ -24,7 +24,6 @@ Carousel:
 Styles that never apply (fixing changes rendering or API):
 
 - Unsure: `sidebar_resizable.css`, `sidebar_mixed_breakpoints.css`, `sidebar_touch_dismiss.css` collapse the `neo-resizable` wrapper on a closed/overlay sidebar but don't hide its `[data-neo-resizable-handle]`. The handle may stay visible at the edge.
-- `landing.css:2276-2277` sets `--neo-button-padding-inline/-block`; neo-button reads only `--neo-button-padding`. Tree action buttons get default padding.
 - `--page-font-family`: no kit rule reads it, only site `style.css`. `_base.css:40-42` claims it swaps the kit font.
 
 # Nice to have
