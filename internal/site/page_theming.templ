@@ -155,6 +155,16 @@ templ PageTheming(morpheusVersion string) {
 				<code>morpheus.css</code>; themes only redeclare what
 				they change.
 			</p>
+			<p>
+				The kit doesn't style <code>&lt;body&gt;</code>.
+				Components inherit its font and text color. Apply the
+				page tokens in your own CSS to follow the theme:
+			</p>
+			<div class="theming-source">
+				<site-codemirror language="css" readonly>
+					<template>{ themingBodyCSS }</template>
+				</site-codemirror>
+			</div>
 			@anchoredH3("switching-at-runtime") {
 				Switching at runtime
 			}

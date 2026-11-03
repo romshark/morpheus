@@ -34,9 +34,9 @@
 	 * triggers so they never sit shorter than a plain control. */
 	--neo-control-height: calc(1em + 2 * round(calc(var(--page-spacing, 0.25rem) * 2), 1px) + 2px);
 
-	/* Base font stack. Components inherit `font: inherit` from the
-	 * body. Themes can swap the look of the entire kit by overriding
-	 * this single var (e.g. substituting a serif stack). */
+	/* Base font stack. The kit sets no page font and components inherit theirs.
+	 * A page follows the theme's font with
+	 * `body { font-family: var(--page-font-family) }`. */
 	--page-font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 
 	/* Kit-wide disabled-state overlay. Painted as a `background-image`
