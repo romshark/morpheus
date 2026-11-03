@@ -93,6 +93,11 @@ code {
 	outline: none;
 }
 
+/* Shared by the main column and the app bar to keep them aligned. */
+:root {
+	--page-max-width: 64rem;
+}
+
 .main-viewport {
 	overflow: auto;
 	/* Contain absolute children (e.g. .api-table thead sr-only) so they
@@ -100,7 +105,7 @@ code {
 	position: relative;
 	& > #app-main, & > #landing-main {
 		width: 100%;
-		max-width: var(--page-max-width, 64rem);
+		max-width: var(--page-max-width);
 		margin: 0 auto;
 		padding: 2rem var(--page-edge-padding, 1.5rem);
 		box-sizing: border-box;
@@ -172,7 +177,7 @@ code {
 	align-items: center;
 	gap: 0.75rem;
 	width: 100%;
-	max-width: var(--page-max-width, 64rem);
+	max-width: var(--page-max-width);
 	margin: 0 auto;
 	/* Vertical padding matches the sidebar header so the bar lines
 	 * up with the sidebar's brand row (same shell height). */

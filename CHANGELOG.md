@@ -21,6 +21,12 @@ This file records the notable changes of each release in the format of [Keep a C
 - Space menu rows by `--neo-menu-gap` (0.25rem) instead of a fixed 0.05rem, equal to the panel padding. Separators drop their 0.25rem margin, which the gap replaces. Set `--neo-menu-gap: 0.05rem` on `:root` to restore the old row spacing.
 - Default `--neo-tabs-list-padding` to `--page-spacing` instead of a fixed 0.25rem. Themes that change `--page-spacing` now change the tablist padding and the gap between tabs.
 
+### Removed
+
+#### Components
+
+- Remove `--page-max-width` from `morpheus.css`, since no component uses it. If your own styles use it, define it yourself with `:root { --page-max-width: 64rem; }`.
+
 ### Fixed
 
 #### Components

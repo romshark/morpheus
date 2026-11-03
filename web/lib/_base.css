@@ -34,11 +34,6 @@
 	 * triggers so they never sit shorter than a plain control. */
 	--neo-control-height: calc(1em + 2 * round(calc(var(--page-spacing, 0.25rem) * 2), 1px) + 2px);
 
-	/* Maximum content width of the centered main column (and the app
-	 * bar's inner row, which keeps frame and content vertically aligned).
-	 * Below this, .wrap fills the available width with edge padding. */
-	--page-max-width: 64rem;
-
 	/* Base font stack. Components inherit `font: inherit` from the
 	 * body. Themes can swap the look of the entire kit by overriding
 	 * this single var (e.g. substituting a serif stack). */
