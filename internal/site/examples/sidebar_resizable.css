@@ -17,14 +17,6 @@
 	border-bottom: none;
 }
 
-/* neo-sidebar's height:100% resolves to auto when the stage has no
-   definite height; align-self:stretch lets the flex line stretch fill
-   the in-flow sidebar so the sibling can't overhang its border. */
-.sb-shell > neo-sidebar:not(:state(overlay)) {
-	height: auto;
-	align-self: stretch;
-}
-
 /* flex-shrink:0 so a drag-set inline width holds; collapse the wrapper
    when the sidebar closes or goes overlay (width persists via
    --neo-resizable-width). */
@@ -65,17 +57,6 @@
 	margin: 0;
 	color: var(--muted);
 	max-width: 36rem;
-}
-
-/* Compact wide-mode closed rail. */
-.sb-shell [data-neo-sidebar-minimized] {
-	justify-content: flex-start;
-}
-
-.sb-shell [data-neo-sidebar-minimized] > neo-button {
-	width: 100%;
-	aspect-ratio: 1;
-	padding: 0;
 }
 
 .sb-resizable-nav {

@@ -25,21 +25,6 @@
 	align-self: stretch;
 }
 
-/* flex-shrink:0 so a drag-set inline width holds; collapse the wrapper
-   when the sidebar closes or goes overlay (width persists via
-   --neo-resizable-width). */
-.sb-shell > neo-resizable {
-	flex-shrink: 0;
-}
-
-.sb-shell > neo-resizable:has(> neo-sidebar:defined:not([open])),
-.sb-shell > neo-resizable:has(> neo-sidebar:state(overlay)) {
-	width: 0 !important;
-	min-width: 0 !important;
-	max-width: 0 !important;
-	flex-basis: 0;
-}
-
 .sb-shell .sb-main {
 	flex: 1 1 auto;
 	display: flex;
@@ -65,17 +50,6 @@
 	margin: 0;
 	color: var(--muted);
 	max-width: 36rem;
-}
-
-/* Compact wide-mode closed rail. */
-.sb-shell [data-neo-sidebar-minimized] {
-	justify-content: flex-start;
-}
-
-.sb-shell [data-neo-sidebar-minimized] > neo-button {
-	width: 100%;
-	aspect-ratio: 1;
-	padding: 0;
 }
 
 .sb-mixed-breakpoints-menu {

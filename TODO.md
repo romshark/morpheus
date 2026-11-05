@@ -21,10 +21,6 @@ Carousel:
 
 - Active status set on carousel and on slides, e.g. check landing page example.
 
-Styles that never apply (fixing changes rendering or API):
-
-- Unsure: `sidebar_resizable.css`, `sidebar_mixed_breakpoints.css`, `sidebar_touch_dismiss.css` collapse the `neo-resizable` wrapper on a closed/overlay sidebar but don't hide its `[data-neo-resizable-handle]`. The handle may stay visible at the edge.
-
 # Nice to have
 
 - NavGroup: Grid diagonal navigation (nice to have? I'm not sure this would be good).
