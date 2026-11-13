@@ -1,0 +1,27 @@
+.autohide-scrolled {
+	width: 100%;
+	height: 18rem;
+	overflow-y: auto;
+	border: 1px solid var(--btn-border);
+	border-radius: var(--page-radius);
+	background: var(--page-bg);
+
+	& header {
+		padding: 0.5rem 1rem;
+		background: var(--page-bg);
+		transition: box-shadow 150ms ease;
+	}
+
+	& neo-autohide:state(scrolled) > header {
+		box-shadow: 0 1px 0 var(--btn-border), 0 4px 12px rgb(0 0 0 / 0.2);
+	}
+
+	/* A hidden bar's shadow still shows at the edge. */
+	& neo-autohide:state(hidden) > header {
+		box-shadow: none;
+	}
+
+	& article {
+		padding: 0 1rem 1rem;
+	}
+}

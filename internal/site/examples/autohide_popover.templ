@@ -1,0 +1,40 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ AutohidePopover() {
+	<div class="autohide-popover">
+		@neo.Autohide(neo.AutohideOpts{}) {
+			<header>
+				@neo.Layout(neo.LayoutOpts{
+					AlignItems:     neo.Set(neo.AlignItemsCenter),
+					JustifyContent: neo.Set(neo.JustifyContentSpaceBetween),
+				}) {
+					<strong>Field Notes</strong>
+					@neo.Popover(neo.PopoverOpts{
+						Placement:    neo.Set(neo.PlacementBottomEnd),
+						FollowScroll: neo.Set(neo.PopoverFollowScrollAlways),
+					}) {
+						<neo-button { neo.PopoverTrigger()... }>Account</neo-button>
+						<div { neo.PopoverContent()... }>
+							@neo.Layout(neo.LayoutOpts{
+								Direction: neo.Set(neo.Column),
+								Gap:       neo.Set(neo.GapSm),
+							}) {
+								<span>Signed in as ada@example.com</span>
+								<neo-button { neo.PopoverClose()... }>Sign out</neo-button>
+							}
+						</div>
+					}
+				}
+			</header>
+		}
+		<article>
+			for _, title := range []string{"Lorem ipsum", "Dolor sit amet", "Consectetur adipiscing"} {
+				<h4>{ title }</h4>
+				<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+				<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+			}
+		</article>
+	</div>
+}

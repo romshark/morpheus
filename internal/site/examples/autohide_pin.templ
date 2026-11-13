@@ -1,0 +1,42 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ AutohidePin() {
+	<div class="autohide-pin">
+		@neo.AutohideAttrs(neo.AutohideOpts{Disabled: neo.Set(false)}, templ.Attributes{
+			"data-signals":       "{autohide_pinned: false}",
+			"data-attr:disabled": "$autohide_pinned ? 'true' : 'false'",
+		}) {
+			<header>
+				@neo.Layout(neo.LayoutOpts{
+					AlignItems:     neo.Set(neo.AlignItemsCenter),
+					JustifyContent: neo.Set(neo.JustifyContentSpaceBetween),
+				}) {
+					<strong>Inbox</strong>
+					<label>
+						@neo.Layout(neo.LayoutOpts{
+							AlignItems: neo.Set(neo.AlignItemsCenter),
+							Gap:        neo.Set(neo.GapSm),
+						}) {
+							@neo.SwitchAttrs(neo.SwitchOpts{
+								Checked: neo.Set(false),
+							}, templ.Attributes{
+								"data-attr:checked":         "$autohide_pinned ? 'true' : 'false'",
+								"data-on:neo-switch-change": "$autohide_pinned = evt.detail.checked",
+							})
+							<span>Pin</span>
+						}
+					</label>
+				}
+			</header>
+		}
+		<article>
+			for _, title := range []string{"Lorem ipsum", "Dolor sit amet", "Consectetur adipiscing"} {
+				<h4>{ title }</h4>
+				<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+				<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+			}
+		</article>
+	</div>
+}

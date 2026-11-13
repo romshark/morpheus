@@ -1,0 +1,61 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ AutohideBottom() {
+	<div class="autohide-bottom">
+		<article>
+			for _, title := range []string{"Lorem ipsum", "Dolor sit amet", "Consectetur adipiscing"} {
+				<h4>{ title }</h4>
+				<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+				<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+			}
+		</article>
+		@neo.Autohide(neo.AutohideOpts{Side: neo.Set(neo.AutohideSideBottom)}) {
+			<nav aria-label="Main">
+				@neo.Layout(neo.LayoutOpts{}) {
+					<a href="#" aria-current="page" neo-flex-grow="1" neo-flex-basis="0">
+						@neo.Layout(neo.LayoutOpts{
+							Direction:  neo.Set(neo.Column),
+							AlignItems: neo.Set(neo.AlignItemsCenter),
+							Gap:        neo.Set(neo.GapXs),
+						}) {
+							@neo.Icon("home")
+							<span>Home</span>
+						}
+					</a>
+					<a href="#" neo-flex-grow="1" neo-flex-basis="0">
+						@neo.Layout(neo.LayoutOpts{
+							Direction:  neo.Set(neo.Column),
+							AlignItems: neo.Set(neo.AlignItemsCenter),
+							Gap:        neo.Set(neo.GapXs),
+						}) {
+							@neo.Icon("search")
+							<span>Search</span>
+						}
+					</a>
+					<a href="#" neo-flex-grow="1" neo-flex-basis="0">
+						@neo.Layout(neo.LayoutOpts{
+							Direction:  neo.Set(neo.Column),
+							AlignItems: neo.Set(neo.AlignItemsCenter),
+							Gap:        neo.Set(neo.GapXs),
+						}) {
+							@neo.Icon("bell")
+							<span>Alerts</span>
+						}
+					</a>
+					<a href="#" neo-flex-grow="1" neo-flex-basis="0">
+						@neo.Layout(neo.LayoutOpts{
+							Direction:  neo.Set(neo.Column),
+							AlignItems: neo.Set(neo.AlignItemsCenter),
+							Gap:        neo.Set(neo.GapXs),
+						}) {
+							@neo.Icon("user")
+							<span>Profile</span>
+						}
+					</a>
+				}
+			</nav>
+		}
+	</div>
+}

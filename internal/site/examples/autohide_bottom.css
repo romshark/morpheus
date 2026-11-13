@@ -1,0 +1,28 @@
+.autohide-bottom {
+	width: min(100%, 22rem);
+	height: 24rem;
+	overflow-y: auto;
+	border: 1px solid var(--btn-border);
+	border-radius: var(--page-radius);
+	background: var(--page-bg);
+
+	& article {
+		padding: 0 1rem;
+	}
+
+	& nav {
+		background: var(--page-bg);
+		border-top: 1px solid var(--btn-border);
+	}
+
+	& nav a {
+		padding: 0.5rem 0;
+		color: var(--muted);
+		font-size: 0.75rem;
+		text-decoration: none;
+
+		&[aria-current="page"] {
+			color: var(--accent);
+		}
+	}
+}

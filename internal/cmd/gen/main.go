@@ -155,6 +155,7 @@ func buildPages(
 		},
 		{href.PageAlert(), site.PageAlert(morpheusVersion)},
 		{href.PageAura(), site.PageAura(morpheusVersion)},
+		{href.PageAutohide(), site.PageAutohide(morpheusVersion)},
 		{href.PageAvatar(), site.PageAvatar(morpheusVersion)},
 		{href.PageAvatars(), site.PageAvatars(morpheusVersion)},
 		{href.PageBadge(), site.PageBadge(morpheusVersion)},

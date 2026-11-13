@@ -15,6 +15,7 @@
 // stylesheets; a missing entry weakens the warning but doesn't break anything.
 const BEHAVIORAL_TAGS = new Set<string>([
 	"neo-aura",
+	"neo-autohide",
 	"neo-avatars",
 	"neo-breadcrumb",
 	"neo-button",

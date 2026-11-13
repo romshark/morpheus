@@ -221,6 +221,7 @@ var DataLinks = []NavLink{
 var ComponentLinks = []NavLink{
 	{href.PageAlert(), "Alert"},
 	{href.PageAura(), "Aura"},
+	{href.PageAutohide(), "Autohide"},
 	{href.PageAvatar(), "Avatar"},
 	{href.PageAvatars(), "Avatars"},
 	{href.PageBadge(), "Badge"},

@@ -1,0 +1,171 @@
+package site
+
+import (
+	"github.com/romshark/morpheus/internal/href"
+	"github.com/romshark/morpheus/internal/site/examples"
+)
+
+templ PageAutohide(morpheusVersion string) {
+	@PageDoc(href.PageAutohide(), "Autohide", morpheusVersion) {
+		<section class="demo">
+			@anchoredH2("overview") {
+				Autohide
+			}
+			<p class="intro">
+				Component <code>{ "<neo-autohide>" }</code> is a sticky bar
+				that hides on scroll down and slides back on scroll up. It
+				follows the nearest scroll container. Place it directly in
+				the scrolling content, because a sticky element stops at the
+				end of its parent. It hides only on a scroll that starts
+				while it is stuck.
+				Keyboard focus or an element with <code>open</code> inside,
+				such as a popover or <code>{ "<details>" }</code>, keeps it
+				on screen. Set <code>scroll-padding-top</code> on the scroll
+				container to the bar height to keep focused elements out
+				from under it.
+			</p>
+			@Playground(PlaygroundOpts{
+				ID:     "autohide-playground",
+				States: autohidePlaygroundStates(),
+			})
+			@anchoredH2("reference") {
+				Reference
+			}
+			@ComponentDocs(autohideDoc)
+		</section>
+		<section class="demo">
+			@anchoredH2("examples") {
+				Examples
+			}
+			@anchoredH3("bottom-tab-bar") {
+				Bottom tab bar
+			}
+			<p class="demo-note">
+				<code>{ `side="bottom"` }</code> sticks the bar to the
+				bottom edge. Place it after the content. Scroll to see it.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     autohideBottomHTML,
+				TemplSource:    autohideBottomTempl,
+				CSSSource:      autohideBottomCSS,
+			}) {
+				@examples.AutohideBottom()
+			}
+			@anchoredH3("below-a-banner") {
+				Below a banner
+			}
+			<p class="demo-note">
+				A bar below other content sticks at the top edge and stays
+				until the next scroll down. Scroll past the banner, pause,
+				then scroll on.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     autohideBannerHTML,
+				TemplSource:    autohideBannerTempl,
+				CSSSource:      autohideBannerCSS,
+			}) {
+				@examples.AutohideBanner()
+			}
+			@anchoredH3("style-by-state") {
+				Style by state
+			}
+			<p class="demo-note">
+				<code>:state(scrolled)</code> adds a shadow.
+				<code>:state(hidden)</code> removes it, because a hidden
+				bar's shadow still shows at the edge. Scroll to see it.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     autohideScrolledHTML,
+				TemplSource:    autohideScrolledTempl,
+				CSSSource:      autohideScrolledCSS,
+			}) {
+				@examples.AutohideScrolled()
+			}
+			@anchoredH3("popover-in-the-bar") {
+				Popover in the bar
+			}
+			<p class="demo-note">
+				An open popover keeps the bar on screen.
+				<code>{ `follow-scroll="always"` }</code> keeps the popover
+				open while the content scrolls. Open it and scroll to see it.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     autohidePopoverHTML,
+				TemplSource:    autohidePopoverTempl,
+				CSSSource:      autohidePopoverCSS,
+			}) {
+				@examples.AutohidePopover()
+			}
+		</section>
+		<section class="demo">
+			@anchoredH2("examples-datastar") {
+				Examples: Datastar
+			}
+			@anchoredH3("pin-the-bar") {
+				Pin the bar
+			}
+			<p class="demo-note">
+				A switch binds <code>disabled</code> to a signal, which
+				keeps the bar on screen while pinned. Flip the switch and
+				scroll to see it.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     autohidePinHTML,
+				TemplSource:    autohidePinTempl,
+				CSSSource:      autohidePinCSS,
+			}) {
+				@examples.AutohidePin()
+			}
+		</section>
+	}
+}
+
+var autohideDoc = ComponentDoc{
+	Attributes: []DocAttribute{
+		{Name: "side",
+			Type:        `"top" | "bottom"`,
+			Default:     "top",
+			Observed:    true,
+			Description: templ.Raw("Edge the bar sticks to.")},
+		{Name: "tolerance",
+			Type:        "number",
+			Default:     "8",
+			Observed:    true,
+			Description: templ.Raw("Pixels to scroll in 1 direction before the bar hides or shows.")},
+		{Name: "disabled",
+			Type:        "boolean",
+			Default:     "false",
+			Observed:    true,
+			Description: templ.Raw("Stops hiding. Setting it shows a hidden bar.")},
+		{Name: "show-at-end",
+			Type:        "boolean",
+			Default:     "true",
+			Observed:    true,
+			Description: templ.Raw("Shows the bar when the scroll reaches the end. Off, a hidden bottom bar leaves its slot empty there.")},
+	},
+	States: []DocState{
+		{Name: "hidden",
+			Description: templ.Raw("Set while the bar is fully out of view.")},
+		{Name: "scrolled",
+			Description: templ.Raw("Set while the scroll container is scrolled away from its start.")},
+	},
+	Slots: []DocSlot{
+		{Name: "default",
+			Description: templ.Raw("The bar. Give it the background and borders, not <code>&lt;neo-autohide&gt;</code>, which stays in place while the bar slides. Keyboard focus or an element with <code>open</code> inside keeps it on screen.")},
+	},
+	Events: []DocEvent{
+		{Name: "neo-autohide-toggle", Detail: "{ hidden: boolean }", Bubbles: true,
+			Description: templ.Raw("Fires when <code>:state(hidden)</code> changes.")},
+	},
+	CSSProps: []DocCSSProp{
+		{Name: "--neo-autohide-duration", Default: "calc(200ms * var(--neo-duration-scale, 1))",
+			Description: templ.Raw("Duration of the slide.")},
+		{Name: "--neo-autohide-z-index", Default: "40",
+			Description: templ.Raw("Stacking order over the content.")},
+	},
+}

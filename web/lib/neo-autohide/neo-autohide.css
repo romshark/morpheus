@@ -1,0 +1,27 @@
+:root {
+	--neo-autohide-duration: calc(200ms * var(--neo-duration-scale, 1));
+	--neo-autohide-z-index: 40;
+}
+
+/* Sticky keeps the bar in flow. */
+neo-autohide {
+	display: block;
+	position: sticky;
+	top: 0;
+	z-index: var(--neo-autohide-z-index);
+}
+
+neo-autohide[side="bottom"] {
+	top: auto;
+	bottom: 0;
+}
+
+/* A bottom bar moved below the edge would extend the scroll range. A top
+ * bar stays unclipped, which keeps its shadow. */
+neo-autohide[side="bottom"]:is(:state(hidden), :state(sliding)) {
+	overflow: clip;
+}
+
+neo-autohide:state(hidden) {
+	pointer-events: none;
+}

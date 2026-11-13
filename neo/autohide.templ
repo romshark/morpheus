@@ -1,0 +1,44 @@
+package neo
+
+// AutohideSide is the edge a <neo-autohide> bar sticks to.
+type AutohideSide string
+
+const (
+	AutohideSideTop    AutohideSide = "top"
+	AutohideSideBottom AutohideSide = "bottom"
+)
+
+type AutohideOpts struct {
+	// Side is the edge the bar sticks to. Unset is top.
+	Side Attr[AutohideSide]
+	// Tolerance is the pixels to scroll in 1 direction before the bar hides or shows.
+	// Unset is 8.
+	Tolerance Attr[int]
+	// Disabled stops hiding. The bar stays on screen like a plain sticky bar.
+	Disabled Attr[bool]
+	// ShowAtEnd shows the bar when the scroll reaches the end. Unset is true.
+	ShowAtEnd Attr[bool]
+}
+
+// Autohide renders <neo-autohide>, a sticky bar that hides on scroll down
+// and slides back on scroll up. Keyboard focus or an element with an open
+// attribute inside keeps it on screen. Style the child, not the element,
+// which stays in place while the bar slides.
+templ Autohide(opts AutohideOpts) {
+	@AutohideAttrs(opts, nil) {
+		{ children... }
+	}
+}
+
+// AutohideAttrs is [Autohide] with an extra attribute set.
+templ AutohideAttrs(opts AutohideOpts, attrs templ.Attributes) {
+	<neo-autohide
+		{ opts.Side.Attrs("side")... }
+		{ opts.Tolerance.Attrs("tolerance")... }
+		{ opts.Disabled.Attrs("disabled")... }
+		{ opts.ShowAtEnd.Attrs("show-at-end")... }
+		{ attrs... }
+	>
+		{ children... }
+	</neo-autohide>
+}

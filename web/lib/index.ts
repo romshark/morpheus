@@ -1,4 +1,5 @@
 import "./neo-aura";
+import "./neo-autohide";
 import "./neo-avatars";
 import "./neo-breadcrumb";
 import "./neo-button";

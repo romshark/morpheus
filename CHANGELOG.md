@@ -4,6 +4,12 @@ This file records the notable changes of each release in the format of [Keep a C
 
 ## [Unreleased]
 
+### Added
+
+#### Components
+
+- Add `<neo-autohide>`, a sticky bar that hides on scroll down and returns on scroll up. `neo.Autohide` renders it from Templ.
+
 ### Fixed
 
 #### Components
