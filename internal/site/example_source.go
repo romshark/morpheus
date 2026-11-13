@@ -15,7 +15,10 @@ func renderExampleHTML(c templ.Component) string {
 	if err := c.Render(context.Background(), &b); err != nil {
 		panic(err)
 	}
-	return htmlfmt.Format(collapseInlinedIcons(strings.TrimSpace(b.String())))
+	// templ escapes ' as &#39; in text and in its double-quoted attribute
+	// values, where a plain ' is valid and is what an author writes.
+	out := strings.ReplaceAll(b.String(), "&#39;", "'")
+	return htmlfmt.Format(collapseInlinedIcons(strings.TrimSpace(out)))
 }
 
 // collapseInlinedIcons restores each <neo-icon> to the form an author
