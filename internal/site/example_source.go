@@ -2,6 +2,7 @@ package site
 
 import (
 	"context"
+	"regexp"
 	"strings"
 
 	"github.com/a-h/templ"
@@ -15,17 +16,54 @@ func renderExampleHTML(c templ.Component) string {
 	if err := c.Render(context.Background(), &b); err != nil {
 		panic(err)
 	}
-	// templ escapes ' as &#39; in text and in its double-quoted attribute
-	// values, where a plain ' is valid and is what an author writes.
-	out := strings.ReplaceAll(b.String(), "&#39;", "'")
-	return htmlfmt.Format(collapseInlinedIcons(strings.TrimSpace(out)))
+	return htmlfmt.Format(unescapeTempl(
+		collapseInlinedIcons(strings.TrimSpace(b.String())),
+	))
 }
 
-// collapseInlinedIcons restores each <neo-icon> to the form an author
-// writes. neo.Icon server-inlines the SVG body (tagged with data-neo-icon-base)
-// to avoid the first-paint fetch flash. In a copy-paste source tab that inlined markup
-// is noise. Drop the SVG and the server-only base hint, leaving <neo-icon name="...">.
-// Tokens outside a <neo-icon> are emitted verbatim so bare boolean attributes survive.
+var (
+	// templ quotes every attribute value with ".
+	attrValue     = regexp.MustCompile(`="[^"]*"`)
+	attrUnescaper = strings.NewReplacer(
+		"&#39;", "'", "&#34;", "&quot;", "&lt;", "<", "&gt;", ">", "&amp;&amp;", "&&",
+	)
+	textUnescaper = strings.NewReplacer("&#39;", "'", "&#34;", `"`)
+)
+
+// unescapeTempl undoes templ's escapes of ' and " in text and of ', <, >
+// and && in attribute values. Script and style content is left as is.
+func unescapeTempl(s string) string {
+	var b strings.Builder
+	z := html.NewTokenizer(strings.NewReader(s))
+	inRaw := false
+	for {
+		tt := z.Next()
+		if tt == html.ErrorToken {
+			return b.String()
+		}
+		tok := string(z.Raw())
+		switch tt {
+		case html.StartTagToken, html.SelfClosingTagToken:
+			name, _ := z.TagName()
+			inRaw = tt == html.StartTagToken &&
+				(string(name) == "script" || string(name) == "style")
+			tok = attrValue.ReplaceAllStringFunc(tok, func(v string) string {
+				return `="` + attrUnescaper.Replace(v[2:len(v)-1]) + `"`
+			})
+		case html.EndTagToken:
+			inRaw = false
+		case html.TextToken:
+			if !inRaw {
+				tok = textUnescaper.Replace(tok)
+			}
+		}
+		b.WriteString(tok)
+	}
+}
+
+// collapseInlinedIcons reduces each <neo-icon> to <neo-icon name="...">,
+// dropping the SVG and data-neo-icon-base that neo.Icon inlines on the server.
+// Other tokens stay verbatim, which keeps bare boolean attributes.
 func collapseInlinedIcons(s string) string {
 	if !strings.Contains(s, "<neo-icon") {
 		return s
