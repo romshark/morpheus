@@ -4,6 +4,12 @@ This file records the notable changes of each release in the format of [Keep a C
 
 ## [Unreleased]
 
+### Fixed
+
+#### Components
+
+- Style an `<a data-neo-link>` without `variant`, which `neo.Link` renders when `Variant` is unset, as a plain link. It had the button shadow and the hover lift.
+
 ## [0.3.3] - 2026-11-04
 
 ### Added
