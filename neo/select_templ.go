@@ -159,7 +159,7 @@ func SelectAttrs(opts SelectOpts, attrs templ.Attributes) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.RenderAttributes(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_ElementWriter, "neo-select", opts.Disabled.Attrs("disabled"))
+			templ_7745c5c3_Err = templruntime.RenderAttributes(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_ElementWriter, "neo-select", presenceAttrs(opts.Disabled, "disabled"))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

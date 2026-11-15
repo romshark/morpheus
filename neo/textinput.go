@@ -127,8 +127,8 @@ func textInputMergedAttrs(opts TextInputOpts, attrs templ.Attributes) templ.Attr
 	maps.Copy(a, opts.Case.Attrs("case"))
 	maps.Copy(a, opts.Size.Attrs("size"))
 	maps.Copy(a, opts.SubmitRaw.Attrs("submit-raw"))
-	maps.Copy(a, opts.Disabled.Attrs("disabled"))
-	maps.Copy(a, opts.Readonly.Attrs("readonly"))
+	maps.Copy(a, presenceAttrs(opts.Disabled, "disabled"))
+	maps.Copy(a, presenceAttrs(opts.Readonly, "readonly"))
 	maps.Copy(a, opts.Required.Attrs("required"))
 	maps.Copy(a, attrs)
 	return a

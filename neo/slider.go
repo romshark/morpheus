@@ -19,6 +19,7 @@ type SliderMark struct {
 // override the default (e.g. Set(0) on Min emits the attribute with "0"
 // verbatim for clarity / Datastar binding).
 type SliderOpts[N Number] struct {
+	Name                  Attr[string]
 	Min, Max, Step, Value Attr[N]
 
 	Label Attr[string]

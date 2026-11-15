@@ -40,8 +40,8 @@ templ OTPAttrs(opts OTPOpts, attrs templ.Attributes) {
 		{ opts.Conceal.Attrs("conceal")... }
 		{ opts.Autosubmit.Attrs("autosubmit")... }
 		{ opts.Size.Attrs("size")... }
-		{ opts.Disabled.Attrs("disabled")... }
-		{ opts.Readonly.Attrs("readonly")... }
+		{ presenceAttrs(opts.Disabled, "disabled")... }
+		{ presenceAttrs(opts.Readonly, "readonly")... }
 		{ opts.Required.Attrs("required")... }
 		{ attrs... }
 	></neo-otp>

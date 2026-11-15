@@ -166,7 +166,7 @@ func ComboboxAttrs(opts ComboboxOpts, attrs templ.Attributes) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.RenderAttributes(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_ElementWriter, "neo-combobox", opts.Disabled.Attrs("disabled"))
+			templ_7745c5c3_Err = templruntime.RenderAttributes(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_ElementWriter, "neo-combobox", presenceAttrs(opts.Disabled, "disabled"))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

@@ -51,6 +51,8 @@ Attributes fall into 2 categories by whether the component writes them:
 
 Either kind can also be set from outside at runtime (author markup, a server morph, or a framework binding).
 
+On a form control, the browser reads `disabled` and `readonly` by presence. `disabled="false"` disables it and leaves its value out of the form. Turn either off by removing the attribute.
+
 Attribute names are positive (`flip`, not `no-flip`), which prevents double negatives.
 
 ### Internal state

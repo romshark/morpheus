@@ -6,8 +6,9 @@
 // selection, which makes typing replace it as in an overtype field.
 
 import { boolAttr } from "../command";
-import { retryWhileParsing } from "../document-parsing";
+import { submitOnEnter } from "../form-submit";
 import { setState } from "../internal-state";
+import { mirrorName, NAME_ATTRS, queueNameSync } from "../label-name";
 import { type MaskSlot, parseMask } from "../mask";
 import { setAttrIfChanged } from "../neo-morph-resilient";
 
@@ -28,9 +29,6 @@ const DESCRIPTION_ID = "description";
 const KEY_PARTS: Record<string, string> = { c: "caret", m: "conceal", p: "placeholder" };
 const BOOL_ATTRS = ["disabled", "readonly", "required", "conceal"];
 const PASSTHROUGH_ATTRS = ["autocomplete", "inputmode", "autocapitalize", "aria-invalid"];
-// The inner field sits in the shadow root, where light-DOM IDREFs and
-// labels do not resolve. Their text is copied in instead.
-const NAME_ATTRS = ["aria-label", "aria-labelledby", "aria-describedby"];
 
 const TEMPLATE = document.createElement("template");
 // Shadow CSS notes, kept out of the template string so the minifier drops
@@ -186,7 +184,6 @@ export class NeoOtp extends HTMLElement {
 	// undefined for none.
 	#pendingValue: string | null | undefined = undefined;
 	#syncQueued = false;
-	#nameQueued = false;
 	#reflecting = false;
 	#composing = false;
 	// Disabled by a containing <fieldset> or the platform's reading of the
@@ -292,7 +289,7 @@ export class NeoOtp extends HTMLElement {
 		if (pending === null) this.#reflectValue();
 		else if (pending !== undefined) this.#command(pending);
 		this.#syncInput();
-		this.#queueName();
+		queueNameSync(this, this.#syncName);
 		this.#paint();
 	}
 
@@ -401,29 +398,9 @@ export class NeoOtp extends HTMLElement {
 		else setAttrIfChanged(this.#input, attr, v);
 	}
 
-	// Deferred to a microtask: a morph that changes aria-describedby may
-	// patch the referenced error text after the host. While the document
-	// parses, the referenced elements may come after the host.
-	#queueName() {
-		if (this.#nameQueued) return;
-		this.#nameQueued = true;
-		queueMicrotask(() => {
-			this.#nameQueued = false;
-			this.#syncName();
-			retryWhileParsing(this, () => this.#syncName());
-		});
-	}
-
-	#syncName() {
-		const label =
-			this.getAttribute("aria-label") ?? idrefText(this, "aria-labelledby") ?? labelsText(this.#internals.labels);
-		if (label) setAttrIfChanged(this.#input, "aria-label", label);
-		else this.#input.removeAttribute("aria-label");
-		const description = idrefText(this, "aria-describedby") ?? "";
-		if (this.#description.textContent !== description) this.#description.textContent = description;
-		if (description) setAttrIfChanged(this.#input, "aria-describedby", DESCRIPTION_ID);
-		else this.#input.removeAttribute("aria-describedby");
-	}
+	#syncName = () => {
+		mirrorName(this, this.#internals.labels, [this.#input], this.#description);
+	};
 
 	#isFocused(): boolean {
 		return this.shadowRoot?.activeElement === this.#input;
@@ -612,7 +589,7 @@ export class NeoOtp extends HTMLElement {
 	#onKeyDown = (e: KeyboardEvent) => {
 		if (e.isComposing || e.altKey || e.ctrlKey || e.metaKey) return;
 		if (e.key === "Enter") {
-			this.#internals.form?.requestSubmit();
+			submitOnEnter(e, this.#internals.form);
 			return;
 		}
 		// Shift extends the native selection.
@@ -662,26 +639,6 @@ export class NeoOtp extends HTMLElement {
 		this.#syncName();
 		this.#placeCaret(this.#value.length);
 	};
-}
-
-function idrefText(host: Element, attr: string): string | null {
-	const ids = host.getAttribute(attr)?.trim();
-	if (!ids) return null;
-	const root = host.getRootNode() as Document | ShadowRoot;
-	const text = ids
-		.split(/\s+/)
-		.map((id) => root.getElementById?.(id)?.textContent ?? "")
-		.join(" ");
-	return normalizeSpace(text) || null;
-}
-
-function labelsText(labels: NodeList): string | null {
-	const text = Array.from(labels, (l) => l.textContent ?? "").join(" ");
-	return normalizeSpace(text) || null;
-}
-
-function normalizeSpace(s: string): string {
-	return s.replace(/\s+/g, " ").trim();
 }
 
 if (!customElements.get("neo-otp")) {

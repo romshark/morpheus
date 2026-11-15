@@ -49,8 +49,10 @@ export class NeoRadio extends HTMLElement {
 		this.#syncDisabledState();
 	};
 
+	// Disabled by its own `disabled` or by the group. Reading only its own
+	// would undo the aria-disabled the group's #refresh writes.
 	#syncDisabledState() {
-		if (boolAttr(this, "disabled", false)) {
+		if (boolAttr(this, "disabled", false) || this.closest("neo-radio-group")?.matches(":disabled")) {
 			setAttrIfChanged(this, "aria-disabled", "true");
 		} else {
 			this.removeAttribute("aria-disabled");
@@ -63,10 +65,19 @@ if (!customElements.get("neo-radio")) {
 }
 
 export class NeoRadioGroup extends HTMLElement {
+	// The group, not each radio, is form-associated: it submits the selected
+	// value under its name, like same-named native radios.
+	static readonly formAssociated = true;
 	// `orientation` is a CSS-only layout hook (see neo-radio-group.css). JS
 	// never reads it because arrow-key nav is orientation-agnostic.
-	static readonly observedAttributes = ["value", "disabled"];
+	static readonly observedAttributes = ["value", "disabled", "required"];
 
+	#internals = this.attachInternals();
+	// Set by a containing <fieldset disabled>, or by `disabled` present in any form.
+	#formDisabled = false;
+	// `value` as first rendered, which form reset restores. Boxed, because
+	// null is a valid default.
+	#defaultValue: { value: string | null } | undefined;
 	#applyingValue = false;
 	#ready = false;
 	#radioObserver: MutationObserver | null = null;
@@ -81,6 +92,7 @@ export class NeoRadioGroup extends HTMLElement {
 		warnBadAxis(this);
 		if (!this.hasAttribute("role")) this.setAttribute("role", "radiogroup");
 		this.#valueIntent = this.getAttribute("value");
+		this.#defaultValue ??= { value: this.#valueIntent };
 		this.addEventListener("click", this.#onClick);
 		this.addEventListener("keydown", this.#onKeyDown);
 		this.addEventListener("focusin", this.#onFocusIn);
@@ -100,7 +112,7 @@ export class NeoRadioGroup extends HTMLElement {
 			attributes: true,
 			// tabindex: catch a morph stripping the kit roving tabindex
 			// in place (custom elements aren't focusable without it).
-			attributeFilter: ["disabled", "value", "tabindex"],
+			attributeFilter: ["disabled", "value", "tabindex", "aria-required"],
 		});
 
 		this.#ready = true;
@@ -166,9 +178,50 @@ export class NeoRadioGroup extends HTMLElement {
 				return;
 			}
 			this.#applyValue(newValue, { silent: true });
-		} else if (name === "disabled") {
+		} else if (name === "disabled" || name === "required") {
 			this.#refresh();
 		}
+	}
+
+	get form(): HTMLFormElement | null {
+		return this.#internals.form;
+	}
+
+	get validity(): ValidityState {
+		return this.#internals.validity;
+	}
+
+	get validationMessage(): string {
+		return this.#internals.validationMessage;
+	}
+
+	get willValidate(): boolean {
+		return this.#internals.willValidate;
+	}
+
+	checkValidity(): boolean {
+		return this.#internals.checkValidity();
+	}
+
+	reportValidity(): boolean {
+		return this.#internals.reportValidity();
+	}
+
+	formDisabledCallback(disabled: boolean) {
+		this.#formDisabled = disabled;
+		if (this.#ready) this.#refresh();
+	}
+
+	formResetCallback() {
+		this.value = this.#defaultValue?.value ?? null;
+	}
+
+	formStateRestoreCallback(state: unknown) {
+		if (typeof state === "string") this.value = state;
+	}
+
+	#isDisabled(): boolean {
+		return this.#formDisabled || boolAttr(this, "disabled", false);
 	}
 
 	get value(): string | null {
@@ -207,7 +260,7 @@ export class NeoRadioGroup extends HTMLElement {
 	}
 
 	#enabledRadios(): NeoRadio[] {
-		const groupDisabled = boolAttr(this, "disabled", false);
+		const groupDisabled = this.#isDisabled();
 		return this.#radios().filter((r) => {
 			if (groupDisabled) return false;
 			return !boolAttr(r, "disabled", false);
@@ -216,7 +269,7 @@ export class NeoRadioGroup extends HTMLElement {
 
 	#refresh() {
 		const value = this.#valueIntent;
-		const groupDisabled = boolAttr(this, "disabled", false);
+		const groupDisabled = this.#isDisabled();
 		const all = this.#radios();
 
 		// Group-disabled propagates via aria-disabled, not the child's own
@@ -243,6 +296,23 @@ export class NeoRadioGroup extends HTMLElement {
 			const stop = r === stopRadio && !groupDisabled && !boolAttr(r, "disabled", false);
 			setAttrIfChanged(r, "tabindex", stop ? "0" : "-1");
 		}
+		this.#syncForm(stopRadio);
+	}
+
+	// `anchor` is where the browser shows the validation message, because the
+	// group itself takes no focus.
+	#syncForm(anchor: NeoRadio | null) {
+		// value="" clears the selection.
+		const value = this.#valueIntent === "" ? null : this.#valueIntent;
+		this.#internals.setFormValue(value);
+		const required = boolAttr(this, "required", false);
+		if (required) setAttrIfChanged(this, "aria-required", "true");
+		else this.removeAttribute("aria-required");
+		if (required && value === null) {
+			this.#internals.setValidity({ valueMissing: true }, "Select one of these options.", anchor ?? undefined);
+		} else {
+			this.#internals.setValidity({});
+		}
 	}
 
 	#applyValue(value: string | null, opts: { silent?: boolean } = {}) {
@@ -260,7 +330,7 @@ export class NeoRadioGroup extends HTMLElement {
 	}
 
 	#onClick = (e: MouseEvent) => {
-		if (boolAttr(this, "disabled", false)) return;
+		if (this.#isDisabled()) return;
 		const el = e.target as Element | null;
 		// Clicks inside the radio resolve via closest("neo-radio"); clicks
 		// on label text bubble through the wrapping <label>, not the radio.
@@ -286,7 +356,7 @@ export class NeoRadioGroup extends HTMLElement {
 	};
 
 	#onKeyDown = (e: KeyboardEvent) => {
-		if (boolAttr(this, "disabled", false)) return;
+		if (this.#isDisabled()) return;
 		if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey) return;
 		const target = (e.target as Element | null)?.closest<NeoRadio>("neo-radio");
 		if (!target || !this.contains(target)) return;

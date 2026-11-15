@@ -723,6 +723,8 @@ var sliderRangeDoc = ComponentDoc{
 	Attributes: []DocAttribute{
 		{Name: "value-min", Type: "number", Reflected: true, Observed: true,
 			Description: templ.Raw("Lower bound. Normalized against <code>value-max</code>.")},
+		{Name: "name", Type: "string",
+			Description: templ.Raw("Form field name. Both bounds are submitted under it, the lower first.")},
 		{Name: "value-max", Type: "number", Reflected: true, Observed: true,
 			Description: templ.Raw("Upper bound.")},
 		{Name: "min", Type: "number", Default: "0", Observed: true,
@@ -741,7 +743,7 @@ var sliderRangeDoc = ComponentDoc{
 		{Name: "vertical", Type: "boolean", Default: "false", Observed: true,
 			Description: templ.Raw("Switch to vertical orientation.")},
 		{Name: "disabled", Type: "boolean", Default: "false", Observed: true,
-			Description: templ.Raw("Non-interactive state.")},
+			Description: templ.Raw("Non-interactive state, left out of form data. Any value counts, <code>\"false\"</code> included.")},
 		{Name: "static-marks", Type: "boolean", Default: "false", Observed: true,
 			Description: templ.Raw("Make marks non-interactive.")},
 		{Name: "easing", Type: "string", Observed: true,

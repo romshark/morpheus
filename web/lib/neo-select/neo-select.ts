@@ -4,6 +4,7 @@
 // cloned.
 
 import { boolAttr } from "../command";
+import { describe, hostDescription, hostName, NAME_ATTRS, queueNameSync } from "../label-name";
 import { NavEngine } from "../nav-engine";
 import { cloneAsyncPlaceholder, NeoListbox, POPOVER_ATTRS, setHiddenIfChanged } from "../neo-listbox";
 import { deepActiveElement } from "../shadow-utils";
@@ -206,6 +207,7 @@ SELECT_SHADOW_TEMPLATE.innerHTML = `
     <slot name="options"></slot>
   </div>
 </div>
+<span id="description" hidden></span>
 `;
 
 export class NeoSelect extends NeoListbox {
@@ -214,7 +216,7 @@ export class NeoSelect extends NeoListbox {
 		"open",
 		"disabled",
 		"placeholder",
-		"aria-label",
+		...NAME_ATTRS,
 		"caret",
 		"list",
 		...POPOVER_ATTRS,
@@ -258,6 +260,7 @@ export class NeoSelect extends NeoListbox {
 		this.trigger.addEventListener("click", this.#onTriggerClick);
 		this.trigger.addEventListener("keydown", this.#onTriggerKeyDown);
 		this.trigger.addEventListener("focus", this.onTriggerFocus);
+		this.trigger.addEventListener("focus", this.#syncName);
 		this.trigger.addEventListener("blur", this.onTriggerBlur);
 		this.listEl.addEventListener("click", this.#onOptionClick);
 		this.listEl.addEventListener("keydown", this.#onOptionKeyDown);
@@ -283,6 +286,7 @@ export class NeoSelect extends NeoListbox {
 		this.withLightDomObserverPaused(() => {
 			this.#cacheTemplates();
 			this.#syncA11y();
+			queueNameSync(this, this.#syncName);
 			this.#syncOptionSlot();
 			this.#syncOptions();
 			this.#applyValueFromAttr();
@@ -303,6 +307,7 @@ export class NeoSelect extends NeoListbox {
 		this.trigger?.removeEventListener("click", this.#onTriggerClick);
 		this.trigger?.removeEventListener("keydown", this.#onTriggerKeyDown);
 		this.trigger?.removeEventListener("focus", this.onTriggerFocus);
+		this.trigger?.removeEventListener("focus", this.#syncName);
 		this.trigger?.removeEventListener("blur", this.onTriggerBlur);
 		this.listEl?.removeEventListener("click", this.#onOptionClick);
 		this.listEl?.removeEventListener("keydown", this.#onOptionKeyDown);
@@ -332,6 +337,10 @@ export class NeoSelect extends NeoListbox {
 		}
 		if (name === "value") {
 			if (!this.applyingValue) this.#applyValueFromAttr();
+			return;
+		}
+		if (name === "aria-labelledby" || name === "aria-describedby") {
+			queueNameSync(this, this.#syncName);
 			return;
 		}
 		if (name === "placeholder" || name === "aria-label") {
@@ -519,12 +528,19 @@ export class NeoSelect extends NeoListbox {
 		this.#dispatchLoad();
 	}
 
+	// The trigger sits in the shadow root, where light-DOM ids and labels don't
+	// resolve. Without a name the trigger reads its selected label.
+	#syncName = () => {
+		const name = hostName(this, this.internals.labels);
+		for (const el of [this.trigger, this.listEl]) {
+			if (name) el.setAttribute("aria-label", name);
+			else el.removeAttribute("aria-label");
+		}
+		describe([this.trigger], this.shadowRoot!.getElementById("description")!, hostDescription(this));
+	};
+
 	#syncA11y() {
-		const label = this.getAttribute("aria-label");
-		if (label) this.trigger.setAttribute("aria-label", label);
-		else this.trigger.removeAttribute("aria-label");
-		if (label) this.listEl.setAttribute("aria-label", label);
-		else this.listEl.removeAttribute("aria-label");
+		this.#syncName();
 		if (this.id) {
 			const listID = `${this.id}-list`;
 			this.listEl.id = listID;

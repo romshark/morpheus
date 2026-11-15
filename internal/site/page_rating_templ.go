@@ -662,6 +662,8 @@ var ratingDoc = ComponentDoc{
 	Attributes: []DocAttribute{
 		{Name: "value", Type: "number", Default: "0", Reflected: true, Observed: true,
 			Description: templ.Raw("Current rating, clamped to <code>[0, max]</code> and snapped to <code>precision</code>.")},
+		{Name: "name", Type: "string",
+			Description: templ.Raw("Form field name. The rating is submitted under it; 0 submits nothing.")},
 		{Name: "max", Type: "number", Default: "5", Observed: true,
 			Description: templ.Raw("Number of symbols.")},
 		{Name: "precision", Type: "number", Default: "1", Observed: true,
@@ -675,7 +677,9 @@ var ratingDoc = ComponentDoc{
 		{Name: "readonly", Type: "boolean", Default: "false", Observed: true,
 			Description: templ.Raw("Display-only. Announced to AT but not interactive and out of the tab order.")},
 		{Name: "disabled", Type: "boolean", Default: "false", Observed: true,
-			Description: templ.Raw("Read-only plus a dimmed, non-interactive appearance.")},
+			Description: templ.Raw("Read-only plus a dimmed, non-interactive appearance, left out of form data. Any value counts, <code>\"false\"</code> included.")},
+		{Name: "required", Type: "boolean", Default: "false", Observed: true,
+			Description: templ.Raw("Makes the form invalid while the rating is 0.")},
 	},
 	Events: []DocEvent{
 		{Name: "neo-rating-input", Detail: "{ value: number }", Bubbles: true,

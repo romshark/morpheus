@@ -71,7 +71,7 @@ export class NeoToggle extends HTMLElement {
 	}
 
 	toggle(): void {
-		if (boolAttr(this, "disabled", false)) return;
+		if (this.#isDisabled()) return;
 		this.pressed = !this.pressed;
 		this.dispatchEvent(
 			new CustomEvent("neo-toggle-change", {
@@ -79,6 +79,12 @@ export class NeoToggle extends HTMLElement {
 				detail: { pressed: this.pressed },
 			}),
 		);
+	}
+
+	// Disabled by its own `disabled` or by a disabled <neo-toggle-group>.
+	// Reading only its own would undo the aria-disabled the group writes.
+	#isDisabled(): boolean {
+		return boolAttr(this, "disabled", false) || this.closest("neo-toggle-group")?.matches(":disabled") === true;
 	}
 
 	#resync = () => {
@@ -99,7 +105,7 @@ export class NeoToggle extends HTMLElement {
 	}
 
 	#syncDisabledState() {
-		if (boolAttr(this, "disabled", false)) {
+		if (this.#isDisabled()) {
 			setAttrIfChanged(this, "aria-disabled", "true");
 			setAttrIfChanged(this, "tabindex", "-1");
 		} else {
@@ -109,7 +115,7 @@ export class NeoToggle extends HTMLElement {
 	}
 
 	#onClick = (e: MouseEvent) => {
-		if (boolAttr(this, "disabled", false)) {
+		if (this.#isDisabled()) {
 			e.stopImmediatePropagation();
 			e.preventDefault();
 			return;
@@ -119,7 +125,7 @@ export class NeoToggle extends HTMLElement {
 	};
 
 	#onKeyDown = (e: KeyboardEvent) => {
-		if (boolAttr(this, "disabled", false)) return;
+		if (this.#isDisabled()) return;
 		if (e.defaultPrevented) return;
 		if (e.key !== " " && e.key !== "Enter") return;
 		e.preventDefault();

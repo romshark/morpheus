@@ -114,11 +114,11 @@ func OTPAttrs(opts OTPOpts, attrs templ.Attributes) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.RenderAttributes(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_ElementWriter, "neo-otp", opts.Disabled.Attrs("disabled"))
+			templ_7745c5c3_Err = templruntime.RenderAttributes(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_ElementWriter, "neo-otp", presenceAttrs(opts.Disabled, "disabled"))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.RenderAttributes(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_ElementWriter, "neo-otp", opts.Readonly.Attrs("readonly"))
+			templ_7745c5c3_Err = templruntime.RenderAttributes(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_ElementWriter, "neo-otp", presenceAttrs(opts.Readonly, "readonly"))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

@@ -70,3 +70,14 @@ func attrValue(name, v string) any {
 	}
 	return v
 }
+
+// presenceAttrs renders name bare when a is set to true and nothing
+// otherwise. A form-associated element counts as disabled or readonly
+// whenever the attribute is present, name="false" included, and a disabled
+// one leaves its value out of the form.
+func presenceAttrs(a Attr[bool], name string) templ.Attributes {
+	if a.Or(false) {
+		return templ.Attributes{name: true}
+	}
+	return nil
+}

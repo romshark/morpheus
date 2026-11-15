@@ -10,8 +10,13 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 type SwitchOpts struct {
-	Checked   Attr[bool]
-	Disabled  Attr[bool]
+	Name Attr[string]
+	// Value is what an on switch submits under Name. Unset is "on".
+	Value    Attr[string]
+	Checked  Attr[bool]
+	Disabled Attr[bool]
+	// Required makes the owning form invalid while off.
+	Required  Attr[bool]
 	Size      Attr[string]
 	AriaLabel Attr[string]
 }
@@ -69,6 +74,14 @@ func SwitchAttrs(opts SwitchOpts, attrs templ.Attributes) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
+			templ_7745c5c3_Err = templruntime.RenderAttributes(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_ElementWriter, "neo-switch", opts.Name.Attrs("name"))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.RenderAttributes(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_ElementWriter, "neo-switch", opts.Value.Attrs("value"))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
 			templ_7745c5c3_Err = templruntime.RenderAttributes(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_ElementWriter, "neo-switch", opts.Checked.Attrs("checked"))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -94,6 +107,10 @@ func SwitchAttrs(opts SwitchOpts, attrs templ.Attributes) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
+			}
+			templ_7745c5c3_Err = templruntime.RenderAttributes(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_ElementWriter, "neo-switch", opts.Required.Attrs("required"))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
 			}
 			templ_7745c5c3_Err = templruntime.RenderAttributes(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_ElementWriter, "neo-switch", opts.Size.Attrs("size"))
 			if templ_7745c5c3_Err != nil {

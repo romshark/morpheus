@@ -214,21 +214,22 @@ neo-slider-range[easing]:state(dragging) > [data-neo-slider-track] > [data-neo-s
 	transition: none;
 }
 
-neo-slider-range[disabled]:where(:not([disabled="false"])) {
+neo-slider-range[disabled]:where(:not([disabled="false"])),
+neo-slider-range:disabled {
 	opacity: 0.5;
 	cursor: not-allowed;
 }
 
-neo-slider-range[disabled]:where(:not([disabled="false"])) > [data-neo-slider-track],
-neo-slider-range[disabled]:where(:not([disabled="false"])) [data-neo-slider-thumb],
-neo-slider-range[disabled]:where(:not([disabled="false"])) [data-neo-slider-value] {
+neo-slider-range:disabled > [data-neo-slider-track],
+neo-slider-range:disabled [data-neo-slider-thumb],
+neo-slider-range:disabled [data-neo-slider-value] {
 	cursor: not-allowed;
 }
 
-neo-slider-range[disabled]:where(:not([disabled="false"])) > [data-neo-slider-track] {
+neo-slider-range:disabled > [data-neo-slider-track] {
 	background-image: var(--neo-disabled-overlay), var(--neo-slider-track-image);
 }
-neo-slider-range[disabled]:where(:not([disabled="false"])) [data-neo-slider-thumb] {
+neo-slider-range:disabled [data-neo-slider-thumb] {
 	background-image: var(--neo-disabled-overlay);
 }
 

@@ -10,8 +10,18 @@ This file records the notable changes of each release in the format of [Keep a C
 
 - Add `<neo-otp>`, a code input with 1 box per character for one-time codes and PINs. `neo.OTP` renders it from Templ.
 - Escape a slot character in the `mask` of `<neo-textinput>` and `<neo-otp>` with `\`, as in `\#` for a literal `#`. A `\` in an existing mask now escapes the character after it; write `\\` for a literal backslash.
+- Submit `<neo-checkbox>`, `<neo-switch>`, `<neo-radio-group>`, `<neo-slider>`, `<neo-slider-range>`, `<neo-rating>`, `<neo-color-field>` and `<neo-toggle-group>` with a `<form>` under their `name`. They follow form reset and `<fieldset disabled>`. The checkbox and switch take `value`, and the checkbox, switch, radio group, rating and toggle group take `required`. The slider range submits both bounds, and the toggle group 1 entry per active value.
+- Disable every toggle of a `<neo-toggle-group>` with `disabled` on the group.
+
+#### Templ wrappers
+
+- Add `Name` to the options of `neo.Checkbox`, `neo.Switch`, `neo.RadioGroup`, `neo.Slider`, `neo.SliderRange`, `neo.Rating`, `neo.ColorField` and `neo.ToggleGroup`. Add `Value` to the checkbox and switch, `Required` to the checkbox, switch, radio group, rating and toggle group, and `Disabled` to the toggle group.
 
 ### Changed
+
+#### Components
+
+- `disabled="false"` disables `<neo-checkbox>`, `<neo-switch>`, `<neo-radio-group>`, `<neo-slider>`, `<neo-slider-range>`, `<neo-rating>` and `<neo-color-field>`, because the browser reads `disabled` on a form control by presence. Remove the attribute to enable them.
 
 #### Templ wrappers
 
@@ -23,6 +33,13 @@ This file records the notable changes of each release in the format of [Keep a C
 
 - Follow a right-to-left `dir` in `<neo-tabs>`, `<neo-radio-group>`, `<neo-toggle-group>`, `<neo-buttongroup>`, `<neo-tree>`, `<neo-menu>`, `<neo-submenu>`, `<neo-carousel>`, `<neo-sortable>`, `<neo-slider>`, `<neo-slider-range>`, `<neo-progress>`, `<neo-switch>`, `<neo-pagination>` and `<neo-input-group>`. Left and Right arrows moved the wrong way, and fills, thumbs, rounded corners and chevrons stayed left to right.
 - Mirror the `*-start` and `*-end` placements of popovers, selects, comboboxes, menus and text input suggestions in a right-to-left context. They aligned to the left edge.
+- Submit the owning form on Enter in `<neo-textinput>`, as a native text field does. Enter did nothing.
+- Name and describe the controls of `<neo-textinput>`, `<neo-textarea>`, `<neo-select>`, `<neo-combobox>`, `<neo-slider>` and `<neo-slider-range>` from `aria-labelledby`, `aria-describedby` and a `<label>`. Screen readers got neither from them.
+- Mark the radios of a disabled `<neo-radio-group>` and a disabled `<neo-color-field>` as disabled for screen readers. They were announced as enabled.
+
+#### Templ wrappers
+
+- Omit `disabled` and `readonly` for `Set(false)` in the wrappers of form controls. The browser disabled the control and left its value out of the form.
 
 ## [0.4.0] - 2026-11-13
 

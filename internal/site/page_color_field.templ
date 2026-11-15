@@ -145,10 +145,12 @@ var colorFieldDoc = ComponentDoc{
 	Attributes: []DocAttribute{
 		{Name: "value", Type: "string", Default: "#2563eb", Reflected: true, Observed: true,
 			Description: templ.Raw("Selected color as <code>#rrggbb</code>.")},
+		{Name: "name", Type: "string",
+			Description: templ.Raw("Form field name. The color is submitted under it.")},
 		{Name: "hue", Type: "number", Observed: true,
 			Description: templ.Raw("Base hue in degrees. If omitted, the hue is derived from <code>value</code>.")},
 		{Name: "disabled", Type: "boolean", Default: "false", Observed: true,
-			Description: templ.Raw("Disables pointer and keyboard interaction.")},
+			Description: templ.Raw("Disables pointer and keyboard interaction and leaves the field out of form data. Any value counts, <code>\"false\"</code> included.")},
 		{Name: "aria-label", Type: "string", Default: "Color field",
 			Description: templ.Raw("Accessible label for the 2D field control.")},
 	},

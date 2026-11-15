@@ -2,11 +2,19 @@ import { boolAttr, boolCommand } from "../command";
 import { nameFromLabel } from "../label-name";
 import { observeManagedAttrs, setAttrIfChanged } from "../neo-morph-resilient";
 
-const RESILIENT_ATTRS = ["role", "tabindex", "aria-disabled", "aria-checked", "aria-label"];
+const RESILIENT_ATTRS = ["role", "tabindex", "aria-disabled", "aria-checked", "aria-label", "aria-required"];
 
 export class NeoCheckbox extends HTMLElement {
-	static readonly observedAttributes = ["checked", "indeterminate", "disabled"];
+	// Form-associated, which also makes it labelable: the browser forwards
+	// <label> clicks to it.
+	static readonly formAssociated = true;
+	static readonly observedAttributes = ["checked", "indeterminate", "disabled", "value", "required"];
 
+	#internals = this.attachInternals();
+	// Set by a containing <fieldset disabled>, or by `disabled` present in any form.
+	#formDisabled = false;
+	// `checked` as first rendered, which form reset restores.
+	#defaultChecked: boolean | null = null;
 	#callerTabIndex: string | null = null;
 	#morphObserver: MutationObserver | null = null;
 	// Checked / indeterminate intent; the attributes reflect them (see
@@ -21,22 +29,18 @@ export class NeoCheckbox extends HTMLElement {
 		// Explicit value commands intent; absent keeps prior intent.
 		const checkedCmd = boolCommand(this, "checked");
 		if (checkedCmd !== null) this.#checkedIntent = checkedCmd;
+		this.#defaultChecked ??= this.#checkedIntent;
 		const indeterminateCmd = boolCommand(this, "indeterminate");
 		if (indeterminateCmd !== null) this.#indeterminateIntent = indeterminateCmd;
 		this.#resync();
 		this.addEventListener("click", this.#onClick);
 		this.addEventListener("keydown", this.#onKeyDown);
-		// Label-click forwarding listens on `document` and resolves the
-		// wrapping label per click, never caching the label node, which means
-		// a morph that swaps an ancestor label can't strand the listener.
-		document.addEventListener("click", this.#onDocumentClick);
 		this.#morphObserver = observeManagedAttrs(this, RESILIENT_ATTRS, this.#resync);
 	}
 
 	disconnectedCallback() {
 		this.removeEventListener("click", this.#onClick);
 		this.removeEventListener("keydown", this.#onKeyDown);
-		document.removeEventListener("click", this.#onDocumentClick);
 		this.#morphObserver?.disconnect();
 		this.#morphObserver = null;
 	}
@@ -50,6 +54,7 @@ export class NeoCheckbox extends HTMLElement {
 
 	attributeChangedCallback(name: string) {
 		if (name === "disabled") this.#syncDisabledState();
+		if (name === "value" || name === "required") this.#syncForm();
 		if (name === "checked" || name === "indeterminate") {
 			if (this.#reflecting) return;
 			const cmd = boolCommand(this, name);
@@ -91,6 +96,63 @@ export class NeoCheckbox extends HTMLElement {
 			this.#reflecting = false;
 		}
 		this.#syncCheckedState();
+		this.#syncForm();
+	}
+
+	// A checked box submits `value` ("on" by default) under its name, as a
+	// native checkbox does; an unchecked one submits nothing.
+	#syncForm() {
+		const checked = this.#checkedIntent;
+		this.#internals.setFormValue(checked ? (this.getAttribute("value") ?? "on") : null, checked ? "on" : "off");
+		const required = boolAttr(this, "required", false);
+		if (required) setAttrIfChanged(this, "aria-required", "true");
+		else this.removeAttribute("aria-required");
+		if (required && !checked) {
+			this.#internals.setValidity({ valueMissing: true }, "Check this box to continue.");
+		} else {
+			this.#internals.setValidity({});
+		}
+	}
+
+	get form(): HTMLFormElement | null {
+		return this.#internals.form;
+	}
+
+	get validity(): ValidityState {
+		return this.#internals.validity;
+	}
+
+	get validationMessage(): string {
+		return this.#internals.validationMessage;
+	}
+
+	get willValidate(): boolean {
+		return this.#internals.willValidate;
+	}
+
+	checkValidity(): boolean {
+		return this.#internals.checkValidity();
+	}
+
+	reportValidity(): boolean {
+		return this.#internals.reportValidity();
+	}
+
+	formDisabledCallback(disabled: boolean) {
+		this.#formDisabled = disabled;
+		this.#syncDisabledState();
+	}
+
+	formResetCallback() {
+		this.checked = this.#defaultChecked ?? false;
+	}
+
+	formStateRestoreCallback(state: unknown) {
+		if (state === "on" || state === "off") this.checked = state === "on";
+	}
+
+	#isDisabled(): boolean {
+		return this.#formDisabled || boolAttr(this, "disabled", false);
 	}
 
 	#reflectBool(name: string, on: boolean) {
@@ -102,7 +164,7 @@ export class NeoCheckbox extends HTMLElement {
 	}
 
 	toggle(): void {
-		if (boolAttr(this, "disabled", false)) return;
+		if (this.#isDisabled()) return;
 		// Per the native rule, user input on a mixed checkbox resolves to
 		// checked.
 		// Sticky 3-state requires re-setting indeterminate after the event.
@@ -132,7 +194,7 @@ export class NeoCheckbox extends HTMLElement {
 	}
 
 	#syncDisabledState() {
-		if (boolAttr(this, "disabled", false)) {
+		if (this.#isDisabled()) {
 			setAttrIfChanged(this, "aria-disabled", "true");
 			setAttrIfChanged(this, "tabindex", "-1");
 		} else {
@@ -142,7 +204,7 @@ export class NeoCheckbox extends HTMLElement {
 	}
 
 	#onClick = (e: MouseEvent) => {
-		if (boolAttr(this, "disabled", false)) {
+		if (this.#isDisabled()) {
 			e.stopImmediatePropagation();
 			e.preventDefault();
 			return;
@@ -152,32 +214,11 @@ export class NeoCheckbox extends HTMLElement {
 	};
 
 	#onKeyDown = (e: KeyboardEvent) => {
-		if (boolAttr(this, "disabled", false)) return;
+		if (this.#isDisabled()) return;
 		if (e.defaultPrevented) return;
 		if (e.key !== " " && e.key !== "Enter") return;
 		e.preventDefault();
 		this.toggle();
-	};
-
-	// Forward clicks landing in a wrapping <label> (resolved per click,
-	// not cached). Clicks inside the host are handled by onClick; acting
-	// here too would double-toggle.
-	#onDocumentClick = (e: MouseEvent) => {
-		if (boolAttr(this, "disabled", false)) return;
-		const target = e.target as Element | null;
-		if (!target || this.contains(target)) return;
-		const label = target.closest("label");
-		if (!label?.contains(this)) return;
-		// Mirror native <label> behaviour, where a click on another interactive
-		// element inside the label (a button, link, etc.) does not
-		// activate the labelled control.
-		const interactive = target.closest(
-			'a, button, [role="button"], input, select, textarea, details, summary, [contenteditable=""], [contenteditable="true"], neo-button, neo-toggle, neo-switch, neo-radio, neo-slider, neo-tab',
-		);
-		if (interactive && interactive !== this && label.contains(interactive)) return;
-		e.preventDefault();
-		this.toggle();
-		this.focus();
 	};
 }
 

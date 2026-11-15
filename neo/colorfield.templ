@@ -8,6 +8,7 @@ templ ColorField[N Number](opts ColorFieldOpts[N]) {
 // ColorFieldAttrs is [ColorField] with an extra attribute set.
 templ ColorFieldAttrs[N Number](opts ColorFieldOpts[N], attrs templ.Attributes) {
 	<neo-color-field
+		{ opts.Name.Attrs("name")... }
 		{ opts.Value.Attrs("value")... }
 		{ opts.Hue.Attrs("hue")... }
 		if opts.Disabled.Or(false) {

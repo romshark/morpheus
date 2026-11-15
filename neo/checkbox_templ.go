@@ -10,12 +10,17 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 type CheckboxOpts struct {
+	Name Attr[string]
+	// Value is what a checked box submits under Name. Unset is "on".
+	Value   Attr[string]
 	Checked Attr[bool]
 	// Indeterminate paints a dash and sets aria-checked="mixed";
 	// it takes precedence over Checked for ARIA, but user input still
 	// clears the mixed state.
 	Indeterminate Attr[bool]
 	Disabled      Attr[bool]
+	// Required makes the owning form invalid while unchecked.
+	Required Attr[bool]
 	// Size is "" (default) or "sm" (compact).
 	Size      Attr[string]
 	AriaLabel Attr[string]
@@ -74,6 +79,14 @@ func CheckboxAttrs(opts CheckboxOpts, attrs templ.Attributes) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
+			templ_7745c5c3_Err = templruntime.RenderAttributes(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_ElementWriter, "neo-checkbox", opts.Name.Attrs("name"))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.RenderAttributes(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_ElementWriter, "neo-checkbox", opts.Value.Attrs("value"))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
 			templ_7745c5c3_Err = templruntime.RenderAttributes(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_ElementWriter, "neo-checkbox", opts.Indeterminate.Attrs("indeterminate"))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -110,6 +123,10 @@ func CheckboxAttrs(opts CheckboxOpts, attrs templ.Attributes) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
+			}
+			templ_7745c5c3_Err = templruntime.RenderAttributes(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_ElementWriter, "neo-checkbox", opts.Required.Attrs("required"))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
 			}
 			templ_7745c5c3_Err = templruntime.RenderAttributes(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_ElementWriter, "neo-checkbox", opts.Size.Attrs("size"))
 			if templ_7745c5c3_Err != nil {

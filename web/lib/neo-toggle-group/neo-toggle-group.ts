@@ -8,10 +8,17 @@ function joinValues(values: string[]): string {
 }
 
 export class NeoToggleGroup extends HTMLElement {
+	static readonly formAssociated = true;
 	// `orientation` is a CSS-only layout hook (see neo-toggle-group.css).
 	// JS never reads it because arrow-key nav is orientation-agnostic.
-	static readonly observedAttributes = ["value"];
+	static readonly observedAttributes = ["value", "name", "required"];
 
+	#internals = this.attachInternals();
+	// Set by `disabled` on the group, present in any form, or by a containing
+	// <fieldset disabled>. Each <neo-toggle> reads it through :disabled.
+	#formDisabled = false;
+	// The value list at first connect, which form reset restores.
+	#defaultValue: string | null = null;
 	#ready = false;
 	#applyingValue = false;
 	// Command keep-on-absent contract. The value list is the source of truth.
@@ -55,6 +62,7 @@ export class NeoToggleGroup extends HTMLElement {
 
 		this.#ready = true;
 		this.#resync();
+		this.#defaultValue ??= this.#valueIntent;
 	}
 
 	disconnectedCallback() {
@@ -113,6 +121,69 @@ export class NeoToggleGroup extends HTMLElement {
 			this.#rebuildValueFromChildren(false);
 		}
 		this.#syncChildTabIndex();
+		this.#syncForm();
+	}
+
+	get form(): HTMLFormElement | null {
+		return this.#internals.form;
+	}
+
+	get validity(): ValidityState {
+		return this.#internals.validity;
+	}
+
+	get validationMessage(): string {
+		return this.#internals.validationMessage;
+	}
+
+	get willValidate(): boolean {
+		return this.#internals.willValidate;
+	}
+
+	checkValidity(): boolean {
+		return this.#internals.checkValidity();
+	}
+
+	reportValidity(): boolean {
+		return this.#internals.reportValidity();
+	}
+
+	formDisabledCallback(disabled: boolean) {
+		this.#formDisabled = disabled;
+		if (!this.#ready) return;
+		for (const t of this.#toggles()) {
+			if (disabled) setAttrIfChanged(t, "aria-disabled", "true");
+			else if (!boolAttr(t, "disabled", false)) t.removeAttribute("aria-disabled");
+		}
+		this.#syncChildTabIndex();
+	}
+
+	formResetCallback() {
+		this.value = this.#defaultValue ?? "";
+	}
+
+	formStateRestoreCallback(state: unknown) {
+		if (typeof state === "string") this.value = state;
+	}
+
+	// 1 entry per pressed value under `name`, like <select multiple>. FormData
+	// entries carry their own name, which is why the host's `name` is read here.
+	#syncForm() {
+		const name = this.getAttribute("name");
+		const values = this.values;
+		if (name && values.length > 0) {
+			const data = new FormData();
+			for (const v of values) data.append(name, v);
+			this.#internals.setFormValue(data, this.value);
+		} else {
+			this.#internals.setFormValue(null);
+		}
+		if (values.length === 0 && boolAttr(this, "required", false)) {
+			const anchor = this.#focusableToggles()[0];
+			this.#internals.setValidity({ valueMissing: true }, "Select at least one option.", anchor);
+		} else {
+			this.#internals.setValidity({});
+		}
 	}
 
 	#syncHostRole() {
@@ -126,12 +197,13 @@ export class NeoToggleGroup extends HTMLElement {
 	// because neo-toggle is not focusable without tabindex.
 	#syncChildTabIndex() {
 		for (const t of this.#toggles()) {
-			setAttrIfChanged(t, "tabindex", boolAttr(t, "disabled", false) ? "-1" : "0");
+			setAttrIfChanged(t, "tabindex", this.#formDisabled || boolAttr(t, "disabled", false) ? "-1" : "0");
 		}
 	}
 
 	attributeChangedCallback(name: string, _oldValue: string | null, newValue: string | null) {
 		if (!this.#ready) return;
+		if (name === "name" || name === "required") this.#syncForm();
 		if (name === "value") {
 			// Our own re-reflect write (keep-on-absent branch); not a command.
 			if (this.#applyingValue) return;
@@ -144,6 +216,7 @@ export class NeoToggleGroup extends HTMLElement {
 			}
 			this.#syncFromValue();
 			this.#syncChildTabIndex();
+			this.#syncForm();
 		}
 	}
 
@@ -155,6 +228,7 @@ export class NeoToggleGroup extends HTMLElement {
 		this.#writeValue(v, false);
 		this.#syncFromValue();
 		this.#syncChildTabIndex();
+		this.#syncForm();
 	}
 
 	get values(): string[] {
@@ -222,6 +296,7 @@ export class NeoToggleGroup extends HTMLElement {
 			if (v !== null && v !== "") values.push(v);
 		}
 		this.#writeValue(joinValues(values), dispatch, values);
+		this.#syncForm();
 	}
 
 	#onToggleChange = (e: Event) => {

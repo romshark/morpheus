@@ -61,6 +61,10 @@ func ColorFieldAttrs[N Number](opts ColorFieldOpts[N], attrs templ.Attributes) t
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
+			templ_7745c5c3_Err = templruntime.RenderAttributes(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_ElementWriter, "neo-color-field", opts.Name.Attrs("name"))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
 			templ_7745c5c3_Err = templruntime.RenderAttributes(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_ElementWriter, "neo-color-field", opts.Value.Attrs("value"))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err

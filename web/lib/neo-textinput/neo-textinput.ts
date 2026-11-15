@@ -5,6 +5,8 @@
 // native UI would clash); the kit's CSS styles bare <input>s identically.
 
 import { boolAttr, openCommand } from "../command";
+import { submitOnEnter } from "../form-submit";
+import { mirrorName, NAME_ATTRS, queueNameSync } from "../label-name";
 import { isDigit, type MaskSlot, parseMask } from "../mask";
 import { cloneDatalistOptionsInto, externalDatalistFor } from "../neo-datalist";
 import { OPTION_OBSERVE_ATTRS, readOptionData, wireOptionEl } from "../neo-listbox";
@@ -54,18 +56,14 @@ const PASSTHROUGH_ATTRS = [
 	"minlength",
 	"pattern",
 	"autofocus",
-	// The field lives in the shadow root, which means a host-level accessible
-	// name must be forwarded to it; the host itself isn't the focusable
-	// control.
-	"aria-label",
-	"aria-labelledby",
-	"aria-describedby",
 	// type="number" / type="range" companions; browsers ignore them
 	// on text-typed fields so unconditional mirroring is harmless.
 	"min",
 	"max",
 	"step",
 ];
+
+const DESCRIPTION_ID = "description";
 
 interface FormatResult {
 	formatted: string;
@@ -514,6 +512,7 @@ SUGGEST_SHADOW_TEMPLATE.innerHTML = `
   }
 </style>
 <input />
+<span id="${DESCRIPTION_ID}" hidden></span>
 <div data-neo-suggest-list role="listbox" hidden>
   <slot name="suggestions"></slot>
 </div>
@@ -538,6 +537,7 @@ export class NeoTextInput extends HTMLElement {
 		"list",
 		...POPOVER_ATTRS,
 		...PASSTHROUGH_ATTRS,
+		...NAME_ATTRS,
 	];
 
 	#internals: ElementInternals;
@@ -559,6 +559,7 @@ export class NeoTextInput extends HTMLElement {
 	#suggestList!: HTMLElement;
 	#suggestSlot!: HTMLSlotElement;
 	#suggestPrefix = `neo-ti-sug-${suggestInstanceCounter++}`;
+	#description: HTMLElement;
 	#suggestOpen = false;
 	// Escape (or a commit) suppresses auto-reopen until the next keystroke
 	// or a fresh focus so that a still-populated slot can't immediately
@@ -596,6 +597,7 @@ export class NeoTextInput extends HTMLElement {
 		const root = this.attachShadow({ mode: "open" });
 		root.appendChild(SUGGEST_SHADOW_TEMPLATE.content.cloneNode(true));
 		this.#suggestList = root.querySelector("[data-neo-suggest-list]")!;
+		this.#description = root.getElementById(DESCRIPTION_ID)!;
 		this.#suggestSlot = root.querySelector('slot[name="suggestions"]')!;
 		this.#suggestList.id = `${this.#suggestPrefix}-list`;
 		// Keep focus in the field when an option is clicked, because
@@ -609,6 +611,7 @@ export class NeoTextInput extends HTMLElement {
 		this.#rebuildFormatter();
 		this.#applyValue(this.getAttribute(ATTR_VALUE) ?? "");
 		this.#syncPassthrough();
+		queueNameSync(this, this.#syncName);
 		this.#syncFormValue();
 		this.#observeChildren();
 		this.addEventListener("focusin", this.#onHostFocusIn);
@@ -711,6 +714,10 @@ export class NeoTextInput extends HTMLElement {
 			} else {
 				this.#closeSuggest();
 			}
+			return;
+		}
+		if (NAME_ATTRS.includes(name)) {
+			queueNameSync(this, this.#syncName);
 			return;
 		}
 		if (PASSTHROUGH_ATTRS.includes(name)) {
@@ -823,6 +830,7 @@ export class NeoTextInput extends HTMLElement {
 		inp.addEventListener("compositionstart", this.#onCompositionStart);
 		inp.addEventListener("compositionend", this.#onCompositionEnd);
 		inp.addEventListener("keydown", this.#onSuggestKeyDown);
+		inp.addEventListener("focus", this.#syncName);
 		this.#innerInput = inp;
 	}
 
@@ -933,6 +941,10 @@ export class NeoTextInput extends HTMLElement {
 	#syncPassthrough() {
 		for (const a of PASSTHROUGH_ATTRS) this.#syncOnePassthrough(a);
 	}
+
+	#syncName = () => {
+		if (this.#innerInput) mirrorName(this, this.#internals.labels, [this.#innerInput], this.#description);
+	};
 
 	#syncOnePassthrough(attr: string) {
 		if (!this.#innerInput) return;
@@ -1690,7 +1702,9 @@ export class NeoTextInput extends HTMLElement {
 			if (el) {
 				e.preventDefault();
 				this.#selectOption(el);
+				return;
 			}
+			submitOnEnter(e, this.#internals.form);
 			return;
 		}
 		if (e.key === "Escape" && this.#suggestOpen) {

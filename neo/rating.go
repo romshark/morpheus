@@ -10,6 +10,8 @@ import (
 // Set a numeric field when an explicit zero must still be emitted as
 // an attribute (e.g. for a Datastar binding) rather than omitted.
 type RatingOpts struct {
+	// Name submits Value; 0 (no rating) submits nothing.
+	Name                  Attr[string]
 	Value, Max, Precision Attr[float64]
 
 	// Icon is the neo-icon name drawn for each symbol (default "star").
@@ -20,6 +22,8 @@ type RatingOpts struct {
 	// Disabled also dims it. Both drop it from tab order.
 	Readonly Attr[bool]
 	Disabled Attr[bool]
+	// Required makes the owning form invalid while Value is 0.
+	Required Attr[bool]
 	// Size scales the symbol. One of "" (default), "sm", "lg".
 	Size Attr[string]
 	// AriaLabel is used when Label is empty (e.g. an icon-only rating

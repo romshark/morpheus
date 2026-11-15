@@ -111,7 +111,7 @@ var textareaDoc = ComponentDoc{
 		{Name: "value", Type: "string", Observed: true,
 			Description: templ.Raw("Field value, not the light-DOM text content. Writes update the field live unless it has focus. <code>value=\"\"</code> clears; an absent attribute leaves the current value untouched.")},
 		{Name: "disabled", Type: "boolean", Default: "false", Observed: true,
-			Description: templ.Raw("Disable the field. The host shows the disabled state and forwards it to the native field.")},
+			Description: templ.Raw("Disable the field. The host shows the disabled state and forwards it to the native field. Any value counts, <code>\"false\"</code> included.")},
 		{Name: "size", Type: `"sm" | "lg"`,
 			Description: templ.Raw("Control-size step: <code>sm</code> compact, <code>lg</code> large. Omit for the default size.")},
 		{Name: "scale-horizontal", Type: "boolean", Default: "false", Observed: true,

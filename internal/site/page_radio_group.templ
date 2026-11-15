@@ -130,8 +130,12 @@ var radioGroupDoc = ComponentDoc{
 	Attributes: []DocAttribute{
 		{Name: "value", Type: "string", Reflected: true, Observed: true,
 			Description: templ.Raw("Selected radio value. Set to empty string to clear.")},
+		{Name: "name", Type: "string",
+			Description: templ.Raw("Form field name. The group submits the selected value under it.")},
 		{Name: "disabled", Type: "boolean", Default: "false", Observed: true,
-			Description: templ.Raw("Disables every nested <code>&lt;neo-radio&gt;</code>.")},
+			Description: templ.Raw("Disables every nested <code>&lt;neo-radio&gt;</code> and leaves the group out of form data. Any value counts, <code>\"false\"</code> included.")},
+		{Name: "required", Type: "boolean", Default: "false", Observed: true,
+			Description: templ.Raw("Makes the form invalid while no radio is selected.")},
 		{Name: "orientation", Type: `"horizontal" | "vertical"`, Default: "vertical",
 			Description: templ.Raw("Layout axis.")},
 		{Name: "auto-activate", Type: "boolean", Default: "false",

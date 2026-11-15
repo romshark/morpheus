@@ -1,6 +1,8 @@
 package neo
 
 type ToggleGroupOpts struct {
+	// Name submits 1 entry per pressed [Toggle] value.
+	Name Attr[string]
 	// Value is the comma-separated list of selected child [Toggle] values.
 	// A Toggle value must not contain a comma; the separator is unescaped.
 	Value Attr[string]
@@ -8,7 +10,11 @@ type ToggleGroupOpts struct {
 	// A display attribute that sets the flex direction only.
 	// Arrow keys navigate on either axis regardless.
 	Orientation Attr[Axis]
-	AriaLabel   Attr[string]
+	// Disabled disables every child [Toggle].
+	Disabled Attr[bool]
+	// Required makes the owning form invalid while no [Toggle] is pressed.
+	Required  Attr[bool]
+	AriaLabel Attr[string]
 }
 
 // ToggleGroup renders <neo-toggle-group>, a container that coordinates
@@ -23,8 +29,11 @@ templ ToggleGroup(opts ToggleGroupOpts) {
 templ ToggleGroupAttrs(opts ToggleGroupOpts, attrs templ.Attributes) {
 	<neo-toggle-group
 		role="group"
+		{ opts.Name.Attrs("name")... }
 		{ opts.Value.Attrs("value")... }
 		{ opts.Orientation.Attrs("orientation")... }
+		{ presenceAttrs(opts.Disabled, "disabled")... }
+		{ opts.Required.Attrs("required")... }
 		{ opts.AriaLabel.Attrs("aria-label")... }
 		{ attrs... }
 	>

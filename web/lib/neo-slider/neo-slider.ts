@@ -7,6 +7,7 @@
 import { boolAttr } from "../command";
 import { isRTL, logicalArrow } from "../direction";
 import { setState } from "../internal-state";
+import { describe, hostDescription, hostName, NAME_ATTRS, queueNameSync } from "../label-name";
 import {
 	collectMarks,
 	type MarkRailConfig,
@@ -57,6 +58,7 @@ const SHEET = new CSSStyleSheet();
 SHEET.replaceSync(`${scopeCssToHost(sliderCss, "neo-slider")}\n${tooltipCss}`);
 
 export class NeoSlider extends HTMLElement {
+	static readonly formAssociated = true;
 	static readonly observedAttributes = [
 		ATTR_MIN,
 		ATTR_MAX,
@@ -71,9 +73,9 @@ export class NeoSlider extends HTMLElement {
 		ATTR_MARKS_ONLY,
 		ATTR_EASING,
 		ATTR_DISABLED,
-		// Observed so a runtime aria-label change refreshes the derived
-		// aria-label on the thumb / value field (see #syncAriaMeta).
-		"aria-label",
+		// Observed so a runtime change refreshes the name and description
+		// on the thumb / value field (see #syncAriaMeta).
+		...NAME_ATTRS,
 	];
 
 	#rendered = false;
@@ -123,6 +125,10 @@ export class NeoSlider extends HTMLElement {
 	// Guards our own reflect writes so attributeChangedCallback doesn't read
 	// them back as an external command.
 	#reflectingValue = false;
+	// Set by a containing <fieldset disabled>, or by `disabled` present in any form.
+	#formDisabled = false;
+	// The value at first connect, which form reset restores.
+	#defaultValue: number | null = null;
 
 	#internals: ElementInternals;
 
@@ -141,6 +147,7 @@ export class NeoSlider extends HTMLElement {
 		const attr = this.getAttribute(ATTR_VALUE);
 		if (attr !== null) this.#valueIntent = this.#clamp(num(attr, this.min));
 		else if (!Number.isFinite(this.#valueIntent)) this.#valueIntent = this.min;
+		this.#defaultValue ??= this.#valueIntent;
 		this.#render();
 		// On a reconnect #render early-returns (internals persist). The
 		// tooltip controller disconnected on the prior detach must re-bind
@@ -153,12 +160,15 @@ export class NeoSlider extends HTMLElement {
 		window.addEventListener("scroll", this.#invalidateDragRect, true);
 		window.addEventListener("resize", this.#invalidateDragRect);
 		this.#syncAll();
+		queueNameSync(this, this.#syncName);
+		this.addEventListener("focusin", this.#syncName);
 		this.#observeMarkLayout();
 		this.#scheduleMarkLayoutSync();
 		this.#observeChildren();
 	}
 
 	disconnectedCallback() {
+		this.removeEventListener("focusin", this.#syncName);
 		this.#endDrag();
 		window.removeEventListener("scroll", this.#invalidateDragRect, true);
 		window.removeEventListener("resize", this.#invalidateDragRect);
@@ -247,7 +257,7 @@ export class NeoSlider extends HTMLElement {
 			this.#syncLabel();
 			this.#syncHeaderVisibility();
 			this.#syncAriaMeta();
-		} else if (name === "aria-label") this.#syncAriaMeta();
+		} else if (NAME_ATTRS.includes(name)) queueNameSync(this, this.#syncName);
 		else if (name === ATTR_UNIT) this.#syncUnit();
 		else if (name === ATTR_HIDE_VALUE) {
 			this.#syncValueVisibility();
@@ -293,6 +303,28 @@ export class NeoSlider extends HTMLElement {
 
 	set value(v: number) {
 		this.#writeValue(this.#clampSnap(v));
+	}
+
+	get form(): HTMLFormElement | null {
+		return this.#internals.form;
+	}
+
+	formDisabledCallback(disabled: boolean) {
+		this.#formDisabled = disabled;
+		if (this.#rendered) this.#syncDisabled();
+	}
+
+	formResetCallback() {
+		this.value = this.#defaultValue ?? this.min;
+	}
+
+	formStateRestoreCallback(state: unknown) {
+		const v = Number(state);
+		if (typeof state === "string" && Number.isFinite(v)) this.value = v;
+	}
+
+	#isDisabled(): boolean {
+		return this.#formDisabled || boolAttr(this, ATTR_DISABLED, false);
 	}
 
 	// Single value writer. Updates intent, reflects to the attribute (guarded
@@ -591,7 +623,7 @@ export class NeoSlider extends HTMLElement {
 	}
 
 	#syncDisabled() {
-		const dis = boolAttr(this, ATTR_DISABLED, false);
+		const dis = this.#isDisabled();
 		this.setAttribute("aria-disabled", String(dis));
 		if (this.#valueEl) {
 			this.#valueEl.setAttribute("contenteditable", dis ? "false" : "plaintext-only");
@@ -620,7 +652,7 @@ export class NeoSlider extends HTMLElement {
 	// attributes per thumb every frame; the relevant attribute handlers and
 	// #syncAll call it instead.
 	#syncAriaMeta() {
-		const accName = this.getAttribute(ATTR_LABEL) || this.getAttribute("aria-label");
+		const accName = this.getAttribute(ATTR_LABEL) || hostName(this);
 		const min = String(this.min);
 		const max = String(this.max);
 		this.#thumbEl?.setAttribute("aria-orientation", this.#isVertical() ? "vertical" : "horizontal");
@@ -631,10 +663,29 @@ export class NeoSlider extends HTMLElement {
 			if (accName) el.setAttribute("aria-label", accName);
 			else el.removeAttribute("aria-label");
 		}
+		const fields = [this.#thumbEl, this.#valueEl].filter((el) => el !== null);
+		if (fields.length > 0) describe(fields, this.#descriptionEl(), hostDescription(this));
+	}
+
+	// The thumbs and value fields sit in the shadow root, where light-DOM ids
+	// and labels don't resolve. Their name and description are copied in.
+	#syncName = () => this.#syncAriaMeta();
+
+	#descriptionEl(): HTMLElement {
+		const root = this.shadowRoot!;
+		let el = root.getElementById("description");
+		if (!el) {
+			el = document.createElement("span");
+			el.id = "description";
+			el.hidden = true;
+			root.append(el);
+		}
+		return el;
 	}
 
 	#syncValue() {
 		const v = this.value;
+		this.#internals.setFormValue(String(v));
 		const formatted = formatNumber(v, this.step);
 		// Don't stomp the user's typing; re-render text only when the
 		// field isn't focused. The value field lives in the shadow and
@@ -852,7 +903,7 @@ export class NeoSlider extends HTMLElement {
 	};
 
 	#onValueBeforeInput = (e: InputEvent) => {
-		if (boolAttr(this, ATTR_DISABLED, false)) {
+		if (this.#isDisabled()) {
 			e.preventDefault();
 			return;
 		}
@@ -897,7 +948,7 @@ export class NeoSlider extends HTMLElement {
 	}
 
 	#onValueKeyDown = (e: KeyboardEvent) => {
-		if (boolAttr(this, ATTR_DISABLED, false)) return;
+		if (this.#isDisabled()) return;
 		if (e.key === "Enter") {
 			e.preventDefault();
 			this.#valueEl?.blur();
@@ -957,7 +1008,7 @@ export class NeoSlider extends HTMLElement {
 	};
 
 	#onThumbKeyDown = (e: KeyboardEvent) => {
-		if (boolAttr(this, ATTR_DISABLED, false)) return;
+		if (this.#isDisabled()) return;
 		const useMarks = this.#marksOnlyActive();
 		let next: number | null = null;
 		const big = this.step * 10;
@@ -992,7 +1043,7 @@ export class NeoSlider extends HTMLElement {
 	};
 
 	#onAnchorClick = (e: MouseEvent) => {
-		if (boolAttr(this, ATTR_DISABLED, false)) return;
+		if (this.#isDisabled()) return;
 		if (boolAttr(this, ATTR_STATIC_MARKS, false)) return;
 		const target = (e.target as Element | null)?.closest("[data-neo-slider-anchor]");
 		if (!target || !this.#trackEl?.contains(target)) return;
@@ -1027,7 +1078,7 @@ export class NeoSlider extends HTMLElement {
 	};
 
 	#onMarkLabelClick = (e: MouseEvent) => {
-		if (boolAttr(this, ATTR_DISABLED, false)) return;
+		if (this.#isDisabled()) return;
 		if (boolAttr(this, ATTR_STATIC_MARKS, false)) return;
 		const target = (e.target as Element | null)?.closest("[data-neo-slider-mark-label]");
 		if (!target || !this.#marksEl?.contains(target)) return;
@@ -1037,7 +1088,7 @@ export class NeoSlider extends HTMLElement {
 	};
 
 	#onTrackPointerDown = (e: PointerEvent) => {
-		if (boolAttr(this, ATTR_DISABLED, false)) return;
+		if (this.#isDisabled()) return;
 		if (e.button !== 0) return;
 		if (!this.#trackEl) return;
 		e.preventDefault();

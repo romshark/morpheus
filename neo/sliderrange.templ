@@ -6,6 +6,8 @@ package neo
 // is omitted and the host falls back to its default
 // (Min=0, Max=100, Step=1, ValueMin=Min, ValueMax=Max).
 type SliderRangeOpts[N Number] struct {
+	// Name submits ValueMin and ValueMax as 2 entries, ValueMin first.
+	Name                                       Attr[string]
 	Min, Max, Step, ValueMin, ValueMax         Attr[N]
 	Label, Unit, Easing                        Attr[string]
 	HideValue, HideTooltip, Vertical, Disabled Attr[bool]
@@ -28,6 +30,7 @@ templ SliderRange[N Number](opts SliderRangeOpts[N]) {
 // SliderRangeAttrs is [SliderRange] with an extra attribute set.
 templ SliderRangeAttrs[N Number](opts SliderRangeOpts[N], attrs templ.Attributes) {
 	<neo-slider-range
+		{ opts.Name.Attrs("name")... }
 		{ opts.Min.Attrs("min")... }
 		{ opts.Max.Attrs("max")... }
 		{ opts.Step.Attrs("step")... }
@@ -39,7 +42,7 @@ templ SliderRangeAttrs[N Number](opts SliderRangeOpts[N], attrs templ.Attributes
 		{ opts.HideTooltip.Attrs("hide-tooltip")... }
 		{ opts.Vertical.Attrs("vertical")... }
 		{ opts.Easing.Attrs("easing")... }
-		{ opts.Disabled.Attrs("disabled")... }
+		{ presenceAttrs(opts.Disabled, "disabled")... }
 		{ opts.StaticMarks.Attrs("static-marks")... }
 		{ opts.AriaLabel.Attrs("aria-label")... }
 		{ attrs... }

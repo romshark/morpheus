@@ -15,6 +15,8 @@ import templruntime "github.com/a-h/templ/runtime"
 // is omitted and the host falls back to its default
 // (Min=0, Max=100, Step=1, ValueMin=Min, ValueMax=Max).
 type SliderRangeOpts[N Number] struct {
+	// Name submits ValueMin and ValueMax as 2 entries, ValueMin first.
+	Name                                       Attr[string]
 	Min, Max, Step, ValueMin, ValueMax         Attr[N]
 	Label, Unit, Easing                        Attr[string]
 	HideValue, HideTooltip, Vertical, Disabled Attr[bool]
@@ -99,6 +101,10 @@ func SliderRangeAttrs[N Number](opts SliderRangeOpts[N], attrs templ.Attributes)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
+			templ_7745c5c3_Err = templruntime.RenderAttributes(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_ElementWriter, "neo-slider-range", opts.Name.Attrs("name"))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
 			templ_7745c5c3_Err = templruntime.RenderAttributes(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_ElementWriter, "neo-slider-range", opts.Min.Attrs("min"))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -143,7 +149,7 @@ func SliderRangeAttrs[N Number](opts SliderRangeOpts[N], attrs templ.Attributes)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.RenderAttributes(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_ElementWriter, "neo-slider-range", opts.Disabled.Attrs("disabled"))
+			templ_7745c5c3_Err = templruntime.RenderAttributes(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_ElementWriter, "neo-slider-range", presenceAttrs(opts.Disabled, "disabled"))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

@@ -422,7 +422,8 @@ neo-slider > [data-neo-slider-marks] > [data-neo-slider-mark-label][data-neo-act
 	color: var(--neo-slider-mark-label-active-color);
 }
 
-neo-slider[disabled]:where(:not([disabled="false"])) {
+neo-slider[disabled]:where(:not([disabled="false"])),
+neo-slider:disabled {
 	opacity: 0.5;
 	cursor: not-allowed;
 }
@@ -434,12 +435,12 @@ neo-slider[disabled]:where(:not([disabled="false"])) {
  * host's cursor would be masked the moment the pointer crossed onto
  * a more-specific child. We don't drop `pointer-events`; the JS
  * handlers (`onTrackPointerDown`, `onAnchorClick`, ...) all early-out
- * on the `disabled` attribute and no interaction fires anyway. */
-neo-slider[disabled]:where(:not([disabled="false"])) > [data-neo-slider-track],
-neo-slider[disabled]:where(:not([disabled="false"])) [data-neo-slider-thumb],
-neo-slider[disabled]:where(:not([disabled="false"])) > [data-neo-slider-track] > [data-neo-slider-anchor],
-neo-slider[disabled]:where(:not([disabled="false"])) > [data-neo-slider-marks] > [data-neo-slider-mark-label],
-neo-slider[disabled]:where(:not([disabled="false"])) [data-neo-slider-value] {
+ * while disabled and no interaction fires anyway. */
+neo-slider:disabled > [data-neo-slider-track],
+neo-slider:disabled [data-neo-slider-thumb],
+neo-slider:disabled > [data-neo-slider-track] > [data-neo-slider-anchor],
+neo-slider:disabled > [data-neo-slider-marks] > [data-neo-slider-mark-label],
+neo-slider:disabled [data-neo-slider-value] {
 	cursor: not-allowed;
 }
 
@@ -450,9 +451,9 @@ neo-slider[disabled]:where(:not([disabled="false"])) [data-neo-slider-value] {
  * instead of sitting behind the stripe pattern. The rail keeps its
  * track-bg gradient layer underneath the overlay so the bar stays
  * visible; without it the overlay would paint directly on page-bg. */
-neo-slider[disabled]:where(:not([disabled="false"])) > [data-neo-slider-track] {
+neo-slider:disabled > [data-neo-slider-track] {
 	background-image: var(--neo-disabled-overlay), var(--neo-slider-track-image);
 }
-neo-slider[disabled]:where(:not([disabled="false"])) [data-neo-slider-thumb] {
+neo-slider:disabled [data-neo-slider-thumb] {
 	background-image: var(--neo-disabled-overlay);
 }

@@ -926,6 +926,8 @@ var sliderDoc = ComponentDoc{
 	Attributes: []DocAttribute{
 		{Name: "value", Type: "number", Reflected: true, Observed: true,
 			Description: templ.Raw("Current value. Clamped and snapped to <code>step</code>.")},
+		{Name: "name", Type: "string",
+			Description: templ.Raw("Form field name. The value is submitted under it.")},
 		{Name: "min", Type: "number", Default: "0", Observed: true,
 			Description: templ.Raw("Lower bound.")},
 		{Name: "max", Type: "number", Default: "100", Observed: true,
@@ -941,7 +943,7 @@ var sliderDoc = ComponentDoc{
 		{Name: "vertical", Type: "boolean", Default: "false", Observed: true,
 			Description: templ.Raw("Switch to vertical orientation.")},
 		{Name: "disabled", Type: "boolean", Default: "false", Observed: true,
-			Description: templ.Raw("Non-interactive state.")},
+			Description: templ.Raw("Non-interactive state, left out of form data. Any value counts, <code>\"false\"</code> included.")},
 		{Name: "marks-only", Type: "boolean", Default: "false", Observed: true,
 			Description: templ.Raw("Constrain navigation to mark values only.")},
 		{Name: "static-marks", Type: "boolean", Default: "false", Observed: true,

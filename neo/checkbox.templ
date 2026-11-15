@@ -1,12 +1,17 @@
 package neo
 
 type CheckboxOpts struct {
+	Name Attr[string]
+	// Value is what a checked box submits under Name. Unset is "on".
+	Value   Attr[string]
 	Checked Attr[bool]
 	// Indeterminate paints a dash and sets aria-checked="mixed";
 	// it takes precedence over Checked for ARIA, but user input still
 	// clears the mixed state.
 	Indeterminate Attr[bool]
 	Disabled      Attr[bool]
+	// Required makes the owning form invalid while unchecked.
+	Required Attr[bool]
 	// Size is "" (default) or "sm" (compact).
 	Size      Attr[string]
 	AriaLabel Attr[string]
@@ -22,6 +27,8 @@ templ Checkbox(opts CheckboxOpts) {
 templ CheckboxAttrs(opts CheckboxOpts, attrs templ.Attributes) {
 	<neo-checkbox
 		role="checkbox"
+		{ opts.Name.Attrs("name")... }
+		{ opts.Value.Attrs("value")... }
 		{ opts.Indeterminate.Attrs("indeterminate")... }
 		{ opts.Checked.Attrs("checked")... }
 		if opts.Indeterminate.Or(false) {
@@ -40,6 +47,7 @@ templ CheckboxAttrs(opts CheckboxOpts, attrs templ.Attributes) {
 		} else {
 			tabindex="0"
 		}
+		{ opts.Required.Attrs("required")... }
 		{ opts.Size.Attrs("size")... }
 		{ opts.AriaLabel.Attrs("aria-label")... }
 		{ attrs... }

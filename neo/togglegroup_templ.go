@@ -10,6 +10,8 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 type ToggleGroupOpts struct {
+	// Name submits 1 entry per pressed [Toggle] value.
+	Name Attr[string]
 	// Value is the comma-separated list of selected child [Toggle] values.
 	// A Toggle value must not contain a comma; the separator is unescaped.
 	Value Attr[string]
@@ -17,7 +19,11 @@ type ToggleGroupOpts struct {
 	// A display attribute that sets the flex direction only.
 	// Arrow keys navigate on either axis regardless.
 	Orientation Attr[Axis]
-	AriaLabel   Attr[string]
+	// Disabled disables every child [Toggle].
+	Disabled Attr[bool]
+	// Required makes the owning form invalid while no [Toggle] is pressed.
+	Required  Attr[bool]
+	AriaLabel Attr[string]
 }
 
 // ToggleGroup renders <neo-toggle-group>, a container that coordinates
@@ -93,11 +99,23 @@ func ToggleGroupAttrs(opts ToggleGroupOpts, attrs templ.Attributes) templ.Compon
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
+			templ_7745c5c3_Err = templruntime.RenderAttributes(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_ElementWriter, "neo-toggle-group", opts.Name.Attrs("name"))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
 			templ_7745c5c3_Err = templruntime.RenderAttributes(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_ElementWriter, "neo-toggle-group", opts.Value.Attrs("value"))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			templ_7745c5c3_Err = templruntime.RenderAttributes(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_ElementWriter, "neo-toggle-group", opts.Orientation.Attrs("orientation"))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.RenderAttributes(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_ElementWriter, "neo-toggle-group", presenceAttrs(opts.Disabled, "disabled"))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.RenderAttributes(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_ElementWriter, "neo-toggle-group", opts.Required.Attrs("required"))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

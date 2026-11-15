@@ -7,6 +7,7 @@ const ATTR_ICON = "icon";
 const ATTR_LABEL = "label";
 const ATTR_READONLY = "readonly";
 const ATTR_DISABLED = "disabled";
+const ATTR_REQUIRED = "required";
 
 const SYMBOLS = "data-neo-rating-symbols";
 const SYMBOL = "data-neo-rating-symbol";
@@ -15,6 +16,7 @@ const PREVIEW = "data-neo-rating-preview";
 const FULL = "data-neo-rating-full";
 
 export class NeoRating extends HTMLElement {
+	static readonly formAssociated = true;
 	static readonly observedAttributes = [
 		ATTR_VALUE,
 		ATTR_MAX,
@@ -23,7 +25,14 @@ export class NeoRating extends HTMLElement {
 		ATTR_LABEL,
 		ATTR_READONLY,
 		ATTR_DISABLED,
+		ATTR_REQUIRED,
 	];
+
+	#internals = this.attachInternals();
+	// Set by a containing <fieldset disabled>, or by `disabled` present in any form.
+	#formDisabled = false;
+	// The value at first connect, which form reset restores.
+	#defaultValue: number | null = null;
 
 	#symbolsEl: HTMLElement | null = null;
 	// Non-null while a hover/drag preview is showing; painted as the
@@ -48,6 +57,7 @@ export class NeoRating extends HTMLElement {
 			const n = Number(raw);
 			if (Number.isFinite(n)) this.#valueIntent = this.#clampSnap(n);
 		}
+		this.#defaultValue ??= this.#valueIntent;
 		this.#reconcile();
 		this.#syncState();
 		this.addEventListener("keydown", this.#onKeyDown);
@@ -120,6 +130,60 @@ export class NeoRating extends HTMLElement {
 		this.#syncState();
 	}
 
+	get form(): HTMLFormElement | null {
+		return this.#internals.form;
+	}
+
+	get validity(): ValidityState {
+		return this.#internals.validity;
+	}
+
+	get validationMessage(): string {
+		return this.#internals.validationMessage;
+	}
+
+	get willValidate(): boolean {
+		return this.#internals.willValidate;
+	}
+
+	checkValidity(): boolean {
+		return this.#internals.checkValidity();
+	}
+
+	reportValidity(): boolean {
+		return this.#internals.reportValidity();
+	}
+
+	formDisabledCallback(disabled: boolean) {
+		this.#formDisabled = disabled;
+		this.#preview = null;
+		if (this.isConnected) this.#syncState();
+	}
+
+	formResetCallback() {
+		this.value = this.#defaultValue ?? 0;
+	}
+
+	formStateRestoreCallback(state: unknown) {
+		const n = Number(state);
+		if (typeof state === "string" && Number.isFinite(n)) this.value = n;
+	}
+
+	#isDisabled(): boolean {
+		return this.#formDisabled || boolAttr(this, ATTR_DISABLED, false);
+	}
+
+	// 0 is no rating and submits nothing, like a radio group with none checked.
+	#syncForm() {
+		const v = this.value;
+		this.#internals.setFormValue(v > 0 ? String(v) : null);
+		if (v === 0 && boolAttr(this, ATTR_REQUIRED, false)) {
+			this.#internals.setValidity({ valueMissing: true }, "Select a rating.");
+		} else {
+			this.#internals.setValidity({});
+		}
+	}
+
 	// State -> attribute, guarded so it isn't read back as a command.
 	#reflectValue() {
 		this.#reflecting = true;
@@ -145,7 +209,7 @@ export class NeoRating extends HTMLElement {
 	}
 
 	get #interactive(): boolean {
-		return !boolAttr(this, ATTR_READONLY, false) && !boolAttr(this, ATTR_DISABLED, false);
+		return !boolAttr(this, ATTR_READONLY, false) && !this.#isDisabled();
 	}
 
 	get #rtl(): boolean {
@@ -213,6 +277,7 @@ export class NeoRating extends HTMLElement {
 		const max = this.max;
 		const value = this.value;
 		const preview = this.#preview;
+		this.#syncForm();
 
 		this.setAttribute("aria-valuemin", "0");
 		this.setAttribute("aria-valuemax", String(max));
@@ -225,7 +290,7 @@ export class NeoRating extends HTMLElement {
 			this.setAttribute("aria-label", label);
 		}
 
-		if (boolAttr(this, ATTR_DISABLED, false)) {
+		if (this.#isDisabled()) {
 			this.setAttribute("aria-disabled", "true");
 			this.setAttribute("tabindex", "-1");
 		} else {

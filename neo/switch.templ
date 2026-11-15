@@ -1,8 +1,13 @@
 package neo
 
 type SwitchOpts struct {
-	Checked   Attr[bool]
-	Disabled  Attr[bool]
+	Name Attr[string]
+	// Value is what an on switch submits under Name. Unset is "on".
+	Value    Attr[string]
+	Checked  Attr[bool]
+	Disabled Attr[bool]
+	// Required makes the owning form invalid while off.
+	Required  Attr[bool]
 	Size      Attr[string]
 	AriaLabel Attr[string]
 }
@@ -17,6 +22,8 @@ templ Switch(opts SwitchOpts) {
 templ SwitchAttrs(opts SwitchOpts, attrs templ.Attributes) {
 	<neo-switch
 		role="switch"
+		{ opts.Name.Attrs("name")... }
+		{ opts.Value.Attrs("value")... }
 		{ opts.Checked.Attrs("checked")... }
 		if opts.Checked.Or(false) {
 			aria-checked="true"
@@ -30,6 +37,7 @@ templ SwitchAttrs(opts SwitchOpts, attrs templ.Attributes) {
 		} else {
 			tabindex="0"
 		}
+		{ opts.Required.Attrs("required")... }
 		{ opts.Size.Attrs("size")... }
 		{ opts.AriaLabel.Attrs("aria-label")... }
 		{ attrs... }

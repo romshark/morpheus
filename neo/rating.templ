@@ -13,6 +13,7 @@ templ Rating(opts RatingOpts) {
 templ RatingAttrs(opts RatingOpts, attrs templ.Attributes) {
 	<neo-rating
 		role="slider"
+		{ opts.Name.Attrs("name")... }
 		if opts.Value.IsSet() {
 			value={ opts.valueStr() }
 		}
@@ -25,6 +26,7 @@ templ RatingAttrs(opts RatingOpts, attrs templ.Attributes) {
 		{ opts.Icon.Attrs("icon")... }
 		{ opts.Label.Attrs("label")... }
 		{ opts.Size.Attrs("size")... }
+		{ opts.Required.Attrs("required")... }
 		aria-orientation="horizontal"
 		aria-valuemin="0"
 		aria-valuemax={ opts.maxStr() }

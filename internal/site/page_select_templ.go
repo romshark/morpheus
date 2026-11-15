@@ -1222,7 +1222,7 @@ var selectDoc = ComponentDoc{
 		{Name: "size", Type: `"sm" | "lg"`,
 			Description: templ.Raw("Control-size step: <code>sm</code> compact, <code>lg</code> large. Omit for the default size.")},
 		{Name: "disabled", Type: "boolean", Default: "false", Observed: true,
-			Description: templ.Raw("Makes the control non-interactive. The trigger drops out of the tab order and ignores clicks and keys, and an open panel closes.")},
+			Description: templ.Raw("Makes the control non-interactive. The trigger drops out of the tab order and ignores clicks and keys, and an open panel closes. Any value counts, <code>\"false\"</code> included.")},
 		{Name: "placeholder", Type: "string", Observed: true,
 			Description: templ.Raw("Trigger text when nothing is selected.")},
 		{Name: "list", Type: "string", Observed: true,

@@ -95,8 +95,14 @@ function parseValue(value: string | null) {
 }
 
 export class NeoColorField extends HTMLElement {
+	static readonly formAssociated = true;
 	static readonly observedAttributes = ["value", "hue", "disabled"];
 
+	#internals = this.attachInternals();
+	// Set by a containing <fieldset disabled>, or by `disabled` present in any form.
+	#formDisabled = false;
+	// The color at first connect, which form reset restores.
+	#defaultValue: string | null = null;
 	#surface: HTMLElement | null = null;
 	#active: ActiveDrag | null = null;
 	#childObserver: MutationObserver | null = null;
@@ -120,6 +126,7 @@ export class NeoColorField extends HTMLElement {
 		this.#hueValue = this.hasAttribute("hue") ? clampHue(hueAttr) : hsv.h;
 		this.#xValue = hsv.s;
 		this.#yValue = 100 - hsv.v;
+		this.#defaultValue ??= this.value;
 		this.#sync(false);
 	}
 
@@ -163,10 +170,7 @@ export class NeoColorField extends HTMLElement {
 		// restore it once the morph settles so keyboard control survives.
 		const hadFocus = this === this.ownerDocument.activeElement;
 		if (name === "value") {
-			const hsv = parseValue(this.getAttribute("value") || DEFAULT_VALUE);
-			if (!this.hasAttribute("hue")) this.#hueValue = hsv.h;
-			this.#xValue = hsv.s;
-			this.#yValue = 100 - hsv.v;
+			this.#setColor(this.getAttribute("value") || DEFAULT_VALUE);
 		} else if (name === "hue") {
 			this.#hueValue = clampHue(Number(this.getAttribute("hue")));
 		}
@@ -174,12 +178,44 @@ export class NeoColorField extends HTMLElement {
 		if (hadFocus) this.#restoreFocusAfterMorph();
 	}
 
+	#setColor(hex: string) {
+		const hsv = parseValue(hex);
+		if (!this.hasAttribute("hue")) this.#hueValue = hsv.h;
+		this.#xValue = hsv.s;
+		this.#yValue = 100 - hsv.v;
+	}
+
+	get form(): HTMLFormElement | null {
+		return this.#internals.form;
+	}
+
+	formDisabledCallback(disabled: boolean) {
+		this.#formDisabled = disabled;
+		if (disabled) this.#endDrag();
+		if (this.#ready) this.#sync(false);
+	}
+
+	formResetCallback() {
+		this.#setColor(this.#defaultValue ?? DEFAULT_VALUE);
+		this.#sync(true);
+	}
+
+	formStateRestoreCallback(state: unknown) {
+		if (typeof state !== "string") return;
+		this.#setColor(state);
+		this.#sync(true);
+	}
+
+	#isDisabled(): boolean {
+		return this.#formDisabled || boolAttr(this, "disabled", false);
+	}
+
 	// Re-assert focus after a morph strips `tabindex` and blurs the host.
 	// Deferred to a microtask so it runs after the morph's attribute-removal
 	// pass; a no-op when focus never moved or the host is now disabled.
 	#restoreFocusAfterMorph() {
 		queueMicrotask(() => {
-			if (boolAttr(this, "disabled", false)) return;
+			if (this.#isDisabled()) return;
 			if (this === this.ownerDocument.activeElement) return;
 			this.#sync(false);
 			this.focus({ preventScroll: true });
@@ -240,10 +276,14 @@ export class NeoColorField extends HTMLElement {
 		this.setAttribute("aria-valuemax", "100");
 		this.setAttribute("aria-valuenow", String(Math.round(this.#xValue)));
 		this.setAttribute("aria-valuetext", color);
-		const disabled = boolAttr(this, "disabled", false);
-		this.toggleAttribute("aria-disabled", disabled);
-		if (disabled) this.setAttribute("tabindex", "-1");
-		else this.setAttribute("tabindex", "0");
+		this.#internals.setFormValue(color);
+		if (this.#isDisabled()) {
+			this.setAttribute("aria-disabled", "true");
+			this.setAttribute("tabindex", "-1");
+		} else {
+			this.removeAttribute("aria-disabled");
+			this.setAttribute("tabindex", "0");
+		}
 
 		if (reflect) {
 			this.#syncingValue = true;
@@ -281,7 +321,7 @@ export class NeoColorField extends HTMLElement {
 	}
 
 	#onPointerDown = (e: PointerEvent) => {
-		if (boolAttr(this, "disabled", false)) return;
+		if (this.#isDisabled()) return;
 		if (e.button !== 0) return;
 		e.preventDefault();
 		this.focus();
@@ -334,7 +374,7 @@ export class NeoColorField extends HTMLElement {
 	}
 
 	#onKeyDown = (e: KeyboardEvent) => {
-		if (boolAttr(this, "disabled", false)) return;
+		if (this.#isDisabled()) return;
 		let dx = 0;
 		let dy = 0;
 		const step = e.shiftKey ? 10 : 1;

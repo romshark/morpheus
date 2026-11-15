@@ -91,7 +91,7 @@ templ ComboboxAttrs(opts ComboboxOpts, attrs templ.Attributes) {
 	<neo-combobox
 		{ opts.Value.Attrs("value")... }
 		{ opts.Name.Attrs("name")... }
-		{ opts.Disabled.Attrs("disabled")... }
+		{ presenceAttrs(opts.Disabled, "disabled")... }
 		{ opts.Size.Attrs("size")... }
 		{ opts.List.Attrs("list")... }
 		{ opts.Placeholder.Attrs("placeholder")... }

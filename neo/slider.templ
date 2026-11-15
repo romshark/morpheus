@@ -14,6 +14,7 @@ templ Slider[N Number](opts SliderOpts[N]) {
 // SliderAttrs is [Slider] with an extra attribute set.
 templ SliderAttrs[N Number](opts SliderOpts[N], attrs templ.Attributes) {
 	<neo-slider
+		{ opts.Name.Attrs("name")... }
 		{ opts.Min.Attrs("min")... }
 		{ opts.Max.Attrs("max")... }
 		{ opts.Step.Attrs("step")... }

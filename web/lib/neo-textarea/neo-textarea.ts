@@ -4,6 +4,7 @@
 // (border, background, resize handle); the field fills it.
 
 import { boolAttr } from "../command";
+import { mirrorName, NAME_ATTRS, queueNameSync } from "../label-name";
 
 // Standard <textarea> attributes mirrored verbatim to the inner field.
 // `name` is intentionally absent because the host is the form-associated
@@ -28,12 +29,9 @@ const PASSTHROUGH_ATTRS = [
 	"spellcheck",
 	"autocapitalize",
 	"inputmode",
-	// A host-level accessible name must be forwarded because the field is in
-	// the shadow root; the host itself isn't the focusable control.
-	"aria-label",
-	"aria-labelledby",
-	"aria-describedby",
 ];
+
+const DESCRIPTION_ID = "description";
 
 const TEMPLATE = document.createElement("template");
 // Shadow CSS notes, kept out of the template string so the minifier drops
@@ -95,6 +93,7 @@ TEMPLATE.innerHTML = `
   }
 </style>
 <textarea></textarea>
+<span id="${DESCRIPTION_ID}" hidden></span>
 `;
 
 export class NeoTextarea extends HTMLElement {
@@ -107,10 +106,12 @@ export class NeoTextarea extends HTMLElement {
 		"scale-horizontal",
 		"scale-vertical",
 		...PASSTHROUGH_ATTRS,
+		...NAME_ATTRS,
 	];
 
 	#internals: ElementInternals;
 	#textarea!: HTMLTextAreaElement;
+	#description: HTMLElement;
 	#resizeObserver: ResizeObserver | null = null;
 	#ready = false;
 
@@ -120,6 +121,7 @@ export class NeoTextarea extends HTMLElement {
 		const root = this.attachShadow({ mode: "open" });
 		root.appendChild(TEMPLATE.content.cloneNode(true));
 		this.#textarea = root.querySelector("textarea")!;
+		this.#description = root.getElementById(DESCRIPTION_ID)!;
 	}
 
 	get value(): string {
@@ -156,10 +158,12 @@ export class NeoTextarea extends HTMLElement {
 		if (this.#ready) return;
 		this.#ready = true;
 		this.#textarea.addEventListener("input", this.#onInput);
+		this.#textarea.addEventListener("focus", this.#syncName);
 		// Container resize can change percentage-based caps.
 		this.#resizeObserver = new ResizeObserver(this.#autoResize);
 		this.#resizeObserver.observe(this);
 		this.#syncPassthrough();
+		queueNameSync(this, this.#syncName);
 		this.#textarea.value = this.getAttribute("value") ?? "";
 		this.#internals.setFormValue(this.#textarea.value);
 		this.#syncAll();
@@ -168,6 +172,7 @@ export class NeoTextarea extends HTMLElement {
 	disconnectedCallback() {
 		this.#ready = false;
 		this.#textarea.removeEventListener("input", this.#onInput);
+		this.#textarea.removeEventListener("focus", this.#syncName);
 		this.#resizeObserver?.disconnect();
 		this.#resizeObserver = null;
 	}
@@ -186,6 +191,10 @@ export class NeoTextarea extends HTMLElement {
 			}
 			return;
 		}
+		if (NAME_ATTRS.includes(name)) {
+			queueNameSync(this, this.#syncName);
+			return;
+		}
 		if (PASSTHROUGH_ATTRS.includes(name)) {
 			this.#syncOnePassthrough(name);
 			// rows / cols / wrap change the field's intrinsic size.
@@ -202,6 +211,10 @@ export class NeoTextarea extends HTMLElement {
 	formResetCallback() {
 		this.value = this.getAttribute("value") ?? "";
 	}
+
+	#syncName = () => {
+		mirrorName(this, this.#internals.labels, [this.#textarea], this.#description);
+	};
 
 	#onInput = () => {
 		this.#internals.setFormValue(this.#textarea.value);

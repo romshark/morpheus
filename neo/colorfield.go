@@ -1,6 +1,7 @@
 package neo
 
 type ColorFieldOpts[N Number] struct {
+	Name Attr[string]
 	// Value is a #rrggbb color.
 	Value Attr[string]
 	// Hue is optional; when set it controls the field's base hue while

@@ -84,7 +84,7 @@ templ SelectAttrs(opts SelectOpts, attrs templ.Attributes) {
 	<neo-select
 		{ opts.Value.Attrs("value")... }
 		{ opts.Name.Attrs("name")... }
-		{ opts.Disabled.Attrs("disabled")... }
+		{ presenceAttrs(opts.Disabled, "disabled")... }
 		{ opts.Size.Attrs("size")... }
 		{ opts.List.Attrs("list")... }
 		{ opts.Placeholder.Attrs("placeholder")... }

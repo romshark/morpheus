@@ -358,6 +358,12 @@ var toggleGroupDoc = ComponentDoc{
 			Description: templ.Raw("Comma-separated active child values. A child value must not contain a comma; the separator is unescaped. Use <code>neo-buttongroup</code> for a single selected value.")},
 		{Name: "orientation", Type: `"horizontal" | "vertical"`, Default: "horizontal",
 			Description: templ.Raw("Layout axis only. All 4 arrow keys move focus regardless of orientation.")},
+		{Name: "name", Type: "string",
+			Description: templ.Raw("Form field name. Each active value is submitted under it, like <code>&lt;select multiple&gt;</code>.")},
+		{Name: "disabled", Type: "boolean", Default: "false", Observed: true,
+			Description: templ.Raw("Disables every child toggle and leaves the group out of form data. Any value counts, <code>\"false\"</code> included.")},
+		{Name: "required", Type: "boolean", Default: "false", Observed: true,
+			Description: templ.Raw("Makes the form invalid while no toggle is active.")},
 	},
 	Events: []DocEvent{
 		{Name: "neo-toggle-group-change", Detail: "{ value: string, values: string[] }", Bubbles: true,

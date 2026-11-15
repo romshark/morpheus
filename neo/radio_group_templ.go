@@ -10,6 +10,8 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 type RadioGroupOpts struct {
+	// Name is the form field name; the selected radio's value is submitted under it.
+	Name Attr[string]
 	// Value seeds the initially-checked radio's value.
 	Value Attr[string]
 	// Orientation is "" (vertical, default) or "horizontal". A display
@@ -19,6 +21,8 @@ type RadioGroupOpts struct {
 	// Disabled disables every nested radio (per-radio disabled is
 	// honoured independently).
 	Disabled Attr[bool]
+	// Required makes the owning form invalid while no radio is selected.
+	Required Attr[bool]
 	// AutoActivate selects a radio on focus (arrow keys) rather than
 	// requiring Enter / Space. Off by default (manual activation).
 	AutoActivate Attr[bool]
@@ -101,6 +105,10 @@ func RadioGroupAttrs(opts RadioGroupOpts, attrs templ.Attributes) templ.Componen
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
+			templ_7745c5c3_Err = templruntime.RenderAttributes(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_ElementWriter, "neo-radio-group", opts.Name.Attrs("name"))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
 			templ_7745c5c3_Err = templruntime.RenderAttributes(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_ElementWriter, "neo-radio-group", opts.Value.Attrs("value"))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -109,7 +117,11 @@ func RadioGroupAttrs(opts RadioGroupOpts, attrs templ.Attributes) templ.Componen
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.RenderAttributes(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_ElementWriter, "neo-radio-group", opts.Disabled.Attrs("disabled"))
+			templ_7745c5c3_Err = templruntime.RenderAttributes(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_ElementWriter, "neo-radio-group", presenceAttrs(opts.Disabled, "disabled"))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.RenderAttributes(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_ElementWriter, "neo-radio-group", opts.Required.Attrs("required"))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

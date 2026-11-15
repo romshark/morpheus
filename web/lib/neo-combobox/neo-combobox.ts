@@ -3,6 +3,7 @@
 // options live instead of cloned.
 
 import { boolAttr } from "../command";
+import { describe, hostDescription, hostName, NAME_ATTRS, queueNameSync } from "../label-name";
 import {
 	cloneAsyncPlaceholder,
 	cloneTemplateSource,
@@ -363,6 +364,7 @@ COMBOBOX_SHADOW_TEMPLATE.innerHTML = `
     <slot name="options"></slot>
   </div>
 </div>
+<span id="description" hidden></span>
 `;
 
 export class NeoCombobox extends NeoListbox {
@@ -374,7 +376,7 @@ export class NeoCombobox extends NeoListbox {
 		"multiple",
 		"placeholder",
 		"search-placeholder",
-		"aria-label",
+		...NAME_ATTRS,
 		"caret",
 		"list",
 		...POPOVER_ATTRS,
@@ -420,6 +422,7 @@ export class NeoCombobox extends NeoListbox {
 		this.trigger.addEventListener("click", this.#onTriggerClick);
 		this.trigger.addEventListener("keydown", this.#onTriggerKeyDown);
 		this.trigger.addEventListener("focus", this.onTriggerFocus);
+		this.trigger.addEventListener("focus", this.#syncName);
 		this.trigger.addEventListener("blur", this.onTriggerBlur);
 		this.#input.addEventListener("input", this.#onSearchInput);
 		this.#input.addEventListener("input", this.#onInputSnapshot);
@@ -452,6 +455,7 @@ export class NeoCombobox extends NeoListbox {
 		this.withLightDomObserverPaused(() => {
 			this.#cacheTemplates();
 			this.#syncA11y();
+			queueNameSync(this, this.#syncName);
 			this.#syncOptionSlot();
 			this.#syncOptions();
 			this.#applyValuesFromAttr();
@@ -472,6 +476,7 @@ export class NeoCombobox extends NeoListbox {
 		this.trigger?.removeEventListener("click", this.#onTriggerClick);
 		this.trigger?.removeEventListener("keydown", this.#onTriggerKeyDown);
 		this.trigger?.removeEventListener("focus", this.onTriggerFocus);
+		this.trigger?.removeEventListener("focus", this.#syncName);
 		this.trigger?.removeEventListener("blur", this.onTriggerBlur);
 		this.#input?.removeEventListener("input", this.#onSearchInput);
 		this.#input?.removeEventListener("input", this.#onInputSnapshot);
@@ -526,6 +531,10 @@ export class NeoCombobox extends NeoListbox {
 		}
 		if (name === "aria-label") {
 			this.#syncA11y();
+			return;
+		}
+		if (name === "aria-labelledby" || name === "aria-describedby") {
+			queueNameSync(this, this.#syncName);
 			return;
 		}
 		if (name === "caret") {
@@ -768,18 +777,26 @@ export class NeoCombobox extends NeoListbox {
 		this.#dispatchLoad();
 	}
 
-	#syncA11y() {
-		this.#input.placeholder = this.getAttribute("search-placeholder") ?? "Search…";
-		const label = this.getAttribute("aria-label");
-		if (label) {
-			this.trigger.setAttribute("aria-label", label);
-			this.#optionsEl.setAttribute("aria-label", label);
-			this.#input.setAttribute("aria-label", `${label}: search`);
+	// The trigger and search field sit in the shadow root, where light-DOM ids
+	// and labels don't resolve. Without a name the trigger reads its selected
+	// label.
+	#syncName = () => {
+		const name = hostName(this, this.internals.labels);
+		if (name) {
+			this.trigger.setAttribute("aria-label", name);
+			this.#optionsEl.setAttribute("aria-label", name);
+			this.#input.setAttribute("aria-label", `${name}: search`);
 		} else {
 			this.trigger.removeAttribute("aria-label");
 			this.#optionsEl.removeAttribute("aria-label");
 			this.#input.setAttribute("aria-label", "Search");
 		}
+		describe([this.trigger, this.#input], this.shadowRoot!.getElementById("description")!, hostDescription(this));
+	};
+
+	#syncA11y() {
+		this.#input.placeholder = this.getAttribute("search-placeholder") ?? "Search…";
+		this.#syncName();
 		if (this.id) {
 			const listID = `${this.id}-list`;
 			this.listEl.id = listID;
