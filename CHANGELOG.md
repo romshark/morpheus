@@ -4,6 +4,12 @@ This file records the notable changes of each release in the format of [Keep a C
 
 ## [Unreleased]
 
+### Changed
+
+#### Templ wrappers
+
+- Require templ v0.3.1118 in the `neo` and `datastar` packages. Upgrade the templ CLI to the same version and regenerate.
+
 ## [0.4.0] - 2026-11-13
 
 ### Added
