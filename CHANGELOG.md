@@ -17,6 +17,13 @@ This file records the notable changes of each release in the format of [Keep a C
 
 - Require templ v0.3.1118 in the `neo` and `datastar` packages. Upgrade the templ CLI to the same version and regenerate.
 
+### Fixed
+
+#### Components
+
+- Follow a right-to-left `dir` in `<neo-tabs>`, `<neo-radio-group>`, `<neo-toggle-group>`, `<neo-buttongroup>`, `<neo-tree>`, `<neo-menu>`, `<neo-submenu>`, `<neo-carousel>`, `<neo-sortable>`, `<neo-slider>`, `<neo-slider-range>`, `<neo-progress>`, `<neo-switch>`, `<neo-pagination>` and `<neo-input-group>`. Left and Right arrows moved the wrong way, and fills, thumbs, rounded corners and chevrons stayed left to right.
+- Mirror the `*-start` and `*-end` placements of popovers, selects, comboboxes, menus and text input suggestions in a right-to-left context. They aligned to the left edge.
+
 ## [0.4.0] - 2026-11-13
 
 ### Added

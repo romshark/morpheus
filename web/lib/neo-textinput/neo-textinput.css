@@ -215,10 +215,11 @@ input[type="file"]::file-selector-button {
 	border: none;
 	/* Separator so the button reads as an attached addon,
 	 * not part of the filename strip. */
-	border-right: 1px solid var(--neo-textarea-border-color);
+	border-inline-end: 1px solid var(--neo-textarea-border-color);
 	border-radius: 0;
 	padding: var(--neo-textarea-padding);
-	margin: 0 0.75rem 0 0;
+	margin: 0;
+	margin-inline-end: 0.75rem;
 	cursor: pointer;
 	transition: background-color var(--neo-duration-hover, calc(120ms * var(--neo-duration-scale, 1)))
 		var(--neo-easing, ease);

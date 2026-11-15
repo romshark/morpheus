@@ -159,6 +159,12 @@ neo-slider > [data-neo-slider-track] > [data-neo-slider-fill] {
 	border-radius: inherit;
 }
 
+/* Right to left, min sits at the right edge and the fill grows leftward.
+ * Before the vertical rule, which wins at equal specificity. */
+neo-slider:dir(rtl) > [data-neo-slider-track] > [data-neo-slider-fill] {
+	inset: 0 0 0 auto;
+}
+
 neo-slider[vertical]:where(:not([vertical="false"])) > [data-neo-slider-track] > [data-neo-slider-fill] {
 	inset: auto 0 0 0;
 }

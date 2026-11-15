@@ -1,4 +1,5 @@
 import { boolAttr, warnBadAxis } from "../command";
+import { logicalArrow } from "../direction";
 import { setAttrIfChanged } from "../neo-morph-resilient";
 
 export class NeoButtonGroup extends HTMLElement {
@@ -197,7 +198,7 @@ export class NeoButtonGroup extends HTMLElement {
 		const currentIdx = items.indexOf(active as HTMLElement);
 
 		let nextIdx = -1;
-		switch (e.key) {
+		switch (logicalArrow(this, e.key)) {
 			case "ArrowLeft":
 			case "ArrowUp":
 				nextIdx = currentIdx <= 0 ? items.length - 1 : currentIdx - 1;

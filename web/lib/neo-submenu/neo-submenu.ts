@@ -1,4 +1,5 @@
 import { boolAttr, openCommand } from "../command";
+import { isRTL, logicalArrow } from "../direction";
 import { type Placement, positionPanel, resolveCssLengthPx, resolveCssLengthPxOrContent } from "../neo-position";
 import { eventEnters, scopingBoundary } from "../shadow-utils";
 
@@ -445,7 +446,8 @@ export class NeoSubmenu extends HTMLElement {
 
 	#onHostKeyDown = (e: KeyboardEvent) => {
 		if (e.target !== this.#triggerRow) return;
-		if (e.key === "ArrowRight" || e.key === "Enter" || e.key === " ") {
+		const key = logicalArrow(this, e.key);
+		if (key === "ArrowRight" || key === "Enter" || key === " ") {
 			e.preventDefault();
 			this.show();
 		}
@@ -458,7 +460,7 @@ export class NeoSubmenu extends HTMLElement {
 		if (deepestPanel !== this.#panel) return;
 
 		let handled = false;
-		switch (e.key) {
+		switch (logicalArrow(this, e.key)) {
 			case "ArrowDown":
 				this.#moveFocus(+1);
 				handled = true;
@@ -552,7 +554,9 @@ export class NeoSubmenu extends HTMLElement {
 			return;
 		}
 		this.#panel.style.zIndex = `calc(var(--neo-menu-z-index) + ${this.#cascadeDepth()})`;
-		const placement = (this.getAttribute("placement") as Placement | null) ?? "right-start";
+		// The default opens toward the inline end, which is left right to left.
+		const placement =
+			(this.getAttribute("placement") as Placement | null) ?? (isRTL(this) ? "left-start" : "right-start");
 		const parent = this.#parentMenu();
 		const clamp =
 			boolAttr(this, "clamp-placement", false) || (parent ? boolAttr(parent, "clamp-placement", false) : false);

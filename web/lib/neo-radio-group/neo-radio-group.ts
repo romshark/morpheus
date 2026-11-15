@@ -1,4 +1,5 @@
 import { boolAttr, warnBadAxis } from "../command";
+import { logicalArrow } from "../direction";
 import { nameFromLabel } from "../label-name";
 import { observeManagedAttrs, setAttrIfChanged } from "../neo-morph-resilient";
 
@@ -306,7 +307,8 @@ export class NeoRadioGroup extends HTMLElement {
 		const idx = enabled.indexOf(target);
 		if (idx === -1) return;
 		e.preventDefault();
-		const dir = e.key === "ArrowDown" || e.key === "ArrowRight" ? +1 : -1;
+		const key = logicalArrow(this, e.key);
+		const dir = key === "ArrowDown" || key === "ArrowRight" ? +1 : -1;
 		const next = enabled[(idx + dir + enabled.length) % enabled.length];
 		next.focus();
 		// Manual activation by default (like neo-tabs). Arrows only move

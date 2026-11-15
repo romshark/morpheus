@@ -19,11 +19,11 @@ neo-buttongroup > neo-button {
 /* Keep every button's full border and overlap adjacent edges. This gives
  * hover/selection a border to repaint without changing control geometry. */
 neo-buttongroup > * + * {
-	margin-left: -1px;
+	margin-inline-start: -1px;
 }
 
 /* Primary's default `border-color: transparent` would leave no
- * divider on its right edge. Set it to its own bg. */
+ * divider on its inline-end edge. Set it to its own bg. */
 neo-buttongroup > neo-button[variant="primary"] {
 	border-color: var(--neo-button-primary-bg);
 }
@@ -38,11 +38,15 @@ neo-buttongroup > neo-button:only-child {
 }
 
 neo-buttongroup > neo-button:first-child:not(:last-child) {
-	border-radius: var(--neo-button-radius) 0 0 var(--neo-button-radius);
+	border-radius: 0;
+	border-start-start-radius: var(--neo-button-radius);
+	border-end-start-radius: var(--neo-button-radius);
 }
 
 neo-buttongroup > neo-button:last-child:not(:first-child) {
-	border-radius: 0 var(--neo-button-radius) var(--neo-button-radius) 0;
+	border-radius: 0;
+	border-start-end-radius: var(--neo-button-radius);
+	border-end-end-radius: var(--neo-button-radius);
 }
 
 neo-buttongroup > neo-button:not(:first-child):not(:last-child) {
@@ -80,14 +84,14 @@ neo-buttongroup[value]
 	transform: translateY(0);
 }
 
-/* Vertical orientation stacks, resets the left-radius rules and applies
+/* Vertical orientation stacks, resets the inline-start radius rules and applies
  * top/bottom ones. */
 neo-buttongroup[orientation="vertical"] {
 	flex-direction: column;
 }
 
 neo-buttongroup[orientation="vertical"] > * + * {
-	margin-left: 0;
+	margin-inline-start: 0;
 	margin-top: -1px;
 }
 
@@ -119,6 +123,9 @@ neo-buttongroup[orientation="vertical"] > neo-button:only-child {
 	neo-buttongroup > neo-button:not(:last-child) {
 		box-shadow: inset -1px 0 0 var(--neo-button-color);
 	}
+	neo-buttongroup:dir(rtl) > neo-button:not(:last-child) {
+		box-shadow: inset 1px 0 0 var(--neo-button-color);
+	}
 	neo-buttongroup[orientation="vertical"] > neo-button:not(:last-child) {
 		box-shadow: inset 0 -1px 0 var(--neo-button-color);
 	}
@@ -131,6 +138,10 @@ neo-buttongroup[orientation="vertical"] > neo-button:only-child {
 
 :root[data-pref-contrast-more] neo-buttongroup > neo-button:not(:last-child) {
 	box-shadow: inset -1px 0 0 var(--neo-button-color);
+}
+
+:root[data-pref-contrast-more] neo-buttongroup:dir(rtl) > neo-button:not(:last-child) {
+	box-shadow: inset 1px 0 0 var(--neo-button-color);
 }
 
 :root[data-pref-contrast-more] neo-buttongroup[orientation="vertical"] > neo-button:not(:last-child) {

@@ -2,6 +2,7 @@
 // They anchor a fixed-position panel to a trigger and clamp it to the viewport.
 
 import { boolAttr } from "./command";
+import { isRTL } from "./direction";
 import { boundaryRect, scopingBoundary } from "./shadow-utils";
 
 export type Placement =
@@ -127,6 +128,8 @@ export function positionPanelResult(
 	triggerGap: number,
 	opts: PositionOptions = {},
 ): PositionResult {
+	const rtl = isRTL(anchor);
+	if (rtl) placement = mirrorInline(placement);
 	const clamp = !!opts.clamp;
 	const minOpenHeight = Math.max(0, opts.minOpenHeight ?? 0);
 	const minOpenWidth = Math.max(0, opts.minOpenWidth ?? 0);
@@ -245,7 +248,8 @@ export function positionPanelResult(
 	panel.style.left = `${left}px`;
 	const isVertical = placement.startsWith("bottom") || placement.startsWith("top");
 	return {
-		placement,
+		// Reported in the author's logical names; mirrorInline is its own inverse.
+		placement: rtl ? mirrorInline(placement) : placement,
 		fitsFitSize: isVertical
 			? minFitHeight === 0 || availableHeight >= minFitHeight
 			: minFitWidth === 0 || availableWidth >= minFitWidth,
@@ -327,6 +331,24 @@ function placementCoords(
 			break;
 	}
 	return { top, left };
+}
+
+// `start` and `end` on the top and bottom sides follow the direction, which
+// puts `start` at the right edge right to left. `left` and `right` stay
+// physical.
+function mirrorInline(p: Placement): Placement {
+	switch (p) {
+		case "bottom-start":
+			return "bottom-end";
+		case "bottom-end":
+			return "bottom-start";
+		case "top-start":
+			return "top-end";
+		case "top-end":
+			return "top-start";
+		default:
+			return p;
+	}
 }
 
 /** Flip the primary axis of a placement (bottom<->top, left<->right),

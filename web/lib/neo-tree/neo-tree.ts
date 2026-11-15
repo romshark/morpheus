@@ -4,6 +4,7 @@
 // morph can't reconcile it away either.
 
 import { boolCommand } from "../command";
+import { logicalArrow } from "../direction";
 
 const TREE_TEMPLATE = document.createElement("template");
 TREE_TEMPLATE.innerHTML = `<slot></slot>`;
@@ -16,6 +17,8 @@ const ITEM_TEMPLATE = document.createElement("template");
 //   icon; rotating a folder/file icon looks wrong. Authors who want their
 //   icon to swap on expand can target
 //   :host([expanded]) ::slotted([slot="icon"]) themselves.
+// - :host(:dir(rtl)) [data-neo-tree-chevron]: right to left the chevron
+//   points left and turns the other way to point down.
 // - The chevron span + animation wrapper are hidden via inline style on the
 //   shadow elements; #assignSlots toggles them.
 // - [data-neo-tree-children]: animation wrapper, the grid 0fr -> 1fr trick.
@@ -63,6 +66,12 @@ ITEM_TEMPLATE.innerHTML = `
   }
   :host([expanded]) [data-neo-tree-chevron]:not(.has-user-icon) {
     transform: rotate(90deg);
+  }
+  :host(:dir(rtl)) [data-neo-tree-chevron]:not(.has-user-icon) neo-icon {
+    transform: scaleX(-1);
+  }
+  :host(:dir(rtl)[expanded]) [data-neo-tree-chevron]:not(.has-user-icon) {
+    transform: rotate(-90deg);
   }
   [data-neo-tree-children] {
     display: grid;
@@ -218,7 +227,7 @@ export class NeoTree extends HTMLElement {
 
 		let target: HTMLElement | null = null;
 
-		switch (e.key) {
+		switch (logicalArrow(this, e.key)) {
 			case "ArrowDown":
 				target = nextVisible(item, this);
 				break;

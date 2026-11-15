@@ -9,6 +9,13 @@
 // `data-neo-mark-value`, `data-neo-mark-edge` and `data-neo-active` are
 // the same literal names on both components. Only the prefixed inputs /
 // markup attributes differ, and the per-component names come from cfg.
+//
+// A horizontal rail runs right to left in a right-to-left context. Dots and
+// labels then take mirrored `left` percentages, and `data-neo-mark-edge`
+// names the screen edge (start = left, end = right), which keeps the
+// centring and edge-flush CSS direction-free.
+
+import { isRTL } from "./direction";
 
 export interface MarkSpec {
 	value: number;
@@ -104,6 +111,9 @@ export function renderMarks(
 
 	const span = max - min;
 	if (span <= 0) return;
+	const mirror = !vertical && isRTL(trackEl);
+	const minEdge = mirror ? "end" : "start";
+	const maxEdge = mirror ? "start" : "end";
 
 	let hasAnyLabel = false;
 	for (const mark of marks) {
@@ -116,10 +126,10 @@ export function renderMarks(
 		dot.setAttribute("data-neo-mark-value", String(mark.value));
 		// Tag at-min/at-max dots so CSS can flush them inward; otherwise
 		// the centering transform leaves half the dot outside the rail.
-		if (mark.value === min) dot.setAttribute("data-neo-mark-edge", "start");
-		else if (mark.value === max) dot.setAttribute("data-neo-mark-edge", "end");
+		if (mark.value === min) dot.setAttribute("data-neo-mark-edge", minEdge);
+		else if (mark.value === max) dot.setAttribute("data-neo-mark-edge", maxEdge);
 		if (vertical) dot.style.bottom = `${pct}%`;
-		else dot.style.left = `${pct}%`;
+		else dot.style.left = `${mirror ? 100 - pct : pct}%`;
 		if (opts.anchorTemplate) {
 			dot.appendChild(opts.anchorTemplate.cloneNode(true));
 		}
@@ -131,12 +141,12 @@ export function renderMarks(
 			label.setAttribute(cfg.markLabelAttr, "");
 			label.setAttribute("data-neo-mark-value", String(mark.value));
 			if (vertical) label.style.top = `${100 - pct}%`;
-			else label.style.left = `${pct}%`;
+			else label.style.left = `${mirror ? 100 - pct : pct}%`;
 			// Tag at-min/at-max labels so CSS can flush them to the
 			// start/end of the rail; otherwise half the label clips
 			// outside the component's bounding box.
-			if (mark.value === min) label.setAttribute("data-neo-mark-edge", "start");
-			else if (mark.value === max) label.setAttribute("data-neo-mark-edge", "end");
+			if (mark.value === min) label.setAttribute("data-neo-mark-edge", minEdge);
+			else if (mark.value === max) label.setAttribute("data-neo-mark-edge", maxEdge);
 			label.innerHTML = mark.labelHtml;
 			marksEl.appendChild(label);
 		}

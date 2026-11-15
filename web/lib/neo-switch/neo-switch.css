@@ -72,11 +72,16 @@ neo-switch[checked]:where(:not([checked="false"])) {
 	background: var(--neo-switch-track-on);
 }
 
-/* Place the thumb so the right-edge gap on `[checked]` matches the
- * left-edge gap when unchecked (= the border width). Inner travel is
+/* Place the thumb so the end-edge gap on `[checked]` matches the
+ * start-edge gap when unchecked (= the border width). Inner travel is
  * (outer-width - 2*border-width - thumb-width). 100% here is the thumb's own width. */
 neo-switch[checked]:where(:not([checked="false"]))::before {
 	transform: translateX(calc(var(--neo-switch-width) - 2 * var(--neo-switch-border-width) - 100%));
+}
+
+/* Right to left, the thumb starts at the right edge and travels left. */
+neo-switch:dir(rtl)[checked]:where(:not([checked="false"]))::before {
+	transform: translateX(calc(100% + 2 * var(--neo-switch-border-width) - var(--neo-switch-width)));
 }
 
 neo-switch:focus-visible {
@@ -146,11 +151,14 @@ neo-switch[size="sm"] {
 		--neo-switch-thumb-size: var(--neo-switch-height);
 	}
 	neo-switch::before {
-		margin-left: calc(-1 * var(--neo-switch-border-width));
+		margin-inline-start: calc(-1 * var(--neo-switch-border-width));
 		box-shadow: inset 0 0 0 2px currentColor;
 	}
 	neo-switch[checked]:where(:not([checked="false"]))::before {
 		transform: translateX(calc(var(--neo-switch-width) - 100%));
+	}
+	neo-switch:dir(rtl)[checked]:where(:not([checked="false"]))::before {
+		transform: translateX(calc(100% - var(--neo-switch-width)));
 	}
 	neo-switch[checked]:where(:not([checked="false"])) {
 		border-color: var(--accent);
@@ -165,18 +173,21 @@ neo-switch[size="sm"] {
 	 * border, reading as a single continuous outline. */
 	--neo-switch-thumb-size: var(--neo-switch-height);
 }
-/* Thumb extends into the border region on the left (and right when checked)
+/* Thumb extends into the border region at the inline start (and end when checked)
  * so it touches the switch's outer boundary, not the inner track edge.
- * Negative margin-left shifts the natural position by 1 border-width;
+ * Negative margin-inline-start shifts the natural position by 1 border-width;
  * the [checked] translate restores the full outer-width travel.
  * inset box-shadow (not outline) keeps the 2px thumb border following the circle
  * and coinciding cleanly with the switch's outer 2px border at the extremes. */
 :root[data-pref-contrast-more] neo-switch::before {
-	margin-left: calc(-1 * var(--neo-switch-border-width));
+	margin-inline-start: calc(-1 * var(--neo-switch-border-width));
 	box-shadow: inset 0 0 0 2px currentColor;
 }
 :root[data-pref-contrast-more] neo-switch[checked]:where(:not([checked="false"]))::before {
 	transform: translateX(calc(var(--neo-switch-width) - 100%));
+}
+:root[data-pref-contrast-more] neo-switch:dir(rtl)[checked]:where(:not([checked="false"]))::before {
+	transform: translateX(calc(100% - var(--neo-switch-width)));
 }
 :root[data-pref-contrast-more] neo-switch[checked]:where(:not([checked="false"])) {
 	border-color: var(--accent);

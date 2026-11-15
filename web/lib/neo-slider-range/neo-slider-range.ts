@@ -4,6 +4,7 @@
 // runs instead of rebuilding and snapping.
 
 import { boolAttr } from "../command";
+import { isRTL, logicalArrow } from "../direction";
 import { setState } from "../internal-state";
 import {
 	collectMarks,
@@ -117,6 +118,7 @@ export class NeoSliderRange extends HTMLElement {
 	// Track rect captured at drag start; reused each move so a captured pointer
 	// doesn't force a layout flush per frame. Refreshed on scroll/resize.
 	#dragTrackRect: DOMRect | null = null;
+	#dragMirrored = false;
 	// Follow-drag baseline. The side whose tooltip follows the thumb, and that
 	// thumb's position (%) when the drag crossed its threshold (see #syncValues).
 	#followSide: Side | null = null;
@@ -701,6 +703,7 @@ export class NeoSliderRange extends HTMLElement {
 		// Bound for the element's lifetime; only a live drag caches a rect to
 		// refresh. Skip the getBoundingClientRect (a forced layout) otherwise.
 		if (this.#dragPointerId === null || !this.#trackEl) return;
+		this.#dragMirrored = !this.#isVertical() && isRTL(this);
 		this.#dragTrackRect = this.#trackEl.getBoundingClientRect();
 	};
 
@@ -805,6 +808,14 @@ export class NeoSliderRange extends HTMLElement {
 		return boolAttr(this, ATTR_VERTICAL, false);
 	}
 
+	// A horizontal rail runs right to left in a right-to-left context, which
+	// puts min at the right edge. A drag reads it once with the track rect,
+	// which keeps style reads off the per-frame path.
+	#mirrored(): boolean {
+		if (this.#dragTrackRect) return this.#dragMirrored;
+		return !this.#isVertical() && isRTL(this);
+	}
+
 	#syncValues() {
 		const lo = this.valueMin;
 		const hi = this.valueMax;
@@ -860,21 +871,25 @@ export class NeoSliderRange extends HTMLElement {
 				this.#thumbMaxEl.style.bottom = `${hiPct}%`;
 			}
 		} else {
+			// Screen percentages from the left edge.
+			const mirror = this.#mirrored();
+			const loX = mirror ? 100 - loPct : loPct;
+			const hiX = mirror ? 100 - hiPct : hiPct;
 			if (this.#fillEl) {
 				this.#fillEl.style.top = "";
 				this.#fillEl.style.bottom = "";
 				this.#fillEl.style.height = "";
-				this.#fillEl.style.left = `${loPct}%`;
-				this.#fillEl.style.right = `${100 - hiPct}%`;
+				this.#fillEl.style.left = `${Math.min(loX, hiX)}%`;
+				this.#fillEl.style.right = `${100 - Math.max(loX, hiX)}%`;
 				this.#fillEl.style.width = "";
 			}
 			if (this.#thumbMinEl) {
 				this.#thumbMinEl.style.bottom = "";
-				this.#thumbMinEl.style.left = `${loPct}%`;
+				this.#thumbMinEl.style.left = `${loX}%`;
 			}
 			if (this.#thumbMaxEl) {
 				this.#thumbMaxEl.style.bottom = "";
-				this.#thumbMaxEl.style.left = `${hiPct}%`;
+				this.#thumbMaxEl.style.left = `${hiX}%`;
 			}
 		}
 
@@ -888,7 +903,7 @@ export class NeoSliderRange extends HTMLElement {
 			ctrl?.setText(side === "min" ? loFmt : hiFmt);
 			const move = (this.#valuePct(side === "min" ? lo : hi) - this.#followBasePct) / 100;
 			if (this.#isVertical()) ctrl?.nudge(0, -move * this.#dragTrackRect.height);
-			else ctrl?.nudge(move * this.#dragTrackRect.width, 0);
+			else ctrl?.nudge((this.#mirrored() ? -move : move) * this.#dragTrackRect.width, 0);
 		} else {
 			if (this.#tooltipMinCtrl) {
 				this.#tooltipMinCtrl.setText(loFmt);
@@ -1001,7 +1016,7 @@ export class NeoSliderRange extends HTMLElement {
 		if (!this.#dragStarted || kind === "change") this.#reflectValues();
 		this.#syncValues();
 		// `input` is the live mid-drag value; `change` is the committed value
-		// (drag end, mark click, keyboard, field edit). See DESIGN.md Events.
+		// (drag end, mark click, keyboard, field edit).
 		this.dispatchEvent(
 			new CustomEvent(kind === "change" ? "neo-slider-range-change" : "neo-slider-range-input", {
 				bubbles: true,
@@ -1130,7 +1145,7 @@ export class NeoSliderRange extends HTMLElement {
 		const cur = side === "min" ? this.valueMin : this.valueMax;
 		const big = this.step * 10;
 		let next: number | null = null;
-		switch (e.key) {
+		switch (this.#isVertical() ? e.key : logicalArrow(this, e.key)) {
 			case "ArrowLeft":
 			case "ArrowDown":
 				next = cur - this.step;
@@ -1242,6 +1257,7 @@ export class NeoSliderRange extends HTMLElement {
 		e.preventDefault();
 		// Cache the track rect for the whole drag (see #valueAtPointer); set it
 		// before the first #valueAtPointer call.
+		this.#dragMirrored = !this.#isVertical() && isRTL(this);
 		this.#dragTrackRect = this.#trackEl.getBoundingClientRect();
 		const valueAtClick = this.#valueAtPointer(e.clientX, e.clientY);
 		const which = this.#pickThumb(e.target, valueAtClick);
@@ -1349,7 +1365,9 @@ export class NeoSliderRange extends HTMLElement {
 		const vertical = this.#isVertical();
 		const spanPx = vertical ? rect.height : rect.width;
 		if (spanPx <= 0) return this.min;
-		const t = vertical ? (rect.bottom - clientY) / spanPx : (clientX - rect.left) / spanPx;
+		let t = (clientX - rect.left) / spanPx;
+		if (vertical) t = (rect.bottom - clientY) / spanPx;
+		else if (this.#mirrored()) t = (rect.right - clientX) / spanPx;
 		const clamped = Math.min(1, Math.max(0, t));
 		return this.min + clamped * (this.max - this.min);
 	}

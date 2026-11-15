@@ -4,6 +4,7 @@
 // target on prev/next/keyboard/autoplay and dispatches change events.
 
 import { boolAttr, warnBadAxis } from "../command";
+import { isRTL, logicalArrow } from "../direction";
 import { setState } from "../internal-state";
 
 let nextCarouselId = 0;
@@ -744,7 +745,7 @@ export class NeoCarousel extends HTMLElement {
 		const track = this.#track();
 		if (!track) return false;
 		const vertical = this.getAttribute("orientation") === "vertical";
-		const pos = vertical ? track.scrollTop : track.scrollLeft;
+		const pos = scrollPos(track, vertical);
 		const max = vertical ? track.scrollHeight - track.clientHeight : track.scrollWidth - track.clientWidth;
 		return direction < 0 ? pos > 1 : pos < max - 1;
 	}
@@ -886,9 +887,7 @@ export class NeoCarousel extends HTMLElement {
 		const vertical = this.getAttribute("orientation") === "vertical";
 		const align = this.#snapAlign();
 
-		const scrollPos = vertical ? track.scrollTop : track.scrollLeft;
-		const trackRect = track.getBoundingClientRect();
-		const trackOrigin = vertical ? trackRect.top : trackRect.left;
+		const pos = scrollPos(track, vertical);
 		const trackInner = vertical ? track.clientHeight : track.clientWidth;
 		const maxScroll = vertical ? track.scrollHeight - track.clientHeight : track.scrollWidth - track.clientWidth;
 
@@ -898,8 +897,7 @@ export class NeoCarousel extends HTMLElement {
 		let bestDist = Infinity;
 		for (let i = 0; i < slides.length; i++) {
 			const slide = slides[i];
-			const r = slide.getBoundingClientRect();
-			const slideStart = (vertical ? r.top : r.left) - trackOrigin + scrollPos;
+			const slideStart = startOffset(track, slide, vertical) + pos;
 			const slideSize = vertical ? slide.offsetHeight : slide.offsetWidth;
 			let snapPoint = slideStart;
 			if (align === "center") snapPoint -= (trackInner - slideSize) / 2;
@@ -907,7 +905,7 @@ export class NeoCarousel extends HTMLElement {
 			// Clamp to achievable range; end-of-track slides share a single
 			// snapPoint.
 			snapPoint = Math.max(0, Math.min(maxScroll, snapPoint));
-			const d = Math.abs(snapPoint - scrollPos);
+			const d = Math.abs(snapPoint - pos);
 			if (d < bestDist - 0.5) {
 				bestDist = d;
 				bestIdx = i;
@@ -957,28 +955,10 @@ export class NeoCarousel extends HTMLElement {
 		const b = prefersReducedMotion() ? "auto" : behavior;
 		const vertical = this.getAttribute("orientation") === "vertical";
 		const align = this.#snapAlign();
-		let target: number;
-		if (vertical) {
-			const trackTopInScroll = track.getBoundingClientRect().top;
-			const slideTopInScroll = slide.getBoundingClientRect().top;
-			const slideTopInTrack = slideTopInScroll - trackTopInScroll + track.scrollTop;
-			target = slideTopInTrack;
-			if (align === "center") {
-				target -= (track.clientHeight - slide.offsetHeight) / 2;
-			} else if (align === "end") {
-				target -= track.clientHeight - slide.offsetHeight;
-			}
-		} else {
-			const trackLeftInScroll = track.getBoundingClientRect().left;
-			const slideLeftInScroll = slide.getBoundingClientRect().left;
-			const slideLeftInTrack = slideLeftInScroll - trackLeftInScroll + track.scrollLeft;
-			target = slideLeftInTrack;
-			if (align === "center") {
-				target -= (track.clientWidth - slide.offsetWidth) / 2;
-			} else if (align === "end") {
-				target -= track.clientWidth - slide.offsetWidth;
-			}
-		}
+		let target = startOffset(track, slide, vertical) + scrollPos(track, vertical);
+		const free = vertical ? track.clientHeight - slide.offsetHeight : track.clientWidth - slide.offsetWidth;
+		if (align === "center") target -= free / 2;
+		else if (align === "end") target -= free;
 		this.#animateScrollTo(track, vertical, target, b);
 	}
 
@@ -994,8 +974,7 @@ export class NeoCarousel extends HTMLElement {
 			// smooth scroll in flight.
 			const savedBehavior = track.style.scrollBehavior;
 			track.style.scrollBehavior = "auto";
-			if (vertical) track.scrollTop = target;
-			else track.scrollLeft = target;
+			setScrollPos(track, vertical, target);
 			track.style.scrollBehavior = savedBehavior;
 			this.#updateDotsFromScroll();
 			return;
@@ -1003,14 +982,13 @@ export class NeoCarousel extends HTMLElement {
 		const easing = this.#resolveEasing();
 		if (!easing) {
 			if (vertical) track.scrollTo({ top: target, behavior: "smooth" });
-			else track.scrollTo({ left: target, behavior: "smooth" });
+			else track.scrollTo({ left: isRTL(track) ? -target : target, behavior: "smooth" });
 			return;
 		}
-		const start = vertical ? track.scrollTop : track.scrollLeft;
+		const start = scrollPos(track, vertical);
 		const distance = target - start;
 		if (Math.abs(distance) < 0.5) {
-			if (vertical) track.scrollTop = target;
-			else track.scrollLeft = target;
+			setScrollPos(track, vertical, target);
 			track.dispatchEvent(new Event("scrollend"));
 			return;
 		}
@@ -1033,9 +1011,7 @@ export class NeoCarousel extends HTMLElement {
 		const step = () => {
 			if (this.#scrollAnimAnim !== anim) return;
 			const m = new DOMMatrixReadOnly(getComputedStyle(probe).transform);
-			const pos = start + m.m41;
-			if (vertical) track.scrollTop = pos;
-			else track.scrollLeft = pos;
+			setScrollPos(track, vertical, start + m.m41);
 			// "running" is missing from this lib.dom playState union;
 			// compare against the terminal states instead.
 			const ps = anim.playState;
@@ -1043,8 +1019,7 @@ export class NeoCarousel extends HTMLElement {
 				this.#scrollAnimRaf = requestAnimationFrame(step);
 			} else {
 				// Snap to exact target; float drift could leave us off-snap.
-				if (vertical) track.scrollTop = target;
-				else track.scrollLeft = target;
+				setScrollPos(track, vertical, target);
 				this.#cancelScrollAnim();
 				// scrollend doesn't fire for scrollLeft assignment; synthesise.
 				track.dispatchEvent(new Event("scrollend"));
@@ -1440,6 +1415,7 @@ export class NeoCarousel extends HTMLElement {
 		const vertical = this.getAttribute("orientation") === "vertical";
 		const prevKey = vertical ? "ArrowUp" : "ArrowLeft";
 		const nextKey = vertical ? "ArrowDown" : "ArrowRight";
+		const key = logicalArrow(this, e.key);
 
 		if (onDot) {
 			// Tablist semantics. Arrow / Home / End move focus only. Enter or
@@ -1449,8 +1425,8 @@ export class NeoCarousel extends HTMLElement {
 			const dots = this.#dotButtons();
 			const idx = dots.indexOf(dot as HTMLButtonElement);
 			let target = -1;
-			if (e.key === prevKey) target = idx <= 0 ? dots.length - 1 : idx - 1;
-			else if (e.key === nextKey) target = idx >= dots.length - 1 ? 0 : idx + 1;
+			if (key === prevKey) target = idx <= 0 ? dots.length - 1 : idx - 1;
+			else if (key === nextKey) target = idx >= dots.length - 1 ? 0 : idx + 1;
 			else if (e.key === "Home") target = 0;
 			else if (e.key === "End") target = dots.length - 1;
 			else if (e.key === "Enter" || e.key === " " || e.key === "Spacebar") {
@@ -1472,10 +1448,10 @@ export class NeoCarousel extends HTMLElement {
 		// track has tabindex 0 so Tab lands there for native scroll; without
 		// this branch arrow keys would scroll the track by ~40px instead of
 		// advancing a whole slide.
-		if (e.key === prevKey) {
+		if (key === prevKey) {
 			e.preventDefault();
 			this.prev();
-		} else if (e.key === nextKey) {
+		} else if (key === nextKey) {
 			e.preventDefault();
 			this.next();
 		} else if (e.key === "Home") {
@@ -1656,6 +1632,26 @@ export class NeoCarousel extends HTMLElement {
 // them inside <neo-carousel>'s shadow root.
 export class NeoCarouselTrack extends HTMLElement {}
 export class NeoCarouselSlide extends HTMLElement {}
+
+// Horizontal positions run from the track's start edge, which is the right
+// edge right to left. There, scrollLeft runs from 0 at the start to -max.
+function scrollPos(track: HTMLElement, vertical: boolean): number {
+	if (vertical) return track.scrollTop;
+	return isRTL(track) ? -track.scrollLeft : track.scrollLeft;
+}
+
+function setScrollPos(track: HTMLElement, vertical: boolean, pos: number) {
+	if (vertical) track.scrollTop = pos;
+	else track.scrollLeft = isRTL(track) ? -pos : pos;
+}
+
+// Distance from the track's start edge to the slide's start edge.
+function startOffset(track: HTMLElement, slide: HTMLElement, vertical: boolean): number {
+	const t = track.getBoundingClientRect();
+	const r = slide.getBoundingClientRect();
+	if (vertical) return r.top - t.top;
+	return isRTL(track) ? t.right - r.right : r.left - t.left;
+}
 
 if (!customElements.get("neo-carousel")) {
 	customElements.define("neo-carousel", NeoCarousel);

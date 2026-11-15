@@ -15,17 +15,17 @@ neo-toggle-group > neo-toggle {
 }
 
 neo-toggle-group > * + * {
-	margin-left: -1px;
+	margin-inline-start: -1px;
 }
 
 neo-toggle-group > neo-toggle:first-child {
-	border-top-left-radius: var(--neo-button-radius);
-	border-bottom-left-radius: var(--neo-button-radius);
+	border-start-start-radius: var(--neo-button-radius);
+	border-end-start-radius: var(--neo-button-radius);
 }
 
 neo-toggle-group > neo-toggle:last-child {
-	border-top-right-radius: var(--neo-button-radius);
-	border-bottom-right-radius: var(--neo-button-radius);
+	border-start-end-radius: var(--neo-button-radius);
+	border-end-end-radius: var(--neo-button-radius);
 }
 
 neo-toggle-group > neo-toggle:hover,
@@ -53,7 +53,7 @@ neo-toggle-group[orientation="vertical"] {
 }
 
 neo-toggle-group[orientation="vertical"] > * + * {
-	margin-left: 0;
+	margin-inline-start: 0;
 	margin-top: -1px;
 }
 
@@ -85,6 +85,9 @@ neo-toggle-group[orientation="vertical"] > neo-toggle:only-child {
 	neo-toggle-group > neo-toggle:not(:last-child) {
 		box-shadow: inset -1px 0 0 var(--neo-button-color);
 	}
+	neo-toggle-group:dir(rtl) > neo-toggle:not(:last-child) {
+		box-shadow: inset 1px 0 0 var(--neo-button-color);
+	}
 	neo-toggle-group[orientation="vertical"] > neo-toggle:not(:last-child) {
 		box-shadow: inset 0 -1px 0 var(--neo-button-color);
 	}
@@ -97,6 +100,10 @@ neo-toggle-group[orientation="vertical"] > neo-toggle:only-child {
 
 :root[data-pref-contrast-more] neo-toggle-group > neo-toggle:not(:last-child) {
 	box-shadow: inset -1px 0 0 var(--neo-button-color);
+}
+
+:root[data-pref-contrast-more] neo-toggle-group:dir(rtl) > neo-toggle:not(:last-child) {
+	box-shadow: inset 1px 0 0 var(--neo-button-color);
 }
 
 :root[data-pref-contrast-more] neo-toggle-group[orientation="vertical"] > neo-toggle:not(:last-child) {

@@ -1,4 +1,5 @@
 import { boolAttr, warnBadAxis } from "../command";
+import { logicalArrow } from "../direction";
 import { setAttrIfChanged } from "../neo-morph-resilient";
 import { joinValues as joinValueList, parseValues } from "../value-list";
 
@@ -242,7 +243,7 @@ export class NeoToggleGroup extends HTMLElement {
 		if (currentIdx < 0) return;
 
 		let nextIdx = -1;
-		switch (e.key) {
+		switch (logicalArrow(this, e.key)) {
 			case "ArrowLeft":
 			case "ArrowUp":
 				nextIdx = currentIdx <= 0 ? items.length - 1 : currentIdx - 1;

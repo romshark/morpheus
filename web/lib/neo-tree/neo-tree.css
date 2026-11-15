@@ -44,7 +44,7 @@ neo-tree-item > [data-neo-tree-label] > [data-neo-tree-text] {
 }
 
 neo-tree-item > [data-neo-tree-label] > [data-neo-tree-actions] {
-	margin-left: auto;
+	margin-inline-start: auto;
 	display: inline-flex;
 	align-items: center;
 	gap: calc(var(--page-spacing, 0.25rem) * 1);

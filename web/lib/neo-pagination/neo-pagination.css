@@ -59,3 +59,9 @@ neo-pagination > [data-neo-pagination-ellipsis] {
 	color: var(--muted, currentColor);
 	user-select: none;
 }
+
+/* Right to left, "previous" points right and "next" points left. */
+neo-pagination:dir(rtl) > [data-neo-pagination-prev] > neo-icon[name="chevron-left"],
+neo-pagination:dir(rtl) > [data-neo-pagination-next] > neo-icon[name="chevron-right"] {
+	transform: scaleX(-1);
+}

@@ -391,7 +391,7 @@ var popoverDoc = ComponentDoc{
 		{Name: "trigger-action", Type: `"show" | "hide"`, Default: "toggle",
 			Description: templ.Raw("What clicking the trigger does. Default toggles open and closed; <code>show</code> only opens (for hover-then-click patterns like submenus, where a click must not close an already-open panel); <code>hide</code> only closes.")},
 		{Name: "placement", Type: `"bottom-start" | "bottom" | "bottom-end" | "top-start" | "top" | "top-end" | "left-start" | "left" | "left-end" | "right-start" | "right" | "right-end"`, Default: `"bottom-start"`, Observed: true,
-			Description: templ.Raw("Anchor position relative to the trigger.")},
+			Description: templ.Raw("Anchor position relative to the trigger. <code>start</code> and <code>end</code> on the top and bottom follow the direction; <code>left</code> and <code>right</code> don't.")},
 		{Name: "screen-offset", Type: "CSS length", Default: "8px", Observed: true,
 			Description: templ.Raw("Margin kept clear of the viewport edges. Mirrors to <code>--neo-popover-screen-offset</code>.")},
 		{Name: "follow-scroll", Type: `"always" | "until-trigger-invisible"`, Default: "unset",

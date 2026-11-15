@@ -4,6 +4,7 @@
 // External patch animations require prepareReorderPatch() pre-morph.
 
 import { boolAttr } from "../command";
+import { isRTL, logicalArrow } from "../direction";
 import { setState } from "../internal-state";
 import { setAttrIfChanged } from "../neo-morph-resilient";
 
@@ -714,10 +715,13 @@ export class NeoSortable extends HTMLElement {
 			return i;
 		}
 		if (o === "horizontal") {
+			// Right to left, items run leftward in DOM order.
+			const rtl = isRTL(this);
 			let i = 0;
 			for (; i < list.length; i++) {
 				const r = this.#layoutRect(list[i]);
-				if (px < r.left + r.width / 2) break;
+				const mid = r.left + r.width / 2;
+				if (rtl ? px > mid : px < mid) break;
 			}
 			return i;
 		}
@@ -745,9 +749,12 @@ export class NeoSortable extends HTMLElement {
 		return Math.max(1, cols || this.#columns(this.#items()));
 	}
 
-	#gridColumnIndex(px: number, cols: number): number {
+	#gridColumnIndex(rawPx: number, cols: number): number {
 		if (cols <= 1) return 0;
 		const host = this.getBoundingClientRect();
+		// Right to left, column 0 is at the right edge. Mirror the pointer
+		// so the left-to-right walk over the tracks still applies.
+		const px = isRTL(this) ? host.left + host.right - rawPx : rawPx;
 		const style = getComputedStyle(this);
 		const gap = this.#cssPx(style.columnGap);
 		const tracks = style.gridTemplateColumns
@@ -1192,9 +1199,12 @@ export class NeoSortable extends HTMLElement {
 			}
 			let dx = 0;
 			if (sc.scrollWidth > sc.clientWidth) {
-				if (d.lastClientX < r.left + EDGE && sc.scrollLeft > 0) {
+				// Right to left, scrollLeft runs from -max (left end) to 0.
+				const span = sc.scrollWidth - sc.clientWidth;
+				const minLeft = isRTL(sc) ? -span : 0;
+				if (d.lastClientX < r.left + EDGE && sc.scrollLeft > minLeft) {
 					dx = -MAX * Math.min(1, (r.left + EDGE - d.lastClientX) / EDGE);
-				} else if (d.lastClientX > r.right - EDGE && sc.scrollLeft < sc.scrollWidth - sc.clientWidth) {
+				} else if (d.lastClientX > r.right - EDGE && sc.scrollLeft < minLeft + span) {
 					dx = MAX * Math.min(1, (d.lastClientX - (r.right - EDGE)) / EDGE);
 				}
 			}
@@ -1335,7 +1345,8 @@ export class NeoSortable extends HTMLElement {
 		else this.#keyboardMove(step);
 	};
 
-	#keyStep(key: string): number {
+	#keyStep(rawKey: string): number {
+		const key = logicalArrow(this, rawKey);
 		const o = this.#orientation;
 		if (o === "vertical") {
 			if (key === "ArrowUp") return -1;

@@ -172,6 +172,16 @@ Required for every interactive component:
 
 A wrapping `<label>` does not name a custom element as it names a native `<input>`. If the host has no `aria-label` or `aria-labelledby`, derive `aria-label` from the label's text. The same applies to composites that consume a visible label.
 
+## Direction
+
+Components follow the inherited `dir`, and `dir` on a component overrides it. No component has its own direction attribute.
+
+- Use logical CSS properties (`inline-start`, `inline-end`), not `left` and `right`.
+- Left and Right arrows move the way they point, also right to left.
+- `start` and `end` in placements and sides follow the direction. `left` and `right` don't.
+
+Text keeps the direction of its script, as in a text field. The boxes of `<neo-otp>` hold the characters of 1 string, so a code of digits or Latin letters stays left to right on a right-to-left page. Set `dir="rtl"` on it for a code in a right-to-left script.
+
 ## Declarative Control
 
 Normal use is declarative. Authors set attributes, nest children, and listen for events. No imperative setup call is required, which keeps the server template the single source of truth.

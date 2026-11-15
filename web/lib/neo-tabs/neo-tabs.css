@@ -139,6 +139,22 @@ neo-tabs[easing][exit-animation="neo-tab-slide"]:state(forward) > neo-tabpanel:s
 	animation-name: neo-tab-slide-out-forward;
 }
 
+/* Right to left, forward runs leftward. Swap the keyframes. */
+neo-tabs:dir(rtl)[easing][enter-animation="neo-tab-slide"]:state(backward)
+	> neo-tabpanel:not([hidden]):not(:state(leaving)) {
+	animation-name: neo-tab-slide-in-forward;
+}
+neo-tabs:dir(rtl)[easing][exit-animation="neo-tab-slide"]:state(backward) > neo-tabpanel:state(leaving) {
+	animation-name: neo-tab-slide-out-forward;
+}
+neo-tabs:dir(rtl)[easing][enter-animation="neo-tab-slide"]:state(forward)
+	> neo-tabpanel:not([hidden]):not(:state(leaving)) {
+	animation-name: neo-tab-slide-in-backward;
+}
+neo-tabs:dir(rtl)[easing][exit-animation="neo-tab-slide"]:state(forward) > neo-tabpanel:state(leaving) {
+	animation-name: neo-tab-slide-out-backward;
+}
+
 /* biome-ignore lint/style/noDescendingSpecificity: base sets display/align/background; the higher-specificity neo-tabs[easing] > neo-tablist rule sets grid-area; disjoint, no conflict */
 neo-tablist {
 	display: flex;

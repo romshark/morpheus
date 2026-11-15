@@ -106,6 +106,12 @@ neo-progress > [data-neo-progress-track] > [data-neo-progress-fill] {
 	transition: var(--neo-progress-fill-transition, none);
 }
 
+/* Right to left, the fill grows leftward from the right edge. Before the
+ * vertical rule, which wins at equal specificity. */
+neo-progress:dir(rtl) > [data-neo-progress-track] > [data-neo-progress-fill] {
+	inset: 0 0 0 auto;
+}
+
 neo-progress[vertical]:where(:not([vertical="false"])) > [data-neo-progress-track] > [data-neo-progress-fill] {
 	inset: auto 0 0 0;
 }
@@ -148,8 +154,27 @@ neo-progress[indeterminate]:where(:not([indeterminate="false"]))[vertical]:where
 	}
 }
 
+/* Right to left, the segment runs from the right edge leftward. */
+@keyframes neo-progress-indeterminate-rtl {
+	0% {
+		transform: translateX(100%);
+	}
+	100% {
+		transform: translateX(-286%);
+	}
+}
+
+neo-progress:dir(rtl)[indeterminate]:where(:not([indeterminate="false"]))
+	> [data-neo-progress-track]
+	> [data-neo-progress-fill] {
+	animation-name: var(--neo-progress-indeterminate-name, neo-progress-indeterminate-rtl);
+}
+
 @media (prefers-reduced-motion: reduce) {
 	neo-progress[indeterminate]:where(:not([indeterminate="false"]))
+		> [data-neo-progress-track]
+		> [data-neo-progress-fill],
+	neo-progress:dir(rtl)[indeterminate]:where(:not([indeterminate="false"]))
 		> [data-neo-progress-track]
 		> [data-neo-progress-fill] {
 		animation: none;

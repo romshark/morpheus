@@ -183,14 +183,14 @@ neo-input-group > neo-icon:last-child {
  * clipped); clip via per-child border-radius instead. */
 neo-input-group > :first-child,
 neo-input-group > :first-child > input {
-	border-top-left-radius: calc(var(--neo-textarea-radius) - var(--neo-textarea-border-width, 1px));
-	border-bottom-left-radius: calc(var(--neo-textarea-radius) - var(--neo-textarea-border-width, 1px));
+	border-start-start-radius: calc(var(--neo-textarea-radius) - var(--neo-textarea-border-width, 1px));
+	border-end-start-radius: calc(var(--neo-textarea-radius) - var(--neo-textarea-border-width, 1px));
 }
 
 neo-input-group > :last-child,
 neo-input-group > :last-child > input {
-	border-top-right-radius: calc(var(--neo-textarea-radius) - var(--neo-textarea-border-width, 1px));
-	border-bottom-right-radius: calc(var(--neo-textarea-radius) - var(--neo-textarea-border-width, 1px));
+	border-start-end-radius: calc(var(--neo-textarea-radius) - var(--neo-textarea-border-width, 1px));
+	border-end-end-radius: calc(var(--neo-textarea-radius) - var(--neo-textarea-border-width, 1px));
 }
 
 /* Buttons inside the group: drop their own border / radius / elevation
@@ -232,13 +232,13 @@ neo-input-group
  * rules (higher specificity) and leak the square hover bg past the
  * group's rounded outer border. */
 neo-input-group > :is(button, neo-button, neo-toggle):not(:first-child) {
-	border-top-left-radius: 0;
-	border-bottom-left-radius: 0;
+	border-start-start-radius: 0;
+	border-end-start-radius: 0;
 }
 
 neo-input-group > :is(button, neo-button, neo-toggle):not(:last-child) {
-	border-top-right-radius: 0;
-	border-bottom-right-radius: 0;
+	border-start-end-radius: 0;
+	border-end-end-radius: 0;
 }
 
 /* Disabled: the JS mirrors the inner input's disabled state to the

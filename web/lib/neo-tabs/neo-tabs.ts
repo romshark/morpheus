@@ -1,4 +1,5 @@
 import { boolAttr, warnBadAxis } from "../command";
+import { logicalArrow } from "../direction";
 import { setState } from "../internal-state";
 
 let nextTabsId = 0;
@@ -373,9 +374,10 @@ export class NeoTabs extends HTMLElement {
 			return;
 		}
 
+		const key = logicalArrow(this, e.key);
 		let target = -1;
-		if (e.key === prev) target = idx <= 0 ? tabs.length - 1 : idx - 1;
-		else if (e.key === next) {
+		if (key === prev) target = idx <= 0 ? tabs.length - 1 : idx - 1;
+		else if (key === next) {
 			target = idx < 0 || idx >= tabs.length - 1 ? 0 : idx + 1;
 		} else if (e.key === "Home") target = 0;
 		else if (e.key === "End") target = tabs.length - 1;

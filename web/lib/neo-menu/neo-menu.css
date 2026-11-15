@@ -139,7 +139,7 @@ neo-menuitem,
 	touch-action: manipulation;
 	background: transparent;
 	border: 0;
-	text-align: left;
+	text-align: start;
 	width: 100%;
 	box-sizing: border-box;
 	white-space: nowrap;
@@ -169,8 +169,8 @@ neo-menuitem[disabled]:not([disabled="false"]),
 }
 
 [data-neo-menuitem-shortcut] {
-	margin-left: auto;
-	padding-left: 1rem;
+	margin-inline-start: auto;
+	padding-inline-start: 1rem;
 	font-size: 0.85em;
 	color: var(--neo-menu-shortcut-color);
 	letter-spacing: 0.04em;
@@ -191,7 +191,7 @@ neo-menuitem[disabled]:not([disabled="false"]),
 }
 
 [data-neo-submenu-chevron] {
-	margin-left: auto;
+	margin-inline-start: auto;
 	font-size: 1em;
 	line-height: 1;
 	color: var(--neo-menu-shortcut-color);

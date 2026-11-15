@@ -5,6 +5,7 @@
 // shadow.
 
 import { boolAttr } from "../command";
+import { isRTL, logicalArrow } from "../direction";
 import { setState } from "../internal-state";
 import {
 	collectMarks,
@@ -98,6 +99,7 @@ export class NeoSlider extends HTMLElement {
 	// expensive. The track can't move under a captured pointer. Cache it and
 	// only re-read on scroll/resize.
 	#dragTrackRect: DOMRect | null = null;
+	#dragMirrored = false;
 	// Thumb position (%) when the current drag crossed its threshold; the
 	// tooltip follows by shifting from this baseline (see #syncValue).
 	#followBasePct = 0;
@@ -605,6 +607,14 @@ export class NeoSlider extends HTMLElement {
 		return boolAttr(this, ATTR_VERTICAL, false);
 	}
 
+	// A horizontal rail runs right to left in a right-to-left context, which
+	// puts min at the right edge. A drag reads it once with the track rect,
+	// which keeps style reads off the per-frame path.
+	#mirrored(): boolean {
+		if (this.#dragTrackRect) return this.#dragMirrored;
+		return !this.#isVertical() && isRTL(this);
+	}
+
 	// Static ARIA that depends on min/max/label/orientation, not the live
 	// value. Kept out of #syncValue so a drag doesn't rewrite 4 unchanging
 	// attributes per thumb every frame; the relevant attribute handlers and
@@ -656,7 +666,7 @@ export class NeoSlider extends HTMLElement {
 			}
 			if (this.#thumbEl) {
 				this.#thumbEl.style.bottom = "";
-				this.#thumbEl.style.left = `${pct}%`;
+				this.#thumbEl.style.left = `${this.#mirrored() ? 100 - pct : pct}%`;
 			}
 		}
 		if (this.#tooltipCtrl) {
@@ -667,7 +677,7 @@ export class NeoSlider extends HTMLElement {
 				// there is no forced reflow per frame on a heavy page.
 				const move = (pct - this.#followBasePct) / 100;
 				if (this.#isVertical()) this.#tooltipCtrl.nudge(0, -move * this.#dragTrackRect.height);
-				else this.#tooltipCtrl.nudge(move * this.#dragTrackRect.width, 0);
+				else this.#tooltipCtrl.nudge((this.#mirrored() ? -move : move) * this.#dragTrackRect.width, 0);
 			} else {
 				// Trigger position moved; reposition any open tooltip.
 				this.#tooltipCtrl.reposition();
@@ -813,7 +823,7 @@ export class NeoSlider extends HTMLElement {
 		// Per-move `input` stays deferred (see #writeValue).
 		if (kind === "change") this.#reflectValue(next);
 		// `input` is the live mid-drag value; `change` is the committed value
-		// (drag end, mark click, keyboard, field edit). See DESIGN.md Events.
+		// (drag end, mark click, keyboard, field edit).
 		this.dispatchEvent(
 			new CustomEvent(kind === "change" ? "neo-slider-change" : "neo-slider-input", {
 				bubbles: true,
@@ -951,7 +961,7 @@ export class NeoSlider extends HTMLElement {
 		const useMarks = this.#marksOnlyActive();
 		let next: number | null = null;
 		const big = this.step * 10;
-		switch (e.key) {
+		switch (this.#isVertical() ? e.key : logicalArrow(this, e.key)) {
 			case "ArrowLeft":
 			case "ArrowDown":
 				next = useMarks ? this.#markValueAt(this.#currentMarkIndex() - 1) : this.value - this.step;
@@ -1042,6 +1052,7 @@ export class NeoSlider extends HTMLElement {
 		this.#dragStartX = e.clientX;
 		this.#dragStartY = e.clientY;
 		this.#dragStarted = false;
+		this.#dragMirrored = !this.#isVertical() && isRTL(this);
 		this.#dragTrackRect = this.#trackEl.getBoundingClientRect();
 		// The drag pointer listeners are bound once in #render; the scroll /
 		// resize rect-invalidators are bound for the slider's lifetime (see
@@ -1130,6 +1141,7 @@ export class NeoSlider extends HTMLElement {
 		// Bound for the slider's lifetime; only a live drag caches a rect to
 		// refresh. Skip the getBoundingClientRect (a forced layout) otherwise.
 		if (this.#dragPointerId === null || !this.#trackEl) return;
+		this.#dragMirrored = !this.#isVertical() && isRTL(this);
 		this.#dragTrackRect = this.#trackEl.getBoundingClientRect();
 	};
 
@@ -1141,7 +1153,9 @@ export class NeoSlider extends HTMLElement {
 		const vertical = this.#isVertical();
 		const spanPx = vertical ? rect.height : rect.width;
 		if (spanPx <= 0) return;
-		const t = vertical ? (rect.bottom - clientY) / spanPx : (clientX - rect.left) / spanPx;
+		let t = (clientX - rect.left) / spanPx;
+		if (vertical) t = (rect.bottom - clientY) / spanPx;
+		else if (this.#mirrored()) t = (rect.right - clientX) / spanPx;
 		const clamped = Math.min(1, Math.max(0, t));
 		const raw = this.min + clamped * (this.max - this.min);
 		this.#commitValue(raw, kind);
