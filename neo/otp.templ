@@ -1,0 +1,48 @@
+package neo
+
+type OTPOpts struct {
+	Name Attr[string]
+	// Value is a command. The element reflects the typed value to the
+	// attribute; set it only to fill or clear the field, as with Set("")
+	// after a wrong code.
+	Value Attr[string]
+	// Mask sets 1 box per character slot, in the [TextInputOpts.Mask]
+	// grammar. Other characters separate the boxes, and \ makes a slot
+	// character a separator. Unset is "######".
+	Mask Attr[string]
+	// Placeholder holds 1 character per empty box, or 1 character for every box.
+	Placeholder Attr[string]
+	// Conceal shows a dot in each filled box.
+	Conceal Attr[bool]
+	// Autosubmit submits the owning form when every box is filled.
+	Autosubmit Attr[bool]
+	// Size is the control-size step ("sm" | "lg"); empty is the default size.
+	Size     Attr[string]
+	Disabled Attr[bool]
+	Readonly Attr[bool]
+	Required Attr[bool]
+}
+
+// OTP renders <neo-otp>, a code field drawn as 1 box per character. It
+// submits the typed characters under Name, without separators. Native
+// passthrough (autocomplete, inputmode, aria-*) goes through [OTPAttrs].
+templ OTP(opts OTPOpts) {
+	@OTPAttrs(opts, nil)
+}
+
+// OTPAttrs is [OTP] with an extra attribute set.
+templ OTPAttrs(opts OTPOpts, attrs templ.Attributes) {
+	<neo-otp
+		{ opts.Name.Attrs("name")... }
+		{ opts.Value.Attrs("value")... }
+		{ opts.Mask.Attrs("mask")... }
+		{ opts.Placeholder.Attrs("placeholder")... }
+		{ opts.Conceal.Attrs("conceal")... }
+		{ opts.Autosubmit.Attrs("autosubmit")... }
+		{ opts.Size.Attrs("size")... }
+		{ opts.Disabled.Attrs("disabled")... }
+		{ opts.Readonly.Attrs("readonly")... }
+		{ opts.Required.Attrs("required")... }
+		{ attrs... }
+	></neo-otp>
+}

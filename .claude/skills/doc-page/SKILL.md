@@ -103,7 +103,8 @@ Writing the `.css` file:
 
 New or migrated overview pages use the reusable `Playground` Templ component (`internal/site/playground.templ`), controlled by the site-only `<site-playground>` controller (`web/site/site-playground.ts`). No per-page playground scripts, simulator routes, or one-off editors.
 
-- The first state is named `Default`. Other states reuse the real examples already on the page, with no placeholders like `Variant A`.
+- The first state is named `Default` and is the minimal example. Its signals cover only the attributes it must set. Other states reuse the real examples already on the page, with no placeholders like `Variant A`.
+- After `Default`, 1 state per page example, in page order, labeled with its heading and built from the same HTML/CSS vars. Server-simulator examples are exempt.
 - Each state's HTML is the single source for both its preview and the CodeMirror document. Don't add a separate parameter schema or duplicate the preview markup in the template.
 - State HTML is trusted, repository-authored. The editor runs only in the browser; never persist or send edited HTML to a server.
 - Declare editable signals as a Datastar object expression in `data-signals` (double-quoted attribute, unquoted keys, single-quoted strings, as in `data-signals="{foo_bar: 1, baz: 'x'}"`), and update the markup through normal Datastar bindings. Controls handle scalar string, number, boolean, and null. Namespace signal names to the component/page.

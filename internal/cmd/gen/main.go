@@ -187,6 +187,7 @@ func buildPages(
 		{href.PageNavgroup(), site.PageNavgroup(morpheusVersion)},
 		{href.PageOption(), site.PageOption(morpheusVersion)},
 		{href.PageOptgroup(), site.PageOptgroup(morpheusVersion)},
+		{href.PageOTP(), site.PageOTP(morpheusVersion)},
 		{href.PagePagination(), site.PagePagination(morpheusVersion)},
 		{href.PagePersist(), site.PagePersist(morpheusVersion)},
 		{href.PagePopover(), site.PagePopover(morpheusVersion)},

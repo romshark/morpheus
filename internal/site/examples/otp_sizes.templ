@@ -1,0 +1,21 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ OTPSizes() {
+	@neo.Layout(neo.LayoutOpts{
+		Direction:  neo.Set(neo.Column),
+		AlignItems: neo.Set(neo.AlignItemsFlexStart),
+		Gap:        neo.Set(neo.GapMd),
+	}) {
+		@neo.OTPAttrs(neo.OTPOpts{Size: neo.Set("sm"), Value: neo.Set("482913")}, templ.Attributes{
+			"aria-label": "Verification code, small",
+		})
+		@neo.OTPAttrs(neo.OTPOpts{Value: neo.Set("482913")}, templ.Attributes{
+			"aria-label": "Verification code",
+		})
+		@neo.OTPAttrs(neo.OTPOpts{Size: neo.Set("lg"), Value: neo.Set("482913")}, templ.Attributes{
+			"aria-label": "Verification code, large",
+		})
+	}
+}

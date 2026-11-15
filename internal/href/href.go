@@ -55,6 +55,7 @@ func PageMenu() string           { return "/menu/" }
 func PageNavgroup() string       { return "/navgroup/" }
 func PageOptgroup() string       { return "/optgroup/" }
 func PageOption() string         { return "/option/" }
+func PageOTP() string            { return "/otp/" }
 func PagePagination() string     { return "/pagination/" }
 func PagePersist() string        { return "/persist/" }
 func PagePopover() string        { return "/popover/" }

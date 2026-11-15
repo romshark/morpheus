@@ -1,0 +1,25 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ OTPReveal() {
+	@neo.LayoutAttrs(neo.LayoutOpts{
+		AlignItems: neo.Set(neo.AlignItemsCenter),
+		Gap:        neo.Set(neo.GapSm),
+	}, templ.Attributes{"data-signals": "{otp_pin_shown: false}"}) {
+		@neo.OTPAttrs(neo.OTPOpts{
+			Mask:    neo.Set("####"),
+			Conceal: neo.Set(true),
+		}, templ.Attributes{
+			"aria-label":        "PIN",
+			"autocomplete":      "off",
+			"data-attr:conceal": "$otp_pin_shown ? 'false' : 'true'",
+		})
+		@neo.ToggleAttrs(neo.ToggleOpts{Variant: neo.Set(neo.ToggleVariantGhost)}, templ.Attributes{
+			"aria-label":                "Show PIN",
+			"data-on:neo-toggle-change": "$otp_pin_shown = evt.detail.pressed",
+		}) {
+			@neo.Icon("eye")
+		}
+	}
+}

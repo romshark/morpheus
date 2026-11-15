@@ -1,0 +1,9 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ OTPPlaceholder() {
+	@neo.OTPAttrs(neo.OTPOpts{Placeholder: neo.Set("0")}, templ.Attributes{
+		"aria-label": "Verification code",
+	})
+}

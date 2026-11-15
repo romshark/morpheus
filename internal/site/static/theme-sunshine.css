@@ -34,6 +34,10 @@
 
 	--neo-tooltip-bg: rgba(28, 24, 16, 0.92);
 	--neo-tooltip-color: #f4ecd0;
+
+	/* U+2217 sits on the math axis, centered in the box; "*" sits near the
+	 * cap height. */
+	--neo-otp-conceal-glyph: "\2217";
 }
 
 :root.theme-sunshine.dark {

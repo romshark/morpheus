@@ -1,0 +1,11 @@
+.otp-check-correct {
+	color: oklch(0.55 0.14 145);
+}
+
+.otp-check-wrong {
+	color: var(--danger-bg);
+}
+
+.otp-check-tip {
+	font-style: italic;
+}

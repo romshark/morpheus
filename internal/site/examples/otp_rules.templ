@@ -1,0 +1,13 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ OTPRules() {
+	@neo.OTPAttrs(neo.OTPOpts{
+		Mask: neo.Set("AAAA-AAAA-AAAA"),
+		Size: neo.Set("sm"),
+	}, templ.Attributes{
+		"aria-label":   "Gift card code",
+		"autocomplete": "off",
+	})
+}

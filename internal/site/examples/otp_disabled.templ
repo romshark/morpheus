@@ -1,0 +1,12 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ OTPDisabled() {
+	@neo.OTPAttrs(neo.OTPOpts{
+		Value:    neo.Set("482913"),
+		Disabled: neo.Set(true),
+	}, templ.Attributes{
+		"aria-label": "Verification code",
+	})
+}

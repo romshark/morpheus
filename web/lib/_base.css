@@ -60,7 +60,7 @@
  * Scope: the text/box row controls. The small fixed-glyph controls
  * (checkbox, radio, switch, rating, kbd) carry their own size steps;
  * <neo-color-field> is a 2D picker sized by its own width/height tokens. */
-:is(neo-button, neo-toggle, neo-textinput, neo-textarea, neo-select, neo-combobox)[size="sm"] {
+:is(neo-button, neo-toggle, neo-textinput, neo-otp, neo-textarea, neo-select, neo-combobox)[size="sm"] {
 	font-size: 0.85em;
 	--neo-button-padding: round(calc(var(--page-spacing, 0.25rem) * 1.25), 1px)
 		round(calc(var(--page-spacing, 0.25rem) * 2.5), 1px);
@@ -68,7 +68,7 @@
 	--neo-control-height: calc(1em + 2 * round(calc(var(--page-spacing, 0.25rem) * 1.25), 1px) + 2px);
 }
 
-:is(neo-button, neo-toggle, neo-textinput, neo-textarea, neo-select, neo-combobox)[size="lg"] {
+:is(neo-button, neo-toggle, neo-textinput, neo-otp, neo-textarea, neo-select, neo-combobox)[size="lg"] {
 	font-size: 1.15em;
 	--neo-button-padding: round(calc(var(--page-spacing, 0.25rem) * 2.75), 1px)
 		round(calc(var(--page-spacing, 0.25rem) * 4.5), 1px);

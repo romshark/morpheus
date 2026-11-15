@@ -48,6 +48,10 @@
 	 * The radius compensates via the neo-spinner.css `r: calc(...)` rule,
 	 * which keeps the ring inside the host box. */
 	--neo-spinner-ring-width: 5;
+
+	/* A florette (U+273F). It has no emoji presentation, so it keeps the
+	 * text color, unlike a heart (U+2665) or a rose emoji. */
+	--neo-otp-conceal-glyph: "\273F";
 }
 
 /* Soft rounded square instead of the default pill, fits the theme's

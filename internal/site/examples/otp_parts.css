@@ -1,0 +1,46 @@
+.otp-parts-underline::part(slot) {
+	border-width: 0 0 2px;
+	border-radius: 0;
+	background: transparent;
+}
+
+.otp-parts-underline::part(filled),
+.otp-parts-underline::part(separator) {
+	border-color: var(--accent);
+	color: var(--accent);
+}
+
+.otp-parts-underline::part(active) {
+	outline: none;
+	border-bottom-width: 3px;
+	border-color: var(--page-fg);
+}
+
+.otp-parts-joined {
+	--neo-otp-gap: 0;
+}
+
+.otp-parts-joined::part(slot) {
+	margin-inline-start: -1px;
+	border-radius: 0;
+}
+
+.otp-parts-joined::part(group-start) {
+	margin-inline-start: 0;
+	border-start-start-radius: var(--neo-textarea-radius);
+	border-end-start-radius: var(--neo-textarea-radius);
+}
+
+.otp-parts-joined::part(group-end) {
+	border-start-end-radius: var(--neo-textarea-radius);
+	border-end-end-radius: var(--neo-textarea-radius);
+}
+
+.otp-parts-joined::part(active) {
+	position: relative;
+	z-index: 1;
+}
+
+.otp-parts-joined::part(separator) {
+	margin-inline: 0.5rem;
+}

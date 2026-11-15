@@ -1,0 +1,14 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ OTPPin() {
+	@neo.OTPAttrs(neo.OTPOpts{
+		Mask:    neo.Set("####"),
+		Value:   neo.Set("1234"),
+		Conceal: neo.Set(true),
+	}, templ.Attributes{
+		"aria-label":   "PIN",
+		"autocomplete": "off",
+	})
+}

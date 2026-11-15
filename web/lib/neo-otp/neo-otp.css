@@ -1,0 +1,10 @@
+/* The boxes live in the shadow root and read these tokens through
+ * inheritance. --neo-otp-slot-width has no :root value: a var() in a :root
+ * custom property resolves there, which would freeze the :root
+ * --neo-control-height that `size` changes per element. */
+
+:root {
+	--neo-otp-gap: calc(var(--page-spacing, 0.25rem) * 2);
+	--neo-otp-invalid-color: var(--danger-bg);
+	--neo-otp-conceal-glyph: "\2022";
+}

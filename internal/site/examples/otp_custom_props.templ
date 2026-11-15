@@ -1,0 +1,25 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ OTPCustomProps() {
+	@neo.Layout(neo.LayoutOpts{
+		Direction:  neo.Set(neo.Column),
+		AlignItems: neo.Set(neo.AlignItemsFlexStart),
+		Gap:        neo.Set(neo.GapMd),
+	}) {
+		@neo.OTPAttrs(neo.OTPOpts{Mask: neo.Set("### ###"), Value: neo.Set("482913")}, templ.Attributes{
+			"class":      "otp-custom-props-code",
+			"aria-label": "Verification code",
+		})
+		@neo.OTPAttrs(neo.OTPOpts{
+			Mask:    neo.Set("####"),
+			Value:   neo.Set("1234"),
+			Conceal: neo.Set(true),
+		}, templ.Attributes{
+			"class":        "otp-custom-props-pin",
+			"aria-label":   "PIN",
+			"autocomplete": "off",
+		})
+	}
+}

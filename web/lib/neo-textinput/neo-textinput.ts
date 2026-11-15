@@ -5,6 +5,7 @@
 // native UI would clash); the kit's CSS styles bare <input>s identically.
 
 import { boolAttr, openCommand } from "../command";
+import { isDigit, type MaskSlot, parseMask } from "../mask";
 import { cloneDatalistOptionsInto, externalDatalistFor } from "../neo-datalist";
 import { OPTION_OBSERVE_ATTRS, readOptionData, wireOptionEl } from "../neo-listbox";
 import {
@@ -65,14 +66,6 @@ const PASSTHROUGH_ATTRS = [
 	"max",
 	"step",
 ];
-
-// `literal` slots emit a fixed char; `class` slots consume 1
-// raw char satisfying `test` and optionally apply `transform`
-// (case coercion for U/l/A/a, which accepts either case and stores the
-// canonical case so rawValue and display agree).
-type MaskSlot =
-	| { kind: "literal"; ch: string }
-	| { kind: "class"; test: (c: string) => boolean; transform?: (c: string) => string };
 
 interface FormatResult {
 	formatted: string;
@@ -328,37 +321,6 @@ class MaskFormatter implements Formatter {
 		}
 		return set;
 	}
-}
-
-function parseMask(mask: string): MaskSlot[] {
-	const slots: MaskSlot[] = [];
-	for (const c of mask) {
-		if (c === "#") slots.push({ kind: "class", test: isDigit });
-		else if (c === "U") slots.push({ kind: "class", test: isAlpha, transform: toUpper });
-		else if (c === "l") slots.push({ kind: "class", test: isAlpha, transform: toLower });
-		else if (c === "A") slots.push({ kind: "class", test: isAlnum, transform: toUpper });
-		else if (c === "a") slots.push({ kind: "class", test: isAlnum, transform: toLower });
-		else if (c === "X") slots.push({ kind: "class", test: isAlnum });
-		else if (c === "*") slots.push({ kind: "class", test: () => true });
-		else slots.push({ kind: "literal", ch: c });
-	}
-	return slots;
-}
-
-function isDigit(c: string) {
-	return c >= "0" && c <= "9";
-}
-function isAlpha(c: string) {
-	return (c >= "A" && c <= "Z") || (c >= "a" && c <= "z");
-}
-function isAlnum(c: string) {
-	return isDigit(c) || isAlpha(c);
-}
-function toUpper(c: string) {
-	return c.toUpperCase();
-}
-function toLower(c: string) {
-	return c.toLowerCase();
 }
 
 class NumberFormatter implements Formatter {

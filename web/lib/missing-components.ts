@@ -44,6 +44,7 @@ const BEHAVIORAL_TAGS = new Set<string>([
 	"neo-navgroup",
 	"neo-optgroup",
 	"neo-option",
+	"neo-otp",
 	"neo-pagination",
 	"neo-persist",
 	"neo-popover",

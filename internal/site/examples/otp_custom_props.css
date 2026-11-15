@@ -1,0 +1,9 @@
+.otp-custom-props-code {
+	font-size: 1.25rem;
+	--neo-otp-slot-width: 2.5rem;
+	--neo-otp-gap: 0.25rem;
+}
+
+.otp-custom-props-pin {
+	--neo-otp-conceal-glyph: "\2731";
+}

@@ -1,0 +1,321 @@
+package site
+
+import (
+	"github.com/romshark/morpheus/internal/href"
+	"github.com/romshark/morpheus/internal/site/examples"
+)
+
+templ PageOTP(morpheusVersion string) {
+	@PageDoc(href.PageOTP(), "OTP", morpheusVersion) {
+		<section class="demo">
+			@anchoredH2("overview") {
+				OTP
+			}
+			<p class="intro">
+				Component <code>{ "<neo-otp>" }</code> is a code input with
+				1 box per character, for one-time codes, PINs and similar
+				keys. <code>mask</code> sets the boxes and what each one
+				accepts. A single native input underneath handles paste,
+				autofill and screen readers.
+			</p>
+			@Playground(PlaygroundOpts{
+				ID:     "otp-playground",
+				States: otpPlaygroundStates(),
+			})
+			@anchoredH2("reference") {
+				Reference
+			}
+			@ComponentDocs(otpDoc)
+			@anchoredH3("editing") {
+				Editing
+			}
+			<ul class="demo-note">
+				<li>Each box takes 1 character its mask slot allows. Other keys are ignored.</li>
+				<li>The value has no gaps. Clicking an empty box moves the caret to the first empty one.</li>
+				<li>Typing over a filled box replaces it.</li>
+				<li>
+					<code>Backspace</code> and <code>Delete</code> remove the
+					character at the caret and shift the rest left. On an
+					empty box, <code>Backspace</code> removes the previous
+					one. With mixed rules, shifted characters that no longer
+					fit are dropped.
+				</li>
+				<li>Paste and autofill skip characters no box accepts. A full code replaces the value.</li>
+				<li><code>Enter</code> submits the form.</li>
+			</ul>
+		</section>
+		<section class="demo">
+			@anchoredH2("examples") {
+				Examples
+			}
+			@anchoredH3("groups") {
+				Groups
+			}
+			<p class="demo-note">
+				Non-slot characters in <code>mask</code>, such as
+				<code>-</code>, split the boxes into groups and are drawn
+				between them. <code>\</code> makes a slot character a
+				separator, here <code>#</code>. A space splits without a
+				glyph. None ends up in the value.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     otpGroupsHTML,
+				TemplSource:    otpGroupsTempl,
+			}) {
+				@examples.OTPGroups()
+			}
+			@anchoredH3("character-rules") {
+				Character rules
+			}
+			<p class="demo-note">
+				<code>A</code> takes a letter or digit and upper-cases it.
+				Type <em>ab12</em> to see it.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     otpRulesHTML,
+				TemplSource:    otpRulesTempl,
+			}) {
+				@examples.OTPRules()
+			}
+			@anchoredH3("placeholder") {
+				Placeholder
+			}
+			<p class="demo-note">
+				A single character fills every empty box. A longer
+				<code>placeholder</code> sets 1 character per box.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     otpPlaceholderHTML,
+				TemplSource:    otpPlaceholderTempl,
+			}) {
+				@examples.OTPPlaceholder()
+			}
+			@anchoredH3("pin") {
+				PIN
+			}
+			<p class="demo-note">
+				<code>conceal</code> shows dots, or the glyph in
+				<code>--neo-otp-conceal-glyph</code>.
+				<code>{ `autocomplete="off"` }</code> stops the browser
+				from suggesting codes from text messages.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     otpPinHTML,
+				TemplSource:    otpPinTempl,
+			}) {
+				@examples.OTPPin()
+			}
+			@anchoredH3("right-to-left") {
+				Right-to-left
+			}
+			<p class="demo-note">
+				The boxes run left to right even in a right-to-left
+				page, as digits do in Arabic text. Set
+				<code>{ `dir="rtl"` }</code> on the element for a code in
+				a right-to-left script. The arrow keys follow the screen.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     otpRTLHTML,
+				TemplSource:    otpRTLTempl,
+			}) {
+				@examples.OTPRTL()
+			}
+			@anchoredH3("disabled") {
+				Disabled
+			}
+			<p class="demo-note">
+				Dimmed, not focusable and left out of form data.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     otpDisabledHTML,
+				TemplSource:    otpDisabledTempl,
+			}) {
+				@examples.OTPDisabled()
+			}
+		</section>
+		<section class="demo">
+			@anchoredH2("customization") {
+				Customization
+			}
+			@anchoredH3("sizes") {
+				Sizes
+			}
+			<p class="demo-note">
+				Boxes are as tall as a button of the same <code>size</code>.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     otpSizesHTML,
+				TemplSource:    otpSizesTempl,
+			}) {
+				@examples.OTPSizes()
+			}
+			@anchoredH3("custom-properties") {
+				Custom properties
+			}
+			<p class="demo-note">
+				<code>--neo-otp-slot-width</code> and
+				<code>--neo-otp-gap</code> set the box width and spacing,
+				and <code>font-size</code> scales the height with the text.
+				<code>--neo-otp-conceal-glyph</code> swaps the PIN dot.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     otpCustomPropsHTML,
+				TemplSource:    otpCustomPropsTempl,
+				CSSSource:      otpCustomPropsCSS,
+			}) {
+				@examples.OTPCustomProps()
+			}
+			@anchoredH3("styling-parts") {
+				Styling parts
+			}
+			<p class="demo-note">
+				<code>::part()</code> restyles the boxes. Click a box to
+				see the active one.
+			</p>
+			<ul class="demo-note">
+				<li>
+					The first field keeps only a bottom border. Filled
+					boxes take the accent color, and the active box a
+					thicker line.
+				</li>
+				<li>
+					The second joins each group into 1 block.
+					<code>group-start</code> and <code>group-end</code>
+					mark its outer boxes, which keep the rounded corners.
+				</li>
+			</ul>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     otpPartsHTML,
+				TemplSource:    otpPartsTempl,
+				CSSSource:      otpPartsCSS,
+			}) {
+				@examples.OTPParts()
+			}
+		</section>
+		<section class="demo">
+			@anchoredH2("examples-datastar") {
+				Examples: Datastar
+			}
+			@anchoredH3("client-side-check") {
+				Client-side check
+			}
+			<p class="demo-note">
+				A signal set on <code>neo-otp-input</code> shows whether
+				the code is right, with no server request. A wrapping
+				<code>{ "<label>" }</code> names the field. Type
+				<em>123456</em> or any other code.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     otpCheckHTML,
+				TemplSource:    otpCheckTempl,
+				CSSSource:      otpCheckCSS,
+			}) {
+				@examples.OTPCheck()
+			}
+			@anchoredH3("show-and-hide") {
+				Show and hide
+			}
+			<p class="demo-note">
+				A toggle bound to <code>conceal</code> reveals the PIN.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     otpRevealHTML,
+				TemplSource:    otpRevealTempl,
+			}) {
+				@examples.OTPReveal()
+			}
+		</section>
+	}
+}
+
+var otpDoc = ComponentDoc{
+	Attributes: []DocAttribute{
+		{Name: "mask", Type: "string", Default: `"######"`, Observed: true,
+			Description: templ.Raw(`1 box per slot, in the <a href="` + href.PageTextInput() + `#reference"><code>&lt;neo-textinput&gt;</code> mask</a> grammar. Other characters become separators, and a space becomes a gap. <code>\</code> makes a slot character a separator, as in <code>##\###</code>.`)},
+		{Name: "value", Type: "string", Reflected: true, Observed: true,
+			Description: templ.Raw("Typed characters, without separators. Setting it fills or clears the field, even while focused.")},
+		{Name: "name", Type: "string",
+			Description: templ.Raw("Form field name.")},
+		{Name: "placeholder", Type: "string", Observed: true,
+			Description: templ.Raw("1 character per empty box, or 1 for all of them.")},
+		{Name: "conceal", Type: "boolean", Default: "false", Observed: true,
+			Description: templ.Raw("Shows <code>--neo-otp-conceal-glyph</code> in place of each character and exposes the field as a password.")},
+		{Name: "autosubmit", Type: "boolean", Default: "false",
+			Description: templ.Raw("Submits the form once all boxes are filled.")},
+		{Name: "size", Type: `"sm" | "lg"`,
+			Description: templ.Raw("Control size. Omit for the default.")},
+		{Name: "disabled", Type: "boolean", Default: "false", Observed: true,
+			Description: templ.Raw("Not interactive and left out of form data.")},
+		{Name: "readonly", Type: "boolean", Default: "false", Observed: true,
+			Description: templ.Raw("Focusable and submitted, but not editable.")},
+		{Name: "required", Type: "boolean", Default: "false", Observed: true,
+			Description: templ.Raw("Requires a value. A partly filled field is always invalid.")},
+		{Name: "dir", Type: `"ltr" | "rtl"`, Default: `"ltr"`, Observed: true,
+			Description: templ.Raw("Box order. The boxes run left to right also in a right-to-left page, as digits do in Arabic and Hebrew text. Set <code>rtl</code> for a code in a right-to-left script.")},
+		{Name: "autocomplete", Type: "string", Default: `"one-time-code"`, Observed: true,
+			Description: templ.Raw("Use <code>off</code> for PINs.")},
+		{Name: "inputmode", Type: "string", Observed: true,
+			Description: templ.Raw("Defaults to <code>numeric</code> when every slot is <code>#</code>, otherwise <code>text</code>.")},
+		{Name: "autocapitalize", Type: "string", Observed: true,
+			Description: templ.Raw("Defaults to <code>characters</code> when every letter slot is upper case, otherwise <code>off</code>.")},
+		{Name: "aria-label", Type: "string", Observed: true,
+			Description: templ.Raw("Accessible name. <code>aria-labelledby</code> and a <code>&lt;label&gt;</code> work too.")},
+		{Name: "aria-describedby", Type: "string", Observed: true,
+			Description: templ.Raw("Description, such as an error message.")},
+		{Name: "aria-invalid", Type: `"true" | "false"`, Observed: true,
+			Description: templ.Raw("<code>true</code> draws the boxes in <code>--neo-otp-invalid-color</code>.")},
+	},
+	States: []DocState{
+		{Name: "complete",
+			Description: templ.Raw("All boxes are filled.")},
+	},
+	Events: []DocEvent{
+		{Name: "input", URL: W3CEventURL("input"), Bubbles: true,
+			Description: templ.Raw("Standard input event, on every edit.")},
+		{Name: "neo-otp-input", Detail: "{ value: string }", Bubbles: true,
+			Description: templ.Raw("The value changed.")},
+		{Name: "neo-otp-change", Detail: "{ value: string }", Bubbles: true,
+			Description: templ.Raw("An edit filled the last box or changed a full value.")},
+	},
+	Parts: []DocPart{
+		{Name: "slot",
+			Description: templ.Raw("Each box.")},
+		{Name: "group-start",
+			Description: templ.Raw("The first box of a group between separators.")},
+		{Name: "group-end",
+			Description: templ.Raw("The last box of a group between separators.")},
+		{Name: "filled",
+			Description: templ.Raw("A box with a character.")},
+		{Name: "active",
+			Description: templ.Raw("The box at the caret while focused.")},
+		{Name: "separator",
+			Description: templ.Raw("A mask separator.")},
+		{Name: "placeholder",
+			Description: templ.Raw("A placeholder character.")},
+		{Name: "conceal",
+			Description: templ.Raw("The glyph in a filled box with <code>conceal</code>.")},
+		{Name: "caret",
+			Description: templ.Raw("The caret in an empty box.")},
+	},
+	CSSProps: []DocCSSProp{
+		{Name: "--neo-otp-slot-width", Default: "var(--neo-control-height)",
+			Description: templ.Raw("Box width.")},
+		{Name: "--neo-otp-gap", Default: "calc(var(--page-spacing) * 2)",
+			Description: templ.Raw("Space between boxes.")},
+		{Name: "--neo-otp-invalid-color", Default: "var(--danger-bg)",
+			Description: templ.Raw("Box border color when <code>aria-invalid=\"true\"</code>.")},
+		{Name: "--neo-otp-conceal-glyph", Default: `"\2022"`,
+			Description: templ.Raw("Glyph for each concealed character, as a <code>content</code> value such as <code>\"\\2217\"</code>, a centered asterisk. The default is a bullet.")},
+	},
+}

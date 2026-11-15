@@ -1,0 +1,20 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ OTPParts() {
+	@neo.Layout(neo.LayoutOpts{
+		Direction:  neo.Set(neo.Column),
+		AlignItems: neo.Set(neo.AlignItemsFlexStart),
+		Gap:        neo.Set(neo.GapLg),
+	}) {
+		@neo.OTPAttrs(neo.OTPOpts{Mask: neo.Set("###-###"), Value: neo.Set("4829")}, templ.Attributes{
+			"class":      "otp-parts-underline",
+			"aria-label": "Verification code",
+		})
+		@neo.OTPAttrs(neo.OTPOpts{Mask: neo.Set("###-###"), Value: neo.Set("4829")}, templ.Attributes{
+			"class":      "otp-parts-joined",
+			"aria-label": "Backup code",
+		})
+	}
+}
