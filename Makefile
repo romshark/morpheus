@@ -1,15 +1,16 @@
 # Morpheus static-site build.
 #
 # Build pipeline:
-#   1. web/build.ts bundles the TypeScript web components into ./min/bundle.js
-#      and minifies internal/site/static/*.css into ./min/*.css (both via esbuild).
-#      /min/ is the tracked deliverable directory, checked in so
-#      downstream users can vendor straight from GitHub.
-#   2. templ generate refreshes internal/site/*_templ.go from .templ.
-#   3. internal/cmd/gen renders every page as static HTML into ./dst, copies
-#      internal/site/static/* alongside (skipping the unminified CSS sources),
-#      overlays ./min/ onto dst/static/min/, minifies sim/*.js demo snippets
-#      for dst, and emits minified datasim.js for page-local browser simulator scripts.
+#   1. web/build.ts bundles the web components into ./min/bundle.js and the
+#      site scripts (landing page, docs UI, bundle builder, code editor) into
+#      ./min/, and minifies internal/site/static/*.css into ./min/*.css, all
+#      with esbuild. /min/ is checked in so users can vendor the kit from GitHub.
+#   2. templ generate regenerates every *_templ.go in the module.
+#   3. internal/cmd/gen renders every page into ./dst and copies
+#      internal/site/static/ next to it, minus the unminified CSS sources and
+#      with its *.js files minified. It copies ./min/ to dst/static/min/,
+#      writes the per-version sources the bundle builder builds from, and adds
+#      a minified datasim.js for the in-browser server simulator.
 #
 # The `watch` target runs templier (github.com/romshark/templier),
 # which proxies internal/cmd/fileserve and runs the same pipeline as custom watchers.
@@ -58,7 +59,7 @@ bundle-size: js-install bundle
 	if [ $$have_br -eq 1 ]; then br_show=$$br_total; else br_show="n/a"; fi; \
 	printf '%-22s %12s %12s %12s\n' "total" "$$raw_total" "$$gz_total" "$$br_show"
 
-# Regenerate internal/site/*_templ.go from internal/site/*.templ.
+# Regenerate every *_templ.go with the pinned templ version.
 templ:
 	go run github.com/a-h/templ/cmd/templ@$(TEMPL_VERSION) generate
 

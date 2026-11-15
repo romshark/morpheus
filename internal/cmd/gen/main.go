@@ -332,7 +332,7 @@ func pageOutPath(dst, urlPath string) string {
 // the tracked /min/ artifacts onto {dst}/static/min/. Bulk copy + prune
 // delegates to rsync (mtime+size incremental, --delete handles removed sources).
 // *.js sources under internal/site/static are excluded from the first rsync
-// and handled by [minifyJSFiles] (sim/ demo snippets);
+// and minified by [minifyJSFiles];
 // top-level *.css sources and the component CSS source modules aren't shipped
 // (pages reference the minified outputs in /min/,
 // and bundle assets are emitted explicitly).
