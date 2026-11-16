@@ -1,14 +1,15 @@
 // <site-codemirror> is a CodeMirror 6 editor for docs code samples.
-// It lives outside the UI kit on purpose, because it is docs UI, not a
-// reusable widget; the kit ships no editor primitives.
+// It lives outside the UI kit on purpose, because it is docs UI,
+// not a reusable widget; the kit ships no editor primitives.
 //
 // Attributes: `language` (a key of LANG; unknown -> plain text),
 // `readonly` (block edits, unchanged look), `disabled` (block edits +
 // not-allowed/dim CSS styling), `lazy` (defer mounting while inside a
-// hidden/inert tab panel), `value` (bidirectional doc bind for Datastar).
+// hidden/inert tab panel), `value` (bidirectional doc bind for Datastar),
+// `label` (the editor's accessible name, derived from `language` if absent).
 // Events bubble with detail {value}. `site-codemirror-input` fires per edit,
-// `site-codemirror-change` at focusout (commit-time). Theme follows the
-// doc `dark` class via the `neo-theme-change` event.
+// `site-codemirror-change` at focusout (commit-time).
+// Theme follows the doc `dark` class via the `neo-theme-change` event.
 
 // Compose basicSetup from the individual sub-packages so the editor bundle is
 // fully local and docs pages do not depend on CDN module fetches.
@@ -28,8 +29,8 @@ import {
 import { Annotation, Compartment, EditorState, type Extension } from "@codemirror/state";
 import { oneDark } from "@codemirror/theme-one-dark";
 import { EditorView, highlightActiveLine, highlightActiveLineGutter, keymap, lineNumbers } from "@codemirror/view";
-// Runtime StreamLanguage parser, no Lezer build step; see
-// site-codemirror-templ.ts for coverage.
+// Runtime StreamLanguage parser, no Lezer build step;
+// see site-codemirror-templ.ts for coverage.
 import { templ } from "./site-codemirror-templ";
 
 const basicSetup = [
@@ -44,9 +45,8 @@ const basicSetup = [
 	keymap.of([...defaultKeymap, ...historyKeymap]),
 ];
 
-// Marks a doc change as our own `value`-attr write-back so the update
-// listener skips it; otherwise it echo-loops with a consumer that
-// data-binds `value`.
+// Marks a doc change as our own `value`-attr write-back so the update listener
+// skips it; otherwise it echo-loops with a consumer that data-binds `value`.
 const externalSync = Annotation.define();
 
 const LANG: Record<string, () => Extension> = {
@@ -96,9 +96,8 @@ class SiteCodeMirror extends HTMLElement {
 		super();
 		// The editor renders in this shadow root, not light DOM. A Datastar
 		// fat-morph reconciles only light DOM and can't wipe or re-measure it,
-		// which means no teardown and no reflow from morph churn. Light DOM
-		// stays the authored source (<template>/value/text) plus the pre-load
-		// fallback.
+		// which means no teardown and no reflow from morph churn. Light DOM stays
+		// the authored source (<template>/value/text) plus the pre-load fallback.
 		this.#_shadow = this.attachShadow({ mode: "open" });
 	}
 
@@ -147,8 +146,8 @@ class SiteCodeMirror extends HTMLElement {
 	};
 
 	#_checkMorph(): void {
-		// A live view survives light-DOM morphs (it is in the shadow). Mount
-		// only when there is none and a source is present.
+		// A live view survives light-DOM morphs (it is in the shadow).
+		// Mount only when there is none and a source is present.
 		if (this.#_view) return;
 		const hasSource = this.getAttribute("value") !== null || this.querySelector(":scope > template") !== null;
 		if (!hasSource) return;
@@ -184,9 +183,9 @@ class SiteCodeMirror extends HTMLElement {
 					this.#_lang.of(this.#_langExt()),
 					this.#_theme.of(this.#_isDark() ? oneDark : []),
 					this.#_readonly.of(EditorState.readOnly.of(this.#_isLocked())),
-					// User edits -> `site-codemirror-input` (a Datastar
-					// listener can mirror it into a signal). Skip
-					// externalSync transactions (our own value write-back),
+					// User edits -> `site-codemirror-input`
+					// (a Datastar listener can mirror it into a signal).
+					// Skip externalSync transactions (our own value write-back),
 					// which would echo.
 					// biome-ignore lint/suspicious/noExplicitAny: CodeMirror ViewUpdate type, CDN-external, no value types.
 					EditorView.updateListener.of((update: any) => {
@@ -203,8 +202,7 @@ class SiteCodeMirror extends HTMLElement {
 						);
 					}),
 					// CM sets role="textbox" on cm-content (input role) ->
-					// needs an accessible name; default it from
-					// language/lock state.
+					// needs an accessible name; default it from language/lock state.
 					EditorView.contentAttributes.of({
 						"aria-label": this.#_ariaLabel(),
 					}),
@@ -304,7 +302,8 @@ class SiteCodeMirror extends HTMLElement {
 	}
 
 	#_ariaLabel(): string {
-		const explicit = this.getAttribute("aria-label");
+		// Not aria-label: the host has no role, and a name on it is prohibited.
+		const explicit = this.getAttribute("label");
 		if (explicit) return explicit;
 		const lang = (this.getAttribute("language") || "").trim();
 		const base = lang ? `${lang} code` : "Code";
@@ -321,8 +320,8 @@ class SiteCodeMirror extends HTMLElement {
 
 	// Priority: `value` attr -> <template> child (keeps indentation
 	// through HTML round-trips) -> textContent. `value` comes first so a
-	// `data-attr:value`-bound editor first-paints the signal, not a
-	// stale authored literal.
+	// `data-attr:value`-bound editor first-paints the signal,
+	// not a stale authored literal.
 	#_readSource(): string {
 		const valueAttr = this.getAttribute("value");
 		if (valueAttr !== null) return valueAttr;

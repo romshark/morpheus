@@ -651,7 +651,7 @@ func Playground(opts PlaygroundOpts) templ.Component {
 						}()
 					}
 					ctx = templ.InitializeContext(ctx)
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "<site-codemirror language=\"html\" data-editor=\"html\" aria-label=\"Preview HTML\"></site-codemirror>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "<site-codemirror language=\"html\" data-editor=\"html\" label=\"Preview HTML\"></site-codemirror>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -673,7 +673,7 @@ func Playground(opts PlaygroundOpts) templ.Component {
 						}()
 					}
 					ctx = templ.InitializeContext(ctx)
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "<site-codemirror language=\"css\" data-editor=\"css\" aria-label=\"Preview CSS\"></site-codemirror>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "<site-codemirror language=\"css\" data-editor=\"css\" label=\"Preview CSS\"></site-codemirror>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -1122,8 +1122,8 @@ func playgroundPaneHead(heading string) templ.Component {
 	})
 }
 
-// playgroundPaneInfo renders the info popover trigger and panel. label
-// names the panel for assistive tech; children are the explanatory body.
+// playgroundPaneInfo renders the info popover trigger and panel.
+// label names the panel for assistive tech; children are the explanatory body.
 func playgroundPaneInfo(label string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
@@ -1234,8 +1234,8 @@ func playgroundPaneInfo(label string) templ.Component {
 }
 
 // playgroundSimWarning is a toolbar warning popover shown only while the
-// simulator is throttled, erroring, or unreachable. It marks the preview's
-// odd behavior as configured, not broken.
+// simulator is throttled, erroring, or unreachable.
+// It marks the preview's odd behavior as configured, not broken.
 func playgroundSimWarning() templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context

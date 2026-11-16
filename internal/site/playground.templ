@@ -134,22 +134,22 @@ templ Playground(opts PlaygroundOpts) {
 								<code>{ `<style>@scope { ... }</style>` }</code>
 								and applies to the preview only. Edits change
 								the preview above, applied live while Sync is
-								on, or when you click Patch or Replace. Patch
-								morphs the preview; Replace swaps it outright.
+								on, or when you click Patch or Replace.
+								Patch morphs the preview; Replace swaps it outright.
 							}
 						</div>
 						@neo.TabPanel("html", "html") {
 							<site-codemirror
 								language="html"
 								data-editor="html"
-								aria-label="Preview HTML"
+								label="Preview HTML"
 							></site-codemirror>
 						}
 						@neo.TabPanel("css", "html") {
 							<site-codemirror
 								language="css"
 								data-editor="css"
-								aria-label="Preview CSS"
+								label="Preview CSS"
 							></site-codemirror>
 						}
 					}
@@ -178,8 +178,8 @@ templ Playground(opts PlaygroundOpts) {
 				<section class="component-playground-pane component-playground-signals">
 					@playgroundPaneHead("Signals") {
 						@linkChip("Datastar signals", "https://data-star.dev/guide/reactive_signals")
-						{ " " }declared in the selected state's markup. Change
-						a value to update the preview, applied live while Sync
+						{ " " }declared in the selected state's markup.
+						Change a value to update the preview, applied live while Sync
 						is on, or when you click Patch.
 					}
 					<div class="component-playground-signal-list"></div>
@@ -258,8 +258,8 @@ templ playgroundPaneHead(heading string) {
 	</div>
 }
 
-// playgroundPaneInfo renders the info popover trigger and panel. label
-// names the panel for assistive tech; children are the explanatory body.
+// playgroundPaneInfo renders the info popover trigger and panel.
+// label names the panel for assistive tech; children are the explanatory body.
 templ playgroundPaneInfo(label string) {
 	@neo.PopoverAttrs(neo.PopoverOpts{
 		Placement:      neo.Set(neo.PlacementBottomEnd),
@@ -287,8 +287,8 @@ templ playgroundPaneInfo(label string) {
 }
 
 // playgroundSimWarning is a toolbar warning popover shown only while the
-// simulator is throttled, erroring, or unreachable. It marks the preview's
-// odd behavior as configured, not broken.
+// simulator is throttled, erroring, or unreachable.
+// It marks the preview's odd behavior as configured, not broken.
 templ playgroundSimWarning() {
 	@neo.PopoverAttrs(neo.PopoverOpts{
 		Placement:      neo.Set(neo.PlacementBottomEnd),
