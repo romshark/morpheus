@@ -24,6 +24,7 @@ import "./neo-lightbox";
 import "./neo-menu";
 import "./neo-menuitem";
 import "./neo-navgroup";
+import "./neo-odometer";
 import "./neo-otp";
 import "./neo-pagination";
 import "./neo-persist";

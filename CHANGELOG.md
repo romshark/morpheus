@@ -9,6 +9,7 @@ This file records the notable changes of each release in the format of [Keep a C
 #### Components
 
 - Add `<neo-otp>`, a code input with 1 box per character for one-time codes and PINs. `neo.OTP` renders it from Templ.
+- Add `<neo-odometer>`, which animates changes to a number by rolling its digits. `neo.Odometer` renders it from Templ.
 - Escape a slot character in the `mask` of `<neo-textinput>` and `<neo-otp>` with `\`, as in `\#` for a literal `#`. A `\` in an existing mask now escapes the character after it; write `\\` for a literal backslash.
 
 ### Changed

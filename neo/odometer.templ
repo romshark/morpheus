@@ -1,0 +1,22 @@
+package neo
+
+// Odometer renders <neo-odometer>, a number that animates each change by
+// rolling its digits.
+// The children are the formatted number, such as a price with its
+// currency and separators:
+//
+//	@neo.Odometer() {
+//		{ fmt.Sprintf("$%.2f", total) }
+//	}
+templ Odometer() {
+	@OdometerAttrs(nil) {
+		{ children... }
+	}
+}
+
+// OdometerAttrs is [Odometer] with an extra attribute set.
+templ OdometerAttrs(attrs templ.Attributes) {
+	<neo-odometer { attrs... }>
+		{ children... }
+	</neo-odometer>
+}

@@ -1,0 +1,32 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ OdometerCart() {
+	@neo.LayoutAttrs(
+		neo.LayoutOpts{AlignItems: neo.Set(neo.AlignItemsCenter), Gap: neo.Set(neo.GapMd)},
+		templ.Attributes{"data-signals:odometer_cart_count": "4"},
+	) {
+		@neo.ButtonGroup(neo.ButtonGroupOpts{}) {
+			@neo.ButtonAttrs(neo.ButtonOpts{}, templ.Attributes{
+				"data-on:click": "@post('/odometer/cart/remove/', { requestCancellation: 'disabled' })",
+				"aria-label":    "Remove a pass",
+			}) {
+				&minus;
+			}
+			@neo.ButtonAttrs(neo.ButtonOpts{}, templ.Attributes{
+				"data-on:click": "@post('/odometer/cart/add/', { requestCancellation: 'disabled' })",
+				"aria-label":    "Add a pass",
+			}) {
+				+
+			}
+		}
+		<span>Passes:&nbsp;<span data-text="$odometer_cart_count">4</span></span>
+		<strong>
+			Total:{ " " }
+			@neo.OdometerAttrs(templ.Attributes{"id": "odometer-cart-total"}) {
+				$996.00
+			}
+		</strong>
+	}
+}

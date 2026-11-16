@@ -1,0 +1,48 @@
+.odometer-parts-board {
+	font-size: 2.5rem;
+	font-weight: 600;
+}
+
+.odometer-parts-board::part(digit) {
+	margin-inline: 0.05em;
+	padding: 0.05em 0.15em;
+	border-radius: var(--page-radius, 0.25rem);
+	background: var(--page-fg);
+	color: var(--page-bg);
+}
+
+.odometer-parts-board::part(symbol) {
+	color: var(--muted);
+}
+
+.odometer-parts-board::part(suffix) {
+	font-size: 0.4em;
+	font-weight: 400;
+	color: var(--muted);
+}
+
+.odometer-parts-temp {
+	font-size: 3rem;
+	font-weight: 300;
+}
+
+.odometer-parts-temp::part(digit) {
+	margin-inline: 0.04em;
+	border-block-end: 0.06em solid oklch(0.62 0.17 250);
+}
+
+.odometer-parts-temp::part(prefix) {
+	font-weight: 600;
+	color: oklch(0.62 0.17 250);
+}
+
+.odometer-parts-temp::part(symbol) {
+	color: var(--muted);
+}
+
+.odometer-parts-temp::part(suffix) {
+	align-self: flex-start;
+	font-size: 0.4em;
+	font-weight: 500;
+	color: var(--muted);
+}

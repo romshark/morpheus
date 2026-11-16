@@ -246,6 +246,7 @@ var ComponentLinks = []NavLink{
 	{href.PageLink(), "Link"},
 	{href.PageMenu(), "Menu"},
 	{href.PageNavgroup(), "Navgroup"},
+	{href.PageOdometer(), "Odometer"},
 	{href.PageOTP(), "OTP"},
 	{href.PagePagination(), "Pagination"},
 	{href.PagePopover(), "Popover"},

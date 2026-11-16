@@ -1,0 +1,6 @@
+/* Matches the tabular figures of the shadow-rendered digits,
+   which keeps the width from jumping when the element upgrades. */
+
+neo-odometer {
+	font-variant-numeric: tabular-nums;
+}

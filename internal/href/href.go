@@ -53,6 +53,7 @@ func PageLightbox() string       { return "/lightbox/" }
 func PageLink() string           { return "/link/" }
 func PageMenu() string           { return "/menu/" }
 func PageNavgroup() string       { return "/navgroup/" }
+func PageOdometer() string       { return "/odometer/" }
 func PageOptgroup() string       { return "/optgroup/" }
 func PageOption() string         { return "/option/" }
 func PageOTP() string            { return "/otp/" }
