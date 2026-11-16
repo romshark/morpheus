@@ -358,12 +358,13 @@ a[data-neo-link]:where(:not([data-neo-link="false"])).app-nav-link {
 	justify-content: flex-start;
 }
 
+/* The button-ghost rule outranks a class selector on background and color,
+ * so recolor through its custom properties. */
 .app-nav-link-current {
-	background: var(--accent);
-	color: var(--accent-fg);
-	&:hover {
-		background: var(--accent-hover);
-	}
+	--neo-button-ghost-bg: var(--neo-button-primary-bg);
+	--neo-button-ghost-color: var(--neo-button-primary-color);
+	--neo-button-ghost-hover-bg: var(--neo-button-primary-hover-bg);
+	--neo-button-ghost-active-bg: var(--neo-button-primary-active-bg);
 }
 
 /* Components index: responsive grid of cards linking to each component. */
