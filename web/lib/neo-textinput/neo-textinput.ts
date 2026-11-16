@@ -1954,6 +1954,8 @@ export class NeoTextInput extends HTMLElement {
 			}
 		}
 		if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+			// With nothing to suggest, the browser moves the caret to the start or end.
+			if (!this.#suggestOpen && !this.#hasSuggestContent()) return;
 			e.preventDefault();
 			this.#suggestDismissed = false;
 			const down = e.key === "ArrowDown";
