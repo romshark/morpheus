@@ -961,15 +961,15 @@ site-codemirror {
 	min-height: inherit;
 	max-height: inherit;
 	margin: 0;
-	/* The block padding and line-height match the mounted editor
-	 * (CodeMirror's base theme), so the swap moves nothing below it. */
+	/* The block padding (.cm-content) and line-height (.cm-scroller) match
+	 * the mounted editor, which keeps the swap from moving the page. */
 	padding: 4px 1rem;
 	overflow: auto;
 	background: transparent;
 	color: var(--page-fg);
 	font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
 	font-size: inherit;
-	line-height: 1.4;
+	line-height: 1.5;
 	white-space: pre;
 	tab-size: 2;
 }

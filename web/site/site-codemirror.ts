@@ -67,15 +67,17 @@ const LANG: Record<string, () => Extension> = {
 // Shared shadow stylesheet for the editor internals; external light-DOM CSS
 // can't reach the shadow. Per-context bits (gutter tint, focus outline) read
 // inherited custom properties the outer <site-codemirror> sets; the defaults
-// keep a bare code sample plain.
+// keep a bare code sample plain. CodeMirror scopes its theme rules to 2
+// classes (`.ͼ1 .cm-scroller`), which is why rules for elements inside
+// .cm-editor carry the .cm-editor prefix.
 const SHADOW_STYLES = new CSSStyleSheet();
 SHADOW_STYLES.replaceSync(`
 .site-codemirror-host{display:flex;flex-direction:column;flex:1 1 auto;min-height:0;min-width:0}
 .cm-editor{display:flex;flex-direction:column;flex:1 1 auto;min-height:0;min-width:0;background:transparent;font-family:ui-monospace,"SFMono-Regular",Menlo,monospace}
 .cm-editor.cm-focused{outline:var(--site-cm-focus,none);outline-offset:-2px}
-.cm-scroller{overflow:auto;font-family:inherit;line-height:1.5}
+.cm-editor .cm-scroller{overflow:auto;font-family:inherit;line-height:1.5}
 .cm-content{min-width:max-content}
-.cm-gutters{z-index:2;background:var(--site-cm-gutter-bg,transparent);border-right:var(--site-cm-gutter-border,0)}
+.cm-editor .cm-gutters{z-index:2;background:var(--site-cm-gutter-bg,transparent);border-right:var(--site-cm-gutter-border,0)}
 :host([disabled]) .cm-editor,:host([disabled]) .cm-content{cursor:not-allowed}
 `);
 
