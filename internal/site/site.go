@@ -195,82 +195,104 @@ var SectionLinks = []NavLink{
 	{href.PageProjectStatus(), "Status & Contribution"},
 }
 
-var UtilityLinks = []NavLink{
-	{href.PageBoundary(), "Boundary"},
-	{href.PageIfNetwork(), "If network"},
-	{href.PageIfPlatform(), "If platform"},
-	{href.PageKeys(), "Keys"},
-	{href.PagePersist(), "Persist"},
+// NavGroup is a titled list of pages in the sidebar, on the components index
+// and in the Mod+K palette. Icon is the sidebar heading's icon and names a file
+// in static/icons and in static/icons-matrix.
+type NavGroup struct {
+	Name  string // singular, as in "Input"
+	Icon  string
+	Links []NavLink
 }
 
-// DataLinks lists the data components, elements that only carry option data
-// for a control to read. They render nothing and have no behavior of their own,
-// which sets them apart from the headless-but-functional UtilityLinks.
-var DataLinks = []NavLink{
-	{href.PageOption(), "Option"},
-	{href.PageOptgroup(), "Optgroup"},
-	{href.PageDatalist(), "Datalist"},
-}
+// Heading is the group's title in the sidebar and on the components index.
+func (g NavGroup) Heading() string { return g.Name + " Components" }
 
-// ComponentLinks lists all per-component pages in the order they
-// appear in the sidebar. Adding a <neo-X> page takes 2 steps:
+// ComponentGroups lists every component page by the task it serves, in sidebar
+// order. Each page is in exactly 1 group, and each group is alphabetical.
+// Adding a <neo-X> page takes 2 steps:
 //  1. Create page_X.go + page_X.templ that follow the existing pattern
 //     (`Page<Name>` struct + `pageX()` template wrapped in
 //     `@appLayout("/x")`).
-//  2. Append the entry here so the sidebar surfaces it.
-var ComponentLinks = []NavLink{
-	{href.PageAlert(), "Alert"},
-	{href.PageAura(), "Aura"},
-	{href.PageAutohide(), "Autohide"},
-	{href.PageAvatar(), "Avatar"},
-	{href.PageAvatars(), "Avatars"},
-	{href.PageBadge(), "Badge"},
-	{href.PageBreadcrumb(), "Breadcrumb"},
-	{href.PageButton(), "Button"},
-	{href.PageButtonGroup(), "Button group"},
-	{href.PageCard(), "Card"},
-	{href.PageCarousel(), "Carousel"},
-	{href.PageCheckbox(), "Checkbox"},
-	{href.PageClipcopy(), "Clipcopy"},
-	{href.PageCombobox(), "Combobox"},
-	{href.PageContextMenu(), "Context menu"},
-	{href.PageColorField(), "Color field"},
-	{href.PageDialog(), "Dialog"},
-	{href.PageDrawer(), "Drawer"},
-	{href.PageElastic(), "Elastic"},
-	{href.PageIcon(), "Icon"},
-	{href.PageInputGroup(), "Input group"},
-	{href.PageKbd(), "Kbd"},
-	{href.PageLayout(), "Layout"},
-	{href.PageLightbox(), "Lightbox"},
-	{href.PageLink(), "Link"},
-	{href.PageMenu(), "Menu"},
-	{href.PageNavgroup(), "Navgroup"},
-	{href.PageOdometer(), "Odometer"},
-	{href.PageOTP(), "OTP"},
-	{href.PagePagination(), "Pagination"},
-	{href.PagePopover(), "Popover"},
-	{href.PageProgress(), "Progress"},
-	{href.PageRadioGroup(), "Radio group"},
-	{href.PageRating(), "Rating"},
-	{href.PageResizable(), "Resizable"},
-	{href.PageRevealable(), "Revealable"},
-	{href.PageSelect(), "Select"},
-	{href.PageSidebar(), "Sidebar"},
-	{href.PageSkeleton(), "Skeleton"},
-	{href.PageSlider(), "Slider"},
-	{href.PageSliderRange(), "Slider range"},
-	{href.PageSortable(), "Sortable"},
-	{href.PageSpinner(), "Spinner"},
-	{href.PageSwitch(), "Switch"},
-	{href.PageTabs(), "Tabs"},
-	{href.PageTextInput(), "Text input"},
-	{href.PageTextarea(), "Textarea"},
-	{href.PageToaster(), "Toaster"},
-	{href.PageToggle(), "Toggle"},
-	{href.PageToggleGroup(), "Toggle group"},
-	{href.PageTooltip(), "Tooltip"},
-	{href.PageTree(), "Tree"},
+//  2. Add the entry to its group here so the sidebar surfaces it.
+var ComponentGroups = []NavGroup{
+	{"Action", "play", []NavLink{
+		{href.PageButton(), "Button"},
+		{href.PageButtonGroup(), "Button group"},
+		{href.PageClipcopy(), "Clipcopy"},
+		{href.PageLink(), "Link"},
+	}},
+	{"Input", "chevrons-up-down", []NavLink{
+		{href.PageCheckbox(), "Checkbox"},
+		{href.PageColorField(), "Color field"},
+		{href.PageCombobox(), "Combobox"},
+		{href.PageInputGroup(), "Input group"},
+		{href.PageOTP(), "OTP"},
+		{href.PageRadioGroup(), "Radio group"},
+		{href.PageRating(), "Rating"},
+		{href.PageSelect(), "Select"},
+		{href.PageSlider(), "Slider"},
+		{href.PageSliderRange(), "Slider range"},
+		{href.PageSwitch(), "Switch"},
+		{href.PageTextInput(), "Text input"},
+		{href.PageTextarea(), "Textarea"},
+		{href.PageToggle(), "Toggle"},
+		{href.PageToggleGroup(), "Toggle group"},
+	}},
+	{"Data", "braces", []NavLink{
+		{href.PageDatalist(), "Datalist"},
+		{href.PageOptgroup(), "Optgroup"},
+		{href.PageOption(), "Option"},
+	}},
+	{"Navigation", "menu", []NavLink{
+		{href.PageBreadcrumb(), "Breadcrumb"},
+		{href.PagePagination(), "Pagination"},
+		{href.PageSidebar(), "Sidebar"},
+		{href.PageTabs(), "Tabs"},
+		{href.PageTree(), "Tree"},
+	}},
+	{"Overlay", "message-square", []NavLink{
+		{href.PageContextMenu(), "Context menu"},
+		{href.PageDialog(), "Dialog"},
+		{href.PageDrawer(), "Drawer"},
+		{href.PageLightbox(), "Lightbox"},
+		{href.PageMenu(), "Menu"},
+		{href.PagePopover(), "Popover"},
+		{href.PageTooltip(), "Tooltip"},
+	}},
+	{"Feedback", "activity", []NavLink{
+		{href.PageAlert(), "Alert"},
+		{href.PageProgress(), "Progress"},
+		{href.PageSkeleton(), "Skeleton"},
+		{href.PageSpinner(), "Spinner"},
+		{href.PageToaster(), "Toaster"},
+	}},
+	{"Display", "eye", []NavLink{
+		{href.PageAura(), "Aura"},
+		{href.PageAvatar(), "Avatar"},
+		{href.PageAvatars(), "Avatars"},
+		{href.PageBadge(), "Badge"},
+		{href.PageCard(), "Card"},
+		{href.PageCarousel(), "Carousel"},
+		{href.PageIcon(), "Icon"},
+		{href.PageKbd(), "Kbd"},
+		{href.PageOdometer(), "Odometer"},
+		{href.PageRevealable(), "Revealable"},
+	}},
+	{"Layout", "move-diagonal", []NavLink{
+		{href.PageAutohide(), "Autohide"},
+		{href.PageElastic(), "Elastic"},
+		{href.PageLayout(), "Layout"},
+		{href.PageResizable(), "Resizable"},
+		{href.PageSortable(), "Sortable"},
+	}},
+	{"Utility", "square-function", []NavLink{
+		{href.PageBoundary(), "Boundary"},
+		{href.PageIfNetwork(), "If network"},
+		{href.PageIfPlatform(), "If platform"},
+		{href.PageKeys(), "Keys"},
+		{href.PageNavgroup(), "Navgroup"},
+		{href.PagePersist(), "Persist"},
+	}},
 }
 
 // cmdkRow is one baked entry in the Mod+K command palette, a site page
@@ -286,19 +308,13 @@ type cmdkRow struct {
 // DOM at render time; the browser-side <site-command-palette> only
 // filters and ranks.
 func commandPaletteRows() []cmdkRow {
-	groups := []struct {
-		name  string
-		links []NavLink
-	}{
-		{"Section", SectionLinks},
-		{"Component", ComponentLinks},
-		{"Utility Component", UtilityLinks},
-		{"Data Component", DataLinks},
-	}
 	var rows []cmdkRow
-	for _, g := range groups {
-		for _, l := range g.links {
-			rows = append(rows, cmdkRow{Path: l.Path, Label: l.Label, Group: g.name})
+	for _, l := range SectionLinks {
+		rows = append(rows, cmdkRow{Path: l.Path, Label: l.Label, Group: "Section"})
+	}
+	for _, g := range ComponentGroups {
+		for _, l := range g.Links {
+			rows = append(rows, cmdkRow{Path: l.Path, Label: l.Label, Group: g.Name + " Component"})
 		}
 	}
 	return rows
@@ -308,8 +324,7 @@ func commandPaletteRows() []cmdkRow {
 //
 //	index               -> Morpheus
 //	/components/        -> Morpheus > Components
-//	ComponentLinks      -> Morpheus > Components > <title>
-//	UtilityLinks        -> Morpheus > Components > <title>
+//	ComponentGroups     -> Morpheus > Components > <title>
 //	SectionLinks / etc  -> Morpheus > <title>
 func pageBreadcrumb(currentPath, title string) []neo.BreadcrumbItem {
 	if currentPath == href.PageIndex() {
@@ -321,7 +336,7 @@ func pageBreadcrumb(currentPath, title string) []neo.BreadcrumbItem {
 			{Label: "Components"},
 		}
 	}
-	if isInLinks(currentPath, ComponentLinks) || isInLinks(currentPath, UtilityLinks) || isInLinks(currentPath, DataLinks) {
+	if isComponentPage(currentPath) {
 		return []neo.BreadcrumbItem{
 			{Label: "Morpheus", Href: href.PageIndex()},
 			{Label: "Components", Href: href.PageComponents()},
@@ -334,10 +349,12 @@ func pageBreadcrumb(currentPath, title string) []neo.BreadcrumbItem {
 	}
 }
 
-func isInLinks(path string, links []NavLink) bool {
-	for _, l := range links {
-		if l.Path == path {
-			return true
+func isComponentPage(path string) bool {
+	for _, g := range ComponentGroups {
+		for _, l := range g.Links {
+			if l.Path == path {
+				return true
+			}
 		}
 	}
 	return false
