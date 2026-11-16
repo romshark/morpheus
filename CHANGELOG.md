@@ -37,6 +37,7 @@ This file records the notable changes of each release in the format of [Keep a C
 - Size a `<neo-textinput>` by a `width` set on it. `--neo-input-min-width` (12rem) was a floor that left a narrower field overflowing the element, and kept the field from shrinking in a narrow `<neo-input-group>`. It is now the width when none is set.
 - Keep the decimal point of a `value` set on a `<neo-textinput format="number">` with `thousands-separator="."`. The value "1234.56" showed as "123.456" and read back as "123456".
 - Align ArrowUp and ArrowDown in a `<neo-textinput>` without suggestions with native fields, which move the caret to the start or end, or select with Shift.
+- Keep the form value of a `<neo-textinput type="email">` in step when `case`, `prefix` or `numeric-only` changes the typed text. A capital letter in a `case="lower"` field threw an error and left the form value behind.
 
 ## [0.4.0] - 2026-11-13
 

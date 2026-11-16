@@ -1142,29 +1142,32 @@ export class NeoTextInput extends HTMLElement {
 		// An unchanged text keeps the browser's caret. Writing it back would fire
 		// a stray selectionchange and can disturb IME and autofill state.
 		if (formatted !== inp.value) {
-			// The caret goes to the largest p whose formatted[0..p] holds
-			// oldRawCursor raw chars, which is past the literals that follow them.
-			// Stopping at the first such p would put it at 1 for oldRawCursor 0,
-			// which bounces the caret after a backspace at 1 in plain text.
-			const oldCursor = inp.selectionStart ?? inp.value.length;
-			const oldRawCursor = this.#formatter.extractRaw(inp.value.slice(0, oldCursor)).length;
-
+			const oldCursor = inp.selectionStart;
+			const beforeCaret = inp.value.slice(0, oldCursor ?? 0);
 			inp.value = formatted;
-
-			let newCursor = formatted.length;
-			if (oldRawCursor < canonRaw.length) {
-				// O(N^2) extractRaw calls, fine under ~100 chars.
-				let p = 0;
-				while (p < formatted.length) {
-					p++;
-					const c = this.#formatter.extractRaw(formatted.slice(0, p)).length;
-					if (c > oldRawCursor) {
-						newCursor = p - 1;
-						break;
+			// type="email", "number" and others have no caret,
+			// and setSelectionRange throws on them.
+			if (oldCursor !== null) {
+				// The caret goes to the largest p whose formatted[0..p] holds
+				// oldRawCursor raw chars, which is past the literals that follow them.
+				// Stopping at the first such p would put it at 1 for oldRawCursor 0,
+				// which bounces the caret after a backspace at 1 in plain text.
+				const oldRawCursor = this.#formatter.extractRaw(beforeCaret).length;
+				let newCursor = formatted.length;
+				if (oldRawCursor < canonRaw.length) {
+					// O(N^2) extractRaw calls, fine under ~100 chars.
+					let p = 0;
+					while (p < formatted.length) {
+						p++;
+						const c = this.#formatter.extractRaw(formatted.slice(0, p)).length;
+						if (c > oldRawCursor) {
+							newCursor = p - 1;
+							break;
+						}
 					}
 				}
+				inp.setSelectionRange(newCursor, newCursor);
 			}
-			inp.setSelectionRange(newCursor, newCursor);
 		}
 
 		this.#syncFormValue();
@@ -1472,9 +1475,9 @@ export class NeoTextInput extends HTMLElement {
 		const formatted = fmt instanceof MaskFormatter ? (mask?.formatted ?? null) : this.#stepTarget(n);
 		if (formatted === null) return;
 		inp.value = formatted;
-		// The caret stays at the end of the stepped group,
-		// which makes the next step move the same group.
-		if (mask && this.#isInputFocused()) inp.setSelectionRange(mask.caret, mask.caret);
+		// The caret stays at the end of the stepped group, which makes the next
+		// step move the same group. A field without a caret, as type="email", skips it.
+		if (mask && this.#isInputFocused() && inp.selectionStart !== null) inp.setSelectionRange(mask.caret, mask.caret);
 		this.#syncFormValue();
 		this.#syncStepper();
 		this.#emitInput();
