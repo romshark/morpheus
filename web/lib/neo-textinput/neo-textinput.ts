@@ -272,6 +272,9 @@ class MaskFormatter implements Formatter {
 	}
 }
 
+// A number field's canonical value, such as "-1234.56".
+const CANONICAL_NUMBER = /^-?\d*\.?\d*$/;
+
 class NumberFormatter implements Formatter {
 	#decimalPlaces: number;
 	#decimalMark: string;
@@ -795,9 +798,9 @@ export class NeoTextInput extends HTMLElement {
 			this.#positionSuggest();
 			return;
 		}
-		// The rest shape the formatter, which reapplies to the shown text.
+		// The rest shape the formatter, which reparses the shown text.
 		this.#rebuildFormatter();
-		this.#applyValue(this.#innerInput.value);
+		this.#applyRaw(this.#formatter.extractRaw(this.#innerInput.value));
 		this.#updateRole();
 	}
 
@@ -957,12 +960,17 @@ export class NeoTextInput extends HTMLElement {
 		return raw;
 	}
 
-	// Accepts raw or formatted (extractRaw+format round-trips both).
+	// Takes the canonical value or the shown text. A number field reads a
+	// canonical-looking string as canonical, which keeps thousands-separator="."
+	// from taking the decimal point of "1234.56" for a separator.
 	#applyValue(value: string) {
+		const fmt = this.#formatter;
+		this.#applyRaw(fmt instanceof NumberFormatter && CANONICAL_NUMBER.test(value) ? value : fmt.extractRaw(value));
+	}
+
+	#applyRaw(raw: string) {
 		if (!this.#innerInput) return;
-		const raw = this.#formatter.extractRaw(value);
-		const { formatted } = this.#formatter.format(raw);
-		this.#innerInput.value = formatted;
+		this.#innerInput.value = this.#formatter.format(raw).formatted;
 		this.#syncFormValue();
 		this.#syncStepper();
 	}
