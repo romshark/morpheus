@@ -1,9 +1,9 @@
 /* <neo-icon> loads /static/icons/<name>.svg and inlines it into the host
  * so that `stroke="currentColor"` / `fill="currentColor"` inside the SVG
  * resolve against the host's `color` and icons pick up text color for free.
- * Override the directory globally with --neo-icon-base on :root (or
- * any ancestor), or per-instance with the `base` attribute. Size with
- * --neo-icon-size or plain width/height.
+ * Override the directory globally with --neo-icon-base on :root
+ * (or any ancestor), or per-instance with the `base` attribute.
+ * Size with --neo-icon-size or plain width/height.
  */
 
 :root {
@@ -15,12 +15,11 @@ neo-icon {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	/* `--neo-icon-size` is the content size of the SVG glyph. Padding on
-	 * the host (e.g. the input group's 0 0.6rem icon padding) sits
-	 * outside it, which requires content-box. The site sets
-	 * `* { box-sizing: border-box }` globally; without this override the
-	 * icon's 1em becomes the outer box, padding shrinks it, and the SVG
-	 * collapses to a 0-wide sliver. */
+	/* `--neo-icon-size` is the content size of the SVG glyph.
+	 * Padding on the host (e.g. the input group's 0 0.6rem icon padding) sits outside it,
+	 * which requires content-box. The site sets `* { box-sizing: border-box }` globally;
+	 * without this override the icon's 1em becomes the outer box, padding shrinks it,
+	 * and the SVG collapses to a 0-wide sliver. */
 	box-sizing: content-box;
 	width: var(--neo-icon-size);
 	height: var(--neo-icon-size);
@@ -29,14 +28,29 @@ neo-icon {
 	line-height: 0;
 }
 
-/* An icon with no `name` (or `name=""`) has nothing to render. Hide
- * the host so it doesn't reserve a 1em box that visibly disappears
+/* An icon with no `name` (or `name=""`) has nothing to render.
+ * Hide the host so it doesn't reserve a 1em box that visibly disappears
  * later when something (Datastar's `data-show`, the JS render(),
- * or just a name being removed) settles on the empty state. For a
- * Datastar-bound icon in a button, the host occupies space before
+ * or just a name being removed) settles on the empty state.
+ * For a Datastar-bound icon in a button, the host occupies space before
  * Datastar loads and `data-show` hides it after; on slow networks that
  * gap is visible as the button shrinking. */
 neo-icon:not([name]),
 neo-icon[name=""] {
 	display: none;
+}
+
+/* Skeleton while there is no SVG to paint: before the upgrade on a host
+ * the server didn't inline an SVG into, and after it until the fetch settles.
+ * The shared placeholder delay keeps a cached or fast fetch from flashing it.
+ * A pseudo-element, unlike a host background,
+ * keeps its corners rounded inside host padding. */
+neo-icon:not(:defined):not(:has(> svg))::before,
+neo-icon:state(loading)::before {
+	content: "";
+	width: 100%;
+	height: 100%;
+	border-radius: 25%;
+	background-color: var(--neo-skeleton-bg);
+	animation: var(--neo-placeholder-animation);
 }

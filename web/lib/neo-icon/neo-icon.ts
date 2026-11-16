@@ -1,8 +1,10 @@
 // Renders /static/icons/<name>.svg into a shadow root, fetched once per URL
 // (shared cache). Inlined rather than mask-image because Lucide icons use
-// stroke="currentColor", unreliable in external mask contexts (notably
-// Safari). The shadow root has no <slot>, which keeps fat-morphs of the
+// stroke="currentColor", unreliable in external mask contexts (notably Safari).
+// The shadow root has no <slot>, which keeps fat-morphs of the
 // host's light DOM from disturbing the SVG.
+
+import { setState } from "../internal-state";
 
 const cache = new Map<string, Promise<string>>();
 
@@ -43,13 +45,13 @@ ICON_SHEET.replaceSync(`svg { width: 100%; height: 100%; display: block; }`);
 export class NeoIcon extends HTMLElement {
 	static readonly observedAttributes = ["name", "base"];
 	// Resolving --neo-icon-base via getComputedStyle is layout-bound.
-	// Doing it synchronously for every SSR icon at upgrade can wedge
-	// large pages; a theme swap re-runs it for the whole page. Batch
-	// across frames.
+	// Doing it synchronously for every SSR icon at upgrade can wedge large pages;
+	// a theme swap re-runs it for the whole page. Batch across frames.
 	static readonly #RENDER_BATCH_SIZE = 8;
 	static #renderQueue = new Set<NeoIcon>();
 	static #renderFrame = 0;
 
+	#internals = this.attachInternals();
 	#shadow: ShadowRoot | null = null;
 	#token = 0;
 	// Dedupes redundant renders (1 `attributeChangedCallback` per
@@ -60,7 +62,14 @@ export class NeoIcon extends HTMLElement {
 		// `--neo-icon-base` flips between icon sets on theme change;
 		// switchers dispatch a bubbling `neo-theme-change`.
 		window.addEventListener("neo-theme-change", this.#onThemeChange);
-		if (this.#token === 0) NeoIcon.#enqueueRender(this);
+		if (this.#token === 0) {
+			// Set before the first batched render, in the same task as the upgrade.
+			// The skeleton animation then continues from the
+			// :not(:defined) rule instead of restarting its delay.
+			const ssrSVG = this.firstElementChild instanceof SVGSVGElement;
+			setState(this.#internals, "loading", !!this.getAttribute("name") && !ssrSVG);
+			NeoIcon.#enqueueRender(this);
+		}
 	}
 
 	disconnectedCallback() {
@@ -106,6 +115,7 @@ export class NeoIcon extends HTMLElement {
 		if (!name) {
 			this.#shadow?.replaceChildren();
 			this.#renderedURL = null;
+			setState(this.#internals, "loading", false);
 			return;
 		}
 		const attr = this.getAttribute("base");
@@ -125,10 +135,9 @@ export class NeoIcon extends HTMLElement {
 		const url = `${base}/${encodeURIComponent(name)}.svg`;
 		// Dedupe upgrade-time double-fire and same-URL theme changes.
 		if (this.#renderedURL === url) return;
-		// Adopt the SSR-inlined SVG only if the server's base matches the
-		// resolved one; otherwise a themed user gets pinned to the
-		// default-theme SVG. `attachShadow` + `appendChild` are synchronous
-		// so light DOM never paints empty.
+		// Adopt the SSR-inlined SVG only if the server's base matches the resolved one;
+		// otherwise a themed user gets pinned to the default-theme SVG.
+		// `attachShadow` + `appendChild` are synchronous so light DOM never paints empty.
 		if (this.#shadow === null && this.firstElementChild instanceof SVGSVGElement && this.dataset.neoIconBase === base) {
 			const svg = this.firstElementChild;
 			svg.setAttribute("part", "svg");
@@ -136,18 +145,22 @@ export class NeoIcon extends HTMLElement {
 			this.#shadow.adoptedStyleSheets = [ICON_SHEET];
 			this.#shadow.appendChild(svg);
 			this.#renderedURL = url;
+			setState(this.#internals, "loading", false);
 			return;
 		}
 		if (this.#shadow === null) {
 			this.#shadow = this.attachShadow({ mode: "open" });
 			this.#shadow.adoptedStyleSheets = [ICON_SHEET];
 		}
+		// A shown SVG stays up while its replacement loads.
+		if (this.#shadow.firstElementChild === null) setState(this.#internals, "loading", true);
 		const markup = await load(url);
 		// Only the latest render call applies.
 		if (mine !== this.#token) return;
 		this.#shadow.innerHTML = markup;
 		this.#shadow.firstElementChild?.setAttribute("part", "svg");
 		this.#renderedURL = url;
+		setState(this.#internals, "loading", false);
 	}
 }
 

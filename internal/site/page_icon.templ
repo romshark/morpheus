@@ -140,4 +140,8 @@ var iconDoc = ComponentDoc{
 		{Name: "--neo-icon-size", Default: "1em",
 			Description: templ.Raw("Glyph width and height.")},
 	},
+	States: []DocState{
+		{Name: "loading",
+			Description: templ.Raw("Set while the SVG loads and the host has none to show. The host shows a pulsing skeleton after <code>--neo-placeholder-delay</code>, as it does before the upgrade when the server inlined no SVG. Restyle it with <code>neo-icon:state(loading)::before</code>.")},
+	},
 }
