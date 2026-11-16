@@ -10,7 +10,7 @@
  *   - the manual `:root[data-pref-contrast-more]` hook.
  *
  * First paint needs nothing here. Before upgrade the host matches
- * `neo-slider:not(:defined)` (a skeleton placeholder in style.css); after
+ * `neo-slider:not(:defined)` (a size reservation in _placeholders.css); after
  * upgrade the adopted `:host` rules take over. */
 
 :root {
