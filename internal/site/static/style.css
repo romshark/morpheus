@@ -130,6 +130,17 @@ code {
 	display: flex;
 	min-height: 100dvh;
 	align-items: flex-start;
+	--app-settings-width: clamp(18rem, 82vw, 24rem);
+}
+
+/* The settings panel ends the HTML, and a first load paints the page
+ * before the parser reaches it. Hold the column the panel opens into,
+ * or the main column narrows when it arrives. 70rem is the panel's
+ * overlay-breakpoint, above which it starts open. */
+@media (width > 70rem) {
+	.app-shell:not(:has(> #app-settings-panel)) > .app-shell-main {
+		margin-inline-end: var(--app-settings-width);
+	}
 }
 
 /* Full-height page sidebar; 100dvh (not 100vh) for mobile browser UI.
@@ -207,7 +218,7 @@ code {
 }
 
 .app-settings-sidebar {
-	--neo-sidebar-width: clamp(18rem, 82vw, 24rem);
+	--neo-sidebar-width: var(--app-settings-width);
 	--neo-sidebar-bg: var(--page-bg);
 	--neo-sidebar-fg: var(--page-fg);
 	--neo-sidebar-backdrop-bg: rgba(0, 0, 0, 0.28);
