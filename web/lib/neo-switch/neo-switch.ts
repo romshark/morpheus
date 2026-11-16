@@ -1,4 +1,5 @@
 import { boolAttr, boolCommand } from "../command";
+import { DisabledFocus } from "../disabled-focus";
 import { nameFromLabel } from "../label-name";
 import { observeManagedAttrs, setAttrIfChanged } from "../neo-morph-resilient";
 
@@ -7,6 +8,7 @@ const RESILIENT_ATTRS = ["role", "tabindex", "aria-disabled", "aria-checked", "a
 export class NeoSwitch extends HTMLElement {
 	static readonly observedAttributes = ["checked", "disabled"];
 
+	#disabledFocus = new DisabledFocus(this);
 	#morphObserver: MutationObserver | null = null;
 	// Checked intent; `checked` is its reflection (see command).
 	// Survives a morph that strips the attribute so a fat morph omitting `checked`
@@ -40,12 +42,12 @@ export class NeoSwitch extends HTMLElement {
 	#resync = () => {
 		if (!this.hasAttribute("role")) this.setAttribute("role", "switch");
 		nameFromLabel(this);
-		this.#syncDisabledState();
+		this.#disabledFocus.sync();
 		this.#reflectChecked();
 	};
 
 	attributeChangedCallback(name: string) {
-		if (name === "disabled") this.#syncDisabledState();
+		if (name === "disabled") this.#disabledFocus.sync();
 		if (name === "checked") {
 			if (this.#reflectingChecked) return;
 			const cmd = boolCommand(this, "checked");
@@ -93,16 +95,6 @@ export class NeoSwitch extends HTMLElement {
 
 	#syncCheckedState() {
 		setAttrIfChanged(this, "aria-checked", String(this.checked));
-	}
-
-	#syncDisabledState() {
-		if (boolAttr(this, "disabled", false)) {
-			setAttrIfChanged(this, "aria-disabled", "true");
-			setAttrIfChanged(this, "tabindex", "-1");
-		} else {
-			this.removeAttribute("aria-disabled");
-			if (!this.hasAttribute("tabindex")) this.setAttribute("tabindex", "0");
-		}
 	}
 
 	#onClick = (e: MouseEvent) => {

@@ -1,4 +1,5 @@
 import { boolAttr, boolCommand } from "../command";
+import { DisabledFocus } from "../disabled-focus";
 import { observeManagedAttrs, setAttrIfChanged } from "../neo-morph-resilient";
 
 // `role` is already in observedAttributes so syncPressedState can swap
@@ -9,6 +10,7 @@ const RESILIENT_ATTRS = ["role", "tabindex", "aria-disabled", "aria-pressed", "a
 export class NeoToggle extends HTMLElement {
 	static readonly observedAttributes = ["pressed", "disabled", "role"];
 
+	#disabledFocus = new DisabledFocus(this);
 	#morphObserver: MutationObserver | null = null;
 	// Pressed intent; `pressed` is its reflection (see command).
 	// Survives a morph that strips the attribute so a fat morph omitting
@@ -34,7 +36,7 @@ export class NeoToggle extends HTMLElement {
 	}
 
 	attributeChangedCallback(name: string) {
-		if (name === "disabled") this.#syncDisabledState();
+		if (name === "disabled") this.#disabledFocus.sync();
 		if (name === "role") this.#syncPressedState();
 		if (name === "pressed") {
 			if (this.#reflectingPressed) return;
@@ -83,7 +85,7 @@ export class NeoToggle extends HTMLElement {
 
 	#resync = () => {
 		if (!this.hasAttribute("role")) this.setAttribute("role", "button");
-		this.#syncDisabledState();
+		this.#disabledFocus.sync();
 		this.#reflectPressed();
 	};
 
@@ -95,16 +97,6 @@ export class NeoToggle extends HTMLElement {
 		} else {
 			setAttrIfChanged(this, "aria-pressed", pressed);
 			this.removeAttribute("aria-checked");
-		}
-	}
-
-	#syncDisabledState() {
-		if (boolAttr(this, "disabled", false)) {
-			setAttrIfChanged(this, "aria-disabled", "true");
-			setAttrIfChanged(this, "tabindex", "-1");
-		} else {
-			this.removeAttribute("aria-disabled");
-			if (!this.hasAttribute("tabindex")) this.setAttribute("tabindex", "0");
 		}
 	}
 

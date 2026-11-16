@@ -1,4 +1,5 @@
 import { boolAttr, boolCommand } from "../command";
+import { DisabledFocus } from "../disabled-focus";
 import { nameFromLabel } from "../label-name";
 import { observeManagedAttrs, setAttrIfChanged } from "../neo-morph-resilient";
 
@@ -7,7 +8,7 @@ const RESILIENT_ATTRS = ["role", "tabindex", "aria-disabled", "aria-checked", "a
 export class NeoCheckbox extends HTMLElement {
 	static readonly observedAttributes = ["checked", "indeterminate", "disabled"];
 
-	#callerTabIndex: string | null = null;
+	#disabledFocus = new DisabledFocus(this);
 	#morphObserver: MutationObserver | null = null;
 	// Checked / indeterminate intent; the attributes reflect them (see
 	// command). Survive a morph that strips them so a fat morph omitting them
@@ -17,7 +18,6 @@ export class NeoCheckbox extends HTMLElement {
 	#reflecting = false;
 
 	connectedCallback() {
-		this.#callerTabIndex = this.getAttribute("tabindex");
 		// Explicit value commands intent; absent keeps prior intent.
 		const checkedCmd = boolCommand(this, "checked");
 		if (checkedCmd !== null) this.#checkedIntent = checkedCmd;
@@ -44,12 +44,12 @@ export class NeoCheckbox extends HTMLElement {
 	#resync = () => {
 		if (!this.hasAttribute("role")) this.setAttribute("role", "checkbox");
 		nameFromLabel(this);
-		this.#syncDisabledState();
+		this.#disabledFocus.sync();
 		this.#reflectState();
 	};
 
 	attributeChangedCallback(name: string) {
-		if (name === "disabled") this.#syncDisabledState();
+		if (name === "disabled") this.#disabledFocus.sync();
 		if (name === "checked" || name === "indeterminate") {
 			if (this.#reflecting) return;
 			const cmd = boolCommand(this, name);
@@ -128,16 +128,6 @@ export class NeoCheckbox extends HTMLElement {
 			setAttrIfChanged(this, "aria-checked", "mixed");
 		} else {
 			setAttrIfChanged(this, "aria-checked", String(this.checked));
-		}
-	}
-
-	#syncDisabledState() {
-		if (boolAttr(this, "disabled", false)) {
-			setAttrIfChanged(this, "aria-disabled", "true");
-			setAttrIfChanged(this, "tabindex", "-1");
-		} else {
-			this.removeAttribute("aria-disabled");
-			setAttrIfChanged(this, "tabindex", this.#callerTabIndex ?? "0");
 		}
 	}
 
