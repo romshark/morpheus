@@ -80,6 +80,8 @@ interface FormatResult {
 // #onInput keeps the caret by counting the raw chars before it,
 // then finding the spot in the reformatted text with as many.
 interface Formatter {
+	// format() puts the prefix first.
+	readonly prefixLength: number;
 	format(raw: string): FormatResult;
 	extractRaw(formatted: string): string;
 	// Rejects a keystroke before it lands.
@@ -100,6 +102,10 @@ class PlainFormatter implements Formatter {
 		this.#prefix = prefix;
 		this.#caseMode = caseMode;
 		this.#numericOnly = numericOnly;
+	}
+
+	get prefixLength(): number {
+		return this.#prefix.length;
 	}
 
 	format(raw: string): FormatResult {
@@ -286,6 +292,10 @@ class NumberFormatter implements Formatter {
 		this.#decimalMark = decimalMark;
 		this.#thousandsSep = thousandsSep;
 		this.#prefix = prefix;
+	}
+
+	get prefixLength(): number {
+		return this.#prefix.length;
 	}
 
 	format(raw: string): FormatResult {
@@ -1155,8 +1165,10 @@ export class NeoTextInput extends HTMLElement {
 				const oldRawCursor = this.#formatter.extractRaw(beforeCaret).length;
 				let newCursor = formatted.length;
 				if (oldRawCursor < canonRaw.length) {
-					// O(N^2) extractRaw calls, fine under ~100 chars.
-					let p = 0;
+					// The walk starts past the prefix. extractRaw doesn't strip
+					// a partial prefix ("I" of "ID-") and counts it as raw. O(N^2)
+					// extractRaw calls, fine under ~100 chars.
+					let p = this.#formatter.prefixLength;
 					while (p < formatted.length) {
 						p++;
 						const c = this.#formatter.extractRaw(formatted.slice(0, p)).length;
