@@ -2583,6 +2583,10 @@ neo-slider-range:not(:defined) > * {
 	/* The column gap the upgraded grid puts between rail and marks. */
 	margin-inline: 0 0.75rem;
 }
+/* The /slider/ value-bar example lays its header over the rail. */
+neo-slider.slider-value-bar-pg:not(:defined)::before {
+	display: none;
+}
 /* A collapsed header still leaves its empty grid row and row gap above the
  * vertical rail; keep the stub as a 0-height item to match. */
 :is(neo-slider, neo-slider-range):not(:defined)[vertical]:not([vertical="false"]):is(
