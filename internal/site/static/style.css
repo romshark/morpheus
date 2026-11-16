@@ -2531,6 +2531,8 @@ neo-slider-range:not(:defined)::before {
 	content: "";
 	display: block;
 	height: 0.85em;
+	/* Pads the bar to the upgraded header's line box (line-height 1.2). */
+	margin-block: calc((1.2em - 0.85em) / 2);
 	width: 6em;
 	background: var(--neo-skeleton-bg);
 	border-radius: var(--neo-skeleton-radius);
