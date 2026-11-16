@@ -1,11 +1,11 @@
 /* Fonts that themes name in --page-font-family. The theme files ship no
- * @font-face because /static/fonts/ exists only on this site. A font
- * downloads only while the active theme uses it, and `font-display: swap`
+ * @font-face because /static/fonts/ exists only on this site.
+ * A font downloads only while the active theme uses it, and `font-display: swap`
  * paints the theme's fallback chain during the fetch.
  *
- * Nunito by Nunito Project Authors, OFL-licensed (see
- * /static/fonts/nunito-OFL.txt). 1 variable latin file covers the
- * 400-900 weights. */
+ * Nunito by Nunito Project Authors, OFL-licensed
+ * (see /static/fonts/nunito-OFL.txt).
+ * 1 variable latin file covers the 400-900 weights. */
 @font-face {
 	font-family: "Nunito";
 	src: url("/static/fonts/nunito-latin-variable.woff2") format("woff2");
@@ -124,8 +124,8 @@ code {
 }
 
 /* App shell: sidebar left, main column right. `align-items:
- * flex-start` so a full-height sidebar doesn't stretch the shell, and
- * a short sidebar doesn't stretch to match the page. */
+ * flex-start` so a full-height sidebar doesn't stretch the shell,
+ * and a short sidebar doesn't stretch to match the page. */
 .app-shell {
 	display: flex;
 	min-height: 100dvh;
@@ -518,12 +518,11 @@ header h1 {
 	margin-bottom: .5rem;
 }
 
-/* Documentation body prose. Doc sections are flex columns (see the
- * `section` rule), where adjacent margins don't collapse. A paragraph
- * (margin-bottom) followed by a list (margin-top) would stack 2 margins
- * and double the gap. Use bottom-only margins for a single, consistent
- * rhythm. :where() keeps specificity 0 so classed variants (.intro,
- * .demo-note) and component demos still win. */
+/* Documentation body prose. Doc sections are flex columns (see the `section` rule),
+ * where adjacent margins don't collapse. A paragraph (margin-bottom) followed by
+ * a list (margin-top) would stack 2 margins and double the gap. Use bottom-only margins
+ * for a single, consistent rhythm. :where() keeps specificity 0 so classed variants
+ * (.intro, .demo-note) and component demos still win. */
 :where(#app-main p, #app-main ul, #app-main ol) {
 	margin: 0 0 1rem;
 }
@@ -638,8 +637,7 @@ ul.demo-note li + li {
 	}
 }
 
-/* Separator between the previous settings section (Playgrounds)
- * and Server Simulator. */
+/* Separator between the previous settings section (Playgrounds) and Server Simulator. */
 .sim-settings {
 	border-top: 1px solid var(--btn-border);
 	padding-top: 1rem;
@@ -665,9 +663,8 @@ neo-tooltip.sim-settings-warning {
 	line-height: 0;
 }
 
-/* Lift the wide-mode sticky sidebar above the app-bar (z-index:10) so
- * descendant tooltips don't paint behind it. Overlay mode already
- * gets z-index:60 from the kit. */
+/* Lift the wide-mode sticky sidebar above the app-bar (z-index:10) so descendant
+ * tooltips don't paint behind it. Overlay mode already gets z-index:60 from the kit. */
 @media not (max-width: 70rem) {
 	.app-settings-sidebar:not(:state(overlay)) {
 		z-index: 20;
@@ -749,8 +746,7 @@ neo-tooltip.sim-settings-warning {
 }
 
 /* Stacked label-above-control row, full-width, used for big inputs
- * (textareas with HTML / JSON content) that don't fit the regular
- * label-input grid. */
+ * (textareas with HTML / JSON content) that don't fit the regular label-input grid. */
 .sim-settings-stack {
 	display: grid;
 	grid-template-columns: minmax(0, 1fr);
@@ -785,8 +781,7 @@ neo-tooltip.sim-settings-warning {
 
 /* Stretch select/combobox hosts to fill the stack column; drop the
  * kit's 12rem trigger min-width so the trigger shrinks with the stage
- * (else the host overflows a small parent instead of the label
- * clipping). */
+ * (else the host overflows a small parent instead of the label clipping). */
 .sim-settings-stack > neo-select,
 .sim-settings-stack > neo-combobox,
 .demo-combobox-stretch > neo-combobox {
@@ -831,8 +826,7 @@ neo-input-group > .demo-input-group-select {
 }
 
 /* Glyph-only operator select: hide the caret so the symbol is the
- * whole control. Crosses the shadow boundary via the exposed `caret`
- * part. */
+ * whole control. Crosses the shadow boundary via the exposed `caret` part. */
 .demo-input-group-operator::part(caret) {
 	display: none;
 }
@@ -906,9 +900,8 @@ neo-textinput.text-input-demo-live {
 	min-width: 0;
 	max-width: 100%;
 	border-top: 1px solid var(--btn-border);
-	/* Opaque layer over the wrapper's dot grid (4% page-fg on an
-	 * opaque var(--btn-bg) base) so dots don't bleed through the
-	 * footer strip. */
+	/* Opaque layer over the wrapper's dot grid (4% page-fg on an opaque
+	 * var(--btn-bg) base) so dots don't bleed through the footer strip. */
 	background: color-mix(in srgb, var(--page-fg) 4%, var(--btn-bg));
 }
 
@@ -1046,9 +1039,9 @@ site-codemirror[data-site-codemirror-loading] > .site-codemirror-loading {
 		margin: 0.55rem 0.85rem 0;
 	}
 	/* Hide-tab active: add bottom-only inset matching the top so the
- * chip's vertical position doesn't shift during tab toggle. Structural
- * match, not `[value="hide"]`, to avoid value-keyed :has() invalidation
- * (see the .demo-frame-footer-resize rule). */
+     * chip's vertical position doesn't shift during tab toggle.
+	 * Structural match, not `[value="hide"]`, to avoid value-keyed :has()
+	 * invalidation (see the .demo-frame-footer-resize rule). */
 	&:has(
 		neo-tab:first-child[aria-selected="true"]
 	)
@@ -1124,8 +1117,7 @@ site-codemirror[data-site-codemirror-loading] > .site-codemirror-loading {
 	background-position:
 		calc(var(--page-spacing, 0.25rem) * 2)
 		calc(var(--page-spacing, 0.25rem) * 2);
-	/* Clip the dot grid so dots near the border don't bleed past
-	 * the rounded corner. */
+	/* Clip the dot grid so dots near the border don't bleed past the rounded corner. */
 	background-clip: padding-box;
 	overflow: hidden;
 	min-width: 14rem;
@@ -1279,8 +1271,8 @@ site-codemirror[data-site-codemirror-loading] > .site-codemirror-loading {
 
 	&[data-active] {
 		/* A subtle wash + bold weight, not a solid accent fill, because a
-		 * fill matches the accent focus ring on the name and the 2 blend
-		 * together. Stays just above the non-active items. */
+		 * fill matches the accent focus ring on the name and the 2 blend together.
+		 * Stays just above the non-active items. */
 		background: color-mix(in srgb, var(--accent) 14%, var(--neo-button-secondary-bg));
 		border-color: color-mix(in srgb, var(--accent) 32%, var(--btn-border));
 		font-weight: 700;
@@ -1392,8 +1384,8 @@ site-codemirror[data-site-codemirror-loading] > .site-codemirror-loading {
 	background-size:
 		calc(var(--page-spacing, 0.25rem) * 4)
 		calc(var(--page-spacing, 0.25rem) * 4);
-	/* Clip here; the preview inside is the scroll container. The
-	 * resizable's fractional border-box size plus its absolute handles
+	/* Clip here; the preview inside is the scroll container.
+	 * The resizable's fractional border-box size plus its absolute handles
 	 * make overflow:auto on the host itself scrollable by a pixel. */
 	overflow: hidden;
 }
@@ -1481,9 +1473,8 @@ site-codemirror[data-site-codemirror-loading] > .site-codemirror-loading {
 		justify-content: space-between;
 		gap: 0.5rem;
 		/* Fixed, which keeps the code and signals heads level. Their tallest
-		   items (tab list, info button) scale with --page-spacing at
-		   different rates, and a content height differs per theme. This
-		   always fits both. */
+		 * items (tab list, info button) scale with --page-spacing at different rates,
+		 * and a content height differs per theme. This always fits both. */
 		height: calc(var(--page-spacing, 0.25rem) * 4 + 2rem);
 		padding: 0 0.4rem 0 0.8rem;
 		border-bottom: 1px solid var(--btn-border);
@@ -1772,8 +1763,8 @@ neo-popover[data-neo-avatars-overflow] {
 	color: var(--muted);
 }
 
-/* Menu-style popover navgroup used by the cascading-menus demo. Strip
- * the button styling from items so they read as rows, keep a subtle
+/* Menu-style popover navgroup used by the cascading-menus demo.
+ * Strip the button styling from items so they read as rows, keep a subtle
  * hover/expanded state, and let the chevron of submenu triggers sit
  * flush right via `space-between`. */
 .popover-menu {
@@ -1888,8 +1879,8 @@ neo-popover:has(> [data-neo-popover-content] > .popover-menu) {
 	line-height: 1.5;
 }
 
-/* Drawer page: async-loading demo. Same shape as the dialog
- * variant, a single column shared by the skeleton placeholder and
+/* Drawer page: async-loading demo. Same shape as the dialog variant,
+ * a single column shared by the skeleton placeholder and
  * the loaded card so the morph is a straight content swap. */
 .drawer-async-slot {
 	display: flex;
@@ -1924,8 +1915,8 @@ neo-popover:has(> [data-neo-popover-content] > .popover-menu) {
 	}
 }
 
-/* Steps list in a <neo-elastic> animates each streamed patch's height
- * delta. min-height anchors the skeleton tall enough that the first
+/* Steps list in a <neo-elastic> animates each streamed patch's height delta.
+ * min-height anchors the skeleton tall enough that the first
  * 1-row patch doesn't shrink the dialog. */
 .dialog-patching-slot {
 	display: flex;
@@ -1959,9 +1950,8 @@ neo-popover:has(> [data-neo-popover-content] > .popover-menu) {
 		padding: 0.2rem 0;
 		font-size: 0.95rem;
 	}
-	/* Done rows fade to muted so the active row stands out; the
- * ::after on accent ticks gives the eye an anchor as new rows
- * accumulate. */
+	/* Done rows fade to muted so the active row stands out; the ::after on
+	 * accent ticks gives the eye an anchor as new rows accumulate. */
 	& > li[data-state="done"] {
 		color: var(--muted);
 	}
@@ -2015,9 +2005,8 @@ neo-popover:has(> [data-neo-popover-content] > .popover-menu) {
 	container-name: neo-sidebar-shell;
 	contain: paint;
 	/* Variant that follows the parent demo-frame stage's resized height
- * instead of pinning a fixed minimum. The tree demo can then be
- * dragged smaller and the sidebar's body scrolls instead of
- * overflowing the frame. */
+     * instead of pinning a fixed minimum. The tree demo can then be dragged smaller
+	 * and the sidebar's body scrolls instead of overflowing the frame. */
 	&.sidebar-preview--fill {
 		min-height: 0;
 		height: 100%;
@@ -2382,9 +2371,8 @@ neo-tabs[easing][exit-animation="tabs-tilt"]:state(backward)
 	}
 
 	/* Description cell flows as a block (no label; a grid would split
-	 * its inline prose children, and an empty cell collapses out).
-	 * After the generic [data-label]::before so content:none wins the
-	 * source-order tie. */
+	 * its inline prose children, and an empty cell collapses out). After the generic
+	 * [data-label]::before so content:none wins the source-order tie. */
 	.api-table tbody td[data-label="Description"] {
 		display: block;
 	}
@@ -2468,8 +2456,7 @@ neo-tabs[easing][exit-animation="tabs-tilt"]:state(backward)
 		color: var(--page-fg);
 	}
 
-	/* Lock body scroll so iOS touch-scroll can't reach the page
-	 * behind the overlay. */
+	/* Lock body scroll so iOS touch-scroll can't reach the page behind the overlay. */
 	body:has(.narrow-overlay) {
 		overflow: hidden;
 	}
@@ -2543,7 +2530,10 @@ neo-slider.slider-value-bar-pg:not(:defined)::before {
 	display: none;
 }
 
-neo-tabs:not(:defined),
+/* Demo-frame source tabs are left out: the server renders their selected tab and
+ * hidden panels, which the kit styles from the attributes, and they open on the Hide
+ * tab, only the tab strip. The 8rem skeleton was 76px taller than that strip. */
+neo-tabs:not(:defined):not(.demo-frame-footer-tabs),
 neo-tree:not(:defined) {
 	display: block;
 	min-height: 8rem;
@@ -2551,16 +2541,16 @@ neo-tree:not(:defined) {
 	border-radius: var(--neo-skeleton-radius);
 	animation: var(--neo-placeholder-animation);
 }
-neo-tabs:not(:defined) > *,
+neo-tabs:not(:defined):not(.demo-frame-footer-tabs) > *,
 neo-tree:not(:defined) > * {
 	display: none;
 }
 
 /* Tab parts: hide pre-upgrade so the stacked tablist + every panel doesn't flash
  * before <neo-tabs> upgrades and applies `hidden` to inactive panels. */
-neo-tabs > neo-tablist:not(:defined),
-neo-tabs > neo-tablist:not(:defined) neo-tab:not(:defined),
-neo-tabs > neo-tabpanel:not(:defined) {
+neo-tabs:not(.demo-frame-footer-tabs) > neo-tablist:not(:defined),
+neo-tabs:not(.demo-frame-footer-tabs) > neo-tablist:not(:defined) neo-tab:not(:defined),
+neo-tabs:not(.demo-frame-footer-tabs) > neo-tabpanel:not(:defined) {
 	display: none;
 }
 
@@ -2786,8 +2776,7 @@ site-command-palette {
 	 * top offset, which makes a long (capped) list fill to a centered-looking box.
 	 * Horizontal margin stays auto (from neo-dialog's margin shorthand). */
 	--site-cmdk-top: 18dvh;
-	/* Fixed header and footer heights, which lets the list cap subtract
-	 * them exactly. */
+	/* Fixed header and footer heights, which lets the list cap subtract them exactly. */
 	--site-cmdk-header: 3.625rem;
 	--site-cmdk-footer: 2.25rem;
 	margin-block: var(--site-cmdk-top) auto;
@@ -2894,8 +2883,7 @@ site-command-palette {
 	color: var(--muted);
 }
 
-/* API rows are code names (attributes, events, CSS variables), set like
- * inline code. */
+/* API rows are code names (attributes, events, CSS variables), set like inline code. */
 .site-cmdk-row[data-site-cmdk-kind="api"] .site-cmdk-row-label {
 	font-family: ui-monospace, monospace;
 	font-size: 0.9em;
