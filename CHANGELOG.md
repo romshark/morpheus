@@ -34,6 +34,7 @@ This file records the notable changes of each release in the format of [Keep a C
 
 #### Components
 
+- Size a `<neo-skeleton variant="circle">` or `variant="line"` by a `width` or `height` set from a class. The variant defaults overrode it, and a circle in a flex row rendered at 0x0.
 - Follow a right-to-left `dir` in `<neo-tabs>`, `<neo-radio-group>`, `<neo-toggle-group>`, `<neo-buttongroup>`, `<neo-tree>`, `<neo-menu>`, `<neo-submenu>`, `<neo-carousel>`, `<neo-sortable>`, `<neo-slider>`, `<neo-slider-range>`, `<neo-progress>`, `<neo-switch>`, `<neo-pagination>` and `<neo-input-group>`. Left and Right arrows moved the wrong way, and fills, thumbs, rounded corners and chevrons stayed left to right.
 - Mirror the `*-start` and `*-end` placements of popovers, selects, comboboxes, menus and text input suggestions in a right-to-left context. They aligned to the left edge.
 - Size a `<neo-textinput>` by a `width` set on it. `--neo-input-min-width` (12rem) was a floor that left a narrower field overflowing the element, and kept the field from shrinking in a narrow `<neo-input-group>`. It is now the width when none is set.

@@ -348,7 +348,7 @@ func PageSkeleton(morpheusVersion string) templ.Component {
 			var templ_7745c5c3_Var16 string
 			templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(`variant="line"`)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_skeleton.templ`, Line: 88, Col: 28}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_skeleton.templ`, Line: 87, Col: 28}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 			if templ_7745c5c3_Err != nil {
@@ -440,13 +440,13 @@ func PageSkeleton(morpheusVersion string) templ.Component {
 			var templ_7745c5c3_Var20 string
 			templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(`<div class="skel-card">`)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_skeleton.templ`, Line: 118, Col: 42}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_skeleton.templ`, Line: 114, Col: 42}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</code> root stays mounted across the morph; only its inner nodes swap, reconciling <strong>Loading</strong> into <strong>Content loaded</strong> and back.</li><li>A response that lands inside the fade-in delay swaps straight to content with no skeleton flash; add <code>immediate</code> to opt out.</li></ul>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</code> root stays mounted across the morph; only its inner nodes swap, reconciling <strong>Loading</strong> into <strong>Content loaded</strong> and back.</li><li>Each skeleton shares its class and text element with the content that replaces it. Both states measure the same, and the card doesn't shift.</li><li>A response that lands inside the fade-in delay swaps straight to content with no skeleton flash; add <code>immediate</code> to opt out.</li></ul>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

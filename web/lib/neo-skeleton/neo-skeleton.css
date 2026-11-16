@@ -7,41 +7,44 @@
 	--neo-skeleton-radius: var(--page-radius, 0.25rem);
 	--neo-skeleton-default-height: 1rem;
 	/* Anti-flash window. The skeleton stays invisible for the delay, then
-	 * fades in. Content that resolves within the delay never flashes a
-	 * skeleton. `immediate` opts out. */
+	 * fades in. Content that resolves within the delay never flashes a skeleton.
+	 * `immediate` opts out. */
 	--neo-skeleton-fade-delay: 0.3s;
 	--neo-skeleton-fade-duration: 0.4s;
 }
 
 neo-skeleton {
-	/* Marks this stylesheet as loaded so the kit can flag a trimmed CSS-only component. */
+	/* Marks this stylesheet as loaded so the kit
+	 * can flag a trimmed CSS-only component. */
 	--neo-loaded: neo-skeleton;
 	display: block;
 	width: 100%;
 	height: var(--neo-skeleton-default-height);
 	background-color: var(--neo-skeleton-bg);
 	border-radius: var(--neo-skeleton-radius);
-	/* `both` holds opacity at 0 through the delay. Removing the element
-	 * before the delay elapses shows nothing. */
+	/* `both` holds opacity at 0 through the delay.
+	 * Removing the element before the delay elapses shows nothing. */
 	animation:
 		neo-skeleton-fade-in var(--neo-skeleton-fade-duration) ease-out var(--neo-skeleton-fade-delay) both,
 		neo-skeleton-pulse var(--neo-skeleton-duration) ease-in-out infinite;
 }
 
-/* Appear instantly, for placeholders shown when a long load is already
- * known, where the fade would just feel sluggish. */
+/* Appear instantly, for placeholders shown when a long load is already known,
+ * where the fade would just feel sluggish. */
 neo-skeleton[immediate]:where(:not([immediate="false"])) {
 	animation: neo-skeleton-pulse var(--neo-skeleton-duration) ease-in-out infinite;
 }
 
-neo-skeleton[variant="circle"] {
+/* :where() keeps the variants at type specificity,
+ * so a size set by a class (`.avatar { width: 3rem }`) wins. */
+neo-skeleton:where([variant="circle"]) {
 	border-radius: 50%;
 	aspect-ratio: 1 / 1;
 	width: auto;
 	height: auto;
 }
 
-neo-skeleton[variant="line"] {
+neo-skeleton:where([variant="line"]) {
 	display: inline-block;
 	vertical-align: middle;
 	height: 0.85em;

@@ -68,9 +68,8 @@ templ PageSkeleton(morpheusVersion string) {
 				The
 				<code>{ `variant="circle"` }</code> preset gives a
 				1:1 round placeholder for an avatar, paired with
-				2 stacked line skeletons for the name and a
-				secondary detail. Useful in lists of users or
-				comments while the real data resolves.
+				2 stacked line skeletons for the name and a secondary detail.
+				Useful in lists of users or comments while the real data resolves.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
 				StageMinHeight: "max-content",
@@ -85,11 +84,9 @@ templ PageSkeleton(morpheusVersion string) {
 			}
 			<p class="demo-note">
 				The
-				<code>{ `variant="line"` }</code> preset makes a
-				skeleton sit on the text baseline so it can stand
-				in for a word or short phrase mid-sentence. Size it
-				in <code>em</code> units to track the surrounding
-				font size.
+				<code>{ `variant="line"` }</code> preset makes a skeleton sit on the
+				text baseline so it can stand in for a word or short phrase mid-sentence.
+				Size it in <code>em</code> units to track the surrounding font size.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
 				StageMinHeight: "max-content",
@@ -110,21 +107,24 @@ templ PageSkeleton(morpheusVersion string) {
 			<p class="demo-note">
 				Render the placeholder card on first paint, then
 				fat-morph real content into the same card once the
-				server responds. Autoplay alternates the 2
-				states below.
+				server responds. Autoplay alternates the 2 states below.
 			</p>
 			<ul class="demo-note">
 				<li>
 					The <code>{ `<div class="skel-card">` }</code>
-					root stays mounted across the morph; only its
-					inner nodes swap, reconciling
-					<strong>Loading</strong> into
+					root stays mounted across the morph; only its inner nodes swap,
+					reconciling <strong>Loading</strong> into
 					<strong>Content loaded</strong> and back.
 				</li>
 				<li>
+					Each skeleton shares its class and text element
+					with the content that replaces it. Both states
+					measure the same, and the card doesn't shift.
+				</li>
+				<li>
 					A response that lands inside the fade-in delay
-					swaps straight to content with no skeleton
-					flash; add <code>immediate</code> to opt out.
+					swaps straight to content with no skeleton flash;
+					add <code>immediate</code> to opt out.
 				</li>
 			</ul>
 			@Playground(PlaygroundOpts{

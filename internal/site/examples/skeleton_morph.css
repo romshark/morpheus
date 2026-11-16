@@ -1,49 +1,55 @@
+/* Both states share these classes, which gives each skeleton the box
+ * of the content that replaces it. */
 .skeleton-morph-avatar {
+	flex: none;
 	width: 3rem;
+	height: 3rem;
+	border-radius: 50%;
 }
 
-.skeleton-morph-name {
-	width: 45%;
-}
-
-.skeleton-morph-meta {
-	width: 70%;
-	height: 0.75rem;
+.skeleton-morph-lines {
+	display: flex;
+	flex-direction: column;
+	gap: 0.25rem;
+	min-width: 0;
 }
 
 .skeleton-morph-hero {
-	height: 6rem;
+	display: block;
+	width: 100%;
+	height: 8rem;
 	margin-top: 0.9rem;
+	object-fit: cover;
+	border-radius: var(--neo-skeleton-radius);
 }
 
 .skeleton-morph-body {
 	margin-top: 0.9rem;
 }
 
-.skeleton-morph-line-short {
-	width: 70%;
-}
-
-/* Loaded counterparts match the box metrics of the skeletons they replace. */
-.skeleton-morph-avatar-loaded {
-	width: 3rem;
-	height: 3rem;
-	flex: none;
-	border-radius: 50%;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	font-weight: 600;
-	background: color-mix(in srgb, var(--page-fg) 15%, transparent);
-}
-
-.skeleton-morph-hero-loaded {
-	height: 6rem;
-	margin-top: 0.9rem;
-	border-radius: 0.25rem;
-	background: color-mix(in srgb, var(--page-fg) 8%, transparent);
-}
-
 .skeleton-morph-muted {
 	color: var(--muted);
+	font-size: 0.875rem;
+}
+
+/* Line skeletons sit inside the text elements they stand in for,
+ * which keeps the line height. Widths match the loaded text. */
+.skeleton-morph-name {
+	width: 6.4em;
+}
+
+.skeleton-morph-role {
+	width: 8.7em;
+}
+
+.skeleton-morph-line-1 {
+	width: 18.5em;
+}
+
+.skeleton-morph-line-2 {
+	width: 14.25em;
+}
+
+.skeleton-morph-line-3 {
+	width: 10em;
 }
