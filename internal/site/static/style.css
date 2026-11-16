@@ -1463,10 +1463,16 @@ site-codemirror[data-site-codemirror-loading] > .site-codemirror-loading {
 	   <neo-tabs> while the signals pane has it as a direct child. */
 	& .component-playground-pane-head {
 		display: flex;
+		flex: none;
 		align-items: center;
 		justify-content: space-between;
 		gap: 0.5rem;
-		padding: 0.4rem 0.4rem 0.4rem 0.8rem;
+		/* Fixed, which keeps the code and signals heads level. Their tallest
+		   items (tab list, info button) scale with --page-spacing at
+		   different rates, and a content height differs per theme. This
+		   always fits both. */
+		height: calc(var(--page-spacing, 0.25rem) * 4 + 2rem);
+		padding: 0 0.4rem 0 0.8rem;
 		border-bottom: 1px solid var(--btn-border);
 
 		& > h3 {
