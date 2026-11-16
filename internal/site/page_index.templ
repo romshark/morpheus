@@ -1359,7 +1359,13 @@ templ lfColorField() {
 		variant="elevated"
 		id="lf-color-card"
 		class="lf-card lf-color"
-		data-signals="{ _lf_color_value: '#2563eb', _lf_color_hue: 221, _lf_color_sat: 85, _lf_color_val: 92, _lf_color_touched: false }"
+		data-signals="{
+			_lf_color_value: window.lfColorSeed.value,
+			_lf_color_hue: window.lfColorSeed.hue,
+			_lf_color_sat: window.lfColorSeed.sat,
+			_lf_color_val: window.lfColorSeed.val,
+			_lf_color_touched: false
+		}"
 		data-attr:style="'--lf-color-hue: ' + $_lf_color_hue + ';'"
 		data-on:lf-color-reset="
 			$_lf_color_touched = false;
@@ -1429,20 +1435,27 @@ templ lfColorField() {
 			})
 		</div>
 	</neo-card>
-	// Sync the picker to the real computed accent, at init and on
-	// every user theme/mode switch. The data-signals seed
-	// (#2563eb / 221 / 85) is a placeholder. The actual theme accent
-	// is only knowable client-side after the theme CSS applies (the
-	// default theme's is achromatic oklch(... 0 0), not blue). The
-	// reset handler keeps touched false, which lets this correct the
-	// readout without painting the page; on a theme switch it also drops
-	// the stale inline --accent override (which takes precedence over the
-	// theme class's --accent). The init sync waits for window load so
-	// Datastar has wired data-on:lf-color-reset; themeBootstrap's
-	// pre-paint neo-theme-change in <head> fired before this listener
-	// existed, hence the explicit init dispatch instead of relying on it.
+	// Seeds the picker from the theme accent, which only the client knows.
+	// The server values (#2563eb / 221 / 85) are a no-JS placeholder.
+	// This runs while parsing, after the render-blocking morpheus.css and
+	// before Datastar and the bundle (deferred modules), which puts the
+	// components at their final position before they first render.
+	// The load sync covers an async theme stylesheet, the listener a theme switch.
+	// Both reset with touched false, which updates the readout
+	// without writing --accent to the page.
 	<script>
 		(function () {
+			var seed = window.lfThemeAccentDetail();
+			window.lfColorSeed = seed;
+			var seedCard = document.getElementById("lf-color-card");
+			if (seedCard) {
+				var field = seedCard.querySelector(".lf-color-field");
+				field.setAttribute("value", seed.value);
+				field.setAttribute("hue", String(seed.hue));
+				seedCard.querySelector(".lf-hue-slider").setAttribute("value", String(seed.hue));
+				seedCard.querySelector(".lf-sat-slider").setAttribute("value", String(seed.sat));
+				seedCard.querySelector(".lf-color-head > span").textContent = seed.value.toUpperCase();
+			}
 			function syncPicker() {
 				var card = document.getElementById("lf-color-card");
 				if (!card || !window.lfThemeAccentDetail) return;

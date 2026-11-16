@@ -3249,7 +3249,7 @@ func lfColorField() templ.Component {
 		}
 		ctx = templ.InitializeContext(ctx)
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 151, "<script>\n\t\t(function () {\n\t\t\tif (window.lfHsvToHex) return;\n\t\t\tfunction clamp(n) {\n\t\t\t\treturn Math.min(100, Math.max(0, n));\n\t\t\t}\n\t\t\tfunction hue(n) {\n\t\t\t\tif (!Number.isFinite(n)) return 0;\n\t\t\t\treturn ((n % 360) + 360) % 360;\n\t\t\t}\n\t\t\tfunction byte(n) {\n\t\t\t\treturn Math.round(Math.min(255, Math.max(0, n)))\n\t\t\t\t\t.toString(16)\n\t\t\t\t\t.padStart(2, \"0\");\n\t\t\t}\n\t\t\tfunction parseHex(value) {\n\t\t\t\tvar m = String(value || \"\").trim().match(/^#?([0-9a-f]{3}|[0-9a-f]{6})$/i);\n\t\t\t\tif (!m) return null;\n\t\t\t\tvar raw = m[1];\n\t\t\t\tvar hex = raw.length === 3\n\t\t\t\t\t? raw.replace(/./g, function (ch) { return ch + ch; })\n\t\t\t\t\t: raw;\n\t\t\t\treturn \"#\" + hex.toLowerCase();\n\t\t\t}\n\t\t\tfunction parseRgb(value) {\n\t\t\t\tvar m = String(value || \"\").match(/rgba?\\(\\s*(\\d+(?:\\.\\d+)?)[,\\s]+(\\d+(?:\\.\\d+)?)[,\\s]+(\\d+(?:\\.\\d+)?)/);\n\t\t\t\tif (!m) return null;\n\t\t\t\treturn \"#\" + byte(Number(m[1])) + byte(Number(m[2])) + byte(Number(m[3]));\n\t\t\t}\n\t\t\tfunction oklchToHex(value) {\n\t\t\t\tvar m = String(value || \"\").match(/oklch\\(\\s*([0-9.]+%?)\\s+([0-9.]+)\\s+([0-9.]+)(?:deg)?/i);\n\t\t\t\tif (!m) return null;\n\t\t\t\tvar L = m[1].indexOf(\"%\") > -1 ? parseFloat(m[1]) / 100 : parseFloat(m[1]);\n\t\t\t\tvar C = parseFloat(m[2]);\n\t\t\t\tvar H = parseFloat(m[3]) * Math.PI / 180;\n\t\t\t\tvar a = C * Math.cos(H);\n\t\t\t\tvar b = C * Math.sin(H);\n\t\t\t\tvar l_ = L + 0.3963377774 * a + 0.2158037573 * b;\n\t\t\t\tvar m_ = L - 0.1055613458 * a - 0.0638541728 * b;\n\t\t\t\tvar s_ = L - 0.0894841775 * a - 1.2914855480 * b;\n\t\t\t\tvar l = l_ * l_ * l_;\n\t\t\t\tvar mm = m_ * m_ * m_;\n\t\t\t\tvar ss = s_ * s_ * s_;\n\t\t\t\tfunction gamma(n) {\n\t\t\t\t\treturn n <= 0.0031308 ? 12.92 * n : 1.055 * Math.pow(n, 1 / 2.4) - 0.055;\n\t\t\t\t}\n\t\t\t\treturn \"#\" +\n\t\t\t\t\tbyte(gamma( 4.0767416621 * l - 3.3077115913 * mm + 0.2309699292 * ss) * 255) +\n\t\t\t\t\tbyte(gamma(-1.2684380046 * l + 2.6097574011 * mm - 0.3413193965 * ss) * 255) +\n\t\t\t\t\tbyte(gamma(-0.0041960863 * l - 0.7034186147 * mm + 1.7076147010 * ss) * 255);\n\t\t\t}\n\t\t\tfunction hexToHsv(hex) {\n\t\t\t\thex = parseHex(hex) || \"#2563eb\";\n\t\t\t\tvar r = parseInt(hex.slice(1, 3), 16) / 255;\n\t\t\t\tvar g = parseInt(hex.slice(3, 5), 16) / 255;\n\t\t\t\tvar b = parseInt(hex.slice(5, 7), 16) / 255;\n\t\t\t\tvar max = Math.max(r, g, b);\n\t\t\t\tvar min = Math.min(r, g, b);\n\t\t\t\tvar d = max - min;\n\t\t\t\tvar h = 0;\n\t\t\t\tif (d !== 0) {\n\t\t\t\t\tif (max === r) h = 60 * (((g - b) / d) % 6);\n\t\t\t\t\telse if (max === g) h = 60 * ((b - r) / d + 2);\n\t\t\t\t\telse h = 60 * ((r - g) / d + 4);\n\t\t\t\t}\n\t\t\t\treturn {\n\t\t\t\t\tvalue: hex,\n\t\t\t\t\thue: hue(h),\n\t\t\t\t\tsat: max === 0 ? 0 : (d / max) * 100,\n\t\t\t\t\tval: max * 100,\n\t\t\t\t};\n\t\t\t}\n\t\t\twindow.lfHsvToHex = function (h, sPct, vPct) {\n\t\t\t\tvar s = clamp(sPct) / 100;\n\t\t\t\tvar v = clamp(vPct) / 100;\n\t\t\t\tvar c = v * s;\n\t\t\t\tvar hp = hue(h) / 60;\n\t\t\t\tvar x = c * (1 - Math.abs((hp % 2) - 1));\n\t\t\t\tvar r = 0, g = 0, b = 0;\n\t\t\t\tif (hp >= 0 && hp < 1) { r = c; g = x; }\n\t\t\t\telse if (hp < 2) { r = x; g = c; }\n\t\t\t\telse if (hp < 3) { g = c; b = x; }\n\t\t\t\telse if (hp < 4) { g = x; b = c; }\n\t\t\t\telse if (hp < 5) { r = x; b = c; }\n\t\t\t\telse { r = c; b = x; }\n\t\t\t\tvar m = v - c;\n\t\t\t\treturn \"#\" + byte((r + m) * 255) + byte((g + m) * 255) + byte((b + m) * 255);\n\t\t\t};\n\t\t\twindow.lfColorToHex = function (value) {\n\t\t\t\tvar hex = parseHex(value) || parseRgb(value) || oklchToHex(value);\n\t\t\t\tif (hex) return hex;\n\t\t\t\tvar canvas = document.createElement(\"canvas\");\n\t\t\t\tvar ctx = canvas.getContext(\"2d\");\n\t\t\t\tif (!ctx) return \"#2563eb\";\n\t\t\t\tctx.fillStyle = \"#010203\";\n\t\t\t\tctx.fillStyle = String(value || \"\");\n\t\t\t\treturn ctx.fillStyle === \"#010203\"\n\t\t\t\t\t? \"#2563eb\"\n\t\t\t\t\t: parseHex(ctx.fillStyle) || parseRgb(ctx.fillStyle) || \"#2563eb\";\n\t\t\t};\n\t\t\twindow.lfHexToHsv = hexToHsv;\n\t\t\twindow.lfThemeAccentDetail = function () {\n\t\t\t\tvar s = document.documentElement.style;\n\t\t\t\ts.removeProperty(\"--accent\");\n\t\t\t\ts.removeProperty(\"--accent-hover\");\n\t\t\t\ts.removeProperty(\"--accent-fg\");\n\t\t\t\tvar accent = getComputedStyle(document.documentElement)\n\t\t\t\t\t.getPropertyValue(\"--accent\");\n\t\t\t\treturn hexToHsv(window.lfColorToHex(accent));\n\t\t\t};\n\t\t\twindow.lfThemeEventKey = function (detail) {\n\t\t\t\tvar html = document.documentElement;\n\t\t\t\tvar theme = detail && detail.theme;\n\t\t\t\tvar mode = detail && detail.mode;\n\t\t\t\tvar effective = detail && detail.effectiveMode;\n\t\t\t\tif (!theme) {\n\t\t\t\t\ttheme = window.neoTheme ? window.neoTheme.saved().theme : \"default\";\n\t\t\t\t}\n\t\t\t\tif (!mode) {\n\t\t\t\t\tmode = window.neoTheme ? window.neoTheme.saved().mode : \"system\";\n\t\t\t\t}\n\t\t\t\tif (!effective) {\n\t\t\t\t\teffective = html.classList.contains(\"dark\") ? \"dark\" : \"light\";\n\t\t\t\t}\n\t\t\t\treturn theme + \":\" + mode + \":\" + effective;\n\t\t\t};\n\t\t})();\n\t</script><neo-card variant=\"elevated\" id=\"lf-color-card\" class=\"lf-card lf-color\" data-signals=\"{ _lf_color_value: '#2563eb', _lf_color_hue: 221, _lf_color_sat: 85, _lf_color_val: 92, _lf_color_touched: false }\" data-attr:style=\"'--lf-color-hue: ' + $_lf_color_hue + ';'\" data-on:lf-color-reset=\"\n\t\t\t$_lf_color_touched = false;\n\t\t\t$_lf_color_value = evt.detail.value;\n\t\t\t$_lf_color_hue = evt.detail.hue;\n\t\t\t$_lf_color_sat = evt.detail.sat;\n\t\t\t$_lf_color_val = evt.detail.val;\n\t\t\" data-effect=\"\n\t\t\tif ($_lf_color_touched) {\n\t\t\t\tvar c = $_lf_color_value;\n\t\t\t\tvar s = document.documentElement.style;\n\t\t\t\ts.setProperty('--accent', c);\n\t\t\t\ts.setProperty('--accent-hover', 'color-mix(in srgb, ' + c + ' 85%, black)');\n\t\t\t\tvar n = parseInt(c.slice(1), 16);\n\t\t\t\tvar lum = 0.299 * ((n >> 16) & 255) + 0.587 * ((n >> 8) & 255) + 0.114 * (n & 255);\n\t\t\t\ts.setProperty('--accent-fg', lum > 140 ? '#000' : '#fff');\n\t\t\t}\n\t\t\"><div data-neo-card-inner><neo-layout class=\"lf-color-head\" align-items=\"baseline\" justify-content=\"space-between\"><strong>Color</strong> <span data-text=\"$_lf_color_value.toUpperCase()\">#2563EB</span></neo-layout>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 151, "<script>\n\t\t(function () {\n\t\t\tif (window.lfHsvToHex) return;\n\t\t\tfunction clamp(n) {\n\t\t\t\treturn Math.min(100, Math.max(0, n));\n\t\t\t}\n\t\t\tfunction hue(n) {\n\t\t\t\tif (!Number.isFinite(n)) return 0;\n\t\t\t\treturn ((n % 360) + 360) % 360;\n\t\t\t}\n\t\t\tfunction byte(n) {\n\t\t\t\treturn Math.round(Math.min(255, Math.max(0, n)))\n\t\t\t\t\t.toString(16)\n\t\t\t\t\t.padStart(2, \"0\");\n\t\t\t}\n\t\t\tfunction parseHex(value) {\n\t\t\t\tvar m = String(value || \"\").trim().match(/^#?([0-9a-f]{3}|[0-9a-f]{6})$/i);\n\t\t\t\tif (!m) return null;\n\t\t\t\tvar raw = m[1];\n\t\t\t\tvar hex = raw.length === 3\n\t\t\t\t\t? raw.replace(/./g, function (ch) { return ch + ch; })\n\t\t\t\t\t: raw;\n\t\t\t\treturn \"#\" + hex.toLowerCase();\n\t\t\t}\n\t\t\tfunction parseRgb(value) {\n\t\t\t\tvar m = String(value || \"\").match(/rgba?\\(\\s*(\\d+(?:\\.\\d+)?)[,\\s]+(\\d+(?:\\.\\d+)?)[,\\s]+(\\d+(?:\\.\\d+)?)/);\n\t\t\t\tif (!m) return null;\n\t\t\t\treturn \"#\" + byte(Number(m[1])) + byte(Number(m[2])) + byte(Number(m[3]));\n\t\t\t}\n\t\t\tfunction oklchToHex(value) {\n\t\t\t\tvar m = String(value || \"\").match(/oklch\\(\\s*([0-9.]+%?)\\s+([0-9.]+)\\s+([0-9.]+)(?:deg)?/i);\n\t\t\t\tif (!m) return null;\n\t\t\t\tvar L = m[1].indexOf(\"%\") > -1 ? parseFloat(m[1]) / 100 : parseFloat(m[1]);\n\t\t\t\tvar C = parseFloat(m[2]);\n\t\t\t\tvar H = parseFloat(m[3]) * Math.PI / 180;\n\t\t\t\tvar a = C * Math.cos(H);\n\t\t\t\tvar b = C * Math.sin(H);\n\t\t\t\tvar l_ = L + 0.3963377774 * a + 0.2158037573 * b;\n\t\t\t\tvar m_ = L - 0.1055613458 * a - 0.0638541728 * b;\n\t\t\t\tvar s_ = L - 0.0894841775 * a - 1.2914855480 * b;\n\t\t\t\tvar l = l_ * l_ * l_;\n\t\t\t\tvar mm = m_ * m_ * m_;\n\t\t\t\tvar ss = s_ * s_ * s_;\n\t\t\t\tfunction gamma(n) {\n\t\t\t\t\treturn n <= 0.0031308 ? 12.92 * n : 1.055 * Math.pow(n, 1 / 2.4) - 0.055;\n\t\t\t\t}\n\t\t\t\treturn \"#\" +\n\t\t\t\t\tbyte(gamma( 4.0767416621 * l - 3.3077115913 * mm + 0.2309699292 * ss) * 255) +\n\t\t\t\t\tbyte(gamma(-1.2684380046 * l + 2.6097574011 * mm - 0.3413193965 * ss) * 255) +\n\t\t\t\t\tbyte(gamma(-0.0041960863 * l - 0.7034186147 * mm + 1.7076147010 * ss) * 255);\n\t\t\t}\n\t\t\tfunction hexToHsv(hex) {\n\t\t\t\thex = parseHex(hex) || \"#2563eb\";\n\t\t\t\tvar r = parseInt(hex.slice(1, 3), 16) / 255;\n\t\t\t\tvar g = parseInt(hex.slice(3, 5), 16) / 255;\n\t\t\t\tvar b = parseInt(hex.slice(5, 7), 16) / 255;\n\t\t\t\tvar max = Math.max(r, g, b);\n\t\t\t\tvar min = Math.min(r, g, b);\n\t\t\t\tvar d = max - min;\n\t\t\t\tvar h = 0;\n\t\t\t\tif (d !== 0) {\n\t\t\t\t\tif (max === r) h = 60 * (((g - b) / d) % 6);\n\t\t\t\t\telse if (max === g) h = 60 * ((b - r) / d + 2);\n\t\t\t\t\telse h = 60 * ((r - g) / d + 4);\n\t\t\t\t}\n\t\t\t\treturn {\n\t\t\t\t\tvalue: hex,\n\t\t\t\t\thue: hue(h),\n\t\t\t\t\tsat: max === 0 ? 0 : (d / max) * 100,\n\t\t\t\t\tval: max * 100,\n\t\t\t\t};\n\t\t\t}\n\t\t\twindow.lfHsvToHex = function (h, sPct, vPct) {\n\t\t\t\tvar s = clamp(sPct) / 100;\n\t\t\t\tvar v = clamp(vPct) / 100;\n\t\t\t\tvar c = v * s;\n\t\t\t\tvar hp = hue(h) / 60;\n\t\t\t\tvar x = c * (1 - Math.abs((hp % 2) - 1));\n\t\t\t\tvar r = 0, g = 0, b = 0;\n\t\t\t\tif (hp >= 0 && hp < 1) { r = c; g = x; }\n\t\t\t\telse if (hp < 2) { r = x; g = c; }\n\t\t\t\telse if (hp < 3) { g = c; b = x; }\n\t\t\t\telse if (hp < 4) { g = x; b = c; }\n\t\t\t\telse if (hp < 5) { r = x; b = c; }\n\t\t\t\telse { r = c; b = x; }\n\t\t\t\tvar m = v - c;\n\t\t\t\treturn \"#\" + byte((r + m) * 255) + byte((g + m) * 255) + byte((b + m) * 255);\n\t\t\t};\n\t\t\twindow.lfColorToHex = function (value) {\n\t\t\t\tvar hex = parseHex(value) || parseRgb(value) || oklchToHex(value);\n\t\t\t\tif (hex) return hex;\n\t\t\t\tvar canvas = document.createElement(\"canvas\");\n\t\t\t\tvar ctx = canvas.getContext(\"2d\");\n\t\t\t\tif (!ctx) return \"#2563eb\";\n\t\t\t\tctx.fillStyle = \"#010203\";\n\t\t\t\tctx.fillStyle = String(value || \"\");\n\t\t\t\treturn ctx.fillStyle === \"#010203\"\n\t\t\t\t\t? \"#2563eb\"\n\t\t\t\t\t: parseHex(ctx.fillStyle) || parseRgb(ctx.fillStyle) || \"#2563eb\";\n\t\t\t};\n\t\t\twindow.lfHexToHsv = hexToHsv;\n\t\t\twindow.lfThemeAccentDetail = function () {\n\t\t\t\tvar s = document.documentElement.style;\n\t\t\t\ts.removeProperty(\"--accent\");\n\t\t\t\ts.removeProperty(\"--accent-hover\");\n\t\t\t\ts.removeProperty(\"--accent-fg\");\n\t\t\t\tvar accent = getComputedStyle(document.documentElement)\n\t\t\t\t\t.getPropertyValue(\"--accent\");\n\t\t\t\treturn hexToHsv(window.lfColorToHex(accent));\n\t\t\t};\n\t\t\twindow.lfThemeEventKey = function (detail) {\n\t\t\t\tvar html = document.documentElement;\n\t\t\t\tvar theme = detail && detail.theme;\n\t\t\t\tvar mode = detail && detail.mode;\n\t\t\t\tvar effective = detail && detail.effectiveMode;\n\t\t\t\tif (!theme) {\n\t\t\t\t\ttheme = window.neoTheme ? window.neoTheme.saved().theme : \"default\";\n\t\t\t\t}\n\t\t\t\tif (!mode) {\n\t\t\t\t\tmode = window.neoTheme ? window.neoTheme.saved().mode : \"system\";\n\t\t\t\t}\n\t\t\t\tif (!effective) {\n\t\t\t\t\teffective = html.classList.contains(\"dark\") ? \"dark\" : \"light\";\n\t\t\t\t}\n\t\t\t\treturn theme + \":\" + mode + \":\" + effective;\n\t\t\t};\n\t\t})();\n\t</script><neo-card variant=\"elevated\" id=\"lf-color-card\" class=\"lf-card lf-color\" data-signals=\"{\n\t\t\t_lf_color_value: window.lfColorSeed.value,\n\t\t\t_lf_color_hue: window.lfColorSeed.hue,\n\t\t\t_lf_color_sat: window.lfColorSeed.sat,\n\t\t\t_lf_color_val: window.lfColorSeed.val,\n\t\t\t_lf_color_touched: false\n\t\t}\" data-attr:style=\"'--lf-color-hue: ' + $_lf_color_hue + ';'\" data-on:lf-color-reset=\"\n\t\t\t$_lf_color_touched = false;\n\t\t\t$_lf_color_value = evt.detail.value;\n\t\t\t$_lf_color_hue = evt.detail.hue;\n\t\t\t$_lf_color_sat = evt.detail.sat;\n\t\t\t$_lf_color_val = evt.detail.val;\n\t\t\" data-effect=\"\n\t\t\tif ($_lf_color_touched) {\n\t\t\t\tvar c = $_lf_color_value;\n\t\t\t\tvar s = document.documentElement.style;\n\t\t\t\ts.setProperty('--accent', c);\n\t\t\t\ts.setProperty('--accent-hover', 'color-mix(in srgb, ' + c + ' 85%, black)');\n\t\t\t\tvar n = parseInt(c.slice(1), 16);\n\t\t\t\tvar lum = 0.299 * ((n >> 16) & 255) + 0.587 * ((n >> 8) & 255) + 0.114 * (n & 255);\n\t\t\t\ts.setProperty('--accent-fg', lum > 140 ? '#000' : '#fff');\n\t\t\t}\n\t\t\"><div data-neo-card-inner><neo-layout class=\"lf-color-head\" align-items=\"baseline\" justify-content=\"space-between\"><strong>Color</strong> <span data-text=\"$_lf_color_value.toUpperCase()\">#2563EB</span></neo-layout>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -3304,7 +3304,7 @@ func lfColorField() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 152, "</div></neo-card><script>\n\t\t(function () {\n\t\t\tfunction syncPicker() {\n\t\t\t\tvar card = document.getElementById(\"lf-color-card\");\n\t\t\t\tif (!card || !window.lfThemeAccentDetail) return;\n\t\t\t\tcard.dispatchEvent(new CustomEvent(\"lf-color-reset\", {\n\t\t\t\t\tdetail: window.lfThemeAccentDetail(),\n\t\t\t\t}));\n\t\t\t}\n\t\t\tif (window.lfThemeEventKey) {\n\t\t\t\twindow.__lf_color_theme_key = window.lfThemeEventKey();\n\t\t\t}\n\t\t\tif (document.readyState === \"complete\") {\n\t\t\t\tsyncPicker();\n\t\t\t} else {\n\t\t\t\twindow.addEventListener(\"load\", syncPicker, { once: true });\n\t\t\t}\n\t\t\tdocument.documentElement.addEventListener(\n\t\t\t\t\"neo-theme-change\",\n\t\t\t\tfunction (evt) {\n\t\t\t\t\tif (!window.lfThemeEventKey) return;\n\t\t\t\t\tvar key = window.lfThemeEventKey(evt.detail);\n\t\t\t\t\tif (window.__lf_color_theme_key === key) return;\n\t\t\t\t\twindow.__lf_color_theme_key = key;\n\t\t\t\t\tsyncPicker();\n\t\t\t\t},\n\t\t\t);\n\t\t})();\n\t</script>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 152, "</div></neo-card><script>\n\t\t(function () {\n\t\t\tvar seed = window.lfThemeAccentDetail();\n\t\t\twindow.lfColorSeed = seed;\n\t\t\tvar seedCard = document.getElementById(\"lf-color-card\");\n\t\t\tif (seedCard) {\n\t\t\t\tvar field = seedCard.querySelector(\".lf-color-field\");\n\t\t\t\tfield.setAttribute(\"value\", seed.value);\n\t\t\t\tfield.setAttribute(\"hue\", String(seed.hue));\n\t\t\t\tseedCard.querySelector(\".lf-hue-slider\").setAttribute(\"value\", String(seed.hue));\n\t\t\t\tseedCard.querySelector(\".lf-sat-slider\").setAttribute(\"value\", String(seed.sat));\n\t\t\t\tseedCard.querySelector(\".lf-color-head > span\").textContent = seed.value.toUpperCase();\n\t\t\t}\n\t\t\tfunction syncPicker() {\n\t\t\t\tvar card = document.getElementById(\"lf-color-card\");\n\t\t\t\tif (!card || !window.lfThemeAccentDetail) return;\n\t\t\t\tcard.dispatchEvent(new CustomEvent(\"lf-color-reset\", {\n\t\t\t\t\tdetail: window.lfThemeAccentDetail(),\n\t\t\t\t}));\n\t\t\t}\n\t\t\tif (window.lfThemeEventKey) {\n\t\t\t\twindow.__lf_color_theme_key = window.lfThemeEventKey();\n\t\t\t}\n\t\t\tif (document.readyState === \"complete\") {\n\t\t\t\tsyncPicker();\n\t\t\t} else {\n\t\t\t\twindow.addEventListener(\"load\", syncPicker, { once: true });\n\t\t\t}\n\t\t\tdocument.documentElement.addEventListener(\n\t\t\t\t\"neo-theme-change\",\n\t\t\t\tfunction (evt) {\n\t\t\t\t\tif (!window.lfThemeEventKey) return;\n\t\t\t\t\tvar key = window.lfThemeEventKey(evt.detail);\n\t\t\t\t\tif (window.__lf_color_theme_key === key) return;\n\t\t\t\t\twindow.__lf_color_theme_key = key;\n\t\t\t\t\tsyncPicker();\n\t\t\t\t},\n\t\t\t);\n\t\t})();\n\t</script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -3814,7 +3814,7 @@ func lfEqBand(hz, signal string) templ.Component {
 		var templ_7745c5c3_Var130 string
 		templ_7745c5c3_Var130, templ_7745c5c3_Err = templ.JoinStringErrs(hz)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 1673, Col: 29}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 1686, Col: 29}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var130))
 		if templ_7745c5c3_Err != nil {
@@ -3903,7 +3903,7 @@ func lfDeployRef() templ.Component {
 								var templ_7745c5c3_Var136 string
 								templ_7745c5c3_Var136, templ_7745c5c3_Err = templ.JoinStringErrs(c.Hash)
 								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 1708, Col: 15}
+									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 1721, Col: 15}
 								}
 								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var136))
 								if templ_7745c5c3_Err != nil {
@@ -3922,7 +3922,7 @@ func lfDeployRef() templ.Component {
 							var templ_7745c5c3_Var137 string
 							templ_7745c5c3_Var137, templ_7745c5c3_Err = templ.JoinStringErrs(b.Branch)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 1710, Col: 55}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 1723, Col: 55}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var137))
 							if templ_7745c5c3_Err != nil {
@@ -3935,7 +3935,7 @@ func lfDeployRef() templ.Component {
 							var templ_7745c5c3_Var138 string
 							templ_7745c5c3_Var138, templ_7745c5c3_Err = templ.JoinStringErrs(c.Hash)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 1712, Col: 51}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 1725, Col: 51}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var138))
 							if templ_7745c5c3_Err != nil {
@@ -3948,7 +3948,7 @@ func lfDeployRef() templ.Component {
 							var templ_7745c5c3_Var139 string
 							templ_7745c5c3_Var139, templ_7745c5c3_Err = templ.JoinStringErrs(c.Msg)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 1713, Col: 49}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 1726, Col: 49}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var139))
 							if templ_7745c5c3_Err != nil {
@@ -3961,7 +3961,7 @@ func lfDeployRef() templ.Component {
 							var templ_7745c5c3_Var140 string
 							templ_7745c5c3_Var140, templ_7745c5c3_Err = templ.JoinStringErrs(c.Author)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 1715, Col: 56}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 1728, Col: 56}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var140))
 							if templ_7745c5c3_Err != nil {
@@ -3974,7 +3974,7 @@ func lfDeployRef() templ.Component {
 							var templ_7745c5c3_Var141 string
 							templ_7745c5c3_Var141, templ_7745c5c3_Err = templ.JoinStringErrs(c.When)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 1716, Col: 52}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 1729, Col: 52}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var141))
 							if templ_7745c5c3_Err != nil {
@@ -4533,7 +4533,7 @@ func lfDeploy() templ.Component {
 		var templ_7745c5c3_Var162 string
 		templ_7745c5c3_Var162, templ_7745c5c3_Err = templruntime.NewAttributeExpression(lfDeployDryRunLog).Resolve(ctx)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 1939, Col: 34}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 1952, Col: 34}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var162)
 		if templ_7745c5c3_Err != nil {
@@ -5089,7 +5089,7 @@ func lfChatMessage(className, time, text string) templ.Component {
 				var templ_7745c5c3_Var177 string
 				templ_7745c5c3_Var177, templ_7745c5c3_Err = templ.JoinStringErrs(text)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 2373, Col: 10}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 2386, Col: 10}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var177))
 				if templ_7745c5c3_Err != nil {
@@ -5404,7 +5404,7 @@ func lfChatParticipant(avatar, name string) templ.Component {
 		var templ_7745c5c3_Var189 string
 		templ_7745c5c3_Var189, templ_7745c5c3_Err = templ.JoinStringErrs(name)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 2432, Col: 42}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 2445, Col: 42}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var189))
 		if templ_7745c5c3_Err != nil {
@@ -5569,7 +5569,7 @@ func lfSearchResult(id, icon, label string, active bool) templ.Component {
 		var templ_7745c5c3_Var193 string
 		templ_7745c5c3_Var193, templ_7745c5c3_Err = templruntime.NewAttributeExpression(id).Resolve(ctx)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 2494, Col: 13}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 2507, Col: 13}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var193)
 		if templ_7745c5c3_Err != nil {
@@ -5638,7 +5638,7 @@ func lfSearchResult(id, icon, label string, active bool) templ.Component {
 		var templ_7745c5c3_Var196 string
 		templ_7745c5c3_Var196, templ_7745c5c3_Err = templ.JoinStringErrs(label)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 2500, Col: 16}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 2513, Col: 16}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var196))
 		if templ_7745c5c3_Err != nil {
@@ -6287,7 +6287,7 @@ func lfLogin() templ.Component {
 							var templ_7745c5c3_Var218 string
 							templ_7745c5c3_Var218, templ_7745c5c3_Err = templ.JoinStringErrs("@gmail.com")
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 2824, Col: 23}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 2837, Col: 23}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var218))
 							if templ_7745c5c3_Err != nil {
@@ -6314,7 +6314,7 @@ func lfLogin() templ.Component {
 							var templ_7745c5c3_Var220 string
 							templ_7745c5c3_Var220, templ_7745c5c3_Err = templ.JoinStringErrs("@outlook.com")
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 2827, Col: 25}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 2840, Col: 25}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var220))
 							if templ_7745c5c3_Err != nil {
@@ -6341,7 +6341,7 @@ func lfLogin() templ.Component {
 							var templ_7745c5c3_Var222 string
 							templ_7745c5c3_Var222, templ_7745c5c3_Err = templ.JoinStringErrs("@yahoo.com")
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 2830, Col: 23}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 2843, Col: 23}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var222))
 							if templ_7745c5c3_Err != nil {
@@ -6368,7 +6368,7 @@ func lfLogin() templ.Component {
 							var templ_7745c5c3_Var224 string
 							templ_7745c5c3_Var224, templ_7745c5c3_Err = templ.JoinStringErrs("@icloud.com")
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 2833, Col: 24}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 2846, Col: 24}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var224))
 							if templ_7745c5c3_Err != nil {
@@ -6395,7 +6395,7 @@ func lfLogin() templ.Component {
 							var templ_7745c5c3_Var226 string
 							templ_7745c5c3_Var226, templ_7745c5c3_Err = templ.JoinStringErrs("@proton.me")
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 2836, Col: 23}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 2849, Col: 23}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var226))
 							if templ_7745c5c3_Err != nil {
@@ -6585,7 +6585,7 @@ func lfEventInvitee(avatar, name, rsvp string) templ.Component {
 		var templ_7745c5c3_Var230 string
 		templ_7745c5c3_Var230, templ_7745c5c3_Err = templruntime.NewAttributeExpression(href.Asset("avatar/" + avatar + ".svg")).ResolveURL(ctx)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 2908, Col: 48}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 2921, Col: 48}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var230)
 		if templ_7745c5c3_Err != nil {
@@ -6598,7 +6598,7 @@ func lfEventInvitee(avatar, name, rsvp string) templ.Component {
 		var templ_7745c5c3_Var231 string
 		templ_7745c5c3_Var231, templ_7745c5c3_Err = templ.JoinStringErrs(name)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 2911, Col: 44}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 2924, Col: 44}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var231))
 		if templ_7745c5c3_Err != nil {
@@ -7085,7 +7085,7 @@ func lfLogs() templ.Component {
 			var templ_7745c5c3_Var244 string
 			templ_7745c5c3_Var244, templ_7745c5c3_Err = templruntime.NewAttributeExpression(lfLogEmptyExpr).Resolve(ctx)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 3109, Col: 57}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 3122, Col: 57}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var244)
 			if templ_7745c5c3_Err != nil {
@@ -7198,7 +7198,7 @@ func lfLogRow(severity, level, off, time, msg string) templ.Component {
 			var templ_7745c5c3_Var249 string
 			templ_7745c5c3_Var249, templ_7745c5c3_Err = templruntime.NewAttributeExpression(level).Resolve(ctx)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 3138, Col: 20}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 3151, Col: 20}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var249)
 			if templ_7745c5c3_Err != nil {
@@ -7211,7 +7211,7 @@ func lfLogRow(severity, level, off, time, msg string) templ.Component {
 			var templ_7745c5c3_Var250 string
 			templ_7745c5c3_Var250, templ_7745c5c3_Err = templruntime.NewAttributeExpression(off).Resolve(ctx)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 3139, Col: 16}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 3152, Col: 16}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var250)
 			if templ_7745c5c3_Err != nil {
@@ -7224,7 +7224,7 @@ func lfLogRow(severity, level, off, time, msg string) templ.Component {
 			var templ_7745c5c3_Var251 string
 			templ_7745c5c3_Var251, templ_7745c5c3_Err = templruntime.NewAttributeExpression(lfLogShowExpr).Resolve(ctx)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 3140, Col: 27}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 3153, Col: 27}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var251)
 			if templ_7745c5c3_Err != nil {
@@ -7251,7 +7251,7 @@ func lfLogRow(severity, level, off, time, msg string) templ.Component {
 		var templ_7745c5c3_Var252 string
 		templ_7745c5c3_Var252, templ_7745c5c3_Err = templ.JoinStringErrs(time)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 3142, Col: 35}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 3155, Col: 35}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var252))
 		if templ_7745c5c3_Err != nil {
@@ -7304,7 +7304,7 @@ func lfLogRow(severity, level, off, time, msg string) templ.Component {
 		var templ_7745c5c3_Var255 string
 		templ_7745c5c3_Var255, templ_7745c5c3_Err = templ.JoinStringErrs(severity)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 3143, Col: 66}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 3156, Col: 66}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var255))
 		if templ_7745c5c3_Err != nil {
@@ -7317,7 +7317,7 @@ func lfLogRow(severity, level, off, time, msg string) templ.Component {
 		var templ_7745c5c3_Var256 string
 		templ_7745c5c3_Var256, templ_7745c5c3_Err = templ.JoinStringErrs(msg)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 3144, Col: 33}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 3157, Col: 33}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var256))
 		if templ_7745c5c3_Err != nil {
@@ -8579,7 +8579,7 @@ func lfFileTree() templ.Component {
 					var templ_7745c5c3_Var311 string
 					templ_7745c5c3_Var311, templ_7745c5c3_Err = templ.JoinStringErrs("Workspace storage is at ")
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 3436, Col: 34}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 3449, Col: 34}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var311))
 					if templ_7745c5c3_Err != nil {
@@ -8598,7 +8598,7 @@ func lfFileTree() templ.Component {
 					var templ_7745c5c3_Var312 string
 					templ_7745c5c3_Var312, templ_7745c5c3_Err = templ.JoinStringErrs(" 87%. Archive old projects or expand the volume soon.")
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 3440, Col: 63}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 3453, Col: 63}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var312))
 					if templ_7745c5c3_Err != nil {
@@ -8701,7 +8701,7 @@ func lfTreeFolder(name string, expanded bool) templ.Component {
 					var templ_7745c5c3_Var317 string
 					templ_7745c5c3_Var317, templ_7745c5c3_Err = templ.JoinStringErrs(name)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 3465, Col: 36}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 3478, Col: 36}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var317))
 					if templ_7745c5c3_Err != nil {
@@ -8714,7 +8714,7 @@ func lfTreeFolder(name string, expanded bool) templ.Component {
 					var templ_7745c5c3_Var318 string
 					templ_7745c5c3_Var318, templ_7745c5c3_Err = templruntime.NewAttributeExpression("Add to " + name).Resolve(ctx)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 3475, Col: 36}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 3488, Col: 36}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var318)
 					if templ_7745c5c3_Err != nil {
@@ -8903,7 +8903,7 @@ func lfTreeFolderMenu(name string) templ.Component {
 		var templ_7745c5c3_Var325 string
 		templ_7745c5c3_Var325, templ_7745c5c3_Err = templruntime.NewAttributeExpression("More actions for " + name).Resolve(ctx)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 3513, Col: 41}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 3526, Col: 41}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var325)
 		if templ_7745c5c3_Err != nil {
@@ -9184,7 +9184,7 @@ func lfTreeFile(name, status string, statusVariant neo.BadgeVariant) templ.Compo
 					var templ_7745c5c3_Var338 string
 					templ_7745c5c3_Var338, templ_7745c5c3_Err = templ.JoinStringErrs(name)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 3564, Col: 36}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 3577, Col: 36}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var338))
 					if templ_7745c5c3_Err != nil {
@@ -9210,7 +9210,7 @@ func lfTreeFile(name, status string, statusVariant neo.BadgeVariant) templ.Compo
 							var templ_7745c5c3_Var340 string
 							templ_7745c5c3_Var340, templ_7745c5c3_Err = templ.JoinStringErrs(status)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 3573, Col: 16}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 3586, Col: 16}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var340))
 							if templ_7745c5c3_Err != nil {
@@ -9299,7 +9299,7 @@ func lfTreeFileMenu(name string) templ.Component {
 		var templ_7745c5c3_Var343 string
 		templ_7745c5c3_Var343, templ_7745c5c3_Err = templruntime.NewAttributeExpression("More actions for " + name).Resolve(ctx)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 3591, Col: 41}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_index.templ`, Line: 3604, Col: 41}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var343)
 		if templ_7745c5c3_Err != nil {
