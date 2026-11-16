@@ -70,9 +70,23 @@ function fixedFrameOffset(): { x: number; y: number } {
 	return rectFrameIsVisual ? { x: ox, y: oy } : { x: 0, y: 0 };
 }
 
+// The visible area in getBoundingClientRect coords. In the layout frame
+// (Chrome) a pinch-zoom moves it to the visual viewport offset; in the
+// visual frame it starts at 0,0.
+export function visibleViewportRect(): DOMRect {
+	const vv = window.visualViewport;
+	const ffo = fixedFrameOffset();
+	return new DOMRect(
+		(vv?.offsetLeft ?? 0) - ffo.x,
+		(vv?.offsetTop ?? 0) - ffo.y,
+		vv?.width ?? document.documentElement.clientWidth,
+		vv?.height ?? document.documentElement.clientHeight,
+	);
+}
+
 interface PositionOptions {
-	/** Re-anchor inside the viewport instead of strict placement; inline
-	 *  max-* cleared, auto-flip skipped. Default false. */
+	/** Re-anchor inside the viewport instead of strict placement;
+	 *  inline max-* cleared, auto-flip skipped. Default false. */
 	clamp?: boolean;
 	/** Element used to find the nearest <neo-boundary>. Defaults to anchor.
 	 *  Useful for point-anchored overlays whose synthetic anchor lives in
@@ -87,8 +101,8 @@ interface PositionOptions {
 	minFitHeight?: MinFitValue;
 	/** Same as minFitHeight for the width axis. */
 	minFitWidth?: MinFitValue;
-	/** Caps (px) applied to the inline max-* in strict placement. Without
-	 *  these the slot-sized inline overrides the CSS rule's
+	/** Caps (px) applied to the inline max-* in strict placement.
+	 *  Without these the slot-sized inline overrides the CSS rule's
 	 *  `min(var(--...-max-width), ...)` so a host-set cap has no effect. */
 	maxWidth?: number;
 	maxHeight?: number;
@@ -144,37 +158,35 @@ export function positionPanelResult(
 	const minFitHeight = resolveMinFit(opts.minFitHeight, contentSize?.height);
 	const minFitWidth = resolveMinFit(opts.minFitWidth, contentSize?.width);
 
-	// vw/vh come from the visual viewport because iOS shrinks it for the keyboard
-	// without resizing the layout viewport. The panel then sizes to fit clear of
-	// the keyboard.
-	const visualViewport = window.visualViewport;
-	const vw = visualViewport?.width ?? document.documentElement.clientWidth;
-	const vh = visualViewport?.height ?? document.documentElement.clientHeight;
+	// The visual viewport, not the layout one, because iOS shrinks it for the
+	// keyboard and a pinch-zoom shrinks and offsets it.
+	// The panel then stays in the visible area.
+	const view = visibleViewportRect();
 
-	// Containment window in visual-viewport coords. Defaults to the whole
-	// viewport; a <neo-boundary> ancestor of the anchor that scopes
-	// positioning shrinks it to the intersection of the viewport and the
+	// Containment window in getBoundingClientRect coords. Defaults to the
+	// visible area; a <neo-boundary> ancestor of the anchor that scopes
+	// positioning shrinks it to the intersection of that area and the
 	// boundary's rect. The flip, clamp and max-size math then keeps the panel
 	// inside the region instead of inside the viewport.
-	let wL = 0;
-	let wT = 0;
-	let wR = vw;
-	let wB = vh;
+	let wL = view.left;
+	let wT = view.top;
+	let wR = view.right;
+	let wB = view.bottom;
 	const positioningBoundary = opts.ignorePositioningBoundary
 		? null
 		: scopingBoundary(opts.boundaryContext ?? anchor, "positioning");
 	const bRect = positioningBoundary ? boundaryRect(positioningBoundary) : null;
 	if (bRect) {
-		wL = Math.max(0, bRect.left);
-		wT = Math.max(0, bRect.top);
-		wR = Math.min(vw, bRect.right);
-		wB = Math.min(vh, bRect.bottom);
+		wL = Math.max(view.left, bRect.left);
+		wT = Math.max(view.top, bRect.top);
+		wR = Math.min(view.right, bRect.right);
+		wB = Math.min(view.bottom, bRect.bottom);
 		// Ignore an off-screen or inverted boundary and keep the viewport.
 		if (wR <= wL || wB <= wT) {
-			wL = 0;
-			wT = 0;
-			wR = vw;
-			wB = vh;
+			wL = view.left;
+			wT = view.top;
+			wR = view.right;
+			wB = view.bottom;
 		}
 	}
 
@@ -264,9 +276,8 @@ function clampToWindow(value: number, size: number, edgeOffset: number, wMin: nu
 	return Math.max(min, Math.min(value, max));
 }
 
-/** Compute the inline top/left for a given placement using the
- *  trigger and panel boxes. Pure function without clamping or max-*
- *  side effects. */
+/** Compute the inline top/left for a given placement using the trigger and panel boxes.
+ *  Pure function without clamping or max-* side effects. */
 function placementCoords(
 	t: DOMRect,
 	c: DOMRect,
@@ -414,8 +425,8 @@ export interface CssLengthSpec {
 
 /** Resolves CSS custom properties on `host` (or inherited) to pixels via
  *  throwaway probes. Uses 1 probe subtree and 1 forced layout for the whole
- *  list instead of an append/measure/remove reflow per property. Accepts
- *  any CSS length (rem, vh, calc(), etc.). */
+ *  list instead of an append/measure/remove reflow per property.
+ *  Accepts any CSS length (rem, vh, calc(), etc.). */
 export function resolveCssLengthsPx(host: HTMLElement, specs: CssLengthSpec[]): (number | "content")[] {
 	let styles: CSSStyleDeclaration | null = null;
 	const box = document.createElement("div");
@@ -450,9 +461,9 @@ export function resolveOptionalCssLengthPx(host: HTMLElement, varName: string, f
 	return resolveCssLengthPx(host, varName, fallback);
 }
 
-// Popover-placement attributes <neo-select>, <neo-combobox>, and
-// <neo-textinput> suggestions forward to anchorPopoverResult. Each observes
-// them so a change re-anchors an open panel.
+// Popover-placement attributes <neo-select>, <neo-combobox>,
+// and <neo-textinput> suggestions forward to anchorPopoverResult.
+// Each observes them so a change re-anchors an open panel.
 export const POPOVER_ATTRS = [
 	"placement",
 	"screen-offset",
@@ -466,8 +477,8 @@ export const POPOVER_ATTRS = [
 
 // Single source of popover anchoring. Places fixed-position `panel`
 // against `anchor`, reading the shared placement / --neo-popover-* /
-// clamp / min-fit inputs every popover-bearing kit element honors. Sizes
-// the panel to the anchor width and returns the effective placement.
+// clamp / min-fit inputs every popover-bearing kit element honors.
+// Sizes the panel to the anchor width and returns the effective placement.
 // <neo-select>, <neo-combobox> and <neo-textinput> all anchor through it,
 // which keeps them pixel-identical.
 export function anchorPopoverResult(

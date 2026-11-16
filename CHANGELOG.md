@@ -42,6 +42,7 @@ This file records the notable changes of each release in the format of [Keep a C
 - Keep the form value of a `<neo-textinput type="email">` in step when `case`, `prefix` or `numeric-only` changes the typed text. A capital letter in a `case="lower"` field threw an error and left the form value behind.
 - Keep the caret after a character typed right after the `prefix` of a `<neo-textinput>` that reformats it. The caret jumped into the prefix.
 - Keep the scroll of `<neo-textinput>` suggestions across a reposition, such as a window resize. A list shorter than the viewport jumped to the top.
+- Place popovers, tooltips, menus, selects, comboboxes and text input suggestions in the visible area of a pinch-zoomed page. An open panel slid away from its trigger during a pinch, and one opened while zoomed landed outside the zoomed area.
 
 ## [0.4.0] - 2026-11-13
 

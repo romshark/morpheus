@@ -13,7 +13,7 @@
 // lifecycle fires for it).
 
 import { openCommand } from "./command";
-import { type Placement, positionPanel, resolveCssLengthPx } from "./neo-position";
+import { type Placement, positionPanel, resolveCssLengthPx, visibleViewportRect } from "./neo-position";
 import { setTextInPlace } from "./shadow-utils";
 
 const DEFAULT_OPEN_DELAY_MS = 350;
@@ -230,8 +230,8 @@ export class TooltipController {
 		this.#repositionFrame = null;
 	}
 
-	// State -> attribute, guarded so the reflected write isn't read back as a
-	// command. `open` (value-less) matches the `[open]` CSS the same as the
+	// State -> attribute, guarded so the reflected write isn't read back as
+	// a command. `open` (value-less) matches the `[open]` CSS the same as the
 	// author's `open`/`open="true"`; leave an existing attribute in place.
 	#reflectOpen(): void {
 		if (this.#host.hasAttribute("open")) return;
@@ -420,13 +420,8 @@ function intersectsVisualViewport(el: HTMLElement): boolean {
 	const rect = el.getBoundingClientRect();
 	if (rect.width <= 0 || rect.height <= 0) return false;
 
-	const viewport = visualViewportRect();
-	const left = rect.left - viewport.left;
-	const right = rect.right - viewport.left;
-	const top = rect.top - viewport.top;
-	const bottom = rect.bottom - viewport.top;
-
-	return right > 0 && left < viewport.width && bottom > 0 && top < viewport.height;
+	const view = visibleViewportRect();
+	return rect.right > view.left && rect.left < view.right && rect.bottom > view.top && rect.top < view.bottom;
 }
 
 function fitsPrimarySlot(
@@ -436,7 +431,7 @@ function fitsPrimarySlot(
 	edgeOffset: number,
 	triggerGap: number,
 ): boolean {
-	const viewport = visualViewportRect();
+	const viewport = visibleViewportRect();
 	const triggerRect = trigger.getBoundingClientRect();
 	const contentRect = content.getBoundingClientRect();
 	const left = triggerRect.left - viewport.left;
@@ -454,19 +449,4 @@ function fitsPrimarySlot(
 		return left - triggerGap - contentRect.width >= edgeOffset;
 	}
 	return viewport.width - right - triggerGap - contentRect.width >= edgeOffset;
-}
-
-function visualViewportRect(): {
-	left: number;
-	top: number;
-	width: number;
-	height: number;
-} {
-	const visualViewport = window.visualViewport;
-	return {
-		left: visualViewport?.offsetLeft ?? 0,
-		top: visualViewport?.offsetTop ?? 0,
-		width: visualViewport?.width ?? document.documentElement.clientWidth,
-		height: visualViewport?.height ?? document.documentElement.clientHeight,
-	};
 }
