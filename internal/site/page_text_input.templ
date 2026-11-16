@@ -237,6 +237,14 @@ templ PageTextInput(morpheusVersion string) {
 					via <code>decrement-icon</code> and
 					<code>increment-icon</code>.
 				</li>
+				<li>
+					The time steps the hours or the minutes, whichever
+					group holds the caret, between
+					<code>{ `min="00:00"` }</code> and
+					<code>{ `max="23:59"` }</code>. Its
+					<code>{ `mask="##:##"` }</code> makes it a text field,
+					not a number field.
+				</li>
 			</ul>
 			@demoFrameWith(DemoFrameOpts{
 				Width:          "26rem",
@@ -399,13 +407,13 @@ var textInputDoc = ComponentDoc{
 		{Name: "format", Type: `"number"`, Observed: true,
 			Description: templ.Raw("Right-anchored thousands grouping for numeric input. Makes the field a number field, like <code>type=\"number\"</code>.")},
 		{Name: "min", Type: "number", Observed: true,
-			Description: templ.Raw("Lowest value a step reaches in a number field.")},
+			Description: templ.Raw("Lowest value a step reaches in a number field. In a masked field it is written in mask form, as in <code>00:00</code>, and bounds each digit group.")},
 		{Name: "max", Type: "number", Observed: true,
-			Description: templ.Raw("Highest value a step reaches in a number field.")},
+			Description: templ.Raw("Highest value a step reaches in a number field. In a masked field it is written in mask form, as in <code>23:59</code>, and bounds each digit group.")},
 		{Name: "step", Type: `number | "any"`, Default: "1", Observed: true,
-			Description: templ.Raw("Step size in a number field. ArrowUp and ArrowDown take 1 step, PageUp and PageDown take 10, unless suggestions are slotted. A value off the step grid (based at <code>min</code>, else 0) snaps to it first. <code>any</code> steps by 1 without a grid.")},
+			Description: templ.Raw("Step size in a number field. ArrowUp and ArrowDown take 1 step, PageUp and PageDown take 10, unless suggestions are slotted. A value off the step grid (based at <code>min</code>, else 0) snaps to it first. <code>any</code> steps by 1 without a grid. In a masked field it applies to the last digit group.")},
 		{Name: "stepper", Type: "boolean", Default: "false", Observed: true,
-			Description: templ.Raw("Show increment and decrement buttons in a number field. A <code>type=\"number\"</code> field never shows the browser's spin buttons.")},
+			Description: templ.Raw("Show increment and decrement buttons in a number field. A <code>type=\"number\"</code> field never shows the browser's spin buttons. In a masked field, <code>stepper</code> or <code>scrub</code> makes the field step the digit group at the caret, like a native time field. Empty groups fill with their minimum.")},
 		{Name: "increment-icon", Type: "string", Observed: true,
 			Description: templ.Raw(`Name of the increment button's icon, an up chevron by default. Resolved through <a href="` + href.PageIcon() + `"><code>&lt;neo-icon&gt;</code></a> and follows the active icon theme.`)},
 		{Name: "decrement-icon", Type: "string", Default: `"chevron-down"`, Observed: true,

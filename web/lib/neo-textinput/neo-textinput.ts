@@ -36,8 +36,8 @@ const ATTR_SCRUB = "scrub";
 const ATTR_SCRUB_ICON = "scrub-icon";
 const ATTR_SCRUB_SIDE = "scrub-side";
 const ATTR_SCRUB_SENSITIVITY = "scrub-sensitivity";
-// Steps per CSS pixel of scrub drag, 1 step per 2px. Shift takes 10 times
-// as many, like PageUp.
+// Steps per CSS pixel of scrub drag, 1 step per 2px.
+// Shift takes 10 times as many, like PageUp.
 const SCRUB_SENSITIVITY = 0.5;
 // Press-and-hold on a stepper button repeats after a delay, like the
 // native spin buttons.
@@ -72,8 +72,7 @@ const PASSTHROUGH_ATTRS = [
 	"pattern",
 	"autofocus",
 	// The field lives in the shadow root, which means a host-level accessible
-	// name must be forwarded to it; the host itself isn't the focusable
-	// control.
+	// name must be forwarded to it; the host itself isn't the focusable control.
 	"aria-label",
 	"aria-labelledby",
 	"aria-describedby",
@@ -128,13 +127,44 @@ class PlainFormatter implements Formatter {
 	}
 }
 
+// A run of consecutive digit slots, the unit a masked stepper steps.
+// slot* index the mask slots, which sit at the formatted position less the prefix
+// once the field is filled. raw* index the raw string, which holds only the
+// class-slot chars.
+interface MaskGroup {
+	slotStart: number;
+	slotEnd: number;
+	rawStart: number;
+	rawEnd: number;
+}
+
 class MaskFormatter implements Formatter {
 	#slots: MaskSlot[];
 	#prefix: string;
+	readonly digitGroups: MaskGroup[] = [];
 
 	constructor(mask: string, prefix: string) {
 		this.#prefix = prefix;
 		this.#slots = parseMask(mask);
+		let raw = 0;
+		let group: MaskGroup | null = null;
+		for (let i = 0; i < this.#slots.length; i++) {
+			const slot = this.#slots[i];
+			if (slot.kind === "class" && slot.token === "#") {
+				if (group) {
+					group.slotEnd = i + 1;
+					group.rawEnd = raw + 1;
+				} else {
+					group = { slotStart: i, slotEnd: i + 1, rawStart: raw, rawEnd: raw + 1 };
+					this.digitGroups.push(group);
+				}
+			} else group = null;
+			if (slot.kind === "class") raw++;
+		}
+	}
+
+	get prefixLength(): number {
+		return this.#prefix.length;
 	}
 
 	format(raw: string): FormatResult {
@@ -155,8 +185,8 @@ class MaskFormatter implements Formatter {
 				out += slot.ch;
 				continue;
 			}
-			// Skip raw chars that fail the predicate (e.g. punctuation
-			// pasted into an `A` slot).
+			// Skip raw chars that fail the predicate
+			// (e.g. punctuation pasted into an `A` slot).
 			while (ri < raw.length && !slot.test(raw[ri])) ri++;
 			if (ri >= raw.length) break;
 			let c = raw[ri++];
@@ -194,8 +224,8 @@ class MaskFormatter implements Formatter {
 			}
 			// Class slot doesn't match the char. If the char matches an
 			// upcoming literal, the slot is empty; advance the slot,
-			// leave the position for the literal slot to consume. Else
-			// the char is noise (e.g. a misplaced literal that's already
+			// leave the position for the literal slot to consume.
+			// Else the char is noise (e.g. a misplaced literal that's already
 			// behind us); skip it and retry the same slot.
 			let upcoming = false;
 			for (let s2 = s + 1; s2 < this.#slots.length; s2++) {
@@ -422,8 +452,8 @@ class NumberFormatter implements Formatter {
 	}
 }
 
-// Shadow shell. The native <input> lives in the shadow root (styled
-// here via the inherited --neo-textarea-* tokens, which pierce the
+// Shadow shell. The native <input> lives in the shadow root
+// (styled here via the inherited --neo-textarea-* tokens, which pierce the
 // shadow boundary). The named "suggestions" slot still projects light-DOM
 // <neo-option> children into a fixed-position listbox, an autocomplete
 // popover the field owns. Those stay light so they keep their lifecycle
@@ -438,10 +468,9 @@ const SUGGEST_SHADOW_TEMPLATE = document.createElement("template");
 // - input width: --neo-input-min-width is the field's preferred width, which
 //   an auto-width host sizes to. min-width and max-width 100% pin the field
 //   to any definite host width: its own width, a stretching column or grid,
-//   a group's flex, also a host page CSS sets to display: block. A
-//   min-width floor would beat an explicit width and overflow the host,
-//   leaving the stepper and scrub handle, which are positioned against the
-//   host, inside the text.
+//   a group's flex, also a host page CSS sets to display: block. A min-width floor
+//   would beat an explicit width and overflow the host, leaving the stepper and
+//   scrub handle, which are positioned against the host, inside the text.
 // - input border: width tokenized so neo-input-group can zero it (the field
 //   merges into the group's shared border instead of drawing its own).
 // - input height: an <input> floors its content box at the font's normal line
@@ -461,8 +490,8 @@ const SUGGEST_SHADOW_TEMPLATE = document.createElement("template");
 //   native spin buttons; [data-neo-textinput-stepper] replaces them. Firefox
 //   reads only appearance, WebKit and Blink only the pseudo-elements.
 // - [data-neo-textinput-stepper]: sits inside the field's border, which
-//   keeps the field's focus ring and the input group's merged border. Its
-//   end corners follow the field radius less the border width.
+//   keeps the field's focus ring and the input group's merged border.
+//   Its end corners follow the field radius less the border width.
 // - --neo-textinput-stepper-inset: end padding on the buttons. A rounded
 //   field end takes up to its radius of the column; the backgrounds still
 //   fill the curve, the icons center clear of it. The radius is capped at
@@ -478,8 +507,8 @@ const SUGGEST_SHADOW_TEMPLATE = document.createElement("template");
 //   button at min or max, or in a readonly field, keeps the default cursor,
 //   because the control still works.
 // - [data-neo-textinput-stepper] button color: dims the chevron through
-//   color, not opacity on the icon, which page CSS can't reach. A
-//   ::part(increment) color then sets the chevron.
+//   color, not opacity on the icon, which page CSS can't reach.
+//   A ::part(increment) color then sets the chevron.
 SUGGEST_SHADOW_TEMPLATE.innerHTML = `
 <style>
   input {
@@ -696,17 +725,17 @@ SUGGEST_SHADOW_TEMPLATE.innerHTML = `
 </div>
 `;
 
-// Built on first use, which keeps the icon fetch off fields without a
-// stepper. tabindex="-1" keeps the buttons out of the tab order like native
-// spin buttons; the field's arrow keys are the keyboard path.
+// Built on first use, which keeps the icon fetch off fields without a stepper.
+// tabindex="-1" keeps the buttons out of the tab order like native spin buttons;
+// the field's arrow keys are the keyboard path.
 const STEPPER_TEMPLATE = document.createElement("template");
 STEPPER_TEMPLATE.innerHTML = `<div data-neo-textinput-stepper part="stepper">
 <button type="button" tabindex="-1" aria-label="Increase" data-neo-textinput-increment part="increment"><neo-icon name="chevron-down" data-neo-textinput-flip aria-hidden="true"></neo-icon></button>
 <button type="button" tabindex="-1" aria-label="Decrease" data-neo-textinput-decrement part="decrement"><neo-icon name="chevron-down" aria-hidden="true"></neo-icon></button>
 </div>`;
 
-// Built on first use like STEPPER_TEMPLATE. The default horizontal icon is
-// chevrons-up-down turned 90deg.
+// Built on first use like STEPPER_TEMPLATE.
+// The default horizontal icon is chevrons-up-down turned 90deg.
 const SCRUB_TEMPLATE = document.createElement("template");
 SCRUB_TEMPLATE.innerHTML = `<div data-neo-textinput-scrub part="scrub" aria-hidden="true"><neo-icon name="chevrons-up-down"></neo-icon></div>`;
 
@@ -742,37 +771,35 @@ export class NeoTextInput extends HTMLElement {
 	#innerInput: HTMLInputElement | null = null;
 	#formatter: Formatter = new PlainFormatter("", null, false);
 	#rendered = false;
-	// Don't reformat mid-glyph during IME composition (CJK soft IMEs
-	// etc.); reformat once on compositionend.
+	// Don't reformat mid-glyph during IME composition (CJK soft IMEs etc.);
+	// reformat once on compositionend.
 	#composing = false;
 	#beforeInputState: { value: string; selectionStart: number; raw: string } | null = null;
 	// Watches light-DOM children so a server-patched suggestion option set
-	// (added / removed <neo-option>) reconciles into the popover. The field
-	// itself lives in the shadow root, out of a morph's reach.
+	// (added / removed <neo-option>) reconciles into the popover.
+	// The field itself lives in the shadow root, out of a morph's reach.
 	#childObserver: MutationObserver | null = null;
 
-	// Suggestions popover (autocomplete). Dormant until an option is
-	// slotted; focus never leaves the field. Arrow keys move
-	// aria-activedescendant, the field's text stays the value.
+	// Suggestions popover (autocomplete). Dormant until an option is slotted;
+	// focus never leaves the field. Arrow keys move aria-activedescendant,
+	// the field's text stays the value.
 	#suggestList!: HTMLElement;
 	#suggestSlot!: HTMLSlotElement;
 	#suggestPrefix = `neo-ti-sug-${suggestInstanceCounter++}`;
 	#suggestOpen = false;
 	// Escape (or a commit) suppresses auto-reopen until the next keystroke
-	// or a fresh focus so that a still-populated slot can't immediately
-	// reopen.
+	// or a fresh focus so that a still-populated slot can't immediately reopen.
 	#suggestDismissed = false;
 	// An explicit open command (open / open="true") received while the slot
-	// has no content yet, e.g. a morph applies `open` before slotting the
-	// options. Recorded so the next reconcile honors the intent once content
-	// lands, instead of falling through to the focus-gated auto-open path.
+	// has no content yet, e.g. a morph applies `open` before slotting the options.
+	// Recorded so the next reconcile honors the intent once content lands,
+	// instead of falling through to the focus-gated auto-open path.
 	#suggestOpenCommanded = false;
 	// Active option tracked by element reference (not id) so that it survives
 	// an in-place morph and the idle rows stay id-less / morph-stable.
 	#suggestActiveEl: HTMLElement | null = null;
 	// The single row currently carrying the transient aria-activedescendant
-	// IDREF id, so that #pointActiveDescendant can strip it when the active
-	// row moves.
+	// IDREF id, so that #pointActiveDescendant can strip it when the active row moves.
 	#activeIdEl: HTMLElement | null = null;
 	#observerPauseDepth = 0;
 	#suggestAnchorRect: DOMRect | null = null;
@@ -793,8 +820,11 @@ export class NeoTextInput extends HTMLElement {
 	#scrubAxis: "horizontal" | "vertical" | null = null;
 	#scrubEnd = false;
 	#scrubSensitivity = SCRUB_SENSITIVITY;
-	// sign maps pointer travel to step direction: up, or toward the inline
-	// end, increases.
+	// sign maps pointer travel to step direction: up,
+	// or toward the inline end, increases.
+	// The digit group a masked field steps while the field isn't focused:
+	// the group the caret left on blur, or the last stepped one.
+	#stepGroup: number | null = null;
 	#scrubDrag: { id: number; last: number; acc: number; start: string; vertical: boolean; sign: number } | null = null;
 
 	constructor() {
@@ -910,8 +940,8 @@ export class NeoTextInput extends HTMLElement {
 			if (this.#reflectingSuggestOpen) return;
 			const cmd = openCommand(this);
 			if (cmd === null) {
-				// A fat morph omitted the reflected attribute. Absence is no
-				// command. Preserve and re-assert client-open state.
+				// A fat morph omitted the reflected attribute. Absence is no command.
+				// Preserve and re-assert client-open state.
 				if (this.#suggestOpen) {
 					this.#reflectSuggestOpen();
 					this.#scheduleSuggestionsChanged();
@@ -948,8 +978,7 @@ export class NeoTextInput extends HTMLElement {
 			// An absent attribute is no command, which means a fat morph that
 			// omits `value` leaves the current value untouched, like the `open`
 			// command contract. An explicit value="" still clears. Skip while
-			// the inner field is focused so that a write never overwrites live
-			// typing.
+			// the inner field is focused so that a write never overwrites live typing.
 			if (_new !== null && !this.#isInputFocused()) {
 				this.#applyValue(_new);
 			}
@@ -1052,11 +1081,12 @@ export class NeoTextInput extends HTMLElement {
 		inp.addEventListener("compositionstart", this.#onCompositionStart);
 		inp.addEventListener("compositionend", this.#onCompositionEnd);
 		inp.addEventListener("keydown", this.#onKeyDown);
+		inp.addEventListener("blur", this.#onInputBlur);
 		this.#innerInput = inp;
 	}
 
-	// A server patch can add or remove suggestion <neo-option> children; the
-	// field is in the shadow root, out of a morph's reach.
+	// A server patch can add or remove suggestion <neo-option> children;
+	// the field is in the shadow root, out of a morph's reach.
 	#observeChildren() {
 		if (!this.#childObserver) {
 			this.#childObserver = new MutationObserver(() => {
@@ -1071,9 +1101,9 @@ export class NeoTextInput extends HTMLElement {
 		this.#connectChildObserver();
 	}
 
-	// Watch option attributes (disabled/value/...) too, not just childList, so
-	// that an in-place morph patch reconciles, not only a node swap. The
-	// component's own slot/role/aria/data-neo-value writes happen inside
+	// Watch option attributes (disabled/value/...) too, not just childList,
+	// so that an in-place morph patch reconciles, not only a node swap.
+	// The component's own slot/role/aria/data-neo-value writes happen inside
 	// #withObserverPaused (observer disconnected), which keeps wiring from
 	// feeding back into a loop.
 	#connectChildObserver() {
@@ -1211,11 +1241,10 @@ export class NeoTextInput extends HTMLElement {
 				}
 			: null;
 		// For mask + selection-replace with fewer chars than slots,
-		// type through the selection 1 class slot per char, skipping mask
-		// literals. The default path lets the browser collapse the
-		// selection to the inserted run; reformat then reflows raw
-		// left-to-right and trailing raw chars shift left, dropping the
-		// last one ("123-456" with "123" selected + typing "777" ->
+		// type through the selection 1 class slot per char, skipping mask literals.
+		// The default path lets the browser collapse the selection to the inserted run;
+		// reformat then reflows raw left-to-right and trailing raw chars shift left,
+		// dropping the last one ("123-456" with "123" selected + typing "777" ->
 		// "777-45" because each intermediate keystroke re-packs raw).
 		if (
 			this.#innerInput &&
@@ -1233,18 +1262,18 @@ export class NeoTextInput extends HTMLElement {
 		}
 		// For mask + collapsed cursor, route the keystroke to the next class
 		// slot from the cursor, skipping any literal in between. 3 outcomes:
-		//   - char doesn't fit the slot: reject silently. The
-		//     pre-flight is loose (acceptsChar returns true if any slot
+		//   - char doesn't fit the slot: reject silently.
+		//     The pre-flight is loose (acceptsChar returns true if any slot
 		//     would accept) and lets through 'a' on a digit slot; the
 		//     reflow drop on reformat then strips a trailing raw char.
 		//   - char fits + every class slot already filled: overstrike,
 		//     since insert-and-reformat would push a char past the mask
-		//     end and format() would drop the last raw char (e.g.
-		//     "99|9-111" + "8" without this lands "998-91").
+		//     end and format() would drop the last raw char
+		//     (e.g. "99|9-111" + "8" without this lands "998-91").
 		//   - char fits + room remains in the mask: fall through so the
 		//     browser inserts and the literal-anchored extractRaw lets
-		//     format() shift trailing chars right correctly (e.g.
-		//     "12|3-12" + "9" lands "129-312" instead of overstriking).
+		//     format() shift trailing chars right correctly
+		//     (e.g. "12|3-12" + "9" lands "129-312" instead of overstriking).
 		if (
 			this.#innerInput &&
 			this.#formatter instanceof MaskFormatter &&
@@ -1314,8 +1343,8 @@ export class NeoTextInput extends HTMLElement {
 	}
 
 	// Replace 1 class slot per data char, walking selection from
-	// start to end and skipping mask literals so trailing raw stays
-	// aligned. The remaining selection is left behind for subsequent
+	// start to end and skipping mask literals so trailing raw stays aligned.
+	// The remaining selection is left behind for subsequent
 	// keystrokes to consume. See onBeforeInput for the why.
 	#applyMaskTypeThrough(inp: HTMLInputElement, fmt: MaskFormatter, data: string) {
 		const selStart = inp.selectionStart!;
@@ -1401,8 +1430,8 @@ export class NeoTextInput extends HTMLElement {
 			// Cursor preservation picks the largest p where formatted[0..p]
 			// still has oldRawCursor raw chars, i.e. just past any leading
 			// literals after the oldRawCursor-th raw char. Walk forward
-			// until c exceeds oldRawCursor, then back up by 1. Stopping at
-			// the first c >= oldRawCursor lands at p=1 whenever
+			// until c exceeds oldRawCursor, then back up by 1.
+			// Stopping at the first c >= oldRawCursor lands at p=1 whenever
 			// oldRawCursor=0, e.g. backspace from position 1 in plain
 			// text would bounce the cursor back to position 1.
 			const oldCursor = inp.selectionStart ?? inp.value.length;
@@ -1518,8 +1547,8 @@ export class NeoTextInput extends HTMLElement {
 		return null;
 	}
 
-	// True when there is something to show, meaning selectable options or a
-	// "No results" row.
+	// True when there is something to show,
+	// meaning selectable options or a "No results" row.
 	#hasSuggestContent(): boolean {
 		return this.#suggestEnabledEls().length > 0 || this.#suggestEmptyEl() !== null;
 	}
@@ -1564,6 +1593,17 @@ export class NeoTextInput extends HTMLElement {
 		this.#syncStepper();
 	}
 
+	// A masked field steps its digit groups only with a stepper or a scrub
+	// handle, which keeps the arrow keys moving the caret in a card or phone
+	// mask.
+	#isMaskStep(): boolean {
+		return (
+			this.#formatter instanceof MaskFormatter &&
+			this.#formatter.digitGroups.length > 0 &&
+			(boolAttr(this, ATTR_STEPPER, false) || this.#scrubAxis !== null)
+		);
+	}
+
 	#isNumber(): boolean {
 		return this.#formatter instanceof NumberFormatter || this.#innerInput?.type === "number";
 	}
@@ -1585,8 +1625,9 @@ export class NeoTextInput extends HTMLElement {
 		setOrRemoveAttr(inp, "aria-valuemin", spin && Number.isFinite(min) ? String(min) : null);
 		setOrRemoveAttr(inp, "aria-valuemax", spin && Number.isFinite(max) ? String(max) : null);
 
-		this.#syncScrub(isNumber);
-		const show = isNumber && boolAttr(this, ATTR_STEPPER, false);
+		const maskStep = this.#isMaskStep();
+		this.#syncScrub(isNumber || maskStep);
+		const show = (isNumber || maskStep) && boolAttr(this, ATTR_STEPPER, false);
 		setState(this.#internals, "stepper", show);
 		if (!show) {
 			if (this.#stepper) this.#stepper.hidden = true;
@@ -1596,8 +1637,10 @@ export class NeoTextInput extends HTMLElement {
 		stepper.hidden = false;
 		const locked = inp.disabled || inp.readOnly;
 		const [inc, dec] = stepper.querySelectorAll("button");
-		inc.disabled = locked || this.#stepTarget(1) === null;
-		dec.disabled = locked || this.#stepTarget(-1) === null;
+		// A masked field's limit depends on the group at the caret, which moves
+		// without a value change, so its buttons disable only when locked.
+		inc.disabled = locked || (!maskStep && this.#stepTarget(1) === null);
+		dec.disabled = locked || (!maskStep && this.#stepTarget(-1) === null);
 		syncStepIcon(inc, this.getAttribute(ATTR_INCREMENT_ICON), true);
 		syncStepIcon(dec, this.getAttribute(ATTR_DECREMENT_ICON), false);
 	}
@@ -1623,8 +1666,8 @@ export class NeoTextInput extends HTMLElement {
 		const btn = (e.target as Element).closest("button");
 		if (!btn || btn.disabled) return;
 		const n = btn.hasAttribute("data-neo-textinput-increment") ? 1 : -1;
-		// A native spin button focuses its field. Skip on touch, where focus
-		// opens the virtual keyboard.
+		// A native spin button focuses its field. Skip on touch,
+		// where focus opens the virtual keyboard.
 		if (e.pointerType !== "touch") this.#innerInput?.focus({ preventScroll: true });
 		this.#stopStepRepeat();
 		this.#stepBy(n);
@@ -1645,11 +1688,10 @@ export class NeoTextInput extends HTMLElement {
 		this.#stepRepeatTimer = 0;
 	};
 
-	// Returns the field text n steps away, or null when the step can't move
-	// the value. Follows HTML stepUp/stepDown: an off-grid value first snaps
-	// to the step grid (based at min, else 0) in the step direction, and the
-	// result clamps to min/max on the grid. step="any" steps by 1 without the
-	// grid. An empty field steps from 0.
+	// Returns the field text n steps away, or null when the step can't move the value.
+	// Follows HTML stepUp/stepDown: an off-grid value first snaps to the step grid
+	// (based at min, else 0) in the step direction, and the result clamps to min/max
+	// on the grid. step="any" steps by 1 without the grid. An empty field steps from 0.
 	#stepTarget(n: number): string | null {
 		const inp = this.#innerInput;
 		if (!inp) return null;
@@ -1719,13 +1761,92 @@ export class NeoTextInput extends HTMLElement {
 	#stepBy(n: number, commit = true) {
 		const inp = this.#innerInput;
 		if (!inp || inp.disabled || inp.readOnly) return;
-		const formatted = this.#stepTarget(n);
+		const fmt = this.#formatter;
+		const mask = fmt instanceof MaskFormatter && this.#isMaskStep() ? this.#maskStepTarget(fmt, n) : null;
+		const formatted = fmt instanceof MaskFormatter ? (mask?.formatted ?? null) : this.#stepTarget(n);
 		if (formatted === null) return;
 		inp.value = formatted;
+		// The caret stays at the end of the stepped group,
+		// which makes the next step move the same group.
+		if (mask && this.#isInputFocused()) inp.setSelectionRange(mask.caret, mask.caret);
 		this.#syncFormValue();
 		this.#syncStepper();
 		this.#emitInput(this.value, this.rawValue);
 		if (commit) this.#onChange();
+	}
+
+	#caretGroup(fmt: MaskFormatter): number {
+		const inp = this.#innerInput!;
+		const pos = (inp.selectionStart ?? inp.value.length) - fmt.prefixLength;
+		// The caret right after a group, before the literal that follows,
+		// belongs to that group.
+		const i = fmt.digitGroups.findIndex((g) => pos <= g.slotEnd);
+		return i < 0 ? fmt.digitGroups.length - 1 : i;
+	}
+
+	#onInputBlur = () => {
+		const fmt = this.#formatter;
+		if (fmt instanceof MaskFormatter && this.#isMaskStep()) this.#stepGroup = this.#caretGroup(fmt);
+	};
+
+	// Steps 1 digit group of a masked field n steps, like a native time field:
+	// the group at the caret, else #stepGroup, else the last group.
+	// Each group clamps to its part of min and max, written in mask form
+	// ("00:00", "23:59"), else 0 and all 9s. step applies to the last group,
+	// the others step by 1. A step fills empty groups with their minimum.
+	// Returns the field text and caret, or null when the group can't move.
+	#maskStepTarget(fmt: MaskFormatter, n: number): { formatted: string; caret: number } | null {
+		const inp = this.#innerInput!;
+		const groups = fmt.digitGroups;
+		let g = this.#isInputFocused() ? this.#caretGroup(fmt) : (this.#stepGroup ?? groups.length - 1);
+		if (g >= groups.length) g = groups.length - 1;
+		const raw = fmt.extractRaw(inp.value);
+		const minRaw = fmt.extractRaw(this.getAttribute("min") ?? "");
+		const maxRaw = fmt.extractRaw(this.getAttribute("max") ?? "");
+		const width = (grp: MaskGroup) => grp.rawEnd - grp.rawStart;
+		const bound = (src: string, grp: MaskGroup, dflt: number) => {
+			const part = src.slice(grp.rawStart, grp.rawEnd);
+			return part.length === width(grp) ? Number(part) : dflt;
+		};
+		const lowOf = (grp: MaskGroup) => bound(minRaw, grp, 0);
+		const parts = groups.map((grp) => raw.slice(grp.rawStart, grp.rawEnd));
+
+		const target = groups[g];
+		const lo = lowOf(target);
+		const hi = bound(maxRaw, target, 10 ** width(target) - 1);
+		const step = g === groups.length - 1 ? Math.max(1, Math.round(numAttr(this.getAttribute("step"), 1))) : 1;
+		let v: number;
+		if (parts[g] === "") {
+			v = n > 0 ? lo : hi;
+		} else {
+			const cur = Number(parts[g]);
+			const q = (cur - lo) / step;
+			v = Number.isInteger(q) ? cur + n * step : lo + (n > 0 ? Math.ceil(q) : Math.floor(q)) * step;
+			if (v < lo) v = lo;
+			if (v > hi) v = lo + Math.floor((hi - lo) / step) * step;
+			// A value already past a bound must not move the other way.
+			if (n > 0 ? v < cur : v > cur) return null;
+		}
+		parts[g] = String(v);
+		let next = "";
+		for (let r = 0, i = 0; r < fmt.classSlotCount(); r++) {
+			const grp = groups[i];
+			if (grp && r === grp.rawStart) {
+				const part = parts[i] === "" ? String(lowOf(grp)) : parts[i];
+				next += part.padStart(width(grp), "0");
+				r = grp.rawEnd - 1;
+				i++;
+			} else if (r < raw.length) {
+				next += raw[r];
+			} else {
+				// A letter slot left empty: the field can't be completed.
+				return null;
+			}
+		}
+		const { formatted } = fmt.format(next);
+		this.#stepGroup = g;
+		if (formatted === inp.value) return null;
+		return { formatted, caret: fmt.prefixLength + target.slotEnd };
 	}
 
 	// Warns once per attribute change rather than on every value sync.
@@ -1751,8 +1872,8 @@ export class NeoTextInput extends HTMLElement {
 		this.#scrubSensitivity = n > 0 ? n : SCRUB_SENSITIVITY;
 	}
 
-	#syncScrub(isNumber: boolean) {
-		const show = isNumber && this.#scrubAxis !== null;
+	#syncScrub(steppable: boolean) {
+		const show = steppable && this.#scrubAxis !== null;
 		setState(this.#internals, "scrub", show);
 		setState(this.#internals, "scrub-end", show && this.#scrubEnd);
 		if (!show) {
@@ -1829,8 +1950,8 @@ export class NeoTextInput extends HTMLElement {
 	};
 
 	// The field lives in the shadow root and the options in light DOM, which
-	// means the aria-activedescendant IDREF can't resolve across roots. Use
-	// the element-reference IDL (ariaActiveDescendantElement) as the primary
+	// means the aria-activedescendant IDREF can't resolve across roots.
+	// Use the element-reference IDL (ariaActiveDescendantElement) as the primary
 	// link where supported; keep the IDREF as a same-root fallback / extra signal.
 	#pointActiveDescendant(el: HTMLElement | null) {
 		const inp = this.#innerInput;
@@ -2070,8 +2191,8 @@ export class NeoTextInput extends HTMLElement {
 	}
 
 	// Captured scroll events include every unrelated scroller on the page
-	// (for example an autoplaying carousel). Only react when scrolling
-	// actually moved the input anchor.
+	// (for example an autoplaying carousel).
+	// Only react when scrolling actually moved the input anchor.
 	#onSuggestWindowScroll = (e: Event) => {
 		if (!this.#suggestOpen) return;
 		// Slotted options remain light-DOM children of <neo-textinput>.
@@ -2174,7 +2295,7 @@ export class NeoTextInput extends HTMLElement {
 	#onKeyDown = (e: KeyboardEvent) => {
 		if (e.altKey || e.ctrlKey || e.metaKey || e.isComposing) return;
 		// Suggestions keep the arrow keys. Shift+arrow keeps selecting text.
-		if (!e.shiftKey && this.#isNumber() && !this.#hasSuggestions()) {
+		if (!e.shiftKey && (this.#isNumber() || this.#isMaskStep()) && !this.#hasSuggestions()) {
 			const n = stepKeyCount(e.key);
 			if (n !== 0) {
 				e.preventDefault();
@@ -2267,8 +2388,8 @@ function fractionDigits(s: string): number {
 	return Math.max(0, (m[1]?.length ?? 0) - Number(m[2] ?? 0));
 }
 
-// The default up chevron is the down chevron flipped, which keeps the
-// stepper at 1 icon in the set.
+// The default up chevron is the down chevron flipped,
+// which keeps the stepper at 1 icon in the set.
 function syncStepIcon(btn: HTMLButtonElement, name: string | null, flipDefault: boolean) {
 	const icon = btn.querySelector("neo-icon")!;
 	const custom = name !== null && name !== "";

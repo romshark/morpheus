@@ -133,7 +133,8 @@ type TextInputOpts struct {
 	ScrubSide        Attr[TextInputScrubSide]
 	ScrubSensitivity Attr[float64]
 	// Min, Max and Step bound and size the ArrowUp/ArrowDown and stepper
-	// steps of a number field. Pass step="any" through the attrs of
+	// steps of a number field. Pass step="any", and the mask-form min and
+	// max of a masked field ("00:00"), through the attrs of
 	// [TextInputAttrs].
 	Min  Attr[float64]
 	Max  Attr[float64]

@@ -81,6 +81,15 @@ func TextInputStepperCustom() templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
+			templ_7745c5c3_Err = neo.TextInputAttrs(neo.TextInputOpts{
+				Mask:      neo.Set("##:##"),
+				Value:     neo.Set("09:30"),
+				Inputmode: neo.Set(neo.TextInputInputmodeNumeric),
+				Stepper:   neo.Set(true),
+			}, templ.Attributes{"min": "00:00", "max": "23:59"}).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
 			return nil
 		})
 		templ_7745c5c3_Err = neo.Layout(neo.LayoutOpts{
