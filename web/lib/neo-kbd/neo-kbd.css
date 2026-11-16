@@ -24,6 +24,9 @@ neo-kbd {
 	align-items: center;
 	justify-content: center;
 	min-width: var(--neo-kbd-min-width);
+	/* The glyph is inserted on upgrade. Reserve its line box so the empty
+	 * element isn't 1 line shorter until then and shifts what follows. */
+	min-height: calc(1lh + 2 * var(--neo-kbd-padding-y) + 2px);
 	padding: var(--neo-kbd-padding-y) var(--neo-kbd-padding-x);
 	border-radius: var(--neo-kbd-radius);
 	border: 1px solid var(--neo-kbd-border-color);
