@@ -1,0 +1,80 @@
+.text-input-stepper-custom-accent {
+	--neo-textinput-stepper-width: 2em;
+}
+
+.text-input-stepper-custom-accent::part(stepper) {
+	gap: 1px;
+	border-inline-start: none;
+}
+
+.text-input-stepper-custom-accent::part(increment),
+.text-input-stepper-custom-accent::part(decrement) {
+	background: var(--accent);
+	color: var(--accent-fg);
+}
+
+.text-input-stepper-custom-accent::part(increment):hover,
+.text-input-stepper-custom-accent::part(decrement):hover {
+	background: var(--accent-hover);
+}
+
+/* The tiles keep clear of a pill-shaped field's curved end through the
+ * stepper's end padding, which grows with the field radius, instead of
+ * the inset inside each button. */
+.text-input-stepper-custom-tiles {
+	--neo-textinput-stepper-width: 2em;
+	--neo-textinput-stepper-inset: 0px;
+	--neo-textinput-scrub-width: 2.5em;
+}
+
+.text-input-stepper-custom-tiles::part(stepper) {
+	gap: 2px;
+	padding: 3px;
+	padding-inline-end: max(3px, calc(var(--neo-textarea-radius) * 0.4));
+	border-inline-start: none;
+}
+
+.text-input-stepper-custom-tiles::part(increment),
+.text-input-stepper-custom-tiles::part(decrement) {
+	border-radius: calc(var(--page-radius, 0.25rem) * 0.5);
+	background: color-mix(in srgb, var(--page-fg) 8%, transparent);
+}
+
+.text-input-stepper-custom-tiles::part(increment):hover,
+.text-input-stepper-custom-tiles::part(decrement):hover {
+	background: color-mix(in srgb, var(--page-fg) 16%, transparent);
+}
+
+/* A tile concentric with the field's start corners: its radius is the field
+ * radius less its 4px inset, which keeps the gap to a curved start even. It
+ * never drops below the stepper tiles' radius. The scrub width keeps the
+ * text past it. */
+.text-input-stepper-custom-tiles::part(scrub) {
+	inset-block: 4px;
+	inset-inline-start: 4px;
+	width: 1.5em;
+	border-radius: max(calc(var(--page-radius, 0.25rem) * 0.5), calc(var(--neo-textarea-radius) - 4px));
+	background: color-mix(in srgb, var(--page-fg) 8%, transparent);
+}
+
+.text-input-stepper-custom-tiles::part(scrub):hover,
+.text-input-stepper-custom-tiles:state(scrubbing)::part(scrub) {
+	background: color-mix(in srgb, var(--page-fg) 16%, transparent);
+}
+
+.text-input-stepper-custom-split {
+	--neo-textinput-stepper-width: 4.5em;
+}
+
+.text-input-stepper-custom-split::part(stepper) {
+	flex-direction: row-reverse;
+}
+
+.text-input-stepper-custom-split::part(increment) {
+	border-inline-start: 1px solid var(--neo-textarea-border-color);
+}
+
+/* In a row only the increment meets the field's end. */
+.text-input-stepper-custom-split::part(decrement) {
+	padding-inline-end: 0;
+}

@@ -27,6 +27,9 @@ neo-input-group {
 	 * paint its own ring. Inherits to the whole subtree. The host's own
 	 * frame is a direct box-shadow, not this variable, and is unaffected. */
 	--neo-contrast-ring: 0 0 0 0 transparent;
+	/* The textinput stepper's end corners. Computed here, where
+	 * --neo-textarea-radius isn't zeroed yet, and inherited into the field. */
+	--neo-textinput-stepper-radius: max(0px, calc(var(--neo-textarea-radius) - 1px));
 }
 
 /* The group stands in with its own outline only for the plain text
@@ -100,6 +103,11 @@ neo-input-group > neo-textinput {
 	--neo-textarea-radius: 0;
 	--neo-textarea-bg: transparent;
 	--neo-textarea-focus-outline: none;
+}
+
+/* Only a last-child field's stepper meets the group's rounded border. */
+neo-input-group > neo-textinput:not(:last-child) {
+	--neo-textinput-stepper-radius: 0px;
 }
 
 /* A bare <input> is light DOM; reach it directly. */

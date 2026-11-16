@@ -154,6 +154,117 @@ templ PageTextInput(morpheusVersion string) {
 			}) {
 				@examples.TextInputNumberEu()
 			}
+			@anchoredH3("stepper") {
+				Stepper
+			}
+			<p class="demo-note">
+				A number field steps its value by <code>step</code>
+				within <code>min</code> and <code>max</code>.
+				<code>stepper</code> adds increment and decrement
+				buttons.
+			</p>
+			<ul class="demo-note">
+				<li>
+					ArrowUp and ArrowDown take 1 step, PageUp and
+					PageDown take 10.
+				</li>
+				<li>
+					Hold a button to repeat. It disables at
+					<code>min</code> or <code>max</code>.
+				</li>
+			</ul>
+			@demoFrameWith(DemoFrameOpts{
+				Width:          "26rem",
+				StageMinHeight: "max-content",
+				HTMLSource:     textInputStepperHTML,
+				TemplSource:    textInputStepperTempl,
+			}) {
+				@examples.TextInputStepper()
+			}
+			@anchoredH3("scrub") {
+				Scrub
+			}
+			<p class="demo-note">
+				<code>scrub</code> adds a drag handle at the start of a
+				number field. Dragging it steps the value, 1 step per
+				2px by default; <code>scrub-sensitivity</code> sets the
+				steps per pixel.
+			</p>
+			<ul class="demo-note">
+				<li>
+					<code>{ `scrub="horizontal"` }</code> increases toward
+					the end of the line, <code>{ `scrub="vertical"` }</code>
+					increases upward.
+				</li>
+				<li>
+					Shift takes 10 steps per 2px. The field fires
+					<code>input</code> per step and <code>change</code>
+					on release.
+				</li>
+			</ul>
+			@demoFrameWith(DemoFrameOpts{
+				Width:          "26rem",
+				StageMinHeight: "max-content",
+				HTMLSource:     textInputScrubHTML,
+				TemplSource:    textInputScrubTempl,
+			}) {
+				@examples.TextInputScrub()
+			}
+			@anchoredH3("stepper-customization") {
+				Stepper customization
+			}
+			<p class="demo-note">
+				<code>::part()</code> styles the stepper and the scrub
+				handle. <code>--neo-textinput-stepper-width</code> and
+				<code>--neo-textinput-scrub-width</code> set their
+				widths.
+			</p>
+			<ul class="demo-note">
+				<li>
+					The quantity widens the stepper and fills both
+					buttons with the accent color.
+				</li>
+				<li>
+					The price pads the stepper and rounds each button
+					into a tile. Its vertical scrub handle is a matching
+					tile with a banknote from <code>scrub-icon</code> that
+					darkens while <code>:state(scrubbing)</code> is set.
+				</li>
+				<li>
+					The font size lays the buttons out in a row with
+					<code>{ `flex-direction: row-reverse` }</code>,
+					which puts decrement first, and swaps the chevrons
+					via <code>decrement-icon</code> and
+					<code>increment-icon</code>.
+				</li>
+			</ul>
+			@demoFrameWith(DemoFrameOpts{
+				Width:          "26rem",
+				StageMinHeight: "max-content",
+				HTMLSource:     textInputStepperCustomHTML,
+				TemplSource:    textInputStepperCustomTempl,
+				CSSSource:      textInputStepperCustomCSS,
+			}) {
+				@examples.TextInputStepperCustom()
+			}
+			@anchoredH3("scrub-customization") {
+				Scrub customization
+			}
+			<p class="demo-note">
+				<code>{ `scrub-side="end"` }</code> moves the handle to the
+				end of the field, before the stepper if there is one.
+				<code>scrub-icon</code> swaps its icon, here for a percent
+				sign. <code>{ `scrub-sensitivity="0.25"` }</code> halves
+				the drag speed to 1% per 4px.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				Width:          "26rem",
+				StageMinHeight: "max-content",
+				HTMLSource:     textInputScrubCustomHTML,
+				TemplSource:    textInputScrubCustomTempl,
+			}) {
+				@examples.TextInputScrubCustom()
+			}
 			@anchoredH3("disabled") {
 				Disabled
 			}
@@ -286,7 +397,27 @@ var textInputDoc = ComponentDoc{
 		{Name: "mask", Type: "string", Observed: true,
 			Description: templ.Raw("Static template. Slots are <code>#</code> digit, <code>U</code> letter to upper, <code>l</code> letter to lower, <code>A</code> alnum to upper, <code>a</code> alnum to lower, <code>X</code> alnum (case preserved), and <code>*</code> any char. Other chars are literal, and <code>\\</code> makes the next one literal, as in <code>\\#</code>. Cased slots accept either case and coerce on insert.")},
 		{Name: "format", Type: `"number"`, Observed: true,
-			Description: templ.Raw("Right-anchored thousands grouping for numeric input.")},
+			Description: templ.Raw("Right-anchored thousands grouping for numeric input. Makes the field a number field, like <code>type=\"number\"</code>.")},
+		{Name: "min", Type: "number", Observed: true,
+			Description: templ.Raw("Lowest value a step reaches in a number field.")},
+		{Name: "max", Type: "number", Observed: true,
+			Description: templ.Raw("Highest value a step reaches in a number field.")},
+		{Name: "step", Type: `number | "any"`, Default: "1", Observed: true,
+			Description: templ.Raw("Step size in a number field. ArrowUp and ArrowDown take 1 step, PageUp and PageDown take 10, unless suggestions are slotted. A value off the step grid (based at <code>min</code>, else 0) snaps to it first. <code>any</code> steps by 1 without a grid.")},
+		{Name: "stepper", Type: "boolean", Default: "false", Observed: true,
+			Description: templ.Raw("Show increment and decrement buttons in a number field. A <code>type=\"number\"</code> field never shows the browser's spin buttons.")},
+		{Name: "increment-icon", Type: "string", Observed: true,
+			Description: templ.Raw(`Name of the increment button's icon, an up chevron by default. Resolved through <a href="` + href.PageIcon() + `"><code>&lt;neo-icon&gt;</code></a> and follows the active icon theme.`)},
+		{Name: "decrement-icon", Type: "string", Default: `"chevron-down"`, Observed: true,
+			Description: templ.Raw(`Name of the decrement button's icon. Resolved through <a href="` + href.PageIcon() + `"><code>&lt;neo-icon&gt;</code></a> and follows the active icon theme.`)},
+		{Name: "scrub", Type: `"horizontal" | "vertical"`, Observed: true,
+			Description: templ.Raw("Show a drag handle in a number field, at the start by default. Dragging it steps the value along the axis, toward the end of the line or upward to increase. A bare <code>scrub</code> is horizontal. An unsupported value is ignored with a console warning.")},
+		{Name: "scrub-side", Type: `"start" | "end"`, Default: `"start"`, Observed: true,
+			Description: templ.Raw("Side of the field the scrub handle sits on. At <code>end</code> it sits before the stepper. Follows the text direction. An unsupported value falls back to <code>start</code> with a console warning.")},
+		{Name: "scrub-sensitivity", Type: "number", Default: "0.5", Observed: true,
+			Description: templ.Raw("Steps per pixel of scrub drag. <code>1</code> is twice the default speed, <code>0.25</code> half. Shift takes 10 times as many. A value that isn't a positive number falls back to the default with a console warning.")},
+		{Name: "scrub-icon", Type: "string", Observed: true,
+			Description: templ.Raw(`Name of the scrub handle's icon, chevrons along the axis by default. Resolved through <a href="` + href.PageIcon() + `"><code>&lt;neo-icon&gt;</code></a>.`)},
 		{Name: "prefix", Type: "string", Reflected: true, Observed: true, Description: templ.Raw("Leading literal preserved across clears.")},
 		{Name: "decimal-places", Type: "number", Default: "-1", Observed: true,
 			Description: templ.Raw("Decimal-place cap for <code>format=\"number\"</code>; -1 unbounded.")},
@@ -325,7 +456,28 @@ var textInputDoc = ComponentDoc{
 		{Name: "neo-textinput-select", Detail: "{ value: string, label: string }", Bubbles: true,
 			Description: templ.Raw("A suggestion was committed (click or Enter). <code>value</code> is the option's value, <code>label</code> its visible text.")},
 	},
+	Parts: []DocPart{
+		{Name: "stepper",
+			Description: templ.Raw("Column holding the stepper buttons.")},
+		{Name: "increment",
+			Description: templ.Raw("Increment button.")},
+		{Name: "decrement",
+			Description: templ.Raw("Decrement button.")},
+		{Name: "scrub",
+			Description: templ.Raw("Scrub drag handle.")},
+	},
+	States: []DocState{
+		{Name: "scrubbing",
+			Description: templ.Raw("Set while a scrub drag is in flight.")},
+	},
 	CSSProps: []DocCSSProp{
 		{Name: "--neo-input-min-width", Default: "12rem",
-			Description: templ.Raw("Minimum field width.")}},
+			Description: templ.Raw("Default field width. A <code>width</code> on the element overrides it.")},
+		{Name: "--neo-textinput-stepper-width", Default: "1.5em + inset",
+			Description: templ.Raw("Width of the stepper column.")},
+		{Name: "--neo-textinput-stepper-inset", Default: "30% of the end radius",
+			Description: templ.Raw("End padding of the stepper buttons, which keeps the icons clear of a rounded field end.")},
+		{Name: "--neo-textinput-scrub-width", Default: "1.75em",
+			Description: templ.Raw("Width of the scrub handle.")},
+	},
 }

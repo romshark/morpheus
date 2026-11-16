@@ -1,0 +1,17 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ TextInputStepper() {
+	@neo.TextInput(neo.TextInputOpts{
+		Format:        neo.Set(neo.TextInputFormatNumber),
+		DecimalPlaces: neo.Set(2),
+		Prefix:        neo.Set("$"),
+		Value:         neo.Set("12.50"),
+		Inputmode:     neo.Set(neo.TextInputInputmodeDecimal),
+		Stepper:       neo.Set(true),
+		Min:           neo.Set(0.0),
+		Max:           neo.Set(100.0),
+		Step:          neo.Set(0.5),
+	})
+}

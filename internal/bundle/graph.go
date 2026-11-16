@@ -27,7 +27,7 @@ var deps = []dep{
 		"neo-icon", "neo-spinner", "neo-datalist", "neo-option", "neo-optgroup",
 	}},
 	{"neo-datalist", []string{"neo-option", "neo-optgroup"}},
-	{"neo-textinput", []string{"neo-datalist", "neo-option", "neo-optgroup"}},
+	{"neo-textinput", []string{"neo-datalist", "neo-icon", "neo-option", "neo-optgroup"}},
 	{"neo-breadcrumb", []string{
 		"neo-popover", "neo-button", "neo-icon", "neo-navgroup",
 	}},

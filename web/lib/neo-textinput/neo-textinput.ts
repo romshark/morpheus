@@ -4,10 +4,13 @@
 // <input> when no formatting is needed (and for type=date/color/file, where
 // native UI would clash); the kit's CSS styles bare <input>s identically.
 
+import "../neo-icon";
 import { boolAttr, openCommand } from "../command";
+import { isRTL } from "../direction";
+import { setState } from "../internal-state";
 import { isDigit, type MaskSlot, parseMask } from "../mask";
 import { cloneDatalistOptionsInto, externalDatalistFor } from "../neo-datalist";
-import { OPTION_OBSERVE_ATTRS, readOptionData, wireOptionEl } from "../neo-listbox";
+import { OPTION_OBSERVE_ATTRS, readOptionData, setAttrIfChanged, wireOptionEl } from "../neo-listbox";
 import {
 	anchorPopoverResult,
 	applyOpenSizeDuringScroll,
@@ -26,6 +29,20 @@ const ATTR_DECIMAL_PLACES = "decimal-places";
 const ATTR_DECIMAL_MARK = "decimal-mark";
 const ATTR_THOUSANDS_SEPARATOR = "thousands-separator";
 const ATTR_SUBMIT_RAW = "submit-raw";
+const ATTR_STEPPER = "stepper";
+const ATTR_INCREMENT_ICON = "increment-icon";
+const ATTR_DECREMENT_ICON = "decrement-icon";
+const ATTR_SCRUB = "scrub";
+const ATTR_SCRUB_ICON = "scrub-icon";
+const ATTR_SCRUB_SIDE = "scrub-side";
+const ATTR_SCRUB_SENSITIVITY = "scrub-sensitivity";
+// Steps per CSS pixel of scrub drag, 1 step per 2px. Shift takes 10 times
+// as many, like PageUp.
+const SCRUB_SENSITIVITY = 0.5;
+// Press-and-hold on a stepper button repeats after a delay, like the
+// native spin buttons.
+const STEP_REPEAT_DELAY_MS = 400;
+const STEP_REPEAT_INTERVAL_MS = 60;
 // Shared open command/reflection. Explicit open="true"/"false"
 // commands open/close; absence preserves client state across fat morphs.
 const ATTR_OPEN = "open";
@@ -418,6 +435,13 @@ const SUGGEST_SHADOW_TEMPLATE = document.createElement("template");
 // - input: the field. Mirrors the bare-<input> rules in neo-textinput.css so
 //   a wrapped field and a standalone <input> look identical; both read the
 //   same --neo-textarea-* tokens.
+// - input width: --neo-input-min-width is the field's preferred width, which
+//   an auto-width host sizes to. min-width and max-width 100% pin the field
+//   to any definite host width: its own width, a stretching column or grid,
+//   a group's flex, also a host page CSS sets to display: block. A
+//   min-width floor would beat an explicit width and overflow the host,
+//   leaving the stepper and scrub handle, which are positioned against the
+//   host, inside the text.
 // - input border: width tokenized so neo-input-group can zero it (the field
 //   merges into the group's shared border instead of drawing its own).
 // - input height: an <input> floors its content box at the font's normal line
@@ -433,19 +457,43 @@ const SUGGEST_SHADOW_TEMPLATE = document.createElement("template");
 //   [data-neo-suggest-list]: the positioner leaves width unset in this mode.
 //   Size to the suggestions instead of forcing the field width, floored by
 //   min-width and capped by max-width.
+// - input[type="number"] appearance and ::-webkit-*-spin-button: hide the
+//   native spin buttons; [data-neo-textinput-stepper] replaces them. Firefox
+//   reads only appearance, WebKit and Blink only the pseudo-elements.
+// - [data-neo-textinput-stepper]: sits inside the field's border, which
+//   keeps the field's focus ring and the input group's merged border. Its
+//   end corners follow the field radius less the border width.
+// - --neo-textinput-stepper-inset: end padding on the buttons. A rounded
+//   field end takes up to its radius of the column; the backgrounds still
+//   fill the curve, the icons center clear of it. The radius is capped at
+//   half the control height, where a pill clamps it. 0.3 is tuned by eye on
+//   a pill-shaped field.
+// - [data-neo-textinput-scrub]: a pointer-only handle, aria-hidden, because
+//   the arrow keys and the stepper are its keyboard and click equivalents.
+//   Its icon is vertically centered, where a rounded start barely curves,
+//   which means it needs no inset. touch-action: none keeps a touch drag
+//   from scrolling the page. At scrub-side="end" it sits before the stepper,
+//   and the field's end padding covers both.
+// - input:disabled ~ ... cursor: not-allowed, as on the disabled field. A
+//   button at min or max, or in a readonly field, keeps the default cursor,
+//   because the control still works.
+// - [data-neo-textinput-stepper] button color: dims the chevron through
+//   color, not opacity on the icon, which page CSS can't reach. A
+//   ::part(increment) color then sets the chevron.
 SUGGEST_SHADOW_TEMPLATE.innerHTML = `
 <style>
   input {
     font: inherit;
     display: block;
     box-sizing: border-box;
-    width: 100%;
+    width: var(--neo-input-min-width, 12rem);
+    min-width: 100%;
+    max-width: 100%;
     background: var(--neo-textarea-bg);
     color: var(--neo-textarea-color);
     border: var(--neo-textarea-border-width, 1px) solid var(--neo-textarea-border-color);
     border-radius: var(--neo-textarea-radius);
     padding: var(--neo-textarea-padding);
-    min-width: var(--neo-input-min-width);
     height: var(--neo-input-height, var(--neo-control-height));
     font-variant-numeric: tabular-nums;
     line-height: 1;
@@ -467,6 +515,135 @@ SUGGEST_SHADOW_TEMPLATE.innerHTML = `
     cursor: not-allowed;
     opacity: 0.55;
     background-image: var(--neo-disabled-overlay);
+  }
+  input[type="number"] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+  input::-webkit-inner-spin-button,
+  input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  :host(:state(stepper)) {
+    position: relative;
+    --neo-textinput-stepper-inset: calc(min(var(--neo-textinput-stepper-radius, max(0px, calc(var(--neo-textarea-radius) - var(--neo-textarea-border-width, 1px)))), var(--neo-control-height) / 2) * 0.3);
+  }
+  :host(:state(stepper)) input {
+    padding-inline-end: calc(var(--neo-textinput-stepper-width, calc(1.5em + var(--neo-textinput-stepper-inset))) + var(--page-spacing, 0.25rem) * 2);
+  }
+  [data-neo-textinput-stepper] {
+    position: absolute;
+    inset-block: var(--neo-textarea-border-width, 1px);
+    inset-inline-end: var(--neo-textarea-border-width, 1px);
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    width: var(--neo-textinput-stepper-width, calc(1.5em + var(--neo-textinput-stepper-inset)));
+    border-inline-start: var(--neo-textarea-border-width, 1px) solid var(--neo-textarea-border-color);
+    border-start-end-radius: var(--neo-textinput-stepper-radius, max(0px, calc(var(--neo-textarea-radius) - var(--neo-textarea-border-width, 1px))));
+    border-end-end-radius: var(--neo-textinput-stepper-radius, max(0px, calc(var(--neo-textarea-radius) - var(--neo-textarea-border-width, 1px))));
+    overflow: hidden;
+  }
+  [data-neo-textinput-stepper][hidden] {
+    display: none;
+  }
+  [data-neo-textinput-stepper] button {
+    flex: 1 1 0;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    padding: 0;
+    padding-inline-end: var(--neo-textinput-stepper-inset);
+    border: 0;
+    background: transparent;
+    color: color-mix(in srgb, currentColor 60%, transparent);
+    font: inherit;
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+  [data-neo-textinput-stepper] button:hover:enabled {
+    background: var(--neo-button-hover-bg);
+    color: inherit;
+  }
+  [data-neo-textinput-stepper] button:active:enabled {
+    background: var(--neo-button-active-bg);
+  }
+  [data-neo-textinput-stepper] button:disabled {
+    cursor: default;
+    opacity: 0.35;
+  }
+  input:disabled ~ [data-neo-textinput-stepper] button {
+    cursor: not-allowed;
+  }
+  [data-neo-textinput-stepper] neo-icon {
+    display: block;
+    width: 0.75em;
+    height: 0.75em;
+  }
+  [data-neo-textinput-flip] {
+    rotate: 180deg;
+  }
+  :host(:state(scrub)) {
+    position: relative;
+  }
+  :host(:state(scrub):not(:state(scrub-end))) input {
+    padding-inline-start: var(--neo-textinput-scrub-width, 1.75em);
+  }
+  :host(:state(scrub-end)) input {
+    padding-inline-end: var(--neo-textinput-scrub-width, 1.75em);
+  }
+  :host(:state(scrub-end):state(stepper)) input {
+    padding-inline-end: calc(var(--neo-textinput-stepper-width, calc(1.5em + var(--neo-textinput-stepper-inset))) + var(--neo-textinput-scrub-width, 1.75em));
+  }
+  [data-neo-textinput-scrub] {
+    position: absolute;
+    inset-block: var(--neo-textarea-border-width, 1px);
+    inset-inline-start: var(--neo-textarea-border-width, 1px);
+    box-sizing: border-box;
+    width: var(--neo-textinput-scrub-width, 1.75em);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: color-mix(in srgb, currentColor 60%, transparent);
+    cursor: ew-resize;
+    touch-action: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  :host(:state(scrub-end)) [data-neo-textinput-scrub] {
+    inset-inline-start: auto;
+    inset-inline-end: var(--neo-textarea-border-width, 1px);
+  }
+  :host(:state(scrub-end):state(stepper)) [data-neo-textinput-scrub] {
+    inset-inline-end: calc(var(--neo-textarea-border-width, 1px) + var(--neo-textinput-stepper-width, calc(1.5em + var(--neo-textinput-stepper-inset))));
+  }
+  [data-neo-textinput-scrub][data-neo-textinput-vertical] {
+    cursor: ns-resize;
+  }
+  [data-neo-textinput-scrub][hidden] {
+    display: none;
+  }
+  input:not(:disabled, [readonly]) ~ [data-neo-textinput-scrub]:hover,
+  :host(:state(scrubbing)) [data-neo-textinput-scrub] {
+    color: inherit;
+  }
+  input:is(:disabled, [readonly]) ~ [data-neo-textinput-scrub] {
+    cursor: default;
+    opacity: 0.35;
+  }
+  input:disabled ~ [data-neo-textinput-scrub] {
+    cursor: not-allowed;
+  }
+  [data-neo-textinput-scrub] neo-icon {
+    display: block;
+    width: 0.75em;
+    height: 0.75em;
+  }
+  [data-neo-textinput-turn] {
+    rotate: 90deg;
   }
   [data-neo-suggest-list] {
     position: fixed;
@@ -519,6 +696,20 @@ SUGGEST_SHADOW_TEMPLATE.innerHTML = `
 </div>
 `;
 
+// Built on first use, which keeps the icon fetch off fields without a
+// stepper. tabindex="-1" keeps the buttons out of the tab order like native
+// spin buttons; the field's arrow keys are the keyboard path.
+const STEPPER_TEMPLATE = document.createElement("template");
+STEPPER_TEMPLATE.innerHTML = `<div data-neo-textinput-stepper part="stepper">
+<button type="button" tabindex="-1" aria-label="Increase" data-neo-textinput-increment part="increment"><neo-icon name="chevron-down" data-neo-textinput-flip aria-hidden="true"></neo-icon></button>
+<button type="button" tabindex="-1" aria-label="Decrease" data-neo-textinput-decrement part="decrement"><neo-icon name="chevron-down" aria-hidden="true"></neo-icon></button>
+</div>`;
+
+// Built on first use like STEPPER_TEMPLATE. The default horizontal icon is
+// chevrons-up-down turned 90deg.
+const SCRUB_TEMPLATE = document.createElement("template");
+SCRUB_TEMPLATE.innerHTML = `<div data-neo-textinput-scrub part="scrub" aria-hidden="true"><neo-icon name="chevrons-up-down"></neo-icon></div>`;
+
 let suggestInstanceCounter = 0;
 
 export class NeoTextInput extends HTMLElement {
@@ -534,6 +725,13 @@ export class NeoTextInput extends HTMLElement {
 		ATTR_DECIMAL_MARK,
 		ATTR_THOUSANDS_SEPARATOR,
 		ATTR_SUBMIT_RAW,
+		ATTR_STEPPER,
+		ATTR_INCREMENT_ICON,
+		ATTR_DECREMENT_ICON,
+		ATTR_SCRUB,
+		ATTR_SCRUB_ICON,
+		ATTR_SCRUB_SIDE,
+		ATTR_SCRUB_SENSITIVITY,
 		ATTR_OPEN,
 		"list",
 		...POPOVER_ATTRS,
@@ -589,6 +787,15 @@ export class NeoTextInput extends HTMLElement {
 	#suggestOpenScrollHoldUntil = 0;
 	#suggestOpenScrollPositionFrame: number | null = null;
 	#suggestOpenScrollPositionUntil = 0;
+	#stepper: HTMLElement | null = null;
+	#stepRepeatTimer = 0;
+	#scrub: HTMLElement | null = null;
+	#scrubAxis: "horizontal" | "vertical" | null = null;
+	#scrubEnd = false;
+	#scrubSensitivity = SCRUB_SENSITIVITY;
+	// sign maps pointer travel to step direction: up, or toward the inline
+	// end, increases.
+	#scrubDrag: { id: number; last: number; acc: number; start: string; vertical: boolean; sign: number } | null = null;
 
 	constructor() {
 		super();
@@ -629,7 +836,8 @@ export class NeoTextInput extends HTMLElement {
 		// Read suggestions from the external <neo-datalist> this field's
 		// list="<id>" points at (it may have upgraded first).
 		this.syncDatalist();
-		this.#updateComboboxRole();
+		this.#readScrubAttrs();
+		this.#updateRole();
 		// For the `open` command, explicit true/false commands obey; absent
 		// keeps prior client intent across reconnect/morph.
 		const cmd = openCommand(this);
@@ -656,6 +864,9 @@ export class NeoTextInput extends HTMLElement {
 			this.#suggestRepositionFrame = null;
 		}
 		this.#cancelSuggestOpenScrollPositioning();
+		this.#stopStepRepeat();
+		this.#scrubDrag = null;
+		setState(this.#internals, "scrubbing", false);
 		this.#childObserver?.disconnect();
 		this.#childObserver = null;
 		this.removeEventListener("focusin", this.#onHostFocusIn);
@@ -715,6 +926,22 @@ export class NeoTextInput extends HTMLElement {
 		}
 		if (PASSTHROUGH_ATTRS.includes(name)) {
 			this.#syncOnePassthrough(name);
+			// type, min, max, step, disabled and readonly shape the
+			// spinbutton and the stepper.
+			this.#updateRole();
+			return;
+		}
+		if (name === ATTR_SCRUB || name === ATTR_SCRUB_SIDE || name === ATTR_SCRUB_SENSITIVITY) this.#readScrubAttrs();
+		if (
+			name === ATTR_STEPPER ||
+			name === ATTR_INCREMENT_ICON ||
+			name === ATTR_DECREMENT_ICON ||
+			name === ATTR_SCRUB ||
+			name === ATTR_SCRUB_ICON ||
+			name === ATTR_SCRUB_SIDE ||
+			name === ATTR_SCRUB_SENSITIVITY
+		) {
+			this.#syncStepper();
 			return;
 		}
 		if (name === ATTR_VALUE) {
@@ -746,6 +973,7 @@ export class NeoTextInput extends HTMLElement {
 		if (this.#innerInput) {
 			this.#applyValue(this.#innerInput.value);
 		}
+		this.#updateRole();
 	}
 
 	get value(): string {
@@ -805,6 +1033,7 @@ export class NeoTextInput extends HTMLElement {
 
 	formDisabledCallback(disabled: boolean) {
 		if (this.#innerInput) this.#innerInput.disabled = disabled;
+		this.#syncStepper();
 	}
 
 	formResetCallback() {
@@ -822,7 +1051,7 @@ export class NeoTextInput extends HTMLElement {
 		inp.addEventListener("change", this.#onChange);
 		inp.addEventListener("compositionstart", this.#onCompositionStart);
 		inp.addEventListener("compositionend", this.#onCompositionEnd);
-		inp.addEventListener("keydown", this.#onSuggestKeyDown);
+		inp.addEventListener("keydown", this.#onKeyDown);
 		this.#innerInput = inp;
 	}
 
@@ -928,6 +1157,7 @@ export class NeoTextInput extends HTMLElement {
 		const { formatted } = this.#formatter.format(raw);
 		this.#innerInput.value = formatted;
 		this.#syncFormValue();
+		this.#syncStepper();
 	}
 
 	#syncPassthrough() {
@@ -1199,6 +1429,7 @@ export class NeoTextInput extends HTMLElement {
 		}
 
 		this.#syncFormValue();
+		this.#syncStepper();
 		this.#emitInput(this.value, this.rawValue);
 		// Typing re-arms suggestions; the server patches fresh options in
 		// response to the input event, and the slot observer opens then.
@@ -1306,26 +1537,296 @@ export class NeoTextInput extends HTMLElement {
 		}
 	}
 
-	// Combobox semantics only while suggestions exist (or the popover is open);
-	// a plain field stays a plain textbox. aria-controls is omitted,
-	// because it can't resolve from the shadow field to the light-DOM options
-	// across roots. The active-option link is carried by #pointActiveDescendant.
-	#updateComboboxRole() {
+	#hasSuggestions(): boolean {
+		return this.#suggestOptionEls().length > 0 || this.#suggestOpen;
+	}
+
+	// Combobox semantics only while suggestions exist (or the popover is open),
+	// else spinbutton for a number field; a plain field stays a plain textbox.
+	// aria-controls is omitted, because it can't resolve from the shadow field
+	// to the light-DOM options across roots. The active-option link is carried
+	// by #pointActiveDescendant.
+	#updateRole() {
 		const inp = this.#innerInput;
 		if (!inp) return;
-		const active = this.#suggestOptionEls().length > 0 || this.#suggestOpen;
-		if (active) {
-			if (inp.getAttribute("role") !== "combobox") inp.setAttribute("role", "combobox");
-			if (inp.getAttribute("aria-autocomplete") !== "list") inp.setAttribute("aria-autocomplete", "list");
-			const expanded = String(this.#suggestOpen);
-			if (inp.getAttribute("aria-expanded") !== expanded) inp.setAttribute("aria-expanded", expanded);
+		if (this.#hasSuggestions()) {
+			setAttrIfChanged(inp, "role", "combobox");
+			setAttrIfChanged(inp, "aria-autocomplete", "list");
+			setAttrIfChanged(inp, "aria-expanded", String(this.#suggestOpen));
 		} else {
-			inp.removeAttribute("role");
+			// A native type="number" field is a spinbutton already.
+			if (this.#isNumber() && inp.type !== "number") setAttrIfChanged(inp, "role", "spinbutton");
+			else inp.removeAttribute("role");
 			inp.removeAttribute("aria-autocomplete");
 			inp.removeAttribute("aria-expanded");
 			this.#pointActiveDescendant(null);
 		}
+		this.#syncStepper();
 	}
+
+	#isNumber(): boolean {
+		return this.#formatter instanceof NumberFormatter || this.#innerInput?.type === "number";
+	}
+
+	// Syncs the spinbutton values and the stepper buttons to the field.
+	#syncStepper() {
+		const inp = this.#innerInput;
+		if (!inp) return;
+		const isNumber = this.#isNumber();
+		const raw = isNumber ? this.value : "";
+		const cur = raw === "" ? Number.NaN : Number(raw);
+		const min = numAttr(this.getAttribute("min"), Number.NaN);
+		const max = numAttr(this.getAttribute("max"), Number.NaN);
+		const spin = inp.getAttribute("role") === "spinbutton";
+		setOrRemoveAttr(inp, "aria-valuenow", spin && Number.isFinite(cur) ? String(cur) : null);
+		// The display text carries the prefix and separators, which
+		// aria-valuenow drops.
+		setOrRemoveAttr(inp, "aria-valuetext", spin && inp.value !== "" ? inp.value : null);
+		setOrRemoveAttr(inp, "aria-valuemin", spin && Number.isFinite(min) ? String(min) : null);
+		setOrRemoveAttr(inp, "aria-valuemax", spin && Number.isFinite(max) ? String(max) : null);
+
+		this.#syncScrub(isNumber);
+		const show = isNumber && boolAttr(this, ATTR_STEPPER, false);
+		setState(this.#internals, "stepper", show);
+		if (!show) {
+			if (this.#stepper) this.#stepper.hidden = true;
+			return;
+		}
+		const stepper = this.#ensureStepper();
+		stepper.hidden = false;
+		const locked = inp.disabled || inp.readOnly;
+		const [inc, dec] = stepper.querySelectorAll("button");
+		inc.disabled = locked || this.#stepTarget(1) === null;
+		dec.disabled = locked || this.#stepTarget(-1) === null;
+		syncStepIcon(inc, this.getAttribute(ATTR_INCREMENT_ICON), true);
+		syncStepIcon(dec, this.getAttribute(ATTR_DECREMENT_ICON), false);
+	}
+
+	#ensureStepper(): HTMLElement {
+		if (this.#stepper) return this.#stepper;
+		const stepper = STEPPER_TEMPLATE.content.firstElementChild!.cloneNode(true) as HTMLElement;
+		// mousedown's default would focus the button and blur the field.
+		stepper.addEventListener("mousedown", (e) => e.preventDefault());
+		stepper.addEventListener("pointerdown", this.#onStepperPointerDown);
+		for (const btn of stepper.querySelectorAll("button")) {
+			btn.addEventListener("pointerup", this.#stopStepRepeat);
+			btn.addEventListener("pointerleave", this.#stopStepRepeat);
+			btn.addEventListener("pointercancel", this.#stopStepRepeat);
+		}
+		this.#innerInput!.after(stepper);
+		this.#stepper = stepper;
+		return stepper;
+	}
+
+	#onStepperPointerDown = (e: PointerEvent) => {
+		if (e.button !== 0) return;
+		const btn = (e.target as Element).closest("button");
+		if (!btn || btn.disabled) return;
+		const n = btn.hasAttribute("data-neo-textinput-increment") ? 1 : -1;
+		// A native spin button focuses its field. Skip on touch, where focus
+		// opens the virtual keyboard.
+		if (e.pointerType !== "touch") this.#innerInput?.focus({ preventScroll: true });
+		this.#stopStepRepeat();
+		this.#stepBy(n);
+		const repeat = () => {
+			// A button disabled at min or max gets no pointerup.
+			if (btn.disabled || !this.isConnected) {
+				this.#stopStepRepeat();
+				return;
+			}
+			this.#stepBy(n);
+			this.#stepRepeatTimer = window.setTimeout(repeat, STEP_REPEAT_INTERVAL_MS);
+		};
+		this.#stepRepeatTimer = window.setTimeout(repeat, STEP_REPEAT_DELAY_MS);
+	};
+
+	#stopStepRepeat = () => {
+		clearTimeout(this.#stepRepeatTimer);
+		this.#stepRepeatTimer = 0;
+	};
+
+	// Returns the field text n steps away, or null when the step can't move
+	// the value. Follows HTML stepUp/stepDown: an off-grid value first snaps
+	// to the step grid (based at min, else 0) in the step direction, and the
+	// result clamps to min/max on the grid. step="any" steps by 1 without the
+	// grid. An empty field steps from 0.
+	#stepTarget(n: number): string | null {
+		const inp = this.#innerInput;
+		if (!inp) return null;
+		const stepAttr = this.getAttribute("step") ?? "";
+		const minAttr = this.getAttribute("min") ?? "";
+		const anyStep = stepAttr.trim().toLowerCase() === "any";
+		const s = numAttr(stepAttr, 1);
+		const step = s > 0 ? s : 1;
+		const min = numAttr(minAttr, Number.NaN);
+		const max = numAttr(this.getAttribute("max"), Number.NaN);
+		const base = Number.isFinite(min) ? min : 0;
+
+		const curStr = this.value;
+		const cur = curStr === "" ? Number.NaN : Number(curStr);
+		const empty = !Number.isFinite(cur);
+		const before = empty ? 0 : cur;
+
+		// Fixed decimals avoid float noise (0.1 + 0.2) and keep the
+		// typed precision ("1.50" steps to "2.50").
+		let dp = Math.max(fractionDigits(stepAttr), fractionDigits(minAttr), fractionDigits(curStr));
+		if (this.#formatter instanceof NumberFormatter) {
+			const cap = numAttr(this.getAttribute(ATTR_DECIMAL_PLACES), -1);
+			if (cap >= 0) dp = Math.min(dp, cap);
+		}
+		dp = Math.min(dp, 100);
+		const shown = (x: number) => x.toFixed(dp);
+
+		let v: number;
+		if (anyStep) {
+			v = before + n * step;
+			if (v < min) v = min;
+			if (v > max) v = max;
+		} else {
+			const at = (k: number) => base + k * step;
+			const q = (before - base) / step;
+			const near = Math.round(q);
+			// Grid tests run at the shown precision. With fewer decimal places
+			// than step has, a grid value shows rounded off the grid
+			// (step 1.255 at 2 places shows 66.555 as 66.55).
+			let k = shown(at(near)) === shown(before) ? near + n : n > 0 ? Math.ceil(q) : Math.floor(q);
+			if (shown(at(k)) === shown(before)) {
+				// The target rounds back onto the shown value, as every step of
+				// 0.025 does at 1 place from most values. Jump to the first grid
+				// value past the rounding edge.
+				const edge = Number(shown(before)) + (Math.sign(n) * 10 ** -dp) / 2;
+				k = n > 0 ? Math.ceil((edge - base) / step) : Math.floor((edge - base) / step);
+				// A value exactly on the edge can round either way. The bound
+				// guards magnitudes where at(k + 1) === at(k).
+				for (let i = 0; i < 4 && shown(at(k)) === shown(before); i++) k += Math.sign(n);
+			}
+			// base is min.
+			if (at(k) < min) k = 0;
+			if (at(k) > max) k = Math.floor((max - base) / step + 1e-9);
+			v = at(k);
+		}
+		// A value already past a bound must not move the other way.
+		if (!empty && (n > 0 ? v < before : v > before)) return null;
+
+		let raw = shown(v);
+		if (Number(raw) === 0) raw = raw.replace("-", "");
+		const { formatted } = this.#formatter.format(raw);
+		return formatted === inp.value ? null : formatted;
+	}
+
+	// commit fires change per step, as a native number field does for keys
+	// and spin buttons. A scrub drag passes false and commits on release.
+	#stepBy(n: number, commit = true) {
+		const inp = this.#innerInput;
+		if (!inp || inp.disabled || inp.readOnly) return;
+		const formatted = this.#stepTarget(n);
+		if (formatted === null) return;
+		inp.value = formatted;
+		this.#syncFormValue();
+		this.#syncStepper();
+		this.#emitInput(this.value, this.rawValue);
+		if (commit) this.#onChange();
+	}
+
+	// Warns once per attribute change rather than on every value sync.
+	#readScrubAttrs() {
+		const v = this.getAttribute(ATTR_SCRUB);
+		if (v === null || v === "false") this.#scrubAxis = null;
+		else if (v === "" || v === "horizontal") this.#scrubAxis = "horizontal";
+		else if (v === "vertical") this.#scrubAxis = "vertical";
+		else {
+			console.warn(`${TEXTINPUT_TAG} scrub must be "horizontal" or "vertical", got "${v}".`, this);
+			this.#scrubAxis = null;
+		}
+		const side = this.getAttribute(ATTR_SCRUB_SIDE);
+		if (side !== null && side !== "start" && side !== "end") {
+			console.warn(`${TEXTINPUT_TAG} scrub-side must be "start" or "end", got "${side}".`, this);
+		}
+		this.#scrubEnd = side === "end";
+		const sens = this.getAttribute(ATTR_SCRUB_SENSITIVITY);
+		const n = numAttr(sens, Number.NaN);
+		if (sens !== null && sens !== "" && !(n > 0)) {
+			console.warn(`${TEXTINPUT_TAG} scrub-sensitivity must be a positive number, got "${sens}".`, this);
+		}
+		this.#scrubSensitivity = n > 0 ? n : SCRUB_SENSITIVITY;
+	}
+
+	#syncScrub(isNumber: boolean) {
+		const show = isNumber && this.#scrubAxis !== null;
+		setState(this.#internals, "scrub", show);
+		setState(this.#internals, "scrub-end", show && this.#scrubEnd);
+		if (!show) {
+			if (this.#scrub) this.#scrub.hidden = true;
+			return;
+		}
+		const scrub = this.#ensureScrub();
+		scrub.hidden = false;
+		const vertical = this.#scrubAxis === "vertical";
+		scrub.toggleAttribute("data-neo-textinput-vertical", vertical);
+		const icon = scrub.querySelector("neo-icon")!;
+		const name = this.getAttribute(ATTR_SCRUB_ICON);
+		const custom = name !== null && name !== "";
+		setAttrIfChanged(icon, "name", custom ? name : "chevrons-up-down");
+		icon.toggleAttribute("data-neo-textinput-turn", !custom && !vertical);
+	}
+
+	#ensureScrub(): HTMLElement {
+		if (this.#scrub) return this.#scrub;
+		const scrub = SCRUB_TEMPLATE.content.firstElementChild!.cloneNode(true) as HTMLElement;
+		scrub.addEventListener("pointerdown", this.#onScrubPointerDown);
+		scrub.addEventListener("pointermove", this.#onScrubPointerMove);
+		scrub.addEventListener("pointerup", this.#onScrubPointerEnd);
+		scrub.addEventListener("pointercancel", this.#onScrubPointerEnd);
+		scrub.addEventListener("lostpointercapture", this.#onScrubPointerEnd);
+		this.#innerInput!.after(scrub);
+		this.#scrub = scrub;
+		return scrub;
+	}
+
+	#onScrubPointerDown = (e: PointerEvent) => {
+		const inp = this.#innerInput;
+		if (e.button !== 0 || !inp || inp.disabled || inp.readOnly) return;
+		// Suppresses the compatibility mousedown, whose default would start a
+		// text selection and move focus.
+		e.preventDefault();
+		(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+		if (e.pointerType !== "touch") inp.focus({ preventScroll: true });
+		const vertical = this.#scrubAxis === "vertical";
+		this.#scrubDrag = {
+			id: e.pointerId,
+			last: vertical ? e.clientY : e.clientX,
+			acc: 0,
+			start: inp.value,
+			vertical,
+			sign: vertical || isRTL(this) ? -1 : 1,
+		};
+		setState(this.#internals, "scrubbing", true);
+	};
+
+	#onScrubPointerMove = (e: PointerEvent) => {
+		const drag = this.#scrubDrag;
+		if (!drag || e.pointerId !== drag.id) return;
+		const pos = drag.vertical ? e.clientY : e.clientX;
+		// acc counts steps, fractions included, which a low sensitivity
+		// carries across moves. The tolerance absorbs float sums: ten moves
+		// at 0.1 add up to 0.9999999999999999.
+		drag.acc += (pos - drag.last) * drag.sign * this.#scrubSensitivity;
+		drag.last = pos;
+		const n = Math.trunc(drag.acc + Math.sign(drag.acc) * 1e-9);
+		if (n === 0) return;
+		// Travel past min or max is dropped, which makes a reversed drag
+		// move the value at once.
+		drag.acc -= n;
+		this.#stepBy(e.shiftKey ? n * 10 : n, false);
+	};
+
+	#onScrubPointerEnd = (e: PointerEvent) => {
+		const drag = this.#scrubDrag;
+		if (!drag || e.pointerId !== drag.id) return;
+		this.#scrubDrag = null;
+		setState(this.#internals, "scrubbing", false);
+		if (this.#innerInput && this.#innerInput.value !== drag.start) this.#onChange();
+	};
 
 	// The field lives in the shadow root and the options in light DOM, which
 	// means the aria-activedescendant IDREF can't resolve across roots. Use
@@ -1375,7 +1876,7 @@ export class NeoTextInput extends HTMLElement {
 		} else {
 			this.#maybeOpenSuggest();
 		}
-		this.#updateComboboxRole();
+		this.#updateRole();
 	}
 
 	#onSuggestionsChanged = () => {
@@ -1429,7 +1930,7 @@ export class NeoTextInput extends HTMLElement {
 		this.#suggestOpen = true;
 		this.#reflectSuggestOpen();
 		this.#suggestList.hidden = false;
-		this.#updateComboboxRole();
+		this.#updateRole();
 		this.#positionSuggest({ scrollIntoView: true });
 	}
 
@@ -1445,7 +1946,7 @@ export class NeoTextInput extends HTMLElement {
 		this.#reflectSuggestClosed();
 		this.#suggestList.hidden = true;
 		this.#clearActive();
-		this.#updateComboboxRole();
+		this.#updateRole();
 	}
 
 	#reflectSuggestOpen() {
@@ -1670,8 +2171,17 @@ export class NeoTextInput extends HTMLElement {
 		this.dispatchEvent(new CustomEvent("neo-textinput-select", { bubbles: true, detail: { value, label } }));
 	}
 
-	#onSuggestKeyDown = (e: KeyboardEvent) => {
+	#onKeyDown = (e: KeyboardEvent) => {
 		if (e.altKey || e.ctrlKey || e.metaKey || e.isComposing) return;
+		// Suggestions keep the arrow keys. Shift+arrow keeps selecting text.
+		if (!e.shiftKey && this.#isNumber() && !this.#hasSuggestions()) {
+			const n = stepKeyCount(e.key);
+			if (n !== 0) {
+				e.preventDefault();
+				this.#stepBy(n);
+				return;
+			}
+		}
 		if (e.key === "ArrowDown" || e.key === "ArrowUp") {
 			e.preventDefault();
 			this.#suggestDismissed = false;
@@ -1731,6 +2241,44 @@ function numAttr(s: string | null, fallback: number): number {
 	if (s === null || s === "") return fallback;
 	const n = Number(s);
 	return Number.isFinite(n) ? n : fallback;
+}
+
+// PageUp and PageDown take the larger step the APG spinbutton pattern allows.
+function stepKeyCount(key: string): number {
+	switch (key) {
+		case "ArrowUp":
+			return 1;
+		case "ArrowDown":
+			return -1;
+		case "PageUp":
+			return 10;
+		case "PageDown":
+			return -10;
+		default:
+			return 0;
+	}
+}
+
+// fractionDigits counts the decimals a number string carries, including
+// those an exponent adds ("1e-3" has 3).
+function fractionDigits(s: string): number {
+	const m = /^[^.eE]*(?:\.(\d*))?(?:[eE]([+-]?\d+))?$/.exec(s.trim());
+	if (!m) return 0;
+	return Math.max(0, (m[1]?.length ?? 0) - Number(m[2] ?? 0));
+}
+
+// The default up chevron is the down chevron flipped, which keeps the
+// stepper at 1 icon in the set.
+function syncStepIcon(btn: HTMLButtonElement, name: string | null, flipDefault: boolean) {
+	const icon = btn.querySelector("neo-icon")!;
+	const custom = name !== null && name !== "";
+	setAttrIfChanged(icon, "name", custom ? name : "chevron-down");
+	icon.toggleAttribute("data-neo-textinput-flip", flipDefault && !custom);
+}
+
+function setOrRemoveAttr(el: Element, name: string, value: string | null) {
+	if (value === null) el.removeAttribute(name);
+	else setAttrIfChanged(el, name, value);
 }
 
 if (!customElements.get("neo-textinput")) {

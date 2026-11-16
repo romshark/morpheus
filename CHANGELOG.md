@@ -11,8 +11,18 @@ This file records the notable changes of each release in the format of [Keep a C
 - Add `<neo-otp>`, a code input with 1 box per character for one-time codes and PINs. `neo.OTP` renders it from Templ.
 - Add `<neo-odometer>`, which animates changes to a number by rolling its digits. `neo.Odometer` renders it from Templ.
 - Escape a slot character in the `mask` of `<neo-textinput>` and `<neo-otp>` with `\`, as in `\#` for a literal `#`. A `\` in an existing mask now escapes the character after it; write `\\` for a literal backslash.
+- Step a `<neo-textinput>` number field (`format="number"` or `type="number"`) by `step` within `min` and `max`, with ArrowUp and ArrowDown, or PageUp and PageDown for 10 steps. The new `stepper` attribute adds increment and decrement buttons, and `increment-icon` and `decrement-icon` swap their icons.
+- Add `scrub="horizontal|vertical"` to a `<neo-textinput>` number field, a handle that steps the value when dragged. `scrub-side="start|end"` places it, `scrub-sensitivity` sets its steps per pixel and `scrub-icon` swaps its icon.
+
+#### Templ wrappers
+
+- Add `Stepper`, `IncrementIcon`, `DecrementIcon`, `Scrub`, `ScrubIcon`, `ScrubSide`, `ScrubSensitivity`, `Min`, `Max` and `Step` to `neo.TextInputOpts`.
 
 ### Changed
+
+#### Components
+
+- Hide the browser's spin buttons in `<neo-textinput type="number">`. Set `stepper` for the kit's buttons.
 
 #### Templ wrappers
 
@@ -24,6 +34,7 @@ This file records the notable changes of each release in the format of [Keep a C
 
 - Follow a right-to-left `dir` in `<neo-tabs>`, `<neo-radio-group>`, `<neo-toggle-group>`, `<neo-buttongroup>`, `<neo-tree>`, `<neo-menu>`, `<neo-submenu>`, `<neo-carousel>`, `<neo-sortable>`, `<neo-slider>`, `<neo-slider-range>`, `<neo-progress>`, `<neo-switch>`, `<neo-pagination>` and `<neo-input-group>`. Left and Right arrows moved the wrong way, and fills, thumbs, rounded corners and chevrons stayed left to right.
 - Mirror the `*-start` and `*-end` placements of popovers, selects, comboboxes, menus and text input suggestions in a right-to-left context. They aligned to the left edge.
+- Size a `<neo-textinput>` by a `width` set on it. `--neo-input-min-width` (12rem) was a floor that left a narrower field overflowing the element, and kept the field from shrinking in a narrow `<neo-input-group>`. It is now the width when none is set.
 
 ## [0.4.0] - 2026-11-13
 

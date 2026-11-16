@@ -15,6 +15,10 @@ func textInputPlaygroundStates() []PlaygroundState {
 		{Label: "Date", HTML: textInputDateHTML},
 		{Label: "Number", HTML: textInputNumberHTML},
 		{Label: "Number (EU)", HTML: textInputNumberEUHTML},
+		{Label: "Stepper", HTML: textInputStepperHTML},
+		{Label: "Scrub", HTML: textInputScrubHTML},
+		{Label: "Stepper customization", HTML: textInputStepperCustomHTML, CSS: textInputStepperCustomCSS},
+		{Label: "Scrub customization", HTML: textInputScrubCustomHTML},
 		{Label: "Disabled", HTML: textInputDisabledHTML},
 	}
 }
@@ -51,6 +55,29 @@ var textInputNumberEUHTML = renderExampleHTML(examples.TextInputNumberEu())
 
 //go:embed examples/text_input_number_eu.templ
 var textInputNumberEUTempl string
+
+var textInputStepperHTML = renderExampleHTML(examples.TextInputStepper())
+
+//go:embed examples/text_input_stepper.templ
+var textInputStepperTempl string
+
+var textInputStepperCustomHTML = renderExampleHTML(examples.TextInputStepperCustom())
+
+//go:embed examples/text_input_stepper_custom.templ
+var textInputStepperCustomTempl string
+
+//go:embed examples/text_input_stepper_custom.css
+var textInputStepperCustomCSS string
+
+var textInputScrubHTML = renderExampleHTML(examples.TextInputScrub())
+
+//go:embed examples/text_input_scrub.templ
+var textInputScrubTempl string
+
+var textInputScrubCustomHTML = renderExampleHTML(examples.TextInputScrubCustom())
+
+//go:embed examples/text_input_scrub_custom.templ
+var textInputScrubCustomTempl string
 
 var textInputDisabledHTML = renderExampleHTML(examples.TextInputDisabled())
 

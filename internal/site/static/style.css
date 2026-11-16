@@ -431,7 +431,7 @@ header h1 {
 }
 
 .site-playground-autoplay-field {
-	/* Override the 12rem default min-width so the field stays compact. */
+	/* <neo-input-group> floors its width at --neo-input-min-width (12rem). */
 	--neo-input-min-width: 0;
 	width: 9rem;
 }
@@ -2720,9 +2720,8 @@ neo-progress:not(:defined) {
 
 .framework-demo-readout > neo-textinput {
 	flex: 1 1 auto;
-	/* The field's inner part defaults to min-width: 12rem; clear it
-	 * (host + variable) so the input shrinks to share the row instead of
-	 * overflowing the card. */
+	/* A 0 preferred width makes the field share the row by flex-grow alone
+	 * instead of claiming 12rem first. */
 	min-width: 0;
 	--neo-input-min-width: 0;
 }

@@ -1,0 +1,18 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ TextInputScrubCustom() {
+	@neo.TextInputAttrs(neo.TextInputOpts{
+		Format:           neo.Set(neo.TextInputFormatNumber),
+		DecimalPlaces:    neo.Set(0),
+		Value:            neo.Set("80"),
+		Inputmode:        neo.Set(neo.TextInputInputmodeNumeric),
+		Scrub:            neo.Set(neo.TextInputScrubHorizontal),
+		ScrubSide:        neo.Set(neo.TextInputScrubSideEnd),
+		ScrubIcon:        neo.Set("percent"),
+		ScrubSensitivity: neo.Set(0.25),
+		Min:              neo.Set(0.0),
+		Max:              neo.Set(100.0),
+	}, templ.Attributes{"style": "width: 5rem;"})
+}

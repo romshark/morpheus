@@ -15,7 +15,8 @@
 
 /* Flex stretch fills the wrapper cross-axis. Percent heights on a
  * replaced <input> ignore a flex-stretched parent whose CSS height is `auto`;
- * flex layout doesn't. */
+ * flex layout doesn't. The host's width stays auto: the shadow field gives
+ * it a 12rem preferred width and flexes to any width set on it. */
 neo-textinput {
 	display: inline-flex;
 	align-items: stretch;

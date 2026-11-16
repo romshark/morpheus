@@ -1,0 +1,43 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ TextInputStepperCustom() {
+	@neo.Layout(neo.LayoutOpts{
+		Direction: neo.Set(neo.Column),
+		Gap:       neo.Set(neo.GapMd),
+	}) {
+		@neo.TextInputAttrs(neo.TextInputOpts{
+			Format:        neo.Set(neo.TextInputFormatNumber),
+			DecimalPlaces: neo.Set(0),
+			Value:         neo.Set("2"),
+			Inputmode:     neo.Set(neo.TextInputInputmodeNumeric),
+			Stepper:       neo.Set(true),
+			Min:           neo.Set(1.0),
+			Max:           neo.Set(10.0),
+		}, templ.Attributes{"class": "text-input-stepper-custom-accent"})
+		@neo.TextInputAttrs(neo.TextInputOpts{
+			Format:        neo.Set(neo.TextInputFormatNumber),
+			DecimalPlaces: neo.Set(2),
+			Prefix:        neo.Set("$"),
+			Value:         neo.Set("24.00"),
+			Inputmode:     neo.Set(neo.TextInputInputmodeDecimal),
+			Stepper:       neo.Set(true),
+			Scrub:         neo.Set(neo.TextInputScrubVertical),
+			ScrubIcon:     neo.Set("banknote"),
+			Min:           neo.Set(0.0),
+			Step:          neo.Set(0.25),
+		}, templ.Attributes{"class": "text-input-stepper-custom-tiles"})
+		@neo.TextInputAttrs(neo.TextInputOpts{
+			Format:        neo.Set(neo.TextInputFormatNumber),
+			DecimalPlaces: neo.Set(0),
+			Value:         neo.Set("16"),
+			Inputmode:     neo.Set(neo.TextInputInputmodeNumeric),
+			Stepper:       neo.Set(true),
+			IncrementIcon: neo.Set("plus"),
+			DecrementIcon: neo.Set("minus"),
+			Min:           neo.Set(8.0),
+			Max:           neo.Set(72.0),
+		}, templ.Attributes{"class": "text-input-stepper-custom-split"})
+	}
+}
