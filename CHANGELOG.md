@@ -39,6 +39,7 @@ This file records the notable changes of each release in the format of [Keep a C
 - Align ArrowUp and ArrowDown in a `<neo-textinput>` without suggestions with native fields, which move the caret to the start or end, or select with Shift.
 - Keep the form value of a `<neo-textinput type="email">` in step when `case`, `prefix` or `numeric-only` changes the typed text. A capital letter in a `case="lower"` field threw an error and left the form value behind.
 - Keep the caret after a character typed right after the `prefix` of a `<neo-textinput>` that reformats it. The caret jumped into the prefix.
+- Keep the scroll of `<neo-textinput>` suggestions across a reposition, such as a window resize. A list shorter than the viewport jumped to the top.
 
 ## [0.4.0] - 2026-11-13
 

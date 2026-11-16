@@ -1824,8 +1824,14 @@ export class NeoTextInput extends HTMLElement {
 	// Anchors the list and returns whether it fits. duringScroll ignores a
 	// positioning boundary and holds an unfit list at its open size.
 	// Otherwise an unfit pass records nothing.
+	// anchorPopoverResult clears the inline max-height to measure, which lets a
+	// list it capped fit its options and drops the scroll to 0. Like
+	// NeoListbox, keep the scroll across the pass.
 	#placeSuggest(inp: HTMLInputElement, duringScroll: boolean): boolean {
-		const result = anchorPopoverResult(this, inp, this.#suggestList, { ignorePositioningBoundary: duringScroll });
+		const list = this.#suggestList;
+		const scrollTop = list.scrollTop;
+		const result = anchorPopoverResult(this, inp, list, { ignorePositioningBoundary: duringScroll });
+		if (list.scrollTop !== scrollTop) list.scrollTop = scrollTop;
 		if (result.fitsOpenSize) this.#cancelSuggestOpenScrollPositioning();
 		else if (duringScroll) applyOpenSizeDuringScroll(this.#suggestList, result);
 		else return false;
