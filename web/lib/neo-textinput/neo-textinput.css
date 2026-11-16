@@ -1,27 +1,23 @@
-/* Shared styling for <neo-textinput> and native <input> of text-shaped
- * types. The wrapper adds live formatting on top; bare <input>s of
- * text-shaped types pick up the same look so date / color / file keep
- * their native browser UI. Bare inputs are matched via `:where()`
- * (specificity 0) so page rules apply without override hacks.
- * The type list omits checkbox/radio/range/submit/reset/button/image/hidden;
- * those have their own UI grammars.
- *
- * Reuses `--neo-textarea-*` tokens so themes track textarea,
- * textinput, and bare input together. */
+/* Styles <neo-textinput> and bare <input>s of the text-like types alike,
+ * which gives date, color and file inputs the kit look with their native UI.
+ * :where() adds no specificity to `input`, which lets page rules win without
+ * overrides. Checkbox, radio, range, button-like and hidden inputs keep their
+ * own UI. The --neo-textarea-* tokens style the textarea too. */
 
 :root {
 	--neo-input-min-width: 12rem;
 }
 
-/* Flex stretch fills the wrapper cross-axis. Percent heights on a
- * replaced <input> ignore a flex-stretched parent whose CSS height is `auto`;
- * flex layout doesn't. The host's width stays auto: the shadow field gives
- * it a 12rem preferred width and flexes to any width set on it. */
+/* inline-flex stretches the shadow field to the host's height, which a percent
+ * height on a replaced <input> can't do in an auto-height host. The host's
+ * width stays auto, and the field gives it a 12rem preferred width. */
 neo-textinput {
 	display: inline-flex;
 	align-items: stretch;
 }
 
+/* Bare <input>s, which match the wrapped field that SHADOW_TEMPLATE in
+ * neo-textinput.ts styles. */
 input:where(
 	:not([type]),
 	[type="text"],
@@ -42,129 +38,48 @@ input:where(
 	box-sizing: border-box;
 	background: var(--neo-textarea-bg);
 	color: var(--neo-textarea-color);
-	/* Width tokenized so neo-input-group can zero it (the field merges
-	 * into the group's shared border instead of drawing its own). */
+	/* The width token lets neo-input-group zero it and draw 1 border. */
 	border: var(--neo-textarea-border-width, 1px) solid var(--neo-textarea-border-color);
 	border-radius: var(--neo-textarea-radius);
 	padding: var(--neo-textarea-padding);
 	min-width: var(--neo-input-min-width);
-	/* An <input> floors its content box at the font's normal line height
-	 * (~1.2em), ignoring line-height:1, and lands ~2px taller than a
-	 * button/select trigger. Pin the height to the shared control height
-	 * so all single-line controls line up. --neo-input-height lets a
-	 * wrapping context (neo-input-group) override it to 100% to fill. */
+	/* An <input> floors its content box at the font's normal line height,
+	 * ~2px over a button. The shared control height lines up single-line
+	 * controls. neo-input-group sets --neo-input-height to 100% to fill. */
 	height: var(--neo-input-height, var(--neo-control-height));
 	font-variant-numeric: tabular-nums;
-	/* `<neo-button>` pins line-height: 1; without this an adjacent
-	 * input inherits the body's ~1.5 and lands ~0.5em taller. */
+	/* Matches <neo-button>'s 1, not the body's ~1.5. */
 	line-height: 1;
 	transition: border-color var(--neo-duration-hover, calc(120ms * var(--neo-duration-scale, 1))) var(--neo-easing, ease);
+
+	&::placeholder {
+		color: var(--muted);
+		opacity: 1;
+	}
+
+	&:focus-visible {
+		/* The token lets neo-input-group draw 1 ring for the group. */
+		outline: var(--neo-textarea-focus-outline, 2px solid var(--neo-textarea-focus-ring));
+		outline-offset: 2px;
+	}
+
+	&:disabled,
+	&[readonly]:where(:not([readonly="false"])) {
+		opacity: 0.75;
+	}
+
+	&:disabled {
+		cursor: not-allowed;
+		opacity: 0.55;
+		background-image: var(--neo-disabled-overlay);
+	}
 }
 
-/* The wrapped field lives in the shadow root and is styled there (the
- * `input` rules in SUGGEST_SHADOW_TEMPLATE). The input rules in this file
- * style standalone, unwrapped <input>s so both look identical. */
-
-/* Suggestions have a non-selectable "No results" status row
- * (same contract as <neo-combobox>).
- * It is slotted into the popover and styled here in light DOM. */
+/* A "No results" row, as in <neo-combobox>, slotted into the suggestions. */
 neo-textinput [data-neo-empty-results] {
 	padding: var(--neo-select-option-padding, 0.4rem 0.6rem);
 	color: var(--muted);
 	cursor: default;
-}
-
-input:where(
-	:not([type]),
-	[type="text"],
-	[type="email"],
-	[type="tel"],
-	[type="url"],
-	[type="search"],
-	[type="password"],
-	[type="number"],
-	[type="date"],
-	[type="datetime-local"],
-	[type="month"],
-	[type="week"],
-	[type="time"]
-)::placeholder {
-	color: var(--muted);
-	opacity: 1;
-}
-
-input:where(
-	:not([type]),
-	[type="text"],
-	[type="email"],
-	[type="tel"],
-	[type="url"],
-	[type="search"],
-	[type="password"],
-	[type="number"],
-	[type="date"],
-	[type="datetime-local"],
-	[type="month"],
-	[type="week"],
-	[type="time"]
-):focus-visible {
-	/* Tokenized so neo-input-group can drop the per-field ring
-	 * (the group owns the focus outline for the whole control). */
-	outline: var(--neo-textarea-focus-outline, 2px solid var(--neo-textarea-focus-ring));
-	outline-offset: 2px;
-}
-
-input:where(
-	:not([type]),
-	[type="text"],
-	[type="email"],
-	[type="tel"],
-	[type="url"],
-	[type="search"],
-	[type="password"],
-	[type="number"],
-	[type="date"],
-	[type="datetime-local"],
-	[type="month"],
-	[type="week"],
-	[type="time"]
-):disabled,
-input:where(
-	:not([type]),
-	[type="text"],
-	[type="email"],
-	[type="tel"],
-	[type="url"],
-	[type="search"],
-	[type="password"],
-	[type="number"],
-	[type="date"],
-	[type="datetime-local"],
-	[type="month"],
-	[type="week"],
-	[type="time"]
-)[readonly]:where(:not([readonly="false"])) {
-	opacity: 0.75;
-}
-
-input:where(
-	:not([type]),
-	[type="text"],
-	[type="email"],
-	[type="tel"],
-	[type="url"],
-	[type="search"],
-	[type="password"],
-	[type="number"],
-	[type="date"],
-	[type="datetime-local"],
-	[type="month"],
-	[type="week"],
-	[type="time"]
-):disabled {
-	cursor: not-allowed;
-	opacity: 0.55;
-	background-image: var(--neo-disabled-overlay);
 }
 
 /* `scrollbar-color` inherits, which lets a single :root declaration tint

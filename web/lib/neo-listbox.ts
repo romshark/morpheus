@@ -1,6 +1,7 @@
 import { boolAttr, boolCommand, openCommand } from "./command";
 import { setState } from "./internal-state";
 import { cloneDatalistOptionsInto, externalDatalistFor } from "./neo-datalist";
+import { setAttrIfChanged } from "./neo-morph-resilient";
 import {
 	anchorPopoverResult,
 	applyOpenSizeDuringScroll,
@@ -17,10 +18,6 @@ export interface OptionData {
 	label: string;
 	disabled: boolean;
 	el: HTMLElement;
-}
-
-export function setAttrIfChanged(el: Element, name: string, value: string) {
-	if (el.getAttribute(name) !== value) el.setAttribute(name, value);
 }
 
 export function readOptionData(el: HTMLElement): OptionData {
@@ -436,10 +433,6 @@ export abstract class NeoListbox extends HTMLElement {
 			this.observerPauseDepth -= 1;
 			if (this.observerPauseDepth === 0 && this.isConnected) this.observeLightDom();
 		}
-	}
-
-	protected setAttrIfChanged(el: Element, name: string, value: string) {
-		if (el.getAttribute(name) !== value) el.setAttribute(name, value);
 	}
 
 	// Trigger caret glyph: absent -> the up/down chevrons; caret="<name>"

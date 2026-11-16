@@ -8,6 +8,8 @@ export type MaskSlot =
 	| { kind: "literal"; ch: string }
 	| { kind: "class"; token: string; test: (c: string) => boolean; transform?: (c: string) => string };
 
+export type ClassSlot = Extract<MaskSlot, { kind: "class" }>;
+
 // A backslash makes the next char a literal, as in "##\###" for 2 digits,
 // a "#" and 2 digits. A trailing backslash is a literal backslash.
 export function parseMask(mask: string): MaskSlot[] {

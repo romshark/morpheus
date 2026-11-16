@@ -6,6 +6,7 @@
 import { boolAttr } from "../command";
 import { NavEngine } from "../nav-engine";
 import { cloneAsyncPlaceholder, NeoListbox, POPOVER_ATTRS, setHiddenIfChanged } from "../neo-listbox";
+import { setAttrIfChanged } from "../neo-morph-resilient";
 import { deepActiveElement } from "../shadow-utils";
 
 const SELECT_SHADOW_TEMPLATE = document.createElement("template");
@@ -564,7 +565,7 @@ export class NeoSelect extends NeoListbox {
 			const options = this.optionData();
 			const value = this.#selectedValue(options);
 			for (const opt of options) {
-				this.setAttrIfChanged(opt.el, "aria-selected", String(value !== null && opt.value === value));
+				setAttrIfChanged(opt.el, "aria-selected", String(value !== null && opt.value === value));
 			}
 		});
 	}

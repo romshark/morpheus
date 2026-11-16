@@ -10,6 +10,7 @@ import {
 	POPOVER_ATTRS,
 	setHiddenIfChanged,
 } from "../neo-listbox";
+import { setAttrIfChanged } from "../neo-morph-resilient";
 import type { Placement } from "../neo-position";
 import { deepActiveElement } from "../shadow-utils";
 import { joinValues, parseValues } from "../value-list";
@@ -841,7 +842,7 @@ export class NeoCombobox extends NeoListbox {
 			const options = this.optionData();
 			const selected = new Set(this.#displaySelection(options));
 			for (const opt of options) {
-				this.setAttrIfChanged(opt.el, "aria-selected", String(selected.has(opt.value)));
+				setAttrIfChanged(opt.el, "aria-selected", String(selected.has(opt.value)));
 			}
 		});
 	}

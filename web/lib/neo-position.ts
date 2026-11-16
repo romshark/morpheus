@@ -134,7 +134,8 @@ export function positionPanelResult(
 	const minOpenHeight = Math.max(0, opts.minOpenHeight ?? 0);
 	const minOpenWidth = Math.max(0, opts.minOpenWidth ?? 0);
 
-	const tRaw = anchor.getBoundingClientRect();
+	// getBoundingClientRect coords, converted to fixed coords once, at the end.
+	const t = anchor.getBoundingClientRect();
 	panel.style.maxWidth = "";
 	panel.style.maxHeight = "";
 	const c = panel.getBoundingClientRect();
@@ -149,9 +150,6 @@ export function positionPanelResult(
 	const visualViewport = window.visualViewport;
 	const vw = visualViewport?.width ?? document.documentElement.clientWidth;
 	const vh = visualViewport?.height ?? document.documentElement.clientHeight;
-
-	// Keep getBoundingClientRect coords; convert to fixed coords once, at the end.
-	const t = tRaw;
 
 	// Containment window in visual-viewport coords. Defaults to the whole
 	// viewport; a <neo-boundary> ancestor of the anchor that scopes
@@ -202,10 +200,7 @@ export function positionPanelResult(
 	let availableHeight: number;
 
 	if (clamp) {
-		// Reset any inline caps left over from a previous strict pass and
-		// re-anchor the position to keep the rendered box inside the viewport.
-		panel.style.maxWidth = "";
-		panel.style.maxHeight = "";
+		// Re-anchor the position to keep the rendered box inside the window.
 		availableWidth = Math.max(0, wR - wL - edgeOffset * 2);
 		availableHeight = Math.max(0, wB - wT - edgeOffset * 2);
 		left = clampToWindow(left, c.width, edgeOffset, wL, wR);
@@ -456,7 +451,7 @@ export function resolveOptionalCssLengthPx(host: HTMLElement, varName: string, f
 }
 
 // Popover-placement attributes <neo-select>, <neo-combobox>, and
-// <neo-textinput> suggestions forward to anchorPopover. Each observes
+// <neo-textinput> suggestions forward to anchorPopoverResult. Each observes
 // them so a change re-anchors an open panel.
 export const POPOVER_ATTRS = [
 	"placement",
@@ -475,10 +470,6 @@ export const POPOVER_ATTRS = [
 // the panel to the anchor width and returns the effective placement.
 // <neo-select>, <neo-combobox> and <neo-textinput> all anchor through it,
 // which keeps them pixel-identical.
-export function anchorPopover(host: HTMLElement, anchor: HTMLElement, panel: HTMLElement): Placement {
-	return anchorPopoverResult(host, anchor, panel).placement;
-}
-
 export function anchorPopoverResult(
 	host: HTMLElement,
 	anchor: HTMLElement,
@@ -522,7 +513,6 @@ export function anchorPopoverResult(
 		minFitWidth,
 		minOpenHeight,
 		minOpenWidth,
-		maxWidth: undefined,
 		ignorePositioningBoundary: opts.ignorePositioningBoundary,
 		noFlip: !boolAttr(host, "flip", true),
 	});

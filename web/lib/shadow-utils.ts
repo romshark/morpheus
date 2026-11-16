@@ -146,16 +146,3 @@ export function scopeCssToHost(css: string, hostTag: string): string {
 	const bare = new RegExp(`(^|[\\s,>~+({}])${escaped}(?![\\w\\-\\[:.])`, "g");
 	return css.replace(compound, "$1:host($2)").replace(bare, "$1:host");
 }
-
-// On every connect (or after a morph re-emits new children) make sure
-// the children we care about carry the `slot` attribute so the shadow
-// projects them into the right slot. Marker selectors map to slot names;
-// the first match per selector gets the slot.
-export function assignSlotsToLightChildren(host: Element, map: Record<string, string>) {
-	for (const [selector, slotName] of Object.entries(map)) {
-		const el = host.querySelector(selector);
-		if (!el) continue;
-		if (el.getAttribute("slot") === slotName) continue;
-		el.setAttribute("slot", slotName);
-	}
-}

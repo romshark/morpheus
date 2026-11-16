@@ -8,10 +8,8 @@
 import { boolAttr } from "../command";
 import { retryWhileParsing } from "../document-parsing";
 import { setState } from "../internal-state";
-import { type MaskSlot, parseMask } from "../mask";
+import { type ClassSlot, parseMask } from "../mask";
 import { setAttrIfChanged } from "../neo-morph-resilient";
-
-type ClassSlot = Extract<MaskSlot, { kind: "class" }>;
 
 interface Edit {
 	value: string;

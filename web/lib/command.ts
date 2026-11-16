@@ -18,15 +18,14 @@ export type BoolCommand = boolean | null;
 // Reads the command, which is null when absent, false for x="false"
 // (case-insensitive), and true for present / x="true" / any other value.
 export function boolCommand(host: Element, name: string): BoolCommand {
-	if (!host.hasAttribute(name)) return null;
-	return (host.getAttribute(name) ?? "").toLowerCase() !== "false";
+	const v = host.getAttribute(name);
+	return v === null ? null : v.toLowerCase() !== "false";
 }
 
 // Config convenience that returns the command if present, else the default.
 // Use for server-only knobs that the client never mutates.
 export function boolAttr(host: Element, name: string, dflt: boolean): boolean {
-	const cmd = boolCommand(host, name);
-	return cmd ?? dflt;
+	return boolCommand(host, name) ?? dflt;
 }
 
 // warnBadAxis logs when `orientation` is set to a value a 2-axis
