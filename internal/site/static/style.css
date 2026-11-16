@@ -477,7 +477,8 @@ header h1 {
 	scroll-margin-top: 1rem;
 }
 
-.anchor-h3-link {
+.anchor-h3-link,
+.api-row-link {
 	margin-left: 0.4rem;
 	color: var(--muted);
 	text-decoration: none;
@@ -486,11 +487,14 @@ header h1 {
 }
 
 .anchor-h3:hover .anchor-h3-link,
-.anchor-h3-link:focus-visible {
+.anchor-h3-link:focus-visible,
+.api-table tbody tr:hover .api-row-link,
+.api-row-link:focus-visible {
 	opacity: 1;
 }
 
-.anchor-h3-link:hover {
+.anchor-h3-link:hover,
+.api-row-link:hover {
 	color: var(--accent);
 }
 
@@ -2237,6 +2241,15 @@ neo-tabs[easing][exit-animation="tabs-tilt"]:state(backward)
 	border-bottom: 0;
 }
 
+/* A row id is a link target from the search palette. */
+.api-table tbody tr {
+	scroll-margin-top: 1rem;
+}
+
+.api-table tbody tr:target > * {
+	background: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+
 .api-table tbody th {
 	font-weight: 500;
 	&[data-label="Name"] {
@@ -2766,7 +2779,10 @@ site-command-palette {
 	 * top offset, which makes a long (capped) list fill to a centered-looking box.
 	 * Horizontal margin stays auto (from neo-dialog's margin shorthand). */
 	--site-cmdk-top: 18dvh;
-	--site-cmdk-header: 3.25rem; /* ~header height, slight over-estimate */
+	/* Fixed header and footer heights, which lets the list cap subtract
+	 * them exactly. */
+	--site-cmdk-header: 3.625rem;
+	--site-cmdk-footer: 2.25rem;
 	margin-block: var(--site-cmdk-top) auto;
 	max-height: calc(100dvh - 2 * var(--site-cmdk-top));
 	width: min(38rem, 92vw);
@@ -2784,8 +2800,9 @@ site-command-palette {
 	flex-direction: row;
 	align-items: center;
 	gap: 0.6rem;
+	height: var(--site-cmdk-header);
 	margin: 0;
-	padding: 0.7rem 0.9rem;
+	padding: 0 0.9rem;
 	border-bottom: 1px solid var(--btn-border);
 }
 
@@ -2823,9 +2840,13 @@ site-command-palette {
 }
 
 .site-cmdk-list {
-	/* Fill down to the box's symmetric cap (box max minus the header) so a
-	 * long list reaches the centered height, then scroll past it. */
-	max-height: calc(100dvh - 2 * var(--site-cmdk-top) - var(--site-cmdk-header));
+	/* Fill down to the box's symmetric cap (box max minus header, footer
+	 * and the box's own border) so a long list reaches the centered
+	 * height, then scroll past it. */
+	max-height: calc(
+		100dvh - 2 * var(--site-cmdk-top) - var(--site-cmdk-header) - var(--site-cmdk-footer) - 2 *
+		var(--neo-dialog-border-width, 1px)
+	);
 	overflow: auto;
 	padding: 0.35rem;
 }
@@ -2858,6 +2879,21 @@ site-command-palette {
 	font-weight: 700;
 }
 
+/* Marks section rows apart from page rows. The empty alt text keeps the
+ * "#" out of the option's accessible name. */
+.site-cmdk-row[data-site-cmdk-kind="section"] .site-cmdk-row-label::before {
+	content: "#" / "";
+	margin-inline-end: 0.4em;
+	color: var(--muted);
+}
+
+/* API rows are code names (attributes, events, CSS variables), set like
+ * inline code. */
+.site-cmdk-row[data-site-cmdk-kind="api"] .site-cmdk-row-label {
+	font-family: ui-monospace, monospace;
+	font-size: 0.9em;
+}
+
 .site-cmdk-row-group {
 	font-size: 0.75em;
 	color: var(--muted);
@@ -2867,6 +2903,28 @@ site-command-palette {
 	margin: 0;
 	padding: 1rem 0.6rem;
 	color: var(--muted);
+}
+
+/* Key hints under the results. The top border mirrors the header's. */
+.site-cmdk-footer {
+	height: var(--site-cmdk-footer);
+	padding: 0 0.9rem;
+	border-top: 1px solid var(--btn-border);
+	color: var(--muted);
+	font-size: 0.8rem;
+	/* The kit's 0.7em of this small text leaves the glyphs unreadable. */
+	--neo-kbd-font-size: 0.75rem;
+}
+
+/* Without a fine pointer there is rarely a keyboard to press them. */
+@media not (any-pointer: fine) {
+	.site-cmdk-dialog {
+		--site-cmdk-footer: 0rem;
+	}
+
+	.site-cmdk-footer {
+		display: none;
+	}
 }
 
 /* neo-navgroup's base style outranks a bare class. */

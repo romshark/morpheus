@@ -437,11 +437,13 @@ templ Page(currentPath, title, morpheusVersion string) {
 // large tablets) and never appears in the app bar or on phones. The
 // dialog lives in the sidebar too, which works because it only opens
 // while the sidebar is visible; Mod+K is guarded for the collapsed case.
-// Rows are baked from the nav link lists at render time; the controller
-// adds fuzzy filtering, ranking, and keyboard navigation. <neo-dialog> supplies
-// the modal lifecycle (top layer, focus trap, scroll lock, Escape-to-close).
+// Page rows are baked from the nav link lists at render time. Section rows
+// come from the index JSON that internal/cmd/gen writes, fetched on first
+// open. The controller adds matching, ranking, and keyboard navigation.
+// <neo-dialog> supplies the modal lifecycle (top layer, focus trap, scroll
+// lock, Escape-to-close).
 templ siteCommandPalette() {
-	<site-command-palette>
+	<site-command-palette index={ href.Asset("search-index.json") }>
 		<neo-dialog aria-label="Search pages">
 			<neo-button
 				data-neo-dialog-trigger
@@ -459,7 +461,7 @@ templ siteCommandPalette() {
 					<input
 						type="text"
 						class="site-cmdk-input"
-						placeholder="Search pages…"
+						placeholder="Search pages and sections…"
 						aria-label="Search pages"
 						role="combobox"
 						aria-expanded="true"
@@ -480,16 +482,33 @@ templ siteCommandPalette() {
 						id="site-cmdk-list"
 						class="site-cmdk-list"
 						role="listbox"
-						aria-label="Pages"
+						aria-label="Results"
 						data-site-cmdk-list
 						tabindex="-1"
 					>
 						for i, row := range commandPaletteRows() {
 							@siteCommandPaletteRow(i, row)
 						}
-						<p class="site-cmdk-empty" data-site-cmdk-empty hidden>No pages match your search.</p>
+						<p class="site-cmdk-empty" data-site-cmdk-empty hidden>Nothing matches your search.</p>
 					</div>
 				</neo-elastic>
+				<neo-layout class="site-cmdk-footer" align-items="center" gap="lg">
+					<neo-layout inline align-items="center" gap="xs">
+						@neo.KbdGroup() {
+							@neo.Kbd(neo.KbdOpts{Key: neo.Set("arrowup")})
+							@neo.Kbd(neo.KbdOpts{Key: neo.Set("arrowdown")})
+						}
+						navigate
+					</neo-layout>
+					<neo-layout inline align-items="center" gap="xs">
+						@neo.Kbd(neo.KbdOpts{Key: neo.Set("enter")})
+						open
+					</neo-layout>
+					<neo-layout inline align-items="center" gap="xs">
+						@neo.Kbd(neo.KbdOpts{Key: neo.Set("escape")})
+						close
+					</neo-layout>
+				</neo-layout>
 			</dialog>
 		</neo-dialog>
 	</site-command-palette>
@@ -509,7 +528,8 @@ templ siteCommandPaletteTriggerContent() {
 
 // siteCommandPaletteRow is one baked result, a real navigation anchor
 // (works without JS) carrying the searchable label in data-label and a
-// muted section tag. The id feeds aria-activedescendant.
+// muted section tag. The id feeds aria-activedescendant. The controller
+// clones it as the template for section rows.
 templ siteCommandPaletteRow(i int, row cmdkRow) {
 	<a
 		id={ "site-cmdk-row-" + strconv.Itoa(i) }
@@ -522,7 +542,7 @@ templ siteCommandPaletteRow(i int, row cmdkRow) {
 		data-label={ row.Label }
 	>
 		<span class="site-cmdk-row-label" data-site-cmdk-label neo-truncate>{ row.Label }</span>
-		<span class="site-cmdk-row-group" neo-flex-shrink="0">{ row.Group }</span>
+		<span class="site-cmdk-row-group" data-site-cmdk-group neo-flex-shrink="0">{ row.Group }</span>
 	</a>
 }
 

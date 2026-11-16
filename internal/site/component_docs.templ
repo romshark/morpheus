@@ -3,27 +3,27 @@ package site
 templ ComponentDocs(doc ComponentDoc) {
 	if len(doc.Attributes) > 0 {
 		@apiSection(docSectionID(doc.Prefix, "attributes"), "Attributes", "parentheses")
-		@docAttributes(doc.Attributes)
+		@docAttributes(docSectionID(doc.Prefix, "attributes"), doc.Attributes)
 	}
 	if len(doc.States) > 0 {
 		@apiSection(docSectionID(doc.Prefix, "states"), "States", "activity")
-		@docStates(doc.States)
+		@docStates(docSectionID(doc.Prefix, "states"), doc.States)
 	}
 	if len(doc.Slots) > 0 {
 		@apiSection(docSectionID(doc.Prefix, "slots"), "Slots", "chevrons-left-right-ellipsis")
-		@docSlots(doc.Slots)
+		@docSlots(docSectionID(doc.Prefix, "slots"), doc.Slots)
 	}
 	if len(doc.Events) > 0 {
 		@apiSection(docSectionID(doc.Prefix, "events"), "Events", "message-square-more")
-		@docEvents(doc.Events)
+		@docEvents(docSectionID(doc.Prefix, "events"), doc.Events)
 	}
 	if len(doc.Parts) > 0 {
 		@apiSection(docSectionID(doc.Prefix, "parts"), "Parts", "component")
-		@docParts(doc.Parts)
+		@docParts(docSectionID(doc.Prefix, "parts"), doc.Parts)
 	}
 	if len(doc.CSSProps) > 0 {
 		@apiSection(docSectionID(doc.Prefix, "css-variables"), "CSS variables", "braces")
-		@docCSSProps(doc.CSSProps)
+		@docCSSProps(docSectionID(doc.Prefix, "css-variables"), doc.CSSProps)
 	}
 }
 
@@ -42,7 +42,7 @@ templ apiSection(id, label, icon string) {
 	</h3>
 }
 
-templ docAttributes(items []DocAttribute) {
+templ docAttributes(sectionID string, items []DocAttribute) {
 	<table class="api-table">
 		<thead>
 			<tr>
@@ -54,8 +54,11 @@ templ docAttributes(items []DocAttribute) {
 		</thead>
 		<tbody>
 			for _, a := range items {
-				<tr>
-					<th scope="row" data-label="Name"><code>{ a.Name }</code></th>
+				{{ id := docItemID(sectionID, a.Name) }}
+				<tr id={ id }>
+					@docNameCell(id) {
+						<code>{ a.Name }</code>
+					}
 					<td data-label="Type">
 						<span class="api-type">
 							@docCodeOrDash(a.Type)
@@ -79,7 +82,7 @@ templ docAttributes(items []DocAttribute) {
 	</table>
 }
 
-templ docSlots(items []DocSlot) {
+templ docSlots(sectionID string, items []DocSlot) {
 	<table class="api-table">
 		<thead>
 			<tr>
@@ -89,10 +92,11 @@ templ docSlots(items []DocSlot) {
 		</thead>
 		<tbody>
 			for _, s := range items {
-				<tr>
-					<th scope="row" data-label="Name">
+				{{ id := docItemID(sectionID, s.Name) }}
+				<tr id={ id }>
+					@docNameCell(id) {
 						@docSlotName(s.Name)
-					</th>
+					}
 					<td data-label="Description">
 						@docDesc(s.Description)
 					</td>
@@ -102,7 +106,7 @@ templ docSlots(items []DocSlot) {
 	</table>
 }
 
-templ docEvents(items []DocEvent) {
+templ docEvents(sectionID string, items []DocEvent) {
 	<table class="api-table">
 		<thead>
 			<tr>
@@ -114,14 +118,15 @@ templ docEvents(items []DocEvent) {
 		</thead>
 		<tbody>
 			for _, e := range items {
-				<tr>
-					<th scope="row" data-label="Name">
+				{{ id := docItemID(sectionID, e.Name) }}
+				<tr id={ id }>
+					@docNameCell(id) {
 						if e.URL != "" {
 							@EventLink(e.Name, e.URL)
 						} else {
 							<code>{ e.Name }</code>
 						}
-					</th>
+					}
 					<td data-label="Detail">
 						@docCodeOrDash(e.Detail)
 					</td>
@@ -141,7 +146,7 @@ templ docEvents(items []DocEvent) {
 	</table>
 }
 
-templ docStates(items []DocState) {
+templ docStates(sectionID string, items []DocState) {
 	<table class="api-table">
 		<thead>
 			<tr>
@@ -151,8 +156,11 @@ templ docStates(items []DocState) {
 		</thead>
 		<tbody>
 			for _, s := range items {
-				<tr>
-					<th scope="row" data-label="Name"><code>{ ":state(" + s.Name + ")" }</code></th>
+				{{ id := docItemID(sectionID, s.Name) }}
+				<tr id={ id }>
+					@docNameCell(id) {
+						<code>{ ":state(" + s.Name + ")" }</code>
+					}
 					<td data-label="Description">
 						@docDesc(s.Description)
 					</td>
@@ -162,7 +170,7 @@ templ docStates(items []DocState) {
 	</table>
 }
 
-templ docParts(items []DocPart) {
+templ docParts(sectionID string, items []DocPart) {
 	<table class="api-table">
 		<thead>
 			<tr>
@@ -172,8 +180,11 @@ templ docParts(items []DocPart) {
 		</thead>
 		<tbody>
 			for _, p := range items {
-				<tr>
-					<th scope="row" data-label="Name"><code>{ "::part(" + p.Name + ")" }</code></th>
+				{{ id := docItemID(sectionID, p.Name) }}
+				<tr id={ id }>
+					@docNameCell(id) {
+						<code>{ "::part(" + p.Name + ")" }</code>
+					}
 					<td data-label="Description">
 						@docDesc(p.Description)
 					</td>
@@ -183,7 +194,7 @@ templ docParts(items []DocPart) {
 	</table>
 }
 
-templ docCSSProps(items []DocCSSProp) {
+templ docCSSProps(sectionID string, items []DocCSSProp) {
 	<table class="api-table">
 		<thead>
 			<tr>
@@ -194,8 +205,11 @@ templ docCSSProps(items []DocCSSProp) {
 		</thead>
 		<tbody>
 			for _, p := range items {
-				<tr>
-					<th scope="row" data-label="Name"><code>{ p.Name }</code></th>
+				{{ id := docItemID(sectionID, p.Name) }}
+				<tr id={ id }>
+					@docNameCell(id) {
+						<code>{ p.Name }</code>
+					}
 					<td data-label="Default">
 						@docCodeOrDash(p.Default)
 					</td>
@@ -206,6 +220,19 @@ templ docCSSProps(items []DocCSSProp) {
 			}
 		</tbody>
 	</table>
+}
+
+// docNameCell is the row header of an API table row: the item name plus a
+// hover-revealed permalink to the row, like [anchoredH3] has.
+templ docNameCell(id string) {
+	<th scope="row" data-label="Name">
+		{ children... }
+		<a
+			href={ templ.SafeURL("#" + id) }
+			class="api-row-link"
+			aria-label="Permalink to this row"
+		>#</a>
+	</th>
 }
 
 templ docCodeOrDash(s string) {

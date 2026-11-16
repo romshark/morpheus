@@ -1,6 +1,10 @@
 package site
 
-import "github.com/a-h/templ"
+import (
+	"strings"
+
+	"github.com/a-h/templ"
+)
 
 type DocAttribute struct {
 	Name    string
@@ -62,6 +66,30 @@ func docSectionID(prefix, name string) string {
 		return name
 	}
 	return prefix + "-" + name
+}
+
+// docItemID is the id of 1 API table row: sectionID plus the item name
+// reduced to lowercase [a-z0-9] runs joined by "-", e.g.
+// "css-variables-neo-sortable-drag-shadow". The unnamed slot is "default".
+func docItemID(sectionID, name string) string {
+	var b strings.Builder
+	b.WriteString(sectionID)
+	sep := true
+	for _, r := range strings.ToLower(name) {
+		if ('a' <= r && r <= 'z') || ('0' <= r && r <= '9') {
+			if sep {
+				b.WriteByte('-')
+				sep = false
+			}
+			b.WriteRune(r)
+		} else {
+			sep = true
+		}
+	}
+	if b.Len() == len(sectionID) {
+		b.WriteString("-default")
+	}
+	return b.String()
 }
 
 type ComponentDoc struct {

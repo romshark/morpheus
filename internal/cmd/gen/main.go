@@ -101,6 +101,12 @@ func run(dst, base string) error {
 	}
 
 	staticDir := filepath.Join(dst, "static")
+	if err := writeSearchIndex(
+		filepath.Join(staticDir, "search-index.json"), pages, base,
+	); err != nil {
+		return fmt.Errorf("writing search index: %w", err)
+	}
+
 	minDatasimJS, err := minifyJS([]byte(datasimJS), "datasim.js")
 	if err != nil {
 		return fmt.Errorf("minifying datasim.js: %w", err)
