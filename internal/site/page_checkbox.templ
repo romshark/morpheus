@@ -13,15 +13,12 @@ templ PageCheckbox(morpheusVersion string) {
 				Checkbox
 			}
 			<p class="intro">
-				Component <code>{ "<neo-checkbox>" }</code> is a
-				3-state checkbox with <code>checked</code>,
-				unchecked, and <code>indeterminate</code>
+				Component <code>{ "<neo-checkbox>" }</code> is a 3-state checkbox
+				with <code>checked</code>, unchecked, and <code>indeterminate</code>
 				(<code>{ `aria-checked="mixed"` }</code>) states.
 				Indeterminate is for parent rows whose children are
-				partially selected.
-				Participates
-				in a wrapping <code>{ `<label>` }</code> like a
-				native checkbox.
+				partially selected. Participates in a wrapping <code>{ `<label>` }</code>
+				like a native checkbox.
 			</p>
 			@Playground(PlaygroundOpts{
 				ID:     "checkbox-playground",
@@ -41,10 +38,9 @@ templ PageCheckbox(morpheusVersion string) {
 			}
 			<p class="demo-note">
 				Shows the unchecked, checked, and indeterminate
-				states. Click the box or focus with
-				<neo-kbd>Tab</neo-kbd> and toggle with <neo-kbd>Space</neo-kbd>.
-				Input on a mixed checkbox resolves it to
-				checked, matching the native rule.
+				states. Click the box or focus with <neo-kbd>Tab</neo-kbd> and
+				toggle with <neo-kbd>Space</neo-kbd>. Input on a mixed checkbox
+				resolves it to checked, matching the native rule.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
 				StageMinHeight: "max-content",
@@ -58,9 +54,8 @@ templ PageCheckbox(morpheusVersion string) {
 				Small size
 			}
 			<p class="demo-note">
-				The <code>{ `size="sm"` }</code> variant is a
-				0.875rem square, for dense rows where the default
-				1.15rem box would dominate.
+				The <code>{ `size="sm"` }</code> variant is a 0.875rem square, for dense
+				rows where the default 1.15rem box would dominate.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
 				StageMinHeight: "max-content",
@@ -89,11 +84,9 @@ templ PageCheckbox(morpheusVersion string) {
 			}
 			<p class="demo-note">
 				Wrapping a checkbox in a
-				<code>{ `<label>` }</code> makes the whole row
-				clickable. The host forwards clicks on its
-				closest <code>{ `<label>` }</code> ancestor and
-				moves focus to itself, keeping the keyboard
-				target in sync.
+				<code>{ `<label>` }</code> makes the whole row clickable.
+				The host forwards clicks on its closest <code>{ `<label>` }</code>
+				ancestor and moves focus to itself, keeping the keyboard target in sync.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
 				StageMinHeight: "max-content",
@@ -122,6 +115,25 @@ templ PageCheckbox(morpheusVersion string) {
 			}) {
 				@examples.CheckboxSettingsGroup()
 			}
+			@anchoredH3("selectable-cards") {
+				Selectable cards
+			}
+			<p class="demo-note">
+				A multi-select grid of rich cards. Each card is a
+				<code>{ `<label>` }</code>, which makes the image and
+				text toggle the checkbox. The card styles itself from
+				<code>{ `:has(> neo-checkbox[checked])` }</code>.
+				Click a card or press <neo-kbd>Space</neo-kbd> on its checkbox.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				Width:          "100%",
+				StageMinHeight: "max-content",
+				HTMLSource:     checkboxCardsHTML,
+				TemplSource:    checkboxCardsTempl,
+				CSSSource:      checkboxCardsCSS,
+			}) {
+				@examples.CheckboxCards()
+			}
 		</section>
 		<section class="demo">
 			@anchoredH2("examples-datastar") {
@@ -132,11 +144,9 @@ templ PageCheckbox(morpheusVersion string) {
 			}
 			<p class="demo-note">
 				Parent nodes go <code>indeterminate</code> when
-				only some descendants are selected,
-				<code>checked</code> when all are, and unchecked
-				when none are. Each change posts to the server,
-				which recomputes the parents and morphs the tree
-				back into place.
+				only some descendants are selected, <code>checked</code> when all are,
+				and unchecked when none are. Each change posts to the server,
+				which recomputes the parents and morphs the tree back into place.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
 				StageMinHeight: "max-content",

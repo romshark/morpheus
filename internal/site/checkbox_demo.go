@@ -17,6 +17,7 @@ func checkboxPlaygroundStates() []PlaygroundState {
 		{Label: "Disabled", HTML: checkboxDisabledHTML},
 		{Label: "With label", HTML: checkboxWithLabelHTML, CSS: checkboxWithLabelCSS},
 		{Label: "Settings group", HTML: checkboxSettingsGroupHTML, CSS: checkboxSettingsGroupCSS},
+		{Label: "Selectable cards", HTML: checkboxCardsHTML, CSS: checkboxCardsCSS},
 	}
 }
 
@@ -64,3 +65,11 @@ var checkboxSettingsGroupTempl string
 
 //go:embed examples/checkbox_settings_group.css
 var checkboxSettingsGroupCSS string
+
+var checkboxCardsHTML = renderExampleHTML(examples.CheckboxCards())
+
+//go:embed examples/checkbox_cards.templ
+var checkboxCardsTempl string
+
+//go:embed examples/checkbox_cards.css
+var checkboxCardsCSS string

@@ -1,0 +1,32 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+type checkboxCardsVase struct {
+	Image   string
+	Shape   string
+	Scene   string
+	Checked neo.Attr[bool]
+}
+
+var checkboxCardsVases = []checkboxCardsVase{
+	{Image: "/static/jar_1.webp", Shape: "Lekythos", Scene: "Black-figure, chariot", Checked: neo.Set(true)},
+	{Image: "/static/jar_2.webp", Shape: "Lekythos", Scene: "Red-figure, woman with staff"},
+	{Image: "/static/jar_3.webp", Shape: "Amphora", Scene: "Black-figure, warriors", Checked: neo.Set(true)},
+	{Image: "/static/jar_4.webp", Shape: "Lekythos", Scene: "Black-figure, weavers"},
+	{Image: "/static/jar_5.webp", Shape: "Amphora", Scene: "Red-figure, lyre player"},
+	{Image: "/static/jar_6.webp", Shape: "Oinochoe", Scene: "Black-figure, procession"},
+}
+
+templ CheckboxCards() {
+	<div class="checkbox-cards" role="group" aria-label="Exhibition pieces">
+		for _, v := range checkboxCardsVases {
+			<label class="checkbox-cards-item">
+				@neo.Checkbox(neo.CheckboxOpts{Checked: v.Checked})
+				<img src={ v.Image } alt=""/>
+				<strong>{ v.Shape }</strong>
+				<small>{ v.Scene }</small>
+			</label>
+		}
+	</div>
+}
