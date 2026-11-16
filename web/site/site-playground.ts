@@ -26,6 +26,15 @@ function autoplayDelay(): number {
 	const ms = Number((window as { morpheusPlaygroundAutoplayMs?: number }).morpheusPlaygroundAutoplayMs);
 	return Number.isFinite(ms) && ms > 0 ? ms : DEFAULT_AUTOPLAY_DELAY;
 }
+// numberStep is the step of a number signal's field: 1 for an integer, else
+// 1 unit of its last decimal place, which makes 1.5 scrub to 1.6, not 2.
+function numberStep(n: number): string {
+	const s = String(n);
+	if (s.includes("e")) return "any";
+	const dot = s.indexOf(".");
+	return dot < 0 ? "1" : `0.${"0".repeat(s.length - dot - 2)}1`;
+}
+
 const SIGNAL_REF = /^\$([A-Za-z_][A-Za-z0-9_]*)$/;
 const BOOL_COMMAND_REF = /^\$([A-Za-z_][A-Za-z0-9_]*)\s*\?\s*['"]true['"]\s*:\s*['"]false['"]$/;
 const signalRef = (expr: string): string | null => {
@@ -92,6 +101,7 @@ class SitePlayground extends HTMLElement {
 		this.addEventListener("neo-sortable-end", this.#onSortEnd);
 		this.addEventListener("site-codemirror-input", this.#onCodeInput);
 		this.addEventListener("neo-textinput-change", this.#onSignalInput);
+		this.addEventListener("neo-textinput-input", this.#onSignalScrub);
 		this.addEventListener("neo-switch-change", this.#onSwitchChange);
 		this.addEventListener("input", this.#onStateNameInput);
 		this.addEventListener("keydown", this.#onStateNameKeyDown, true);
@@ -120,6 +130,7 @@ class SitePlayground extends HTMLElement {
 		this.removeEventListener("neo-sortable-end", this.#onSortEnd);
 		this.removeEventListener("site-codemirror-input", this.#onCodeInput);
 		this.removeEventListener("neo-textinput-change", this.#onSignalInput);
+		this.removeEventListener("neo-textinput-input", this.#onSignalScrub);
 		this.removeEventListener("neo-switch-change", this.#onSwitchChange);
 		this.removeEventListener("input", this.#onStateNameInput);
 		this.removeEventListener("contextmenu", this.#onContextMenu, true);
@@ -310,11 +321,19 @@ class SitePlayground extends HTMLElement {
 				input.setAttribute("size", "sm");
 				input.setAttribute("aria-label", name);
 				input.dataset.signal = name;
+				input.dataset.signalType = typeof value;
 				input.setAttribute("checked", value ? "true" : "false");
 				label.appendChild(input);
 			} else {
 				const input = document.createElement("neo-textinput");
 				input.setAttribute("aria-label", name);
+				if (typeof value === "number") {
+					input.setAttribute("type", "number");
+					input.setAttribute("step", numberStep(value));
+					input.setAttribute("scrub", "");
+					input.setAttribute("scrub-sensitivity", "0.35");
+					input.setAttribute("stepper", "");
+				}
 				input.setAttribute("value", value == null ? "" : String(value));
 				input.dataset.signal = name;
 				input.dataset.signalType = typeof value;
@@ -334,8 +353,9 @@ class SitePlayground extends HTMLElement {
 
 	// Update the value shown in each existing signal row without recreating
 	// it. Returns false (caller rebuilds) when the row set no longer matches
-	// the signals by name and kind, e.g. a state change adds or drops a signal
-	// or flips a signal between boolean (neo-switch) and text (neo-textinput).
+	// the signals by name and type, e.g. a state change adds or drops a signal
+	// or flips a signal between boolean (neo-switch), number (scrubbable
+	// neo-textinput) and text (neo-textinput).
 	#updateSignalsInPlace(list: HTMLElement): boolean {
 		const rows = list.querySelectorAll<HTMLElement>(":scope > label.component-playground-signal");
 		if (rows.length !== this.#signalValues.size) return false;
@@ -348,7 +368,7 @@ class SitePlayground extends HTMLElement {
 		for (const [name, value] of this.#signalValues) {
 			const input = byName.get(name);
 			if (!input) return false;
-			if ((typeof value === "boolean") !== (input.tagName === "NEO-SWITCH")) return false;
+			if (input.dataset.signalType !== typeof value) return false;
 		}
 		for (const [name, value] of this.#signalValues) {
 			const input = byName.get(name);
@@ -763,6 +783,15 @@ class SitePlayground extends HTMLElement {
 		const type = input.dataset.signalType;
 		this.#signalValues.set(name, type === "number" ? Number(raw) : raw);
 		if (this.#isChecked(this.#signalSync)) this.#requestSignalsPatch();
+	};
+
+	// A scrub drag commits on release. Apply its steps as they come, which
+	// makes the preview follow the drag. Typing stays on the commit path
+	// because a half-typed number such as "-" would flash the preview.
+	#onSignalScrub = (event: Event): void => {
+		const input = event.target as HTMLElement;
+		if (!input.dataset?.signal || !input.matches(":state(scrubbing)")) return;
+		this.#onSignalInput(event);
 	};
 
 	#onSwitchChange = (event: Event): void => {
