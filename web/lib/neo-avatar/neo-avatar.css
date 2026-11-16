@@ -142,6 +142,47 @@ neo-avatars > [data-neo-avatars-hidden] {
 	display: none !important;
 }
 
+/* Before upgrade, apply collapse-at so the row has its final width:
+ * hide the avatars past it and hold the slot of the +N circle with ::after.
+ * CSS can't read the attribute as a number, which is why each value from 1
+ * to 10 has a selector; other values show the full row until upgrade. */
+neo-avatars:not(:defined)[collapse-at="1"] > :nth-child(n + 2 of :not(template)),
+neo-avatars:not(:defined)[collapse-at="2"] > :nth-child(n + 3 of :not(template)),
+neo-avatars:not(:defined)[collapse-at="3"] > :nth-child(n + 4 of :not(template)),
+neo-avatars:not(:defined)[collapse-at="4"] > :nth-child(n + 5 of :not(template)),
+neo-avatars:not(:defined)[collapse-at="5"] > :nth-child(n + 6 of :not(template)),
+neo-avatars:not(:defined)[collapse-at="6"] > :nth-child(n + 7 of :not(template)),
+neo-avatars:not(:defined)[collapse-at="7"] > :nth-child(n + 8 of :not(template)),
+neo-avatars:not(:defined)[collapse-at="8"] > :nth-child(n + 9 of :not(template)),
+neo-avatars:not(:defined)[collapse-at="9"] > :nth-child(n + 10 of :not(template)),
+neo-avatars:not(:defined)[collapse-at="10"] > :nth-child(n + 11 of :not(template)) {
+	display: none;
+}
+
+neo-avatars:not(:defined)[collapse-at="1"]:has(> :nth-child(2 of :not(template)))::after,
+neo-avatars:not(:defined)[collapse-at="2"]:has(> :nth-child(3 of :not(template)))::after,
+neo-avatars:not(:defined)[collapse-at="3"]:has(> :nth-child(4 of :not(template)))::after,
+neo-avatars:not(:defined)[collapse-at="4"]:has(> :nth-child(5 of :not(template)))::after,
+neo-avatars:not(:defined)[collapse-at="5"]:has(> :nth-child(6 of :not(template)))::after,
+neo-avatars:not(:defined)[collapse-at="6"]:has(> :nth-child(7 of :not(template)))::after,
+neo-avatars:not(:defined)[collapse-at="7"]:has(> :nth-child(8 of :not(template)))::after,
+neo-avatars:not(:defined)[collapse-at="8"]:has(> :nth-child(9 of :not(template)))::after,
+neo-avatars:not(:defined)[collapse-at="9"]:has(> :nth-child(10 of :not(template)))::after,
+neo-avatars:not(:defined)[collapse-at="10"]:has(> :nth-child(11 of :not(template)))::after,
+neo-avatars:not(:defined)[overflow-count]:not([overflow-count="0"], [overflow-count=""])::after {
+	content: "";
+	flex: 0 0 auto;
+	height: 100%;
+	aspect-ratio: 1 / 1;
+	margin-inline-start: calc(-1 * var(--neo-avatars-overlap));
+}
+
+/* The overflow template carries the overflow mark, which would render it as
+ * an empty circle before upgrade. */
+neo-avatars > template[data-neo-avatars-overflow] {
+	display: none;
+}
+
 neo-avatars > [data-neo-avatars-overflow] {
 	display: inline-flex;
 	align-items: center;

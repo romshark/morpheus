@@ -35,6 +35,7 @@ This file records the notable changes of each release in the format of [Keep a C
 
 #### Components
 
+- Apply `collapse-at` (up to 10) and `overflow-count` to a `<neo-avatars>` before its script loads. The row showed every avatar until then, with its overflow template as an empty circle, and changed width on upgrade.
 - Reserve the line height of a `<neo-kbd>` before its key glyph renders. It was 1 line shorter until the script loaded, which moved the content after it, such as the links below a button holding a shortcut, down by 1px.
 - Give a `<neo-sortable>` drag handle without a `role` the role `button`. As a focusable `<span>` with no role, its `aria-label` failed the axe and Lighthouse check `aria-prohibited-attr`.
 - Move the keyboard-reorder announcer of `<neo-sortable>` out of the element, to a `<neo-announcer>` at the end of `<body>` or of the open modal `<dialog>`. Inside the element it was a child that `role="list"` does not allow, which failed the axe and Lighthouse check `aria-required-children`.
