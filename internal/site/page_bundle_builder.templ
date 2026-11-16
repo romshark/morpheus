@@ -213,9 +213,7 @@ templ PageBundleBuilder(morpheusVersion string, versions []BundleVersion) {
 				<code>{ "@" }</code> selects the release it builds:
 			</p>
 			<div class="theming-source">
-				<site-codemirror language="bash" readonly>
-					<template>{ bundleCLIRun(morpheusVersion) }</template>
-				</site-codemirror>
+				@sourceCodeEditor("bash", bundleCLIRun(morpheusVersion))
 			</div>
 			<p>
 				<code>-components</code> takes the names on this page,
@@ -235,9 +233,7 @@ templ PageBundleBuilder(morpheusVersion string, versions []BundleVersion) {
 				<code>neo</code> and <code>datastar</code> packages come from:
 			</p>
 			<div class="theming-source">
-				<site-codemirror language="bash" readonly>
-					<template>{ bundleCLITool(morpheusVersion) }</template>
-				</site-codemirror>
+				@sourceCodeEditor("bash", bundleCLITool(morpheusVersion))
 			</div>
 			<p>
 				<code>morpheus components</code> lists the names with the

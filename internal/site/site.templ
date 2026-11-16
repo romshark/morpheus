@@ -4,6 +4,7 @@ import (
 	"github.com/romshark/morpheus/internal/href"
 	"github.com/romshark/morpheus/neo"
 	"strconv"
+	"strings"
 )
 
 // pageHead is shared between Page (sidebar frame) and LandingPage
@@ -1131,7 +1132,11 @@ templ demoTabsFooter(opts DemoFrameOpts) {
 	</div>
 }
 
+// sourceCodeEditor renders a read-only editor with a <pre> fallback until it mounts.
+// A trailing newline would add an empty editor line the <pre> doesn't render,
+// which makes the 2 differ in height.
 templ sourceCodeEditor(language, source string) {
+	{{ source = strings.TrimRight(source, "\n") }}
 	<site-codemirror language={ language } readonly lazy>
 		<template>{ source }</template>
 		<pre class="site-codemirror-fallback" aria-hidden="true">{ source }</pre>

@@ -63,9 +63,7 @@ templ PageGettingStarted(morpheusVersion string) {
 				repository. Load them in your page head:
 			</p>
 			<div class="theming-source">
-				<site-codemirror language="html" readonly>
-					<template>{ gettingStartedInstall(morpheusVersion) }</template>
-				</site-codemirror>
+				@sourceCodeEditor("html", gettingStartedInstall(morpheusVersion))
 			</div>
 			<p>
 				Pin the tag, as above. jsDelivr also accepts
@@ -121,9 +119,7 @@ templ PageGettingStarted(morpheusVersion string) {
 				helper packages to your module:
 			</p>
 			<div class="theming-source">
-				<site-codemirror language="bash" readonly>
-					<template>{ gettingStartedInstallGo }</template>
-				</site-codemirror>
+				@sourceCodeEditor("bash", gettingStartedInstallGo)
 			</div>
 			<p>
 				<code>neo</code> exposes 1 templ per component

@@ -561,42 +561,32 @@ func PageBundleBuilder(morpheusVersion string, versions []BundleVersion) templ.C
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</code> selects the release it builds:</p><div class=\"theming-source\"><site-codemirror language=\"bash\" readonly><template>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</code> selects the release it builds:</p><div class=\"theming-source\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = sourceCodeEditor("bash", bundleCLIRun(morpheusVersion)).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</div><p><code>-components</code> takes the names on this page, comma-separated, and adds the components they require. The command writes <code>morpheus.min.js</code>, <code>morpheus.min.css</code> and <code>theme-default.css</code> to the <code>-o</code> directory and prints their sizes. <code>-themes</code> takes theme names, such as <code>default,rose</code>, or <code>none</code>. With <code>-json</code> it prints the result as JSON, and with <code>-unminified</code> it also writes <code>morpheus.js</code> and <code>morpheus.css</code>.</p><p>In a Go module, add the command as a tool. It then builds the version the module requires, which the <code>neo</code> and <code>datastar</code> packages come from:</p><div class=\"theming-source\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = sourceCodeEditor("bash", bundleCLITool(morpheusVersion)).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</div><p><code>morpheus components</code> lists the names with the components each requires, and <code>morpheus bundle -h</code> lists the flags.</p></section><script>\n\t\t\t// Buffers the latest update until bundlebuilder.min.js loads.\n\t\t\twindow.__bundleSizeUpdate = function (s, v) {\n\t\t\t\twindow.__bundleSizePending = [s, v];\n\t\t\t};\n\t\t</script> <script type=\"module\" src=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var27 string
-			templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinStringErrs(bundleCLIRun(morpheusVersion))
+			templ_7745c5c3_Var27, templ_7745c5c3_Err = templruntime.NewAttributeExpression(href.Asset("min/bundlebuilder.min.js")).ResolveURL(ctx)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_bundle_builder.templ`, Line: 217, Col: 46}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_bundle_builder.templ`, Line: 250, Col: 68}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</template></site-codemirror></div><p><code>-components</code> takes the names on this page, comma-separated, and adds the components they require. The command writes <code>morpheus.min.js</code>, <code>morpheus.min.css</code> and <code>theme-default.css</code> to the <code>-o</code> directory and prints their sizes. <code>-themes</code> takes theme names, such as <code>default,rose</code>, or <code>none</code>. With <code>-json</code> it prints the result as JSON, and with <code>-unminified</code> it also writes <code>morpheus.js</code> and <code>morpheus.css</code>.</p><p>In a Go module, add the command as a tool. It then builds the version the module requires, which the <code>neo</code> and <code>datastar</code> packages come from:</p><div class=\"theming-source\"><site-codemirror language=\"bash\" readonly><template>")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var28 string
-			templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinStringErrs(bundleCLITool(morpheusVersion))
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_bundle_builder.templ`, Line: 239, Col: 47}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var28))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</template></site-codemirror></div><p><code>morpheus components</code> lists the names with the components each requires, and <code>morpheus bundle -h</code> lists the flags.</p></section><script>\n\t\t\t// Buffers the latest update until bundlebuilder.min.js loads.\n\t\t\twindow.__bundleSizeUpdate = function (s, v) {\n\t\t\t\twindow.__bundleSizePending = [s, v];\n\t\t\t};\n\t\t</script> <script type=\"module\" src=\"")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var29 string
-			templ_7745c5c3_Var29, templ_7745c5c3_Err = templruntime.NewAttributeExpression(href.Asset("min/bundlebuilder.min.js")).ResolveURL(ctx)
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_bundle_builder.templ`, Line: 254, Col: 68}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var29)
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var27)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -661,9 +651,9 @@ func bundleSizeInfo(label string) templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var31 := templ.GetChildren(ctx)
+		templ_7745c5c3_Var29 := templ.GetChildren(ctx)
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Var32 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_Var30 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 			templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 			templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
 			if !templ_7745c5c3_IsBuffer {
@@ -691,12 +681,12 @@ func bundleSizeInfo(label string) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				var templ_7745c5c3_Var33 string
-				templ_7745c5c3_Var33, templ_7745c5c3_Err = templruntime.NewAttributeExpression("How the " + label + " size is measured").Resolve(ctx)
+				var templ_7745c5c3_Var31 string
+				templ_7745c5c3_Var31, templ_7745c5c3_Err = templruntime.NewAttributeExpression("How the " + label + " size is measured").Resolve(ctx)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_bundle_builder.templ`, Line: 348, Col: 56}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_bundle_builder.templ`, Line: 344, Col: 56}
 				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var33)
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var31)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -756,7 +746,7 @@ func bundleSizeInfo(label string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templ_7745c5c3_Var31.Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = templ_7745c5c3_Var29.Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -768,7 +758,7 @@ func bundleSizeInfo(label string) templ.Component {
 		})
 		templ_7745c5c3_Err = neo.PopoverAttrs(neo.PopoverOpts{
 			Placement: neo.Set(neo.PlacementBottomEnd),
-		}, templ.Attributes{"class": "bundle-size-info"}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var32), templ_7745c5c3_Buffer)
+		}, templ.Attributes{"class": "bundle-size-info"}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var30), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -795,7 +785,7 @@ func bundleCopyButton(file string) templ.Component {
 		}
 		ctx = templ.InitializeContext(ctx)
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Var35 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_Var33 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 			templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 			templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
 			if !templ_7745c5c3_IsBuffer {
@@ -811,12 +801,12 @@ func bundleCopyButton(file string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var36 string
-			templ_7745c5c3_Var36, templ_7745c5c3_Err = templruntime.NewAttributeExpression("Copy " + file).Resolve(ctx)
+			var templ_7745c5c3_Var34 string
+			templ_7745c5c3_Var34, templ_7745c5c3_Err = templruntime.NewAttributeExpression("Copy " + file).Resolve(ctx)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_bundle_builder.templ`, Line: 362, Col: 76}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_bundle_builder.templ`, Line: 358, Col: 76}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var36)
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var34)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -842,7 +832,7 @@ func bundleCopyButton(file string) templ.Component {
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = neo.ClipcopyAttrs(neo.ClipcopyOpts{}, templ.Attributes{"class": "bundle-size-copy"}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var35), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = neo.ClipcopyAttrs(neo.ClipcopyOpts{}, templ.Attributes{"class": "bundle-size-copy"}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var33), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

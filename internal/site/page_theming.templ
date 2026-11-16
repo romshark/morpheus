@@ -121,9 +121,7 @@ templ PageTheming(morpheusVersion string) {
 				custom theme can override:
 			</p>
 			<div class="theming-source">
-				<site-codemirror language="css" readonly>
-					<template>{ themeDefaultCSS }</template>
-				</site-codemirror>
+				@sourceCodeEditor("css", themeDefaultCSS)
 			</div>
 			@anchoredH3("how-it-works") {
 				How it works
@@ -161,9 +159,7 @@ templ PageTheming(morpheusVersion string) {
 				page tokens in your own CSS to follow the theme:
 			</p>
 			<div class="theming-source">
-				<site-codemirror language="css" readonly>
-					<template>{ themingBodyCSS }</template>
-				</site-codemirror>
+				@sourceCodeEditor("css", themingBodyCSS)
 			</div>
 			@anchoredH3("switching-at-runtime") {
 				Switching at runtime
