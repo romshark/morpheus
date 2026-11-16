@@ -17,8 +17,8 @@ templ PageSortable(morpheusVersion string) {
 				children as a column, row, or grid. Pointer, touch,
 				and a full keyboard contract operate the same list.
 				A child marked <code>data-neo-sortable-handle</code>
-				becomes the grip; absent that, the whole item is
-				draggable. Give every item a stable <code>id</code>
+				becomes the grip; absent that, the whole item is draggable.
+				Give every item a stable <code>id</code>
 				so <code>neo-sortable-start</code> /
 				<code>-move</code> / <code>-end</code> events
 				identify which item moved and its
@@ -36,9 +36,9 @@ templ PageSortable(morpheusVersion string) {
 				Keyboard
 			}
 			<p class="demo-note">
-				Every reorder works without a pointer. Tab to a
-				drag grip (each is a tab stop), press
-				<code>Space</code> or <code>Enter</code> to pick the
+				Every reorder works without a pointer.
+				Tab to a drag grip (each is a tab stop),
+				press <code>Space</code> or <code>Enter</code> to pick the
 				item up, then move it:
 			</p>
 			<ul class="demo-note">
@@ -63,13 +63,12 @@ templ PageSortable(morpheusVersion string) {
 				</li>
 			</ul>
 			<p class="demo-note">
-				The first move, every subsequent move, the final
-				position, and cancellation are announced through an
-				<code>aria-live</code> region; the moving item carries
-				<code>aria-grabbed</code> and grips expose
-				<code>aria-keyshortcuts</code>. The
-				<code>disabled</code> attribute drops the grips from
-				the tab order.
+				The first move, every subsequent move, the final position,
+				and cancellation are announced through an <code>aria-live</code> region;
+				the moving item carries <code>aria-grabbed</code> and grips expose
+				<code>aria-keyshortcuts</code>. A handle without a <code>role</code> gets
+				<code>role="button"</code>.
+				The <code>disabled</code> attribute drops the grips from the tab order.
 			</p>
 		</section>
 		<section class="demo">
@@ -80,9 +79,9 @@ templ PageSortable(morpheusVersion string) {
 				Sortable list
 			}
 			<p class="demo-note">
-				A vertical list with a leading drag handle on each
-				row. Only the handle is the grip. Text inside the
-				row stays selectable and any buttons keep working.
+				A vertical list with a leading drag handle on each row.
+				Only the handle is the grip. Text inside the row stays
+				selectable and any buttons keep working.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
 				Width:          "20rem",
@@ -99,8 +98,7 @@ templ PageSortable(morpheusVersion string) {
 			}
 			<p class="demo-note">
 				With no <code>data-neo-sortable-handle</code> child,
-				the entire item is the grip. Press anywhere on a
-				row and drag.
+				the entire item is the grip. Press anywhere on a row and drag.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
 				Width:          "20rem",
@@ -118,9 +116,8 @@ templ PageSortable(morpheusVersion string) {
 			<p class="demo-note">
 				The whole row is the grip, yet each
 				<code>{ "<neo-switch>" }</code> still toggles because its
-				wrapper is marked
-				<code>data-neo-sortable-nodrag</code>. Pressing it
-				never starts a drag. Native controls are exempt
+				wrapper is marked <code>data-neo-sortable-nodrag</code>.
+				Pressing it never starts a drag. Native controls are exempt
 				automatically; custom elements need the marker.
 				Toggle a switch, then drag a row by its label.
 			</p>
@@ -138,9 +135,8 @@ templ PageSortable(morpheusVersion string) {
 				Horizontal row
 			}
 			<p class="demo-note">
-				<code>{ `orientation="horizontal"` }</code> lays the
-				items out in a row and constrains the drag to the
-				horizontal axis.
+				<code>{ `orientation="horizontal"` }</code> lays the items out
+				in a row and constrains the drag to the horizontal axis.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
 				Width:          "24rem",
@@ -156,9 +152,9 @@ templ PageSortable(morpheusVersion string) {
 				Grid
 			}
 			<p class="demo-note">
-				<code>{ `orientation="grid"` }</code> reorders in 2
-				dimensions. The dragged tile drops into the nearest
-				slot, and arrow keys step a row at a time.
+				<code>{ `orientation="grid"` }</code> reorders in 2 dimensions.
+				The dragged tile drops into the nearest slot,
+				and arrow keys step a row at a time.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
 				Width:          "24rem",
@@ -174,11 +170,10 @@ templ PageSortable(morpheusVersion string) {
 				Unbounded
 			}
 			<p class="demo-note">
-				By default the dragged item is clamped to the list's
-				own box. A drag toward an edge stops at the
-				boundary. <code>unbounded</code> opts out, letting the
-				item follow the pointer freely over the rest of the
-				page.
+				By default the dragged item is clamped to the list's own box.
+				A drag toward an edge stops at the boundary.
+				<code>unbounded</code> opts out, letting the item follow
+				the pointer freely over the rest of the page.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
 				Width:          "20rem",
@@ -194,11 +189,10 @@ templ PageSortable(morpheusVersion string) {
 				Scrollable parent
 			}
 			<p class="demo-note">
-				20 rows in an <code>overflow: auto</code> box. The
-				lifted item is clamped to the scroll viewport, and the
+				20 rows in an <code>overflow: auto</code> box.
+				The lifted item is clamped to the scroll viewport, and the
 				grip keeps <code>touch-action: none</code> so dragging a
-				handle reorders while dragging the row body still scrolls
-				the list.
+				handle reorders while dragging the row body still scrolls the list.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
 				Width:          "20rem",
@@ -214,12 +208,10 @@ templ PageSortable(morpheusVersion string) {
 				Custom move easing
 			}
 			<p class="demo-note">
-				The <code>easing</code> attribute tunes how the
-				displaced items glide. Here a slow
-				<code>{ `easing="420ms ease-in-out"` }</code>
-				makes the reflow obvious; an empty
-				<code>{ `easing=""` }</code> would turn it off
-				and snap instantly.
+				The <code>easing</code> attribute tunes how the displaced items glide.
+				Here a slow <code>{ `easing="420ms ease-in-out"` }</code>
+				makes the reflow obvious; an empty <code>{ `easing=""` }</code>
+				would turn it off and snap instantly.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
 				Width:          "20rem",
@@ -237,8 +229,8 @@ templ PageSortable(morpheusVersion string) {
 			<p class="demo-note">
 				A <code>{ `<template data-neo-sortable-placeholder>` }</code>
 				child replaces the default dashed gap. The gap keeps the
-				dragged item's size; the slotted markup renders inside
-				it, here a tinted "Drop here" bar.
+				dragged item's size; the slotted markup renders inside it,
+				here a tinted "Drop here" bar.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
 				Width:          "20rem",
@@ -254,9 +246,9 @@ templ PageSortable(morpheusVersion string) {
 				Disabled
 			}
 			<p class="demo-note">
-				<code>disabled</code> freezes reordering. Pointer drags
-				do nothing, the grips drop out of the tab order, and the
-				handles dim to read as inert.
+				<code>disabled</code> freezes reordering.
+				Pointer drags do nothing, the grips drop out of the tab order,
+				and the handles dim to read as inert.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
 				Width:          "20rem",
@@ -277,18 +269,17 @@ templ PageSortable(morpheusVersion string) {
 				Morphing during interaction
 			}
 			<p class="demo-note">
-				A Datastar app can fat-morph the page mid-drag. The
-				server may reorder or replace the items under a
-				<code>{ "<neo-sortable>" }</code> while the user holds a
-				row. Pick up an item (drag it, or press <code>Space</code>)
+				A Datastar app can fat-morph the page mid-drag.
+				The server may reorder or replace the items under a
+				<code>{ "<neo-sortable>" }</code> while the user holds a row.
+				Pick up an item (drag it, or press <code>Space</code>)
 				while autoplay runs to see each outcome:
 			</p>
 			<ul class="demo-note">
 				<li>
 					<strong>Same items</strong>: the morph re-emits the
-					same ids, content, and order. Nothing changes. The
-					dragged row re-links to its morphed node and the drag
-					is untouched.
+					same ids, content, and order. Nothing changes. The dragged row
+					re-links to its morphed node and the drag is untouched.
 				</li>
 				<li>
 					<strong>Different order</strong>: same ids, reordered.
@@ -299,8 +290,8 @@ templ PageSortable(morpheusVersion string) {
 				<li>
 					<strong>Different items</strong>: the morph swaps an
 					<code>id</code> in or out. The kit can't map the
-					in-flight drag onto the new set. It cancels the drag
-					and lets the server's order stand.
+					in-flight drag onto the new set.
+					It cancels the drag and lets the server's order stand.
 				</li>
 			</ul>
 			<p class="demo-note">

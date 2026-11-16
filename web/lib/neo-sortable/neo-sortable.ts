@@ -1,39 +1,22 @@
-// Items stay in light DOM (the morph reconciles them); the live-region announcer lives
-// in shadow so a morph can't strip it. The drag placeholder is light-DOM because
-// it must occupy a flow slot, but it's transient (pointerdown to drop).
+// Items stay in light DOM (the morph reconciles them). The drag placeholder is
+// light-DOM because it must occupy a flow slot, but it's transient (pointerdown to drop).
 // External patch animations require prepareReorderPatch() pre-morph.
 
 import { boolAttr } from "../command";
 import { isRTL, logicalArrow } from "../direction";
 import { setState } from "../internal-state";
+import { announce } from "../live-announcer";
 import { setAttrIfChanged } from "../neo-morph-resilient";
 
 type Orientation = "vertical" | "horizontal" | "grid";
 
 const SHADOW_TEMPLATE = document.createElement("template");
-// Shadow CSS notes, kept out of the template string so the minifier drops
-// them from the bundle. Anchored by selector:
-// - [data-neo-sortable-live]: visually-hidden keyboard-reorder announcer.
-//   Not aria-hidden, AT must read it. In shadow so morph can't strip it.
 SHADOW_TEMPLATE.innerHTML = `
 <style>
   :host { display: block; }
   :host([hidden]) { display: none; }
-  [data-neo-sortable-live] {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    margin: -1px;
-    padding: 0;
-    border: 0;
-    overflow: hidden;
-    clip: rect(0 0 0 0);
-    clip-path: inset(50%);
-    white-space: nowrap;
-  }
 </style>
 <slot></slot>
-<div data-neo-sortable-live aria-live="assertive" aria-atomic="true"></div>
 `;
 
 const ORIENTATIONS: readonly Orientation[] = ["vertical", "horizontal", "grid"] as const;
@@ -108,11 +91,9 @@ export class NeoSortable extends HTMLElement {
 	#pointer: PointerDrag | null = null;
 	#autoScrollRaf: number | null = null;
 	#keyboard: KeyboardDrag | null = null;
-	#live: HTMLElement;
 	#childObserver: MutationObserver | null = null;
-	// Separate from #childObserver. childList triggers the FLIP/drag-
-	// reconcile path; attribute strips just need #syncItems to re-stamp
-	// grip flags.
+	// Separate from #childObserver. childList triggers the FLIP/drag-reconcile path;
+	// attribute strips just need #syncItems to re-stamp grip flags.
 	#attrObserver: MutationObserver | null = null;
 	#flipRaf: number | null = null;
 	#pendingPatchLayout: LayoutSnapshot | null = null;
@@ -138,14 +119,12 @@ export class NeoSortable extends HTMLElement {
 	constructor() {
 		super();
 		this.#internals = this.attachInternals();
-		const root = this.attachShadow({ mode: "open" });
-		root.appendChild(SHADOW_TEMPLATE.content.cloneNode(true));
-		this.#live = root.querySelector<HTMLElement>("[data-neo-sortable-live]")!;
+		this.attachShadow({ mode: "open" }).appendChild(SHADOW_TEMPLATE.content.cloneNode(true));
 	}
 
-	// A drag in flight, and whether it is a pointer drag. The grabbing
-	// cursor belongs to a pointer reorder only; a keyboard reorder has no
-	// pointer to re-cursor.
+	// A drag in flight, and whether it is a pointer drag.
+	// The grabbing cursor belongs to a pointer reorder only;
+	// a keyboard reorder has no pointer to re-cursor.
 	#setDragState(kind: "pointer" | "keyboard" | null): void {
 		setState(this.#internals, "active", kind !== null);
 		setState(this.#internals, "pointer", kind === "pointer");
@@ -303,8 +282,8 @@ export class NeoSortable extends HTMLElement {
 	}
 
 	// Re-focus the grip whose item id matches #focusedItemId if a morph
-	// (grip-span replace or tabindex strip) blurred to <body>. Called
-	// from both observer callbacks; no-op when focus is still inside.
+	// (grip-span replace or tabindex strip) blurred to <body>.
+	// Called from both observer callbacks; no-op when focus is still inside.
 	#restoreFocusIfLost() {
 		if (!this.#focusedItemId) return;
 		if (this.contains(document.activeElement)) return;
@@ -341,6 +320,11 @@ export class NeoSortable extends HTMLElement {
 			const grip = this.#gripOf(item);
 			grips.add(grip);
 			setAttrIfChanged(grip, "data-neo-sortable-grip", "");
+			// A handle is a focusable control. As a generic <span> it may not
+			// carry the aria-label that names it (axe aria-prohibited-attr).
+			if (grip !== item && !grip.hasAttribute("role") && !(grip instanceof HTMLButtonElement)) {
+				setAttrIfChanged(grip, "role", "button");
+			}
 			if (!grip.hasAttribute("aria-roledescription")) {
 				setAttrIfChanged(grip, "aria-roledescription", "sortable item");
 			}
@@ -367,7 +351,7 @@ export class NeoSortable extends HTMLElement {
 	}
 
 	#announce(msg: string) {
-		this.#live.textContent = msg;
+		announce(this, msg);
 	}
 
 	// overflow-anchor: none for the drag duration. Refcounted so the
@@ -424,8 +408,8 @@ export class NeoSortable extends HTMLElement {
 		const items = this.#items();
 
 		// On a mid-drag morph, a semantic no-op (same ids/order/content) keeps
-		// the drag alive by re-linking refs; a real change aborts. Drag-
-		// internal mutations land here too and slip through as no-ops.
+		// the drag alive by re-linking refs; a real change aborts.
+		// Drag-internal mutations land here too and slip through as no-ops.
 		const drag: PointerDrag | KeyboardDrag | null = this.#pointer?.active ? this.#pointer : (this.#keyboard ?? null);
 		if (drag) {
 			this.#reconcileDragAgainstMutation(drag, items);
@@ -505,13 +489,13 @@ export class NeoSortable extends HTMLElement {
 		}
 		const ptr = drag === this.#pointer ? this.#pointer : null;
 		if (ptr) {
-			// Morph reconciled d.item's inline style to source; the
-			// position:fixed block is gone. Re-apply to keep it floating.
+			// Morph reconciled d.item's inline style to source;
+			// the position:fixed block is gone. Re-apply to keep it floating.
 			this.#applyPointerFloatStyles(ptr);
 			// The placeholder is light-DOM with no id in the morph source.
-			// Morph either strips it or position-pairs it into a real
-			// item. In the second case d.placeholder is still connected but
-			// masquerading; trust the marker, not identity, and rebuild if gone.
+			// Morph either strips it or position-pairs it into a real item.
+			// In the second case d.placeholder is still connected but masquerading;
+			// trust the marker, not identity, and rebuild if gone.
 			const phStale = !ptr.placeholder.isConnected || !ptr.placeholder.hasAttribute("data-neo-sortable-placeholder");
 			if (phStale) {
 				ptr.placeholder = this.#rebuildPlaceholder(ptr);
@@ -528,8 +512,8 @@ export class NeoSortable extends HTMLElement {
 		}
 	}
 
-	// Fresh placeholder mirroring #promote's inline styles. Used when
-	// morph repurposed the original into a real item.
+	// Fresh placeholder mirroring #promote's inline styles.
+	// Used when morph repurposed the original into a real item.
 	#rebuildPlaceholder(d: PointerDrag): HTMLElement {
 		const ph = document.createElement("div");
 		ph.setAttribute("data-neo-sortable-placeholder", "");
@@ -1488,8 +1472,8 @@ export class NeoSortable extends HTMLElement {
 			this.#focusedItemId = "";
 		} else {
 			// On a blur to nothing, either a morph stripped the grip
-			// (the observer restore runs first, in the same microtask checkpoint, and
-			// refocuses) or the user clicked empty space / pressed Escape.
+			// (the observer restore runs first, in the same microtask checkpoint,
+			// and refocuses) or the user clicked empty space / pressed Escape.
 			// If focus is still gone once that restore has had its turn,
 			// it was the user. Drop the target so the next morph won't fight them.
 			queueMicrotask(() => {

@@ -141,7 +141,7 @@ func PageSortable(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<p class=\"demo-note\">Every reorder works without a pointer. Tab to a drag grip (each is a tab stop), press <code>Space</code> or <code>Enter</code> to pick the item up, then move it:</p><ul class=\"demo-note\"><li><code>Space</code> / <code>Enter</code>: pick up the focused item, then drop it once it is in place.</li><li><code>Arrow</code> keys: move the held item 1 slot along the orientation; in a grid, <code>ArrowUp</code> / <code>ArrowDown</code> jump a whole row.</li><li><code>Home</code> / <code>End</code>: send the held item to the first or last position.</li><li><code>Tab</code> / blur: drop and commit the new order. <code>Escape</code> cancels and restores the original order.</li></ul><p class=\"demo-note\">The first move, every subsequent move, the final position, and cancellation are announced through an <code>aria-live</code> region; the moving item carries <code>aria-grabbed</code> and grips expose <code>aria-keyshortcuts</code>. The <code>disabled</code> attribute drops the grips from the tab order.</p></section><section class=\"demo\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<p class=\"demo-note\">Every reorder works without a pointer. Tab to a drag grip (each is a tab stop), press <code>Space</code> or <code>Enter</code> to pick the item up, then move it:</p><ul class=\"demo-note\"><li><code>Space</code> / <code>Enter</code>: pick up the focused item, then drop it once it is in place.</li><li><code>Arrow</code> keys: move the held item 1 slot along the orientation; in a grid, <code>ArrowUp</code> / <code>ArrowDown</code> jump a whole row.</li><li><code>Home</code> / <code>End</code>: send the held item to the first or last position.</li><li><code>Tab</code> / blur: drop and commit the new order. <code>Escape</code> cancels and restores the original order.</li></ul><p class=\"demo-note\">The first move, every subsequent move, the final position, and cancellation are announced through an <code>aria-live</code> region; the moving item carries <code>aria-grabbed</code> and grips expose <code>aria-keyshortcuts</code>. A handle without a <code>role</code> gets <code>role=\"button\"</code>. The <code>disabled</code> attribute drops the grips from the tab order.</p></section><section class=\"demo\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -306,7 +306,7 @@ func PageSortable(morpheusVersion string) templ.Component {
 			var templ_7745c5c3_Var13 string
 			templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs("<neo-switch>")
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_sortable.templ`, Line: 120, Col: 26}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_sortable.templ`, Line: 118, Col: 26}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 			if templ_7745c5c3_Err != nil {
@@ -374,7 +374,7 @@ func PageSortable(morpheusVersion string) templ.Component {
 			var templ_7745c5c3_Var16 string
 			templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(`orientation="horizontal"`)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_sortable.templ`, Line: 141, Col: 38}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_sortable.templ`, Line: 138, Col: 38}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 			if templ_7745c5c3_Err != nil {
@@ -442,7 +442,7 @@ func PageSortable(morpheusVersion string) templ.Component {
 			var templ_7745c5c3_Var19 string
 			templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(`orientation="grid"`)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_sortable.templ`, Line: 159, Col: 32}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_sortable.templ`, Line: 155, Col: 32}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 			if templ_7745c5c3_Err != nil {
@@ -620,7 +620,7 @@ func PageSortable(morpheusVersion string) templ.Component {
 			var templ_7745c5c3_Var26 string
 			templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(`easing="420ms ease-in-out"`)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_sortable.templ`, Line: 219, Col: 40}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_sortable.templ`, Line: 212, Col: 52}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
 			if templ_7745c5c3_Err != nil {
@@ -633,7 +633,7 @@ func PageSortable(morpheusVersion string) templ.Component {
 			var templ_7745c5c3_Var27 string
 			templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinStringErrs(`easing=""`)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_sortable.templ`, Line: 221, Col: 23}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_sortable.templ`, Line: 213, Col: 58}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
 			if templ_7745c5c3_Err != nil {
@@ -701,7 +701,7 @@ func PageSortable(morpheusVersion string) templ.Component {
 			var templ_7745c5c3_Var30 string
 			templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.JoinStringErrs(`<template data-neo-sortable-placeholder>`)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_sortable.templ`, Line: 238, Col: 56}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_sortable.templ`, Line: 230, Col: 56}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var30))
 			if templ_7745c5c3_Err != nil {
@@ -850,7 +850,7 @@ func PageSortable(morpheusVersion string) templ.Component {
 			var templ_7745c5c3_Var36 string
 			templ_7745c5c3_Var36, templ_7745c5c3_Err = templ.JoinStringErrs("<neo-sortable>")
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_sortable.templ`, Line: 282, Col: 28}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_sortable.templ`, Line: 274, Col: 28}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var36))
 			if templ_7745c5c3_Err != nil {
