@@ -833,6 +833,8 @@ var toasterDoc = ComponentDoc{
 			Description: templ.Raw("Auto-dismiss delay in milliseconds for a declarative toast child. Positive values arm the timer; missing, 0, or negative values stay pinned.")},
 		{Name: "<neo-toast> dismissible", Type: `"false"`,
 			Description: templ.Raw("Set to <code>false</code> on a declarative toast child to omit the close button and disable touch swipe dismissal for that toast.")},
+		{Name: "<neo-toast> dismiss-label", Type: "string", Default: `"Dismiss notification"`, Observed: true,
+			Description: templ.Raw("Accessible name of the close button. <code>NeoToast.show()</code> takes it as <code>dismissLabel</code>.")},
 	},
 	States: []DocState{
 		{Name: "expanded",

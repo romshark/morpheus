@@ -7,6 +7,9 @@ import "../neo-button";
 import "../neo-icon";
 import "../neo-navgroup";
 import "../neo-popover";
+import { labelAttr } from "../label-name";
+
+const ATTR_MORE_LABEL = "more-label";
 
 const POPOVER_ATTRS = [
 	"placement",
@@ -24,7 +27,7 @@ type PopoverAttr = (typeof POPOVER_ATTRS)[number];
 const BOOLEAN_POPOVER_ATTRS = new Set<PopoverAttr>(["clamp-placement"]);
 
 export class NeoBreadcrumb extends HTMLElement {
-	static readonly observedAttributes = [...POPOVER_ATTRS];
+	static readonly observedAttributes = [...POPOVER_ATTRS, ATTR_MORE_LABEL];
 
 	// All authored children in source order; the adapter hides/shows them.
 	#trailNodes: HTMLElement[] = [];
@@ -95,9 +98,17 @@ export class NeoBreadcrumb extends HTMLElement {
 		this.removeEventListener("focusout", this.#onOverflowFocusOut);
 	}
 
-	attributeChangedCallback(name: PopoverAttr) {
+	attributeChangedCallback(name: PopoverAttr | typeof ATTR_MORE_LABEL) {
+		if (name === ATTR_MORE_LABEL) {
+			this.#syncMoreLabel();
+			return;
+		}
 		if (!this.#overflowPopover) return;
 		this.#syncOverflowPopoverAttr(this.#overflowPopover, name);
+	}
+
+	#syncMoreLabel() {
+		this.#overflowTrigger()?.setAttribute("aria-label", labelAttr(this, ATTR_MORE_LABEL, "Show hidden breadcrumbs"));
 	}
 
 	// Nearest ancestor that generates a layout box. `display:contents`
@@ -199,7 +210,6 @@ export class NeoBreadcrumb extends HTMLElement {
 
 		const trigger = document.createElement("neo-button");
 		trigger.setAttribute("data-neo-popover-trigger", "");
-		trigger.setAttribute("aria-label", "Show hidden breadcrumbs");
 		const icon = document.createElement("neo-icon");
 		icon.setAttribute("name", "more-horizontal");
 		trigger.appendChild(icon);
@@ -218,6 +228,7 @@ export class NeoBreadcrumb extends HTMLElement {
 
 		this.#overflowPopover = popover;
 		this.#overflowNavgroup = navgroup;
+		this.#syncMoreLabel();
 		return popover;
 	}
 

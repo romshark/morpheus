@@ -1213,6 +1213,8 @@ var comboboxDoc = ComponentDoc{
 			Description: templ.Raw(`References a shared <a href="` + href.PageDatalist() + `"><code>&lt;neo-datalist&gt;</code></a> by its <code>id</code> (like native <code>&lt;input list&gt;</code>) to source the options. Inline <code>&lt;neo-option&gt;</code> children (or an inline datalist) take precedence.`)},
 		{Name: "search-placeholder", Type: "string", Default: `"Search…"`, Observed: true,
 			Description: templ.Raw("Hint shown in the search input.")},
+		{Name: "search-label", Type: "string", Default: `"Search"`, Observed: true,
+			Description: templ.Raw(`Accessible name of the search input. With an <code>aria-label</code> on the host, the default is that label followed by ": search".`)},
 		{Name: "multiple", Type: "boolean", Default: "false", Observed: true,
 			Description: templ.Raw("Allow multi-selection; <code>value</code> becomes a comma-separated list.")},
 		{Name: "clearable", Type: "boolean", Default: "false",

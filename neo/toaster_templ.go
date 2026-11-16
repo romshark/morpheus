@@ -65,6 +65,8 @@ type ToastOpts struct {
 	// Default adds it; [DismissibleOff] omits it for pinned notices that
 	// must be cleared through app flow.
 	Dismissible Attr[Dismissible]
+	// DismissLabel names the close button (default "Dismiss notification").
+	DismissLabel Attr[string]
 }
 
 // toasterTouchDismissAttr returns the value to render for the
@@ -171,7 +173,7 @@ func ToasterAttrs(opts ToasterOpts, attrs templ.Attributes) templ.Component {
 				var templ_7745c5c3_Var4 string
 				templ_7745c5c3_Var4, templ_7745c5c3_Err = templruntime.NewAttributeExpression(toasterTouchDismissAttr(opts)).Resolve(ctx)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `neo/toaster.templ`, Line: 87, Col: 48}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `neo/toaster.templ`, Line: 89, Col: 48}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var4)
 				if templ_7745c5c3_Err != nil {
@@ -311,6 +313,10 @@ func ToastAttrs(opts ToastOpts, attrs templ.Attributes) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
+			}
+			templ_7745c5c3_Err = templruntime.RenderAttributes(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_ElementWriter, "neo-toast", opts.DismissLabel.Attrs("dismiss-label"))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
 			}
 			templ_7745c5c3_Err = templruntime.RenderAttributes(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_ElementWriter, "neo-toast", attrs)
 			if templ_7745c5c3_Err != nil {

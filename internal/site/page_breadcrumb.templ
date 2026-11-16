@@ -157,6 +157,8 @@ var breadcrumbDoc = ComponentDoc{
 			Description: templ.Raw(`Forwarded to the overflow <a href="` + href.PagePopover() + `"><code>&lt;neo-popover&gt;</code></a>; close when the bounded vertical slot is too small to be useful. Use <code>0</code> to disable.`)},
 		{Name: "min-open-width", Type: "CSS length", Default: "2rem", Observed: true,
 			Description: templ.Raw(`Forwarded to the overflow <a href="` + href.PagePopover() + `"><code>&lt;neo-popover&gt;</code></a>; same as <code>min-open-height</code> but for horizontal space. Use <code>0</code> to disable.`)},
+		{Name: "more-label", Type: "string", Default: `"Show hidden breadcrumbs"`, Observed: true,
+			Description: templ.Raw("Accessible name of the overflow trigger.")},
 	},
 	Slots: []DocSlot{
 		{Name: "default",

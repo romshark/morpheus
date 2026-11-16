@@ -25,6 +25,9 @@ type ComboboxOpts struct {
 	// SearchPlaceholder is the search input placeholder (default
 	// "Search…").
 	SearchPlaceholder Attr[string]
+	// SearchLabel names the search input (default "<aria-label>: search",
+	// else "Search").
+	SearchLabel Attr[string]
 	// SearchDebounce coalesces keystrokes for this many ms before
 	// dispatching `neo-combobox-search` (and running the local filter /
 	// live-search loading reset); 0 dispatches on every keystroke.
@@ -96,6 +99,7 @@ templ ComboboxAttrs(opts ComboboxOpts, attrs templ.Attributes) {
 		{ opts.List.Attrs("list")... }
 		{ opts.Placeholder.Attrs("placeholder")... }
 		{ opts.SearchPlaceholder.Attrs("search-placeholder")... }
+		{ opts.SearchLabel.Attrs("search-label")... }
 		{ opts.SearchDebounce.Attrs("search-debounce")... }
 		{ opts.Async.Attrs("async")... }
 		{ opts.LiveSearch.Attrs("live-search")... }

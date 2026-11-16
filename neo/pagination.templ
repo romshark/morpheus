@@ -17,6 +17,12 @@ type PaginationOpts struct {
 	Disabled Attr[bool]
 
 	AriaLabel Attr[string]
+	// PreviousLabel, NextLabel and PageLabel name the generated buttons,
+	// with {n} in PageLabel for the page number
+	// (defaults "Previous page", "Next page" and "Page {n}").
+	PreviousLabel Attr[string]
+	NextLabel     Attr[string]
+	PageLabel     Attr[string]
 }
 
 // Pagination renders <neo-pagination>. The component builds its own
@@ -55,6 +61,9 @@ templ PaginationAttrs(opts PaginationOpts, attrs templ.Attributes) {
 		{ opts.BoundaryCount.Attrs("boundary-count")... }
 		{ opts.Disabled.Attrs("disabled")... }
 		{ opts.AriaLabel.Attrs("aria-label")... }
+		{ opts.PreviousLabel.Attrs("previous-label")... }
+		{ opts.NextLabel.Attrs("next-label")... }
+		{ opts.PageLabel.Attrs("page-label")... }
 		{ attrs... }
 	>
 		{ children... }

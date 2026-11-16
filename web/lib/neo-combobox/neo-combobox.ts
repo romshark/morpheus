@@ -3,6 +3,7 @@
 // options live instead of cloned.
 
 import { boolAttr } from "../command";
+import { labelAttr } from "../label-name";
 import {
 	cloneAsyncPlaceholder,
 	cloneTemplateSource,
@@ -375,6 +376,7 @@ export class NeoCombobox extends NeoListbox {
 		"multiple",
 		"placeholder",
 		"search-placeholder",
+		"search-label",
 		"aria-label",
 		"caret",
 		"list",
@@ -525,7 +527,7 @@ export class NeoCombobox extends NeoListbox {
 			this.#input.placeholder = newValue ?? "Search…";
 			return;
 		}
-		if (name === "aria-label") {
+		if (name === "aria-label" || name === "search-label") {
 			this.#syncA11y();
 			return;
 		}
@@ -775,12 +777,11 @@ export class NeoCombobox extends NeoListbox {
 		if (label) {
 			this.trigger.setAttribute("aria-label", label);
 			this.#optionsEl.setAttribute("aria-label", label);
-			this.#input.setAttribute("aria-label", `${label}: search`);
 		} else {
 			this.trigger.removeAttribute("aria-label");
 			this.#optionsEl.removeAttribute("aria-label");
-			this.#input.setAttribute("aria-label", "Search");
 		}
+		this.#input.setAttribute("aria-label", labelAttr(this, "search-label", label ? `${label}: search` : "Search"));
 		if (this.id) {
 			const listID = `${this.id}-list`;
 			this.listEl.id = listID;

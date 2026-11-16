@@ -646,6 +646,8 @@ var submenuDoc = ComponentDoc{
 	Attributes: []DocAttribute{
 		{Name: "label", Type: "string", Observed: true,
 			Description: templ.Raw("Required. Trigger row text. The host auto-renders the row + chevron.")},
+		{Name: "back-label", Type: "string", Default: `"Back"`, Observed: true,
+			Description: templ.Raw("Accessible name of the back row in push mode.")},
 		{Name: "open", Type: "boolean", Default: "false", Reflected: true, Observed: true,
 			Description: templ.Raw("Controls fly-out visibility.")},
 		{Name: "placement", Type: "string", Default: `"right-start"`, Observed: true,

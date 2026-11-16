@@ -14,6 +14,8 @@ type BreadcrumbOpts struct {
 	MinFitWidth    Attr[CSSUnit]
 	MinOpenHeight  Attr[CSSUnit]
 	MinOpenWidth   Attr[CSSUnit]
+	// MoreLabel names the overflow trigger (default "Show hidden breadcrumbs").
+	MoreLabel Attr[string]
 }
 
 // Breadcrumb renders <neo-breadcrumb> with items and chevron separators interleaved
@@ -42,6 +44,7 @@ templ BreadcrumbWith(
 		{ opts.MinFitWidth.Attrs("min-fit-width")... }
 		{ opts.MinOpenHeight.Attrs("min-open-height")... }
 		{ opts.MinOpenWidth.Attrs("min-open-width")... }
+		{ opts.MoreLabel.Attrs("more-label")... }
 		{ attrs... }
 	>
 		for i, it := range items {

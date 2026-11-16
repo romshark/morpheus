@@ -13,10 +13,12 @@ This file records the notable changes of each release in the format of [Keep a C
 - Escape a slot character in the `mask` of `<neo-textinput>` and `<neo-otp>` with `\`, as in `\#` for a literal `#`. A `\` in an existing mask now escapes the character after it; write `\\` for a literal backslash.
 - Step a `<neo-textinput>` number field (`format="number"` or `type="number"`) by `step` within `min` and `max`, with ArrowUp and ArrowDown, or PageUp and PageDown for 10 steps. The new `stepper` attribute adds increment and decrement buttons, and `increment-icon` and `decrement-icon` swap their icons. A masked field with `stepper` or `scrub` steps the digit group at the caret, like a native time field, within `min` and `max` written in mask form.
 - Add `scrub="horizontal|vertical"` to a `<neo-textinput>` number field, a handle that steps the value when dragged. `scrub-side="start|end"` places it, `scrub-sensitivity` sets its steps per pixel and `scrub-icon` swaps its icon.
+- Translate the generated controls' labels with `dismiss-label` on `<neo-toast>` (`dismissLabel` in `NeoToast.show()`), `back-label` on `<neo-submenu>`, `search-label` on `<neo-combobox>`, `more-label` on `<neo-breadcrumb>`, `slide-label` on `<neo-carousel>`, `previous-label`, `next-label` and `page-label` on `<neo-pagination>`, and `increment-label` and `decrement-label` on `<neo-textinput>`. `{n}` stands for the number.
 
 #### Templ wrappers
 
 - Add `Stepper`, `IncrementIcon`, `DecrementIcon`, `Scrub`, `ScrubIcon`, `ScrubSide`, `ScrubSensitivity`, `Min`, `Max` and `Step` to `neo.TextInputOpts`.
+- Add the label fields `DismissLabel` to `neo.ToastOpts`, `BackLabel` to `neo.SubMenuOpts`, `SearchLabel` to `neo.ComboboxOpts`, `MoreLabel` to `neo.BreadcrumbOpts`, `SlideLabel` to `neo.CarouselOpts`, `PreviousLabel`, `NextLabel` and `PageLabel` to `neo.PaginationOpts`, and `IncrementLabel` and `DecrementLabel` to `neo.TextInputOpts`.
 
 ### Changed
 

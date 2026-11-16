@@ -26,6 +26,12 @@ type PaginationOpts struct {
 	Disabled Attr[bool]
 
 	AriaLabel Attr[string]
+	// PreviousLabel, NextLabel and PageLabel name the generated buttons,
+	// with {n} in PageLabel for the page number
+	// (defaults "Previous page", "Next page" and "Page {n}").
+	PreviousLabel Attr[string]
+	NextLabel     Attr[string]
+	PageLabel     Attr[string]
 }
 
 // Pagination renders <neo-pagination>. The component builds its own
@@ -141,6 +147,18 @@ func PaginationAttrs(opts PaginationOpts, attrs templ.Attributes) templ.Componen
 				return templ_7745c5c3_Err
 			}
 			templ_7745c5c3_Err = templruntime.RenderAttributes(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_ElementWriter, "neo-pagination", opts.AriaLabel.Attrs("aria-label"))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.RenderAttributes(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_ElementWriter, "neo-pagination", opts.PreviousLabel.Attrs("previous-label"))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.RenderAttributes(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_ElementWriter, "neo-pagination", opts.NextLabel.Attrs("next-label"))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.RenderAttributes(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_ElementWriter, "neo-pagination", opts.PageLabel.Attrs("page-label"))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

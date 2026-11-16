@@ -124,6 +124,10 @@ type TextInputOpts struct {
 	// (default an up and a down chevron).
 	IncrementIcon Attr[string]
 	DecrementIcon Attr[string]
+	// IncrementLabel and DecrementLabel name the stepper buttons
+	// (default "Increase" and "Decrease").
+	IncrementLabel Attr[string]
+	DecrementLabel Attr[string]
 	// Scrub shows a drag handle in a number field that steps the value
 	// along the given axis. ScrubIcon names its icon, ScrubSide places it
 	// at the start or the end of the field and ScrubSensitivity sets the
@@ -173,6 +177,8 @@ func textInputMergedAttrs(opts TextInputOpts, attrs templ.Attributes) templ.Attr
 	maps.Copy(a, opts.Stepper.Attrs("stepper"))
 	maps.Copy(a, opts.IncrementIcon.Attrs("increment-icon"))
 	maps.Copy(a, opts.DecrementIcon.Attrs("decrement-icon"))
+	maps.Copy(a, opts.IncrementLabel.Attrs("increment-label"))
+	maps.Copy(a, opts.DecrementLabel.Attrs("decrement-label"))
 	maps.Copy(a, opts.Scrub.Attrs("scrub"))
 	maps.Copy(a, opts.ScrubIcon.Attrs("scrub-icon"))
 	maps.Copy(a, opts.ScrubSide.Attrs("scrub-side"))

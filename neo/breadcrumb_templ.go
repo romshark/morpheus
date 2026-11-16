@@ -23,6 +23,8 @@ type BreadcrumbOpts struct {
 	MinFitWidth    Attr[CSSUnit]
 	MinOpenHeight  Attr[CSSUnit]
 	MinOpenWidth   Attr[CSSUnit]
+	// MoreLabel names the overflow trigger (default "Show hidden breadcrumbs").
+	MoreLabel Attr[string]
 }
 
 // Breadcrumb renders <neo-breadcrumb> with items and chevron separators interleaved
@@ -140,6 +142,10 @@ func BreadcrumbWith(
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
+			templ_7745c5c3_Err = templruntime.RenderAttributes(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_ElementWriter, "neo-breadcrumb", opts.MoreLabel.Attrs("more-label"))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
 			templ_7745c5c3_Err = templruntime.RenderAttributes(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_ElementWriter, "neo-breadcrumb", attrs)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -167,7 +173,7 @@ func BreadcrumbWith(
 				var templ_7745c5c3_Var4 string
 				templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(it.Label)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `neo/breadcrumb.templ`, Line: 49, Col: 40}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `neo/breadcrumb.templ`, Line: 52, Col: 40}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 				if templ_7745c5c3_Err != nil {
@@ -185,7 +191,7 @@ func BreadcrumbWith(
 				var templ_7745c5c3_Var5 string
 				templ_7745c5c3_Var5, templ_7745c5c3_Err = templruntime.NewAttributeExpression(it.Href).ResolveURL(ctx)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `neo/breadcrumb.templ`, Line: 51, Col: 21}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `neo/breadcrumb.templ`, Line: 54, Col: 21}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var5)
 				if templ_7745c5c3_Err != nil {
@@ -198,7 +204,7 @@ func BreadcrumbWith(
 				var templ_7745c5c3_Var6 string
 				templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(it.Label)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `neo/breadcrumb.templ`, Line: 51, Col: 34}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `neo/breadcrumb.templ`, Line: 54, Col: 34}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 				if templ_7745c5c3_Err != nil {

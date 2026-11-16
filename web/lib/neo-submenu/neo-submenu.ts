@@ -1,5 +1,6 @@
 import { boolAttr, openCommand } from "../command";
 import { isRTL, logicalArrow } from "../direction";
+import { labelAttr } from "../label-name";
 import { type Placement, positionPanel, resolveCssLengthPx, resolveCssLengthPxOrContent } from "../neo-position";
 import { eventEnters, scopingBoundary } from "../shadow-utils";
 
@@ -11,6 +12,7 @@ export class NeoSubmenu extends HTMLElement {
 	static readonly observedAttributes = [
 		"open",
 		"label",
+		"back-label",
 		"disabled",
 		"placement",
 		"screen-offset",
@@ -118,7 +120,6 @@ export class NeoSubmenu extends HTMLElement {
 			backBtn.type = "button";
 			back = backBtn;
 			back.setAttribute("data-neo-submenu-back", "");
-			back.setAttribute("aria-label", "Back");
 			back.setAttribute("tabindex", "-1");
 			const backChevron = document.createElement("span");
 			backChevron.setAttribute("aria-hidden", "true");
@@ -150,6 +151,7 @@ export class NeoSubmenu extends HTMLElement {
 		this.#panel = panel;
 		this.#backRow = back;
 		this.#backLabelSpan = backLabel;
+		this.#syncBackLabel();
 
 		row.addEventListener("click", this.#onTriggerClick);
 		row.addEventListener("mouseenter", this.#onTriggerHover);
@@ -161,6 +163,10 @@ export class NeoSubmenu extends HTMLElement {
 		this.#childObserver.observe(panel, { childList: true });
 		this.#refreshItems();
 		this.#syncDisabled();
+	}
+
+	#syncBackLabel(): void {
+		this.#backRow?.setAttribute("aria-label", labelAttr(this, "back-label", "Back"));
 	}
 
 	#unbindStructure(): void {
@@ -290,6 +296,8 @@ export class NeoSubmenu extends HTMLElement {
 			const text = value ?? "";
 			if (this.#labelSpan) this.#labelSpan.textContent = text;
 			if (this.#backLabelSpan) this.#backLabelSpan.textContent = text;
+		} else if (name === "back-label") {
+			this.#syncBackLabel();
 		} else if (name === "disabled") {
 			this.#syncDisabled();
 		} else if (

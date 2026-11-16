@@ -927,6 +927,8 @@ var carouselDoc = ComponentDoc{
 					"markup with <code>&lt;template " +
 					"data-neo-carousel-dot&gt;</code>.",
 			)},
+		{Name: "slide-label", Type: "string", Default: `"Go to slide {n}"`, Observed: true,
+			Description: templ.Raw("Accessible name of each dot. <code>{n}</code> stands for the slide number.")},
 		{Name: "step", Type: "number",
 			Description: templ.Raw(
 				"Slides advanced per prev / next / arrow press. " +

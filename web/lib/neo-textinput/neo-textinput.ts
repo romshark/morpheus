@@ -5,6 +5,7 @@ import "../neo-icon";
 import { boolAttr, openCommand } from "../command";
 import { isRTL } from "../direction";
 import { setState } from "../internal-state";
+import { labelAttr } from "../label-name";
 import { type ClassSlot, isDigit, type MaskSlot, parseMask } from "../mask";
 import { cloneDatalistOptionsInto, externalDatalistFor } from "../neo-datalist";
 import { OPTION_OBSERVE_ATTRS, readOptionData, wireOptionEl } from "../neo-listbox";
@@ -30,6 +31,8 @@ const ATTR_SUBMIT_RAW = "submit-raw";
 const ATTR_STEPPER = "stepper";
 const ATTR_INCREMENT_ICON = "increment-icon";
 const ATTR_DECREMENT_ICON = "decrement-icon";
+const ATTR_INCREMENT_LABEL = "increment-label";
+const ATTR_DECREMENT_LABEL = "decrement-label";
 const ATTR_SCRUB = "scrub";
 const ATTR_SCRUB_ICON = "scrub-icon";
 const ATTR_SCRUB_SIDE = "scrub-side";
@@ -587,8 +590,8 @@ SHADOW_TEMPLATE.innerHTML = `
 // the field's arrow keys are the keyboard path.
 const STEPPER_TEMPLATE = document.createElement("template");
 STEPPER_TEMPLATE.innerHTML = `<div data-neo-textinput-stepper part="stepper">
-<button type="button" tabindex="-1" aria-label="Increase" data-neo-textinput-increment part="increment"><neo-icon name="chevron-down" data-neo-textinput-flip aria-hidden="true"></neo-icon></button>
-<button type="button" tabindex="-1" aria-label="Decrease" data-neo-textinput-decrement part="decrement"><neo-icon name="chevron-down" aria-hidden="true"></neo-icon></button>
+<button type="button" tabindex="-1" data-neo-textinput-increment part="increment"><neo-icon name="chevron-down" data-neo-textinput-flip aria-hidden="true"></neo-icon></button>
+<button type="button" tabindex="-1" data-neo-textinput-decrement part="decrement"><neo-icon name="chevron-down" aria-hidden="true"></neo-icon></button>
 </div>`;
 
 // Built on first use like STEPPER_TEMPLATE.
@@ -614,6 +617,8 @@ export class NeoTextInput extends HTMLElement {
 		ATTR_STEPPER,
 		ATTR_INCREMENT_ICON,
 		ATTR_DECREMENT_ICON,
+		ATTR_INCREMENT_LABEL,
+		ATTR_DECREMENT_LABEL,
 		ATTR_SCRUB,
 		ATTR_SCRUB_ICON,
 		ATTR_SCRUB_SIDE,
@@ -782,6 +787,8 @@ export class NeoTextInput extends HTMLElement {
 			case ATTR_STEPPER:
 			case ATTR_INCREMENT_ICON:
 			case ATTR_DECREMENT_ICON:
+			case ATTR_INCREMENT_LABEL:
+			case ATTR_DECREMENT_LABEL:
 			case ATTR_SCRUB_ICON:
 				this.#syncStepper();
 				return;
@@ -1357,6 +1364,8 @@ export class NeoTextInput extends HTMLElement {
 		// which keeps the stepper at 1 icon in the set.
 		syncIcon(inc, this.getAttribute(ATTR_INCREMENT_ICON), "chevron-down", "data-neo-textinput-flip", true);
 		syncIcon(dec, this.getAttribute(ATTR_DECREMENT_ICON), "chevron-down", "data-neo-textinput-flip", false);
+		setAttrIfChanged(inc, "aria-label", labelAttr(this, ATTR_INCREMENT_LABEL, "Increase"));
+		setAttrIfChanged(dec, "aria-label", labelAttr(this, ATTR_DECREMENT_LABEL, "Decrease"));
 	}
 
 	// Inserts a clone of tpl's root right after the field,

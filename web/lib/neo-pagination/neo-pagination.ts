@@ -1,6 +1,7 @@
 import "../neo-button";
 import "../neo-icon";
 import { boolAttr } from "../command";
+import { labelAttr } from "../label-name";
 import { clampInt } from "../num";
 
 const ATTR_PAGE = "page";
@@ -8,12 +9,24 @@ const ATTR_PAGES = "pages";
 const ATTR_SIBLING_COUNT = "sibling-count";
 const ATTR_BOUNDARY_COUNT = "boundary-count";
 const ATTR_DISABLED = "disabled";
+const ATTR_PREVIOUS_LABEL = "previous-label";
+const ATTR_NEXT_LABEL = "next-label";
+const ATTR_PAGE_LABEL = "page-label";
 
 const DEFAULT_PREV_HTML = `<neo-icon name="chevron-left"></neo-icon>`;
 const DEFAULT_NEXT_HTML = `<neo-icon name="chevron-right"></neo-icon>`;
 
 export class NeoPagination extends HTMLElement {
-	static readonly observedAttributes = [ATTR_PAGE, ATTR_PAGES, ATTR_SIBLING_COUNT, ATTR_BOUNDARY_COUNT, ATTR_DISABLED];
+	static readonly observedAttributes = [
+		ATTR_PAGE,
+		ATTR_PAGES,
+		ATTR_SIBLING_COUNT,
+		ATTR_BOUNDARY_COUNT,
+		ATTR_DISABLED,
+		ATTR_PREVIOUS_LABEL,
+		ATTR_NEXT_LABEL,
+		ATTR_PAGE_LABEL,
+	];
 
 	#resizeObserver: ResizeObserver | null = null;
 	#hostObserver: MutationObserver | null = null;
@@ -286,12 +299,13 @@ export class NeoPagination extends HTMLElement {
 		const slots = this.#slots(siblingCount, boundaryCount);
 		const { page, pages, disabled } = this;
 		const html: string[] = [];
+		const label = (name: string, dflt: string, n?: number) => escapeAttr(labelAttr(this, name, dflt, n));
 
 		if (this.#prevSlotHTML !== "") {
 			const prevDisabled = disabled || page <= 1;
 			html.push(`<neo-button variant="ghost" data-neo-pagination-prev`);
 			if (prevDisabled) html.push(` disabled`);
-			html.push(` aria-label="Previous page">`);
+			html.push(` aria-label="${label(ATTR_PREVIOUS_LABEL, "Previous page")}">`);
 			html.push(this.#prevSlotHTML);
 			html.push(`</neo-button>`);
 		}
@@ -302,7 +316,9 @@ export class NeoPagination extends HTMLElement {
 				continue;
 			}
 			const active = s === page;
-			html.push(`<neo-button variant="ghost" data-neo-pagination-page="${s}" aria-label="Page ${s}"`);
+			html.push(
+				`<neo-button variant="ghost" data-neo-pagination-page="${s}" aria-label="${label(ATTR_PAGE_LABEL, "Page {n}", s)}"`,
+			);
 			if (disabled) html.push(` disabled`);
 			if (active) html.push(` aria-current="page"`);
 			html.push(`>${s}</neo-button>`);
@@ -312,7 +328,7 @@ export class NeoPagination extends HTMLElement {
 			const nextDisabled = disabled || page >= pages;
 			html.push(`<neo-button variant="ghost" data-neo-pagination-next`);
 			if (nextDisabled) html.push(` disabled`);
-			html.push(` aria-label="Next page">`);
+			html.push(` aria-label="${label(ATTR_NEXT_LABEL, "Next page")}">`);
 			html.push(this.#nextSlotHTML);
 			html.push(`</neo-button>`);
 		}
@@ -374,6 +390,11 @@ function effectiveContainer(el: Element): Element | null {
 		p = p.parentElement;
 	}
 	return null;
+}
+
+// Escapes text for a double-quoted attribute in the innerHTML string.
+function escapeAttr(s: string): string {
+	return s.replaceAll("&", "&amp;").replaceAll('"', "&quot;");
 }
 
 if (!customElements.get("neo-pagination")) {

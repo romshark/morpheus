@@ -200,6 +200,12 @@ var paginationDoc = ComponentDoc{
 				"Set on the host's <code>role=\"navigation\"</code> " +
 					"so screen readers announce the landmark.",
 			)},
+		{Name: "previous-label", Type: "string", Default: `"Previous page"`, Observed: true,
+			Description: templ.Raw("Accessible name of the previous button.")},
+		{Name: "next-label", Type: "string", Default: `"Next page"`, Observed: true,
+			Description: templ.Raw("Accessible name of the next button.")},
+		{Name: "page-label", Type: "string", Default: `"Page {n}"`, Observed: true,
+			Description: templ.Raw("Accessible name of each page button. <code>{n}</code> stands for the page number.")},
 	},
 	Slots: []DocSlot{
 		{Name: "template[data-neo-pagination-prev]",

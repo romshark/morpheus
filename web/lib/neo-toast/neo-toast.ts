@@ -6,6 +6,7 @@
 
 import "../neo-icon";
 import "../neo-spinner";
+import { labelAttr } from "../label-name";
 
 type ToastVariant = "default" | "success" | "error" | "warning" | "info" | "loading";
 
@@ -130,16 +131,17 @@ TEMPLATE.innerHTML = `
     <div data-neo-toast-description><slot name="description"></slot></div>
   </div>
   <div data-neo-toast-action><slot name="action"></slot></div>
-  <button data-neo-toast-close type="button" aria-label="Dismiss notification">
+  <button data-neo-toast-close type="button">
     <neo-icon name="x"></neo-icon>
   </button>
 </div>
 `;
 
 export class NeoToast extends HTMLElement {
-	static readonly observedAttributes = ["variant"];
+	static readonly observedAttributes = ["variant", "dismiss-label"];
 
 	#iconSlot!: HTMLSlotElement;
+	#closeBtn!: HTMLButtonElement;
 	#emptyTrackers: Array<[HTMLSlotElement, HTMLElement]> = [];
 
 	constructor() {
@@ -147,6 +149,7 @@ export class NeoToast extends HTMLElement {
 		const root = this.attachShadow({ mode: "open" });
 		root.appendChild(TEMPLATE.content.cloneNode(true));
 		this.#iconSlot = root.querySelector<HTMLSlotElement>("slot[name='icon']")!;
+		this.#closeBtn = root.querySelector<HTMLButtonElement>("[data-neo-toast-close]")!;
 		// Pair each "row" slot with its wrapper so we can collapse the row
 		// when no light-DOM nodes were projected into the slot.
 		for (const name of ["title", "description", "action"] as const) {
@@ -159,6 +162,7 @@ export class NeoToast extends HTMLElement {
 	connectedCallback() {
 		this.#syncDefaultIcon();
 		this.#syncAriaLive();
+		this.#syncDismissLabel();
 		for (const [slot, wrap] of this.#emptyTrackers) {
 			const update = () => {
 				wrap.toggleAttribute("data-empty", slot.assignedNodes().length === 0);
@@ -169,9 +173,16 @@ export class NeoToast extends HTMLElement {
 	}
 
 	attributeChangedCallback(name: string) {
-		if (name !== "variant") return;
+		if (name === "dismiss-label") {
+			this.#syncDismissLabel();
+			return;
+		}
 		this.#syncDefaultIcon();
 		this.#syncAriaLive();
+	}
+
+	#syncDismissLabel(): void {
+		this.#closeBtn.setAttribute("aria-label", labelAttr(this, "dismiss-label", "Dismiss notification"));
 	}
 
 	// Author-slotted icons stay as-is; otherwise we provide a default

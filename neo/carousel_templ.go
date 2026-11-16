@@ -93,6 +93,9 @@ type CarouselOpts struct {
 	// `::part(dot)` and customizes per-dot inner markup with
 	// <template data-neo-carousel-dot>.
 	Dots Attr[bool]
+	// SlideLabel names each dot, with {n} for the slide number
+	// (default "Go to slide {n}").
+	SlideLabel Attr[string]
 
 	// AutoActivate mirrors neo-tabs. Arrow keys on a focused dot also
 	// commit the focused slide. Without it, Enter / Space commits.
@@ -202,7 +205,7 @@ func CarouselAttrs(opts CarouselOpts, attrs templ.Attributes) templ.Component {
 					var templ_7745c5c3_Var4 string
 					templ_7745c5c3_Var4, templ_7745c5c3_Err = templruntime.NewAttributeExpression(strconv.Itoa(v)).Resolve(ctx)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `neo/carousel.templ`, Line: 115, Col: 30}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `neo/carousel.templ`, Line: 118, Col: 30}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var4)
 					if templ_7745c5c3_Err != nil {
@@ -263,6 +266,10 @@ func CarouselAttrs(opts CarouselOpts, attrs templ.Attributes) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			templ_7745c5c3_Err = templruntime.RenderAttributes(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_ElementWriter, "neo-carousel", opts.Dots.Attrs("dots"))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.RenderAttributes(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_ElementWriter, "neo-carousel", opts.SlideLabel.Attrs("slide-label"))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -482,7 +489,7 @@ func CarouselSlideAttrs(value string, attrs templ.Attributes) templ.Component {
 			var templ_7745c5c3_Var11 string
 			templ_7745c5c3_Var11, templ_7745c5c3_Err = templruntime.NewAttributeExpression(value).Resolve(ctx)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `neo/carousel.templ`, Line: 164, Col: 15}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `neo/carousel.templ`, Line: 168, Col: 15}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var11)
 			if templ_7745c5c3_Err != nil {

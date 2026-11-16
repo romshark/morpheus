@@ -34,6 +34,9 @@ type ComboboxOpts struct {
 	// SearchPlaceholder is the search input placeholder (default
 	// "Search…").
 	SearchPlaceholder Attr[string]
+	// SearchLabel names the search input (default "<aria-label>: search",
+	// else "Search").
+	SearchLabel Attr[string]
 	// SearchDebounce coalesces keystrokes for this many ms before
 	// dispatching `neo-combobox-search` (and running the local filter /
 	// live-search loading reset); 0 dispatches on every keystroke.
@@ -186,6 +189,10 @@ func ComboboxAttrs(opts ComboboxOpts, attrs templ.Attributes) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
+			templ_7745c5c3_Err = templruntime.RenderAttributes(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_ElementWriter, "neo-combobox", opts.SearchLabel.Attrs("search-label"))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
 			templ_7745c5c3_Err = templruntime.RenderAttributes(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_ElementWriter, "neo-combobox", opts.SearchDebounce.Attrs("search-debounce"))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -229,7 +236,7 @@ func ComboboxAttrs(opts ComboboxOpts, attrs templ.Attributes) templ.Component {
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templruntime.NewAttributeExpression(string(followScroll)).Resolve(ctx)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `neo/combobox.templ`, Line: 108, Col: 38}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `neo/combobox.templ`, Line: 112, Col: 38}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var4)
 			if templ_7745c5c3_Err != nil {

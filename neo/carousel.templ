@@ -84,6 +84,9 @@ type CarouselOpts struct {
 	// `::part(dot)` and customizes per-dot inner markup with
 	// <template data-neo-carousel-dot>.
 	Dots Attr[bool]
+	// SlideLabel names each dot, with {n} for the slide number
+	// (default "Go to slide {n}").
+	SlideLabel Attr[string]
 
 	// AutoActivate mirrors neo-tabs. Arrow keys on a focused dot also
 	// commit the focused slide. Without it, Enter / Space commits.
@@ -128,6 +131,7 @@ templ CarouselAttrs(opts CarouselOpts, attrs templ.Attributes) {
 		{ opts.ClickNav.Attrs("click-nav")... }
 		{ opts.DragNav.Attrs("drag-nav")... }
 		{ opts.Dots.Attrs("dots")... }
+		{ opts.SlideLabel.Attrs("slide-label")... }
 		{ opts.AutoActivate.Attrs("auto-activate")... }
 		{ opts.Step.Attrs("step")... }
 		{ attrs... }

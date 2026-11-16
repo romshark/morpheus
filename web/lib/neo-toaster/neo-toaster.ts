@@ -68,6 +68,7 @@ interface ToastOptions {
 	duration?: number;
 	action?: ToastAction;
 	dismissible?: boolean;
+	dismissLabel?: string;
 }
 
 interface ToastEntry {
@@ -759,6 +760,7 @@ export class NeoToaster extends HTMLElement {
 		if (variant !== "default") el.setAttribute("variant", variant);
 		el.setAttribute("data-neo-toast-id", String(id));
 		if (!dismissible) el.setAttribute("dismissible", "false");
+		if (options.dismissLabel) el.setAttribute("dismiss-label", options.dismissLabel);
 
 		if (options.title) {
 			const t = document.createElement("span");

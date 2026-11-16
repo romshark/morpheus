@@ -6,6 +6,7 @@
 import { boolAttr, warnBadAxis } from "../command";
 import { isRTL, logicalArrow } from "../direction";
 import { setState } from "../internal-state";
+import { labelAttr } from "../label-name";
 
 let nextCarouselId = 0;
 
@@ -193,6 +194,7 @@ export class NeoCarousel extends HTMLElement {
 		"paused",
 		"touch",
 		"easing",
+		"slide-label",
 	];
 
 	#internals: ElementInternals;
@@ -603,7 +605,7 @@ export class NeoCarousel extends HTMLElement {
 				btn.appendChild(tpl.content.cloneNode(true));
 			}
 			btn.dataset.value = slideValue;
-			btn.setAttribute("aria-label", `Go to slide ${i + 1}`);
+			btn.setAttribute("aria-label", labelAttr(this, "slide-label", "Go to slide {n}", i + 1));
 		}
 		this.#syncDotsCurrent(slides, value);
 	}

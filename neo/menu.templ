@@ -83,7 +83,9 @@ templ MenuItemAttrs(opts MenuItemOpts, attrs templ.Attributes) {
 // SubMenuOpts forwards popover-host attributes onto the cascade popover.
 type SubMenuOpts struct {
 	// Label is the trigger text in the parent menu row.
-	Label     Attr[string]
+	Label Attr[string]
+	// BackLabel names the back row of a drill-down panel (default "Back").
+	BackLabel Attr[string]
 	Placement Attr[Placement]
 	Disabled  Attr[bool]
 	// Open seeds the open state (server-rendered expanded submenu).
@@ -105,6 +107,7 @@ templ SubMenu(opts SubMenuOpts) {
 templ SubMenuAttrs(opts SubMenuOpts, attrs templ.Attributes) {
 	<neo-submenu
 		label={ opts.Label.Or("") }
+		{ opts.BackLabel.Attrs("back-label")... }
 		{ opts.Placement.Attrs("placement")... }
 		{ opts.Disabled.Attrs("disabled")... }
 		{ opts.Open.Attrs("open")... }

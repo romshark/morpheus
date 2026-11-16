@@ -56,6 +56,8 @@ type ToastOpts struct {
 	// Default adds it; [DismissibleOff] omits it for pinned notices that
 	// must be cleared through app flow.
 	Dismissible Attr[Dismissible]
+	// DismissLabel names the close button (default "Dismiss notification").
+	DismissLabel Attr[string]
 }
 
 // toasterTouchDismissAttr returns the value to render for the
@@ -118,6 +120,7 @@ templ ToastAttrs(opts ToastOpts, attrs templ.Attributes) {
 		if opts.Dismissible.Or(DismissibleDefault) == DismissibleOff {
 			dismissible="false"
 		}
+		{ opts.DismissLabel.Attrs("dismiss-label")... }
 		{ attrs... }
 	>
 		{ children... }

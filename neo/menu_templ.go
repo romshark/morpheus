@@ -294,7 +294,9 @@ func MenuItemAttrs(opts MenuItemOpts, attrs templ.Attributes) templ.Component {
 // SubMenuOpts forwards popover-host attributes onto the cascade popover.
 type SubMenuOpts struct {
 	// Label is the trigger text in the parent menu row.
-	Label     Attr[string]
+	Label Attr[string]
+	// BackLabel names the back row of a drill-down panel (default "Back").
+	BackLabel Attr[string]
 	Placement Attr[Placement]
 	Disabled  Attr[bool]
 	// Open seeds the open state (server-rendered expanded submenu).
@@ -380,13 +382,17 @@ func SubMenuAttrs(opts SubMenuOpts, attrs templ.Attributes) templ.Component {
 			var templ_7745c5c3_Var10 string
 			templ_7745c5c3_Var10, templ_7745c5c3_Err = templruntime.NewAttributeExpression(opts.Label.Or("")).Resolve(ctx)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `neo/menu.templ`, Line: 107, Col: 27}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `neo/menu.templ`, Line: 109, Col: 27}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var10)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.RenderAttributes(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_ElementWriter, "neo-submenu", opts.BackLabel.Attrs("back-label"))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
