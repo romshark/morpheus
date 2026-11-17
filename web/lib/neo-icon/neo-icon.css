@@ -28,6 +28,13 @@ neo-icon {
 	line-height: 0;
 }
 
+/* Before upgrade, the server-inlined SVG fills the host as in the shadow root. */
+neo-icon > svg {
+	display: block;
+	width: 100%;
+	height: 100%;
+}
+
 /* An icon with no `name` (or `name=""`) has nothing to render.
  * Hide the host so it doesn't reserve a 1em box that visibly disappears
  * later when something (Datastar's `data-show`, the JS render(),

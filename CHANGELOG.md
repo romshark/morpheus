@@ -4,6 +4,12 @@ This file records the notable changes of each release in the format of [Keep a C
 
 ## [Unreleased]
 
+### Fixed
+
+#### Components
+
+- Size the SVG that `neo.Icon` inlines into a `<neo-icon>` by `--neo-icon-size` before the script loads. It was 24px until then and changed size on upgrade.
+
 ## [0.5.0] - 2026-11-17
 
 ### Added
