@@ -87,14 +87,14 @@ func PageSelect(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</code> is a single-select dropdown with a trigger button, a popover panel, and a roving-tabindex listbox of ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</code> is a single-select dropdown of")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(" ")
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_select.templ`, Line: 20, Col: 9}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_select.templ`, Line: 18, Col: 34}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
@@ -119,7 +119,7 @@ func PageSelect(morpheusVersion string) templ.Component {
 				var templ_7745c5c3_Var7 string
 				templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs("<neo-option>")
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_select.templ`, Line: 22, Col: 27}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_select.templ`, Line: 20, Col: 27}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 				if templ_7745c5c3_Err != nil {
@@ -138,7 +138,7 @@ func PageSelect(morpheusVersion string) templ.Component {
 			var templ_7745c5c3_Var8 string
 			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(" ")
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_select.templ`, Line: 24, Col: 9}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_select.templ`, Line: 22, Col: 9}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 			if templ_7745c5c3_Err != nil {
@@ -151,7 +151,7 @@ func PageSelect(morpheusVersion string) templ.Component {
 			var templ_7745c5c3_Var9 string
 			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(" ")
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_select.templ`, Line: 24, Col: 17}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_select.templ`, Line: 22, Col: 17}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 			if templ_7745c5c3_Err != nil {
@@ -176,7 +176,7 @@ func PageSelect(morpheusVersion string) templ.Component {
 				var templ_7745c5c3_Var11 string
 				templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs("<neo-optgroup>")
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_select.templ`, Line: 26, Col: 29}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_select.templ`, Line: 24, Col: 29}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 				if templ_7745c5c3_Err != nil {
@@ -195,20 +195,20 @@ func PageSelect(morpheusVersion string) templ.Component {
 			var templ_7745c5c3_Var12 string
 			templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(" ")
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_select.templ`, Line: 28, Col: 9}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_select.templ`, Line: 26, Col: 9}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "children. The host wires keyboard navigation, type-to-search, and a lazy-by-default / <code>async</code> lifecycle so options can be loaded on first open and cached on subsequent opens. For search and multiple selection, see")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "children, built for a short list known up front. Type a few letters to jump to a match. For long or server-side lists, or for multiple selection, use")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var13 string
 			templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(" ")
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_select.templ`, Line: 32, Col: 65}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_select.templ`, Line: 28, Col: 58}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 			if templ_7745c5c3_Err != nil {
@@ -433,7 +433,7 @@ func PageSelect(morpheusVersion string) templ.Component {
 			var templ_7745c5c3_Var22 string
 			templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs("<form>")
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_select.templ`, Line: 91, Col: 20}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_select.templ`, Line: 84, Col: 49}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 			if templ_7745c5c3_Err != nil {
@@ -499,7 +499,7 @@ func PageSelect(morpheusVersion string) templ.Component {
 			var templ_7745c5c3_Var25 string
 			templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs("<neo-optgroup label=\"...\">")
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_select.templ`, Line: 108, Col: 42}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_select.templ`, Line: 100, Col: 42}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
 			if templ_7745c5c3_Err != nil {
@@ -564,7 +564,7 @@ func PageSelect(morpheusVersion string) templ.Component {
 			var templ_7745c5c3_Var28 string
 			templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinStringErrs(`<neo-option value="">`)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_select.templ`, Line: 142, Col: 36}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_select.templ`, Line: 130, Col: 49}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var28))
 			if templ_7745c5c3_Err != nil {
@@ -577,7 +577,7 @@ func PageSelect(morpheusVersion string) templ.Component {
 			var templ_7745c5c3_Var29 string
 			templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinStringErrs("[data-neo-select-empty]")
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_select.templ`, Line: 143, Col: 38}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_select.templ`, Line: 131, Col: 38}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var29))
 			if templ_7745c5c3_Err != nil {
@@ -749,7 +749,7 @@ func PageSelect(morpheusVersion string) templ.Component {
 			var templ_7745c5c3_Var36 string
 			templ_7745c5c3_Var36, templ_7745c5c3_Err = templ.JoinStringErrs("[data-neo-option-trigger]")
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_select.templ`, Line: 200, Col: 40}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_select.templ`, Line: 185, Col: 40}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var36))
 			if templ_7745c5c3_Err != nil {
@@ -762,7 +762,7 @@ func PageSelect(morpheusVersion string) templ.Component {
 			var templ_7745c5c3_Var37 string
 			templ_7745c5c3_Var37, templ_7745c5c3_Err = templ.JoinStringErrs("<neo-combobox>")
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_select.templ`, Line: 209, Col: 29}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_select.templ`, Line: 192, Col: 29}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var37))
 			if templ_7745c5c3_Err != nil {
@@ -996,7 +996,7 @@ func PageSelect(morpheusVersion string) templ.Component {
 			var templ_7745c5c3_Var46 string
 			templ_7745c5c3_Var46, templ_7745c5c3_Err = templ.JoinStringErrs("[data-neo-async-placeholder]")
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_select.templ`, Line: 323, Col: 43}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_select.templ`, Line: 300, Col: 43}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var46))
 			if templ_7745c5c3_Err != nil {
@@ -1071,7 +1071,7 @@ func PageSelect(morpheusVersion string) templ.Component {
 			var templ_7745c5c3_Var49 string
 			templ_7745c5c3_Var49, templ_7745c5c3_Err = templ.JoinStringErrs("[data-neo-async-placeholder]")
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_select.templ`, Line: 358, Col: 43}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_select.templ`, Line: 333, Col: 49}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var49))
 			if templ_7745c5c3_Err != nil {
@@ -1142,7 +1142,7 @@ func PageSelect(morpheusVersion string) templ.Component {
 			var templ_7745c5c3_Var52 string
 			templ_7745c5c3_Var52, templ_7745c5c3_Err = templ.JoinStringErrs("[data-neo-async-placeholder]")
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_select.templ`, Line: 395, Col: 43}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_select.templ`, Line: 368, Col: 43}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var52))
 			if templ_7745c5c3_Err != nil {
@@ -1155,7 +1155,7 @@ func PageSelect(morpheusVersion string) templ.Component {
 			var templ_7745c5c3_Var53 string
 			templ_7745c5c3_Var53, templ_7745c5c3_Err = templ.JoinStringErrs("[data-neo-popover-async-retry]")
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_select.templ`, Line: 399, Col: 45}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/site/page_select.templ`, Line: 372, Col: 45}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var53))
 			if templ_7745c5c3_Err != nil {

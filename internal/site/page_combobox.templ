@@ -15,18 +15,14 @@ templ PageCombobox(morpheusVersion string) {
 			}
 			<p class="intro">
 				Component <code>{ "<neo-combobox>" }</code> is a
-				search-driven sibling of{ " " }
+				dropdown with a search field, built for long lists and for options
+				the server generates on demand. It filters loaded options as you type,
+				or, with <code>live-search</code>, asks the server for matches on
+				each keystroke. For a short list known up front, use{ " " }
 				@neo.Link(neo.LinkOpts{Href: neo.Set(href.PageSelect())}) {
 					Select
 				}
-				. Trigger,
-				popover, <code>{ "<neo-option>" }</code> /
-				<code>{ "<neo-optgroup>" }</code> children, and the
-				lazy / <code>async</code> lifecycle are identical;
-				the panel adds a pinned, auto-focusing search input
-				that filters the listbox client-side. ArrowDown /
-				ArrowUp bridge between input and listbox at either
-				end.
+				.
 			</p>
 			@Playground(PlaygroundOpts{
 				ID:     "combobox-playground",
@@ -49,8 +45,7 @@ templ PageCombobox(morpheusVersion string) {
 				Set <code>disabled</code> on the host to make the
 				whole control non-interactive. The trigger leaves the
 				tab order, ignores clicks and keys, and renders faded.
-				An open panel closes. Distinct from disabling
-				individual options.
+				An open panel closes. Distinct from disabling individual options.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
 				Width:          "20rem",
@@ -64,13 +59,12 @@ templ PageCombobox(morpheusVersion string) {
 				Native form submission
 			}
 			<p class="demo-note">
-				The combobox is form-associated. Give it a
-				<code>name</code> and it submits in a plain
-				<code>{ "<form>" }</code>, no framework binding. In
-				<code>multiple</code> mode it posts one entry per
-				selected value under the same name, like
-				<code>{ "<select multiple>" }</code>. Submit to see the
-				posted values.
+				The combobox is form-associated. Give it a <code>name</code>
+				and it submits in a plain <code>{ "<form>" }</code>,
+				no framework binding. In <code>multiple</code> mode it posts one
+				entry per selected value under the same name,
+				like <code>{ "<select multiple>" }</code>.
+				Submit to see the posted values.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
 				Width:          "20rem",
@@ -91,18 +85,15 @@ templ PageCombobox(morpheusVersion string) {
 			</p>
 			<ul class="demo-note">
 				<li>
-					The group header is not focusable; arrow
-					keys step across groups.
+					The group header is not focusable; arrow keys step across groups.
 				</li>
 				<li>
-					Each option's <code>label</code> keeps the
-					trigger and search clean text, even when the
-					option body is rich markup.
+					Each option's <code>label</code> keeps the trigger and search
+					clean text, even when the option body is rich markup.
 				</li>
 				<li>
-					Searching hides a whole group once all its
-					options drop out. Type <em>tokyo</em> to
-					watch the others collapse.
+					Searching hides a whole group once all its options drop out.
+					Type <em>tokyo</em> to watch the others collapse.
 				</li>
 			</ul>
 			@demoFrameWith(DemoFrameOpts{
@@ -124,8 +115,7 @@ templ PageCombobox(morpheusVersion string) {
 			<ul class="demo-note">
 				<li>
 					Clicking an option toggles it and keeps the
-					popover open; single-select replaces and
-					closes.
+					popover open; single-select replaces and closes.
 				</li>
 				<li>
 					<code>value</code> is a comma-separated list
@@ -154,13 +144,13 @@ templ PageCombobox(morpheusVersion string) {
 				Rich options
 			}
 			<p class="demo-note">
-				Options carry rich multi-line bodies (avatar,
-				name, title) that also render in the trigger.
+				Options carry rich multi-line bodies (avatar, name, title)
+				that also render in the trigger.
 			</p>
 			<ul class="demo-note">
 				<li>
-					The selected option's body is cloned into
-					the trigger, which grows to fit it.
+					The selected option's body is cloned into the trigger,
+					which grows to fit it.
 				</li>
 				<li>
 					Search matches each option's
@@ -173,9 +163,8 @@ templ PageCombobox(morpheusVersion string) {
 					Delete on the trigger clear the selection.
 				</li>
 				<li>
-					A server can swap the trigger face by
-					patching a <code>{ `slot="trigger"` }</code>
-					child.
+					A server can swap the trigger face by patching a
+					<code>{ `slot="trigger"` }</code> child.
 				</li>
 			</ul>
 			@demoFrameWith(DemoFrameOpts{
@@ -195,10 +184,9 @@ templ PageCombobox(morpheusVersion string) {
 			</p>
 			<ul class="demo-note">
 				<li>
-					A
-					<code>{ "[data-neo-option-trigger]" }</code>
-					child is cloned onto the trigger; the rest
-					of the option stays the list row.
+					A <code>{ "[data-neo-option-trigger]" }</code>
+					child is cloned onto the trigger;
+					the rest of the option stays the list row.
 				</li>
 				<li>
 					<code>{ "[data-neo-combobox-empty]" }</code>
@@ -223,13 +211,12 @@ templ PageCombobox(morpheusVersion string) {
 			</p>
 			<ul class="demo-note">
 				<li>
-					A chip uses the option's
-					<code>{ "[data-neo-option-trigger]" }</code>
+					A chip uses the option's <code>{ "[data-neo-option-trigger]" }</code>
 					face, or falls back to its text.
 				</li>
 				<li>
-					Chips wrap and the trigger grows. Drag the
-					stage narrower to watch them reflow.
+					Chips wrap and the trigger grows.
+					Drag the stage narrower to watch them reflow.
 				</li>
 			</ul>
 			@demoFrameWith(DemoFrameOpts{
@@ -253,12 +240,11 @@ templ PageCombobox(morpheusVersion string) {
 			<ul class="demo-note">
 				<li>
 					The search input stays pinned next to the
-					trigger (bottom of the panel), even as
-					placement flips.
+					trigger (bottom of the panel), even as placement flips.
 				</li>
 				<li>
-					ArrowUp moves to the nearest option (last in
-					the DOM); ArrowDown wraps to the first.
+					ArrowUp moves to the nearest option (last in the DOM);
+					ArrowDown wraps to the first.
 				</li>
 			</ul>
 			@demoFrameWith(DemoFrameOpts{
@@ -281,8 +267,7 @@ templ PageCombobox(morpheusVersion string) {
 			}
 			<p class="demo-note">
 				A Datastar fat-morph can replace the option list
-				while the user is interacting; the combobox
-				reconciles in place.
+				while the user is interacting; the combobox reconciles in place.
 			</p>
 			<ul class="demo-note">
 				<li>
@@ -290,10 +275,9 @@ templ PageCombobox(morpheusVersion string) {
 					<code>disabled</code> with the popover open.
 				</li>
 				<li>
-					The element stays mounted, the popover stays
-					open, and the selection survives. Autoplay
-					cycles the states below to simulate the
-					morphs.
+					The element stays mounted, the popover stays open,
+					and the selection survives.
+					Autoplay cycles the states below to simulate the morphs.
 				</li>
 			</ul>
 			@Playground(PlaygroundOpts{
@@ -311,19 +295,16 @@ templ PageCombobox(morpheusVersion string) {
 			</p>
 			<ul class="demo-note">
 				<li>
-					Each open fires
-					<code>neo-combobox-load</code>; wire
-					<code>data-on:neo-combobox-load</code> to
-					post.
+					Each open fires <code>neo-combobox-load</code>; wire
+					<code>data-on:neo-combobox-load</code> to post.
 				</li>
 				<li>
 					The server morphs an options fragment into
 					<code>#&lt;host-id&gt;-options</code>.
 				</li>
 				<li>
-					<code>{ "[data-neo-async-placeholder]" }</code>
-					fills the listbox until options arrive; the
-					search field stays usable.
+					<code>{ "[data-neo-async-placeholder]" }</code> fills
+					the listbox until options arrive; the search field stays usable.
 				</li>
 			</ul>
 			@simDelayHint()
@@ -340,19 +321,16 @@ templ PageCombobox(morpheusVersion string) {
 				Lazy load
 			}
 			<p class="demo-note">
-				Fetch options once, on first open, then reuse
-				them.
+				Fetch options once, on first open, then reuse them.
 			</p>
 			<ul class="demo-note">
 				<li>
-					Add a
-					<code>{ "[data-neo-async-placeholder]" }</code>
-					without <code>async</code>. The first open then
-					fires <code>neo-combobox-load</code>.
+					Add a <code>{ "[data-neo-async-placeholder]" }</code>
+					without <code>async</code>.
+					The first open then fires <code>neo-combobox-load</code>.
 				</li>
 				<li>
-					Loaded options are cached; later opens reuse
-					them with no refetch.
+					Loaded options are cached; later opens reuse them with no refetch.
 				</li>
 			</ul>
 			@simDelayHint()
@@ -370,20 +348,16 @@ templ PageCombobox(morpheusVersion string) {
 			}
 			<p class="demo-note">
 				Let the server filter on every keystroke instead
-				of matching locally, with
-				<code>live-search</code>.
+				of matching locally, with <code>live-search</code>.
 			</p>
 			<ul class="demo-note">
 				<li>
-					Each keystroke re-shows the placeholder and
-					refetches; wire
-					<code>{ "data-on:neo-combobox-search" }</code>
-					to re-post.
+					Each keystroke re-shows the placeholder and refetches; wire
+					<code>{ "data-on:neo-combobox-search" }</code> to re-post.
 				</li>
 				<li>
 					The event's <code>{ "event.detail.query" }</code>
-					holds the typed text; copy it into a signal the
-					server reads.
+					holds the typed text; copy it into a signal the server reads.
 				</li>
 				<li>
 					The server returns the matching options, or a
@@ -409,16 +383,14 @@ templ PageCombobox(morpheusVersion string) {
 			</p>
 			<ul class="demo-note">
 				<li>
-					On a failed request Datastar retries per its
-					retry config; after retries are exhausted, a
-					failure template replaces the
+					On a failed request Datastar retries per its retry config;
+					after retries are exhausted, a failure template replaces the
 					<code>{ "[data-neo-async-placeholder]" }</code>.
 				</li>
 				<li>
 					A
 					<code>{ "[data-neo-popover-async-retry]" }</code>
-					button re-runs the load without closing the
-					panel.
+					button re-runs the load without closing the panel.
 				</li>
 				<li>
 					Because the placeholder stays the source,

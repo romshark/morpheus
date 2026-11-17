@@ -121,7 +121,29 @@ func SelectFormSubmission() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<button type=\"submit\" class=\"select-form-submit\">Submit</button> <output id=\"select-form-output\" class=\"select-form-output\">Submit to see the posted value.</output></form><script>\n\t\t(() => {\n\t\t\tconst form = document.getElementById('select-form-demo');\n\t\t\tconst out = document.getElementById('select-form-output');\n\t\t\tform.addEventListener('submit', (e) => {\n\t\t\t\te.preventDefault();\n\t\t\t\tconst entries = [...new FormData(form)].map(([k, v]) => k + '=' + v);\n\t\t\t\tout.textContent = entries.length ? entries.join(' & ') : '(nothing submitted)';\n\t\t\t});\n\t\t})();\n\t</script>")
+		templ_7745c5c3_Var6 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+			templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+			templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+			if !templ_7745c5c3_IsBuffer {
+				defer func() {
+					templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+					if templ_7745c5c3_Err == nil {
+						templ_7745c5c3_Err = templ_7745c5c3_BufErr
+					}
+				}()
+			}
+			ctx = templ.InitializeContext(ctx)
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "Submit")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			return nil
+		})
+		templ_7745c5c3_Err = neo.Button(neo.ButtonOpts{Variant: neo.Set(neo.ButtonVariantPrimary)}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var6), templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<output id=\"select-form-output\" class=\"select-form-output\">Submit to see the posted value.</output></form><script>\n\t\t(() => {\n\t\t\tconst form = document.getElementById('select-form-demo');\n\t\t\tconst out = document.getElementById('select-form-output');\n\t\t\tform.querySelector('neo-button').addEventListener('click', () => form.requestSubmit());\n\t\t\tform.addEventListener('submit', (e) => {\n\t\t\t\te.preventDefault();\n\t\t\t\tconst entries = [...new FormData(form)].map(([k, v]) => k + '=' + v);\n\t\t\t\tout.textContent = entries.length ? entries.join(' & ') : '(nothing submitted)';\n\t\t\t});\n\t\t})();\n\t</script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

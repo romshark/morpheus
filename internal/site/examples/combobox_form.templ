@@ -24,15 +24,16 @@ templ ComboboxFormSubmission() {
 				Oregon
 			}
 		}
-		<button type="submit" class="combobox-form-submit">
+		@neo.Button(neo.ButtonOpts{Variant: neo.Set(neo.ButtonVariantPrimary)}) {
 			Submit
-		</button>
+		}
 		<output id="combobox-form-output" class="combobox-form-output">Submit to see the posted values.</output>
 	</form>
 	<script>
 		(() => {
 			const form = document.getElementById('combobox-form-demo');
 			const out = document.getElementById('combobox-form-output');
+			form.querySelector('neo-button').addEventListener('click', () => form.requestSubmit());
 			form.addEventListener('submit', (e) => {
 				e.preventDefault();
 				const entries = [...new FormData(form)].map(([k, v]) => k + '=' + v);
