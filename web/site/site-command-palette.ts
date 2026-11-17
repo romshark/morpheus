@@ -331,13 +331,11 @@ class SiteCommandPalette extends HTMLElement {
 		row.href = href;
 		row.dataset.label = label;
 		row.dataset.siteCmdkKind = kind;
-		row.hidden = true;
-		row.setAttribute("aria-selected", "false");
+		row.hidden = false;
 		const labelSpan = row.querySelector<HTMLElement>("[data-site-cmdk-label]") ?? row;
 		labelSpan.textContent = label;
 		const group = row.querySelector<HTMLElement>("[data-site-cmdk-group]");
 		if (group) group.textContent = tag;
-		this.#list.insertBefore(row, this.#empty);
 		this.#indexed.push({
 			row,
 			labelSpan,
@@ -396,13 +394,16 @@ class SiteCommandPalette extends HTMLElement {
 			shown.sort((a, b) => b.m.score - a.m.score || a.i - b.i);
 			for (const { e } of shown.splice(MAX_RESULTS)) hidden.push(e);
 		}
+		// Index rows live in the list only while shown. Hidden in place, they add
+		// ~7500 elements that every keystroke restyles. Page rows stay in the
+		// list for navigation without JS.
 		for (const e of hidden) {
-			e.row.hidden = true;
-			e.row.setAttribute("aria-selected", "false");
+			if (e.indexed) e.row.remove();
+			else if (!e.row.hidden) e.row.hidden = true;
 		}
 
 		for (const { e, m } of shown) {
-			e.row.hidden = false;
+			if (e.row.hidden) e.row.hidden = false;
 			e.labelSpan.innerHTML = highlight(e.label, m.ranges);
 			this.#list.appendChild(e.row);
 		}

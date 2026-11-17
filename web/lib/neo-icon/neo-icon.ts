@@ -44,10 +44,11 @@ ICON_SHEET.replaceSync(`svg { width: 100%; height: 100%; display: block; }`);
 
 export class NeoIcon extends HTMLElement {
 	static readonly observedAttributes = ["name", "base"];
-	// Resolving --neo-icon-base via getComputedStyle is layout-bound.
-	// Doing it synchronously for every SSR icon at upgrade can wedge large pages;
-	// a theme swap re-runs it for the whole page. Batch across frames.
-	static readonly #RENDER_BATCH_SIZE = 8;
+	// Caps the computed-style reads per frame after the first. A rendered icon's
+	// read is near free once the first has recalculated style. In a display:none
+	// subtree (closed dialog, hidden tab panel) Chrome styles on demand,
+	// ~1.5ms per icon after a theme swap.
+	static readonly #READ_BUDGET_MS = 8;
 	static #renderQueue = new Set<NeoIcon>();
 	static #renderFrame = 0;
 
@@ -95,21 +96,41 @@ export class NeoIcon extends HTMLElement {
 
 	static #flushRenderQueue = () => {
 		NeoIcon.#renderFrame = 0;
-		let rendered = 0;
-
+		// Every read before the first write. A getComputedStyle after a DOM write
+		// recalculates style for the whole page, ~15ms per icon on a large docs page.
+		const icons: NeoIcon[] = [];
+		const bases: string[] = [];
+		let deadline = 0;
 		for (const icon of NeoIcon.#renderQueue) {
 			NeoIcon.#renderQueue.delete(icon);
-			if (icon.isConnected) void icon.#render();
-			rendered += 1;
-			if (rendered >= NeoIcon.#RENDER_BATCH_SIZE) break;
+			icons.push(icon);
+			bases.push(icon.#base());
+			if (icons.length === 1) deadline = performance.now() + NeoIcon.#READ_BUDGET_MS;
+			else if (performance.now() > deadline) break;
 		}
-
+		icons.forEach((icon, i) => void icon.#render(bases[i]));
 		if (NeoIcon.#renderQueue.size > 0) {
 			NeoIcon.#renderFrame = requestAnimationFrame(NeoIcon.#flushRenderQueue);
 		}
 	};
 
-	async #render() {
+	#base(): string {
+		const attr = this.getAttribute("base");
+		if (attr !== null) return normalizeBase(attr);
+		const ssrBase = this.dataset.neoIconBase;
+		if (
+			ssrBase !== undefined &&
+			this.#shadow === null &&
+			this.firstElementChild instanceof SVGSVGElement &&
+			!hasNamedTheme()
+		) {
+			return normalizeBase(ssrBase);
+		}
+		const cssVar = getComputedStyle(this).getPropertyValue("--neo-icon-base").trim();
+		return normalizeBase(cssVar || "/static/icons");
+	}
+
+	async #render(base: string) {
 		const name = this.getAttribute("name");
 		const mine = ++this.#token;
 		if (!name) {
@@ -118,20 +139,6 @@ export class NeoIcon extends HTMLElement {
 			setState(this.#internals, "loading", false);
 			return;
 		}
-		const attr = this.getAttribute("base");
-		const ssrBase = this.dataset.neoIconBase;
-		const canAdoptSSRBase =
-			attr === null &&
-			ssrBase !== undefined &&
-			this.#shadow === null &&
-			this.firstElementChild instanceof SVGSVGElement &&
-			!hasNamedTheme();
-		const base = (() => {
-			if (attr !== null) return normalizeBase(attr);
-			if (canAdoptSSRBase) return normalizeBase(ssrBase ?? "");
-			const cssVar = getComputedStyle(this).getPropertyValue("--neo-icon-base").trim();
-			return normalizeBase(cssVar || "/static/icons");
-		})();
 		const url = `${base}/${encodeURIComponent(name)}.svg`;
 		// Dedupe upgrade-time double-fire and same-URL theme changes.
 		if (this.#renderedURL === url) return;

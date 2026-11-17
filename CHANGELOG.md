@@ -9,6 +9,7 @@ This file records the notable changes of each release in the format of [Keep a C
 #### Components
 
 - Size the SVG that `neo.Icon` inlines into a `<neo-icon>` by `--neo-icon-size` before the script loads. It was 24px until then and changed size on upgrade.
+- Render many `<neo-icon>` elements at once without a style recalculation per icon. Icons added by script, and every icon on a page whose theme sets its own icon set, stayed skeletons for several seconds and blocked input meanwhile.
 
 ## [0.5.0] - 2026-11-17
 
