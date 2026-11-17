@@ -243,6 +243,7 @@ export class NeoBreadcrumb extends HTMLElement {
 		for (const item of items) {
 			const clone = item.cloneNode(true) as HTMLElement;
 			clone.setAttribute("data-neo-navgroup-item", "");
+			clone.setAttribute("role", "menuitem");
 			clone.removeAttribute("aria-current");
 			navgroup.appendChild(clone);
 		}
