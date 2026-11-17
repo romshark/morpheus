@@ -3,6 +3,7 @@ package site
 import (
 	"os"
 	"path/filepath"
+	"slices"
 	"testing"
 )
 
@@ -11,7 +12,7 @@ import (
 // file there renders as an empty icon instead of failing.
 func TestNavIconsExist(t *testing.T) {
 	icons := map[string]string{}
-	for _, l := range SectionLinks {
+	for _, l := range slices.Concat(DocLinks, ToolLinks) {
 		icons[l.Icon] = l.Label
 	}
 	for _, g := range ComponentGroups {

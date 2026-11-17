@@ -162,7 +162,8 @@ templ Page(currentPath, title, morpheusVersion string) {
 					</header>
 					<nav id="app-sidebar-nav" data-neo-sidebar-content aria-label="Site">
 						@siteCommandPalette()
-						@navSection("book-open", "Sections", SectionLinks, currentPath)
+						@navSection("book-open", "Documentation", DocLinks, currentPath)
+						@navSection("wrench", "Tools", ToolLinks, currentPath)
 						for _, g := range ComponentGroups {
 							@navSection(g.Icon, g.Heading(), g.Links, currentPath)
 						}
@@ -297,7 +298,7 @@ templ Page(currentPath, title, morpheusVersion string) {
 }
 
 // siteCommandPalette is the site-wide Mod+K page jumper, mounted once in
-// the sidebar above the Sections heading. The full-width trigger is the
+// the sidebar above the Documentation heading. The full-width trigger is the
 // search button; it shows only while the sidebar is in-flow (desktop /
 // large tablets) and never appears in the app bar or on phones. The
 // dialog lives in the sidebar too, which works because it only opens

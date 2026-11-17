@@ -189,13 +189,18 @@ type NavLink struct {
 	Icon  string
 }
 
-var SectionLinks = []NavLink{
+// DocLinks are the guide pages under the sidebar's Documentation heading.
+var DocLinks = []NavLink{
 	{href.PageGettingStarted(), "Getting started", "rocket"},
 	{href.PageFrameworks(), "Frameworks", "code"},
 	{href.PageTheming(), "Theming", "sparkles"},
-	{href.PageBundleBuilder(), "Bundle builder", "download"},
 	{href.PageServerDriven(), "Server-driven architecture", "arrow-left-right"},
 	{href.PageProjectStatus(), "Status & Contribution", "sprout"},
+}
+
+// ToolLinks are the pages under the sidebar's Tools heading.
+var ToolLinks = []NavLink{
+	{href.PageBundleBuilder(), "Bundle builder", "download"},
 }
 
 // NavGroup is a titled list of pages in the sidebar, on the components index
@@ -328,8 +333,11 @@ type cmdkRow struct {
 // filters and ranks.
 func commandPaletteRows() []cmdkRow {
 	var rows []cmdkRow
-	for _, l := range SectionLinks {
-		rows = append(rows, cmdkRow{NavLink: l, Group: "Section"})
+	for _, l := range DocLinks {
+		rows = append(rows, cmdkRow{NavLink: l, Group: "Documentation"})
+	}
+	for _, l := range ToolLinks {
+		rows = append(rows, cmdkRow{NavLink: l, Group: "Tool"})
 	}
 	for _, g := range ComponentGroups {
 		for _, l := range g.Links {
@@ -344,7 +352,7 @@ func commandPaletteRows() []cmdkRow {
 //	index               -> Morpheus
 //	/components/        -> Morpheus > Components
 //	ComponentGroups     -> Morpheus > Components > <title>
-//	SectionLinks / etc  -> Morpheus > <title>
+//	DocLinks / etc      -> Morpheus > <title>
 func pageBreadcrumb(currentPath, title string) []neo.BreadcrumbItem {
 	if currentPath == href.PageIndex() {
 		return []neo.BreadcrumbItem{{Label: "Morpheus"}}
