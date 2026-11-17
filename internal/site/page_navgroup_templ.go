@@ -66,7 +66,7 @@ func PageNavgroup(morpheusVersion string) templ.Component {
 				}
 				return nil
 			})
-			templ_7745c5c3_Err = anchoredH2("overview").Render(templ.WithChildren(ctx, templ_7745c5c3_Var3), templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = overviewH2(href.PageNavgroup()).Render(templ.WithChildren(ctx, templ_7745c5c3_Var3), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

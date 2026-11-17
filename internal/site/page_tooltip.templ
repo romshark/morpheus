@@ -9,7 +9,7 @@ import (
 templ PageTooltip(morpheusVersion string) {
 	@PageDoc(href.PageTooltip(), "Tooltip", morpheusVersion) {
 		<section class="demo">
-			@anchoredH2("overview") {
+			@overviewH2(href.PageTooltip()) {
 				Tooltip
 			}
 			<p class="intro">

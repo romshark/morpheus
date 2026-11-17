@@ -1,12 +1,12 @@
 package site
 
-import "github.com/romshark/morpheus/internal/href"
+import (
+	"github.com/romshark/morpheus/internal/href"
+	"github.com/romshark/morpheus/neo"
+)
 
 templ PageComponents(morpheusVersion string) {
 	@PageDoc(href.PageComponents(), "Components", morpheusVersion) {
-		<p class="intro">
-			Pick a component from the sidebar, or jump in below.
-		</p>
 		for _, g := range ComponentGroups {
 			<section class="demo">
 				<h2>{ g.Heading() }</h2>
@@ -23,6 +23,7 @@ templ PageComponents(morpheusVersion string) {
 							data-neo-navgroup-item
 							class="component-card"
 						>
+							@neo.Icon(link.Icon)
 							{ link.Label }
 						</a>
 					}

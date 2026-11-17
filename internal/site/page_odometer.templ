@@ -11,7 +11,7 @@ templ PageOdometer(morpheusVersion string) {
 		// Server-rendered total example.
 		<script type="module" src="/static/sim/odometer/cart.js"></script>
 		<section class="demo">
-			@anchoredH2("overview") {
+			@overviewH2(href.PageOdometer()) {
 				Odometer
 			}
 			<p class="intro">

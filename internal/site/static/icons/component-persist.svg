@@ -1,0 +1,14 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  width="36"
+  height="24"
+  viewBox="0 0 36 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="1.5"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <g opacity=".4"><path d="M20.25 2.25L30.75 2.25A3 3 0 0 1 33.75 5.25L33.75 12.75A3 3 0 0 1 30.75 15.75L29.28 15.75" stroke-dasharray="1.5208 3.0416"/><path d="M12.75 5.25L23.25 5.25A3 3 0 0 1 26.25 8.25L26.25 15.75A3 3 0 0 1 23.25 18.75L21.78 18.75"/><path d="M12.75 5.25A3 3 0 0 1 12.75 5.25"/></g>
+  <rect x="2.25" y="8.25" width="16.5" height="13.5" rx="3"/>
+</svg>

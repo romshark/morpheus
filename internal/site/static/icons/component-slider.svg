@@ -1,0 +1,18 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  width="36"
+  height="24"
+  viewBox="0 0 36 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="1.5"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="M2.25 8.25h6.75"/>
+  <circle cx="12" cy="8.25" r="3"/>
+  <g opacity=".4"><path d="M15 8.25h18.75"/></g>
+  <path d="M2.25 15.75h18.75"/>
+  <circle cx="24" cy="15.75" r="3"/>
+  <g opacity=".4"><path d="M27 15.75h6.75"/></g>
+</svg>

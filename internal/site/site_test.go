@@ -1,0 +1,35 @@
+package site
+
+import (
+	"os"
+	"path/filepath"
+	"testing"
+)
+
+// TestNavIconsExist tests that every sidebar heading and page icon has a file
+// in both icon sets. The matrix theme reads static/icons-matrix, and a missing
+// file there renders as an empty icon instead of failing.
+func TestNavIconsExist(t *testing.T) {
+	icons := map[string]string{}
+	for _, l := range SectionLinks {
+		icons[l.Icon] = l.Label
+	}
+	for _, g := range ComponentGroups {
+		icons[g.Icon] = g.Heading()
+		for _, l := range g.Links {
+			icons[l.Icon] = l.Label
+		}
+	}
+	for name, owner := range icons {
+		if name == "" {
+			t.Errorf("%s: no icon", owner)
+			continue
+		}
+		for _, dir := range []string{"static/icons", "static/icons-matrix"} {
+			p := filepath.Join(dir, name+".svg")
+			if _, err := os.Stat(p); err != nil {
+				t.Errorf("%s: icon %q: %v", owner, name, err)
+			}
+		}
+	}
+}

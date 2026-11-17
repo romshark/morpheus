@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="36" height="24" fill="currentColor" viewBox="0 0 36 24">
+  <path d="M6 2h6v2h-6zM24 2h6v2h-6zM4 4h2v2h-2zM12 4h2v2h-2zM22 4h2v2h-2zM30 4h2v2h-2zM4 6h2v2h-2zM12 6h12v2h-12zM30 6h2v2h-2zM4 8h2v2h-2zM12 8h2v2h-2zM22 8h2v2h-2zM30 8h2v2h-2zM6 10h6v2h-6zM24 10h6v2h-6zM16 12h6v2h-6zM14 14h2v2h-2zM22 14h2v2h-2zM14 16h2v2h-2zM22 16h2v2h-2zM14 18h2v2h-2zM22 18h2v2h-2zM16 20h6v2h-6z"/>
+  <path d="M0 6h4v2h-4zM32 6h4v2h-4zM0 16h14v2h-14zM24 16h12v2h-12z" opacity=".4"/>
+</svg>

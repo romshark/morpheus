@@ -1,0 +1,15 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  width="36"
+  height="24"
+  viewBox="0 0 36 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="1.5"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <g opacity=".4"><circle cx="12" cy="12" r="9.75"/><path d="M24.28 4.76A7.5 7.5 0 1 1 24.28 19.24"/></g>
+  <circle cx="12" cy="9" r="2.25"/>
+  <path d="M7.5 17.25a6 6 0 0 1 9 0"/>
+</svg>

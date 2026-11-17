@@ -328,6 +328,7 @@ templ navSection(icon, title string, links []NavLink, currentPath string) {
 					"class":                  "app-nav-link app-nav-link-current",
 					"aria-current":           "page",
 				}) {
+					@neo.Icon(link.Icon)
 					{ link.Label }
 				}
 			} else {
@@ -338,6 +339,7 @@ templ navSection(icon, title string, links []NavLink, currentPath string) {
 					"data-neo-navgroup-item": "",
 					"class":                  "app-nav-link",
 				}) {
+					@neo.Icon(link.Icon)
 					{ link.Label }
 				}
 			}
@@ -444,7 +446,10 @@ templ siteCommandPaletteRow(i int, row cmdkRow) {
 		data-site-cmdk-row
 		data-label={ row.Label }
 	>
-		<span class="site-cmdk-row-label" data-site-cmdk-label neo-truncate>{ row.Label }</span>
+		<span class="site-cmdk-row-icon" data-site-cmdk-icon>
+			@neo.Icon(row.Icon)
+		</span>
+		<span class="site-cmdk-row-label" data-site-cmdk-label neo-truncate neo-flex-grow="1">{ row.Label }</span>
 		<span class="site-cmdk-row-group" data-site-cmdk-group neo-flex-shrink="0">{ row.Group }</span>
 	</a>
 }
@@ -486,6 +491,15 @@ templ anchoredH2(id string) {
 			aria-label="Permalink to this section"
 		>#</a>
 	</h2>
+}
+
+// overviewH2 is the title heading of the component page at path, led by
+// the page's icon from [ComponentGroups].
+templ overviewH2(path string) {
+	@anchoredH2("overview") {
+		@neo.Icon(componentIcon(path))
+		{ children... }
+	}
 }
 
 // anchoredH3 is the h3 sibling of anchoredH2, same hover-revealed deep link,

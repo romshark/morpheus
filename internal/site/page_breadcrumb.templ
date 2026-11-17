@@ -8,7 +8,7 @@ import (
 templ PageBreadcrumb(morpheusVersion string) {
 	@PageDoc(href.PageBreadcrumb(), "Breadcrumb", morpheusVersion) {
 		<section class="demo">
-			@anchoredH2("overview") {
+			@overviewH2(href.PageBreadcrumb()) {
 				Breadcrumb
 			}
 			<p class="intro">

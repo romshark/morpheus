@@ -1,0 +1,14 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  width="36"
+  height="24"
+  viewBox="0 0 36 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="1.5"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <g opacity=".4"><path d="M8.25 5.25a3 3 0 0 1 3-3h13.5a3 3 0 0 1 3 3"/><path d="M5.25 9.75a3 3 0 0 1 3-3h19.5a3 3 0 0 1 3 3"/><path d="M6.75 16.5h15"/></g>
+  <rect x="2.25" y="11.25" width="31.5" height="10.5" rx="3"/>
+</svg>

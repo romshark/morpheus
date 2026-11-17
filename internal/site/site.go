@@ -181,18 +181,21 @@ func stageAttrs(
 	return a
 }
 
+// NavLink is a page in the sidebar, on the components index and in the Mod+K
+// palette. Icon names a file in static/icons and in static/icons-matrix.
 type NavLink struct {
 	Path  string
 	Label string
+	Icon  string
 }
 
 var SectionLinks = []NavLink{
-	{href.PageGettingStarted(), "Getting started"},
-	{href.PageFrameworks(), "Frameworks"},
-	{href.PageTheming(), "Theming"},
-	{href.PageBundleBuilder(), "Bundle builder"},
-	{href.PageServerDriven(), "Server-driven architecture"},
-	{href.PageProjectStatus(), "Status & Contribution"},
+	{href.PageGettingStarted(), "Getting started", "rocket"},
+	{href.PageFrameworks(), "Frameworks", "code"},
+	{href.PageTheming(), "Theming", "sparkles"},
+	{href.PageBundleBuilder(), "Bundle builder", "download"},
+	{href.PageServerDriven(), "Server-driven architecture", "arrow-left-right"},
+	{href.PageProjectStatus(), "Status & Contribution", "sprout"},
 }
 
 // NavGroup is a titled list of pages in the sidebar, on the components index
@@ -213,93 +216,109 @@ func (g NavGroup) Heading() string { return g.Name + " Components" }
 //  1. Create page_X.go + page_X.templ that follow the existing pattern
 //     (`Page<Name>` struct + `pageX()` template wrapped in
 //     `@appLayout("/x")`).
-//  2. Add the entry to its group here so the sidebar surfaces it.
+//  2. Add the entry to its group here so the sidebar surfaces it, and draw
+//     its icon as static/icons/component-x.svg (36x24, stroke 1.5) and
+//     static/icons-matrix/component-x.svg (18x12 pixel grid). The part the
+//     component adds is full color. Its frame, context and content are at
+//     opacity .4. Put frames on the keylines the other icons share, e.g.
+//     the wide field 2.25-33.75 x 5.25-18.75 of component-select.svg.
 var ComponentGroups = []NavGroup{
 	{"Action", "play", []NavLink{
-		{href.PageButton(), "Button"},
-		{href.PageButtonGroup(), "Button group"},
-		{href.PageClipcopy(), "Clipcopy"},
-		{href.PageLink(), "Link"},
+		{href.PageButton(), "Button", "component-button"},
+		{href.PageButtonGroup(), "Button group", "component-button-group"},
+		{href.PageClipcopy(), "Clipcopy", "component-clipcopy"},
+		{href.PageLink(), "Link", "component-link"},
 	}},
 	{"Input", "chevrons-up-down", []NavLink{
-		{href.PageCheckbox(), "Checkbox"},
-		{href.PageColorField(), "Color field"},
-		{href.PageCombobox(), "Combobox"},
-		{href.PageInputGroup(), "Input group"},
-		{href.PageOTP(), "OTP"},
-		{href.PageRadioGroup(), "Radio group"},
-		{href.PageRating(), "Rating"},
-		{href.PageSelect(), "Select"},
-		{href.PageSlider(), "Slider"},
-		{href.PageSliderRange(), "Slider range"},
-		{href.PageSwitch(), "Switch"},
-		{href.PageTextInput(), "Text input"},
-		{href.PageTextarea(), "Textarea"},
-		{href.PageToggle(), "Toggle"},
-		{href.PageToggleGroup(), "Toggle group"},
+		{href.PageCheckbox(), "Checkbox", "component-checkbox"},
+		{href.PageColorField(), "Color field", "component-color-field"},
+		{href.PageCombobox(), "Combobox", "component-combobox"},
+		{href.PageInputGroup(), "Input group", "component-input-group"},
+		{href.PageOTP(), "OTP", "component-otp"},
+		{href.PageRadioGroup(), "Radio group", "component-radio-group"},
+		{href.PageRating(), "Rating", "component-rating"},
+		{href.PageSelect(), "Select", "component-select"},
+		{href.PageSlider(), "Slider", "component-slider"},
+		{href.PageSliderRange(), "Slider range", "component-slider-range"},
+		{href.PageSwitch(), "Switch", "component-switch"},
+		{href.PageTextInput(), "Text input", "component-text-input"},
+		{href.PageTextarea(), "Textarea", "component-textarea"},
+		{href.PageToggle(), "Toggle", "component-toggle"},
+		{href.PageToggleGroup(), "Toggle group", "component-toggle-group"},
 	}},
 	{"Data", "braces", []NavLink{
-		{href.PageDatalist(), "Datalist"},
-		{href.PageOptgroup(), "Optgroup"},
-		{href.PageOption(), "Option"},
+		{href.PageDatalist(), "Datalist", "component-datalist"},
+		{href.PageOptgroup(), "Optgroup", "component-optgroup"},
+		{href.PageOption(), "Option", "component-option"},
 	}},
 	{"Navigation", "menu", []NavLink{
-		{href.PageBreadcrumb(), "Breadcrumb"},
-		{href.PagePagination(), "Pagination"},
-		{href.PageSidebar(), "Sidebar"},
-		{href.PageTabs(), "Tabs"},
-		{href.PageTree(), "Tree"},
+		{href.PageBreadcrumb(), "Breadcrumb", "component-breadcrumb"},
+		{href.PagePagination(), "Pagination", "component-pagination"},
+		{href.PageSidebar(), "Sidebar", "component-sidebar"},
+		{href.PageTabs(), "Tabs", "component-tabs"},
+		{href.PageTree(), "Tree", "component-tree"},
 	}},
 	{"Overlay", "message-square", []NavLink{
-		{href.PageContextMenu(), "Context menu"},
-		{href.PageDialog(), "Dialog"},
-		{href.PageDrawer(), "Drawer"},
-		{href.PageLightbox(), "Lightbox"},
-		{href.PageMenu(), "Menu"},
-		{href.PagePopover(), "Popover"},
-		{href.PageTooltip(), "Tooltip"},
+		{href.PageContextMenu(), "Context menu", "component-context-menu"},
+		{href.PageDialog(), "Dialog", "component-dialog"},
+		{href.PageDrawer(), "Drawer", "component-drawer"},
+		{href.PageLightbox(), "Lightbox", "component-lightbox"},
+		{href.PageMenu(), "Menu", "component-menu"},
+		{href.PagePopover(), "Popover", "component-popover"},
+		{href.PageTooltip(), "Tooltip", "component-tooltip"},
 	}},
 	{"Feedback", "activity", []NavLink{
-		{href.PageAlert(), "Alert"},
-		{href.PageProgress(), "Progress"},
-		{href.PageSkeleton(), "Skeleton"},
-		{href.PageSpinner(), "Spinner"},
-		{href.PageToaster(), "Toaster"},
+		{href.PageAlert(), "Alert", "component-alert"},
+		{href.PageProgress(), "Progress", "component-progress"},
+		{href.PageSkeleton(), "Skeleton", "component-skeleton"},
+		{href.PageSpinner(), "Spinner", "component-spinner"},
+		{href.PageToaster(), "Toaster", "component-toaster"},
 	}},
 	{"Display", "eye", []NavLink{
-		{href.PageAura(), "Aura"},
-		{href.PageAvatar(), "Avatar"},
-		{href.PageAvatars(), "Avatars"},
-		{href.PageBadge(), "Badge"},
-		{href.PageCard(), "Card"},
-		{href.PageCarousel(), "Carousel"},
-		{href.PageIcon(), "Icon"},
-		{href.PageKbd(), "Kbd"},
-		{href.PageOdometer(), "Odometer"},
-		{href.PageRevealable(), "Revealable"},
+		{href.PageAura(), "Aura", "component-aura"},
+		{href.PageAvatar(), "Avatar", "component-avatar"},
+		{href.PageAvatars(), "Avatars", "component-avatars"},
+		{href.PageBadge(), "Badge", "component-badge"},
+		{href.PageCard(), "Card", "component-card"},
+		{href.PageCarousel(), "Carousel", "component-carousel"},
+		{href.PageIcon(), "Icon", "component-icon"},
+		{href.PageKbd(), "Kbd", "component-kbd"},
+		{href.PageOdometer(), "Odometer", "component-odometer"},
+		{href.PageRevealable(), "Revealable", "component-revealable"},
 	}},
 	{"Layout", "move-diagonal", []NavLink{
-		{href.PageAutohide(), "Autohide"},
-		{href.PageElastic(), "Elastic"},
-		{href.PageLayout(), "Layout"},
-		{href.PageResizable(), "Resizable"},
-		{href.PageSortable(), "Sortable"},
+		{href.PageAutohide(), "Autohide", "component-autohide"},
+		{href.PageElastic(), "Elastic", "component-elastic"},
+		{href.PageLayout(), "Layout", "component-layout"},
+		{href.PageResizable(), "Resizable", "component-resizable"},
+		{href.PageSortable(), "Sortable", "component-sortable"},
 	}},
 	{"Utility", "square-function", []NavLink{
-		{href.PageBoundary(), "Boundary"},
-		{href.PageIfNetwork(), "If network"},
-		{href.PageIfPlatform(), "If platform"},
-		{href.PageKeys(), "Keys"},
-		{href.PageNavgroup(), "Navgroup"},
-		{href.PagePersist(), "Persist"},
+		{href.PageBoundary(), "Boundary", "component-boundary"},
+		{href.PageIfNetwork(), "If network", "component-if-network"},
+		{href.PageIfPlatform(), "If platform", "component-if-platform"},
+		{href.PageKeys(), "Keys", "component-keys"},
+		{href.PageNavgroup(), "Navgroup", "component-navgroup"},
+		{href.PagePersist(), "Persist", "component-persist"},
 	}},
+}
+
+// componentIcon returns the icon of the [ComponentGroups] link to path.
+func componentIcon(path string) string {
+	for _, g := range ComponentGroups {
+		for _, l := range g.Links {
+			if l.Path == path {
+				return l.Icon
+			}
+		}
+	}
+	return ""
 }
 
 // cmdkRow is one baked entry in the Mod+K command palette, a site page
 // plus the section it lives under (shown as a muted tag).
 type cmdkRow struct {
-	Path  string
-	Label string
+	NavLink
 	Group string
 }
 
@@ -310,11 +329,11 @@ type cmdkRow struct {
 func commandPaletteRows() []cmdkRow {
 	var rows []cmdkRow
 	for _, l := range SectionLinks {
-		rows = append(rows, cmdkRow{Path: l.Path, Label: l.Label, Group: "Section"})
+		rows = append(rows, cmdkRow{NavLink: l, Group: "Section"})
 	}
 	for _, g := range ComponentGroups {
 		for _, l := range g.Links {
-			rows = append(rows, cmdkRow{Path: l.Path, Label: l.Label, Group: g.Name + " Component"})
+			rows = append(rows, cmdkRow{NavLink: l, Group: g.Name + " Component"})
 		}
 	}
 	return rows

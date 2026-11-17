@@ -8,7 +8,7 @@ import (
 templ PageSkeleton(morpheusVersion string) {
 	@PageDoc(href.PageSkeleton(), "Skeleton", morpheusVersion) {
 		<section class="demo">
-			@anchoredH2("overview") {
+			@overviewH2(href.PageSkeleton()) {
 				Skeleton
 			}
 			@anchoredH3("variants") {

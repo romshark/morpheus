@@ -8,7 +8,7 @@ import (
 templ PageCard(morpheusVersion string) {
 	@PageDoc(href.PageCard(), "Card", morpheusVersion) {
 		<section class="demo">
-			@anchoredH2("overview") {
+			@overviewH2(href.PageCard()) {
 				Card
 			}
 			<p class="intro">

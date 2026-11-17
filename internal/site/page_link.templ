@@ -8,7 +8,7 @@ import (
 templ PageLink(morpheusVersion string) {
 	@PageDoc(href.PageLink(), "Link", morpheusVersion) {
 		<section class="demo">
-			@anchoredH2("overview") {
+			@overviewH2(href.PageLink()) {
 				Link
 			}
 			<p class="intro">

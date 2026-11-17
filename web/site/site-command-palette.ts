@@ -332,6 +332,9 @@ class SiteCommandPalette extends HTMLElement {
 		row.dataset.label = label;
 		row.dataset.siteCmdkKind = kind;
 		row.hidden = false;
+		// A <neo-icon> in each of the ~2000 index rows would upgrade and resolve
+		// its icon set, so index rows keep the slot empty.
+		row.querySelector("[data-site-cmdk-icon]")?.replaceChildren();
 		const labelSpan = row.querySelector<HTMLElement>("[data-site-cmdk-label]") ?? row;
 		labelSpan.textContent = label;
 		const group = row.querySelector<HTMLElement>("[data-site-cmdk-group]");

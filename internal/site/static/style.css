@@ -355,8 +355,17 @@ code {
 	color: inherit;
 	text-decoration: none;
 	font-size: 0.92rem;
+	--neo-button-gap: 0.6rem;
+	--neo-icon-size: 1rem;
+	& neo-icon {
+		color: var(--muted);
+	}
 	&:hover {
 		background: var(--btn-hover-bg);
+	}
+	&:hover neo-icon,
+	&.app-nav-link-current neo-icon {
+		color: inherit;
 	}
 }
 
@@ -378,29 +387,42 @@ a[data-neo-link]:where(:not([data-neo-link="false"])).app-nav-link {
 	--neo-button-ghost-active-bg: var(--neo-button-primary-active-bg);
 }
 
+/* Component icons are drawn 3:2. Sidebar links and Mod+K rows give every
+ * icon a 3:2 slot, which centers the square icons and aligns the labels. */
+neo-icon[name^="component-"],
+.app-nav-link neo-icon,
+.site-cmdk-row-icon neo-icon {
+	width: calc(var(--neo-icon-size) * 1.5);
+}
+
 /* Components index: responsive grid of cards linking to each component. */
 .component-grid {
 	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+	grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
 	gap: 0.75rem;
 }
 
 neo-navgroup.component-grid {
 	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+	grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
 }
 
 .component-card {
 	display: flex;
 	align-items: center;
-	justify-content: center;
-	padding: 1.25rem 1rem;
+	gap: 0.75rem;
+	padding-inline-end: 0.75rem;
+	--neo-icon-size: 1.5rem;
 	border: 1px solid var(--btn-border);
 	border-radius: var(--page-radius, 0.5rem);
 	color: inherit;
 	text-decoration: none;
 	background: var(--btn-bg);
 	font-weight: 500;
+	& neo-icon {
+		padding: 0.75rem;
+		border-inline-end: 1px solid var(--btn-border);
+	}
 	&:hover {
 		background: var(--btn-hover-bg);
 	}
@@ -465,6 +487,10 @@ header h1 {
 
 .anchor-h2 {
 	scroll-margin-top: 1rem;
+	/* The page icon of overviewH2. */
+	& > neo-icon {
+		margin-inline-end: 0.4em;
+	}
 }
 
 .anchor-h2-link {
@@ -2840,12 +2866,21 @@ site-command-palette {
 	font-weight: 700;
 }
 
+/* Index rows leave the slot empty, which keeps their labels in line with
+ * the page rows. */
+.site-cmdk-row-icon {
+	display: inline-flex;
+	justify-content: center;
+	flex-shrink: 0;
+	width: 1.5rem;
+	color: var(--muted);
+	--neo-icon-size: 1rem;
+}
+
 /* Marks section rows apart from page rows. The empty alt text keeps the
  * "#" out of the option's accessible name. */
-.site-cmdk-row[data-site-cmdk-kind="section"] .site-cmdk-row-label::before {
+.site-cmdk-row[data-site-cmdk-kind="section"] .site-cmdk-row-icon::before {
 	content: "#" / "";
-	margin-inline-end: 0.4em;
-	color: var(--muted);
 }
 
 /* API rows are code names (attributes, events, CSS variables), set like inline code. */
