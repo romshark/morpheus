@@ -1,5 +1,7 @@
 package site
 
+import "github.com/romshark/morpheus/neo"
+
 templ ComponentDocs(doc ComponentDoc) {
 	if len(doc.Attributes) > 0 {
 		@apiSection(docSectionID(doc.Prefix, "attributes"), "Attributes", iconAttributes)
@@ -32,7 +34,7 @@ templ ComponentDocs(doc ComponentDoc) {
 // (hover-revealed deep link) and `.api-heading` (sizing + spacing).
 templ apiSection(id, label, icon string) {
 	<h3 id={ id } class="anchor-h3 api-heading">
-		<neo-icon name={ icon }></neo-icon>
+		@neo.Icon(icon)
 		{ label }
 		<a
 			href={ templ.SafeURL("#" + id) }
