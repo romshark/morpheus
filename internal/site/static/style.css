@@ -2866,8 +2866,7 @@ site-command-palette {
 	font-weight: 700;
 }
 
-/* Index rows leave the slot empty, which keeps their labels in line with
- * the page rows. */
+/* The fixed width keeps labels aligned while an index row's icon loads. */
 .site-cmdk-row-icon {
 	display: inline-flex;
 	justify-content: center;
@@ -2875,12 +2874,6 @@ site-command-palette {
 	width: 1.5rem;
 	color: var(--muted);
 	--neo-icon-size: 1rem;
-}
-
-/* Marks section rows apart from page rows. The empty alt text keeps the
- * "#" out of the option's accessible name. */
-.site-cmdk-row[data-site-cmdk-kind="section"] .site-cmdk-row-icon::before {
-	content: "#" / "";
 }
 
 /* API rows are code names (attributes, events, CSS variables), set like inline code. */

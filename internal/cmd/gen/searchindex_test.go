@@ -8,7 +8,7 @@ import (
 // TestPageSections tests that only anchored headings are indexed, that the
 // permalink "#" is dropped from the title, that API headings take the
 // preceding api-element heading as prefix, and that identified api-table
-// rows land under the heading before them.
+// rows land under the heading before them, which takes the table's icon.
 func TestPageSections(t *testing.T) {
 	const body = `<!doctype html><html><body>
 <h2 id="overview" class="anchor-h2">Menu <a href="#overview" class="anchor-h2-link">#</a></h2>
@@ -16,7 +16,7 @@ func TestPageSections(t *testing.T) {
 <h3 id="attributes" class="anchor-h3 api-heading"><neo-icon name="x"></neo-icon> Attributes <a class="anchor-h3-link">#</a></h3>
 <h3 class="api-element">&lt;neo-menuitem&gt;</h3>
 <h3 id="menuitem-events" class="anchor-h3 api-heading">Events<a class="anchor-h3-link">#</a></h3>
-<table class="api-table"><tbody>
+<table class="api-table" data-icon="message-square-more"><tbody>
 <tr id="menuitem-events-neo-menuitem-select"><th scope="row"><code>neo-menuitem-select</code> <a class="api-row-link">#</a></th><td>x</td></tr>
 <tr><th scope="row"><code>no-id</code></th></tr>
 </tbody></table>
@@ -30,7 +30,7 @@ func TestPageSections(t *testing.T) {
 	want := []searchIndexSection{
 		{ID: "overview", Title: "Menu"},
 		{ID: "attributes", Title: "Attributes"},
-		{ID: "menuitem-events", Title: "<neo-menuitem> › Events", Items: []searchIndexItem{
+		{ID: "menuitem-events", Title: "<neo-menuitem> › Events", Icon: "message-square-more", Items: []searchIndexItem{
 			{ID: "menuitem-events-neo-menuitem-select", Name: "neo-menuitem-select"},
 		}},
 		{ID: "push-mode", Title: "Push mode"},

@@ -2,27 +2,27 @@ package site
 
 templ ComponentDocs(doc ComponentDoc) {
 	if len(doc.Attributes) > 0 {
-		@apiSection(docSectionID(doc.Prefix, "attributes"), "Attributes", "parentheses")
+		@apiSection(docSectionID(doc.Prefix, "attributes"), "Attributes", iconAttributes)
 		@docAttributes(docSectionID(doc.Prefix, "attributes"), doc.Attributes)
 	}
 	if len(doc.States) > 0 {
-		@apiSection(docSectionID(doc.Prefix, "states"), "States", "activity")
+		@apiSection(docSectionID(doc.Prefix, "states"), "States", iconStates)
 		@docStates(docSectionID(doc.Prefix, "states"), doc.States)
 	}
 	if len(doc.Slots) > 0 {
-		@apiSection(docSectionID(doc.Prefix, "slots"), "Slots", "chevrons-left-right-ellipsis")
+		@apiSection(docSectionID(doc.Prefix, "slots"), "Slots", iconSlots)
 		@docSlots(docSectionID(doc.Prefix, "slots"), doc.Slots)
 	}
 	if len(doc.Events) > 0 {
-		@apiSection(docSectionID(doc.Prefix, "events"), "Events", "message-square-more")
+		@apiSection(docSectionID(doc.Prefix, "events"), "Events", iconEvents)
 		@docEvents(docSectionID(doc.Prefix, "events"), doc.Events)
 	}
 	if len(doc.Parts) > 0 {
-		@apiSection(docSectionID(doc.Prefix, "parts"), "Parts", "component")
+		@apiSection(docSectionID(doc.Prefix, "parts"), "Parts", iconParts)
 		@docParts(docSectionID(doc.Prefix, "parts"), doc.Parts)
 	}
 	if len(doc.CSSProps) > 0 {
-		@apiSection(docSectionID(doc.Prefix, "css-variables"), "CSS variables", "braces")
+		@apiSection(docSectionID(doc.Prefix, "css-variables"), "CSS variables", iconCSSProps)
 		@docCSSProps(docSectionID(doc.Prefix, "css-variables"), doc.CSSProps)
 	}
 }
@@ -43,7 +43,7 @@ templ apiSection(id, label, icon string) {
 }
 
 templ docAttributes(sectionID string, items []DocAttribute) {
-	<table class="api-table">
+	<table class="api-table" data-icon={ iconAttributes }>
 		<thead>
 			<tr>
 				<th scope="col">Name</th>
@@ -83,7 +83,7 @@ templ docAttributes(sectionID string, items []DocAttribute) {
 }
 
 templ docSlots(sectionID string, items []DocSlot) {
-	<table class="api-table">
+	<table class="api-table" data-icon={ iconSlots }>
 		<thead>
 			<tr>
 				<th scope="col">Name</th>
@@ -107,7 +107,7 @@ templ docSlots(sectionID string, items []DocSlot) {
 }
 
 templ docEvents(sectionID string, items []DocEvent) {
-	<table class="api-table">
+	<table class="api-table" data-icon={ iconEvents }>
 		<thead>
 			<tr>
 				<th scope="col">Name</th>
@@ -147,7 +147,7 @@ templ docEvents(sectionID string, items []DocEvent) {
 }
 
 templ docStates(sectionID string, items []DocState) {
-	<table class="api-table">
+	<table class="api-table" data-icon={ iconStates }>
 		<thead>
 			<tr>
 				<th scope="col">Name</th>
@@ -171,7 +171,7 @@ templ docStates(sectionID string, items []DocState) {
 }
 
 templ docParts(sectionID string, items []DocPart) {
-	<table class="api-table">
+	<table class="api-table" data-icon={ iconParts }>
 		<thead>
 			<tr>
 				<th scope="col">Name</th>
@@ -195,7 +195,7 @@ templ docParts(sectionID string, items []DocPart) {
 }
 
 templ docCSSProps(sectionID string, items []DocCSSProp) {
-	<table class="api-table">
+	<table class="api-table" data-icon={ iconCSSProps }>
 		<thead>
 			<tr>
 				<th scope="col">Name</th>

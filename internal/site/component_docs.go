@@ -58,6 +58,18 @@ type DocCSSProp struct {
 	Description templ.Component
 }
 
+// Icons of the API table kinds. The API headings show them, and each
+// api-table carries its kind's icon in data-icon, which the search index
+// passes on to the Mod+K palette rows of the table's items.
+const (
+	iconAttributes = "parentheses"
+	iconStates     = "activity"
+	iconSlots      = "chevrons-left-right-ellipsis"
+	iconEvents     = "message-square-more"
+	iconParts      = "component"
+	iconCSSProps   = "braces"
+)
+
 // docSectionID joins an optional Prefix with a section name to
 // produce the `id` (and URL fragment) of a ComponentDocs subsection.
 // Empty prefix yields just `name`.

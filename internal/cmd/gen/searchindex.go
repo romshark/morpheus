@@ -21,8 +21,11 @@ type searchIndexPage struct {
 }
 
 type searchIndexSection struct {
-	ID    string            `json:"id"`
-	Title string            `json:"title"`
+	ID    string `json:"id"`
+	Title string `json:"title"`
+	// Icon names the icon of the section's API table kind, from the
+	// table's data-icon. Empty for a section without API items.
+	Icon  string            `json:"icon,omitempty"`
 	Items []searchIndexItem `json:"items,omitempty"`
 }
 
@@ -74,9 +77,12 @@ func pageSections(body []byte) ([]searchIndexSection, error) {
 			continue
 		}
 		if n.DataAtom == atom.Tr {
-			if item, ok := apiItem(n); ok && len(sections) > 0 {
+			if item, icon, ok := apiItem(n); ok && len(sections) > 0 {
 				s := &sections[len(sections)-1]
 				s.Items = append(s.Items, item)
+				if s.Icon == "" {
+					s.Icon = icon
+				}
 			}
 			continue
 		}
@@ -104,25 +110,25 @@ func pageSections(body []byte) ([]searchIndexSection, error) {
 }
 
 // apiItem reports the id and row header text of tr when it is an
-// identified row of an api-table.
-func apiItem(tr *html.Node) (searchIndexItem, bool) {
+// identified row of an api-table, and the table's data-icon.
+func apiItem(tr *html.Node) (item searchIndexItem, icon string, ok bool) {
 	id := attr(tr, "id")
 	if id == "" {
-		return searchIndexItem{}, false
+		return searchIndexItem{}, "", false
 	}
 	table := tr.Parent
 	for table != nil && table.DataAtom != atom.Table {
 		table = table.Parent
 	}
 	if table == nil || !slices.Contains(strings.Fields(attr(table, "class")), "api-table") {
-		return searchIndexItem{}, false
+		return searchIndexItem{}, "", false
 	}
 	for c := range tr.ChildNodes() {
 		if c.DataAtom == atom.Th && attr(c, "scope") == "row" {
-			return searchIndexItem{ID: id, Name: headingText(c)}, true
+			return searchIndexItem{ID: id, Name: headingText(c)}, attr(table, "data-icon"), true
 		}
 	}
-	return searchIndexItem{}, false
+	return searchIndexItem{}, "", false
 }
 
 // headingText returns the text of heading or row header h without its

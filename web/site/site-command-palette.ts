@@ -48,6 +48,9 @@ interface Entry {
 	// variables"), matched but not highlighted. Empty for page rows.
 	contextKey: string;
 	indexed: boolean;
+	// Icon an index row shows once a query first lists it. Empty after
+	// that, and for page rows, which bake theirs.
+	icon: string;
 }
 
 // The JSON internal/cmd/gen writes. path matches a page row's href.
@@ -56,6 +59,8 @@ interface IndexPage {
 	sections: {
 		id: string;
 		title: string;
+		// The icon of the section's API table kind, if it has 1.
+		icon?: string;
 		items?: { id: string; name: string }[];
 	}[];
 }
@@ -275,6 +280,7 @@ class SiteCommandPalette extends HTMLElement {
 				labelKey: label.toLowerCase(),
 				contextKey: "",
 				indexed: false,
+				icon: "",
 			};
 		});
 		// The shortcut hint (platform glyph + touch-hide) is owned by the
@@ -314,17 +320,17 @@ class SiteCommandPalette extends HTMLElement {
 			for (const s of page.sections) {
 				// The page's own title heading duplicates the page row.
 				if (s.title.toLowerCase() !== owner.labelKey) {
-					this.#addRow(owner, "section", `${page.path}#${s.id}`, s.title, owner.label);
+					this.#addRow(owner, "section", `${page.path}#${s.id}`, s.title, owner.label, s.icon ?? "hash");
 				}
 				const tag = `${owner.label} › ${s.title}`;
 				for (const item of s.items ?? []) {
-					this.#addRow(owner, "api", `${page.path}#${item.id}`, item.name, tag);
+					this.#addRow(owner, "api", `${page.path}#${item.id}`, item.name, tag, s.icon ?? "");
 				}
 			}
 		}
 	}
 
-	#addRow(owner: Entry, kind: "section" | "api", href: string, label: string, tag: string): void {
+	#addRow(owner: Entry, kind: "section" | "api", href: string, label: string, tag: string, icon: string): void {
 		if (!this.#list) return;
 		const row = owner.row.cloneNode(true) as HTMLAnchorElement;
 		row.id = `site-cmdk-index-${this.#indexed.length}`;
@@ -332,8 +338,8 @@ class SiteCommandPalette extends HTMLElement {
 		row.dataset.label = label;
 		row.dataset.siteCmdkKind = kind;
 		row.hidden = false;
-		// A <neo-icon> in each of the ~2000 index rows would upgrade and resolve
-		// its icon set, so index rows keep the slot empty.
+		// Most of the ~2000 index rows never show. #filter adds the <neo-icon>
+		// on first show.
 		row.querySelector("[data-site-cmdk-icon]")?.replaceChildren();
 		const labelSpan = row.querySelector<HTMLElement>("[data-site-cmdk-label]") ?? row;
 		labelSpan.textContent = label;
@@ -346,6 +352,7 @@ class SiteCommandPalette extends HTMLElement {
 			labelKey: label.toLowerCase(),
 			contextKey: tag.toLowerCase(),
 			indexed: true,
+			icon,
 		});
 	}
 
@@ -406,6 +413,12 @@ class SiteCommandPalette extends HTMLElement {
 		}
 
 		for (const { e, m } of shown) {
+			if (e.icon) {
+				const icon = document.createElement("neo-icon");
+				icon.setAttribute("name", e.icon);
+				e.row.querySelector("[data-site-cmdk-icon]")?.replaceChildren(icon);
+				e.icon = "";
+			}
 			if (e.row.hidden) e.row.hidden = false;
 			e.labelSpan.innerHTML = highlight(e.label, m.ranges);
 			this.#list.appendChild(e.row);
