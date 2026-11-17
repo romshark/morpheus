@@ -15,6 +15,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"strings"
 
 	"github.com/a-h/templ"
@@ -253,6 +254,11 @@ func normalizeBase(base string) string {
 //     literal text in a doc example untouched.
 //   - The site's own page links, whose exact paths are pagePaths.
 //
+// A playground state is markup kept as escaped text in a
+// <template data-playground-state>, which the client injects into the preview.
+// Its quotes are &#34;, so the same rules run inside it with that quote.
+// Source tabs stay untouched.
+//
 // Datastar demo action paths (e.g. /tree/loadnode/) are intercepted by
 // the client-side simulator on their literal value and are not in pagePaths.
 // They stay unprefixed by design. base=="" is a no-op.
@@ -260,23 +266,35 @@ func rewriteHTMLBase(b []byte, base string, pagePaths []string) []byte {
 	if base == "" {
 		return b
 	}
-	s := string(b)
+	s := rewriteURLs(string(b), base, pagePaths, `"`)
+	s = rePlaygroundState.ReplaceAllStringFunc(s, func(t string) string {
+		return rewriteURLs(t, base, pagePaths, "&#34;")
+	})
+	return []byte(s)
+}
+
+var rePlaygroundState = regexp.MustCompile(
+	`(?s)<template data-playground-state[^>]*>.*?</template>`,
+)
+
+// rewriteURLs applies the rules of [rewriteHTMLBase] to URLs quoted by q.
+func rewriteURLs(s, base string, pagePaths []string, q string) string {
 	// Assets go first. This turns page-named asset dirs (e.g. /static/avatar/)
 	// into /base/static/... before the page loop runs, which keeps the page
 	// anchors from matching inside an asset path.
-	s = strings.ReplaceAll(s, `"/static/`, `"`+base+`/static/`)
+	s = strings.ReplaceAll(s, q+"/static/", q+base+"/static/")
 	for _, p := range pagePaths {
 		if p == "/" {
 			// Index path is a prefix of every URL; match it exactly.
-			s = strings.ReplaceAll(s, `"/"`, `"`+base+`/"`)
+			s = strings.ReplaceAll(s, q+"/"+q, q+base+"/"+q)
 			continue
 		}
 		// Anchor on the opening `="` and the full path
 		// (kept trailing slash rules out cross-page prefix hits);
 		// catches the plain link plus its #fragment, ?query and sub-path forms.
-		s = strings.ReplaceAll(s, `="`+p, `="`+base+p)
+		s = strings.ReplaceAll(s, "="+q+p, "="+q+base+p)
 	}
-	return []byte(s)
+	return s
 }
 
 // rewriteStaticAssetsBase prefixes base onto the "/static/" root-absolute
