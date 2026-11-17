@@ -162,10 +162,10 @@ templ Page(currentPath, title, morpheusVersion string) {
 					</header>
 					<nav id="app-sidebar-nav" data-neo-sidebar-content aria-label="Site">
 						@siteCommandPalette()
-						@navSection("book-open", "Documentation", DocLinks, currentPath)
-						@navSection("wrench", "Tools", ToolLinks, currentPath)
+						@navSection("Documentation", DocLinks, currentPath)
+						@navSection("Tools", ToolLinks, currentPath)
 						for _, g := range ComponentGroups {
-							@navSection(g.Icon, g.Heading(), g.Links, currentPath)
+							@navSection(g.Heading(), g.Links, currentPath)
 						}
 					</nav>
 					<neo-persist
@@ -308,11 +308,8 @@ templ Page(currentPath, title, morpheusVersion string) {
 // open. The controller adds matching, ranking, and keyboard navigation.
 // <neo-dialog> supplies the modal lifecycle (top layer, focus trap, scroll
 // lock, Escape-to-close).
-templ navSection(icon, title string, links []NavLink, currentPath string) {
-	<h3 class="app-nav-section">
-		<neo-icon name={ icon }></neo-icon>
-		{ title }
-	</h3>
+templ navSection(title string, links []NavLink, currentPath string) {
+	<h3 class="app-nav-section">{ title }</h3>
 	<neo-navgroup
 		orientation="vertical"
 		wrap

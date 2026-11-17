@@ -7,16 +7,15 @@ import (
 	"testing"
 )
 
-// TestNavIconsExist tests that every sidebar heading and page icon has a file
-// in both icon sets. The matrix theme reads static/icons-matrix, and a missing
-// file there renders as an empty icon instead of failing.
+// TestNavIconsExist tests that every page icon has a file in both icon sets.
+// The matrix theme reads static/icons-matrix, and a missing file there
+// renders as an empty icon instead of failing.
 func TestNavIconsExist(t *testing.T) {
 	icons := map[string]string{}
 	for _, l := range slices.Concat(DocLinks, ToolLinks) {
 		icons[l.Icon] = l.Label
 	}
 	for _, g := range ComponentGroups {
-		icons[g.Icon] = g.Heading()
 		for _, l := range g.Links {
 			icons[l.Icon] = l.Label
 		}

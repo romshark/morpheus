@@ -208,7 +208,6 @@ var ToolLinks = []NavLink{
 // in static/icons and in static/icons-matrix.
 type NavGroup struct {
 	Name  string // singular, as in "Input"
-	Icon  string
 	Links []NavLink
 }
 
@@ -228,13 +227,13 @@ func (g NavGroup) Heading() string { return g.Name + " Components" }
 //     opacity .4. Put frames on the keylines the other icons share, e.g.
 //     the wide field 2.25-33.75 x 5.25-18.75 of component-select.svg.
 var ComponentGroups = []NavGroup{
-	{"Action", "play", []NavLink{
+	{"Action", []NavLink{
 		{href.PageButton(), "Button", "component-button"},
 		{href.PageButtonGroup(), "Button group", "component-button-group"},
 		{href.PageClipcopy(), "Clipcopy", "component-clipcopy"},
 		{href.PageLink(), "Link", "component-link"},
 	}},
-	{"Input", "chevrons-up-down", []NavLink{
+	{"Input", []NavLink{
 		{href.PageCheckbox(), "Checkbox", "component-checkbox"},
 		{href.PageColorField(), "Color field", "component-color-field"},
 		{href.PageCombobox(), "Combobox", "component-combobox"},
@@ -251,19 +250,19 @@ var ComponentGroups = []NavGroup{
 		{href.PageToggle(), "Toggle", "component-toggle"},
 		{href.PageToggleGroup(), "Toggle group", "component-toggle-group"},
 	}},
-	{"Data", "braces", []NavLink{
+	{"Data", []NavLink{
 		{href.PageDatalist(), "Datalist", "component-datalist"},
 		{href.PageOptgroup(), "Optgroup", "component-optgroup"},
 		{href.PageOption(), "Option", "component-option"},
 	}},
-	{"Navigation", "menu", []NavLink{
+	{"Navigation", []NavLink{
 		{href.PageBreadcrumb(), "Breadcrumb", "component-breadcrumb"},
 		{href.PagePagination(), "Pagination", "component-pagination"},
 		{href.PageSidebar(), "Sidebar", "component-sidebar"},
 		{href.PageTabs(), "Tabs", "component-tabs"},
 		{href.PageTree(), "Tree", "component-tree"},
 	}},
-	{"Overlay", "message-square", []NavLink{
+	{"Overlay", []NavLink{
 		{href.PageContextMenu(), "Context menu", "component-context-menu"},
 		{href.PageDialog(), "Dialog", "component-dialog"},
 		{href.PageDrawer(), "Drawer", "component-drawer"},
@@ -272,14 +271,14 @@ var ComponentGroups = []NavGroup{
 		{href.PagePopover(), "Popover", "component-popover"},
 		{href.PageTooltip(), "Tooltip", "component-tooltip"},
 	}},
-	{"Feedback", "activity", []NavLink{
+	{"Feedback", []NavLink{
 		{href.PageAlert(), "Alert", "component-alert"},
 		{href.PageProgress(), "Progress", "component-progress"},
 		{href.PageSkeleton(), "Skeleton", "component-skeleton"},
 		{href.PageSpinner(), "Spinner", "component-spinner"},
 		{href.PageToaster(), "Toaster", "component-toaster"},
 	}},
-	{"Display", "eye", []NavLink{
+	{"Display", []NavLink{
 		{href.PageAura(), "Aura", "component-aura"},
 		{href.PageAvatar(), "Avatar", "component-avatar"},
 		{href.PageAvatars(), "Avatars", "component-avatars"},
@@ -291,14 +290,14 @@ var ComponentGroups = []NavGroup{
 		{href.PageOdometer(), "Odometer", "component-odometer"},
 		{href.PageRevealable(), "Revealable", "component-revealable"},
 	}},
-	{"Layout", "move-diagonal", []NavLink{
+	{"Layout", []NavLink{
 		{href.PageAutohide(), "Autohide", "component-autohide"},
 		{href.PageElastic(), "Elastic", "component-elastic"},
 		{href.PageLayout(), "Layout", "component-layout"},
 		{href.PageResizable(), "Resizable", "component-resizable"},
 		{href.PageSortable(), "Sortable", "component-sortable"},
 	}},
-	{"Utility", "square-function", []NavLink{
+	{"Utility", []NavLink{
 		{href.PageBoundary(), "Boundary", "component-boundary"},
 		{href.PageIfNetwork(), "If network", "component-if-network"},
 		{href.PageIfPlatform(), "If platform", "component-if-platform"},
