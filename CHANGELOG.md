@@ -35,6 +35,7 @@ This file records the notable changes of each release in the format of [Keep a C
 
 #### Components
 
+- Reserve the upgraded size of a `<neo-progress>`, `<neo-pagination>`, `<neo-otp>` or `<neo-textarea>` (`rows` up to 10) before its script loads, and size a `<neo-spinner>` by `--neo-spinner-size` before then. They were 0px tall, the spinner 1em, and grew on upgrade.
 - Reserve the upgraded size of a `<neo-slider>` or `<neo-slider-range>` before its script loads. It was 0px tall until then, or showed its mark labels as plain text, and grew on upgrade.
 - Apply `collapse-at` (up to 10) and `overflow-count` to a `<neo-avatars>` before its script loads. The row showed every avatar until then, with its overflow template as an empty circle, and changed width on upgrade.
 - Reserve the line height of a `<neo-kbd>` before its key glyph renders. It was 1 line shorter until the script loaded, which moved the content after it, such as the links below a button holding a shortcut, down by 1px.

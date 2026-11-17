@@ -2503,23 +2503,20 @@ neo-switch:not(:defined) {
 	}
 }
 
-/* Sliders: the kit reserves the layout with transparent ::before (header)
- * and ::after (rail) boxes; paint them as a skeleton. The host fades in once;
- * the pseudo-elements pulse independently. */
-neo-slider:not(:defined),
-neo-slider-range:not(:defined) {
+/* Sliders and progress bars: the kit reserves the layout with transparent
+ * ::before (header) and ::after (rail) boxes; paint them as a skeleton.
+ * The host fades in once; the pseudo-elements pulse independently. */
+:is(neo-slider, neo-slider-range, neo-progress):not(:defined) {
 	animation: neo-placeholder-appear var(--neo-placeholder-fade)
 		ease-out var(--neo-placeholder-delay) both;
 }
-neo-slider:not(:defined)::before,
-neo-slider-range:not(:defined)::before {
+:is(neo-slider, neo-slider-range, neo-progress):not(:defined)::before {
 	background: var(--neo-skeleton-bg);
 	border-radius: var(--neo-skeleton-radius);
 	animation: neo-skeleton-pulse var(--neo-skeleton-duration)
 		ease-in-out var(--neo-placeholder-delay) infinite;
 }
-neo-slider:not(:defined)::after,
-neo-slider-range:not(:defined)::after {
+:is(neo-slider, neo-slider-range, neo-progress):not(:defined)::after {
 	background: var(--neo-skeleton-bg);
 	border-radius: var(--neo-slider-track-radius, 999px);
 	animation: neo-skeleton-pulse var(--neo-skeleton-duration)
@@ -2573,38 +2570,6 @@ neo-textinput:not(:defined) {
 	border-radius: var(--neo-textarea-radius, var(--page-radius, 0.25rem));
 	animation: var(--neo-placeholder-animation);
 	vertical-align: middle;
-}
-
-/* Progress: header stub + track bar, mirroring the slider skeleton. */
-neo-progress:not(:defined) {
-	display: flex;
-	flex-direction: column;
-	gap: 0.5rem;
-	width: 100%;
-	animation: neo-placeholder-appear var(--neo-placeholder-fade)
-		ease-out var(--neo-placeholder-delay) both;
-	&::before {
-		content: "";
-		display: block;
-		height: 0.85em;
-		width: 6em;
-		background: var(--neo-skeleton-bg);
-		border-radius: var(--neo-skeleton-radius);
-		animation: neo-skeleton-pulse var(--neo-skeleton-duration)
-			ease-in-out var(--neo-placeholder-delay) infinite;
-	}
-	&::after {
-		content: "";
-		display: block;
-		height: var(--neo-slider-track-height, 0.375rem);
-		background: var(--neo-skeleton-bg);
-		border-radius: var(--neo-slider-track-radius, 999px);
-		animation: neo-skeleton-pulse var(--neo-skeleton-duration)
-			ease-in-out var(--neo-placeholder-delay) infinite;
-	}
-	& > * {
-		display: none;
-	}
 }
 
 /* Theming preview + swatch grid. Vertical wrap-flex rows so each

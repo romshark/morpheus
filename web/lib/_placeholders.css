@@ -70,8 +70,8 @@
 /* Sized leaf controls: reserve the host's intrinsic box, shimmer. */
 neo-spinner:not(:defined) {
 	display: inline-block;
-	width: 1em;
-	height: 1em;
+	width: var(--neo-spinner-size, 1em);
+	height: var(--neo-spinner-size, 1em);
 	background: var(--neo-skeleton-bg);
 	border-radius: 50%;
 	animation: var(--neo-placeholder-animation);
@@ -124,40 +124,40 @@ neo-revealable:not(:defined):not([open]:where(:not([open="false"])))[blur-conten
 	opacity: 0.6;
 }
 
-/* Sliders: transparent boxes reserve the upgraded layout, so the slider
- * doesn't grow on upgrade. ::before stands for the header text, a 0.85em
- * bar centered in the header line (line-height 1.2), and ::after for the
- * rail. A page can paint both as a skeleton. */
-neo-slider:not(:defined),
-neo-slider-range:not(:defined) {
+/* Sliders and progress bars: transparent boxes reserve the upgraded layout,
+ * so the element doesn't grow on upgrade. ::before stands for the header
+ * text, a 0.85em bar centered in the header line (line-height 1.2), and
+ * ::after for the rail. A page can paint both as a skeleton. */
+:is(neo-slider, neo-slider-range, neo-progress):not(:defined) {
 	display: flex;
 	flex-direction: column;
 	gap: 0.5rem;
 	width: 100%;
 }
 
-neo-slider:not(:defined)::before,
-neo-slider-range:not(:defined)::before {
+:is(neo-slider, neo-slider-range, neo-progress):not(:defined)::before {
 	content: "";
 	height: 0.85em;
 	margin-block: calc((1.2em - 0.85em) / 2);
 	width: 6em;
 }
 
-neo-slider:not(:defined)::after,
-neo-slider-range:not(:defined)::after {
+:is(neo-slider, neo-slider-range, neo-progress):not(:defined)::after {
 	content: "";
 	height: var(--neo-slider-track-height, 0.375rem);
+}
+
+/* The slider rail is inset by half a thumb; the progress rail has no thumb. */
+:is(neo-slider, neo-slider-range):not(:defined)::after {
 	margin-inline: calc(var(--neo-slider-thumb-size, 1rem) / 2);
 }
 
-neo-slider:not(:defined) > *,
-neo-slider-range:not(:defined) > * {
+:is(neo-slider, neo-slider-range, neo-progress):not(:defined) > * {
 	display: none;
 }
 
-/* No label and hide-value: the upgraded slider collapses its header row. */
-:is(neo-slider, neo-slider-range):not(:defined):is(:not([label]), [label=""])[hide-value]:not(
+/* No label and hide-value: the upgraded element collapses its header row. */
+:is(neo-slider, neo-slider-range, neo-progress):not(:defined):is(:not([label]), [label=""])[hide-value]:not(
 	[hide-value="false"]
 )::before {
 	display: none;
@@ -167,7 +167,8 @@ neo-slider-range:not(:defined) > * {
  * margin and 1 line of the mark font at line-height 1.2. */
 :is(neo-slider, neo-slider-range):not(:defined):not([vertical]:not([vertical="false"])):has(
 	> [data-neo-slider-mark]:not(:empty)
-)::after {
+)::after,
+neo-progress:not(:defined):not([vertical]:not([vertical="false"])):has(> [data-neo-progress-mark]:not(:empty))::after {
 	margin-bottom: calc(
 		0.5rem +
 		var(--neo-slider-marks-margin-top, 0.4rem) +
@@ -176,22 +177,25 @@ neo-slider-range:not(:defined) > * {
 	);
 }
 
-:is(neo-slider, neo-slider-range):not(:defined)[vertical]:not([vertical="false"]) {
+:is(neo-slider, neo-slider-range, neo-progress):not(:defined)[vertical]:not([vertical="false"]) {
 	width: max-content;
 }
 
-:is(neo-slider, neo-slider-range):not(:defined)[vertical]:not([vertical="false"])::after {
+:is(neo-slider, neo-slider-range, neo-progress):not(:defined)[vertical]:not([vertical="false"])::after {
 	width: var(--neo-slider-track-height, 0.375rem);
 	height: var(--neo-slider-vertical-track-length, 12rem);
 	min-height: 6rem;
-	margin-block: calc(var(--neo-slider-thumb-size, 1rem) / 2);
 	/* The column gap the upgraded grid puts between rail and marks. */
 	margin-inline: 0 0.75rem;
 }
 
+:is(neo-slider, neo-slider-range):not(:defined)[vertical]:not([vertical="false"])::after {
+	margin-block: calc(var(--neo-slider-thumb-size, 1rem) / 2);
+}
+
 /* A collapsed header still leaves its empty grid row and row gap above the
  * vertical rail; keep ::before as a 0-size item to match. */
-:is(neo-slider, neo-slider-range):not(:defined)[vertical]:not([vertical="false"]):is(
+:is(neo-slider, neo-slider-range, neo-progress):not(:defined)[vertical]:not([vertical="false"]):is(
 	:not([label]),
 	[label=""]
 )[hide-value]:not([hide-value="false"])::before {
@@ -199,4 +203,70 @@ neo-slider-range:not(:defined) > * {
 	width: 0;
 	height: 0;
 	margin-block: 0;
+}
+
+/* Controls whose script builds the visible box: reserve its height.
+ * --neo-control-height is the button box and follows `size`. */
+neo-pagination:not(:defined) {
+	min-height: var(--neo-control-height);
+}
+
+neo-otp:not(:defined) {
+	display: inline-block;
+	height: var(--neo-control-height);
+	vertical-align: middle;
+}
+
+/* The textarea is `rows` lines (2 without the attribute, as a native one)
+ * plus padding and border. ::before carries the padding token, which is a
+ * shorthand calc() can't split. CSS can't read `rows` as a number, which
+ * is why each value from 1 to 10 has a rule. */
+neo-textarea:not(:defined) {
+	display: inline-flex;
+	box-sizing: border-box;
+	min-width: var(--neo-textarea-min-width, 16rem);
+	min-height: var(--neo-textarea-min-height, 4rem);
+	border: var(--neo-textarea-border-width, 1px) solid transparent;
+}
+
+neo-textarea:not(:defined)[rows] {
+	min-height: 0;
+}
+
+neo-textarea:not(:defined)::before {
+	content: "\200b";
+	box-sizing: content-box;
+	height: 2lh;
+	padding: var(--neo-textarea-padding);
+}
+
+neo-textarea:not(:defined)[rows="1"]::before {
+	height: 1lh;
+}
+neo-textarea:not(:defined)[rows="2"]::before {
+	height: 2lh;
+}
+neo-textarea:not(:defined)[rows="3"]::before {
+	height: 3lh;
+}
+neo-textarea:not(:defined)[rows="4"]::before {
+	height: 4lh;
+}
+neo-textarea:not(:defined)[rows="5"]::before {
+	height: 5lh;
+}
+neo-textarea:not(:defined)[rows="6"]::before {
+	height: 6lh;
+}
+neo-textarea:not(:defined)[rows="7"]::before {
+	height: 7lh;
+}
+neo-textarea:not(:defined)[rows="8"]::before {
+	height: 8lh;
+}
+neo-textarea:not(:defined)[rows="9"]::before {
+	height: 9lh;
+}
+neo-textarea:not(:defined)[rows="10"]::before {
+	height: 10lh;
 }
