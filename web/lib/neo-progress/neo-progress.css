@@ -66,6 +66,8 @@ neo-progress > [data-neo-progress-track] {
 	 * matching `<neo-slider>` rule for the full explanation. */
 	background: var(--neo-slider-track-image) var(--page-bg);
 	border-radius: var(--neo-slider-track-radius);
+	/* Outline ring. See the matching `<neo-slider>` rule. */
+	box-shadow: var(--neo-slider-track-shadow, none);
 	overflow: hidden;
 }
 

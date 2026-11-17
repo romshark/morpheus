@@ -16,6 +16,7 @@
 	--page-fg: #00ff41;
 	--page-bg: #000a04;
 	--muted: #2da55a;
+	--control-border: color-mix(in srgb, var(--page-fg) 45%, transparent);
 
 	/* Body text is already the #00ff41 phosphor. Links shift to a
 	 * brighter mint to stand apart; the underline does the rest. */
@@ -132,19 +133,22 @@
 }
 
 :root.theme-matrix.dark {
-	--accent: #1f7a42;
-	--accent-hover: #2da55a;
+	/* The dim body green (6.35:1) is the floor for anything that must
+	 * read: the accent matches it and muted text sits just under it. */
+	--accent: #2da55a;
+	--accent-hover: #45c072;
 	--accent-fg: #000a04;
 
 	--page-fg: #2da55a;
 	--page-bg: #000a04;
-	--muted: #0a3018;
+	--muted: #2b9e57;
+	--control-border: color-mix(in srgb, var(--page-fg) 66%, transparent);
 
 	/* Dim mode: body is the dimmer green; links keep the brighter
 	 * mint so they still read as interactive. */
 	--link: #5cffac;
 	--link-hover: #9dffc4;
-	--link-visited: #1f7a42;
+	--link-visited: #2b9e57;
 
 	--page-radius: 0px;
 	--page-spacing: 0.18rem;
@@ -165,9 +169,9 @@
 	--btn-border: rgba(45, 165, 90, 0.18);
 	--btn-hover-bg: #001f10;
 
-	--danger-bg: #b91c1c;
-	--danger-fg: #fee2e2;
-	--danger-hover-bg: #7f1d1d;
+	--danger-bg: #ef4444;
+	--danger-fg: #1a0007;
+	--danger-hover-bg: #f87171;
 
 	--neo-tooltip-bg: #00150a;
 	--neo-tooltip-color: #2da55a;

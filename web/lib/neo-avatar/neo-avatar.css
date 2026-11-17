@@ -30,7 +30,7 @@
 	--neo-avatars-overflow-color: var(--page-fg);
 	--neo-avatars-overflow-font-size: 0.8125rem;
 	--neo-avatars-overflow-font-weight: 650;
-	--neo-avatars-focus-ring: var(--accent, currentColor);
+	--neo-avatars-focus-ring: var(--focus-ring, currentColor);
 }
 
 neo-avatar {

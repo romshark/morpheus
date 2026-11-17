@@ -12,10 +12,10 @@
 	--neo-checkbox-size: 1.15rem;
 	--neo-checkbox-radius: calc(var(--page-radius, 0.25rem) * 0.5);
 	--neo-checkbox-border-width: 1px;
-	--neo-checkbox-border: var(--btn-border);
+	--neo-checkbox-border: var(--control-border);
 	--neo-checkbox-bg: transparent;
 	--neo-checkbox-checked-bg: var(--accent);
-	--neo-checkbox-checked-border: var(--accent);
+	--neo-checkbox-checked-border: var(--accent-strong);
 	--neo-checkbox-mark-color: var(--accent-fg);
 	--neo-checkbox-transition-duration: calc(120ms * var(--neo-duration-scale, 1));
 	/* Mark glyphs as alpha masks. The stroke colour inside the SVG is
@@ -89,8 +89,8 @@ neo-checkbox[indeterminate]:where(:not([indeterminate="false"]))::before {
 }
 
 neo-checkbox:focus-visible {
-	outline: none;
-	box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 50%, transparent);
+	outline: 2px solid var(--focus-ring);
+	outline-offset: 2px;
 }
 
 neo-checkbox[disabled]:not([disabled="false"]),

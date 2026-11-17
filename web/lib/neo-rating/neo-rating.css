@@ -8,9 +8,11 @@
 :root {
 	--neo-rating-symbol-size: 1.5rem;
 	--neo-rating-symbol-gap: 0.15rem;
-	--neo-rating-color: #f59e0b;
+	/* Amber with 3:1 on the page (WCAG 1.4.11): #f59e0b is 2:1 on a light
+	 * bg, which takes the darker #b45309. The theme's color-scheme picks. */
+	--neo-rating-color: light-dark(#b45309, #f59e0b);
 	--neo-rating-preview-color: var(--neo-rating-color);
-	--neo-rating-empty-color: var(--btn-border);
+	--neo-rating-empty-color: var(--control-border);
 	--neo-rating-transition-duration: calc(120ms * var(--neo-duration-scale, 1));
 }
 
@@ -95,7 +97,7 @@ neo-rating [data-neo-rating-full] svg {
 	height: var(--neo-rating-symbol-size);
 }
 
-/* Match the kit-wide focus baseline (_base.css), a 2px accent outline
+/* Match the kit-wide focus baseline (_base.css), a 2px --focus-ring outline
  * offset 2px. It sits on the symbol row so it rounds to the row's radius;
  * suppress the baseline's own outline on the host so the 2 don't stack
  * into a double ring (`:focus-visible` here outranks the baseline). */
@@ -104,7 +106,7 @@ neo-rating:focus-visible {
 }
 
 neo-rating:focus-visible > [data-neo-rating-symbols] {
-	outline: 2px solid var(--accent, currentColor);
+	outline: 2px solid var(--focus-ring, currentColor);
 	outline-offset: 2px;
 }
 

@@ -20,9 +20,14 @@
 	/* Surfaces the border thickness so the [checked] translate formula
 	 * stays symmetric when high-contrast bumps the border to 2px. */
 	--neo-switch-border-width: 1px;
-	--neo-switch-track-off: var(--btn-border);
+	/* Off is an outlined track with a filled thumb. Thumb and edge both
+	 * need 3:1 (WCAG 1.4.11), which a light thumb on a light track lacks. */
+	--neo-switch-track-off: var(--btn-bg);
 	--neo-switch-track-on: var(--accent);
-	--neo-switch-thumb: var(--btn-bg);
+	--neo-switch-border: var(--control-border);
+	--neo-switch-border-on: var(--accent-strong);
+	--neo-switch-thumb: var(--control-border);
+	--neo-switch-thumb-on: var(--accent-fg);
 	--neo-switch-transition-duration: calc(150ms * var(--neo-duration-scale, 1));
 }
 
@@ -34,22 +39,16 @@ neo-switch {
 	width: var(--neo-switch-width);
 	height: var(--neo-switch-height);
 	border-radius: var(--neo-switch-track-radius);
-	border: var(--neo-switch-border-width) solid transparent;
+	border: var(--neo-switch-border-width) solid var(--neo-switch-border);
 	background: var(--neo-switch-track-off);
 	cursor: pointer;
 	user-select: none;
 	-webkit-user-select: none;
 	vertical-align: middle;
 	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-	/* `background` is the off -> on track color (state change) and
-	 * stays on the switch's own duration. `border-color` and
-	 * `box-shadow` are :focus-visible feedback and use
-	 * `--neo-duration-hover`, which a theme can zero out without
-	 * affecting the toggle motion. */
 	transition:
 		background var(--neo-switch-transition-duration) var(--neo-easing, ease),
-		border-color var(--neo-duration-hover, var(--neo-switch-transition-duration)) var(--neo-easing, ease),
-		box-shadow var(--neo-duration-hover, var(--neo-switch-transition-duration)) var(--neo-easing, ease);
+		border-color var(--neo-switch-transition-duration) var(--neo-easing, ease);
 }
 
 neo-switch::before {
@@ -65,11 +64,18 @@ neo-switch::before {
 	 * a composited layer on the first moving frame, which occasionally
 	 * flashes during rapid toggles. */
 	transform: translateX(0);
-	transition: transform var(--neo-switch-transition-duration) var(--neo-easing, ease);
+	transition:
+		transform var(--neo-switch-transition-duration) var(--neo-easing, ease),
+		background var(--neo-switch-transition-duration) var(--neo-easing, ease);
 }
 
 neo-switch[checked]:where(:not([checked="false"])) {
 	background: var(--neo-switch-track-on);
+	border-color: var(--neo-switch-border-on);
+}
+
+neo-switch[checked]:where(:not([checked="false"]))::before {
+	background: var(--neo-switch-thumb-on);
 }
 
 /* Place the thumb so the end-edge gap on `[checked]` matches the
@@ -85,11 +91,8 @@ neo-switch:dir(rtl)[checked]:where(:not([checked="false"]))::before {
 }
 
 neo-switch:focus-visible {
-	outline: none;
-	border-color: var(--accent);
-	box-shadow:
-		0 1px 2px rgba(0, 0, 0, 0.05),
-		0 0 0 3px color-mix(in srgb, var(--accent) 50%, transparent);
+	outline: 2px solid var(--focus-ring);
+	outline-offset: 2px;
 }
 
 neo-switch[disabled]:not([disabled="false"]),
@@ -161,7 +164,7 @@ neo-switch[size="sm"] {
 		transform: translateX(calc(100% - var(--neo-switch-width)));
 	}
 	neo-switch[checked]:where(:not([checked="false"])) {
-		border-color: var(--accent);
+		border-color: var(--neo-switch-border-on);
 	}
 }
 
@@ -190,5 +193,5 @@ neo-switch[size="sm"] {
 	transform: translateX(calc(100% - var(--neo-switch-width)));
 }
 :root[data-pref-contrast-more] neo-switch[checked]:where(:not([checked="false"])) {
-	border-color: var(--accent);
+	border-color: var(--neo-switch-border-on);
 }

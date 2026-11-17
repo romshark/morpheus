@@ -92,10 +92,10 @@ neo-slider > [data-neo-slider-track] {
 	border-radius: var(--neo-slider-track-radius);
 	cursor: pointer;
 	outline: none;
-	/* High-contrast outline ring. Set to a 1px currentColor box-shadow by
-	 * the OS `@media (prefers-contrast: more) :host` block and by the
-	 * manual `:root[data-pref-contrast-more]` token override in
-	 * neo-slider.global.css; `none` otherwise. */
+	/* Outline ring that marks the rail's extent: --control-border by
+	 * default, currentColor under the OS `@media (prefers-contrast: more)
+	 * :host` block and the manual `:root[data-pref-contrast-more]` token
+	 * override in neo-slider.global.css. */
 	box-shadow: var(--neo-slider-track-shadow, none);
 	/* `touch-action: none` lets a horizontal drag over the track move
 	 * the thumb instead of the page on touch devices. */

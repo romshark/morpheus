@@ -6,7 +6,8 @@
 :root {
 	--neo-textarea-bg: var(--neo-button-bg);
 	--neo-textarea-color: var(--neo-button-color);
-	--neo-textarea-border-color: var(--neo-button-border-color);
+	/* A field's edge needs 3:1 (WCAG 1.4.11), unlike a labelled button's. */
+	--neo-textarea-border-color: var(--control-border);
 	--neo-textarea-radius: var(--neo-button-radius);
 	--neo-textarea-padding: calc(var(--page-spacing, 0.25rem) * 2) calc(var(--page-spacing, 0.25rem) * 3);
 	--neo-textarea-focus-ring: var(--neo-button-focus-ring);

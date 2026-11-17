@@ -25,7 +25,17 @@
 
 	--page-fg: oklch(0.145 0 0);
 	--page-bg: oklch(1 0 0);
-	--muted: oklch(0.556 0 0);
+	--muted: oklch(0.52 0 0);
+
+	/* Accent drawn as a line or small mark on the page: checked edges,
+	 * slider and progress fills, the active carousel dot. WCAG 1.4.11
+	 * needs 3:1 against --page-bg, which a light accent may lack. */
+	--accent-strong: var(--accent);
+	--focus-ring: var(--accent-strong);
+	/* Edge of unchecked checkboxes, radios, switches, tracks and text
+	 * fields, 3:1 against --page-bg and --btn-bg. --btn-border is the
+	 * decorative hairline of cards, popovers and buttons. */
+	--control-border: color-mix(in srgb, var(--page-fg) 50%, transparent);
 
 	/* Baseline font. Other themes override --page-font-family; without
 	 * a default here, body's var() would fall back to the UA serif. */
@@ -51,7 +61,9 @@
 
 	--danger-bg: oklch(0.577 0.245 27.325);
 	--danger-fg: oklch(0.985 0 0);
-	--danger-hover-bg: oklch(0.577 0.245 27.325 / 0.9);
+	/* Darker, not translucent: a 0.9 alpha lightens the red and drops
+	 * the text below 4.5:1. */
+	--danger-hover-bg: oklch(0.505 0.213 27.518);
 
 	--neo-tooltip-bg: oklch(0.205 0 0);
 	--neo-tooltip-color: oklch(0.985 0 0);
@@ -71,6 +83,7 @@
 	--page-fg: oklch(0.985 0 0);
 	--page-bg: oklch(0.145 0 0);
 	--muted: oklch(0.708 0 0);
+	--control-border: color-mix(in srgb, var(--page-fg) 40%, transparent);
 
 	/* Lighter blue/violet for contrast on the dark page bg. */
 	--link: #60a5fa;
@@ -82,8 +95,9 @@
 	--btn-border: oklch(1 0 0 / 0.1);
 	--btn-hover-bg: oklch(0.269 0 0);
 
+	/* Dark text: white on this red is 2.77:1. */
 	--danger-bg: oklch(0.704 0.191 22.216);
-	--danger-fg: oklch(0.985 0 0);
+	--danger-fg: oklch(0.145 0 0);
 	--danger-hover-bg: oklch(0.704 0.191 22.216 / 0.9);
 
 	--neo-tooltip-bg: oklch(0.985 0 0);
@@ -107,6 +121,7 @@
 		--page-fg: oklch(0.985 0 0);
 		--page-bg: oklch(0.145 0 0);
 		--muted: oklch(0.708 0 0);
+		--control-border: color-mix(in srgb, var(--page-fg) 40%, transparent);
 		--link: #60a5fa;
 		--link-hover: #93c5fd;
 		--link-visited: #c4b5fd;
@@ -114,6 +129,10 @@
 		--btn-fg: oklch(0.985 0 0);
 		--btn-border: oklch(1 0 0 / 0.1);
 		--btn-hover-bg: oklch(0.269 0 0);
+
+		--danger-bg: oklch(0.704 0.191 22.216);
+		--danger-fg: oklch(0.145 0 0);
+		--danger-hover-bg: oklch(0.704 0.191 22.216 / 0.9);
 
 		--neo-tooltip-bg: oklch(0.985 0 0);
 		--neo-tooltip-color: oklch(0.145 0 0);

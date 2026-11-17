@@ -229,12 +229,14 @@ input[type="range"]::-webkit-slider-runnable-track {
 	height: var(--neo-slider-track-height);
 	background: var(--neo-slider-track-bg);
 	border-radius: var(--neo-slider-track-radius);
+	box-shadow: var(--neo-slider-track-shadow, none);
 }
 
 input[type="range"]::-moz-range-track {
 	height: var(--neo-slider-track-height);
 	background: var(--neo-slider-track-bg);
 	border-radius: var(--neo-slider-track-radius);
+	box-shadow: var(--neo-slider-track-shadow, none);
 }
 
 input[type="range"]::-webkit-slider-thumb {

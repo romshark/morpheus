@@ -33,7 +33,7 @@ neo-combobox:not(:defined) {
 	line-height: 1;
 	padding: var(--neo-button-padding);
 	border-radius: var(--neo-button-radius);
-	border: 1px solid var(--neo-button-border-color);
+	border: 1px solid var(--neo-textarea-border-color, var(--control-border));
 	background: var(--neo-button-bg);
 	color: var(--neo-button-color);
 	box-sizing: border-box;

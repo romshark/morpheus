@@ -616,11 +616,11 @@ var resizableDoc = ComponentDoc{
 			Description: templ.Raw("Fires when the drag ends.")},
 	},
 	CSSProps: []DocCSSProp{
-		{Name: "--neo-resizable-handle-color", Default: "var(--muted, currentColor)",
+		{Name: "--neo-resizable-handle-color", Default: "var(--control-border, currentColor)",
 			Description: templ.Raw("Handle color at rest.")},
 		{Name: "--neo-resizable-handle-hover-color", Default: "var(--page-fg, currentColor)",
 			Description: templ.Raw("Handle color on hover or during a drag.")},
-		{Name: "--neo-resizable-handle-opacity", Default: "0.55",
+		{Name: "--neo-resizable-handle-opacity", Default: "1",
 			Description: templ.Raw("Handle opacity at rest.")},
 		{Name: "--neo-resizable-handle-hover-opacity", Default: "1",
 			Description: templ.Raw("Handle opacity on hover or during a drag.")},

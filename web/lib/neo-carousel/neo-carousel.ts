@@ -21,6 +21,8 @@ let nextCarouselId = 0;
 //   tablist before any slotted controls (e.g. a data-neo-carousel-pause
 //   button). Pages overriding display (e.g. to grid) keep their own
 //   layout; grid-area on ::part(dots) takes precedence.
+// - [data-neo-carousel-dots] gap: keeps dot centers at least 24px apart,
+//   the spacing exception of WCAG 2.5.8 for targets under 24px.
 // - :host(:state(autoplay)) [data-neo-carousel-dots] >
 //   button[aria-current="true"]::after: active-dot sweep when autoplay is
 //   configured. The ::after grows from 0 -> full over
@@ -50,7 +52,7 @@ CAROUSEL_TEMPLATE.innerHTML = `
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: var(--neo-carousel-dot-gap, 0.4rem);
+    gap: max(var(--neo-carousel-dot-gap, 0.4rem), calc(24px - var(--neo-carousel-dot-size, 0.55rem)));
     padding: 0.5rem 0;
   }
   :host(:not([dots]:where(:not([dots="false"])))) [data-neo-carousel-dots],
@@ -70,22 +72,22 @@ CAROUSEL_TEMPLATE.innerHTML = `
   }
   [data-neo-carousel-dots] > button:hover {
     background: color-mix(in srgb,
-      var(--neo-carousel-dot-active-bg, var(--accent, currentColor)) 60%,
+      var(--neo-carousel-dot-active-bg, var(--accent-strong, currentColor)) 60%,
       var(--neo-carousel-dot-bg, rgba(127, 127, 127, 0.25)));
   }
   [data-neo-carousel-dots] > button[data-neo-carousel-dot-visibility="partial"] {
     background: color-mix(in srgb,
-      var(--neo-carousel-dot-active-bg, var(--accent, currentColor)) 50%,
+      var(--neo-carousel-dot-active-bg, var(--accent-strong, currentColor)) 50%,
       var(--neo-carousel-dot-bg, rgba(127, 127, 127, 0.25)));
     transform: scale(1.05);
   }
   [data-neo-carousel-dots] > button[data-neo-carousel-dot-visibility="full"] {
-    background: var(--neo-carousel-dot-active-bg, var(--accent, currentColor));
+    background: var(--neo-carousel-dot-active-bg, var(--accent-strong, currentColor));
     transform: scale(1.15);
   }
   [data-neo-carousel-dots] > button:focus { outline: none; }
   [data-neo-carousel-dots] > button:focus-visible {
-    outline: 2px solid var(--neo-carousel-focus-ring, var(--accent, currentColor));
+    outline: 2px solid var(--neo-carousel-focus-ring, var(--focus-ring, currentColor));
     outline-offset: 2px;
   }
   :host(:state(autoplay)) [data-neo-carousel-dots] > button[aria-current="true"] {
@@ -99,7 +101,7 @@ CAROUSEL_TEMPLATE.innerHTML = `
     content: "";
     position: absolute;
     inset: 0;
-    background: var(--neo-carousel-dot-active-bg, var(--accent, currentColor));
+    background: var(--neo-carousel-dot-active-bg, var(--accent-strong, currentColor));
     transform-origin: left center;
     transform: scaleX(0);
     border-radius: inherit;
@@ -152,17 +154,17 @@ CAROUSEL_TEMPLATE.innerHTML = `
     background: currentColor;
   }
   :host-context(:root[data-pref-contrast-more]) [data-neo-carousel-dots] > button[data-neo-carousel-dot-visibility="partial"] {
-    background: color-mix(in srgb, var(--accent, currentColor) 60%, currentColor);
+    background: color-mix(in srgb, var(--accent-strong, currentColor) 60%, currentColor);
   }
   :host-context(:root[data-pref-contrast-more]) [data-neo-carousel-dots] > button[data-neo-carousel-dot-visibility="full"] {
-    background: var(--accent, currentColor);
+    background: var(--accent-strong, currentColor);
   }
   :host-context(:root[data-pref-contrast-more]):state(autoplay) [data-neo-carousel-dots] > button[aria-current="true"] {
     background: transparent;
     box-shadow: inset 0 0 0 2px currentColor;
   }
   :host-context(:root[data-pref-contrast-more]):state(autoplay) [data-neo-carousel-dots] > button[aria-current="true"]::after {
-    background: var(--accent, currentColor);
+    background: var(--accent-strong, currentColor);
   }
 </style>
 <div data-neo-carousel-dots part="dots"></div>

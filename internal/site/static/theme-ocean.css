@@ -4,19 +4,20 @@
 :root.theme-ocean {
 	color-scheme: light;
 
-	--accent: #0891b2;
-	--accent-hover: #0e7490;
+	--accent: #0e7490;
+	--accent-hover: #155e75;
 	--accent-fg: #ffffff;
 
 	--page-fg: #0c4a6e;
 	--page-bg: #f0f9ff;
-	--muted: #64748b;
+	--muted: #52627a;
+	/* The body text is the lowest-contrast of the light themes (8.87:1),
+	 * which needs a higher share of it for a 3:1 edge. */
+	--control-border: color-mix(in srgb, var(--page-fg) 64%, transparent);
 
-	/* Deeper than --accent (#0891b2) so link text clears contrast
-	 * on the pale bg; accent stays for fills/focus. */
 	--link: #0369a1;
 	--link-hover: #075985;
-	--link-visited: #5b7c99;
+	--link-visited: #4a6580;
 
 	--page-radius: 0.6rem;
 	--page-spacing: 0.3rem;
@@ -35,7 +36,7 @@
 	 * Each ocean variant carries its own copy with the right shade.
 	 * The mask softens the pattern at the element's horizontal edges so
 	 * the lines fade in/out rather than starting and stopping abruptly. */
-	--neo-disabled-overlay: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='10' viewBox='0 0 24 10'><path d='M0 5 Q 6 0 12 5 T 24 5' stroke='%230891b2' stroke-opacity='0.18' stroke-width='1' fill='none'/></svg>");
+	--neo-disabled-overlay: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='10' viewBox='0 0 24 10'><path d='M0 5 Q 6 0 12 5 T 24 5' stroke='%230e7490' stroke-opacity='0.18' stroke-width='1' fill='none'/></svg>");
 	--neo-disabled-overlay-mask: linear-gradient(
 		to right,
 		transparent 0%,
@@ -67,6 +68,7 @@
 	--page-fg: #e0f2fe;
 	--page-bg: #020c17;
 	--muted: #7dd3fc;
+	--control-border: color-mix(in srgb, var(--page-fg) 42%, transparent);
 
 	/* Bright cyan reads well on the deep-navy dark bg. */
 	--link: #22d3ee;
@@ -87,8 +89,8 @@
 	--btn-border: rgba(125, 211, 252, 0.18);
 	--btn-hover-bg: #0c3a58;
 
-	--danger-bg: #ef4444;
-	--danger-hover-bg: #dc2626;
+	--danger-bg: #dc2626;
+	--danger-hover-bg: #b91c1c;
 
 	--neo-tooltip-bg: rgba(224, 242, 254, 0.95);
 	--neo-tooltip-color: #020c17;

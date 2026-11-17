@@ -676,7 +676,7 @@ var menuDoc = ComponentDoc{
 			Description: templ.Raw("Background of the focused row.")},
 		{Name: "--neo-menu-item-active-bg", Default: "color-mix(in srgb, var(--page-fg) 12%, transparent)",
 			Description: templ.Raw("Background of an open submenu's trigger row.")},
-		{Name: "--neo-menu-shortcut-color", Default: "color-mix(in srgb, var(--page-fg) 55%, transparent)",
+		{Name: "--neo-menu-shortcut-color", Default: "var(--muted)",
 			Description: templ.Raw("Color of the trailing shortcut hint and submenu chevron.")},
 		{Name: "--neo-menu-separator-color", Default: "color-mix(in srgb, var(--page-fg) 12%, transparent)",
 			Description: templ.Raw("Color of an <code>&lt;hr&gt;</code> separator.")},

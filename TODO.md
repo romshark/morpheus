@@ -42,4 +42,6 @@ Carousel:
 
 ## Investigate:
 
+- WCAG contrast (`REPORT_WCAG.md`): all measured pairs pass in the 10 theme variants by computation. Check the rendered pages with axe in each variant, and the color field thumb on the light end of its gradient, which the audit leaves out.
+
 - Maybe `func AsyncPlaceholder() templ.Attributes` shouldn't be an attribute generator.

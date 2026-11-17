@@ -59,10 +59,12 @@ neo-buttongroup > neo-button:focus-visible {
 	z-index: 1;
 }
 
+/* The edge, not only the fill, marks the checked segment: a light accent
+ * fill can be under 3:1 against the page (WCAG 1.4.11). */
 neo-buttongroup > neo-button[aria-checked="true"] {
 	background: var(--neo-button-primary-bg);
 	color: var(--neo-button-primary-color);
-	border-color: var(--neo-button-border-color);
+	border-color: var(--accent-strong);
 	z-index: 2;
 }
 
@@ -70,7 +72,7 @@ neo-buttongroup[value]
 	> neo-button[aria-checked="true"]:hover:where(:not([disabled]:not([disabled="false"]), [aria-disabled="true"])) {
 	background: var(--neo-button-primary-hover-bg);
 	color: var(--neo-button-primary-color);
-	border-color: var(--neo-button-border-color);
+	border-color: var(--accent-strong);
 	box-shadow: var(--neo-button-shadow);
 	transform: translateY(0);
 }
@@ -79,7 +81,7 @@ neo-buttongroup[value]
 	> neo-button[aria-checked="true"]:active:where(:not([disabled]:not([disabled="false"]), [aria-disabled="true"])) {
 	background: var(--neo-button-primary-active-bg);
 	color: var(--neo-button-primary-color);
-	border-color: var(--neo-button-border-color);
+	border-color: var(--accent-strong);
 	box-shadow: var(--neo-button-shadow);
 	transform: translateY(0);
 }

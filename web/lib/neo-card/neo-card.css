@@ -9,7 +9,7 @@
 	--neo-card-shadow: 0 1px 2px rgba(0, 0, 0, 0.06), 0 4px 14px rgba(0, 0, 0, 0.08);
 	--neo-card-title-size: 1.05rem;
 	--neo-card-title-weight: 600;
-	--neo-card-description-color: color-mix(in srgb, var(--page-fg) 65%, transparent);
+	--neo-card-description-color: var(--muted);
 	--neo-card-horizontal-media-width: 12rem;
 	--neo-card-horizontal-body-min-width: 12rem;
 	--neo-card-media-default-height: 8rem;

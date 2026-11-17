@@ -10,7 +10,12 @@
 
 	--page-fg: #1c1810;
 	--page-bg: #fefaed;
-	--muted: #776f5a;
+	--muted: #6b6450;
+
+	/* The yellow --accent is 1.43:1 on the cream bg. Edges, thin fills
+	 * and the focus ring use the dark amber of --link instead. */
+	--accent-strong: #9a6700;
+	--control-border: color-mix(in srgb, var(--page-fg) 52%, transparent);
 
 	/* The yellow --accent is unreadable as text on the cream bg;
 	 * links use a dark amber instead (underline carries the rest). */
@@ -45,7 +50,10 @@
 
 	--page-fg: #f4ecd0;
 	--page-bg: #14110a;
-	--muted: #9f9478;
+	--muted: #a89d82;
+
+	--accent-strong: var(--accent);
+	--control-border: color-mix(in srgb, var(--page-fg) 42%, transparent);
 
 	/* Bright yellow reads well on the near-black dark bg. */
 	--link: #fad000;

@@ -9,6 +9,15 @@ This file records the notable changes of each release in the format of [Keep a C
 #### Components
 
 - Add `<neo-collapsible>`, a summary button that shows and hides the content below it. Elements with the same `name` open 1 at a time. `neo.Collapsible` renders it from Templ.
+- Add the theme tokens `--accent-strong`, for the accent drawn as an edge or thin fill on the page, `--focus-ring` and `--control-border`, for the edge of unchecked controls and text fields. A theme that replaces `theme-default.css` must set them.
+- Add `--neo-switch-border`, `--neo-switch-border-on` and `--neo-switch-thumb-on` to `<neo-switch>`.
+
+### Changed
+
+#### Components
+
+- Draw the unchecked `<neo-switch>` as an outlined track with a filled thumb. `--neo-switch-thumb` now colors only the unchecked thumb; set `--neo-switch-thumb-on` for the checked one.
+- Draw the slider and progress rails empty with a 1px `--control-border` ring.
 
 ### Fixed
 
@@ -23,6 +32,13 @@ This file records the notable changes of each release in the format of [Keep a C
 - Fix the Tab key skipping `<neo-select>` and `<neo-combobox>` in Safari.
 - Fix the Tab key skipping the `<neo-toast>` close button and the `<neo-avatars>` "+N" button in Safari.
 - Fix `<neo-menu>` and `<neo-submenu>` opening empty when a plain `<script>` in the `<head>` loads `bundle.js`.
+- Meet WCAG 2.2 AA color contrast in all 5 bundled themes, light and dark. Edges of checkboxes, radios, switches, rails, text fields, selects, comboboxes, empty rating stars and inactive carousel dots were 1.1:1 to 2.3:1:
+  - These edges now use `--control-border`. Checked edges, fills and the active dot use `--accent-strong`. Focus outlines use `--focus-ring`, solid instead of 45% or 50% translucent.
+  - Focused menu items get a ring. The pressed `<neo-toggle>` and selected `<neo-tab>` get an edge. The checked `<neo-buttongroup>` segment gets an accent edge.
+  - Alert titles take the alert text color. Alert descriptions, card descriptions and menu shortcuts take `--muted`.
+  - The filled rating star is `#b45309` under a light `color-scheme`.
+  - Theme colors change where text failed: the ocean accent, muted and visited link, the matrix dim-mode accent, muted, visited link and danger, the sunshine muted, and the danger button in the default and ocean dark modes.
+- Space `<neo-carousel>` dots so their centers stay 24px apart (WCAG 2.5.8).
 
 ## [0.6.1] - 2026-11-18
 

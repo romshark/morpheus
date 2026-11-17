@@ -9,9 +9,9 @@
  */
 
 :root {
-	--neo-resizable-handle-color: var(--muted, currentColor);
+	--neo-resizable-handle-color: var(--control-border, currentColor);
 	--neo-resizable-handle-hover-color: var(--page-fg, currentColor);
-	--neo-resizable-handle-opacity: 0.55;
+	--neo-resizable-handle-opacity: 1;
 	--neo-resizable-handle-hover-opacity: 1;
 	--neo-resizable-handle-hover-bg: color-mix(in srgb, var(--page-fg) 5%, transparent);
 	--neo-resizable-edge-thickness: 0.5rem;

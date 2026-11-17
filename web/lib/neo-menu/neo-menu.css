@@ -24,7 +24,7 @@
 	--neo-menu-item-padding-x: calc(var(--page-spacing, 0.25rem) * 2.5);
 	--neo-menu-item-hover-bg: color-mix(in srgb, var(--page-fg) 8%, transparent);
 	--neo-menu-item-active-bg: color-mix(in srgb, var(--page-fg) 12%, transparent);
-	--neo-menu-shortcut-color: color-mix(in srgb, var(--page-fg) 55%, transparent);
+	--neo-menu-shortcut-color: var(--muted);
 	--neo-menu-separator-color: color-mix(in srgb, var(--page-fg) 12%, transparent);
 	--neo-menu-separator-width: 1px;
 }
@@ -158,6 +158,13 @@ neo-menuitem:focus,
 	outline: none;
 }
 
+/* The fill alone is under 3:1 (WCAG 1.4.11); keyboard focus adds a ring. */
+neo-menuitem:focus-visible,
+[data-neo-submenu-trigger]:focus-visible {
+	outline: 2px solid var(--focus-ring);
+	outline-offset: -2px;
+}
+
 neo-submenu[open] > [data-neo-submenu-trigger] {
 	background: var(--neo-menu-item-active-bg);
 }
@@ -223,6 +230,11 @@ neo-menuitem[disabled]:not([disabled="false"]),
 [data-neo-submenu-back]:focus {
 	background: var(--neo-menu-item-hover-bg);
 	outline: none;
+}
+
+[data-neo-submenu-back]:focus-visible {
+	outline: 2px solid var(--focus-ring);
+	outline-offset: -2px;
 }
 
 /* Push mode: submenus replace the parent's visible rows rather than

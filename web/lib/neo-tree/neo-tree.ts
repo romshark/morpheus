@@ -43,7 +43,7 @@ ITEM_TEMPLATE.innerHTML = `
     background: var(--neo-tree-row-hover-bg, rgba(127, 127, 127, 0.12));
   }
   :host(:focus-visible) [data-neo-tree-row] {
-    outline: 2px solid var(--accent);
+    outline: 2px solid var(--focus-ring);
     outline-offset: -2px;
   }
   [data-neo-tree-chevron] {

@@ -9,10 +9,10 @@
 :root {
 	--neo-radio-size: 1.15rem;
 	--neo-radio-border-width: 1px;
-	--neo-radio-border: var(--btn-border);
+	--neo-radio-border: var(--control-border);
 	--neo-radio-bg: transparent;
 	--neo-radio-checked-bg: var(--accent);
-	--neo-radio-checked-border: var(--accent);
+	--neo-radio-checked-border: var(--accent-strong);
 	--neo-radio-dot-color: var(--accent-fg);
 	--neo-radio-dot-scale: 0.45;
 	--neo-radio-transition-duration: calc(120ms * var(--neo-duration-scale, 1));
@@ -81,8 +81,8 @@ neo-radio[aria-checked="true"]::before {
 }
 
 neo-radio:focus-visible {
-	outline: none;
-	box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 50%, transparent);
+	outline: 2px solid var(--focus-ring);
+	outline-offset: 2px;
 }
 
 neo-radio[disabled]:not([disabled="false"]),

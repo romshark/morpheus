@@ -64,7 +64,7 @@ SELECT_SHADOW_TEMPLATE.innerHTML = `
     width: 100%;
     height: 100%;
     padding: var(--neo-button-padding, 0.45rem 0.75rem);
-    border: var(--neo-button-border-width, 1px) solid var(--neo-button-border-color, rgba(0, 0, 0, 0.16));
+    border: var(--neo-button-border-width, 1px) solid var(--neo-textarea-border-color, var(--control-border));
     border-radius: var(--neo-button-radius, var(--page-radius, 0.5rem));
     background: var(--neo-button-bg, var(--btn-bg, #fff));
     color: var(--neo-button-color, var(--page-fg, #111));

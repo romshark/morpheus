@@ -13,7 +13,7 @@
 	--neo-alert-radius: var(--page-radius, 0.5rem);
 	--neo-alert-border-width: 1px;
 	--neo-alert-neutral-accent: var(--page-fg);
-	--neo-alert-info-accent: var(--accent);
+	--neo-alert-info-accent: var(--accent-strong);
 	--neo-alert-success-accent: oklch(0.55 0.14 145);
 	--neo-alert-warning-accent: oklch(0.68 0.16 70);
 	--neo-alert-danger-accent: var(--danger-bg);
@@ -31,7 +31,7 @@
 	--neo-alert-bg: var(--neo-alert-neutral-bg);
 	--neo-alert-color: var(--page-fg);
 	--neo-alert-border-color: var(--neo-alert-neutral-border-color);
-	--neo-alert-description-color: color-mix(in srgb, var(--neo-alert-color) 70%, transparent);
+	--neo-alert-description-color: var(--muted);
 	--neo-alert-title-size: 0.95rem;
 	--neo-alert-title-line-height: 1.35;
 	--neo-alert-title-weight: 600;
@@ -108,7 +108,6 @@ neo-alert [data-neo-alert-content] {
 
 neo-alert [data-neo-alert-title] {
 	margin: 0;
-	color: color-mix(in srgb, var(--neo-alert-accent) 82%, var(--page-fg));
 	font-size: var(--neo-alert-title-size);
 	font-weight: var(--neo-alert-title-weight);
 	line-height: var(--neo-alert-title-line-height);

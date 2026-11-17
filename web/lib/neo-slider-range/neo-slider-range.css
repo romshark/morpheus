@@ -81,8 +81,8 @@ neo-slider-range > [data-neo-slider-track] {
 	border-radius: var(--neo-slider-track-radius);
 	cursor: pointer;
 	outline: none;
-	/* High-contrast outline ring. See the matching `<neo-slider>` rule and
-	 * this file's `@media (prefers-contrast: more) :host` block. */
+	/* Outline ring. See the matching `<neo-slider>` rule and this file's
+	 * `@media (prefers-contrast: more) :host` block. */
 	box-shadow: var(--neo-slider-track-shadow, none);
 	touch-action: none;
 }

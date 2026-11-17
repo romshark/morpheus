@@ -14,6 +14,7 @@
 	--page-fg: #4c0519;
 	--page-bg: #fff1f2;
 	--muted: #9f1239;
+	--control-border: color-mix(in srgb, var(--page-fg) 54%, transparent);
 
 	/* Deeper than --accent (#e11d48) for readable link text on the
 	 * pale rose bg. */
@@ -76,6 +77,7 @@
 	--page-fg: #fecdd3;
 	--page-bg: #1f0812;
 	--muted: #fda4af;
+	--control-border: color-mix(in srgb, var(--page-fg) 45%, transparent);
 
 	/* Light pink reads well on the dark maroon bg. */
 	--link: #fb7185;

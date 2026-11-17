@@ -554,7 +554,7 @@ var colorFieldDoc = ComponentDoc{
 			Description: templ.Raw("Border width.")},
 		{Name: "--neo-color-field-border-color", Default: "color-mix(in srgb, var(--page-fg) 16%, transparent)",
 			Description: templ.Raw("Border color.")},
-		{Name: "--neo-color-field-focus-ring", Default: "var(--accent, currentColor)",
+		{Name: "--neo-color-field-focus-ring", Default: "var(--focus-ring, currentColor)",
 			Description: templ.Raw("Focus-visible outline color.")},
 		{Name: "--neo-color-field-shadow", Default: "none",
 			Description: templ.Raw("Box shadow of the field.")},

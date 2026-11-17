@@ -9,7 +9,7 @@
 	--neo-color-field-handle-size: 1rem;
 	--neo-color-field-border-width: 1px;
 	--neo-color-field-border-color: color-mix(in srgb, var(--page-fg) 16%, transparent);
-	--neo-color-field-focus-ring: var(--accent, currentColor);
+	--neo-color-field-focus-ring: var(--focus-ring, currentColor);
 }
 
 neo-color-field {

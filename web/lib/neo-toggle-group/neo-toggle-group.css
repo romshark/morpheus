@@ -35,17 +35,17 @@ neo-toggle-group > neo-toggle:focus-visible {
 
 neo-toggle-group > neo-toggle[pressed]:not([pressed="false" i]),
 neo-toggle-group > neo-toggle[aria-pressed="true"] {
-	border-color: var(--neo-button-border-color);
+	border-color: var(--control-border);
 	box-shadow: none;
 	z-index: 2;
 }
 
 /* Variant pressed states set their own transparent border on standalone
- * toggles. In a group, keep the shared segmented border visible and
- * consistent regardless of the pressed toggle's variant. */
+ * toggles. In a group, the pressed edge stays visible and consistent
+ * regardless of the pressed toggle's variant. */
 neo-toggle-group > neo-toggle[variant][pressed]:not([pressed="false" i]),
 neo-toggle-group > neo-toggle[variant][aria-pressed="true"] {
-	border-color: var(--neo-button-border-color);
+	border-color: var(--control-border);
 }
 
 neo-toggle-group[orientation="vertical"] {
