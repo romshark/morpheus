@@ -54,11 +54,12 @@ var deps = []dep{
 // because neo-button.css holds its rules ([sheetUsers]).
 var standalone = []string{
 	"neo-alert", "neo-aura", "neo-autohide", "neo-badge", "neo-boundary", "neo-card",
-	"neo-checkbox", "neo-clipcopy", "neo-color-field", "neo-dialog", "neo-drawer",
-	"neo-elastic", "neo-if-network", "neo-if-platform", "neo-kbd", "neo-keys",
-	"neo-layout", "neo-lightbox", "neo-link", "neo-odometer", "neo-otp", "neo-persist", "neo-progress",
-	"neo-revealable", "neo-sidebar", "neo-skeleton", "neo-slider", "neo-slider-range",
-	"neo-sortable", "neo-switch", "neo-textarea", "neo-tooltip",
+	"neo-checkbox", "neo-clipcopy", "neo-color-field", "neo-compare", "neo-dialog",
+	"neo-drawer", "neo-elastic", "neo-if-network", "neo-if-platform", "neo-kbd",
+	"neo-keys", "neo-layout", "neo-lightbox", "neo-link", "neo-odometer", "neo-otp",
+	"neo-persist", "neo-progress", "neo-revealable", "neo-sidebar", "neo-skeleton",
+	"neo-slider", "neo-slider-range", "neo-sortable", "neo-switch", "neo-textarea",
+	"neo-tooltip",
 }
 
 // disabled excludes components from every bundle.

@@ -1,0 +1,23 @@
+package examples
+
+import (
+	"github.com/romshark/morpheus/internal/href"
+	"github.com/romshark/morpheus/neo"
+)
+
+templ CompareCaptions() {
+	@neo.Compare(neo.CompareOpts{}) {
+		<div slot="before" class="compare-captions-layer">
+			<img
+				src={ href.Asset("cheshire_cat.webp") }
+				alt="Cheshire cat illustration, black and white print"
+				style="filter: grayscale(1)"
+			/>
+			<span class="compare-captions-label">Print</span>
+		</div>
+		<div slot="after" class="compare-captions-layer">
+			<img src={ href.Asset("cheshire_cat.webp") } alt="Cheshire cat illustration, hand-colored"/>
+			<span class="compare-captions-label">Hand-colored</span>
+		</div>
+	}
+}

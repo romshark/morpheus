@@ -174,6 +174,7 @@ func buildPages(
 		{href.PageCheckbox(), site.PageCheckbox(morpheusVersion)},
 		{href.PageClipcopy(), site.PageClipcopy(morpheusVersion)},
 		{href.PageCombobox(), site.PageCombobox(morpheusVersion)},
+		{href.PageCompare(), site.PageCompare(morpheusVersion)},
 		{href.PageContextMenu(), site.PageContextMenu(morpheusVersion)},
 		{href.PageColorField(), site.PageColorField(morpheusVersion)},
 		{href.PageDatalist(), site.PageDatalist(morpheusVersion)},

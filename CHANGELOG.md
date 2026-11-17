@@ -4,6 +4,12 @@ This file records the notable changes of each release in the format of [Keep a C
 
 ## [Unreleased]
 
+### Added
+
+#### Components
+
+- Add `<neo-compare>`, 2 stacked layers such as 2 versions of a photo, split by a divider that the user drags horizontally or, with `vertical`, vertically. `neo.Compare` renders it from Templ.
+
 ### Fixed
 
 #### Components

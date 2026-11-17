@@ -1,0 +1,44 @@
+package examples
+
+import (
+	"github.com/romshark/morpheus/internal/href"
+	"github.com/romshark/morpheus/neo"
+)
+
+templ CompareServer() {
+	@neo.Layout(neo.LayoutOpts{
+		Direction:  neo.Set(neo.Column),
+		AlignItems: neo.Set(neo.AlignItemsFlexStart),
+		Gap:        neo.Set(neo.GapMd),
+	}) {
+		@neo.ButtonGroup(neo.ButtonGroupOpts{}) {
+			@neo.ButtonAttrs(neo.ButtonOpts{},
+				templ.Attributes{"data-on:click": "@post('/compare/position/print/')"}) {
+				Print
+			}
+			@neo.ButtonAttrs(neo.ButtonOpts{},
+				templ.Attributes{"data-on:click": "@post('/compare/position/split/')"}) {
+				Split
+			}
+			@neo.ButtonAttrs(neo.ButtonOpts{},
+				templ.Attributes{"data-on:click": "@post('/compare/position/colored/')"}) {
+				Hand-colored
+			}
+		}
+		@neo.CompareAttrs(neo.CompareOpts{Value: neo.Set(50.0)}, templ.Attributes{"id": "compare-server"}) {
+			<img
+				id="compare-server-before"
+				slot="before"
+				src={ href.Asset("cheshire_cat.webp") }
+				alt="Cheshire cat illustration, black and white print"
+				style="filter: grayscale(1)"
+			/>
+			<img
+				id="compare-server-after"
+				slot="after"
+				src={ href.Asset("cheshire_cat.webp") }
+				alt="Cheshire cat illustration, hand-colored"
+			/>
+		}
+	}
+}

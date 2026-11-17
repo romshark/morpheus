@@ -27,6 +27,7 @@ const BEHAVIORAL_TAGS = new Set<string>([
 	"neo-clipcopy",
 	"neo-color-field",
 	"neo-combobox",
+	"neo-compare",
 	"neo-contextmenu",
 	"neo-datalist",
 	"neo-dialog",

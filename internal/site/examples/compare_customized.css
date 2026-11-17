@@ -1,0 +1,23 @@
+.compare-customized {
+	--neo-compare-tilt: 12deg;
+	--neo-compare-divider-width: 3px;
+	--neo-compare-handle-bg: var(--accent);
+	--neo-compare-handle-fg: var(--accent-fg);
+	--neo-compare-handle-grab-scale: 1;
+}
+
+.compare-customized::part(divider) {
+	background: repeating-linear-gradient(var(--accent) 0 0.5rem, transparent 0 0.875rem);
+	box-shadow: none;
+}
+
+.compare-customized::part(handle) {
+	width: 1.25rem;
+	height: 2.5rem;
+	border-radius: 999px;
+	transition-property: height, box-shadow;
+}
+
+.compare-customized:state(grabbed)::part(handle) {
+	height: 4rem;
+}

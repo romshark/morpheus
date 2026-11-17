@@ -1,0 +1,9 @@
+<neo-compare
+  data-signals="{compare_value: 50}"
+  data-attr:value="$compare_value"
+  data-on:neo-compare-input="$compare_value = evt.detail.value"
+  data-on:neo-compare-change="$compare_value = evt.detail.value"
+>
+  <img slot="before" src="/static/cheshire_cat_2.webp" alt="Cheshire cat figurine in grayscale" style="filter: grayscale(1)">
+  <img slot="after" src="/static/cheshire_cat_2.webp" alt="Cheshire cat figurine in color">
+</neo-compare>

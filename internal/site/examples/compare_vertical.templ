@@ -1,0 +1,18 @@
+package examples
+
+import (
+	"github.com/romshark/morpheus/internal/href"
+	"github.com/romshark/morpheus/neo"
+)
+
+templ CompareVertical() {
+	@neo.CompareAttrs(neo.CompareOpts{Vertical: neo.Set(true)}, templ.Attributes{"style": "width: 16rem"}) {
+		<img
+			slot="before"
+			src={ href.Asset("jar_1.webp") }
+			alt="Lekythos, unedited photo"
+			style="filter: brightness(0.7) saturate(0.4)"
+		/>
+		<img slot="after" src={ href.Asset("jar_1.webp") } alt="Lekythos, edited photo"/>
+	}
+}

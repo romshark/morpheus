@@ -9,6 +9,7 @@ import "./neo-checkbox";
 import "./neo-clipcopy";
 import "./neo-color-field";
 import "./neo-combobox";
+import "./neo-compare";
 import "./neo-contextmenu";
 import "./neo-datalist";
 import "./neo-dialog";

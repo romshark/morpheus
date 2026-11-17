@@ -1,0 +1,22 @@
+package examples
+
+import (
+	"github.com/romshark/morpheus/internal/href"
+	"github.com/romshark/morpheus/neo"
+)
+
+templ CompareCustomized() {
+	@neo.CompareAttrs(neo.CompareOpts{
+		Min: neo.Set(12.5),
+		Max: neo.Set(87.5),
+	}, templ.Attributes{"class": "compare-customized"}) {
+		<img
+			slot="before"
+			src={ href.Asset("cheshire_cat_2.webp") }
+			alt="Cheshire cat figurine in sepia"
+			style="filter: sepia(0.9)"
+		/>
+		<img slot="after" src={ href.Asset("cheshire_cat_2.webp") } alt="Cheshire cat figurine in color"/>
+		@neo.IconAttrs("grip-vertical", templ.Attributes{"slot": "handle"})
+	}
+}

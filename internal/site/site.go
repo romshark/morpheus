@@ -284,6 +284,7 @@ var ComponentGroups = []NavGroup{
 		{href.PageAvatar(), "Avatar", "component-avatar"},
 		{href.PageAvatars(), "Avatars", "component-avatars"},
 		{href.PageBadge(), "Badge", "component-badge"},
+		{href.PageCompare(), "Compare", "component-compare"},
 		{href.PageIcon(), "Icon", "component-icon"},
 		{href.PageKbd(), "Kbd", "component-kbd"},
 		{href.PageOdometer(), "Odometer", "component-odometer"},

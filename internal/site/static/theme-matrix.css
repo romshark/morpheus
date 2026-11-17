@@ -101,6 +101,8 @@
 	--neo-slider-anchor-radius: 0;
 	--neo-slider-track-height: var(--neo-slider-thumb-size, 1rem);
 
+	--neo-compare-handle-radius: 0;
+
 	/* 45deg hatch on disabled surfaces, reads like a CRT scanline
 	 * mask and reinforces the brutalist look. The overlay layers
 	 * over each component's existing background-color, tinted with

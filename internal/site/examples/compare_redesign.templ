@@ -1,0 +1,33 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ CompareRedesign() {
+	@neo.CompareAttrs(neo.CompareOpts{}, templ.Attributes{"style": "width: 24rem"}) {
+		<div slot="before" class="compare-redesign-old" inert>
+			@compareRedesignPage()
+		</div>
+		<div slot="after" class="compare-redesign-new" inert>
+			@compareRedesignPage()
+		</div>
+	}
+}
+
+templ compareRedesignPage() {
+	<div class="compare-redesign-bar">
+		<input type="search" class="compare-redesign-search" placeholder="Search orders" aria-label="Search orders"/>
+		<button type="button" class="compare-redesign-button">Search</button>
+	</div>
+	<div class="compare-redesign-order">
+		<div class="compare-redesign-head">
+			<p class="compare-redesign-title">Order #1042</p>
+			<span class="compare-redesign-status">Shipped</span>
+		</div>
+		<ul class="compare-redesign-items">
+			<li><span>Linen shirt</span><span>$48.00</span></li>
+			<li><span>Canvas tote</span><span>$22.00</span></li>
+			<li><span>Wool socks, 2 pairs</span><span>$18.00</span></li>
+		</ul>
+		<p class="compare-redesign-total"><span>Total</span><span>$88.00</span></p>
+	</div>
+}

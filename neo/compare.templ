@@ -1,0 +1,47 @@
+package neo
+
+type CompareOpts struct {
+	// Value is the divider position in percent from the start edge, 0 to 100.
+	// The element defaults to 50.
+	Value Attr[float64]
+	// Min and Max limit the divider position, in percent like Value.
+	// The element defaults to 0 and 100.
+	Min, Max Attr[float64]
+	Vertical Attr[bool]
+	Disabled Attr[bool]
+	// Recenter moves the divider to the center on a double-click or
+	// double-tap on the handle. The element defaults to true.
+	Recenter Attr[bool]
+	// DividerLabel names the divider for assistive tech.
+	// The element defaults to "Divider position".
+	DividerLabel Attr[string]
+}
+
+// Compare renders <neo-compare>, 2 stacked layers split by a draggable divider.
+// The children fill the "before" and "after" slots:
+//
+//	@neo.Compare(neo.CompareOpts{}) {
+//		<img slot="before" src="/raw.jpg" alt="Raw photo"/>
+//		<img slot="after" src="/edited.jpg" alt="Edited photo"/>
+//	}
+templ Compare(opts CompareOpts) {
+	@CompareAttrs(opts, nil) {
+		{ children... }
+	}
+}
+
+// CompareAttrs is [Compare] with an extra attribute set.
+templ CompareAttrs(opts CompareOpts, attrs templ.Attributes) {
+	<neo-compare
+		{ opts.Value.Attrs("value")... }
+		{ opts.Min.Attrs("min")... }
+		{ opts.Max.Attrs("max")... }
+		{ opts.Vertical.Attrs("vertical")... }
+		{ opts.Disabled.Attrs("disabled")... }
+		{ opts.Recenter.Attrs("recenter")... }
+		{ opts.DividerLabel.Attrs("divider-label")... }
+		{ attrs... }
+	>
+		{ children... }
+	</neo-compare>
+}

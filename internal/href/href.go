@@ -37,6 +37,7 @@ func PageCarousel() string       { return "/carousel/" }
 func PageCheckbox() string       { return "/checkbox/" }
 func PageClipcopy() string       { return "/clipcopy/" }
 func PageCombobox() string       { return "/combobox/" }
+func PageCompare() string        { return "/compare/" }
 func PageContextMenu() string    { return "/context-menu/" }
 func PageColorField() string     { return "/color-field/" }
 func PageDatalist() string       { return "/datalist/" }
