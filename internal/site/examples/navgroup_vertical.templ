@@ -7,8 +7,9 @@ templ NavgroupVertical() {
 		Orientation: neo.Set(neo.OrientationVertical),
 		Wrap:        neo.Set(true),
 	}, templ.Attributes{
-		"role":       "menu",
-		"aria-label": "Account",
+		"role":             "toolbar",
+		"aria-orientation": "vertical",
+		"aria-label":       "Account",
 	}) {
 		@neo.ButtonAttrs(neo.ButtonOpts{}, neo.NavGroupItem()) {
 			Profile

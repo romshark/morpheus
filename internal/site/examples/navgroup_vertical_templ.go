@@ -134,8 +134,9 @@ func NavgroupVertical() templ.Component {
 			Orientation: neo.Set(neo.OrientationVertical),
 			Wrap:        neo.Set(true),
 		}, templ.Attributes{
-			"role":       "menu",
-			"aria-label": "Account",
+			"role":             "toolbar",
+			"aria-orientation": "vertical",
+			"aria-label":       "Account",
 		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err

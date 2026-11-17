@@ -9,7 +9,7 @@ templ SidebarMixedBreakpoints() {
 				<span>Nav</span>
 			}
 			<nav aria-label="Mixed-breakpoint nav" { neo.SidebarContent()... }>
-				@neo.NavGroupAttrs(neo.NavGroupOpts{Orientation: neo.Set(neo.OrientationVertical), Wrap: neo.Set(true)}, templ.Attributes{"role": "menu", "class": "sb-mixed-breakpoints-menu"}) {
+				@neo.NavGroupAttrs(neo.NavGroupOpts{Orientation: neo.Set(neo.OrientationVertical), Wrap: neo.Set(true)}, templ.Attributes{"role": "toolbar", "aria-orientation": "vertical", "class": "sb-mixed-breakpoints-menu"}) {
 					@neo.ButtonAttrs(neo.ButtonOpts{}, neo.NavGroupItem()) {
 						@neo.Icon("heart")
 						{ " " }Favorites

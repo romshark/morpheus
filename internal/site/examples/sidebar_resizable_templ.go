@@ -235,7 +235,7 @@ func SidebarResizable() templ.Component {
 					}
 					return nil
 				})
-				templ_7745c5c3_Err = neo.NavGroupAttrs(neo.NavGroupOpts{Orientation: neo.Set(neo.OrientationVertical), Wrap: neo.Set(true)}, templ.Attributes{"role": "menu", "class": "sb-resizable-menu"}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var5), templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = neo.NavGroupAttrs(neo.NavGroupOpts{Orientation: neo.Set(neo.OrientationVertical), Wrap: neo.Set(true)}, templ.Attributes{"role": "toolbar", "aria-orientation": "vertical", "class": "sb-resizable-menu"}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var5), templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

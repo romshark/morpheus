@@ -284,7 +284,7 @@ func SidebarTouchDismiss() templ.Component {
 				}
 				return nil
 			})
-			templ_7745c5c3_Err = neo.NavGroupAttrs(neo.NavGroupOpts{Orientation: neo.Set(neo.OrientationVertical), Wrap: neo.Set(true)}, templ.Attributes{"role": "menu", "aria-label": "Touch-dismiss nav", "class": "sb-touch-dismiss-menu"}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var5), templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = neo.NavGroupAttrs(neo.NavGroupOpts{Orientation: neo.Set(neo.OrientationVertical), Wrap: neo.Set(true)}, templ.Attributes{"role": "toolbar", "aria-orientation": "vertical", "aria-label": "Touch-dismiss nav", "class": "sb-touch-dismiss-menu"}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var5), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

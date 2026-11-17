@@ -12,7 +12,7 @@ templ SidebarTouchDismiss() {
 				}
 			}
 			<div { neo.SidebarContent()... }>
-				@neo.NavGroupAttrs(neo.NavGroupOpts{Orientation: neo.Set(neo.OrientationVertical), Wrap: neo.Set(true)}, templ.Attributes{"role": "menu", "aria-label": "Touch-dismiss nav", "class": "sb-touch-dismiss-menu"}) {
+				@neo.NavGroupAttrs(neo.NavGroupOpts{Orientation: neo.Set(neo.OrientationVertical), Wrap: neo.Set(true)}, templ.Attributes{"role": "toolbar", "aria-orientation": "vertical", "aria-label": "Touch-dismiss nav", "class": "sb-touch-dismiss-menu"}) {
 					@neo.ButtonAttrs(neo.ButtonOpts{}, neo.NavGroupItem()) {
 						@neo.Icon("home")
 						{ " " }Home

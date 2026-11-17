@@ -15,7 +15,7 @@ templ SidebarResizable() {
 					<span>Nav</span>
 				}
 				<nav aria-label="Resizable nav" { neo.SidebarContent()... }>
-					@neo.NavGroupAttrs(neo.NavGroupOpts{Orientation: neo.Set(neo.OrientationVertical), Wrap: neo.Set(true)}, templ.Attributes{"role": "menu", "class": "sb-resizable-menu"}) {
+					@neo.NavGroupAttrs(neo.NavGroupOpts{Orientation: neo.Set(neo.OrientationVertical), Wrap: neo.Set(true)}, templ.Attributes{"role": "toolbar", "aria-orientation": "vertical", "class": "sb-resizable-menu"}) {
 						@neo.ButtonAttrs(neo.ButtonOpts{}, neo.NavGroupItem()) {
 							@neo.Icon("heart")
 							{ " " }Favorites
