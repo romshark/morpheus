@@ -3,7 +3,6 @@ package site
 import (
 	"github.com/romshark/morpheus/internal/href"
 	"github.com/romshark/morpheus/internal/site/examples"
-	"github.com/romshark/morpheus/neo"
 )
 
 templ PageTabs(morpheusVersion string) {
@@ -115,27 +114,8 @@ templ PageTabs(morpheusVersion string) {
 				Set <code>auto-activate</code> on the host so
 				arrow keys commit the selection as focus moves,
 				matching the classic WAI-ARIA radiogroup pattern.
+				A click works as in a normal tab list.
 			</p>
-			@neo.AlertAttrs(neo.AlertOpts{Variant: neo.Set(neo.AlertVariantInfo)}, templ.Attributes{"class": "demo-callout"}) {
-				@neo.AlertIcon() {
-					@neo.Icon("info")
-				}
-				@neo.AlertContent() {
-					@neo.AlertDescription() {
-						Only observable with the keyboard. Focus a
-						tab, then press&nbsp;
-						@neo.Kbd(neo.KbdOpts{}) {
-							←
-						}
-						&nbsp;/&nbsp;
-						@neo.Kbd(neo.KbdOpts{}) {
-							→
-						}
-						&nbsp;and the panel follows focus. A
-						pointer behaves like a normal tab list.
-					}
-				}
-			}
 			@demoFrameWith(DemoFrameOpts{
 				StageMinHeight: "max-content",
 				HTMLSource:     tabsAutoActivateHTML,

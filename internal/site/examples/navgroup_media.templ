@@ -3,41 +3,58 @@ package examples
 import "github.com/romshark/morpheus/neo"
 
 templ NavgroupMedia() {
-	@neo.NavGroupAttrs(neo.NavGroupOpts{
-		Orientation: neo.Set(neo.OrientationHorizontal),
-	}, templ.Attributes{
-		"role":       "toolbar",
-		"aria-label": "Media controls",
+	@neo.Layout(neo.LayoutOpts{
+		Direction:  neo.Set(neo.Column),
+		AlignItems: neo.Set(neo.AlignItemsFlexStart),
+		Gap:        neo.Set(neo.GapMd),
 	}) {
-		@neo.ButtonAttrs(neo.ButtonOpts{Disabled: neo.Set(true)}, templ.Attributes{
-			"data-neo-navgroup-item": true,
-			"aria-label":             "Previous track",
+		<p style="margin: 0; color: var(--muted)">
+			Tab into the controls and press{ " " }
+			@neo.Kbd(neo.KbdOpts{Key: neo.Set("left")}) {
+				←
+			}
+			{ " or " }
+			@neo.Kbd(neo.KbdOpts{Key: neo.Set("right")}) {
+				→
+			}
+			. Focus skips the dimmed buttons.
+		</p>
+		@neo.NavGroupAttrs(neo.NavGroupOpts{
+			Orientation: neo.Set(neo.OrientationHorizontal),
+		}, templ.Attributes{
+			"role":       "toolbar",
+			"aria-label": "Media controls",
 		}) {
-			@neo.Icon("skip-back")
-		}
-		@neo.ButtonAttrs(neo.ButtonOpts{}, templ.Attributes{
-			"data-neo-navgroup-item": true,
-			"aria-label":             "Rewind",
-		}) {
-			@neo.Icon("rewind")
-		}
-		@neo.ButtonAttrs(neo.ButtonOpts{}, templ.Attributes{
-			"data-neo-navgroup-item": true,
-			"aria-label":             "Play",
-		}) {
-			@neo.Icon("play")
-		}
-		@neo.ButtonAttrs(neo.ButtonOpts{}, templ.Attributes{
-			"data-neo-navgroup-item": true,
-			"aria-label":             "Fast forward",
-		}) {
-			@neo.Icon("fast-forward")
-		}
-		@neo.ButtonAttrs(neo.ButtonOpts{Disabled: neo.Set(true)}, templ.Attributes{
-			"data-neo-navgroup-item": true,
-			"aria-label":             "Next track",
-		}) {
-			@neo.Icon("skip-forward")
+			@neo.ButtonAttrs(neo.ButtonOpts{Disabled: neo.Set(true)}, templ.Attributes{
+				"data-neo-navgroup-item": true,
+				"aria-label":             "Previous track",
+			}) {
+				@neo.Icon("skip-back")
+			}
+			@neo.ButtonAttrs(neo.ButtonOpts{}, templ.Attributes{
+				"data-neo-navgroup-item": true,
+				"aria-label":             "Rewind",
+			}) {
+				@neo.Icon("rewind")
+			}
+			@neo.ButtonAttrs(neo.ButtonOpts{}, templ.Attributes{
+				"data-neo-navgroup-item": true,
+				"aria-label":             "Play",
+			}) {
+				@neo.Icon("play")
+			}
+			@neo.ButtonAttrs(neo.ButtonOpts{}, templ.Attributes{
+				"data-neo-navgroup-item": true,
+				"aria-label":             "Fast forward",
+			}) {
+				@neo.Icon("fast-forward")
+			}
+			@neo.ButtonAttrs(neo.ButtonOpts{Disabled: neo.Set(true)}, templ.Attributes{
+				"data-neo-navgroup-item": true,
+				"aria-label":             "Next track",
+			}) {
+				@neo.Icon("skip-forward")
+			}
 		}
 	}
 }

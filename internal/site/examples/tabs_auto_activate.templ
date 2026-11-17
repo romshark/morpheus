@@ -3,32 +3,44 @@ package examples
 import "github.com/romshark/morpheus/neo"
 
 templ TabsAutoActivate() {
-	@neo.Tabs(neo.TabsOpts{Value: neo.Set("day"), AutoActivate: neo.Set(true)}) {
-		<neo-tablist aria-label="Time range">
-			@neo.Tab("day", "day") {
-				Day
+	@neo.Layout(neo.LayoutOpts{
+		Direction: neo.Set(neo.Column),
+		Gap:       neo.Set(neo.GapMd),
+	}) {
+		<p style="margin: 0; color: var(--muted)">
+			Tab to the tab list and press{ " " }
+			@neo.Kbd(neo.KbdOpts{Key: neo.Set("right")}) {
+				→
 			}
-			@neo.Tab("week", "day") {
-				Week
+			. The panel follows the focus.
+		</p>
+		@neo.Tabs(neo.TabsOpts{Value: neo.Set("day"), AutoActivate: neo.Set(true)}) {
+			<neo-tablist aria-label="Time range">
+				@neo.Tab("day", "day") {
+					Day
+				}
+				@neo.Tab("week", "day") {
+					Week
+				}
+				@neo.Tab("month", "day") {
+					Month
+				}
+				@neo.Tab("year", "day") {
+					Year
+				}
+			</neo-tablist>
+			@neo.TabPanel("day", "day") {
+				<p>Activity over the last 24 hours.</p>
 			}
-			@neo.Tab("month", "day") {
-				Month
+			@neo.TabPanel("week", "day") {
+				<p>Activity over the last 7 days.</p>
 			}
-			@neo.Tab("year", "day") {
-				Year
+			@neo.TabPanel("month", "day") {
+				<p>Activity over the last 30 days.</p>
 			}
-		</neo-tablist>
-		@neo.TabPanel("day", "day") {
-			<p>Activity over the last 24 hours.</p>
-		}
-		@neo.TabPanel("week", "day") {
-			<p>Activity over the last 7 days.</p>
-		}
-		@neo.TabPanel("month", "day") {
-			<p>Activity over the last 30 days.</p>
-		}
-		@neo.TabPanel("year", "day") {
-			<p>Activity over the last 365 days.</p>
+			@neo.TabPanel("year", "day") {
+				<p>Activity over the last 365 days.</p>
+			}
 		}
 	}
 }

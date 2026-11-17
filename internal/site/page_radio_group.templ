@@ -3,7 +3,6 @@ package site
 import (
 	"github.com/romshark/morpheus/internal/href"
 	"github.com/romshark/morpheus/internal/site/examples"
-	"github.com/romshark/morpheus/neo"
 )
 
 templ PageRadioGroup(morpheusVersion string) {
@@ -99,21 +98,8 @@ templ PageRadioGroup(morpheusVersion string) {
 				selects the focused radio immediately, the classic
 				radio-group behaviour. By default arrows only move
 				focus and <code>Enter</code> / <code>Space</code>
-				commit.
+				commit. A click selects in both modes.
 			</p>
-			@neo.AlertAttrs(neo.AlertOpts{Variant: neo.Set(neo.AlertVariantInfo)}, templ.Attributes{"style": "margin-bottom: 1rem;"}) {
-				@neo.AlertIcon() {
-					@neo.Icon("info")
-				}
-				@neo.AlertContent() {
-					@neo.AlertDescription() {
-						The difference is keyboard-only. Tab into the
-						group, then press an arrow key. The selection
-						moves at once, with no Enter or Space. Clicking
-						behaves the same in every mode.
-					}
-				}
-			}
 			@demoFrameWith(DemoFrameOpts{
 				StageMinHeight: "max-content",
 				HTMLSource:     radioGroupAutoActivateHTML,

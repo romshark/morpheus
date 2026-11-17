@@ -3,18 +3,31 @@ package examples
 import "github.com/romshark/morpheus/neo"
 
 templ RadioGroupAutoActivate() {
-	@neo.RadioGroup(neo.RadioGroupOpts{Value: neo.Set("email"), AutoActivate: neo.Set(true), AriaLabel: neo.Set("Notification channel")}) {
-		<label class="radio-pg-row">
-			@neo.Radio(neo.RadioOpts{Value: neo.Set("email")})
-			<span>Email</span>
-		</label>
-		<label class="radio-pg-row">
-			@neo.Radio(neo.RadioOpts{Value: neo.Set("sms")})
-			<span>SMS</span>
-		</label>
-		<label class="radio-pg-row">
-			@neo.Radio(neo.RadioOpts{Value: neo.Set("push")})
-			<span>Push notification</span>
-		</label>
+	@neo.Layout(neo.LayoutOpts{
+		Direction:  neo.Set(neo.Column),
+		AlignItems: neo.Set(neo.AlignItemsFlexStart),
+		Gap:        neo.Set(neo.GapMd),
+	}) {
+		<p style="margin: 0; color: var(--muted)">
+			Tab into the group and press{ " " }
+			@neo.Kbd(neo.KbdOpts{Key: neo.Set("down")}) {
+				↓
+			}
+			. The selection moves with the focus.
+		</p>
+		@neo.RadioGroup(neo.RadioGroupOpts{Value: neo.Set("email"), AutoActivate: neo.Set(true), AriaLabel: neo.Set("Notification channel")}) {
+			<label class="radio-pg-row">
+				@neo.Radio(neo.RadioOpts{Value: neo.Set("email")})
+				<span>Email</span>
+			</label>
+			<label class="radio-pg-row">
+				@neo.Radio(neo.RadioOpts{Value: neo.Set("sms")})
+				<span>SMS</span>
+			</label>
+			<label class="radio-pg-row">
+				@neo.Radio(neo.RadioOpts{Value: neo.Set("push")})
+				<span>Push notification</span>
+			</label>
+		}
 	}
 }

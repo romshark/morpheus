@@ -3,25 +3,38 @@ package examples
 import "github.com/romshark/morpheus/neo"
 
 templ NavgroupVertical() {
-	@neo.NavGroupAttrs(neo.NavGroupOpts{
-		Orientation: neo.Set(neo.OrientationVertical),
-		Wrap:        neo.Set(true),
-	}, templ.Attributes{
-		"role":             "toolbar",
-		"aria-orientation": "vertical",
-		"aria-label":       "Account",
+	@neo.Layout(neo.LayoutOpts{
+		Direction:  neo.Set(neo.Column),
+		AlignItems: neo.Set(neo.AlignItemsFlexStart),
+		Gap:        neo.Set(neo.GapMd),
 	}) {
-		@neo.ButtonAttrs(neo.ButtonOpts{}, neo.NavGroupItem()) {
-			Profile
-		}
-		@neo.ButtonAttrs(neo.ButtonOpts{}, neo.NavGroupItem()) {
-			Settings
-		}
-		@neo.ButtonAttrs(neo.ButtonOpts{}, neo.NavGroupItem()) {
-			Billing
-		}
-		@neo.ButtonAttrs(neo.ButtonOpts{}, neo.NavGroupItem()) {
-			Sign out
+		<p style="margin: 0; color: var(--muted)">
+			Tab into the list and press{ " " }
+			@neo.Kbd(neo.KbdOpts{Key: neo.Set("down")}) {
+				↓
+			}
+			{ " past the last item. Focus wraps to the first." }
+		</p>
+		@neo.NavGroupAttrs(neo.NavGroupOpts{
+			Orientation: neo.Set(neo.OrientationVertical),
+			Wrap:        neo.Set(true),
+		}, templ.Attributes{
+			"role":             "toolbar",
+			"aria-orientation": "vertical",
+			"aria-label":       "Account",
+		}) {
+			@neo.ButtonAttrs(neo.ButtonOpts{}, neo.NavGroupItem()) {
+				Profile
+			}
+			@neo.ButtonAttrs(neo.ButtonOpts{}, neo.NavGroupItem()) {
+				Settings
+			}
+			@neo.ButtonAttrs(neo.ButtonOpts{}, neo.NavGroupItem()) {
+				Billing
+			}
+			@neo.ButtonAttrs(neo.ButtonOpts{}, neo.NavGroupItem()) {
+				Sign out
+			}
 		}
 	}
 }

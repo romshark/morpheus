@@ -3,21 +3,34 @@ package examples
 import "github.com/romshark/morpheus/neo"
 
 templ NavgroupGrid() {
-	@neo.NavGroupAttrs(neo.NavGroupOpts{
-		Orientation: neo.Set(neo.OrientationGrid),
-		Columns:     neo.Set(3),
-		Wrap:        neo.Set(true),
-	}, templ.Attributes{
-		"class":      "navgroup-grid-pad",
-		"role":       "group",
-		"aria-label": "Number pad",
+	@neo.Layout(neo.LayoutOpts{
+		Direction:  neo.Set(neo.Column),
+		AlignItems: neo.Set(neo.AlignItemsFlexStart),
+		Gap:        neo.Set(neo.GapMd),
 	}) {
-		for _, n := range []string{"1", "2", "3", "4", "5", "6", "7", "8", "9"} {
-			@neo.ButtonAttrs(neo.ButtonOpts{}, templ.Attributes{
-				"class":                  "navgroup-grid-key",
-				"data-neo-navgroup-item": true,
-			}) {
-				{ n }
+		<p style="margin: 0; color: var(--muted)">
+			Tab into the pad and use the arrow keys.{ " " }
+			@neo.Kbd(neo.KbdOpts{Key: neo.Set("right")}) {
+				→
+			}
+			{ " at the end of a row moves to the next row." }
+		</p>
+		@neo.NavGroupAttrs(neo.NavGroupOpts{
+			Orientation: neo.Set(neo.OrientationGrid),
+			Columns:     neo.Set(3),
+			Wrap:        neo.Set(true),
+		}, templ.Attributes{
+			"class":      "navgroup-grid-pad",
+			"role":       "group",
+			"aria-label": "Number pad",
+		}) {
+			for _, n := range []string{"1", "2", "3", "4", "5", "6", "7", "8", "9"} {
+				@neo.ButtonAttrs(neo.ButtonOpts{}, templ.Attributes{
+					"class":                  "navgroup-grid-key",
+					"data-neo-navgroup-item": true,
+				}) {
+					{ n }
+				}
 			}
 		}
 	}

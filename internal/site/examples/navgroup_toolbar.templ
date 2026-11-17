@@ -3,36 +3,49 @@ package examples
 import "github.com/romshark/morpheus/neo"
 
 templ NavgroupToolbar() {
-	@neo.NavGroupAttrs(neo.NavGroupOpts{
-		Orientation: neo.Set(neo.OrientationHorizontal),
-		Wrap:        neo.Set(true),
-	}, templ.Attributes{
-		"role":       "toolbar",
-		"aria-label": "Text formatting",
+	@neo.Layout(neo.LayoutOpts{
+		Direction:  neo.Set(neo.Column),
+		AlignItems: neo.Set(neo.AlignItemsFlexStart),
+		Gap:        neo.Set(neo.GapMd),
 	}) {
-		@neo.ButtonAttrs(neo.ButtonOpts{}, templ.Attributes{
-			"data-neo-navgroup-item": true,
-			"aria-label":             "Bold",
+		<p style="margin: 0; color: var(--muted)">
+			Tab into the toolbar and press{ " " }
+			@neo.Kbd(neo.KbdOpts{Key: neo.Set("right")}) {
+				→
+			}
+			{ " past the last button. Focus wraps to the first." }
+		</p>
+		@neo.NavGroupAttrs(neo.NavGroupOpts{
+			Orientation: neo.Set(neo.OrientationHorizontal),
+			Wrap:        neo.Set(true),
+		}, templ.Attributes{
+			"role":       "toolbar",
+			"aria-label": "Text formatting",
 		}) {
-			<b>B</b>
-		}
-		@neo.ButtonAttrs(neo.ButtonOpts{}, templ.Attributes{
-			"data-neo-navgroup-item": true,
-			"aria-label":             "Italic",
-		}) {
-			<i>I</i>
-		}
-		@neo.ButtonAttrs(neo.ButtonOpts{}, templ.Attributes{
-			"data-neo-navgroup-item": true,
-			"aria-label":             "Underline",
-		}) {
-			<u>U</u>
-		}
-		@neo.ButtonAttrs(neo.ButtonOpts{}, templ.Attributes{
-			"data-neo-navgroup-item": true,
-			"aria-label":             "Strikethrough",
-		}) {
-			<s>S</s>
+			@neo.ButtonAttrs(neo.ButtonOpts{}, templ.Attributes{
+				"data-neo-navgroup-item": true,
+				"aria-label":             "Bold",
+			}) {
+				<b>B</b>
+			}
+			@neo.ButtonAttrs(neo.ButtonOpts{}, templ.Attributes{
+				"data-neo-navgroup-item": true,
+				"aria-label":             "Italic",
+			}) {
+				<i>I</i>
+			}
+			@neo.ButtonAttrs(neo.ButtonOpts{}, templ.Attributes{
+				"data-neo-navgroup-item": true,
+				"aria-label":             "Underline",
+			}) {
+				<u>U</u>
+			}
+			@neo.ButtonAttrs(neo.ButtonOpts{}, templ.Attributes{
+				"data-neo-navgroup-item": true,
+				"aria-label":             "Strikethrough",
+			}) {
+				<s>S</s>
+			}
 		}
 	}
 }
