@@ -919,7 +919,7 @@ templ landingAccessibility() {
 								Size:      neo.Set("sm"),
 								AriaLabel: neo.Set("Simulate reduce motion"),
 							}, templ.Attributes{
-								"data-attr:checked":         "$_lf_a11y_motion",
+								"data-attr:checked":         "$_lf_a11y_motion ? 'true' : 'false'",
 								"data-on:neo-switch-change": "$_lf_a11y_motion = evt.detail.checked",
 							})
 							<span>Reduce motion</span>
@@ -929,7 +929,7 @@ templ landingAccessibility() {
 								Size:      neo.Set("sm"),
 								AriaLabel: neo.Set("Simulate higher contrast"),
 							}, templ.Attributes{
-								"data-attr:checked":         "$_lf_a11y_contrast",
+								"data-attr:checked":         "$_lf_a11y_contrast ? 'true' : 'false'",
 								"data-on:neo-switch-change": "$_lf_a11y_contrast = evt.detail.checked",
 							})
 							<span>Higher contrast</span>
@@ -993,7 +993,7 @@ templ landingAccessibility() {
 										Size:      neo.Set("sm"),
 										AriaLabel: neo.Set("Simulate reduce motion"),
 									}, templ.Attributes{
-										"data-attr:checked":         "$_lf_a11y_motion",
+										"data-attr:checked":         "$_lf_a11y_motion ? 'true' : 'false'",
 										"data-on:neo-switch-change": "$_lf_a11y_motion = evt.detail.checked",
 									})
 									<span>Reduce motion</span>
@@ -1003,7 +1003,7 @@ templ landingAccessibility() {
 										Size:      neo.Set("sm"),
 										AriaLabel: neo.Set("Simulate higher contrast"),
 									}, templ.Attributes{
-										"data-attr:checked":         "$_lf_a11y_contrast",
+										"data-attr:checked":         "$_lf_a11y_contrast ? 'true' : 'false'",
 										"data-on:neo-switch-change": "$_lf_a11y_contrast = evt.detail.checked",
 									})
 									<span>Higher contrast</span>
@@ -1552,7 +1552,7 @@ templ lfThemeMode() {
 					@neo.ToggleAttrs(neo.ToggleOpts{}, templ.Attributes{
 						"class":                     "lf-theme-pref-toggle",
 						"aria-label":                "Reduce motion",
-						"data-attr:pressed":         "$_lf_a11y_motion",
+						"data-attr:pressed":         "$_lf_a11y_motion ? 'true' : 'false'",
 						"data-on:neo-toggle-change": "$_lf_a11y_motion = evt.detail.pressed",
 					}) {
 						@neo.Icon("pause")
@@ -1565,7 +1565,7 @@ templ lfThemeMode() {
 					@neo.ToggleAttrs(neo.ToggleOpts{}, templ.Attributes{
 						"class":                     "lf-theme-pref-toggle",
 						"aria-label":                "Higher contrast",
-						"data-attr:pressed":         "$_lf_a11y_contrast",
+						"data-attr:pressed":         "$_lf_a11y_contrast ? 'true' : 'false'",
 						"data-on:neo-toggle-change": "$_lf_a11y_contrast = evt.detail.pressed",
 					}) {
 						@neo.Icon("eye")
@@ -2975,7 +2975,7 @@ templ lfSettings() {
 					Checked:   neo.Set(true),
 					AriaLabel: neo.Set("Notification sound"),
 				}, templ.Attributes{
-					"data-attr:checked":         "$_lf_settings_sound",
+					"data-attr:checked":         "$_lf_settings_sound ? 'true' : 'false'",
 					"data-on:neo-switch-change": "$_lf_settings_sound = evt.detail.checked",
 				})
 			</label>

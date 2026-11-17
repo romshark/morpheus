@@ -660,14 +660,14 @@ templ siteA11yPrefs() {
 	>
 		<label class="site-a11y-row">
 			@neo.SwitchAttrs(neo.SwitchOpts{Size: neo.Set("sm"), AriaLabel: neo.Set("Reduced motion")}, templ.Attributes{
-				"data-attr:checked":         "$_a11y_motion",
+				"data-attr:checked":         "$_a11y_motion ? 'true' : 'false'",
 				"data-on:neo-switch-change": "$_a11y_motion = evt.detail.checked",
 			})
 			<span>Reduced motion</span>
 		</label>
 		<label class="site-a11y-row">
 			@neo.SwitchAttrs(neo.SwitchOpts{Size: neo.Set("sm"), AriaLabel: neo.Set("High contrast")}, templ.Attributes{
-				"data-attr:checked":         "$_a11y_contrast",
+				"data-attr:checked":         "$_a11y_contrast ? 'true' : 'false'",
 				"data-on:neo-switch-change": "$_a11y_contrast = evt.detail.checked",
 			})
 			<span>High contrast</span>

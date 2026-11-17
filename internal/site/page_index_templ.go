@@ -2418,7 +2418,7 @@ func landingAccessibility() templ.Component {
 			Size:      neo.Set("sm"),
 			AriaLabel: neo.Set("Simulate reduce motion"),
 		}, templ.Attributes{
-			"data-attr:checked":         "$_lf_a11y_motion",
+			"data-attr:checked":         "$_lf_a11y_motion ? 'true' : 'false'",
 			"data-on:neo-switch-change": "$_lf_a11y_motion = evt.detail.checked",
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
@@ -2432,7 +2432,7 @@ func landingAccessibility() templ.Component {
 			Size:      neo.Set("sm"),
 			AriaLabel: neo.Set("Simulate higher contrast"),
 		}, templ.Attributes{
-			"data-attr:checked":         "$_lf_a11y_contrast",
+			"data-attr:checked":         "$_lf_a11y_contrast ? 'true' : 'false'",
 			"data-on:neo-switch-change": "$_lf_a11y_contrast = evt.detail.checked",
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
@@ -2582,7 +2582,7 @@ func landingAccessibility() templ.Component {
 				Size:      neo.Set("sm"),
 				AriaLabel: neo.Set("Simulate reduce motion"),
 			}, templ.Attributes{
-				"data-attr:checked":         "$_lf_a11y_motion",
+				"data-attr:checked":         "$_lf_a11y_motion ? 'true' : 'false'",
 				"data-on:neo-switch-change": "$_lf_a11y_motion = evt.detail.checked",
 			}).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
@@ -2596,7 +2596,7 @@ func landingAccessibility() templ.Component {
 				Size:      neo.Set("sm"),
 				AriaLabel: neo.Set("Simulate higher contrast"),
 			}, templ.Attributes{
-				"data-attr:checked":         "$_lf_a11y_contrast",
+				"data-attr:checked":         "$_lf_a11y_contrast ? 'true' : 'false'",
 				"data-on:neo-switch-change": "$_lf_a11y_contrast = evt.detail.checked",
 			}).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
@@ -3519,7 +3519,7 @@ func lfThemeMode() templ.Component {
 				templ_7745c5c3_Err = neo.ToggleAttrs(neo.ToggleOpts{}, templ.Attributes{
 					"class":                     "lf-theme-pref-toggle",
 					"aria-label":                "Reduce motion",
-					"data-attr:pressed":         "$_lf_a11y_motion",
+					"data-attr:pressed":         "$_lf_a11y_motion ? 'true' : 'false'",
 					"data-on:neo-toggle-change": "$_lf_a11y_motion = evt.detail.pressed",
 				}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var123), templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
@@ -3567,7 +3567,7 @@ func lfThemeMode() templ.Component {
 				templ_7745c5c3_Err = neo.ToggleAttrs(neo.ToggleOpts{}, templ.Attributes{
 					"class":                     "lf-theme-pref-toggle",
 					"aria-label":                "Higher contrast",
-					"data-attr:pressed":         "$_lf_a11y_contrast",
+					"data-attr:pressed":         "$_lf_a11y_contrast ? 'true' : 'false'",
 					"data-on:neo-toggle-change": "$_lf_a11y_contrast = evt.detail.pressed",
 				}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var125), templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
@@ -6774,7 +6774,7 @@ func lfSettings() templ.Component {
 			Checked:   neo.Set(true),
 			AriaLabel: neo.Set("Notification sound"),
 		}, templ.Attributes{
-			"data-attr:checked":         "$_lf_settings_sound",
+			"data-attr:checked":         "$_lf_settings_sound ? 'true' : 'false'",
 			"data-on:neo-switch-change": "$_lf_settings_sound = evt.detail.checked",
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {

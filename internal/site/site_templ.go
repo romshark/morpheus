@@ -1635,7 +1635,7 @@ func siteA11yPrefs() templ.Component {
 			return templ_7745c5c3_Err
 		}
 		templ_7745c5c3_Err = neo.SwitchAttrs(neo.SwitchOpts{Size: neo.Set("sm"), AriaLabel: neo.Set("Reduced motion")}, templ.Attributes{
-			"data-attr:checked":         "$_a11y_motion",
+			"data-attr:checked":         "$_a11y_motion ? 'true' : 'false'",
 			"data-on:neo-switch-change": "$_a11y_motion = evt.detail.checked",
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
@@ -1646,7 +1646,7 @@ func siteA11yPrefs() templ.Component {
 			return templ_7745c5c3_Err
 		}
 		templ_7745c5c3_Err = neo.SwitchAttrs(neo.SwitchOpts{Size: neo.Set("sm"), AriaLabel: neo.Set("High contrast")}, templ.Attributes{
-			"data-attr:checked":         "$_a11y_contrast",
+			"data-attr:checked":         "$_a11y_contrast ? 'true' : 'false'",
 			"data-on:neo-switch-change": "$_a11y_contrast = evt.detail.checked",
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {

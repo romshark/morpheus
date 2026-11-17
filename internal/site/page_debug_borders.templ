@@ -269,7 +269,7 @@ templ debugBordersBar() {
 			<neo-button value="dark" aria-label="Dark">☾</neo-button>
 		</neo-buttongroup>
 		<label class="db-contrast">
-			<neo-switch size="sm" aria-label="High contrast" data-attr:checked="$_a11y_contrast" data-on:neo-switch-change="$_a11y_contrast = evt.detail.checked"></neo-switch>
+			<neo-switch size="sm" aria-label="High contrast" data-attr:checked="$_a11y_contrast ? 'true' : 'false'" data-on:neo-switch-change="$_a11y_contrast = evt.detail.checked"></neo-switch>
 			<span>High contrast</span>
 		</label>
 	</header>

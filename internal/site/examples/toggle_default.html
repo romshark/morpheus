@@ -1,1 +1,5 @@
-<neo-toggle data-signals="{toggle_pressed: false}" data-attr:pressed="$toggle_pressed">Bold</neo-toggle>
+<neo-toggle
+  data-signals="{toggle_pressed: false}"
+  data-attr:pressed="$toggle_pressed ? 'true' : 'false'"
+  data-on:neo-toggle-change="$toggle_pressed = evt.detail.pressed"
+>Bold</neo-toggle>
