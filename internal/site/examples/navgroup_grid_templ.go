@@ -80,7 +80,7 @@ func NavgroupGrid() templ.Component {
 			Wrap:        neo.Set(true),
 		}, templ.Attributes{
 			"class":      "navgroup-grid-pad",
-			"role":       "grid",
+			"role":       "group",
 			"aria-label": "Number pad",
 		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
