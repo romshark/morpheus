@@ -1,0 +1,23 @@
+/* Adopted into the shadow root of <neo-slider-color>, which holds 1 inner
+ * <neo-slider>. The `--neo-slider-*` tokens set on the host inherit into
+ * it; a page rule on `neo-slider-color` overrides these defaults.
+ * neo-slider-color.ts sets the track image and thumb color inline on the
+ * inner slider. */
+
+:host {
+	display: block;
+	width: 100%;
+	--neo-slider-fill-bg: transparent;
+	--neo-slider-thumb-border: var(--page-bg);
+	--neo-slider-thumb-shadow: 0 0 0 1px color-mix(in srgb, var(--page-fg) 35%, transparent), 0 2px 7px rgb(0 0 0 / 0.28);
+	--neo-slider-track-shadow: inset 0 0 0 1px color-mix(in srgb, var(--page-fg) 14%, transparent);
+}
+
+/* Inline-level and bottom-aligned like a vertical <neo-slider>. A flex container keeps the inner
+ * inline-grid out of a line box, which would add space below it. */
+:host([vertical]:not([vertical="false"])) {
+	display: inline-flex;
+	vertical-align: bottom;
+	width: max-content;
+	max-width: 100%;
+}

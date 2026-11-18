@@ -70,6 +70,7 @@ func PageSelect() string         { return "/select/" }
 func PageSidebar() string        { return "/sidebar/" }
 func PageSkeleton() string       { return "/skeleton/" }
 func PageSlider() string         { return "/slider/" }
+func PageSliderColor() string    { return "/slider-color/" }
 func PageSliderRange() string    { return "/slider-range/" }
 func PageSortable() string       { return "/sortable/" }
 func PageSpinner() string        { return "/spinner/" }

@@ -6,7 +6,8 @@
 // one line stays inline; a longer one breaks each child onto its own line.
 // Prose (an element with direct text) flows its inline content instead of
 // stacking it, unless it wraps a structural child too wide to inline, which
-// forces a stack. A start tag wider than the target wraps one attribute per line.
+// forces a stack. A start tag wider than the target wraps one attribute per line,
+// and so do its same-tag siblings that hold no content.
 package htmlfmt
 
 import (
@@ -74,13 +75,42 @@ func Format(s string) string {
 		}
 	}
 	var b strings.Builder
-	for _, n := range root.children {
-		writeNode(&b, n, 0)
-	}
+	writeChildren(&b, root.children, 0)
 	return strings.TrimRight(b.String(), "\n")
 }
 
-func writeNode(b *strings.Builder, n *node, depth int) {
+func writeChildren(b *strings.Builder, children []*node, depth int) {
+	wrapped := wrappedTags(children, len(strings.Repeat("  ", depth)))
+	for _, c := range children {
+		writeNode(b, c, depth, wrapped[c.tag] && attrOnly(c))
+	}
+}
+
+// wrappedTags returns the tags of the [attrOnly] children whose one-line form
+// exceeds width at indent ind for at least 1 of them.
+func wrappedTags(children []*node, ind int) map[string]bool {
+	var tags map[string]bool
+	for _, c := range children {
+		if attrOnly(c) && ind+len(serializeInline(c)) > width {
+			if tags == nil {
+				tags = make(map[string]bool)
+			}
+			tags[c.tag] = true
+		}
+	}
+	return tags
+}
+
+// attrOnly reports whether n is an element whose start tag is all it shows,
+// meaning a void element or one without renderable children.
+func attrOnly(n *node) bool {
+	return !n.isText && !rawTextTags[n.tag] && (n.void || !hasRenderableChildren(n))
+}
+
+// writeNode writes n at depth. wrap puts each attribute of an [attrOnly]
+// element on its own line even when the element fits, which keeps it
+// alike with a same-tag sibling that doesn't fit.
+func writeNode(b *strings.Builder, n *node, depth int, wrap bool) {
 	ind := strings.Repeat("  ", depth)
 	if n.isText {
 		if t := strings.TrimSpace(collapseWS(n.text)); t != "" {
@@ -89,7 +119,7 @@ func writeNode(b *strings.Builder, n *node, depth int) {
 		return
 	}
 	if n.void {
-		writeOpenTag(b, ind, n.rawOpen)
+		writeOpenTag(b, ind, n.rawOpen, wrap)
 		return
 	}
 	if rawTextTags[n.tag] {
@@ -118,7 +148,7 @@ func writeNode(b *strings.Builder, n *node, depth int) {
 	flowProse := hasDirectText(n) && !hasStructuralOversizedChild(n, len(ind)+2)
 	// The whole element goes on one line when its open tag fits and either it
 	// flows as prose or the entire subtree fits the width.
-	if openTagFits && !strings.Contains(inline, "\n") &&
+	if !wrap && openTagFits && !strings.Contains(inline, "\n") &&
 		(flowProse || len(ind)+len(inline) <= width) {
 		writeLine(b, ind, inline)
 		return
@@ -146,10 +176,8 @@ func writeNode(b *strings.Builder, n *node, depth int) {
 	default:
 		// Container: open tag (attributes wrapped when oversized),
 		// then each child on its own line.
-		writeOpenTag(b, ind, n.rawOpen)
-		for _, c := range n.children {
-			writeNode(b, c, depth+1)
-		}
+		writeOpenTag(b, ind, n.rawOpen, false)
+		writeChildren(b, n.children, depth+1)
 		writeLine(b, ind, "</", n.tag, ">")
 	}
 }
@@ -165,10 +193,10 @@ func writeLine(b *strings.Builder, ind string, parts ...string) {
 }
 
 // writeOpenTag emits a start tag, breaking each attribute onto its own line
-// when the one-line form would exceed width. The closing bracket sits on its
-// own line aligned with the tag.
-func writeOpenTag(b *strings.Builder, ind, rawOpen string) {
-	if len(ind)+len(rawOpen) <= width {
+// when wrap is set or the one-line form would exceed width. The closing bracket
+// sits on its own line aligned with the tag.
+func writeOpenTag(b *strings.Builder, ind, rawOpen string, wrap bool) {
+	if !wrap && len(ind)+len(rawOpen) <= width {
 		writeLine(b, ind, rawOpen)
 		return
 	}

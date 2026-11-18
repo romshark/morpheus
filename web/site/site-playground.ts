@@ -65,6 +65,7 @@ const PREVIEW_CHANGE_EVENTS = [
 	"neo-breadcrumb-change",
 	"neo-avatars-change",
 	"neo-slider-change",
+	"neo-slider-color-change",
 	"neo-slider-range-change",
 	"neo-textinput-change",
 ];
@@ -72,7 +73,7 @@ const PREVIEW_CHANGE_EVENTS = [
 // Continuous slider events update their Datastar signals in the example
 // markup itself. Mirror the current attribute into the Signals pane on
 // every tick, but don't send another server patch while the pointer moves.
-const PREVIEW_INPUT_EVENTS = ["neo-slider-input", "neo-slider-range-input"];
+const PREVIEW_INPUT_EVENTS = ["neo-slider-input", "neo-slider-color-input", "neo-slider-range-input"];
 
 class SitePlayground extends HTMLElement {
 	#states: PlaygroundState[] = [];

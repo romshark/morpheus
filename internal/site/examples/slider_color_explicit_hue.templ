@@ -1,0 +1,18 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ SliderColorExplicitHue() {
+	@neo.SliderColor(neo.SliderColorOpts{
+		Channel: neo.Set(neo.SliderColorChannelHue),
+		Value:   neo.Set("#94a3b8"),
+		Hue:     neo.Set(215.0),
+		Label:   neo.Set("Hue"),
+	})
+	@neo.SliderColor(neo.SliderColorOpts{
+		Channel: neo.Set(neo.SliderColorChannelSaturation),
+		Value:   neo.Set("#94a3b8"),
+		Hue:     neo.Set(215.0),
+		Label:   neo.Set("Saturation"),
+	})
+}

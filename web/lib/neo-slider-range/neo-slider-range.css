@@ -100,8 +100,10 @@ neo-slider-range[vertical]:where(:not([vertical="false"])) > [data-neo-slider-tr
 	inset-inline: calc((var(--neo-slider-track-height) - var(--neo-slider-hit-area)) / 2);
 }
 
+/* Inline-level and bottom-aligned like a vertical <neo-slider>. */
 neo-slider-range[vertical]:where(:not([vertical="false"])) {
-	display: grid;
+	display: inline-grid;
+	vertical-align: bottom;
 	/* See the matching `<neo-slider>` rule for why col 1 is pinned to
 	 * the rail's length. It stops a wide header from padding col 1
 	 * out and pushing the marks away from the rail. */

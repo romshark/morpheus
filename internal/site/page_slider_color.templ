@@ -1,0 +1,175 @@
+package site
+
+import (
+	"github.com/romshark/morpheus/internal/href"
+	"github.com/romshark/morpheus/internal/site/examples"
+)
+
+templ PageSliderColor(morpheusVersion string) {
+	@PageDoc(href.PageSliderColor(), "Slider color", morpheusVersion) {
+		<section class="demo">
+			@overviewH2(href.PageSliderColor()) {
+				Slider color
+			}
+			<p class="intro">
+				Component <code>{ "<neo-slider-color>" }</code> is a slider over 1
+				channel of a color: hue, saturation or brightness. Its
+				<code>value</code> is the whole color, which lets several sliders
+				and a @ComponentLink("neo-color-field", href.PageColorField())&nbsp;share
+				1 value. The track shows the colors the slider reaches.
+			</p>
+			@Playground(PlaygroundOpts{
+				ID:     "slider-color-playground",
+				States: sliderColorPlaygroundStates(),
+			})
+			@anchoredH2("reference") {
+				Reference
+			}
+			@ComponentDocs(sliderColorDoc)
+			@anchoredH3("interaction") {
+				Interaction
+			}
+			<ul class="demo-note">
+				<li>
+					Pointer, keyboard and the value field work as on @ComponentLink("neo-slider", href.PageSlider())&period;
+				</li>
+				<li>
+					A gray has no hue and black has no saturation. On such a
+					<code>value</code> the element keeps the hue and saturation it
+					had.
+				</li>
+				<li>
+					The element paints the track and the thumb. The other
+					<code>{ "--neo-slider-*" }</code> properties of @ComponentLink("neo-slider", href.PageSlider())&nbsp;apply.
+				</li>
+			</ul>
+		</section>
+		<section class="demo">
+			@anchoredH2("examples") {
+				Examples
+			}
+			@anchoredH3("channels") {
+				Channels
+			}
+			<p class="demo-note">
+				<code>channel</code> picks the channel. The saturation track runs
+				from gray to the full color at the current brightness, and the
+				brightness track from black to the full color.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     sliderColorChannelsHTML,
+				TemplSource:    sliderColorChannelsTempl,
+			}) {
+				@examples.SliderColorChannels()
+			}
+			@anchoredH3("explicit-hue") {
+				Explicit hue
+			}
+			<p class="demo-note">
+				<code>hue</code> sets the hue of a gray, which
+				<code>{ `value="#94a3b8"` }</code> alone can't carry. It takes
+				precedence over the hue of <code>value</code>, and the hue
+				channel writes it back.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     sliderColorExplicitHueHTML,
+				TemplSource:    sliderColorExplicitHueTempl,
+			}) {
+				@examples.SliderColorExplicitHue()
+			}
+			@anchoredH3("vertical") {
+				Vertical
+			}
+			<p class="demo-note">
+				<code>vertical</code> puts the lowest value at the bottom.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     sliderColorVerticalHTML,
+				TemplSource:    sliderColorVerticalTempl,
+			}) {
+				@examples.SliderColorVertical()
+			}
+			@anchoredH3("disabled") {
+				Disabled
+			}
+			<p class="demo-note">
+				<code>disabled</code> blocks pointer and keyboard input.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     sliderColorDisabledHTML,
+				TemplSource:    sliderColorDisabledTempl,
+			}) {
+				@examples.SliderColorDisabled()
+			}
+		</section>
+		<section class="demo">
+			@anchoredH2("examples-datastar") {
+				Examples: Datastar
+			}
+			@anchoredH3("shared-color") {
+				Shared color
+			}
+			<p class="demo-note">
+				A color field and 2 sliders bind the same <code>value</code> and
+				<code>hue</code> signals and write both back on input. Drag any
+				of them to see the others follow.
+			</p>
+			@demoFrameWith(DemoFrameOpts{
+				StageMinHeight: "max-content",
+				HTMLSource:     sliderColorSharedHTML,
+				TemplSource:    sliderColorSharedTempl,
+			}) {
+				@examples.SliderColorShared()
+			}
+		</section>
+	}
+}
+
+var sliderColorDoc = ComponentDoc{
+	Attributes: []DocAttribute{
+		{Name: "channel", Type: `"hue" | "saturation" | "brightness"`, Default: `"hue"`, Observed: true,
+			Description: templ.Raw("Channel the slider edits. Hue runs from 0 to 360, the others from 0 to 100.")},
+		{Name: "value", Type: "string", Default: "#2563eb", Reflected: true, Observed: true,
+			Description: templ.Raw("Color as <code>#rrggbb</code>.")},
+		{Name: "hue", Type: "number", Reflected: true, Observed: true,
+			Description: templ.Raw("Hue in degrees. Takes precedence over the hue of <code>value</code>. Reflected by the hue channel when set.")},
+		{Name: "label", Type: "string", Observed: true, Description: templ.Raw("Plain-text caption.")},
+		{Name: "hide-value", Type: "boolean", Default: "false", Observed: true,
+			Description: templ.Raw("Hides the editable value display.")},
+		{Name: "vertical", Type: "boolean", Default: "false", Observed: true,
+			Description: templ.Raw("Switches to vertical orientation. The element is then inline-level and bottom-aligned, which puts several in a row.")},
+		{Name: "disabled", Type: "boolean", Default: "false", Observed: true,
+			Description: templ.Raw("Blocks pointer and keyboard input.")},
+		{Name: "easing", Type: "string", Observed: true,
+			Description: templ.Raw("CSS transition shorthand for the thumb.")},
+		{Name: "aria-label", Type: "string", Observed: true,
+			Description: templ.Raw("Accessible name when there is no <code>label</code>. Defaults to the channel name, such as Hue.")},
+	},
+	Events: []DocEvent{
+		{Name: "neo-slider-color-input", Detail: "{ value: string, hue: number }", Bubbles: true,
+			Description: templ.Raw("Fires on every change during a pointer drag.")},
+		{Name: "neo-slider-color-change", Detail: "{ value: string, hue: number }", Bubbles: true,
+			Description: templ.Raw("Fires on commit (drag end, keyboard or edit), only if the color changed.")},
+	},
+	Parts: []DocPart{
+		{Name: "header", Description: templ.Raw("Row holding the label, value and unit.")},
+		{Name: "label", Description: templ.Raw("Label text.")},
+		{Name: "output", Description: templ.Raw("Wrapper around the value and unit.")},
+		{Name: "value", Description: templ.Raw("Editable value field.")},
+		{Name: "unit", Description: templ.Raw("Unit after the value, <code>°</code> or <code>%</code>.")},
+		{Name: "track", Description: templ.Raw("The rail the thumb travels along.")},
+		{Name: "thumb", Description: templ.Raw("Drag handle.")},
+	},
+	CSSProps: []DocCSSProp{
+		{Name: "--neo-slider-thumb-border", Default: "var(--page-bg)",
+			Description: templ.Raw("Thumb border color.")},
+		{Name: "--neo-slider-thumb-shadow", Default: "0 0 0 1px color-mix(in srgb, var(--page-fg) 35%, transparent), 0 2px 7px rgb(0 0 0 / 0.28)",
+			Description: templ.Raw("Thumb shadow.")},
+		{Name: "--neo-slider-track-shadow", Default: "inset 0 0 0 1px color-mix(in srgb, var(--page-fg) 14%, transparent)",
+			Description: templ.Raw("Ring around the rail.")},
+	},
+}

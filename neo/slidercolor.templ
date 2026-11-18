@@ -1,0 +1,56 @@
+package neo
+
+// SliderColorChannel is the HSV channel a <neo-slider-color> edits.
+type SliderColorChannel string
+
+const (
+	SliderColorChannelDefault    SliderColorChannel = ""
+	SliderColorChannelHue        SliderColorChannel = "hue"
+	SliderColorChannelSaturation SliderColorChannel = "saturation"
+	SliderColorChannelBrightness SliderColorChannel = "brightness"
+)
+
+type SliderColorOpts struct {
+	// Value is a #rrggbb color. The element defaults to #2563eb.
+	Value Attr[string]
+	// Hue is the hue in degrees. When set it takes precedence over the hue
+	// of Value, which a gray doesn't carry.
+	Hue Attr[float64]
+	// Channel is the channel the slider edits. The element defaults to hue.
+	Channel   Attr[SliderColorChannel]
+	Label     Attr[string]
+	HideValue Attr[bool]
+	Vertical  Attr[bool]
+	// Easing is the transition shorthand for the thumb between commits.
+	Easing    Attr[string]
+	Disabled  Attr[bool]
+	AriaLabel Attr[string]
+}
+
+// SliderColor renders <neo-slider-color>, a slider over 1 HSV channel of a
+// color. Several sliders and a [ColorField] can share 1 value:
+//
+//	@neo.SliderColor(neo.SliderColorOpts{
+//		Channel: neo.Set(neo.SliderColorChannelSaturation),
+//		Value:   neo.Set("#2563eb"),
+//		Label:   neo.Set("Saturation"),
+//	})
+templ SliderColor(opts SliderColorOpts) {
+	@SliderColorAttrs(opts, nil)
+}
+
+// SliderColorAttrs is [SliderColor] with an extra attribute set.
+templ SliderColorAttrs(opts SliderColorOpts, attrs templ.Attributes) {
+	<neo-slider-color
+		{ opts.Channel.Attrs("channel")... }
+		{ opts.Value.Attrs("value")... }
+		{ opts.Hue.Attrs("hue")... }
+		{ opts.Label.Attrs("label")... }
+		{ opts.HideValue.Attrs("hide-value")... }
+		{ opts.Vertical.Attrs("vertical")... }
+		{ opts.Easing.Attrs("easing")... }
+		{ opts.Disabled.Attrs("disabled")... }
+		{ opts.AriaLabel.Attrs("aria-label")... }
+		{ attrs... }
+	></neo-slider-color>
+}

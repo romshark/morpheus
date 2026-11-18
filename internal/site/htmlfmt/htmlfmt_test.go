@@ -30,6 +30,24 @@ func TestFormat(t *testing.T) {
 		name: "bare icon flows",
 		in:   `<span data-neo-sortable-handle><neo-icon name="grip-vertical"></neo-icon> Drag</span>`,
 		want: `<span data-neo-sortable-handle><neo-icon name="grip-vertical"></neo-icon> Drag</span>`,
+	}, {
+		// The first slider fits on 1 line, the second doesn't.
+		// Both wrap their attributes, and the differently tagged <hr> stays.
+		name: "same-tag siblings wrap together",
+		in: `<neo-slider-color channel="hue" value="#0d9488" label="Hue"></neo-slider-color>` +
+			`<neo-slider-color channel="saturation" value="#0d9488" label="Saturation"></neo-slider-color>` +
+			`<hr>`,
+		want: `<neo-slider-color
+  channel="hue"
+  value="#0d9488"
+  label="Hue"
+></neo-slider-color>
+<neo-slider-color
+  channel="saturation"
+  value="#0d9488"
+  label="Saturation"
+></neo-slider-color>
+<hr>`,
 	}} {
 		t.Run(tc.name, func(t *testing.T) {
 			if got := Format(tc.in); got != tc.want {

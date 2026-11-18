@@ -1,10 +1,5 @@
+import { type HSV, hexToHsv, hsvToHex, wrapHue } from "../color";
 import { boolAttr } from "../command";
-
-interface HSV {
-	h: number;
-	s: number;
-	v: number;
-}
 
 interface ActiveDrag {
 	pointerId: number;
@@ -12,86 +7,12 @@ interface ActiveDrag {
 
 const DEFAULT_VALUE = "#2563eb";
 
-function clamp(n: number, min = 0, max = 100) {
-	return Math.min(max, Math.max(min, n));
+function clamp(n: number) {
+	return Math.min(100, Math.max(0, n));
 }
 
-function clampHue(n: number) {
-	if (!Number.isFinite(n)) return 0;
-	return ((n % 360) + 360) % 360;
-}
-
-function hexByte(n: number) {
-	return Math.round(clamp(n, 0, 255))
-		.toString(16)
-		.padStart(2, "0");
-}
-
-function hsvToHex(h: number, sPct: number, vPct: number) {
-	const s = clamp(sPct) / 100;
-	const v = clamp(vPct) / 100;
-	const c = v * s;
-	const hp = clampHue(h) / 60;
-	const x = c * (1 - Math.abs((hp % 2) - 1));
-	let r = 0;
-	let g = 0;
-	let b = 0;
-
-	if (hp >= 0 && hp < 1) [r, g, b] = [c, x, 0];
-	else if (hp < 2) [r, g, b] = [x, c, 0];
-	else if (hp < 3) [r, g, b] = [0, c, x];
-	else if (hp < 4) [r, g, b] = [0, x, c];
-	else if (hp < 5) [r, g, b] = [x, 0, c];
-	else [r, g, b] = [c, 0, x];
-
-	const m = v - c;
-	return `#${hexByte((r + m) * 255)}${hexByte((g + m) * 255)}${hexByte((b + m) * 255)}`;
-}
-
-function hexToRgb(value: string) {
-	const m = value.trim().match(/^#?([0-9a-f]{3}|[0-9a-f]{6})$/i);
-	if (!m) return null;
-	const raw = m[1];
-	const hex =
-		raw.length === 3
-			? raw
-					.split("")
-					.map((ch) => ch + ch)
-					.join("")
-			: raw;
-	return {
-		r: parseInt(hex.slice(0, 2), 16),
-		g: parseInt(hex.slice(2, 4), 16),
-		b: parseInt(hex.slice(4, 6), 16),
-	};
-}
-
-function rgbToHsv(r: number, g: number, b: number): HSV {
-	const rn = r / 255;
-	const gn = g / 255;
-	const bn = b / 255;
-	const max = Math.max(rn, gn, bn);
-	const min = Math.min(rn, gn, bn);
-	const d = max - min;
-	let h = 0;
-
-	if (d !== 0) {
-		if (max === rn) h = 60 * (((gn - bn) / d) % 6);
-		else if (max === gn) h = 60 * ((bn - rn) / d + 2);
-		else h = 60 * ((rn - gn) / d + 4);
-	}
-
-	return {
-		h: clampHue(h),
-		s: max === 0 ? 0 : (d / max) * 100,
-		v: max * 100,
-	};
-}
-
-function parseValue(value: string | null) {
-	const rgb = value ? hexToRgb(value) : null;
-	if (!rgb) return rgbToHsv(37, 99, 235);
-	return rgbToHsv(rgb.r, rgb.g, rgb.b);
+function parseValue(value: string | null): HSV {
+	return hexToHsv(value) ?? (hexToHsv(DEFAULT_VALUE) as HSV);
 }
 
 export class NeoColorField extends HTMLElement {
@@ -117,7 +38,7 @@ export class NeoColorField extends HTMLElement {
 		this.#childObserver.observe(this, { childList: true, subtree: true });
 		const hsv = parseValue(this.getAttribute("value") || DEFAULT_VALUE);
 		const hueAttr = Number(this.getAttribute("hue"));
-		this.#hueValue = this.hasAttribute("hue") ? clampHue(hueAttr) : hsv.h;
+		this.#hueValue = this.hasAttribute("hue") ? wrapHue(hueAttr) : hsv.h;
 		this.#xValue = hsv.s;
 		this.#yValue = 100 - hsv.v;
 		this.#sync(false);
@@ -168,7 +89,7 @@ export class NeoColorField extends HTMLElement {
 			this.#xValue = hsv.s;
 			this.#yValue = 100 - hsv.v;
 		} else if (name === "hue") {
-			this.#hueValue = clampHue(Number(this.getAttribute("hue")));
+			this.#hueValue = wrapHue(Number(this.getAttribute("hue")));
 		}
 		this.#sync(false);
 		if (hadFocus) this.#restoreFocusAfterMorph();

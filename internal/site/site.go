@@ -245,6 +245,7 @@ var ComponentGroups = []NavGroup{
 		{href.PageRating(), "Rating", "component-rating"},
 		{href.PageSelect(), "Select", "component-select"},
 		{href.PageSlider(), "Slider", "component-slider"},
+		{href.PageSliderColor(), "Slider color", "component-slider-color"},
 		{href.PageSliderRange(), "Slider range", "component-slider-range"},
 		{href.PageSwitch(), "Switch", "component-switch"},
 		{href.PageTextInput(), "Text input", "component-text-input"},

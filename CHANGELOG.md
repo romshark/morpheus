@@ -4,6 +4,18 @@ This file records the notable changes of each release in the format of [Keep a C
 
 ## [Unreleased]
 
+### Added
+
+#### Components
+
+- Add `<neo-slider-color>`, a slider over the hue, saturation or brightness of a `#rrggbb` color. Several sliders and a `<neo-color-field>` can share 1 value. `neo.SliderColor` renders it from Templ.
+
+### Changed
+
+#### Components
+
+- Render a vertical `<neo-slider>` and `<neo-slider-range>` inline-level and bottom-aligned, like a native range input. Several vertical sliders now sit in a row without a flex container. A page that relied on each one starting a new line needs a block wrapper.
+
 ### Fixed
 
 #### Components

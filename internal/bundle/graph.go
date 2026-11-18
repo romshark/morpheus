@@ -48,6 +48,7 @@ var deps = []dep{
 	{"neo-resizable", []string{"neo-icon"}},
 	{"neo-rating", []string{"neo-icon"}},
 	{"neo-avatars", []string{"neo-avatar"}},
+	{"neo-slider-color", []string{"neo-slider"}},
 }
 
 // standalone lists the components no dep mentions. neo-link has no files

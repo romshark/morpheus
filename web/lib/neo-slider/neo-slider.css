@@ -118,8 +118,12 @@ neo-slider[vertical]:where(:not([vertical="false"])) > [data-neo-slider-track]::
 	inset-inline: calc((var(--neo-slider-track-height) - var(--neo-slider-hit-area)) / 2);
 }
 
+/* Inline-level like a native range input, which puts several in a row.
+ * Bottom alignment lines up the rail ends; the baseline would be the label
+ * text on a labeled slider and the bottom edge on an unlabeled one. */
 neo-slider[vertical]:where(:not([vertical="false"])) {
-	display: grid;
+	display: inline-grid;
+	vertical-align: bottom;
 	/* Col 1 is pinned to the rail's width (a length, which doesn't
 	 * grow). The header spans both cols and is typically wider than
 	 * `track + gap + marks`; with 2 `auto` cols that excess width

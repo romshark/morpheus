@@ -135,44 +135,45 @@ neo-revealable:not(:defined):not([open]:where(:not([open="false"])))[blur-conten
  * so the element doesn't grow on upgrade. ::before stands for the header
  * text, a 0.85em bar centered in the header line (line-height 1.2), and
  * ::after for the rail. A page can paint both as a skeleton. */
-:is(neo-slider, neo-slider-range, neo-progress):not(:defined) {
+:is(neo-slider, neo-slider-color, neo-slider-range, neo-progress):not(:defined) {
 	display: flex;
 	flex-direction: column;
 	gap: 0.5rem;
 	width: 100%;
 }
 
-:is(neo-slider, neo-slider-range, neo-progress):not(:defined)::before {
+:is(neo-slider, neo-slider-color, neo-slider-range, neo-progress):not(:defined)::before {
 	content: "";
 	height: 0.85em;
 	margin-block: calc((1.2em - 0.85em) / 2);
 	width: 6em;
 }
 
-:is(neo-slider, neo-slider-range, neo-progress):not(:defined)::after {
+:is(neo-slider, neo-slider-color, neo-slider-range, neo-progress):not(:defined)::after {
 	content: "";
 	height: var(--neo-slider-track-height, 0.375rem);
 }
 
 /* The slider rail is inset by half a thumb; the progress rail has no thumb. */
-:is(neo-slider, neo-slider-range):not(:defined)::after {
+:is(neo-slider, neo-slider-color, neo-slider-range):not(:defined)::after {
 	margin-inline: calc(var(--neo-slider-thumb-size, 1rem) / 2);
 }
 
-:is(neo-slider, neo-slider-range, neo-progress):not(:defined) > * {
+:is(neo-slider, neo-slider-color, neo-slider-range, neo-progress):not(:defined) > * {
 	display: none;
 }
 
 /* No label and hide-value: the upgraded element collapses its header row. */
-:is(neo-slider, neo-slider-range, neo-progress):not(:defined):is(:not([label]), [label=""])[hide-value]:not(
-	[hide-value="false"]
-)::before {
+:is(neo-slider, neo-slider-color, neo-slider-range, neo-progress):not(:defined):is(
+	:not([label]),
+	[label=""]
+)[hide-value]:not([hide-value="false"])::before {
 	display: none;
 }
 
 /* A mark with a label adds the marks row below the rail: the gap, its
  * margin and 1 line of the mark font at line-height 1.2. */
-:is(neo-slider, neo-slider-range):not(:defined):not([vertical]:not([vertical="false"])):has(
+:is(neo-slider, neo-slider-color, neo-slider-range):not(:defined):not([vertical]:not([vertical="false"])):has(
 	> [data-neo-slider-mark]:not(:empty)
 )::after,
 neo-progress:not(:defined):not([vertical]:not([vertical="false"])):has(> [data-neo-progress-mark]:not(:empty))::after {
@@ -184,11 +185,19 @@ neo-progress:not(:defined):not([vertical]:not([vertical="false"])):has(> [data-n
 	);
 }
 
-:is(neo-slider, neo-slider-range, neo-progress):not(:defined)[vertical]:not([vertical="false"]) {
+:is(neo-slider, neo-slider-color, neo-slider-range, neo-progress):not(:defined)[vertical]:not([vertical="false"]) {
 	width: max-content;
 }
 
-:is(neo-slider, neo-slider-range, neo-progress):not(:defined)[vertical]:not([vertical="false"])::after {
+/* Vertical sliders are inline-level and bottom-aligned once upgraded. */
+:is(neo-slider, neo-slider-color, neo-slider-range):not(:defined)[vertical]:not([vertical="false"]) {
+	display: inline-flex;
+	vertical-align: bottom;
+}
+
+:is(neo-slider, neo-slider-color, neo-slider-range, neo-progress):not(:defined)[vertical]:not(
+	[vertical="false"]
+)::after {
 	width: var(--neo-slider-track-height, 0.375rem);
 	height: var(--neo-slider-vertical-track-length, 12rem);
 	min-height: 6rem;
@@ -196,13 +205,13 @@ neo-progress:not(:defined):not([vertical]:not([vertical="false"])):has(> [data-n
 	margin-inline: 0 0.75rem;
 }
 
-:is(neo-slider, neo-slider-range):not(:defined)[vertical]:not([vertical="false"])::after {
+:is(neo-slider, neo-slider-color, neo-slider-range):not(:defined)[vertical]:not([vertical="false"])::after {
 	margin-block: calc(var(--neo-slider-thumb-size, 1rem) / 2);
 }
 
 /* A collapsed header still leaves its empty grid row and row gap above the
  * vertical rail; keep ::before as a 0-size item to match. */
-:is(neo-slider, neo-slider-range, neo-progress):not(:defined)[vertical]:not([vertical="false"]):is(
+:is(neo-slider, neo-slider-color, neo-slider-range, neo-progress):not(:defined)[vertical]:not([vertical="false"]):is(
 	:not([label]),
 	[label=""]
 )[hide-value]:not([hide-value="false"])::before {

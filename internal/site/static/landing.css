@@ -2319,10 +2319,6 @@ neo-sidebar.landing-a11y-demo-nav:not(:defined) {
 	}
 }
 
-.lf-color {
-	--lf-color-hue: 221;
-}
-
 .lf-color > [data-neo-card-inner] {
 	gap: 0.8rem;
 }
@@ -2344,52 +2340,6 @@ neo-sidebar.landing-a11y-demo-nav:not(:defined) {
 	--neo-color-field-width: 100%;
 	--neo-color-field-height: 6rem;
 	--neo-color-field-radius: calc(var(--page-radius, 0.5rem) - 1px);
-}
-
-.lf-hue-slider {
-	--neo-slider-track-image: linear-gradient(
-		to right,
-		hsl(0 100% 50%),
-		hsl(60 100% 50%),
-		hsl(120 100% 50%),
-		hsl(180 100% 50%),
-		hsl(240 100% 50%),
-		hsl(300 100% 50%),
-		hsl(360 100% 50%)
-	);
-	--neo-slider-fill-bg: transparent;
-	--neo-slider-thumb-bg: hsl(var(--lf-color-hue) 100% 50%);
-	--neo-slider-thumb-border: var(--page-bg);
-	--neo-slider-thumb-border-width: 2px;
-	--neo-slider-thumb-shadow:
-		0 0 0 1px color-mix(in srgb, var(--page-fg) 35%, transparent),
-		0 2px 7px rgba(0, 0, 0, 0.28);
-	--neo-slider-focus-ring: hsl(var(--lf-color-hue) 100% 45% / 0.35);
-
-	& > [data-neo-slider-track] {
-		border: 1px solid color-mix(in srgb, var(--page-fg) 14%, transparent);
-	}
-}
-
-/* Track recolours live from --lf-color-hue (hue slider + 2D field). */
-.lf-sat-slider {
-	--neo-slider-track-image: linear-gradient(
-		to right,
-		hsl(var(--lf-color-hue) 0% 50%),
-		hsl(var(--lf-color-hue) 100% 50%)
-	);
-	--neo-slider-fill-bg: transparent;
-	--neo-slider-thumb-bg: hsl(var(--lf-color-hue) 100% 50%);
-	--neo-slider-thumb-border: var(--page-bg);
-	--neo-slider-thumb-border-width: 2px;
-	--neo-slider-thumb-shadow:
-		0 0 0 1px color-mix(in srgb, var(--page-fg) 35%, transparent),
-		0 2px 7px rgba(0, 0, 0, 0.28);
-	--neo-slider-focus-ring: hsl(var(--lf-color-hue) 100% 45% / 0.35);
-
-	& > [data-neo-slider-track] {
-		border: 1px solid color-mix(in srgb, var(--page-fg) 14%, transparent);
-	}
 }
 
 /* Select + 2 toggle addons sharing one input-group styling.

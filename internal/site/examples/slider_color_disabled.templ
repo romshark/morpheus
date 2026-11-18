@@ -1,0 +1,12 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ SliderColorDisabled() {
+	@neo.SliderColor(neo.SliderColorOpts{
+		Channel:  neo.Set(neo.SliderColorChannelHue),
+		Value:    neo.Set("#7c3aed"),
+		Label:    neo.Set("Hue"),
+		Disabled: neo.Set(true),
+	})
+}

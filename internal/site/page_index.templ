@@ -1222,17 +1222,11 @@ templ landingShowcase() {
 }
 
 templ lfColorField() {
-	// HSV->hex helper used by the hue and saturation sliders to recompute
-	// the authoritative `_lf_color_value` hex when only one of the 3
-	// dimensions has changed. Mirrors hsvToHex in neo-color-field so a hex
-	// round-trip through this helper is bit-exact with what the field would
-	// emit for the same h/s/v.
+	// Converts the theme accent, any CSS color, to the #rrggbb value and hue
+	// that the color field and sliders take.
 	<script>
 		(function () {
-			if (window.lfHsvToHex) return;
-			function clamp(n) {
-				return Math.min(100, Math.max(0, n));
-			}
+			if (window.lfColorToHex) return;
 			function hue(n) {
 				if (!Number.isFinite(n)) return 0;
 				return ((n % 360) + 360) % 360;
@@ -1278,7 +1272,7 @@ templ lfColorField() {
 					byte(gamma(-1.2684380046 * l + 2.6097574011 * mm - 0.3413193965 * ss) * 255) +
 					byte(gamma(-0.0041960863 * l - 0.7034186147 * mm + 1.7076147010 * ss) * 255);
 			}
-			function hexToHsv(hex) {
+			function hexToColor(hex) {
 				hex = parseHex(hex) || "#2563eb";
 				var r = parseInt(hex.slice(1, 3), 16) / 255;
 				var g = parseInt(hex.slice(3, 5), 16) / 255;
@@ -1292,29 +1286,8 @@ templ lfColorField() {
 					else if (max === g) h = 60 * ((b - r) / d + 2);
 					else h = 60 * ((r - g) / d + 4);
 				}
-				return {
-					value: hex,
-					hue: hue(h),
-					sat: max === 0 ? 0 : (d / max) * 100,
-					val: max * 100,
-				};
+				return { value: hex, hue: hue(h) };
 			}
-			window.lfHsvToHex = function (h, sPct, vPct) {
-				var s = clamp(sPct) / 100;
-				var v = clamp(vPct) / 100;
-				var c = v * s;
-				var hp = hue(h) / 60;
-				var x = c * (1 - Math.abs((hp % 2) - 1));
-				var r = 0, g = 0, b = 0;
-				if (hp >= 0 && hp < 1) { r = c; g = x; }
-				else if (hp < 2) { r = x; g = c; }
-				else if (hp < 3) { g = c; b = x; }
-				else if (hp < 4) { g = x; b = c; }
-				else if (hp < 5) { r = x; b = c; }
-				else { r = c; b = x; }
-				var m = v - c;
-				return "#" + byte((r + m) * 255) + byte((g + m) * 255) + byte((b + m) * 255);
-			};
 			window.lfColorToHex = function (value) {
 				var hex = parseHex(value) || parseRgb(value) || oklchToHex(value);
 				if (hex) return hex;
@@ -1327,7 +1300,6 @@ templ lfColorField() {
 					? "#2563eb"
 					: parseHex(ctx.fillStyle) || parseRgb(ctx.fillStyle) || "#2563eb";
 			};
-			window.lfHexToHsv = hexToHsv;
 			window.lfThemeAccentDetail = function () {
 				var s = document.documentElement.style;
 				s.removeProperty("--accent");
@@ -1335,7 +1307,7 @@ templ lfColorField() {
 				s.removeProperty("--accent-fg");
 				var accent = getComputedStyle(document.documentElement)
 					.getPropertyValue("--accent");
-				return hexToHsv(window.lfColorToHex(accent));
+				return hexToColor(window.lfColorToHex(accent));
 			};
 			window.lfThemeEventKey = function (detail) {
 				var html = document.documentElement;
@@ -1362,17 +1334,12 @@ templ lfColorField() {
 		data-signals="{
 			_lf_color_value: window.lfColorSeed.value,
 			_lf_color_hue: window.lfColorSeed.hue,
-			_lf_color_sat: window.lfColorSeed.sat,
-			_lf_color_val: window.lfColorSeed.val,
 			_lf_color_touched: false
 		}"
-		data-attr:style="'--lf-color-hue: ' + $_lf_color_hue + ';'"
 		data-on:lf-color-reset="
 			$_lf_color_touched = false;
 			$_lf_color_value = evt.detail.value;
 			$_lf_color_hue = evt.detail.hue;
-			$_lf_color_sat = evt.detail.sat;
-			$_lf_color_val = evt.detail.val;
 		"
 		data-effect="
 			if ($_lf_color_touched) {
@@ -1402,41 +1369,37 @@ templ lfColorField() {
 				// handler writes :root --accent, which invalidates the whole
 				// page's style. neo-color-field-change fires on pointerup and
 				// stays immediate, committing the final color.
-				"data-on:neo-color-field-input__debounce.30ms": "$_lf_color_value = evt.detail.value; $_lf_color_hue = evt.detail.hue; $_lf_color_sat = evt.detail.x; $_lf_color_val = 100 - evt.detail.y; $_lf_color_touched = true",
-				"data-on:neo-color-field-change":               "$_lf_color_value = evt.detail.value; $_lf_color_hue = evt.detail.hue; $_lf_color_sat = evt.detail.x; $_lf_color_val = 100 - evt.detail.y; $_lf_color_touched = true",
+				"data-on:neo-color-field-input__debounce.30ms": "$_lf_color_value = evt.detail.value; $_lf_color_hue = evt.detail.hue; $_lf_color_touched = true",
+				"data-on:neo-color-field-change":               "$_lf_color_value = evt.detail.value; $_lf_color_hue = evt.detail.hue; $_lf_color_touched = true",
 			})
-			@neo.SliderAttrs(neo.SliderOpts[float64]{
-				Min:         neo.Set(0.0),
-				Max:         neo.Set(359.0),
-				Value:       neo.Set(221.0),
-				Label:       neo.Set("Hue"),
-				Unit:        neo.Set("°"),
-				HideTooltip: neo.Set(true),
-				AriaLabel:   neo.Set("Hue"),
+			@neo.SliderColorAttrs(neo.SliderColorOpts{
+				Channel: neo.Set(neo.SliderColorChannelHue),
+				Value:   neo.Set("#2563eb"),
+				Hue:     neo.Set(221.0),
+				Label:   neo.Set("Hue"),
 			}, templ.Attributes{
 				"class":           "lf-hue-slider",
-				"data-attr:value": "$_lf_color_hue",
-				"data-on:neo-slider-input__debounce.30ms": "$_lf_color_hue = Number(evt.detail.value); $_lf_color_value = window.lfHsvToHex($_lf_color_hue, $_lf_color_sat, $_lf_color_val); $_lf_color_touched = true",
-				"data-on:neo-slider-change":               "$_lf_color_hue = Number(evt.detail.value); $_lf_color_value = window.lfHsvToHex($_lf_color_hue, $_lf_color_sat, $_lf_color_val); $_lf_color_touched = true",
+				"data-attr:value": "$_lf_color_value",
+				"data-attr:hue":   "$_lf_color_hue",
+				"data-on:neo-slider-color-input__debounce.30ms": "$_lf_color_value = evt.detail.value; $_lf_color_hue = evt.detail.hue; $_lf_color_touched = true",
+				"data-on:neo-slider-color-change":               "$_lf_color_value = evt.detail.value; $_lf_color_hue = evt.detail.hue; $_lf_color_touched = true",
 			})
-			@neo.SliderAttrs(neo.SliderOpts[float64]{
-				Min:         neo.Set(0.0),
-				Max:         neo.Set(100.0),
-				Value:       neo.Set(85.0),
-				Label:       neo.Set("Saturation"),
-				Unit:        neo.Set("%"),
-				HideTooltip: neo.Set(true),
-				AriaLabel:   neo.Set("Saturation"),
+			@neo.SliderColorAttrs(neo.SliderColorOpts{
+				Channel: neo.Set(neo.SliderColorChannelSaturation),
+				Value:   neo.Set("#2563eb"),
+				Hue:     neo.Set(221.0),
+				Label:   neo.Set("Saturation"),
 			}, templ.Attributes{
 				"class":           "lf-sat-slider",
-				"data-attr:value": "$_lf_color_sat",
-				"data-on:neo-slider-input__debounce.30ms": "$_lf_color_sat = Number(evt.detail.value); $_lf_color_value = window.lfHsvToHex($_lf_color_hue, $_lf_color_sat, $_lf_color_val); $_lf_color_touched = true",
-				"data-on:neo-slider-change":               "$_lf_color_sat = Number(evt.detail.value); $_lf_color_value = window.lfHsvToHex($_lf_color_hue, $_lf_color_sat, $_lf_color_val); $_lf_color_touched = true",
+				"data-attr:value": "$_lf_color_value",
+				"data-attr:hue":   "$_lf_color_hue",
+				"data-on:neo-slider-color-input__debounce.30ms": "$_lf_color_value = evt.detail.value; $_lf_color_hue = evt.detail.hue; $_lf_color_touched = true",
+				"data-on:neo-slider-color-change":               "$_lf_color_value = evt.detail.value; $_lf_color_hue = evt.detail.hue; $_lf_color_touched = true",
 			})
 		</div>
 	</neo-card>
 	// Seeds the picker from the theme accent, which only the client knows.
-	// The server values (#2563eb / 221 / 85) are a no-JS placeholder.
+	// The server values (#2563eb / 221) are a no-JS placeholder.
 	// This runs while parsing, after the render-blocking morpheus.css and
 	// before Datastar and the bundle (deferred modules), which puts the
 	// components at their final position before they first render.
@@ -1450,10 +1413,10 @@ templ lfColorField() {
 			var seedCard = document.getElementById("lf-color-card");
 			if (seedCard) {
 				var field = seedCard.querySelector(".lf-color-field");
-				field.setAttribute("value", seed.value);
-				field.setAttribute("hue", String(seed.hue));
-				seedCard.querySelector(".lf-hue-slider").setAttribute("value", String(seed.hue));
-				seedCard.querySelector(".lf-sat-slider").setAttribute("value", String(seed.sat));
+				for (var el of [field, seedCard.querySelector(".lf-hue-slider"), seedCard.querySelector(".lf-sat-slider")]) {
+					el.setAttribute("value", seed.value);
+					el.setAttribute("hue", String(seed.hue));
+				}
 				seedCard.querySelector(".lf-color-head > span").textContent = seed.value.toUpperCase();
 			}
 			function syncPicker() {

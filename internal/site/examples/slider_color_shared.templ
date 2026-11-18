@@ -1,0 +1,49 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+// Every control binds the same 2 signals and writes both back.
+const sliderColorSharedWrite = "$slider_color_shared_value = evt.detail.value; $slider_color_shared_hue = evt.detail.hue"
+
+templ SliderColorShared() {
+	@neo.LayoutAttrs(neo.LayoutOpts{
+		Direction: neo.Set(neo.Column),
+		Gap:       neo.Set(neo.GapLg),
+	}, templ.Attributes{
+		"data-signals": "{slider_color_shared_value: '#2563eb', slider_color_shared_hue: 221}",
+		"style":        "width: 100%",
+	}) {
+		@neo.ColorFieldAttrs(neo.ColorFieldOpts[float64]{
+			Value:     neo.Set("#2563eb"),
+			Hue:       neo.Set(221.0),
+			AriaLabel: neo.Set("Accent color"),
+		}, templ.Attributes{
+			"data-attr:value":               "$slider_color_shared_value",
+			"data-attr:hue":                 "$slider_color_shared_hue",
+			"data-on:neo-color-field-input": sliderColorSharedWrite,
+		})
+		@neo.SliderColorAttrs(neo.SliderColorOpts{
+			Channel: neo.Set(neo.SliderColorChannelHue),
+			Value:   neo.Set("#2563eb"),
+			Hue:     neo.Set(221.0),
+			Label:   neo.Set("Hue"),
+		}, templ.Attributes{
+			"data-attr:value":                 "$slider_color_shared_value",
+			"data-attr:hue":                   "$slider_color_shared_hue",
+			"data-on:neo-slider-color-input":  sliderColorSharedWrite,
+			"data-on:neo-slider-color-change": sliderColorSharedWrite,
+		})
+		@neo.SliderColorAttrs(neo.SliderColorOpts{
+			Channel: neo.Set(neo.SliderColorChannelSaturation),
+			Value:   neo.Set("#2563eb"),
+			Hue:     neo.Set(221.0),
+			Label:   neo.Set("Saturation"),
+		}, templ.Attributes{
+			"data-attr:value":                 "$slider_color_shared_value",
+			"data-attr:hue":                   "$slider_color_shared_hue",
+			"data-on:neo-slider-color-input":  sliderColorSharedWrite,
+			"data-on:neo-slider-color-change": sliderColorSharedWrite,
+		})
+		<code data-text="$slider_color_shared_value">#2563eb</code>
+	}
+}

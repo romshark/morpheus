@@ -2517,7 +2517,7 @@ neo-tabs[easing][exit-animation="tabs-tilt"]:state(backward)
 /* WebKit keeps a :not(:defined) animation running on a host whose upgrade
  * attaches a shadow root. An explicit `animation` on the defined host cancels it.
  * Add every shadow host a skeleton below animates. */
-:is(neo-slider, neo-slider-range, neo-progress, neo-tree, neo-textinput):defined {
+:is(neo-slider, neo-slider-color, neo-slider-range, neo-progress, neo-tree, neo-textinput):defined {
 	animation: none;
 }
 
@@ -2539,17 +2539,17 @@ neo-switch:not(:defined) {
 /* Sliders and progress bars: the kit reserves the layout with transparent
  * ::before (header) and ::after (rail) boxes; paint them as a skeleton.
  * The host fades in once; the pseudo-elements pulse independently. */
-:is(neo-slider, neo-slider-range, neo-progress):not(:defined) {
+:is(neo-slider, neo-slider-color, neo-slider-range, neo-progress):not(:defined) {
 	animation: neo-placeholder-appear var(--neo-placeholder-fade)
 		ease-out var(--neo-placeholder-delay) both;
 }
-:is(neo-slider, neo-slider-range, neo-progress):not(:defined)::before {
+:is(neo-slider, neo-slider-color, neo-slider-range, neo-progress):not(:defined)::before {
 	background: var(--neo-skeleton-bg);
 	border-radius: var(--neo-skeleton-radius);
 	animation: neo-skeleton-pulse var(--neo-skeleton-duration)
 		ease-in-out var(--neo-placeholder-delay) infinite;
 }
-:is(neo-slider, neo-slider-range, neo-progress):not(:defined)::after {
+:is(neo-slider, neo-slider-color, neo-slider-range, neo-progress):not(:defined)::after {
 	background: var(--neo-skeleton-bg);
 	border-radius: var(--neo-slider-track-radius, 999px);
 	animation: neo-skeleton-pulse var(--neo-skeleton-duration)

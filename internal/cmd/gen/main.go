@@ -209,6 +209,7 @@ func buildPages(
 		{href.PageSidebar(), site.PageSidebar(morpheusVersion)},
 		{href.PageSkeleton(), site.PageSkeleton(morpheusVersion)},
 		{href.PageSlider(), site.PageSlider(morpheusVersion)},
+		{href.PageSliderColor(), site.PageSliderColor(morpheusVersion)},
 		{href.PageSliderRange(), site.PageSliderRange(morpheusVersion)},
 		{href.PageSortable(), site.PageSortable(morpheusVersion)},
 		{href.PageSpinner(), site.PageSpinner(morpheusVersion)},

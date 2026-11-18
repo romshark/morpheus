@@ -38,6 +38,7 @@ import "./neo-revealable";
 import "./neo-select";
 import "./neo-sidebar";
 import "./neo-slider";
+import "./neo-slider-color";
 import "./neo-slider-range";
 import "./neo-sortable";
 import "./neo-spinner";

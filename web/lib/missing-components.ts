@@ -59,6 +59,7 @@ const BEHAVIORAL_TAGS = new Set<string>([
 	"neo-select",
 	"neo-sidebar",
 	"neo-slider",
+	"neo-slider-color",
 	"neo-slider-range",
 	"neo-sortable",
 	"neo-spinner",
