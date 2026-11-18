@@ -1,8 +1,7 @@
-// Internals render into a shadow root on connect with no <slot>. A fat morph
-// of the light host then keeps the same thumb and fill nodes, and the
+// Internals render into a shadow root on connect with no <slot>.
+// A fat morph of the light host then keeps the same thumb and fill nodes, and the
 // `easing` transition runs instead of rebuilding and snapping. The focusable
-// thumb (role="slider") and value field (role="spinbutton") live in the
-// shadow.
+// thumb (role="slider") and value field (role="spinbutton") live in the shadow.
 
 import { boolAttr } from "../command";
 import { isRTL, logicalArrow } from "../direction";
@@ -46,13 +45,12 @@ const MARK_CFG: MarkRailConfig = {
 };
 
 // The whole module stylesheet, tag selectors rewritten to `:host`,
-// adopted into every instance's shadow root. Built once and shared. The
-// internals live in the shadow so a fat morph of the light host
-// can't wipe them. The thumb / fill nodes persist, and an `easing`
-// transition runs on a plain `value` change instead of snapping after a
-// rebuild. The tooltip pill CSS is adopted here too because the thumb's
-// [data-neo-tooltip-host] bubble lives inside this shadow root and global
-// tooltip rules cannot reach it.
+// adopted into every instance's shadow root. Built once and shared.
+// The internals live in the shadow so a fat morph of the light host can't wipe them.
+// The thumb / fill nodes persist, and an `easing` transition runs on a plain `value`
+// change instead of snapping after a rebuild.
+// The tooltip pill CSS is adopted here too because the thumb's [data-neo-tooltip-host]
+// bubble lives inside this shadow root and global tooltip rules cannot reach it.
 const SHEET = new CSSStyleSheet();
 SHEET.replaceSync(`${scopeCssToHost(sliderCss, "neo-slider")}\n${tooltipCss}`);
 
@@ -93,6 +91,7 @@ export class NeoSlider extends HTMLElement {
 	#dragPointerId: number | null = null;
 	#dragStartX = 0;
 	#dragStartY = 0;
+	#dragStartValue = 0;
 	#dragStarted = false;
 	// Track rect captured once at drag start. Reading it per pointermove
 	// forces a synchronous layout each move; on a heavy page that reflow is
@@ -115,8 +114,8 @@ export class NeoSlider extends HTMLElement {
 	#tooltipTrackStartedAt = 0;
 	#markResizeObserver: ResizeObserver | null = null;
 	#markLayoutFrame: number | null = null;
-	// Source of truth for the value (clamped live by `get value`). The
-	// attribute is a state mirror, not the store, because a fat morph that
+	// Source of truth for the value (clamped live by `get value`).
+	// The attribute is a state mirror, not the store, because a fat morph that
 	// strips `value` must keep the thumb where it is. Intent survives across
 	// re-connects when the attribute is absent.
 	#valueIntent = NaN;
@@ -142,8 +141,8 @@ export class NeoSlider extends HTMLElement {
 		if (attr !== null) this.#valueIntent = this.#clamp(num(attr, this.min));
 		else if (!Number.isFinite(this.#valueIntent)) this.#valueIntent = this.min;
 		this.#render();
-		// On a reconnect #render early-returns (internals persist). The
-		// tooltip controller disconnected on the prior detach must re-bind
+		// On a reconnect #render early-returns (internals persist).
+		// The tooltip controller disconnected on the prior detach must re-bind
 		// its window listeners here. Idempotent when already connected.
 		this.#tooltipCtrl?.connect();
 		// Rect-invalidators live for the slider's lifetime, not per drag, to
@@ -234,10 +233,9 @@ export class NeoSlider extends HTMLElement {
 				this.#writeValue(this.value);
 				return;
 			}
-			// Ignore a write that matches the current value. A 2-way binding
-			// echoes every drag `input` back into this attribute; without this
-			// guard each move runs #syncValue 2 times (24 setAttribute + 5
-			// querySelectorAll per move).
+			// Ignore a write that matches the current value. A 2-way binding echoes
+			// every drag `input` back into this attribute; without this guard each move
+			// runs #syncValue 2 times (24 setAttribute + 5 querySelectorAll per move).
 			const parsed = this.#clamp(num(newValue, this.value));
 			if (parsed !== this.value) this.#writeValue(parsed);
 			return;
@@ -284,10 +282,9 @@ export class NeoSlider extends HTMLElement {
 
 	get value(): number {
 		// Clamp the stored intent live so a later min/max/step change keeps the
-		// kept value in range without re-snapping. No step-snapping here,
-		// because mark clicks commit off-step values verbatim (e.g. a mark at
-		// 25 on a step-10 slider) and need to survive the round-trip exactly
-		// where the user clicked.
+		// kept value in range without re-snapping. No step-snapping here, because mark
+		// clicks commit off-step values verbatim (e.g. a mark at 25 on a step-10 slider)
+		// and need to survive the round-trip exactly where the user clicked.
 		return this.#clamp(Number.isFinite(this.#valueIntent) ? this.#valueIntent : this.min);
 	}
 
@@ -295,15 +292,15 @@ export class NeoSlider extends HTMLElement {
 		this.#writeValue(this.#clampSnap(v));
 	}
 
-	// Single value writer. Updates intent, reflects to the attribute (guarded
-	// so it isn't read back as a command), and re-syncs the rendered geometry.
+	// Single value writer. Updates intent, reflects to the attribute
+	// (guarded so it isn't read back as a command), and re-syncs the rendered geometry.
 	// Every internal value change (drag, click, keyboard, field commit) routes
 	// here so the attribute stays a faithful state mirror.
 	#writeValue(v: number) {
 		this.#valueIntent = v;
 		// Skip attribute reflection mid-drag, because mutating a light-DOM
-		// `value` attribute restyles any page :has() scope keyed on `value`, a
-		// document-wide recalc on a large page. Intent + rendered geometry
+		// `value` attribute restyles any page :has() scope keyed on `value`,
+		// a document-wide recalc on a large page. Intent + rendered geometry
 		// stay live; #endDrag reflects the settled value once.
 		if (!this.#dragStarted) this.#reflectValue(v);
 		if (this.#rendered) this.#syncValue();
@@ -333,9 +330,8 @@ export class NeoSlider extends HTMLElement {
 
 		this.#captureUserContent();
 
-		// `part` exposes each internal to page CSS via
-		// `neo-slider::part(<name>)`, the only styling hook across the
-		// shadow boundary.
+		// `part` exposes each internal to page CSS via `neo-slider::part(<name>)`,
+		// the only styling hook across the shadow boundary.
 		this.#headerEl = part(document.createElement("div"), "header");
 		this.#headerEl.setAttribute("data-neo-slider-header", "");
 
@@ -417,19 +413,19 @@ export class NeoSlider extends HTMLElement {
 		this.#trackEl.addEventListener("pointerdown", this.#onTrackPointerDown);
 		this.#trackEl.addEventListener("pointermove", this.#onTrackMarkPointerMove);
 		this.#trackEl.addEventListener("pointerleave", this.#onTrackMarkPointerLeave);
-		// Drag listeners are bound once here, not per pointerdown. Each
-		// addEventListener/removeEventListener pair allocates a listener object
-		// that lives until GC, and attaching on every drag churns the heap. All
-		// 4 short-circuit on `#dragPointerId` and stay inert until a drag is
-		// active. The track lives in the shadow and persists across morphs,
+		// Drag listeners are bound once here, not per pointerdown.
+		// Each addEventListener/removeEventListener pair allocates a listener object
+		// that lives until GC, and attaching on every drag churns the heap.
+		// All 4 short-circuit on `#dragPointerId` and stay inert until a drag is active.
+		// The track lives in the shadow and persists across morphs,
 		// which lets these survive a reconnect without re-binding.
 		this.#trackEl.addEventListener("pointermove", this.#onTrackPointerMove);
 		this.#trackEl.addEventListener("pointerup", this.#onTrackPointerUp);
 		this.#trackEl.addEventListener("pointercancel", this.#onTrackPointerCancel);
 		this.#trackEl.addEventListener("lostpointercapture", this.#onTrackLostPointerCapture);
-		// Delegate from track/marks rather than per-mark listeners. The
-		// browser suppresses `click` after a real drag. These only run for
-		// genuine taps that should snap to the mark's value.
+		// Delegate from track/marks rather than per-mark listeners.
+		// The browser suppresses `click` after a real drag.
+		// These only run for genuine taps that should snap to the mark's value.
 		this.#trackEl.addEventListener("click", this.#onAnchorClick);
 		this.#marksEl.addEventListener("click", this.#onMarkLabelClick);
 		this.#marksEl.addEventListener("pointermove", this.#onMarkLabelPointerMove);
@@ -520,16 +516,15 @@ export class NeoSlider extends HTMLElement {
 	}
 
 	// Set the thumb `transition` via `--neo-slider-thumb-transition`.
-	// The shadow `:host [easing]` rules consume it; unset means instant
-	// jumps. The drag flow toggles the `dragging` state to disable
+	// The shadow `:host [easing]` rules consume it; unset means instant jumps.
+	// The drag flow toggles the `dragging` state to disable
 	// the transition while a pointer is captured.
 	//
 	// Set the var on the shadow track (the common ancestor of fill +
-	// thumb, which makes it inherit to both), not the host. A fat morph of
-	// the bare light host reconciles its attributes to the source,
-	// which has no `style`. Putting it on the host would strip the
-	// transition on every morph and the thumb/fill would snap instead of
-	// easing. The shadow tree is untouched by the morph.
+	// thumb, which makes it inherit to both), not the host. A fat morph of the bare
+	// light host reconciles its attributes to the source, which has no `style`.
+	// Putting it on the host would strip the transition on every morph and the
+	// thumb/fill would snap instead of easing. The shadow tree is untouched by the morph.
 	#syncEasing() {
 		if (!this.#trackEl) return;
 		const raw = this.getAttribute(ATTR_EASING);
@@ -540,9 +535,8 @@ export class NeoSlider extends HTMLElement {
 		const trimmed = raw.trim() || "200ms";
 		// Scale the duration by --neo-duration-scale so reduced motion (the OS
 		// query and the manual `data-pref-reduced-motion` toggle both zero it)
-		// makes the thumb jump. Live var; a runtime toggle needs no re-run.
-		// A bare duration gets the kit default timing function; a full pair
-		// keeps its own.
+		// makes the thumb jump. Live var; a runtime toggle needs no re-run. A bare
+		// duration gets the kit default timing function; a full pair keeps its own.
 		const m = trimmed.match(/^(\d*\.?\d+(?:ms|s))\s*(.*)$/);
 		const dur = m ? m[1] : "200ms";
 		const fn = m?.[2].trim() ? m[2].trim() : "var(--neo-easing, ease)";
@@ -644,8 +638,7 @@ export class NeoSlider extends HTMLElement {
 		if (this.#valueEl && this.shadowRoot?.activeElement !== this.#valueEl) {
 			setTextInPlace(this.#valueEl, formatted);
 		}
-		// aria-valuenow is the only value-dependent ARIA; the rest is in
-		// #syncAriaMeta.
+		// aria-valuenow is the only value-dependent ARIA; the rest is in #syncAriaMeta.
 		const now = String(v);
 		this.#thumbEl?.setAttribute("aria-valuenow", now);
 		this.#valueEl?.setAttribute("aria-valuenow", now);
@@ -742,9 +735,8 @@ export class NeoSlider extends HTMLElement {
 		return Math.min(this.max, Math.max(this.min, v));
 	}
 
-	// marks-only is active iff at least 1 mark is declared. An author who
-	// toggles the attr without marks falls back to the step grid rather
-	// than a frozen slider.
+	// marks-only is active iff at least 1 mark is declared. An author who toggles
+	// the attr without marks falls back to the step grid rather than a frozen slider.
 	#marksOnlyActive(): boolean {
 		return boolAttr(this, ATTR_MARKS_ONLY, false) && this.#marks.length > 0;
 	}
@@ -768,8 +760,8 @@ export class NeoSlider extends HTMLElement {
 		return this.#clamp(this.#marks[this.#nearestMarkIndex(v)].value);
 	}
 
-	// Mark closest to the current value. Navigation primitive for
-	// marks-only keyboard nav.
+	// Mark closest to the current value.
+	// Navigation primitive for marks-only keyboard nav.
 	#currentMarkIndex(): number {
 		return this.#nearestMarkIndex(this.value);
 	}
@@ -808,12 +800,11 @@ export class NeoSlider extends HTMLElement {
 			next = this.#clampSnap(v);
 		}
 		if (next === before) {
-			// Value unchanged: revert any diverged typed text (e.g. "9"
-			// with min=10 shows "10" again), but emit nothing. Native
-			// input/change fire only on an actual value change; a
-			// blur/keydown that doesn't move the value is a no-op. This
-			// is what stops a focus->blur of the readout from spuriously
-			// committing.
+			// Value unchanged: revert any diverged typed text
+			// (e.g. "9" with min=10 shows "10" again), but emit nothing.
+			// Native input/change fire only on an actual value change;
+			// a blur/keydown that doesn't move the value is a no-op.
+			// This is what stops a focus->blur of the readout from spuriously committing.
 			this.#syncValue();
 			return;
 		}
@@ -822,12 +813,16 @@ export class NeoSlider extends HTMLElement {
 		// `neo-slider-change` listener reading the attribute sees the value.
 		// Per-move `input` stays deferred (see #writeValue).
 		if (kind === "change") this.#reflectValue(next);
-		// `input` is the live mid-drag value; `change` is the committed value
-		// (drag end, mark click, keyboard, field edit).
+		this.#emit(kind, next);
+	}
+
+	// `input` is the live mid-drag value; `change` is the committed value
+	// (drag end, mark click, keyboard, field edit).
+	#emit(kind: "input" | "change", value: number) {
 		this.dispatchEvent(
 			new CustomEvent(kind === "change" ? "neo-slider-change" : "neo-slider-input", {
 				bubbles: true,
-				detail: { value: next },
+				detail: { value },
 			}),
 		);
 	}
@@ -865,8 +860,8 @@ export class NeoSlider extends HTMLElement {
 			return;
 		}
 		// Project the insertion against the current selection and reject
-		// anything that wouldn't still parse as a partial number (e.g. a
-		// second `.`, or a `-` in the middle of digits).
+		// anything that wouldn't still parse as a partial number
+		// (e.g. a second `.`, or a `-` in the middle of digits).
 		if (!this.#valueEl) return;
 		const next = projectInsertion(this.#valueEl, data);
 		if (!this.#isPartialNumber(next)) e.preventDefault();
@@ -929,10 +924,9 @@ export class NeoSlider extends HTMLElement {
 	};
 
 	// Force-rewrite the value field's text and place caret at end.
-	// syncValue leaves a focused valueEl alone (so it doesn't stomp
-	// typing), but arrow-key nudges do need the displayed text
-	// updated; otherwise the next blur reads the stale text and
-	// commits it back, reverting the nudge.
+	// syncValue leaves a focused valueEl alone (so it doesn't stomp typing),
+	// but arrow-key nudges do need the displayed text updated; otherwise the next
+	// blur reads the stale text and commits it back, reverting the nudge.
 	#refreshValueText() {
 		if (!this.#valueEl) return;
 		this.#valueEl.textContent = formatNumber(this.value, this.step);
@@ -1004,8 +998,8 @@ export class NeoSlider extends HTMLElement {
 	};
 
 	#onTrackMarkPointerMove = (e: PointerEvent) => {
-		// While a pointer is down (drag or click) the mark-hover highlight is
-		// irrelevant; skip it so the per-mark getBoundingClientRect scan
+		// While a pointer is down (drag or click) the mark-hover highlight
+		// is irrelevant; skip it so the per-mark getBoundingClientRect scan
 		// doesn't force a layout flush on every drag move.
 		if (this.#dragPointerId !== null) return;
 		const value = markValueNearPointer(this.#trackEl, MARK_CFG, this.#isVertical(), e.clientX, e.clientY);
@@ -1051,6 +1045,7 @@ export class NeoSlider extends HTMLElement {
 		this.#dragPointerId = e.pointerId;
 		this.#dragStartX = e.clientX;
 		this.#dragStartY = e.clientY;
+		this.#dragStartValue = this.value;
 		this.#dragStarted = false;
 		this.#dragMirrored = !this.#isVertical() && isRTL(this);
 		this.#dragTrackRect = this.#trackEl.getBoundingClientRect();
@@ -1071,10 +1066,9 @@ export class NeoSlider extends HTMLElement {
 			return;
 		}
 		if (!this.#dragStarted) {
-			// 4px matches the OS-level click-vs-drag threshold. It is small
-			// enough that a deliberate drag clears it on the first sweep and
-			// large enough that finger jitter / sub-pixel mouse drift during
-			// a click stays out.
+			// 4px matches the OS-level click-vs-drag threshold. It's small enough
+			// that a deliberate drag clears it on the first sweep and large enough
+			// that finger jitter / sub-pixel mouse drift during a click stays out.
 			const delta = this.#isVertical()
 				? Math.abs(e.clientY - this.#dragStartY)
 				: Math.abs(e.clientX - this.#dragStartX);
@@ -1086,16 +1080,16 @@ export class NeoSlider extends HTMLElement {
 			this.#followBasePct = this.#valuePct(this.value);
 			this.#tooltipCtrl?.beginFollow();
 		}
-		// Defensive re-show in case capture was refused earlier. Without
-		// capture, dragging far from the thumb fires pointerleave and
-		// would blink the tooltip off mid-drag.
+		// Defensive re-show in case capture was refused earlier.
+		// Without capture, dragging far from the thumb fires pointerleave
+		// and would blink the tooltip off mid-drag.
 		this.#tooltipCtrl?.show();
 		this.#applyPointerPosition(e.clientX, e.clientY, "input");
 	};
 
 	#onTrackPointerUp = (e: PointerEvent) => {
 		if (e.pointerId !== this.#dragPointerId) return;
-		this.#applyPointerPosition(e.clientX, e.clientY, "change");
+		this.#applyPointerPosition(e.clientX, e.clientY, "input");
 		this.#endDrag();
 	};
 
@@ -1119,27 +1113,30 @@ export class NeoSlider extends HTMLElement {
 		} catch {
 			// May already be released by the platform.
 		}
-		// Listeners stay bound (see #render / connectedCallback); clearing the
-		// pointer id disarms them.
+		// Listeners stay bound (see #render / connectedCallback);
+		// clearing the pointer id disarms them.
 		this.#dragPointerId = null;
 		this.#dragStarted = false;
 		this.#dragTrackRect = null;
 		// Reflect the value deferred during the drag now the flag is clear.
 		this.#reflectValue(this.value);
 		setState(this.#internals, "dragging", false);
-		// endFollow settles the exact placement after a follow drag; a plain
-		// click (never crossed the threshold) just repositions.
+		// endFollow settles the exact placement after a follow drag;
+		// a plain click (never crossed the threshold) just repositions.
 		if (wasDragging) {
 			this.#tooltipCtrl?.endFollow();
 			this.#stopTooltipTracking();
 		} else {
 			this.#tooltipCtrl?.reposition();
 		}
+		// The release point is the last move point, which already committed as input.
+		// Compare against the pointerdown value instead, as a native range input does.
+		if (this.value !== this.#dragStartValue) this.#emit("change", this.value);
 	}
 
 	#invalidateDragRect = () => {
-		// Bound for the slider's lifetime; only a live drag caches a rect to
-		// refresh. Skip the getBoundingClientRect (a forced layout) otherwise.
+		// Bound for the slider's lifetime; only a live drag caches a rect to refresh.
+		// Skip the getBoundingClientRect (a forced layout) otherwise.
 		if (this.#dragPointerId === null || !this.#trackEl) return;
 		this.#dragMirrored = !this.#isVertical() && isRTL(this);
 		this.#dragTrackRect = this.#trackEl.getBoundingClientRect();
@@ -1207,9 +1204,9 @@ function projectInsertion(el: HTMLElement, insert: string): string {
 
 function textOffset(root: HTMLElement, node: Node, offset: number): number {
 	if (node === root) {
-		// For a selection anchored on the element itself (typical after
-		// selectNodeContents), translate the child-index offset to a text
-		// offset by summing the lengths of preceding children.
+		// For a selection anchored on the element itself
+		// (typical after selectNodeContents), translate the child-index offset
+		// to a text offset by summing the lengths of preceding children.
 		let n = 0;
 		for (let i = 0; i < offset && i < root.childNodes.length; i++) {
 			n += root.childNodes[i].textContent?.length ?? 0;
