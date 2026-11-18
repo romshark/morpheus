@@ -375,6 +375,9 @@ const SHADOW_TEMPLATE = document.createElement("template");
 //   At scrub-side="end" it sits before the stepper, and the end padding covers both.
 // - input:disabled ~ ...: not-allowed, as on the field. A button at a bound or in
 //   a readonly field keeps the default cursor, because the control still works.
+// - [data-neo-textinput-scrub-cover]: transparent top-layer cover over the viewport
+//   during a mouse scrub. Safari takes the cursor from the element under the pointer
+//   and ignores pointer capture; the cover inherits the handle's cursor.
 // - [data-neo-textinput-stepper] button color: dims the icon through color,
 //   which a ::part(increment) color overrides, not through opacity on the icon.
 SHADOW_TEMPLATE.innerHTML = `
@@ -533,6 +536,16 @@ SHADOW_TEMPLATE.innerHTML = `
   input:disabled ~ [data-neo-textinput-scrub] {
     cursor: not-allowed;
   }
+  [data-neo-textinput-scrub-cover] {
+    inset: 0;
+    width: auto;
+    height: auto;
+    margin: 0;
+    border: 0;
+    padding: 0;
+    background: none;
+    cursor: inherit;
+  }
   [data-neo-textinput-turn] {
     rotate: 90deg;
   }
@@ -597,7 +610,7 @@ STEPPER_TEMPLATE.innerHTML = `<div data-neo-textinput-stepper part="stepper">
 // Built on first use like STEPPER_TEMPLATE.
 // The default horizontal icon is chevrons-up-down turned 90deg.
 const SCRUB_TEMPLATE = document.createElement("template");
-SCRUB_TEMPLATE.innerHTML = `<div data-neo-textinput-scrub part="scrub" aria-hidden="true"><neo-icon name="chevrons-up-down"></neo-icon></div>`;
+SCRUB_TEMPLATE.innerHTML = `<div data-neo-textinput-scrub part="scrub" aria-hidden="true"><neo-icon name="chevrons-up-down"></neo-icon><div data-neo-textinput-scrub-cover popover="manual"></div></div>`;
 
 let suggestInstanceCounter = 0;
 
@@ -672,6 +685,7 @@ export class NeoTextInput extends HTMLElement {
 	#stepper: HTMLElement | null = null;
 	#stepRepeatTimer = 0;
 	#scrub: HTMLElement | null = null;
+	#scrubCover: HTMLElement | null = null;
 	#scrubAxis: "horizontal" | "vertical" | null = null;
 	#scrubEnd = false;
 	#scrubSensitivity = SCRUB_SENSITIVITY;
@@ -1626,6 +1640,7 @@ export class NeoTextInput extends HTMLElement {
 		scrub.addEventListener("pointercancel", this.#onScrubPointerEnd);
 		scrub.addEventListener("lostpointercapture", this.#onScrubPointerEnd);
 		this.#scrub = scrub;
+		this.#scrubCover = scrub.querySelector("[data-neo-textinput-scrub-cover]");
 		return scrub;
 	}
 
@@ -1636,6 +1651,7 @@ export class NeoTextInput extends HTMLElement {
 		// text selection and move focus.
 		e.preventDefault();
 		(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+		if (e.pointerType === "mouse") this.#scrubCover?.showPopover();
 		if (e.pointerType !== "touch") inp.focus({ preventScroll: true });
 		const vertical = this.#scrubAxis === "vertical";
 		this.#scrubDrag = {
@@ -1671,6 +1687,7 @@ export class NeoTextInput extends HTMLElement {
 		if (!drag || e.pointerId !== drag.id) return;
 		this.#scrubDrag = null;
 		setState(this.#internals, "scrubbing", false);
+		this.#scrubCover?.hidePopover();
 		if (this.#innerInput && this.#innerInput.value !== drag.start) this.#onChange();
 	};
 
