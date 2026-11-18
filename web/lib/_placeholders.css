@@ -78,6 +78,13 @@ neo-spinner:not(:defined) {
 	vertical-align: middle;
 }
 
+/* WebKit keeps a :not(:defined) animation running on a host whose upgrade
+ * attaches a shadow root. An explicit `animation` on the defined host cancels it.
+ * Repeat this for every shadow host a placeholder animates. */
+neo-spinner:defined {
+	animation: none;
+}
+
 /* Layer host and sub-elements lifted/managed on upgrade, hidden until
  * their parent host gathers them. No fade-in because there's nothing to fade,
  * and these would otherwise leak as plain text. */

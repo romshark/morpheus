@@ -4,6 +4,12 @@ This file records the notable changes of each release in the format of [Keep a C
 
 ## [Unreleased]
 
+### Fixed
+
+#### Components
+
+- Stop the pre-upgrade skeleton pulse of `<neo-spinner>` after the upgrade in Safari. It kept pulsing behind the spinner.
+
 ## [0.6.0] - 2026-11-17
 
 ### Added

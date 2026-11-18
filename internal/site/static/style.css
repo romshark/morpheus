@@ -2514,6 +2514,13 @@ neo-tabs[easing][exit-animation="tabs-tilt"]:state(backward)
  * hiding children via `> *`. They live in style.css, not morpheus.css,
  * because kit consumers may want different FOUC tradeoffs. */
 
+/* WebKit keeps a :not(:defined) animation running on a host whose upgrade
+ * attaches a shadow root. An explicit `animation` on the defined host cancels it.
+ * Add every shadow host a skeleton below animates. */
+:is(neo-slider, neo-slider-range, neo-progress, neo-tree, neo-textinput):defined {
+	animation: none;
+}
+
 neo-switch:not(:defined) {
 	display: inline-block;
 	box-sizing: border-box;
