@@ -8,6 +8,8 @@ interface HSV {
 
 interface ActiveDrag {
 	pointerId: number;
+	startX: number;
+	startY: number;
 }
 
 const DEFAULT_VALUE = "#2563eb";
@@ -270,14 +272,22 @@ export class NeoColorField extends HTMLElement {
 		);
 	}
 
-	#setFromEvent(e: PointerEvent, commit: boolean) {
+	#setFromEvent(e: PointerEvent) {
 		if (!this.#surface) return;
 		const rect = this.#surface.getBoundingClientRect();
-		this.#xValue = clamp(((e.clientX - rect.left) / rect.width) * 100);
-		this.#yValue = clamp(((e.clientY - rect.top) / rect.height) * 100);
+		const x = clamp(((e.clientX - rect.left) / rect.width) * 100);
+		const y = clamp(((e.clientY - rect.top) / rect.height) * 100);
+		this.#move(x, y);
+	}
+
+	// Fires `input` and reports true only when the position moved.
+	#move(x: number, y: number): boolean {
+		if (x === this.#xValue && y === this.#yValue) return false;
+		this.#xValue = x;
+		this.#yValue = y;
 		this.#sync(true);
 		this.#emit("neo-color-field-input");
-		if (commit) this.#emit("neo-color-field-change");
+		return true;
 	}
 
 	#onPointerDown = (e: PointerEvent) => {
@@ -285,12 +295,12 @@ export class NeoColorField extends HTMLElement {
 		if (e.button !== 0) return;
 		e.preventDefault();
 		this.focus();
-		this.#active = { pointerId: e.pointerId };
+		this.#active = { pointerId: e.pointerId, startX: this.#xValue, startY: this.#yValue };
 		this.setPointerCapture(e.pointerId);
 		this.addEventListener("pointermove", this.#onPointerMove);
 		this.addEventListener("pointerup", this.#onPointerUp);
 		this.addEventListener("pointercancel", this.#onPointerCancel);
-		this.#setFromEvent(e, false);
+		this.#setFromEvent(e);
 	};
 
 	#onPointerMove = (e: PointerEvent) => {
@@ -299,12 +309,12 @@ export class NeoColorField extends HTMLElement {
 			this.#endDrag();
 			return;
 		}
-		this.#setFromEvent(e, false);
+		this.#setFromEvent(e);
 	};
 
 	#onPointerUp = (e: PointerEvent) => {
 		if (!this.#active || e.pointerId !== this.#active.pointerId) return;
-		this.#setFromEvent(e, true);
+		this.#setFromEvent(e);
 		this.#endDrag();
 	};
 
@@ -318,11 +328,14 @@ export class NeoColorField extends HTMLElement {
 		this.#endDrag();
 	};
 
+	// Commits on pointerup, pointercancel and lost capture alike. A click on the handle
+	// or a drag back to the start fires no `change`, as on a native range input.
 	#endDrag() {
-		if (!this.#active) return;
+		const d = this.#active;
+		if (!d) return;
 		try {
-			if (this.hasPointerCapture(this.#active.pointerId)) {
-				this.releasePointerCapture(this.#active.pointerId);
+			if (this.hasPointerCapture(d.pointerId)) {
+				this.releasePointerCapture(d.pointerId);
 			}
 		} catch {
 			// Pointer capture may already be gone after cancellation.
@@ -331,6 +344,7 @@ export class NeoColorField extends HTMLElement {
 		this.removeEventListener("pointerup", this.#onPointerUp);
 		this.removeEventListener("pointercancel", this.#onPointerCancel);
 		this.#active = null;
+		if (this.#xValue !== d.startX || this.#yValue !== d.startY) this.#emit("neo-color-field-change");
 	}
 
 	#onKeyDown = (e: KeyboardEvent) => {
@@ -351,11 +365,7 @@ export class NeoColorField extends HTMLElement {
 		} else return;
 
 		e.preventDefault();
-		this.#xValue = clamp(this.#xValue + dx);
-		this.#yValue = clamp(this.#yValue + dy);
-		this.#sync(true);
-		this.#emit("neo-color-field-input");
-		this.#emit("neo-color-field-change");
+		if (this.#move(clamp(this.#xValue + dx), clamp(this.#yValue + dy))) this.#emit("neo-color-field-change");
 	};
 }
 

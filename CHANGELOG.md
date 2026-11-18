@@ -12,6 +12,7 @@ This file records the notable changes of each release in the format of [Keep a C
 - Resize a `<neo-textarea>` with `scale-vertical` or `scale-horizontal` by dragging its handle in Safari. The drag did nothing.
 - Keep the resize cursor during a `<neo-textinput>` scrub drag in Safari.
 - Fire `neo-slider-change` and `neo-slider-range-change` after a pointer click or drag on the track. Only the keyboard, mark labels and the value field fired them.
+- Fire `<neo-color-field>` events on a value change instead of on every pointer event.
 
 ## [0.6.0] - 2026-11-17
 
