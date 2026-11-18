@@ -4,6 +4,7 @@
 // (border, background, resize handle); the field fills it.
 
 import { boolAttr } from "../command";
+import { setState } from "../internal-state";
 
 // Standard <textarea> attributes mirrored verbatim to the inner field.
 // `name` is intentionally absent because the host is the form-associated
@@ -46,6 +47,11 @@ const TEMPLATE = document.createElement("template");
 //   the shadow field is focused, which makes JS focus mirroring unnecessary.
 // - :host([auto-resize-width]) textarea: auto-resize-width implies no wrapping
 //   so scrollWidth is the longest line.
+// - :host(:state(resizable)) textarea: clip the field out of the host's
+//   resizer corner (bottom-end). WebKit starts a resize drag only when the
+//   hit node is in the resizer's own layer, and the field has a layer of its
+//   own. The resizer reaches 17px (Chromium) and 18px (WebKit) in from the
+//   border edge; the 20px cut covers both.
 TEMPLATE.innerHTML = `
 <style>
   :host {
@@ -92,6 +98,12 @@ TEMPLATE.innerHTML = `
   }
   :host([auto-resize-width]:not([auto-resize-width="false"])) textarea {
     white-space: pre;
+  }
+  :host(:state(resizable)) textarea {
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) calc(100% - 20px), calc(100% - 20px) 100%, 0 100%);
+  }
+  :host(:state(resizable):dir(rtl)) textarea {
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 20px 100%, 20px calc(100% - 20px), 0 calc(100% - 20px));
   }
 </style>
 <textarea></textarea>
@@ -260,6 +272,7 @@ export class NeoTextarea extends HTMLElement {
 		const canH = boolAttr(this, "scale-horizontal", false) && !boolAttr(this, "auto-resize-width", false);
 		const canV = boolAttr(this, "scale-vertical", false) && !boolAttr(this, "auto-resize-height", false);
 		this.style.resize = canH && canV ? "both" : canH ? "horizontal" : canV ? "vertical" : "none";
+		setState(this.#internals, "resizable", canH || canV);
 	}
 
 	#autoResize = () => {

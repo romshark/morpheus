@@ -9,6 +9,7 @@ This file records the notable changes of each release in the format of [Keep a C
 #### Components
 
 - Stop the pre-upgrade skeleton pulse of `<neo-spinner>` after the upgrade in Safari. It kept pulsing behind the spinner.
+- Resize a `<neo-textarea>` with `scale-vertical` or `scale-horizontal` by dragging its handle in Safari. The drag did nothing.
 
 ## [0.6.0] - 2026-11-17
 
