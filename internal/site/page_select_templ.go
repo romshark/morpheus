@@ -1287,6 +1287,8 @@ var selectDoc = ComponentDoc{
 			Description: templ.Raw("Background of a selected option row.")},
 		{Name: "--neo-select-option-selected-color", Default: "var(--accent-fg)",
 			Description: templ.Raw("Text color of a selected option row.")},
+		{Name: "--neo-select-option-selected-border", Default: "var(--accent-strong, var(--accent))",
+			Description: templ.Raw("1px inset ring of a selected option row.")},
 	},
 }
 

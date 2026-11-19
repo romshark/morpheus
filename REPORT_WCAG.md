@@ -51,7 +51,7 @@ The kit reads 3 new theme tokens. `_base.css`, which ships in every bundle, give
 - **Switch:** the unchecked switch is an outlined track (`--btn-bg`) with a filled thumb (`--control-border`). The checked thumb takes `--accent-fg`. New tokens are `--neo-switch-border`, `--neo-switch-border-on` and `--neo-switch-thumb-on`.
 - **Slider and progress:** the rail is empty (`--neo-slider-track-bg: transparent`) with a 1px `--control-border` ring (`--neo-slider-track-shadow`). A dark rail would leave the fill under 3:1 against it.
 - **Focus rings:** checkbox, radio, switch, slider and revealable draw a solid ring or outline in `--focus-ring` instead of `--accent` at 45% or 50%. Focused menu items and the submenu back row get a 2px inset ring.
-- **Pressed and selected state:** the pressed `<neo-toggle>` gets a `--control-border` edge, also inside `<neo-toggle-group>`. The selected `<neo-tab>` gets an inset ring. The checked `<neo-buttongroup>` segment gets an `--accent-strong` edge.
+- **Pressed and selected state:** the pressed `<neo-toggle>` gets a `--control-border` edge, also inside `<neo-toggle-group>`. The selected `<neo-tab>` gets an inset ring. The checked `<neo-buttongroup>` segment, the current `<neo-pagination>` page and the selected `<neo-option>` get an `--accent-strong` edge.
 - **Text:** alert titles take the alert text color instead of an 82% accent mix. Alert descriptions, card descriptions and menu shortcuts take `--muted` instead of `--page-fg` alpha. The combobox retry button takes `--link`.
 - **Rating:** the filled star is `light-dark(#b45309, #f59e0b)`. The empty star takes `--control-border`.
 - **Carousel:** dot centers stay at least 24px apart, the spacing exception of 2.5.8.

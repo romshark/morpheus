@@ -11,6 +11,8 @@
 	--neo-pagination-page-min: 2.25rem;
 	--neo-pagination-active-bg: var(--accent, currentColor);
 	--neo-pagination-active-color: var(--accent-fg, var(--page-bg, #fff));
+	/* The fill alone can be under 3:1 against the page (WCAG 1.4.11). */
+	--neo-pagination-active-border: var(--accent-strong, var(--accent, currentColor));
 	/* Darker fills for hover/:active, mirroring the filled neo-button
 	 * variants. The chip is a ghost <neo-button>. Without these the ghost
 	 * hover bg takes precedence and leaves accent-fg text on a
@@ -35,7 +37,7 @@ neo-pagination > [data-neo-pagination-page] {
 neo-pagination > [data-neo-pagination-page][aria-current="page"] {
 	background: var(--neo-pagination-active-bg);
 	color: var(--neo-pagination-active-color);
-	border-color: transparent;
+	border-color: var(--neo-pagination-active-border);
 	&:hover:where(:not([disabled]:not([disabled="false"]), [aria-disabled="true"])) {
 		background: var(--neo-pagination-active-hover-bg);
 		color: var(--neo-pagination-active-color);

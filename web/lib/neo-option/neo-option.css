@@ -11,6 +11,8 @@
 	--neo-select-option-hover-bg: color-mix(in srgb, var(--accent) 16%, transparent);
 	--neo-select-option-selected-bg: var(--accent);
 	--neo-select-option-selected-color: var(--accent-fg);
+	/* The fill alone can be under 3:1 against the popover (WCAG 1.4.11). */
+	--neo-select-option-selected-border: var(--accent-strong, var(--accent));
 }
 
 neo-option {
@@ -41,6 +43,7 @@ neo-option[role="option"]:hover:where(:not([aria-disabled="true"])) {
 neo-option[role="option"][aria-selected="true"] {
 	background: var(--neo-select-option-selected-bg);
 	color: var(--neo-select-option-selected-color);
+	box-shadow: inset 0 0 0 1px var(--neo-select-option-selected-border);
 }
 
 neo-option[role="option"][aria-disabled="true"] {

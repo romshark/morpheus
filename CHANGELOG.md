@@ -12,6 +12,7 @@ This file records the notable changes of each release in the format of [Keep a C
 - Add the theme tokens `--accent-strong`, for the accent drawn as an edge or thin fill on the page, and `--focus-ring`. Unset, `--focus-ring` follows `--accent-strong`, which follows `--accent`.
 - Add the theme token `--control-border`, for the edge of unchecked controls and text fields. It defaults to `--page-fg` at 50% opacity.
 - Add `--neo-switch-border`, `--neo-switch-border-on` and `--neo-switch-thumb-on` to `<neo-switch>`.
+- Add `--neo-pagination-active-border` to `<neo-pagination>` and `--neo-select-option-selected-border` to `<neo-option>`.
 
 ### Changed
 
@@ -35,7 +36,7 @@ This file records the notable changes of each release in the format of [Keep a C
 - Fix `<neo-menu>` and `<neo-submenu>` opening empty when a plain `<script>` in the `<head>` loads `bundle.js`.
 - Meet WCAG 2.2 AA color contrast in all 5 bundled themes, light and dark. Edges of checkboxes, radios, switches, rails, text fields, selects, comboboxes, empty rating stars and inactive carousel dots were 1.1:1 to 2.3:1:
   - These edges now use `--control-border`. Checked edges, fills and the active dot use `--accent-strong`. Focus outlines use `--focus-ring`, solid instead of 45% or 50% translucent.
-  - Focused menu items get a ring. The pressed `<neo-toggle>` and selected `<neo-tab>` get an edge. The checked `<neo-buttongroup>` segment gets an accent edge.
+  - Focused menu items get a ring. The pressed `<neo-toggle>` and selected `<neo-tab>` get an edge. The checked `<neo-buttongroup>` segment gets an accent edge. The current `<neo-pagination>` page and the selected `<neo-option>` get an `--accent-strong` edge.
   - Alert titles take the alert text color. Alert descriptions, card descriptions and menu shortcuts take `--muted`.
   - The filled rating star is `#b45309` under a light `color-scheme`.
   - Theme colors change where text failed: the ocean accent, muted and visited link, the matrix dim-mode accent, muted, visited link and danger, the sunshine muted, and the danger button in the default and ocean dark modes.

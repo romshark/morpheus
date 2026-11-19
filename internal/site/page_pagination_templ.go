@@ -778,6 +778,8 @@ var paginationDoc = ComponentDoc{
 			Description: templ.Raw("Background of the active page chip.")},
 		{Name: "--neo-pagination-active-color", Default: "var(--accent-fg, var(--page-bg, #fff))",
 			Description: templ.Raw("Text color of the active page chip.")},
+		{Name: "--neo-pagination-active-border", Default: "var(--accent-strong, var(--accent, currentColor))",
+			Description: templ.Raw("Border color of the active page chip.")},
 		{Name: "--neo-pagination-active-hover-bg", Default: "color-mix(in srgb, var(--neo-pagination-active-bg), #000 12%)",
 			Description: templ.Raw("Active chip background on hover.")},
 		{Name: "--neo-pagination-active-active-bg", Default: "color-mix(in srgb, var(--neo-pagination-active-hover-bg), #000 8%)",
