@@ -26,6 +26,8 @@ const SELECT_SHADOW_TEMPLATE = document.createElement("template");
 //   (host `disabled` or a containing <fieldset disabled>) fades it and blocks
 //   pointer/hover; :host([disabled]) adds the not-allowed cursor. The disabled
 //   button already drops focus and swallows clicks/keys.
+// - [data-neo-select-trigger] tabindex="0": Safari's default Tab order skips
+//   a <button> without an explicit tabindex.
 // - [data-neo-select-trigger-slot]: rich trigger face. When the kit (or an
 //   author slot="trigger" child) fills the trigger with markup, swap the
 //   text label for the slot and let the trigger grow to fit a multi-line card.
@@ -195,7 +197,7 @@ SELECT_SHADOW_TEMPLATE.innerHTML = `
     display: none !important;
   }
 </style>
-<button type="button" data-neo-select-trigger aria-haspopup="listbox" aria-expanded="false">
+<button type="button" tabindex="0" data-neo-select-trigger aria-haspopup="listbox" aria-expanded="false">
   <span part="label" data-neo-select-label></span>
   <slot name="trigger" data-neo-select-trigger-slot></slot>
   <neo-icon name="chevrons-up-down" part="caret" data-neo-select-caret aria-hidden="true"></neo-icon>

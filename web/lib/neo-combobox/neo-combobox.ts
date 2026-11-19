@@ -41,6 +41,8 @@ const COMBOBOX_SHADOW_TEMPLATE = document.createElement("template");
 //   (host `disabled` or a containing <fieldset disabled>) fades it and blocks
 //   pointer/hover; :host([disabled]) adds the not-allowed cursor. The disabled
 //   button already drops focus and swallows clicks/keys.
+// - [data-neo-combobox-trigger] tabindex="0": Safari's default Tab order skips
+//   a <button> without an explicit tabindex.
 // - [data-neo-combobox-trigger-slot]: rich trigger face. When the kit (or an
 //   author slot="trigger" child) fills the trigger with markup, swap the text
 //   label for the slot and let the trigger grow to fit a multi-line card.
@@ -349,7 +351,7 @@ COMBOBOX_SHADOW_TEMPLATE.innerHTML = `
     display: none !important;
   }
 </style>
-<button type="button" data-neo-combobox-trigger aria-haspopup="listbox" aria-expanded="false">
+<button type="button" tabindex="0" data-neo-combobox-trigger aria-haspopup="listbox" aria-expanded="false">
   <span part="label" data-neo-combobox-label></span>
   <slot name="trigger" data-neo-combobox-trigger-slot></slot>
   <neo-icon name="chevrons-up-down" part="caret" data-neo-combobox-caret aria-hidden="true"></neo-icon>
