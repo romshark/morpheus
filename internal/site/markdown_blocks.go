@@ -593,8 +593,7 @@ func (d *doc) blockOptions(lines []blockLine) ([]blockOption, error) {
 	return options, nil
 }
 
-// apiKind is a kind of API table, named by the level 3 heading above it,
-// as [ComponentDocs] renders it.
+// apiKind is a kind of API table, named by the level 3 heading above it.
 type apiKind struct {
 	heading string
 	icon    string
@@ -682,7 +681,7 @@ func (d *doc) parseAPITable(
 		if name == "" {
 			return nil, d.errorf(r, "no name")
 		}
-		// The ID names the bare state or part, as [ComponentDocs] does.
+		// The ID names the bare state or part, as #states-open for ":state(open)".
 		for _, w := range []string{":state(", "::part("} {
 			if inner, ok := strings.CutPrefix(name, w); ok {
 				name = strings.TrimSuffix(inner, ")")

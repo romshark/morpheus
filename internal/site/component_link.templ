@@ -1,13 +1,7 @@
 package site
 
-templ ComponentLink(tagName, url string) {
-	@linkChip("<"+tagName+">", url)
-}
-
-templ EventLink(name, url string) {
-	@linkChip(name, url)
-}
-
+// linkChip is a link whose label is code, such as a component or event
+// name, which opens in a new tab and ends in an external-link icon.
 templ linkChip(label, url string) {
 	<a
 		href={ url }
@@ -35,7 +29,7 @@ templ linkChip(label, url string) {
 
 // externalLinkIcon is the arrow-out-of-box glyph for an inline external
 // link in running prose. Sized in `em` so it tracks the surrounding
-// text; pair it inside a neo.Link after the label.
+// text; [docLinks] puts it after the label.
 templ externalLinkIcon() {
 	<svg
 		class="inline-link-icon"
@@ -51,21 +45,4 @@ templ externalLinkIcon() {
 		<path d="M10 14 21 3"></path>
 		<path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
 	</svg>
-}
-
-func W3CEventURL(name string) string {
-	switch name {
-	case "input", "change", "submit", "reset":
-		return "https://html.spec.whatwg.org/multipage/indices.html#event-" + name
-	default:
-		return "https://www.w3.org/TR/uievents/#event-type-" + name
-	}
-}
-
-// AnchorCode links code in prose to an anchor on the same page,
-// such as a reference row:
-//
-//	@AnchorCode("#parts-summary", "::part(summary)")
-templ AnchorCode(href, code string) {
-	<a href={ templ.SafeURL(href) }><code>{ code }</code></a>
 }

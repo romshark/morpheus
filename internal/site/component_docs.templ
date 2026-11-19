@@ -2,36 +2,9 @@ package site
 
 import "github.com/romshark/morpheus/neo"
 
-templ ComponentDocs(doc ComponentDoc) {
-	if len(doc.Attributes) > 0 {
-		@apiSection(docSectionID(doc.Prefix, "attributes"), "Attributes", iconAttributes)
-		@docAttributes(docSectionID(doc.Prefix, "attributes"), doc.Attributes)
-	}
-	if len(doc.States) > 0 {
-		@apiSection(docSectionID(doc.Prefix, "states"), "States", iconStates)
-		@docStates(docSectionID(doc.Prefix, "states"), doc.States)
-	}
-	if len(doc.Slots) > 0 {
-		@apiSection(docSectionID(doc.Prefix, "slots"), "Slots", iconSlots)
-		@docSlots(docSectionID(doc.Prefix, "slots"), doc.Slots)
-	}
-	if len(doc.Events) > 0 {
-		@apiSection(docSectionID(doc.Prefix, "events"), "Events", iconEvents)
-		@docEvents(docSectionID(doc.Prefix, "events"), doc.Events)
-	}
-	if len(doc.Parts) > 0 {
-		@apiSection(docSectionID(doc.Prefix, "parts"), "Parts", iconParts)
-		@docParts(docSectionID(doc.Prefix, "parts"), doc.Parts)
-	}
-	if len(doc.CSSProps) > 0 {
-		@apiSection(docSectionID(doc.Prefix, "css-variables"), "CSS variables", iconCSSProps)
-		@docCSSProps(docSectionID(doc.Prefix, "css-variables"), doc.CSSProps)
-	}
-}
-
-// apiSection is the anchored h3 used for the Attributes / Slots /
-// Events subsections inside ComponentDocs. Carries both `.anchor-h3`
-// (hover-revealed deep link) and `.api-heading` (sizing + spacing).
+// apiSection is the anchored h3 above an API table of a doc page, such as
+// Attributes or Events. Carries both `.anchor-h3` (hover-revealed deep link)
+// and `.api-heading` (sizing + spacing).
 templ apiSection(id, label, icon string) {
 	<h3 id={ id } class="anchor-h3 api-heading">
 		@neo.Icon(icon)
@@ -42,186 +15,6 @@ templ apiSection(id, label, icon string) {
 			aria-label="Permalink to this section"
 		>#</a>
 	</h3>
-}
-
-templ docAttributes(sectionID string, items []DocAttribute) {
-	<table class="api-table" data-icon={ iconAttributes }>
-		<thead>
-			<tr>
-				<th scope="col">Name</th>
-				<th scope="col">Type</th>
-				<th scope="col">Default</th>
-				<th scope="col">Description</th>
-			</tr>
-		</thead>
-		<tbody>
-			for _, a := range items {
-				{{ id := docItemID(sectionID, a.Name) }}
-				<tr id={ id }>
-					@docNameCell(id) {
-						<code>{ a.Name }</code>
-					}
-					<td data-label="Type">
-						<span class="api-type">
-							@docCodeOrDash(a.Type)
-							if a.Reflected {
-								@docReflectedBadge()
-							}
-							if a.Observed {
-								@docObservedBadge()
-							}
-						</span>
-					</td>
-					<td data-label="Default">
-						@docCodeOrDash(a.Default)
-					</td>
-					<td data-label="Description">
-						@docDesc(a.Description)
-					</td>
-				</tr>
-			}
-		</tbody>
-	</table>
-}
-
-templ docSlots(sectionID string, items []DocSlot) {
-	<table class="api-table" data-icon={ iconSlots }>
-		<thead>
-			<tr>
-				<th scope="col">Name</th>
-				<th scope="col">Description</th>
-			</tr>
-		</thead>
-		<tbody>
-			for _, s := range items {
-				{{ id := docItemID(sectionID, s.Name) }}
-				<tr id={ id }>
-					@docNameCell(id) {
-						@docSlotName(s.Name)
-					}
-					<td data-label="Description">
-						@docDesc(s.Description)
-					</td>
-				</tr>
-			}
-		</tbody>
-	</table>
-}
-
-templ docEvents(sectionID string, items []DocEvent) {
-	<table class="api-table" data-icon={ iconEvents }>
-		<thead>
-			<tr>
-				<th scope="col">Name</th>
-				<th scope="col">Detail</th>
-				<th scope="col">Bubbles</th>
-				<th scope="col">Description</th>
-			</tr>
-		</thead>
-		<tbody>
-			for _, e := range items {
-				{{ id := docItemID(sectionID, e.Name) }}
-				<tr id={ id }>
-					@docNameCell(id) {
-						if e.URL != "" {
-							@EventLink(e.Name, e.URL)
-						} else {
-							<code>{ e.Name }</code>
-						}
-					}
-					<td data-label="Detail">
-						@docCodeOrDash(e.Detail)
-					</td>
-					<td data-label="Bubbles">
-						if e.Bubbles {
-							yes
-						} else {
-							no
-						}
-					</td>
-					<td data-label="Description">
-						@docDesc(e.Description)
-					</td>
-				</tr>
-			}
-		</tbody>
-	</table>
-}
-
-templ docStates(sectionID string, items []DocState) {
-	<table class="api-table" data-icon={ iconStates }>
-		<thead>
-			<tr>
-				<th scope="col">Name</th>
-				<th scope="col">Description</th>
-			</tr>
-		</thead>
-		<tbody>
-			for _, s := range items {
-				{{ id := docItemID(sectionID, s.Name) }}
-				<tr id={ id }>
-					@docNameCell(id) {
-						<code>{ ":state(" + s.Name + ")" }</code>
-					}
-					<td data-label="Description">
-						@docDesc(s.Description)
-					</td>
-				</tr>
-			}
-		</tbody>
-	</table>
-}
-
-templ docParts(sectionID string, items []DocPart) {
-	<table class="api-table" data-icon={ iconParts }>
-		<thead>
-			<tr>
-				<th scope="col">Name</th>
-				<th scope="col">Description</th>
-			</tr>
-		</thead>
-		<tbody>
-			for _, p := range items {
-				{{ id := docItemID(sectionID, p.Name) }}
-				<tr id={ id }>
-					@docNameCell(id) {
-						<code>{ "::part(" + p.Name + ")" }</code>
-					}
-					<td data-label="Description">
-						@docDesc(p.Description)
-					</td>
-				</tr>
-			}
-		</tbody>
-	</table>
-}
-
-templ docCSSProps(sectionID string, items []DocCSSProp) {
-	<table class="api-table" data-icon={ iconCSSProps }>
-		<thead>
-			<tr>
-				<th scope="col">Name</th>
-				<th scope="col">Default</th>
-				<th scope="col">Description</th>
-			</tr>
-		</thead>
-		<tbody>
-			for _, p := range items {
-				{{ id := docItemID(sectionID, p.Name) }}
-				<tr id={ id }>
-					@docNameCell(id) {
-						<code>{ p.Name }</code>
-					}
-					<td data-label="Default">
-						@docCodeOrDash(p.Default)
-					</td>
-					<td data-label="Description">
-						@docDesc(p.Description)
-					</td>
-				</tr>
-			}
-		</tbody>
-	</table>
 }
 
 // docNameCell is the row header of an API table row: the item name plus a
@@ -235,14 +28,6 @@ templ docNameCell(id string) {
 			aria-label="Permalink to this row"
 		>#</a>
 	</th>
-}
-
-templ docCodeOrDash(s string) {
-	if s == "" {
-		none
-	} else {
-		<code>{ s }</code>
-	}
 }
 
 // docReflectedBadge marks an attribute the component writes back to the
@@ -265,18 +50,4 @@ templ docObservedBadge() {
 			observed
 		</neo-badge>
 	</neo-tooltip>
-}
-
-templ docSlotName(name string) {
-	if name == "" || name == "default" {
-		{ "default" }
-	} else {
-		<code>{ name }</code>
-	}
-}
-
-templ docDesc(c templ.Component) {
-	if c != nil {
-		@c
-	}
 }
