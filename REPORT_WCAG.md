@@ -1,6 +1,6 @@
 # WCAG 2.2 contrast report
 
-2026-11-17, commit `702fc16` plus the uncommitted contrast fixes. Themes in `internal/site/static/theme-*.css`, component styles in `web/lib`.
+2026-11-17, measured on the `feat/wcag-compliance` branch. Themes in `internal/site/static/theme-*.css`, component styles in `web/lib`.
 
 ## Summary
 
@@ -88,7 +88,7 @@ The `--control-border` share of `--page-fg` is the lowest that clears 3:1 on the
 ## Scope and method
 
 - **Variants:** default, sunshine, ocean, matrix and rose, each in light and dark mode. Matrix draws both modes on `#000a04`. Its "light" mode is the bright phosphor look and "dark" the dimmed one.
-- **Token resolution:** follows the site's stylesheet order (`site.templ:23-41`, which loads `morpheus.css`, then `theme-default.css`, then the theme files) and the `.light` or `.dark` class on `<html>`.
+- **Token resolution:** follows the site's stylesheet order (`pageHead` in `internal/site/site.templ`, which loads `morpheus.css`, then `theme-default.css`, then the theme files) and the `.light` or `.dark` class on `<html>`.
   - default light: `:root`
   - default dark: `:root` + `:root.dark`
   - theme light: `:root` + `:root.theme-X`
