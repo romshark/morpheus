@@ -81,25 +81,30 @@ func docSectionID(prefix, name string) string {
 }
 
 // docItemID is the id of 1 API table row: sectionID plus the item name
-// reduced to lowercase [a-z0-9] runs joined by "-", e.g.
-// "css-variables-neo-sortable-drag-shadow". The unnamed slot is "default".
+// [slugify]'d, e.g. "css-variables-neo-sortable-drag-shadow".
+// The unnamed slot is "default".
 func docItemID(sectionID, name string) string {
+	s := slugify(name)
+	if s == "" {
+		s = "default"
+	}
+	return sectionID + "-" + s
+}
+
+// slugify reduces s to lowercase [a-z0-9] runs joined by "-".
+func slugify(s string) string {
 	var b strings.Builder
-	b.WriteString(sectionID)
-	sep := true
-	for _, r := range strings.ToLower(name) {
+	sep := false
+	for _, r := range strings.ToLower(s) {
 		if ('a' <= r && r <= 'z') || ('0' <= r && r <= '9') {
-			if sep {
+			if sep && b.Len() > 0 {
 				b.WriteByte('-')
-				sep = false
 			}
+			sep = false
 			b.WriteRune(r)
 		} else {
 			sep = true
 		}
-	}
-	if b.Len() == len(sectionID) {
-		b.WriteString("-default")
 	}
 	return b.String()
 }

@@ -11,8 +11,7 @@ import (
 )
 
 // simSliderAttrs lives here rather than inline in site.templ because
-// templ's struct-literal blocks can't carry computed string
-// concatenations cleanly.
+// templ's struct-literal blocks can't carry computed string concatenations cleanly.
 func simSliderAttrs(a simSliderArgs) templ.Attributes {
 	attrs := templ.Attributes{
 		"class":                     "sim-settings-slider",
@@ -30,10 +29,10 @@ func simSliderAttrs(a simSliderArgs) templ.Attributes {
 }
 
 // BoundaryScopes tunes the <neo-boundary> scopes on a preview region.
-// The zero value keeps the default scopes (dismiss + positioning) and renders no
-// attribute. Any non-zero field renders an explicit scope="..." token list.
-// NoDismiss / NoPositioning drop a default scope, Scroll / Stacking add an
-// opt-in one. See the Boundary page.
+// The zero value keeps the default scopes (dismiss + positioning) and renders
+// no attribute. Any non-zero field renders an explicit scope="..." token list.
+// NoDismiss / NoPositioning drop a default scope, Scroll / Stacking add an opt-in one.
+// See the Boundary page.
 type BoundaryScopes struct {
 	NoDismiss     bool
 	NoPositioning bool
@@ -181,8 +180,8 @@ func stageAttrs(
 	return a
 }
 
-// NavLink is a page in the sidebar, on the components index and in the Mod+K
-// palette. Icon names a file in static/icons and in static/icons-matrix.
+// NavLink is a page in the sidebar, on the components index and in the Mod+K palette.
+// Icon names a file in static/icons and in static/icons-matrix.
 type NavLink struct {
 	Path  string
 	Label string
@@ -214,12 +213,11 @@ type NavGroup struct {
 // Heading is the group's title in the sidebar and on the components index.
 func (g NavGroup) Heading() string { return g.Name + " Components" }
 
-// ComponentGroups lists every component page by the task it serves, in sidebar
-// order. Each page is in exactly 1 group, and each group is alphabetical.
+// ComponentGroups lists every component page by the task it serves, in sidebar order.
+// Each page is in exactly 1 group, and each group is alphabetical.
 // Adding a <neo-X> page takes 2 steps:
-//  1. Create page_X.go + page_X.templ that follow the existing pattern
-//     (`Page<Name>` struct + `pageX()` template wrapped in
-//     `@appLayout("/x")`).
+//  1. Write docs/x.md and list it in buildPages of internal/cmd/gen, as
+//     internal/site/README.md describes.
 //  2. Add the entry to its group here so the sidebar surfaces it, and draw
 //     its icon as static/icons/component-x.svg (36x24, stroke 1.5) and
 //     static/icons-matrix/component-x.svg (18x12 pixel grid). The part the
@@ -328,10 +326,9 @@ type cmdkRow struct {
 	Group string
 }
 
-// commandPaletteRows flattens every navigable page into the palette's
-// static row list, preserving sidebar grouping/order. Baked into light
-// DOM at render time; the browser-side <site-command-palette> only
-// filters and ranks.
+// commandPaletteRows flattens every navigable page into the palette's static row list,
+// preserving sidebar grouping/order. Baked into light DOM at render time;
+// the browser-side <site-command-palette> only filters and ranks.
 func commandPaletteRows() []cmdkRow {
 	var rows []cmdkRow
 	for _, l := range DocLinks {
