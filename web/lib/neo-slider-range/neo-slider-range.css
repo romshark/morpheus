@@ -171,9 +171,12 @@ neo-slider-range[vertical]:where(:not([vertical="false"])) [data-neo-slider-thum
 }
 
 neo-slider-range [data-neo-slider-thumb]:focus-visible {
+	/* The --page-bg gap keeps the ring apart from the thumb border,
+	 * which has the same --accent-strong color. */
 	box-shadow:
 		var(--neo-slider-thumb-shadow),
-		0 0 0 3px var(--neo-slider-focus-ring);
+		0 0 0 2px var(--page-bg),
+		0 0 0 4px var(--neo-slider-focus-ring);
 }
 
 neo-slider-range [data-neo-slider-thumb]:active {
