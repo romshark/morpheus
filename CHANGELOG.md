@@ -37,7 +37,7 @@ This file records the notable changes of each release in the format of [Keep a C
 - Fix the Tab key skipping `<neo-select>` and `<neo-combobox>` in Safari.
 - Fix the Tab key skipping the `<neo-toast>` close button and the `<neo-avatars>` "+N" button in Safari.
 - Fix `<neo-menu>` and `<neo-submenu>` opening empty when a plain `<script>` in the `<head>` loads `bundle.js`.
-- Meet WCAG 2.2 AA color contrast in all 5 bundled themes, light and dark. Edges of checkboxes, radios, switches, rails, text fields, selects, comboboxes, empty rating stars and inactive carousel dots were 1.1:1 to 2.3:1:
+- Raise color contrast in all 5 bundled themes, light and dark, to the WCAG 2.2 AA minimums of 4.5:1 for text and 3:1 for control edges and focus rings. The ratios are calculated from the CSS for the color pairs listed in `REPORT_WCAG.md`. Rendered pages are not checked. Edges of checkboxes, radios, switches, rails, text fields, selects, comboboxes, empty rating stars and inactive carousel dots were 1.1:1 to 2.3:1:
   - These edges now use `--control-border`. Checked edges, fills and the active dot use `--accent-strong`. Focus outlines use `--focus-ring`, solid instead of 45% or 50% translucent.
   - Focused menu items get a ring. The pressed `<neo-toggle>` and selected `<neo-tab>` get an edge. The checked `<neo-buttongroup>` segment gets an accent edge. The current `<neo-pagination>` page and the selected `<neo-option>` get an `--accent-strong` edge.
   - Alert titles take the alert text color. Alert descriptions, card descriptions and menu shortcuts take `--muted`.
