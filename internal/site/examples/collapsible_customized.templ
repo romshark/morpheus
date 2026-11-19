@@ -1,0 +1,14 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ CollapsibleCustomized() {
+	@neo.CollapsibleAttrs(neo.CollapsibleOpts{}, templ.Attributes{"class": "collapsible-customized"}) {
+		<span slot="summary">Release notes</span>
+		<ul>
+			<li>Search matches words with accents.</li>
+			<li>Exports keep the column order.</li>
+			<li>The sidebar remembers its width.</li>
+		</ul>
+	}
+}

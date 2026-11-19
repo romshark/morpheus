@@ -36,6 +36,7 @@ func PageCard() string           { return "/card/" }
 func PageCarousel() string       { return "/carousel/" }
 func PageCheckbox() string       { return "/checkbox/" }
 func PageClipcopy() string       { return "/clipcopy/" }
+func PageCollapsible() string    { return "/collapsible/" }
 func PageCombobox() string       { return "/combobox/" }
 func PageCompare() string        { return "/compare/" }
 func PageContextMenu() string    { return "/context-menu/" }

@@ -1,0 +1,20 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ CollapsibleAccordion() {
+	<div class="collapsible-accordion">
+		@neo.Collapsible(neo.CollapsibleOpts{Name: neo.Set("shipping-faq")}) {
+			<span slot="summary">How long does delivery take?</span>
+			<p>Orders ship within 2 business days and arrive 3 to 5 days later.</p>
+		}
+		@neo.Collapsible(neo.CollapsibleOpts{Name: neo.Set("shipping-faq")}) {
+			<span slot="summary">Can I change my order?</span>
+			<p>You can change or cancel an order until it ships.</p>
+		}
+		@neo.Collapsible(neo.CollapsibleOpts{Name: neo.Set("shipping-faq")}) {
+			<span slot="summary">Do you ship abroad?</span>
+			<p>We ship to 40 countries. The carrier collects import duties on delivery.</p>
+		}
+	</div>
+}

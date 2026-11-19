@@ -293,6 +293,7 @@ var ComponentGroups = []NavGroup{
 	{"Layout", []NavLink{
 		{href.PageAutohide(), "Autohide", "component-autohide"},
 		{href.PageCard(), "Card", "component-card"},
+		{href.PageCollapsible(), "Collapsible", "component-collapsible"},
 		{href.PageElastic(), "Elastic", "component-elastic"},
 		{href.PageLayout(), "Layout", "component-layout"},
 		{href.PageResizable(), "Resizable", "component-resizable"},

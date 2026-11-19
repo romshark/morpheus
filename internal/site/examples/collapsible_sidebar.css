@@ -1,0 +1,34 @@
+.collapsible-sidebar {
+	display: flex;
+	width: 100%;
+	min-height: 22rem;
+	border: 1px solid var(--btn-border);
+	border-radius: var(--page-radius);
+	overflow: hidden;
+	background: var(--page-bg);
+	container-type: inline-size;
+	container-name: neo-sidebar-shell;
+	contain: paint;
+}
+
+.collapsible-sidebar > neo-sidebar:not(:state(overlay)) {
+	height: auto;
+	align-self: stretch;
+}
+
+.collapsible-sidebar neo-collapsible::part(summary) {
+	font-size: 0.75rem;
+	text-transform: uppercase;
+	color: var(--muted);
+}
+
+.collapsible-sidebar-menu {
+	width: 100%;
+}
+
+.collapsible-sidebar-main {
+	flex: 1 1 auto;
+	min-width: 0;
+	padding: 1rem;
+	color: var(--muted);
+}

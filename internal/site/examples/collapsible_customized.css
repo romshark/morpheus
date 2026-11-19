@@ -1,0 +1,26 @@
+.collapsible-customized {
+	--neo-collapsible-duration: 400ms;
+	--neo-collapsible-summary-padding: 0.5rem 0.75rem;
+	--neo-collapsible-icon-color: var(--accent);
+	width: min(100%, 24rem);
+	border: 1px solid var(--btn-border);
+	border-radius: var(--page-radius);
+}
+
+.collapsible-customized::part(summary) {
+	flex-direction: row-reverse;
+	font-weight: 600;
+}
+
+.collapsible-customized::part(icon) {
+	rotate: -90deg;
+}
+
+.collapsible-customized[open]:not([open="false"])::part(icon) {
+	rotate: 0deg;
+}
+
+.collapsible-customized ul {
+	margin: 0;
+	padding: 0 0.75rem 0.75rem 2.5rem;
+}

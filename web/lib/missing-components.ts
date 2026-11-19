@@ -25,6 +25,7 @@ const BEHAVIORAL_TAGS = new Set<string>([
 	"neo-carousel-track",
 	"neo-checkbox",
 	"neo-clipcopy",
+	"neo-collapsible",
 	"neo-color-field",
 	"neo-combobox",
 	"neo-compare",

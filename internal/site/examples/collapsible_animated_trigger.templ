@@ -1,0 +1,28 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ CollapsibleAnimatedTrigger() {
+	<div class="collapsible-animated-trigger">
+		The cabin sits at the end of a gravel road, 20 minutes from the
+		nearest village. It sleeps 4 in 2 bedrooms, and the living room
+		opens onto a deck over the lake.
+		@neo.CollapsibleAttrs(neo.CollapsibleOpts{}, templ.Attributes{
+			"style": "display: flex; flex-direction: column-reverse",
+		}) {
+			<span slot="summary">
+				<span class="collapsible-animated-trigger-closed">Read more</span>
+				<span class="collapsible-animated-trigger-open">Read less</span>
+			</span>
+			<p>
+				The kitchen has a wood stove, a gas range and a full set of
+				cookware. Firewood is stacked by the door and restocked between
+				stays.
+			</p>
+			<p>
+				Check-in is from 3 PM with a key box at the door. Pets are
+				welcome at 20 EUR per stay.
+			</p>
+		}
+	</div>
+}

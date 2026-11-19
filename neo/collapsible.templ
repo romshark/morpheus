@@ -1,0 +1,32 @@
+package neo
+
+type CollapsibleOpts struct {
+	// Open shows the content. The element defaults to closed.
+	Open Attr[bool]
+	// Name groups elements in 1 document or shadow root. Opening 1 closes the others.
+	Name Attr[string]
+}
+
+// Collapsible renders <neo-collapsible>, a summary button that shows and
+// hides the content below it. The child with slot="summary" labels the button:
+//
+//	@neo.Collapsible(neo.CollapsibleOpts{}) {
+//		<span slot="summary">Shipping</span>
+//		<p>Orders ship within 2 business days.</p>
+//	}
+templ Collapsible(opts CollapsibleOpts) {
+	@CollapsibleAttrs(opts, nil) {
+		{ children... }
+	}
+}
+
+// CollapsibleAttrs is [Collapsible] with an extra attribute set.
+templ CollapsibleAttrs(opts CollapsibleOpts, attrs templ.Attributes) {
+	<neo-collapsible
+		{ opts.Open.Attrs("open")... }
+		{ opts.Name.Attrs("name")... }
+		{ attrs... }
+	>
+		{ children... }
+	</neo-collapsible>
+}

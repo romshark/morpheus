@@ -1,0 +1,15 @@
+.collapsible-accordion {
+	width: min(100%, 26rem);
+}
+
+.collapsible-accordion neo-collapsible {
+	border-bottom: 1px solid var(--btn-border);
+}
+
+.collapsible-accordion p {
+	margin: 0 0 0.75rem;
+}
+
+.collapsible-accordion neo-collapsible[open]:not([open="false"]) [slot="summary"] {
+	font-weight: 600;
+}

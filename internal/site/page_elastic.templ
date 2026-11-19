@@ -17,16 +17,11 @@ templ PageElastic(morpheusVersion string) {
 				Elastic
 			}
 			<p class="intro">
-				Component <code>{ "<neo-elastic>" }</code> is a block
-				container that animates its height as the natural
-				size of its content changes, as with toggled visibility,
-				added items, swapped blocks, or async-loaded payloads.
-				A <code>ResizeObserver</code> pins the latest content
-				height to the host; the transition uses
-				<code>--neo-easing</code> /
-				<code>--neo-duration-scale</code> so each theme paces
-				it differently. Server-side morphs that swap content
-				animate the height shift automatically.
+				Component <code>{ "<neo-elastic>" }</code> is a block container
+				that animates its height whenever its content changes size. Content
+				that a morph swaps, a list that grows and content that loads later
+				all animate without extra code. For interactive expanding and
+				collapsing, use @ComponentLink("neo-collapsible", href.PageCollapsible())&period;
 			</p>
 			@Playground(PlaygroundOpts{
 				ID:     "elastic-playground",
@@ -125,8 +120,8 @@ templ PageElastic(morpheusVersion string) {
 				Async placeholder
 			}
 			<p class="demo-note">
-				Combine <code>reset-on-collapse</code> with a
-				<code>{ "<template data-neo-async-placeholder>" }</code>
+				Combine @anchorCode("#attributes-reset-on-collapse", "reset-on-collapse")
+				with a @anchorCode("#slots-data-neo-async-placeholder", "<template data-neo-async-placeholder>")
 				to reload content through the placeholder. Opening
 				reveals the skeleton and posts to the server, which
 				morphs the loaded panel into the slot; collapsing
@@ -152,11 +147,11 @@ var elasticDoc = ComponentDoc{
 		{Name: "open", Type: "boolean", Default: "true", Observed: true,
 			Description: templ.Raw("Open by default. Set <code>open=\"false\"</code> to animate the host to 0px tall.")},
 		{Name: "reset-on-collapse", Type: "boolean", Default: "false",
-			Description: templ.Raw("Swap content for <code>[data-neo-async-placeholder]</code> after the collapse transition.")},
+			Description: templ.Raw("Swap content for <a href=\"#slots-data-neo-async-placeholder\"><code>[data-neo-async-placeholder]</code></a> after the collapse transition.")},
 	},
 	Slots: []DocSlot{
 		{Name: "[data-neo-async-placeholder]",
-			Description: templ.Raw("Replacement content shown after collapse when <code>reset-on-collapse</code> is set.")},
+			Description: templ.Raw("Replacement content shown after collapse when <a href=\"#attributes-reset-on-collapse\"><code>reset-on-collapse</code></a> is set.")},
 	},
 	Events: []DocEvent{
 		{Name: "neo-elastic-start", Detail: "{ from: number, to: number }", Bubbles: true,

@@ -47,11 +47,12 @@ const signalRef = (expr: string): string | null => {
 // back-channel reads the value from these (signal <- DOM direction), since
 // it fires synchronously before Datastar's MutationObserver re-asserts the
 // stale signal value onto the DOM; a mutation observer here always loses
-// that race. Only `*-change` (never `*-input`), which fires on commit, not
-// every tick.
+// that race. Only commit events (`*-change`, and `*-toggle` for a
+// disclosure), never `*-input`, which fires on every tick.
 const PREVIEW_CHANGE_EVENTS = [
 	"neo-switch-change",
 	"neo-checkbox-change",
+	"neo-collapsible-toggle",
 	"neo-toggle-change",
 	"neo-toggle-group-change",
 	"neo-buttongroup-change",

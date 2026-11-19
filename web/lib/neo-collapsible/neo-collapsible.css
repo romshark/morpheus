@@ -1,0 +1,20 @@
+/* Before upgrade, show the summary and hide the content of a closed element,
+ * which keeps the box from changing height when the shadow panel takes over.
+ * :where() keeps the rules at 0 specificity. */
+
+:where(neo-collapsible:not(:defined)) {
+	display: block;
+}
+
+:where(neo-collapsible:not(:defined) > [slot="summary"]) {
+	display: block;
+	padding: calc(var(--page-spacing, 0.25rem) * 2) 0;
+}
+
+:where(neo-collapsible:not(:defined):is(:not([open]), [open="false"]) > :not([slot="summary"])) {
+	display: none;
+}
+
+:where(neo-collapsible:not(:defined) > [slot="summary-open"]) {
+	display: none;
+}

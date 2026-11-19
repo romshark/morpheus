@@ -174,6 +174,7 @@ func buildPages(
 		{href.PageCarousel(), site.PageCarousel(morpheusVersion)},
 		{href.PageCheckbox(), site.PageCheckbox(morpheusVersion)},
 		{href.PageClipcopy(), site.PageClipcopy(morpheusVersion)},
+		{href.PageCollapsible(), site.PageCollapsible(morpheusVersion)},
 		{href.PageCombobox(), site.PageCombobox(morpheusVersion)},
 		{href.PageCompare(), site.PageCompare(morpheusVersion)},
 		{href.PageContextMenu(), site.PageContextMenu(morpheusVersion)},

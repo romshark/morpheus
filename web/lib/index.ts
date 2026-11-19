@@ -7,6 +7,7 @@ import "./neo-buttongroup";
 import "./neo-carousel";
 import "./neo-checkbox";
 import "./neo-clipcopy";
+import "./neo-collapsible";
 import "./neo-color-field";
 import "./neo-combobox";
 import "./neo-compare";

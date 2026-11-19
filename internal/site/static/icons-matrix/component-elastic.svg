@@ -1,4 +1,4 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="36" height="24" fill="currentColor" viewBox="0 0 36 24">
-  <path d="M2 0h32v2h-32zM0 2h2v2h-2zM34 2h2v2h-2zM0 4h2v2h-2zM34 4h2v2h-2zM0 6h2v2h-2zM34 6h2v2h-2zM0 8h2v2h-2zM34 8h2v2h-2zM2 10h32v2h-32zM12 14h2v2h-2zM20 14h2v2h-2zM14 16h2v2h-2zM18 16h2v2h-2zM16 18h2v2h-2z"/>
-  <path d="M6 4h16v2h-16zM0 16h2v2h-2zM34 16h2v2h-2zM0 18h2v2h-2zM34 18h2v2h-2zM4 22h4v2h-4zM12 22h4v2h-4zM20 22h4v2h-4zM28 22h4v2h-4z" opacity=".4"/>
+  <path d="M0 0h36v2h-36z"/>
+  <path d="M0 6h2v2h-2zM6 6h24v2h-24zM34 6h2v2h-2zM0 8h2v2h-2zM34 8h2v2h-2zM6 12h24v2h-24zM0 14h2v2h-2zM34 14h2v2h-2zM0 16h2v2h-2zM34 16h2v2h-2zM6 18h16v2h-16zM4 22h4v2h-4zM12 22h4v2h-4zM20 22h4v2h-4zM28 22h4v2h-4z" opacity=".4"/>
 </svg>

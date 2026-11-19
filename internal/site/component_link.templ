@@ -61,3 +61,11 @@ func W3CEventURL(name string) string {
 		return "https://www.w3.org/TR/uievents/#event-type-" + name
 	}
 }
+
+// anchorCode links code in prose to an anchor on the same page,
+// such as a reference row:
+//
+//	@anchorCode("#parts-summary", "::part(summary)")
+templ anchorCode(href, code string) {
+	<a href={ templ.SafeURL(href) }><code>{ code }</code></a>
+}

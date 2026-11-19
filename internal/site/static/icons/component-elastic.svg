@@ -9,7 +9,6 @@
   stroke-linecap="round"
   stroke-linejoin="round"
 >
-  <g opacity=".4"><path d="M2.25 15.75v3a3 3 0 0 0 3 3h25.5a3 3 0 0 0 3-3v-3" stroke-dasharray="1.6370 4.9110"/><path d="M6.75 6.75h15"/></g>
-  <rect x="2.25" y="2.25" width="31.5" height="9" rx="3"/>
-  <path d="m15 13.5 3 3 3-3"/>
+  <g opacity=".4"><path d="M2.25 7.125v11.625a3 3 0 0 0 3 3h25.5a3 3 0 0 0 3-3v-11.625" stroke-dasharray="1.5723 4.7169"/><path d="M6.75 7.125h22.5"/><path d="M6.75 12h22.5"/><path d="M6.75 16.875h15"/></g>
+  <path d="M2.25 2.25h31.5"/>
 </svg>

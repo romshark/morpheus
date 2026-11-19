@@ -4,6 +4,12 @@ This file records the notable changes of each release in the format of [Keep a C
 
 ## [Unreleased]
 
+### Added
+
+#### Components
+
+- Add `<neo-collapsible>`, a summary button that shows and hides the content below it. Elements with the same `name` open 1 at a time. `neo.Collapsible` renders it from Templ.
+
 ## [0.6.1] - 2026-11-18
 
 ### Fixed

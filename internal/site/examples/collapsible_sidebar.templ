@@ -1,0 +1,62 @@
+package examples
+
+import "github.com/romshark/morpheus/neo"
+
+templ CollapsibleSidebar() {
+	<neo-layout class="collapsible-sidebar">
+		@neo.Sidebar(neo.SidebarOpts{Open: neo.Set(true), OverlayBreakpoint: neo.Set("30rem")}) {
+			@neo.SidebarHeader() {
+				<strong>Acme</strong>
+			}
+			<nav aria-label="Workspace" { neo.SidebarContent()... }>
+				@neo.Collapsible(neo.CollapsibleOpts{Open: neo.Set(true)}) {
+					<span slot="summary">Projects</span>
+					@neo.NavGroupAttrs(neo.NavGroupOpts{Orientation: neo.Set(neo.OrientationVertical), Wrap: neo.Set(true)}, templ.Attributes{"role": "toolbar", "aria-orientation": "vertical", "class": "collapsible-sidebar-menu"}) {
+						@neo.ButtonAttrs(neo.ButtonOpts{}, neo.NavGroupItem()) {
+							Website redesign
+						}
+						@neo.ButtonAttrs(neo.ButtonOpts{}, neo.NavGroupItem()) {
+							Mobile app
+						}
+						@neo.ButtonAttrs(neo.ButtonOpts{}, neo.NavGroupItem()) {
+							Billing migration
+						}
+					}
+				}
+				@neo.Collapsible(neo.CollapsibleOpts{}) {
+					<span slot="summary">Teams</span>
+					@neo.NavGroupAttrs(neo.NavGroupOpts{Orientation: neo.Set(neo.OrientationVertical), Wrap: neo.Set(true)}, templ.Attributes{"role": "toolbar", "aria-orientation": "vertical", "class": "collapsible-sidebar-menu"}) {
+						@neo.ButtonAttrs(neo.ButtonOpts{}, neo.NavGroupItem()) {
+							Design
+						}
+						@neo.ButtonAttrs(neo.ButtonOpts{}, neo.NavGroupItem()) {
+							Engineering
+						}
+						@neo.ButtonAttrs(neo.ButtonOpts{}, neo.NavGroupItem()) {
+							Support
+						}
+					}
+				}
+				@neo.Collapsible(neo.CollapsibleOpts{}) {
+					<span slot="summary">Archive</span>
+					@neo.NavGroupAttrs(neo.NavGroupOpts{Orientation: neo.Set(neo.OrientationVertical), Wrap: neo.Set(true)}, templ.Attributes{"role": "toolbar", "aria-orientation": "vertical", "class": "collapsible-sidebar-menu"}) {
+						@neo.ButtonAttrs(neo.ButtonOpts{}, neo.NavGroupItem()) {
+							Q3 launch
+						}
+						@neo.ButtonAttrs(neo.ButtonOpts{}, neo.NavGroupItem()) {
+							Brand refresh
+						}
+					}
+				}
+			</nav>
+		}
+		<div class="collapsible-sidebar-main">
+			for range 2 {
+				<p>
+					Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do
+					eiusmod tempor incididunt ut labore et dolore magna aliqua.
+				</p>
+			}
+		</div>
+	</neo-layout>
+}

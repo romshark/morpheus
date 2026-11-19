@@ -1,0 +1,12 @@
+.collapsible-morph {
+	width: min(100%, 21rem);
+	padding: 0 0.75rem;
+	border: 1px solid var(--btn-border);
+	border-radius: var(--page-radius);
+	background: var(--page-bg);
+}
+
+.collapsible-morph-status,
+.collapsible-morph neo-alert {
+	margin: 0 0 0.5rem;
+}

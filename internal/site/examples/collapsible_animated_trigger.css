@@ -1,0 +1,38 @@
+.collapsible-animated-trigger neo-collapsible::part(summary) {
+	width: fit-content;
+}
+
+.collapsible-animated-trigger [slot="summary"] {
+	display: grid;
+	color: var(--link);
+	transition: color calc(200ms * var(--neo-duration-scale, 1)) var(--neo-easing, ease);
+}
+
+.collapsible-animated-trigger neo-collapsible[open]:not([open="false"]) [slot="summary"] {
+	color: var(--muted);
+}
+
+.collapsible-animated-trigger [slot="summary"] > span {
+	grid-area: 1 / 1;
+	transition-property: opacity, translate, visibility;
+	transition-duration: calc(200ms * var(--neo-duration-scale, 1));
+	transition-timing-function: var(--neo-easing, ease);
+}
+
+.collapsible-animated-trigger-open {
+	visibility: hidden;
+	opacity: 0;
+	translate: 0 -0.5em;
+}
+
+.collapsible-animated-trigger neo-collapsible[open]:not([open="false"]) .collapsible-animated-trigger-closed {
+	visibility: hidden;
+	opacity: 0;
+	translate: 0 0.5em;
+}
+
+.collapsible-animated-trigger neo-collapsible[open]:not([open="false"]) .collapsible-animated-trigger-open {
+	visibility: visible;
+	opacity: 1;
+	translate: 0 0;
+}

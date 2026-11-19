@@ -1,0 +1,7 @@
+.collapsible-read-more neo-collapsible::part(summary) {
+	width: fit-content;
+}
+
+.collapsible-read-more :is([slot="summary"], [slot="summary-open"]) {
+	color: var(--link);
+}
