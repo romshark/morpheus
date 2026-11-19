@@ -369,7 +369,7 @@ export class NeoCompare extends HTMLElement {
 		}
 		this.#drag = d;
 		// Without `dragging`, the transition eases this jump as it eases a click.
-		// The 1st move sets `dragging`, which drops the rest of the transition.
+		// A drag past the threshold sets `dragging`, which drops the rest of it.
 		if (d.following && !d.onHandle) this.#set(this.#pointerValue(e, d), "input");
 	};
 
@@ -389,7 +389,9 @@ export class NeoCompare extends HTMLElement {
 			if (!d.dragged && !d.following) return;
 			if (!d.following) this.#focusHandle();
 			d.following = true;
-			setState(this.#internals, "dragging", true);
+			// Below the threshold, a press off the handle retargets the click
+			// transition, which a jittery click would otherwise cut short.
+			if (d.dragged || d.onHandle) setState(this.#internals, "dragging", true);
 			setState(this.#internals, "grabbed", true);
 		}
 		this.#set(this.#pointerValue(e, d), "input");
