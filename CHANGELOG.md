@@ -23,6 +23,7 @@ This file records the notable changes of each release in the format of [Keep a C
 - Fix the Tab key skipping `<neo-select>` and `<neo-combobox>` in Safari.
 - Fix the Tab key skipping the `<neo-toast>` close button and the `<neo-avatars>` "+N" button in Safari.
 - Fix `<neo-menu>` and `<neo-submenu>` opening empty when a plain `<script>` in the `<head>` loads `bundle.js`.
+- Fix submenus showing cut off for a moment in Safari as they open. A `<neo-button>` that holds a `<neo-menu>` no longer lifts on hover.
 
 ## [0.6.1] - 2026-11-18
 
