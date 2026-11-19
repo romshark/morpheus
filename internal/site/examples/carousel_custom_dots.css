@@ -25,17 +25,17 @@
 
 .cx-bars::part(dot-partial)::before {
 	height: 0.5rem;
-	background: color-mix(in srgb, var(--accent) 55%, var(--neo-carousel-dot-bg));
+	background: color-mix(in srgb, var(--accent-strong, var(--accent)) 55%, var(--neo-carousel-dot-bg));
 }
 
-.cx-bars::part(dot-full)::before { height: 0.75rem; background: var(--accent); }
+.cx-bars::part(dot-full)::before { height: 0.75rem; background: var(--accent-strong, var(--accent)); }
 
 .cx-bars::part(dot):hover::before {
 	height: 0.75rem;
-	background: color-mix(in srgb, var(--accent) 70%, var(--neo-carousel-dot-bg));
+	background: color-mix(in srgb, var(--accent-strong, var(--accent)) 70%, var(--neo-carousel-dot-bg));
 }
 
-.cx-bars::part(dot-full):hover::before { background: var(--accent); }
+.cx-bars::part(dot-full):hover::before { background: var(--accent-strong, var(--accent)); }
 
 .cx-slide {
 	display: flex;

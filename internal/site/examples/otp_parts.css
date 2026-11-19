@@ -6,7 +6,7 @@
 
 .otp-parts-underline::part(filled),
 .otp-parts-underline::part(separator) {
-	border-color: var(--accent);
+	border-color: var(--accent-strong, var(--accent));
 	color: var(--accent);
 }
 

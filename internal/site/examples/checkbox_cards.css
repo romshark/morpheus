@@ -18,8 +18,8 @@
 }
 
 .checkbox-cards-item:has(> neo-checkbox[checked]:not([checked="false"])) {
-	border-color: var(--accent);
-	box-shadow: 0 0 0 1px var(--accent);
+	border-color: var(--accent-strong, var(--accent));
+	box-shadow: 0 0 0 1px var(--accent-strong, var(--accent));
 }
 
 .checkbox-cards-item > neo-checkbox {
@@ -31,7 +31,7 @@
 }
 
 .checkbox-cards-item:has(> neo-checkbox:focus-visible) {
-	outline: 2px solid var(--accent);
+	outline: 2px solid var(--focus-ring, var(--accent-strong, var(--accent)));
 	outline-offset: 2px;
 }
 

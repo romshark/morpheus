@@ -22,5 +22,5 @@
 }
 
 .tabs-underline-pg neo-tab[aria-selected="true"] {
-	border-bottom-color: var(--accent, currentColor);
+	border-bottom-color: var(--accent-strong, var(--accent, currentColor));
 }

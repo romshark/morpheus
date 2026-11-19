@@ -38,7 +38,7 @@
 }
 
 .card-pg-link:focus-visible {
-	outline: 2px solid var(--accent, currentColor);
+	outline: 2px solid var(--focus-ring, var(--accent-strong, var(--accent, currentColor)));
 	outline-offset: 2px;
 	border-radius: 0.2rem;
 }

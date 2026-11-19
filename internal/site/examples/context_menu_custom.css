@@ -16,7 +16,7 @@
 }
 
 .cm-card:focus-visible {
-	outline: 2px solid var(--accent);
+	outline: 2px solid var(--focus-ring, var(--accent-strong, var(--accent)));
 	outline-offset: 2px;
 }
 

@@ -14,8 +14,8 @@
 }
 
 .radio-pg-card:has(> neo-radio[aria-checked="true"]) {
-	border-color: var(--accent);
-	box-shadow: 0 0 0 1px var(--accent);
+	border-color: var(--accent-strong, var(--accent));
+	box-shadow: 0 0 0 1px var(--accent-strong, var(--accent));
 }
 
 .radio-pg-card > neo-radio { margin-top: 0.15rem; }
