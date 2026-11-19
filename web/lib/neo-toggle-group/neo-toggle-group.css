@@ -81,6 +81,8 @@ neo-toggle-group[orientation="vertical"] > neo-toggle:only-child {
 	neo-toggle-group {
 		border-radius: var(--neo-button-radius);
 		box-shadow: 0 0 0 1px var(--neo-button-color);
+		/* The pressed segment's edge, currentColor like its neighbours'. */
+		--control-border: currentColor;
 	}
 	neo-toggle-group > neo-toggle:not(:last-child) {
 		box-shadow: inset -1px 0 0 var(--neo-button-color);
@@ -96,6 +98,7 @@ neo-toggle-group[orientation="vertical"] > neo-toggle:only-child {
 :root[data-pref-contrast-more] neo-toggle-group {
 	border-radius: var(--neo-button-radius);
 	box-shadow: 0 0 0 1px var(--neo-button-color);
+	--control-border: currentColor;
 }
 
 :root[data-pref-contrast-more] neo-toggle-group > neo-toggle:not(:last-child) {

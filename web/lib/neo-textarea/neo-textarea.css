@@ -14,3 +14,11 @@
 	--neo-textarea-min-width: 16rem;
 	--neo-textarea-min-height: 4rem;
 }
+
+/* neo-spinner.global.css sets the same override, but it loads before
+ * this file and loses to the :root default. */
+@media (prefers-contrast: more) {
+	:root {
+		--neo-textarea-border-color: currentColor;
+	}
+}
