@@ -39,6 +39,12 @@
 	 * `body { font-family: var(--page-font-family) }`. */
 	--page-font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 
+	/* Edge of unchecked checkboxes, radios, switches, tracks and text
+	 * fields, which needs 3:1 against --page-bg and --btn-bg (WCAG
+	 * 1.4.11). Themes tune the mix to their palette. --btn-border is the
+	 * decorative hairline of cards, popovers and buttons. */
+	--control-border: color-mix(in srgb, var(--page-fg) 50%, transparent);
+
 	/* Kit-wide disabled-state overlay. Painted as a `background-image`
 	 * on every disabled component (button, switch, textarea, option).
 	 * Themes can layer a hatch / stripe / texture over disabled

@@ -36,7 +36,7 @@ There were 2 causes:
 
 ### Theme tokens
 
-The kit reads 3 new theme tokens. `theme-default.css` sets only `--control-border`. The components read `--accent-strong` and `--focus-ring` with fallbacks, so an `--accent` redeclared on a subtree still reaches them. Every theme sets `--control-border` in both its light and dark block, because a token missing from a theme's dark block falls back to that theme's light block.
+The kit reads 3 new theme tokens. `_base.css`, which ships in every bundle, gives `--control-border` its default. The components read `--accent-strong` and `--focus-ring` with fallbacks, so an `--accent` redeclared on a subtree still reaches them. Every theme sets `--control-border` in both its light and dark block, because a token missing from a theme's dark block falls back to that theme's light block.
 
 | Token | Default | Use |
 |---|---|---|

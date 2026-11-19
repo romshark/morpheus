@@ -32,12 +32,8 @@
 	 * dot. WCAG 1.4.11 needs 3:1 against --page-bg, which a light accent
 	 * may lack. --focus-ring defaults to it. Both stay unset here and the
 	 * components fall back to --accent. Set on :root to var(--accent),
-	 * they would resolve there and ignore an --accent set on a subtree. */
-
-	/* Edge of unchecked checkboxes, radios, switches, tracks and text
-	 * fields, 3:1 against --page-bg and --btn-bg. --btn-border is the
-	 * decorative hairline of cards, popovers and buttons. */
-	--control-border: color-mix(in srgb, var(--page-fg) 50%, transparent);
+	 * they would resolve there and ignore an --accent set on a subtree.
+	 * --control-border keeps its default from _base.css. */
 
 	/* Baseline font. Other themes override --page-font-family; without
 	 * a default here, body's var() would fall back to the UA serif. */

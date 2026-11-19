@@ -10,7 +10,7 @@ This file records the notable changes of each release in the format of [Keep a C
 
 - Add `<neo-collapsible>`, a summary button that shows and hides the content below it. Elements with the same `name` open 1 at a time. `neo.Collapsible` renders it from Templ.
 - Add the theme tokens `--accent-strong`, for the accent drawn as an edge or thin fill on the page, and `--focus-ring`. Unset, `--focus-ring` follows `--accent-strong`, which follows `--accent`.
-- Add the theme token `--control-border`, for the edge of unchecked controls and text fields. A theme that replaces `theme-default.css` must set it.
+- Add the theme token `--control-border`, for the edge of unchecked controls and text fields. It defaults to `--page-fg` at 50% opacity.
 - Add `--neo-switch-border`, `--neo-switch-border-on` and `--neo-switch-thumb-on` to `<neo-switch>`.
 
 ### Changed
