@@ -22,7 +22,9 @@ let nextCarouselId = 0;
 //   button). Pages overriding display (e.g. to grid) keep their own
 //   layout; grid-area on ::part(dots) takes precedence.
 // - [data-neo-carousel-dots] gap: keeps dot centers at least 24px apart,
-//   the spacing exception of WCAG 2.5.8 for targets under 24px.
+//   the spacing exception of WCAG 2.5.8 for targets under 24px. The row
+//   wraps and the dots don't shrink, which keeps that spacing in a narrow
+//   container.
 // - :host(:state(autoplay)) [data-neo-carousel-dots] >
 //   button[aria-current="true"]::after: active-dot sweep when autoplay is
 //   configured. The ::after grows from 0 -> full over
@@ -50,6 +52,7 @@ CAROUSEL_TEMPLATE.innerHTML = `
   [data-neo-carousel-dots] {
     order: 1;
     display: flex;
+    flex-wrap: wrap;
     justify-content: center;
     align-items: center;
     gap: max(var(--neo-carousel-dot-gap, 0.4rem), calc(24px - var(--neo-carousel-dot-size, 0.55rem)));
@@ -58,6 +61,7 @@ CAROUSEL_TEMPLATE.innerHTML = `
   :host(:not([dots]:where(:not([dots="false"])))) [data-neo-carousel-dots],
   :host([dots="false"]) [data-neo-carousel-dots] { display: none; }
   [data-neo-carousel-dots] > button {
+    flex-shrink: 0;
     width: var(--neo-carousel-dot-size, 0.55rem);
     height: var(--neo-carousel-dot-size, 0.55rem);
     padding: 0;

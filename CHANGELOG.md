@@ -43,7 +43,7 @@ This file records the notable changes of each release in the format of [Keep a C
   - Alert titles take the alert text color. Alert descriptions, card descriptions and menu shortcuts take `--muted`.
   - The filled rating star is `#b45309` under a light `color-scheme`.
   - Theme colors change where their text failed. These are the ocean accent, muted and visited link, the matrix dim-mode accent, muted, visited link and danger, the sunshine muted, and the danger button in the default and ocean dark modes.
-- Space `<neo-carousel>` dots so their centers stay 24px apart (WCAG 2.5.8). `--neo-carousel-dot-gap` now needs a unit. A unitless `0` removes the gap, so write `0px`.
+- Space `<neo-carousel>` dots so their centers stay 24px apart (WCAG 2.5.8). Dots that don't fit wrap to a new row instead of shrinking. `--neo-carousel-dot-gap` now needs a unit. A unitless `0` removes the gap, so write `0px`.
 
 ## [0.6.1] - 2026-11-18
 
