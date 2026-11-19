@@ -1067,6 +1067,8 @@ var sliderDoc = ComponentDoc{
 	States: []DocState{
 		{Name: "dragging",
 			Description: templ.Raw("Set while a pointer drag is in flight; suppresses the <code>easing</code> transition so the thumb tracks the cursor.")},
+		{Name: "pointer-focus",
+			Description: templ.Raw("Set from a pointer press until the next key press or until focus leaves; hides the thumb's focus ring.")},
 	},
 	Slots: []DocSlot{
 		{Name: "[data-neo-slider-mark]",

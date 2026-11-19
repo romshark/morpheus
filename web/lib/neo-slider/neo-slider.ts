@@ -412,6 +412,8 @@ export class NeoSlider extends HTMLElement {
 		this.#valueEl.addEventListener("focus", this.#onValueFocus);
 
 		this.#trackEl.addEventListener("pointerdown", this.#onTrackPointerDown);
+		this.addEventListener("keydown", this.#clearPointerFocus);
+		this.addEventListener("focusout", this.#clearPointerFocus);
 		this.#trackEl.addEventListener("pointermove", this.#onTrackMarkPointerMove);
 		this.#trackEl.addEventListener("pointerleave", this.#onTrackMarkPointerLeave);
 		// Drag listeners are bound once here, not per pointerdown.
@@ -1028,11 +1030,21 @@ export class NeoSlider extends HTMLElement {
 		this.#commitValue(v, "change", { snap: false });
 	};
 
+	// A press focuses the thumb from script, which Chrome and WebKit count as
+	// :focus-visible, and `focus({ focusVisible: false })` keeps the ring off
+	// after a later key in Chrome. `pointer-focus` hides the ring from the
+	// press until a key press. Focus leaving the host fires focusout here, and
+	// a move between its shadow elements doesn't.
+	#clearPointerFocus = () => {
+		setState(this.#internals, "pointer-focus", false);
+	};
+
 	#onTrackPointerDown = (e: PointerEvent) => {
 		if (boolAttr(this, ATTR_DISABLED, false)) return;
 		if (e.button !== 0) return;
 		if (!this.#trackEl) return;
 		e.preventDefault();
+		setState(this.#internals, "pointer-focus", true);
 		this.#thumbEl?.focus();
 		this.#tooltipCtrl?.hold();
 		try {

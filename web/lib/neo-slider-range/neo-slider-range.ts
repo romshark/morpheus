@@ -448,6 +448,8 @@ export class NeoSliderRange extends HTMLElement {
 		root.replaceChildren(this.#headerEl, this.#trackEl, this.#marksEl);
 
 		this.#trackEl.addEventListener("pointerdown", this.#onTrackPointerDown);
+		this.addEventListener("keydown", this.#clearPointerFocus);
+		this.addEventListener("focusout", this.#clearPointerFocus);
 		this.#trackEl.addEventListener("pointermove", this.#onTrackMarkPointerMove);
 		this.#trackEl.addEventListener("pointerleave", this.#onTrackMarkPointerLeave);
 		// Drag listeners bound once here, not per pointerdown, because each
@@ -1182,10 +1184,20 @@ export class NeoSliderRange extends HTMLElement {
 		this.#showSide(side);
 	}
 
+	// A press focuses the thumb from script, which Chrome and WebKit count as
+	// :focus-visible, and `focus({ focusVisible: false })` keeps the ring off
+	// after a later key in Chrome. `pointer-focus` hides the ring from the
+	// press until a key press. Focus leaving the host fires focusout here,
+	// and a move between its shadow elements, as in a crossing drag, doesn't.
+	#clearPointerFocus = () => {
+		setState(this.#internals, "pointer-focus", false);
+	};
+
 	// Focus `side` and hold its bubble open for the press. A crossing drag
 	// hands the press to the other thumb, which ends the old thumb's hold.
 	#pressSide(side: Side) {
 		const thumb = side === "min" ? this.#thumbMinEl : this.#thumbMaxEl;
+		setState(this.#internals, "pointer-focus", true);
 		thumb?.focus();
 		this.#ctrlFor(side === "min" ? "max" : "min")?.release();
 		this.#ctrlFor(side)?.hold();

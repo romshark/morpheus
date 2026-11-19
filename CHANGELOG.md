@@ -35,6 +35,7 @@ This file records the notable changes of each release in the format of [Keep a C
 - Fix slow dragging of a `<neo-compare>` whose layers hold a lot of HTML. Each move restyled every element in the layers.
 - Fix a click on a `<neo-slider>` or `<neo-slider-range>` mark dot picking the nearest step instead of the mark. With `step="10"`, the dot at 25 gave 30.
 - Fix the `<neo-slider>` and `<neo-slider-range>` value bubble staying open after a click or drag that ends off the thumb. It also closed while the thumb was held down.
+- Fix the focus ring showing on the `<neo-slider>` and `<neo-slider-range>` thumb after a mouse click. It now shows on the next key press, as on a native slider. The new `:state(pointer-focus)` is set in between.
 
 ## [0.6.1] - 2026-11-18
 
