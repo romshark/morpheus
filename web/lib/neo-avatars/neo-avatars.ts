@@ -115,6 +115,8 @@ export class NeoAvatars extends HTMLElement {
 		}
 		const button = document.createElement("button");
 		button.type = "button";
+		// Safari's default Tab order skips a <button> without an explicit tabindex.
+		button.setAttribute("tabindex", "0");
 		button.setAttribute("data-neo-avatars-overflow-custom", "");
 		button.append("+", document.createElement("span"));
 		button.lastElementChild?.setAttribute("data-neo-avatars-overflow-count", "");

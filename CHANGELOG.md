@@ -21,6 +21,7 @@ This file records the notable changes of each release in the format of [Keep a C
 - Minify the shadow CSS of `<neo-compare>` and `<neo-otp>` in the bundle. It shipped with its source indentation, 1.4 kB more (0.4 kB brotli).
 - Make the content of a collapsed `<neo-elastic>` inert. Tab moved focus onto its hidden links and fields, and screen readers read them.
 - Fix the Tab key skipping `<neo-select>` and `<neo-combobox>` in Safari.
+- Fix the Tab key skipping the `<neo-toast>` close button and the `<neo-avatars>` "+N" button in Safari.
 
 ## [0.6.1] - 2026-11-18
 
