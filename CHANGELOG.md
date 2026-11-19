@@ -15,6 +15,7 @@ This file records the notable changes of each release in the format of [Keep a C
 #### Components
 
 - Stop recentering the `<neo-compare>` divider when a drag of the handle quickly follows a click on it.
+- Keep the `value` of a `<neo-compare>` that lists `min` or `max` before `value` in its markup. The divider started at 50, or at the range limit nearest to 50.
 
 ## [0.6.1] - 2026-11-18
 

@@ -282,10 +282,11 @@ export class NeoCompare extends HTMLElement {
 	// and a morph that strips `value` keeps the divider where it is.
 	#value = CENTER;
 	#reflecting = false;
+	#connectedOnce = false;
 	#drag: Drag | null = null;
 	#jumpFrame = 0;
-	// The min/max pair last warned about, which keeps the per-attribute
-	// callbacks of an upgrade from repeating the warning.
+	// The min/max pair last warned about, which keeps a reconnect or a
+	// rewrite of the same pair from repeating the warning.
 	#rangeWarned = "";
 	// Consecutive clicks on the handle without a drag. A dblclick can't tell
 	// where its presses landed, because the pointer capture retargets it to
@@ -321,6 +322,7 @@ export class NeoCompare extends HTMLElement {
 	}
 
 	connectedCallback() {
+		this.#connectedOnce = true;
 		const raw = this.getAttribute(ATTR_VALUE);
 		if (raw !== null) this.#value = clamp(num(raw, this.#value), 0, 100);
 		this.#syncRange();
@@ -355,7 +357,9 @@ export class NeoCompare extends HTMLElement {
 			return;
 		}
 		if (name === ATTR_MIN || name === ATTR_MAX) {
-			this.#syncRange();
+			// Before the first connect, a parse or upgrade can still have the `value`
+			// callback queued, and a reflect here would overwrite the authored value.
+			if (this.#connectedOnce) this.#syncRange();
 			return;
 		}
 		if (name === ATTR_VERTICAL) this.#jump();
