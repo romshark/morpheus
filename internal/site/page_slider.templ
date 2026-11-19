@@ -338,13 +338,13 @@ templ PageSlider(morpheusVersion string) {
 var sliderDoc = ComponentDoc{
 	Attributes: []DocAttribute{
 		{Name: "value", Type: "number", Reflected: true, Observed: true,
-			Description: templ.Raw("Current value. Clamped and snapped to <code>step</code>.")},
+			Description: templ.Raw("Current value. Clamped and snapped to <a href=\"#attributes-step\"><code>step</code></a> or a mark.")},
 		{Name: "min", Type: "number", Default: "0", Observed: true,
 			Description: templ.Raw("Lower bound.")},
 		{Name: "max", Type: "number", Default: "100", Observed: true,
 			Description: templ.Raw("Upper bound.")},
 		{Name: "step", Type: "number", Default: "1", Observed: true,
-			Description: templ.Raw("Increment between snap points.")},
+			Description: templ.Raw("Increment between snap points; each mark adds one unless <a href=\"#attributes-static-marks\"><code>static-marks</code></a> is set.")},
 		{Name: "label", Type: "string", Observed: true, Description: templ.Raw("Plain-text caption.")},
 		{Name: "unit", Type: "string", Observed: true, Description: templ.Raw("Plain-text suffix on the value display.")},
 		{Name: "hide-value", Type: "boolean", Default: "false", Observed: true,

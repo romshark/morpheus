@@ -10,6 +10,12 @@ This file records the notable changes of each release in the format of [Keep a C
 
 - Add `<neo-collapsible>`, a summary button that shows and hides the content below it. Elements with the same `name` open 1 at a time. `neo.Collapsible` renders it from Templ.
 
+### Changed
+
+#### Components
+
+- Make `<neo-slider>` and `<neo-slider-range>` stop on marks. With `step="10"` and a mark at 25, the arrow keys go 20, 25, 30, and a click or drag near 25 picks 25. `static-marks` turns this off.
+
 ### Fixed
 
 #### Components
@@ -26,6 +32,7 @@ This file records the notable changes of each release in the format of [Keep a C
 - Fix submenus showing cut off for a moment in Safari as they open. A `<neo-button>` that holds a `<neo-menu>` no longer lifts on hover.
 - Fix a page scroll that starts on `<neo-compare>` moving focus to its handle, which closed the on-screen keyboard.
 - Fix slow dragging of a `<neo-compare>` whose layers hold a lot of HTML. Each move restyled every element in the layers.
+- Fix a click on a `<neo-slider>` or `<neo-slider-range>` mark dot picking the nearest step instead of the mark. With `step="10"`, the dot at 25 gave 30.
 
 ## [0.6.1] - 2026-11-18
 

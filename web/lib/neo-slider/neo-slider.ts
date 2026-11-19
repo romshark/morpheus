@@ -20,6 +20,7 @@ import {
 import tooltipCss from "../neo-tooltip/tooltip-pill.css";
 import { num } from "../num";
 import { scopeCssToHost, setTextInPlace } from "../shadow-utils";
+import { decimalDigits, snapToGrid, stepOnGrid } from "../step-grid";
 import { TooltipController } from "../tooltip-controller";
 import sliderCss from "./neo-slider.css";
 
@@ -423,10 +424,7 @@ export class NeoSlider extends HTMLElement {
 		this.#trackEl.addEventListener("pointerup", this.#onTrackPointerUp);
 		this.#trackEl.addEventListener("pointercancel", this.#onTrackPointerCancel);
 		this.#trackEl.addEventListener("lostpointercapture", this.#onTrackLostPointerCapture);
-		// Delegate from track/marks rather than per-mark listeners.
-		// The browser suppresses `click` after a real drag.
-		// These only run for genuine taps that should snap to the mark's value.
-		this.#trackEl.addEventListener("click", this.#onAnchorClick);
+		// Delegate from the marks row rather than per-label listeners.
 		this.#marksEl.addEventListener("click", this.#onMarkLabelClick);
 		this.#marksEl.addEventListener("pointermove", this.#onMarkLabelPointerMove);
 		this.#marksEl.addEventListener("pointerleave", this.#onMarkLabelPointerLeave);
@@ -773,16 +771,16 @@ export class NeoSlider extends HTMLElement {
 
 	#clampSnap(v: number): number {
 		if (!Number.isFinite(v)) return this.min;
-		const min = this.min;
-		const max = this.max;
-		const step = this.step;
-		let x = Math.min(max, Math.max(min, v));
-		const k = Math.round((x - min) / step);
-		x = min + k * step;
-		x = Math.min(max, Math.max(min, x));
-		// Round away the FP debris (0.1 + 0.2 -> 0.30000000000000004).
-		const decimals = decimalDigits(step);
-		return Number(x.toFixed(decimals));
+		return snapToGrid(v, this.min, this.step, this.min, this.max, this.#stops());
+	}
+
+	#stepFrom(v: number, dir: 1 | -1): number {
+		return stepOnGrid(v, dir, this.min, this.step, this.min, this.max, this.#stops());
+	}
+
+	// Static marks are decorative and add no stops to the step grid.
+	#stops(): readonly MarkSpec[] {
+		return boolAttr(this, ATTR_STATIC_MARKS, false) ? [] : this.#marks;
 	}
 
 	// Commit a value. Defaults to step-snapping (drag/keyboard/typed);
@@ -908,7 +906,7 @@ export class NeoSlider extends HTMLElement {
 				const delta = e.shiftKey ? 5 : 1;
 				this.#commitValue(this.#markValueAt(this.#currentMarkIndex() + delta), "change", { snap: false });
 			} else {
-				this.#commitValue(this.value + this.step * (e.shiftKey ? 10 : 1), "change");
+				this.#commitValue(e.shiftKey ? this.value + this.step * 10 : this.#stepFrom(this.value, 1), "change");
 			}
 			this.#refreshValueText();
 		} else if (e.key === "ArrowDown") {
@@ -917,7 +915,7 @@ export class NeoSlider extends HTMLElement {
 				const delta = e.shiftKey ? 5 : 1;
 				this.#commitValue(this.#markValueAt(this.#currentMarkIndex() - delta), "change", { snap: false });
 			} else {
-				this.#commitValue(this.value - this.step * (e.shiftKey ? 10 : 1), "change");
+				this.#commitValue(e.shiftKey ? this.value - this.step * 10 : this.#stepFrom(this.value, -1), "change");
 			}
 			this.#refreshValueText();
 		}
@@ -958,11 +956,11 @@ export class NeoSlider extends HTMLElement {
 		switch (this.#isVertical() ? e.key : logicalArrow(this, e.key)) {
 			case "ArrowLeft":
 			case "ArrowDown":
-				next = useMarks ? this.#markValueAt(this.#currentMarkIndex() - 1) : this.value - this.step;
+				next = useMarks ? this.#markValueAt(this.#currentMarkIndex() - 1) : this.#stepFrom(this.value, -1);
 				break;
 			case "ArrowRight":
 			case "ArrowUp":
-				next = useMarks ? this.#markValueAt(this.#currentMarkIndex() + 1) : this.value + this.step;
+				next = useMarks ? this.#markValueAt(this.#currentMarkIndex() + 1) : this.#stepFrom(this.value, 1);
 				break;
 			case "PageDown":
 				next = useMarks ? this.#markValueAt(this.#currentMarkIndex() - 5) : this.value - big;
@@ -985,17 +983,14 @@ export class NeoSlider extends HTMLElement {
 		}
 	};
 
-	#onAnchorClick = (e: MouseEvent) => {
-		if (boolAttr(this, ATTR_DISABLED, false)) return;
-		if (boolAttr(this, ATTR_STATIC_MARKS, false)) return;
-		const target = (e.target as Element | null)?.closest("[data-neo-slider-anchor]");
-		if (!target || !this.#trackEl?.contains(target)) return;
-		const v = readMarkValue(target);
-		if (v === null) return;
-		// Commit the mark's value verbatim so clicking a mark at 25 with
-		// step=10 lands on 25, not on the nearest step (30).
-		this.#commitValue(v, "change", { snap: false });
-	};
+	// Value of the anchor dot a press starts on. The press commits it, not a `click`
+	// handler, because the track's pointer capture retargets the `click` at the track.
+	#pressedAnchorValue(target: EventTarget | null): number | null {
+		if (boolAttr(this, ATTR_STATIC_MARKS, false)) return null;
+		const anchor = (target as Element | null)?.closest("[data-neo-slider-anchor]");
+		if (!anchor || !this.#trackEl?.contains(anchor)) return null;
+		return readMarkValue(anchor);
+	}
 
 	#onTrackMarkPointerMove = (e: PointerEvent) => {
 		// While a pointer is down (drag or click) the mark-hover highlight
@@ -1056,7 +1051,11 @@ export class NeoSlider extends HTMLElement {
 		// The dragging flag is set in onTrackPointerMove past the threshold,
 		// which lets a pure click animate via [easing]; only a real drag
 		// suppresses the animation.
-		this.#applyPointerPosition(e.clientX, e.clientY, "input");
+		// An anchor commits verbatim. A press near the dot's edge can sit nearer
+		// to a grid point than to the mark, and snapping would land there.
+		const anchor = this.#pressedAnchorValue(e.target);
+		if (anchor !== null) this.#commitValue(anchor, "input", { snap: false });
+		else this.#applyPointerPosition(e.clientX, e.clientY, "input");
 	};
 
 	#onTrackPointerMove = (e: PointerEvent) => {
@@ -1089,7 +1088,9 @@ export class NeoSlider extends HTMLElement {
 
 	#onTrackPointerUp = (e: PointerEvent) => {
 		if (e.pointerId !== this.#dragPointerId) return;
-		this.#applyPointerPosition(e.clientX, e.clientY, "input");
+		// Under the drag threshold the pointerdown value stands, as it does on
+		// pointermove. Re-reading the pointer would step-snap a pressed anchor.
+		if (this.#dragStarted) this.#applyPointerPosition(e.clientX, e.clientY, "input");
 		this.#endDrag();
 	};
 
@@ -1171,18 +1172,6 @@ function readMarkValue(el: Element): number | null {
 function part<E extends Element>(el: E, name: string): E {
 	el.setAttribute("part", name);
 	return el;
-}
-
-function decimalDigits(step: number): number {
-	if (!Number.isFinite(step) || step <= 0) return 0;
-	const s = String(step);
-	const dot = s.indexOf(".");
-	if (dot < 0) {
-		// Handle scientific notation: "1e-3" -> 3 decimals.
-		const exp = s.indexOf("e-");
-		return exp < 0 ? 0 : Number(s.slice(exp + 2)) || 0;
-	}
-	return s.length - dot - 1;
 }
 
 function formatNumber(v: number, step: number): string {
