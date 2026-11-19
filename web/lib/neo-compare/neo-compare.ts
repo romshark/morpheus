@@ -535,7 +535,10 @@ export class NeoCompare extends HTMLElement {
 		// The browser sees no mousedown and would treat the script focus as
 		// keyboard focus, with a focus ring.
 		e.preventDefault();
-		this.#handle.focus({ preventScroll: true, focusVisible: false });
+		const following = e.pointerType === "mouse";
+		// A touch or pen press focuses once it drags or taps. A swipe that scrolls
+		// the page must not blur a text field, which closes the on-screen keyboard.
+		if (following) this.#focusHandle();
 		const vertical = this.#vertical();
 		const rect = this.#frame.getBoundingClientRect();
 		const across = vertical ? rect.width : rect.height;
@@ -544,7 +547,7 @@ export class NeoCompare extends HTMLElement {
 			startX: e.clientX,
 			startY: e.clientY,
 			startValue: this.#value,
-			following: e.pointerType === "mouse",
+			following,
 			dragged: false,
 			onHandle: e.composedPath().includes(this.#handle),
 			grabOffset: 0,
@@ -578,6 +581,7 @@ export class NeoCompare extends HTMLElement {
 			const delta = d.vertical ? e.clientY - d.startY : e.clientX - d.startX;
 			d.dragged = Math.abs(delta) >= DRAG_THRESHOLD;
 			if (!d.dragged && !d.following) return;
+			if (!d.following) this.#focusHandle();
 			d.following = true;
 			setState(this.#internals, "dragging", true);
 			setState(this.#internals, "grabbed", true);
@@ -593,9 +597,14 @@ export class NeoCompare extends HTMLElement {
 		// moved a few px below the drag threshold.
 		if (d.following) this.#set(this.#pointerValue(e, d), "input");
 		else if (!d.onHandle) this.#set(this.#pointerValue(e, d), "change");
+		if (!d.following) this.#focusHandle();
 		this.#handleClicks = d.onHandle && !d.dragged ? this.#handleClicks + 1 : 0;
 		this.#endDrag();
 	};
+
+	#focusHandle() {
+		this.#handle.focus({ preventScroll: true, focusVisible: false });
+	}
 
 	// Only after 2 clicks on the handle, which move the divider less than
 	// the drag threshold. Elsewhere the 1st click has already moved it to the pointer,
