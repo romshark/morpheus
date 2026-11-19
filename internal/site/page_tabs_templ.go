@@ -688,7 +688,7 @@ var tabsDoc = ComponentDoc{
 			Description: templ.Raw("Active tab text color.")},
 		{Name: "--neo-tabs-tab-active-shadow", Default: "inset 0 0 0 1px var(--control-border), 0 1px 2px color-mix(in srgb, var(--page-fg) 16%, transparent)",
 			Description: templ.Raw("Active tab ring and shadow.")},
-		{Name: "--neo-tabs-focus-ring", Default: "var(--focus-ring, currentColor)",
+		{Name: "--neo-tabs-focus-ring", Default: "var(--focus-ring, var(--accent-strong, var(--accent, currentColor)))",
 			Description: templ.Raw("Focus outline color.")},
 		{Name: "--neo-tabs-panel-padding", Default: "0.85rem 0",
 			Description: templ.Raw("Panel padding.")},

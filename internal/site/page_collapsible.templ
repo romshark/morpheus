@@ -206,7 +206,7 @@ var collapsibleDoc = ComponentDoc{
 			Description: templ.Raw("Width and height of the icon.")},
 		{Name: "--neo-collapsible-icon-color", Default: "var(--muted)",
 			Description: templ.Raw("Color of the icon.")},
-		{Name: "--neo-collapsible-focus-ring", Default: "var(--focus-ring, var(--accent))",
+		{Name: "--neo-collapsible-focus-ring", Default: "var(--focus-ring, var(--accent-strong, var(--accent)))",
 			Description: templ.Raw("Color of the summary focus outline.")},
 	},
 }

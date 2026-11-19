@@ -673,7 +673,7 @@ var compareDoc = ComponentDoc{
 			Description: templ.Raw("Color of the handle arrows.")},
 		{Name: "--neo-compare-handle-border", Default: "var(--btn-border)",
 			Description: templ.Raw("Color of the 1px handle border.")},
-		{Name: "--neo-compare-focus-ring", Default: "var(--focus-ring, var(--accent))",
+		{Name: "--neo-compare-focus-ring", Default: "var(--focus-ring, var(--accent-strong, var(--accent)))",
 			Description: templ.Raw("Color of the handle focus outline.")},
 		{Name: "--neo-compare-duration", Default: "200ms",
 			Description: templ.Raw("Duration of a move that isn't a drag, multiplied by <code>--neo-duration-scale</code>.")},

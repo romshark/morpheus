@@ -390,7 +390,7 @@ var buttonDoc = ComponentDoc{
 			Description: templ.Raw("Background while pressed for the <code>danger</code> variant.")},
 		{Name: "--neo-button-anchor-underline-offset", Default: "0.25em",
 			Description: templ.Raw("Underline offset for the <code>anchor</code> variant.")},
-		{Name: "--neo-button-focus-ring", Default: "var(--focus-ring)",
+		{Name: "--neo-button-focus-ring", Default: "var(--focus-ring, var(--accent-strong, var(--accent)))",
 			Description: templ.Raw("Focus-visible outline color.")},
 		{Name: "--neo-link-radius", Default: "2px",
 			Description: templ.Raw("Corner radius of the focus outline on the <code>anchor</code> variant and <code>&lt;a data-neo-link&gt;</code>.")},

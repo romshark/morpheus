@@ -25,7 +25,7 @@
 	--neo-switch-track-off: var(--btn-bg);
 	--neo-switch-track-on: var(--accent);
 	--neo-switch-border: var(--control-border);
-	--neo-switch-border-on: var(--accent-strong);
+	--neo-switch-border-on: var(--accent-strong, var(--accent));
 	--neo-switch-thumb: var(--control-border);
 	--neo-switch-thumb-on: var(--accent-fg);
 	--neo-switch-transition-duration: calc(150ms * var(--neo-duration-scale, 1));
@@ -91,7 +91,7 @@ neo-switch:dir(rtl)[checked]:where(:not([checked="false"]))::before {
 }
 
 neo-switch:focus-visible {
-	outline: 2px solid var(--focus-ring);
+	outline: 2px solid var(--focus-ring, var(--accent-strong, var(--accent)));
 	outline-offset: 2px;
 }
 

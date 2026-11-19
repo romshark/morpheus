@@ -404,11 +404,11 @@ func PageTheming(morpheusVersion string) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = themingSwatch("--accent-strong", "var(--accent-strong)").Render(ctx, templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = themingSwatch("--accent-strong", "var(--accent-strong, var(--accent))").Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = themingSwatch("--focus-ring", "var(--focus-ring)").Render(ctx, templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = themingSwatch("--focus-ring", "var(--focus-ring, var(--accent-strong, var(--accent)))").Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

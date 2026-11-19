@@ -206,7 +206,7 @@ TEMPLATE.innerHTML = `
     box-shadow: var(--neo-compare-handle-grab-shadow, 0 4px 12px rgb(0 0 0 / 0.4));
   }
   [data-neo-compare-handle]:focus-visible {
-    outline: 2px solid var(--neo-compare-focus-ring, var(--focus-ring, var(--accent, Highlight)));
+    outline: 2px solid var(--neo-compare-focus-ring, var(--focus-ring, var(--accent-strong, var(--accent, Highlight))));
     outline-offset: 2px;
   }
   :host([disabled]:not([disabled="false"])) [data-neo-compare-handle] {

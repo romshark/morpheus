@@ -21,7 +21,7 @@
 	/* Solid ring on the lifted item. A drop shadow alone vanishes on a
 	 * dark background, and the keyboard-grabbed item needs a crisp border
 	 * to stay legible. Themes override this to tune colour/width/inset. */
-	--neo-sortable-drag-ring: inset 0 0 0 2px var(--accent-strong, #6366f1);
+	--neo-sortable-drag-ring: inset 0 0 0 2px var(--accent-strong, var(--accent, #6366f1));
 	--neo-sortable-handle-color: var(--muted, currentColor);
 	--neo-sortable-handle-hover-color: var(--page-fg, currentColor);
 	--neo-sortable-placeholder-color: color-mix(in srgb, var(--accent, #6366f1) 55%, transparent);

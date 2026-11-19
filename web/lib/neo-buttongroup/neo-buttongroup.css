@@ -64,7 +64,7 @@ neo-buttongroup > neo-button:focus-visible {
 neo-buttongroup > neo-button[aria-checked="true"] {
 	background: var(--neo-button-primary-bg);
 	color: var(--neo-button-primary-color);
-	border-color: var(--accent-strong);
+	border-color: var(--accent-strong, var(--accent));
 	z-index: 2;
 }
 
@@ -72,7 +72,7 @@ neo-buttongroup[value]
 	> neo-button[aria-checked="true"]:hover:where(:not([disabled]:not([disabled="false"]), [aria-disabled="true"])) {
 	background: var(--neo-button-primary-hover-bg);
 	color: var(--neo-button-primary-color);
-	border-color: var(--accent-strong);
+	border-color: var(--accent-strong, var(--accent));
 	box-shadow: var(--neo-button-shadow);
 	transform: translateY(0);
 }
@@ -81,7 +81,7 @@ neo-buttongroup[value]
 	> neo-button[aria-checked="true"]:active:where(:not([disabled]:not([disabled="false"]), [aria-disabled="true"])) {
 	background: var(--neo-button-primary-active-bg);
 	color: var(--neo-button-primary-color);
-	border-color: var(--accent-strong);
+	border-color: var(--accent-strong, var(--accent));
 	box-shadow: var(--neo-button-shadow);
 	transform: translateY(0);
 }

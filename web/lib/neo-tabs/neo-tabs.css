@@ -23,7 +23,7 @@
 	 * the inset ring marks the selection. */
 	--neo-tabs-tab-active-shadow:
 		inset 0 0 0 1px var(--control-border), 0 1px 2px color-mix(in srgb, var(--page-fg) 16%, transparent);
-	--neo-tabs-focus-ring: var(--focus-ring, currentColor);
+	--neo-tabs-focus-ring: var(--focus-ring, var(--accent-strong, var(--accent, currentColor)));
 	--neo-tabs-panel-padding: 0.85rem 0;
 }
 

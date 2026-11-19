@@ -472,7 +472,7 @@ var radioGroupDoc = ComponentDoc{
 			Description: templ.Raw("Background when unchecked.")},
 		{Name: "--neo-radio-checked-bg", Default: "var(--accent)",
 			Description: templ.Raw("Background when checked.")},
-		{Name: "--neo-radio-checked-border", Default: "var(--accent-strong)",
+		{Name: "--neo-radio-checked-border", Default: "var(--accent-strong, var(--accent))",
 			Description: templ.Raw("Border color when checked.")},
 		{Name: "--neo-radio-dot-color", Default: "var(--accent-fg)",
 			Description: templ.Raw("Color of the inner dot.")},

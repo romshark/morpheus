@@ -100,8 +100,8 @@ templ PageTheming(morpheusVersion string) {
 				<div class="theming-swatches">
 					@themingSwatch("--accent", "var(--accent)")
 					@themingSwatch("--accent-fg", "var(--accent-fg)")
-					@themingSwatch("--accent-strong", "var(--accent-strong)")
-					@themingSwatch("--focus-ring", "var(--focus-ring)")
+					@themingSwatch("--accent-strong", "var(--accent-strong, var(--accent))")
+					@themingSwatch("--focus-ring", "var(--focus-ring, var(--accent-strong, var(--accent)))")
 					@themingSwatch("--page-bg", "var(--page-bg)")
 					@themingSwatch("--page-fg", "var(--page-fg)")
 					@themingSwatch("--muted", "var(--muted)")

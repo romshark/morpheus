@@ -14,11 +14,11 @@
 	--neo-carousel-per-view: 1;
 	--neo-carousel-snap-align: start;
 	--neo-carousel-track-radius: var(--page-radius, 0);
-	--neo-carousel-focus-ring: var(--focus-ring, currentColor);
+	--neo-carousel-focus-ring: var(--focus-ring, var(--accent-strong, var(--accent, currentColor)));
 	--neo-carousel-dot-size: 0.55rem;
 	--neo-carousel-dot-gap: 0.4rem;
 	--neo-carousel-dot-bg: var(--control-border);
-	--neo-carousel-dot-active-bg: var(--accent-strong, currentColor);
+	--neo-carousel-dot-active-bg: var(--accent-strong, var(--accent, currentColor));
 	--neo-carousel-dot-radius: 999px;
 	/* Set to 1 to disable [highlight-active]:where(:not([highlight-active="false"])) dimming. */
 	--neo-carousel-slide-inactive-opacity: 0.55;

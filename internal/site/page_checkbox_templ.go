@@ -727,7 +727,7 @@ var checkboxDoc = ComponentDoc{
 			Description: templ.Raw("Background when unchecked.")},
 		{Name: "--neo-checkbox-checked-bg", Default: "var(--accent)",
 			Description: templ.Raw("Background when checked or indeterminate.")},
-		{Name: "--neo-checkbox-checked-border", Default: "var(--accent-strong)",
+		{Name: "--neo-checkbox-checked-border", Default: "var(--accent-strong, var(--accent))",
 			Description: templ.Raw("Border color when checked or indeterminate.")},
 		{Name: "--neo-checkbox-mark-color", Default: "var(--accent-fg)",
 			Description: templ.Raw("Color of the check / indeterminate mark.")},

@@ -13,7 +13,7 @@
 	--neo-alert-radius: var(--page-radius, 0.5rem);
 	--neo-alert-border-width: 1px;
 	--neo-alert-neutral-accent: var(--page-fg);
-	--neo-alert-info-accent: var(--accent-strong);
+	--neo-alert-info-accent: var(--accent-strong, var(--accent));
 	--neo-alert-success-accent: oklch(0.55 0.14 145);
 	--neo-alert-warning-accent: oklch(0.68 0.16 70);
 	--neo-alert-danger-accent: var(--danger-bg);

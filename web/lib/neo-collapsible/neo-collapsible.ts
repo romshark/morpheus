@@ -45,7 +45,7 @@ TEMPLATE.innerHTML = `
     -webkit-tap-highlight-color: transparent;
   }
   [data-neo-collapsible-summary]:focus-visible {
-    outline: 2px solid var(--neo-collapsible-focus-ring, var(--focus-ring, var(--accent, Highlight)));
+    outline: 2px solid var(--neo-collapsible-focus-ring, var(--focus-ring, var(--accent-strong, var(--accent, Highlight))));
     outline-offset: 2px;
   }
   [data-neo-collapsible-label] {

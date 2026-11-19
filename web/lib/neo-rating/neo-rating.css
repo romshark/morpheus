@@ -106,7 +106,7 @@ neo-rating:focus-visible {
 }
 
 neo-rating:focus-visible > [data-neo-rating-symbols] {
-	outline: 2px solid var(--focus-ring, currentColor);
+	outline: 2px solid var(--focus-ring, var(--accent-strong, var(--accent, currentColor)));
 	outline-offset: 2px;
 }
 

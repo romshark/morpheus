@@ -536,7 +536,7 @@ var switchDoc = ComponentDoc{
 			Description: templ.Raw("Track color when checked.")},
 		{Name: "--neo-switch-border", Default: "var(--control-border)",
 			Description: templ.Raw("Border color when unchecked.")},
-		{Name: "--neo-switch-border-on", Default: "var(--accent-strong)",
+		{Name: "--neo-switch-border-on", Default: "var(--accent-strong, var(--accent))",
 			Description: templ.Raw("Border color when checked.")},
 		{Name: "--neo-switch-thumb", Default: "var(--control-border)",
 			Description: templ.Raw("Thumb color when unchecked.")},

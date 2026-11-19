@@ -342,7 +342,7 @@ var alertDoc = ComponentDoc{
 			Description: templ.Raw("Border width.")},
 		{Name: "--neo-alert-neutral-accent", Default: "var(--page-fg)",
 			Description: templ.Raw("Accent color for the neutral default tone.")},
-		{Name: "--neo-alert-info-accent", Default: "var(--accent-strong)",
+		{Name: "--neo-alert-info-accent", Default: "var(--accent-strong, var(--accent))",
 			Description: templ.Raw("Accent color for the <code>info</code> tone.")},
 		{Name: "--neo-alert-success-accent", Default: "oklch(0.55 0.14 145)",
 			Description: templ.Raw("Accent color for the <code>success</code> tone.")},

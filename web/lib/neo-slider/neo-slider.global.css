@@ -30,13 +30,13 @@
 	 * a gradient can't be substituted into the
 	 * `linear-gradient(track-bg, track-bg)` wrapper. */
 	--neo-slider-track-image: linear-gradient(var(--neo-slider-track-bg), var(--neo-slider-track-bg));
-	--neo-slider-fill-bg: var(--accent-strong);
+	--neo-slider-fill-bg: var(--accent-strong, var(--accent));
 	--neo-slider-vertical-track-length: 12rem;
 
 	--neo-slider-thumb-size: 1rem;
 	--neo-slider-thumb-radius: 50%;
 	--neo-slider-thumb-bg: var(--btn-bg);
-	--neo-slider-thumb-border: var(--accent-strong);
+	--neo-slider-thumb-border: var(--accent-strong, var(--accent));
 	--neo-slider-thumb-border-width: 2px;
 	--neo-slider-thumb-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
 
@@ -45,7 +45,7 @@
 	--neo-slider-anchor-bg: var(--page-bg);
 	--neo-slider-anchor-border: var(--control-border);
 	--neo-slider-anchor-active-bg: var(--page-bg);
-	--neo-slider-anchor-active-border: var(--accent-strong);
+	--neo-slider-anchor-active-border: var(--accent-strong, var(--accent));
 
 	--neo-slider-mark-label-color: var(--muted);
 	--neo-slider-mark-label-active-color: var(--page-fg);
@@ -55,7 +55,7 @@
 	--neo-slider-label-color: var(--page-fg);
 	--neo-slider-value-color: var(--page-fg);
 	--neo-slider-unit-color: var(--muted);
-	--neo-slider-focus-ring: var(--focus-ring);
+	--neo-slider-focus-ring: var(--focus-ring, var(--accent-strong, var(--accent)));
 }
 
 /* Manual contrast toggle. The slider's anchors/track live in the shadow,

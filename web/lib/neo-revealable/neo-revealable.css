@@ -7,7 +7,7 @@ neo-revealable {
 	--neo-revealable-blur: 14px;
 	/* Theme-adaptive frosted cover (fg/bg mix), not a near-black slab. */
 	--neo-revealable-veil: color-mix(in srgb, var(--page-fg) 26%, var(--page-bg));
-	--neo-revealable-focus-ring: var(--focus-ring);
+	--neo-revealable-focus-ring: var(--focus-ring, var(--accent-strong, var(--accent)));
 
 	position: relative;
 	display: inline-block;

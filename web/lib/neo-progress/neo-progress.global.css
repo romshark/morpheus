@@ -14,7 +14,7 @@
  * neo-slider.css and inherit through the host. Keep that file global. */
 
 :root {
-	--neo-progress-fill-bg: var(--neo-slider-fill-bg, var(--accent-strong));
+	--neo-progress-fill-bg: var(--neo-slider-fill-bg, var(--accent-strong, var(--accent)));
 	--neo-progress-indeterminate-duration: calc(1.4s * var(--neo-duration-scale, 1));
 }
 

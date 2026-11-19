@@ -36,12 +36,12 @@ There were 2 causes:
 
 ### Theme tokens
 
-`theme-default.css` defines 3 new tokens on `:root`. Every theme sets `--control-border` in both its light and dark block, because a token missing from a theme's dark block falls back to that theme's light block.
+The kit reads 3 new theme tokens. `theme-default.css` sets only `--control-border`. The components read `--accent-strong` and `--focus-ring` with fallbacks, so an `--accent` redeclared on a subtree still reaches them. Every theme sets `--control-border` in both its light and dark block, because a token missing from a theme's dark block falls back to that theme's light block.
 
 | Token | Default | Use |
 |---|---|---|
-| `--accent-strong` | `var(--accent)` | The accent drawn as an edge or thin fill on the page: checked edges, slider and progress fill, slider thumb edge, active carousel dot, checked button-group segment, info alert icon and border |
-| `--focus-ring` | `var(--accent-strong)` | Every focus outline and ring |
+| `--accent-strong` | unset, falls back to `--accent` | The accent drawn as an edge or thin fill on the page: checked edges, slider and progress fill, slider thumb edge, active carousel dot, checked button-group segment, info alert icon and border |
+| `--focus-ring` | unset, falls back to `--accent-strong` | Every focus outline and ring |
 | `--control-border` | `--page-fg` at 50% (light), 40% (dark) | Edge of the unchecked checkbox, radio and switch, slider and progress rail ring, empty rating star, text field, select and combobox border, inactive carousel dot, pressed toggle edge, selected tab ring and resizable handle |
 
 `--btn-border` keeps drawing the decorative hairlines of cards, popovers and buttons, where 1.4.11 does not apply.

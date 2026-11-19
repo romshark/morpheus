@@ -52,7 +52,9 @@
 	--page-bg: #14110a;
 	--muted: #a89d82;
 
-	--accent-strong: var(--accent);
+	/* Unsets the light amber, which makes the components fall back to
+	 * --accent. */
+	--accent-strong: initial;
 	--control-border: color-mix(in srgb, var(--page-fg) 42%, transparent);
 
 	/* Bright yellow reads well on the near-black dark bg. */

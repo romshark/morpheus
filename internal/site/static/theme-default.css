@@ -27,11 +27,13 @@
 	--page-bg: oklch(1 0 0);
 	--muted: oklch(0.52 0 0);
 
-	/* Accent drawn as a line or small mark on the page: checked edges,
-	 * slider and progress fills, the active carousel dot. WCAG 1.4.11
-	 * needs 3:1 against --page-bg, which a light accent may lack. */
-	--accent-strong: var(--accent);
-	--focus-ring: var(--accent-strong);
+	/* --accent-strong is the accent drawn as a line or small mark on the
+	 * page, such as checked edges, slider fills and the active carousel
+	 * dot. WCAG 1.4.11 needs 3:1 against --page-bg, which a light accent
+	 * may lack. --focus-ring defaults to it. Both stay unset here and the
+	 * components fall back to --accent. Set on :root to var(--accent),
+	 * they would resolve there and ignore an --accent set on a subtree. */
+
 	/* Edge of unchecked checkboxes, radios, switches, tracks and text
 	 * fields, 3:1 against --page-bg and --btn-bg. --btn-border is the
 	 * decorative hairline of cards, popovers and buttons. */

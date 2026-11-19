@@ -699,7 +699,7 @@ var avatarsDoc = ComponentDoc{
 			Description: templ.Raw("Font size of the generated <code>+N</code> circle.")},
 		{Name: "--neo-avatars-overflow-font-weight", Default: "650",
 			Description: templ.Raw("Font weight of the generated <code>+N</code> circle.")},
-		{Name: "--neo-avatars-focus-ring", Default: "var(--focus-ring, currentColor)",
+		{Name: "--neo-avatars-focus-ring", Default: "var(--focus-ring, var(--accent-strong, var(--accent, currentColor)))",
 			Description: templ.Raw("Focus ring color for clickable avatars.")},
 		{Name: "--neo-avatars-popover-z-index", Default: "1300",
 			Description: templ.Raw("Stacking order of the <code>+N</code> overflow popover.")},

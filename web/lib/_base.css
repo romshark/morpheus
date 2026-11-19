@@ -88,6 +88,6 @@
 /* Kit-wide focus-ring baseline. `:where()` is specificity 0 so any
  * per-component :focus-visible rule takes precedence. */
 :where(button, a[href], [tabindex="0"]):focus-visible {
-	outline: 2px solid var(--focus-ring, currentColor);
+	outline: 2px solid var(--focus-ring, var(--accent-strong, var(--accent, currentColor)));
 	outline-offset: 2px;
 }

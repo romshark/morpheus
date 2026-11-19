@@ -528,7 +528,7 @@ var revealableDoc = ComponentDoc{
 			Description: templ.Raw("Blur radius applied to media content while concealed.")},
 		{Name: "--neo-revealable-veil", Default: "color-mix(in srgb, var(--page-fg) 26%, var(--page-bg))",
 			Description: templ.Raw("Frosted cover color.")},
-		{Name: "--neo-revealable-focus-ring", Default: "var(--focus-ring)",
+		{Name: "--neo-revealable-focus-ring", Default: "var(--focus-ring, var(--accent-strong, var(--accent)))",
 			Description: templ.Raw("Focus outline color.")},
 		{Name: "--neo-revealable-particle-color", Default: "currentColor",
 			Description: templ.Raw("Grain color painted onto the cover canvas.")},
