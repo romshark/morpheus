@@ -12,7 +12,7 @@
 // owner's connectedCallback (no nested element lifecycle fires for it).
 
 import { openCommand } from "./command";
-import { type Placement, positionPanelResult, resolveCssLengthPx, visibleViewportRect } from "./neo-position";
+import { type Placement, positionPanelResult, resolveCssLengthsPx, visibleViewportRect } from "./neo-position";
 import { setTextInPlace } from "./shadow-utils";
 
 const DEFAULT_OPEN_DELAY_MS = 350;
@@ -29,10 +29,11 @@ export class TooltipController {
 	#resizeObserver: ResizeObserver | null = null;
 	#childObserver: MutationObserver | null = null;
 	#repositionFrame: number | null = null;
-	// Resolved --neo-tooltip-screen-offset in px, cached per open.
-	// A moving trigger (slider thumb) repositions every frame; re-probing the length
-	// each time inserts/measures/removes a throwaway node and forces a reflow.
+	// Resolved --neo-tooltip-screen-offset and --neo-tooltip-max-width in px,
+	// cached per open. A moving trigger (slider thumb) repositions every frame;
+	// re-probing each time inserts/measures/removes a throwaway node and forces a reflow.
 	#edgeOffset: number | null = null;
+	#maxWidth = 0;
 	// Follow-drag baseline. During a drag the caller shifts the bubble by the
 	// trigger's delta from where the last real placement put it, and no layout
 	// is read per frame (see beginFollow / nudge / endFollow).
@@ -391,7 +392,14 @@ export class TooltipController {
 	#position() {
 		if (!this.#trigger || !this.#content) return;
 		const placement = (this.#host.getAttribute("placement") as Placement | null) ?? "bottom-start";
-		this.#edgeOffset ??= resolveCssLengthPx(this.#host, "--neo-tooltip-screen-offset");
+		if (this.#edgeOffset === null) {
+			const [edgeOffset, maxWidth] = resolveCssLengthsPx(this.#host, [
+				{ varName: "--neo-tooltip-screen-offset", fallback: "8px" },
+				{ varName: "--neo-tooltip-max-width", fallback: "18rem" },
+			]) as number[];
+			this.#edgeOffset = edgeOffset;
+			this.#maxWidth = maxWidth;
+		}
 		const edgeOffset = this.#edgeOffset;
 		const triggerGap = 6;
 
@@ -403,9 +411,12 @@ export class TooltipController {
 		}
 		// Flip to the opposite side when the bubble doesn't fit, and hide it when
 		// neither side fits. Clamped into the window, it would cover the trigger.
+		// The inline max-width placement writes overrides the CSS cap, which
+		// therefore goes in as `maxWidth`.
 		const fit = positionPanelResult(this.#trigger, this.#content, placement, edgeOffset, triggerGap, {
 			minFitHeight: "content",
 			minFitWidth: "content",
+			maxWidth: this.#maxWidth > 0 ? this.#maxWidth : undefined,
 		});
 		this.#content.style.visibility = fit.fitsFitSize ? "" : "hidden";
 	}
