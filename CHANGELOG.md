@@ -10,6 +10,12 @@ This file records the notable changes of each release in the format of [Keep a C
 
 - Add `<neo-collapsible>`, a summary button that shows and hides the content below it. Elements with the same `name` open 1 at a time. `neo.Collapsible` renders it from Templ.
 
+### Fixed
+
+#### Components
+
+- Stop recentering the `<neo-compare>` divider when a drag of the handle quickly follows a click on it.
+
 ## [0.6.1] - 2026-11-18
 
 ### Fixed

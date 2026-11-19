@@ -253,6 +253,7 @@ interface Drag {
 	startY: number;
 	startValue: number;
 	started: boolean;
+	onHandle: boolean;
 	// Pointer distance from the line along the axis, kept while dragging the
 	// handle so the divider doesn't jump under it.
 	grabOffset: number;
@@ -277,8 +278,8 @@ export class NeoCompare extends HTMLElement {
 	#root: HTMLElement;
 	#frame: HTMLElement;
 	#handle: HTMLElement;
-	// Source of truth for the divider position. `value` mirrors it, and a
-	// morph that strips `value` keeps the divider where it is.
+	// Source of truth for the divider position. `value` mirrors it,
+	// and a morph that strips `value` keeps the divider where it is.
 	#value = CENTER;
 	#reflecting = false;
 	#drag: Drag | null = null;
@@ -286,9 +287,10 @@ export class NeoCompare extends HTMLElement {
 	// The min/max pair last warned about, which keeps the per-attribute
 	// callbacks of an upgrade from repeating the warning.
 	#rangeWarned = "";
-	// Whether the last press landed on the handle. A dblclick can't tell,
-	// because the pointer capture retargets it to the host.
-	#pressedHandle = false;
+	// Consecutive clicks on the handle without a drag. A dblclick can't tell
+	// where its presses landed, because the pointer capture retargets it to
+	// the host, and the browser counts a dragged press as a click.
+	#handleClicks = 0;
 	// The tilt offset needs the frame size in px, which CSS can't read.
 	#resize = new ResizeObserver((entries) => {
 		const box = entries[entries.length - 1].contentRect;
@@ -360,8 +362,8 @@ export class NeoCompare extends HTMLElement {
 		this.#syncAria();
 	}
 
-	// Sets `instant` for the frame that styles an axis or size change. The
-	// first frame's style pass sees the state; the second frame clears it.
+	// Sets `instant` for the frame that styles an axis or size change.
+	// The first frame's style pass sees the state; the second frame clears it.
 	#jump() {
 		setState(this.#internals, "instant", true);
 		cancelAnimationFrame(this.#jumpFrame);
@@ -393,8 +395,8 @@ export class NeoCompare extends HTMLElement {
 	}
 
 	// Applies the range from min and max: moves a value outside it to the
-	// nearest limit and updates the handle's ARIA range. Fires no event, as
-	// a `value` command fires none.
+	// nearest limit and updates the handle's ARIA range. Fires no event,
+	// as a `value` command fires none.
 	#syncRange() {
 		const [lo, hi] = this.#range();
 		this.#handle.setAttribute("aria-valuemin", String(lo));
@@ -467,15 +469,15 @@ export class NeoCompare extends HTMLElement {
 	}
 
 	// Moves the divider, rounded to 0.01%, which is under 1px up to 10000px.
-	// Fires `input` for a live drag and `change` for a commit, each only when
-	// the value moved.
+	// Fires `input` for a live drag and `change` for a commit,
+	// each only when the value moved.
 	#set(v: number, kind: "input" | "change") {
 		// Round first, which keeps a rounded value from leaving the range.
 		const next = this.#clampValue(Math.round(v * 100) / 100);
 		if (next === this.#value) return;
 		this.#value = next;
-		// Mid-drag the attribute waits for the commit, because every write
-		// restyles page rules keyed on `value`.
+		// Mid-drag the attribute waits for the commit,
+		// because every write restyles page rules keyed on `value`.
 		if (kind === "change") this.#reflect();
 		this.#syncPosition();
 		this.#emit(kind);
@@ -498,8 +500,8 @@ export class NeoCompare extends HTMLElement {
 		const vertical = this.#vertical();
 		const key = vertical ? e.key : logicalArrow(this, e.key);
 		// A vertical value grows downward, which makes Down and PageDown
-		// move the divider the way they point. Horizontal follows the APG
-		// slider, where Up and PageUp increase the value.
+		// move the divider the way they point. Horizontal follows the APG slider,
+		// where Up and PageUp increase the value.
 		const down = vertical ? 1 : -1;
 		const arrows: Record<string, number> = { ArrowRight: 1, ArrowLeft: -1, ArrowDown: down, ArrowUp: -down };
 		const dir = arrows[key];
@@ -520,8 +522,8 @@ export class NeoCompare extends HTMLElement {
 
 	#onPointerDown = (e: PointerEvent) => {
 		if (this.#drag || e.button !== 0 || this.#disabled()) return;
-		// Stops text selection; focus moves to the handle by hand. The
-		// browser sees no mousedown and would treat the script focus as
+		// Stops text selection; focus moves to the handle by hand.
+		// The browser sees no mousedown and would treat the script focus as
 		// keyboard focus, with a focus ring.
 		e.preventDefault();
 		this.#handle.focus({ preventScroll: true, focusVisible: false });
@@ -534,14 +536,14 @@ export class NeoCompare extends HTMLElement {
 			startY: e.clientY,
 			startValue: this.#value,
 			started: false,
+			onHandle: e.composedPath().includes(this.#handle),
 			grabOffset: 0,
 			rect,
 			vertical,
 			rtl: !vertical && isRTL(this),
 			tiltOffset: (Math.tan((this.#tiltDegrees() * Math.PI) / 180) * across) / 2,
 		};
-		this.#pressedHandle = e.composedPath().includes(this.#handle);
-		if (this.#pressedHandle) {
+		if (d.onHandle) {
 			const span = (vertical ? rect.height : rect.width) + 2 * Math.abs(d.tiltOffset);
 			const at = (this.#value / 100) * span - Math.abs(d.tiltOffset);
 			d.grabOffset = this.#lineAt(e, d) - at;
@@ -550,8 +552,8 @@ export class NeoCompare extends HTMLElement {
 		try {
 			this.setPointerCapture(e.pointerId);
 		} catch {
-			// Synthetic pointers can refuse capture; the drag still works
-			// while the pointer stays over the host.
+			// Synthetic pointers can refuse capture;
+			// the drag still works while the pointer stays over the host.
 		}
 		this.#drag = d;
 	};
@@ -575,28 +577,30 @@ export class NeoCompare extends HTMLElement {
 		if (d.started) {
 			this.#set(this.#pointerValue(e, d), "input");
 		} else {
-			// A click without a drag moves the divider to the pointer. A click
-			// on the handle keeps it, because the grab offset cancels the move.
+			// A click without a drag moves the divider to the pointer.
+			// A click on the handle keeps it, because the grab offset cancels the move.
 			this.#set(this.#pointerValue(e, d), "change");
 		}
+		this.#handleClicks = d.onHandle && !d.started ? this.#handleClicks + 1 : 0;
 		this.#endDrag();
 	};
 
-	// Only on the handle, where the clicks before the dblclick leave the
-	// divider in place. Elsewhere the 1st click has already moved it to the
-	// pointer, and a recenter would follow a visible detour.
+	// Only after 2 clicks on the handle, which leave the divider in place.
+	// Elsewhere the 1st click has already moved it to the pointer,
+	// and a recenter would follow a visible detour. A drag would snap back.
 	#onDoubleClick = () => {
-		if (this.#disabled() || !boolAttr(this, ATTR_RECENTER, true) || !this.#pressedHandle) return;
+		if (this.#disabled() || !boolAttr(this, ATTR_RECENTER, true) || this.#handleClicks < 2) return;
 		this.#set(CENTER, "change");
 	};
 
 	#onPointerCancel = (e: PointerEvent) => {
 		if (e.pointerId !== this.#drag?.pointerId) return;
+		this.#handleClicks = 0;
 		this.#endDrag();
 	};
 
-	// Commits a drag that moved the divider: reflects `value` and fires
-	// `change`. Safe to call without a drag.
+	// Commits a drag that moved the divider: reflects `value` and fires `change`.
+	// Safe to call without a drag.
 	#endDrag() {
 		const d = this.#drag;
 		if (!d) return;
@@ -609,8 +613,7 @@ export class NeoCompare extends HTMLElement {
 	}
 
 	// The value whose line, after the grab offset, passes through the pointer.
-	// The range spans the frame plus the tilt offset at both ends, as --_at
-	// does in CSS.
+	// The range spans the frame plus the tilt offset at both ends, as --_at does in CSS.
 	#pointerValue(e: PointerEvent, d: Drag): number {
 		const reach = Math.abs(d.tiltOffset);
 		const span = (d.vertical ? d.rect.height : d.rect.width) + 2 * reach;
@@ -618,9 +621,9 @@ export class NeoCompare extends HTMLElement {
 		return ((this.#lineAt(e, d) - d.grabOffset + reach) / span) * 100;
 	}
 
-	// Distance from the start edge to the midpoint of the line through the
-	// pointer. A positive tilt turns the line clockwise: its top end moves
-	// right, or with `vertical` its right end moves down.
+	// Distance from the start edge to the midpoint of the line through the pointer.
+	// A positive tilt turns the line clockwise: its top end moves right,
+	// or with `vertical` its right end moves down.
 	#lineAt(e: PointerEvent, d: Drag): number {
 		const x = e.clientX - d.rect.left;
 		const y = e.clientY - d.rect.top;
