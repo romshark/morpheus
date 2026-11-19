@@ -6,6 +6,21 @@
 	initial-value: 0deg;
 }
 
+/* The divider position, which changes on every drag move.
+ * Without inheritance a move restyles only the elements that draw the divider,
+ * not every node slotted into the layers. The script writes the value on
+ * each of them, and each derives the line midpoint from it. */
+@property --_neo-compare-v {
+	syntax: "<number>";
+	inherits: false;
+	initial-value: 0.5;
+}
+
+@property --_neo-compare-at {
+	syntax: "*";
+	inherits: false;
+}
+
 /* Before upgrade, stack the 2 layers and split them at 50%, which keeps the box from
  * changing size when the shadow layers take over. The after layer reaches 1px under
  * the before layer, which keeps the page from showing through the seam. :where() keeps

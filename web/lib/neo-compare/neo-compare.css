@@ -31,23 +31,30 @@ neo-compare[disabled]:not([disabled="false"]) {
 	cursor: default;
 }
 
-/* Holds --_v (the value as a fraction) and --_w/--_h (the frame size), which
- * its children inherit. A morph can't strip them, as it would the host's
- * style attribute.
+/* Holds --_w/--_h (the frame size), which its children inherit. A morph
+ * can't strip them, as it would the host's style attribute.
  * --_d is the tilt offset of the line ends from its midpoint, from the frame
  * size across the axis. The tilt is physical, as rotate() is, and a
- * right-to-left page mirrors only the sides.
- * --_at is the midpoint of the line from the start edge. The range stretches
- * by |--_d| at both ends, which lets 0 and 100 show 1 layer fully. */
+ * right-to-left page mirrors only the sides. */
 [data-neo-compare-root] {
 	display: contents;
 	--_d: calc(tan(var(--neo-compare-tilt, 0deg)) * var(--_h, 0px) / 2);
 	--_ad: max(var(--_d), -1 * var(--_d));
-	--_at: calc((100% + 2 * var(--_ad)) * var(--_v, 0.5) - var(--_ad));
 }
 
 neo-compare[vertical]:not([vertical="false"]) [data-neo-compare-root] {
 	--_d: calc(tan(var(--neo-compare-tilt, 0deg)) * var(--_w, 0px) / 2);
+}
+
+/* The script writes --_neo-compare-v, the value as a fraction, on each of
+ * these. --_neo-compare-at is the midpoint of the line from the start edge.
+ * The range stretches by |--_d| at both ends, which lets 0 and 100 show 1
+ * layer fully. Neither inherits (neo-compare.global.css), which keeps a drag
+ * move from restyling the slotted content. */
+[data-neo-compare-layer],
+[data-neo-compare-divider],
+[data-neo-compare-grip] {
+	--_neo-compare-at: calc((100% + 2 * var(--_ad)) * var(--_neo-compare-v, 0.5) - var(--_ad));
 }
 
 /* Clips the rounded corners and the tilted line, whose ends reach past the
@@ -78,37 +85,57 @@ neo-compare[vertical]:not([vertical="false"]) [data-neo-compare-root] {
 
 [data-neo-compare-layer="before"] {
 	z-index: 1;
-	clip-path: polygon(0 0, calc(var(--_at) + var(--_d)) 0, calc(var(--_at) - var(--_d)) 100%, 0 100%);
+	clip-path: polygon(
+		0 0,
+		calc(var(--_neo-compare-at) + var(--_d)) 0,
+		calc(var(--_neo-compare-at) - var(--_d)) 100%,
+		0 100%
+	);
 }
 
 [data-neo-compare-layer="after"] {
-	clip-path: polygon(calc(var(--_at) + var(--_d) - 1px) 0, 100% 0, 100% 100%, calc(var(--_at) - var(--_d) - 1px) 100%);
+	clip-path: polygon(
+		calc(var(--_neo-compare-at) + var(--_d) - 1px) 0,
+		100% 0,
+		100% 100%,
+		calc(var(--_neo-compare-at) - var(--_d) - 1px) 100%
+	);
 }
 
 [data-neo-compare-layer="before"]:dir(rtl) {
 	clip-path: polygon(
-		calc(100% - var(--_at) + var(--_d)) 0,
+		calc(100% - var(--_neo-compare-at) + var(--_d)) 0,
 		100% 0,
 		100% 100%,
-		calc(100% - var(--_at) - var(--_d)) 100%
+		calc(100% - var(--_neo-compare-at) - var(--_d)) 100%
 	);
 }
 
 [data-neo-compare-layer="after"]:dir(rtl) {
 	clip-path: polygon(
 		0 0,
-		calc(100% - var(--_at) + var(--_d) + 1px) 0,
-		calc(100% - var(--_at) - var(--_d) + 1px) 100%,
+		calc(100% - var(--_neo-compare-at) + var(--_d) + 1px) 0,
+		calc(100% - var(--_neo-compare-at) - var(--_d) + 1px) 100%,
 		0 100%
 	);
 }
 
 neo-compare[vertical]:not([vertical="false"]) [data-neo-compare-layer="before"] {
-	clip-path: polygon(0 0, 100% 0, 100% calc(var(--_at) + var(--_d)), 0 calc(var(--_at) - var(--_d)));
+	clip-path: polygon(
+		0 0,
+		100% 0,
+		100% calc(var(--_neo-compare-at) + var(--_d)),
+		0 calc(var(--_neo-compare-at) - var(--_d))
+	);
 }
 
 neo-compare[vertical]:not([vertical="false"]) [data-neo-compare-layer="after"] {
-	clip-path: polygon(0 calc(var(--_at) - var(--_d) - 1px), 100% calc(var(--_at) + var(--_d) - 1px), 100% 100%, 0 100%);
+	clip-path: polygon(
+		0 calc(var(--_neo-compare-at) - var(--_d) - 1px),
+		100% calc(var(--_neo-compare-at) + var(--_d) - 1px),
+		100% 100%,
+		0 100%
+	);
 }
 
 /* Fills the layer; the larger content sizes both layers. */
@@ -120,13 +147,14 @@ neo-compare[vertical]:not([vertical="false"]) [data-neo-compare-layer="after"] {
 }
 
 /* An absolute grid item, whose containing block is the grid area and not the
- * padding box. The skew pivots on its midpoint, which stays on --_at. */
+ * padding box. The skew pivots on its midpoint, which stays on
+ * --_neo-compare-at. */
 [data-neo-compare-divider] {
 	grid-area: 1 / 1;
 	position: absolute;
 	z-index: 1;
 	inset-block: 0;
-	inset-inline-start: var(--_at);
+	inset-inline-start: var(--_neo-compare-at);
 	width: var(--_divider-width);
 	margin-inline-start: calc(var(--_divider-width) / -2);
 	transform: skewX(calc(-1 * var(--neo-compare-tilt, 0deg)));
@@ -139,7 +167,7 @@ neo-compare[vertical]:not([vertical="false"]) [data-neo-compare-layer="after"] {
 
 neo-compare[vertical]:not([vertical="false"]) [data-neo-compare-divider] {
 	inset-inline: 0;
-	inset-block: var(--_at) auto;
+	inset-block: var(--_neo-compare-at) auto;
 	width: auto;
 	height: var(--_divider-width);
 	margin: calc(var(--_divider-width) / -2) 0 0;
@@ -153,7 +181,7 @@ neo-compare[vertical]:not([vertical="false"]) [data-neo-compare-divider] {
 [data-neo-compare-grip] {
 	grid-area: 1 / 1;
 	position: absolute;
-	inset-inline-start: clamp(0%, var(--_at), 100%);
+	inset-inline-start: clamp(0%, var(--_neo-compare-at), 100%);
 	inset-block-start: 50%;
 	width: 0;
 	height: 0;
@@ -167,7 +195,7 @@ neo-compare[vertical]:not([vertical="false"]) [data-neo-compare-divider] {
 
 neo-compare[vertical]:not([vertical="false"]) [data-neo-compare-grip] {
 	inset-inline-start: 50%;
-	inset-block-start: clamp(0%, var(--_at), 100%);
+	inset-block-start: clamp(0%, var(--_neo-compare-at), 100%);
 }
 
 /* The transitions are set once for both axes, because an axis rule that set

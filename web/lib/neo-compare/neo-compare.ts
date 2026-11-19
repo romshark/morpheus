@@ -88,6 +88,9 @@ export class NeoCompare extends HTMLElement {
 	#root: HTMLElement;
 	#frame: HTMLElement;
 	#handle: HTMLElement;
+	// The elements that draw the divider. Each gets its own --_neo-compare-v,
+	// which doesn't inherit and keeps a move from restyling the slotted content.
+	#drawers: HTMLElement[];
 	// Source of truth for the divider position. `value` mirrors it,
 	// and a morph that strips `value` keeps the divider where it is.
 	#value = CENTER;
@@ -119,6 +122,11 @@ export class NeoCompare extends HTMLElement {
 		this.#root = root.querySelector("[data-neo-compare-root]") as HTMLElement;
 		this.#frame = root.querySelector("[data-neo-compare-frame]") as HTMLElement;
 		this.#handle = root.querySelector("[data-neo-compare-handle]") as HTMLElement;
+		this.#drawers = [
+			...root.querySelectorAll<HTMLElement>(
+				"[data-neo-compare-layer], [data-neo-compare-divider], [data-neo-compare-grip]",
+			),
+		];
 		// The host and its shadow outlive a morph and a reconnect, which lets
 		// these listeners bind once.
 		this.addEventListener("pointerdown", this.#onPointerDown);
@@ -241,7 +249,8 @@ export class NeoCompare extends HTMLElement {
 	}
 
 	#syncPosition() {
-		this.#root.style.setProperty("--_v", String(this.#value / 100));
+		const fraction = String(this.#value / 100);
+		for (const el of this.#drawers) el.style.setProperty("--_neo-compare-v", fraction);
 		this.#handle.setAttribute("aria-valuenow", String(this.#value));
 		this.#handle.setAttribute("aria-valuetext", `${Math.round(this.#value)}%`);
 	}
