@@ -19,7 +19,7 @@
 
 import fs from "node:fs";
 import path from "node:path";
-import esbuild, { type Plugin } from "esbuild";
+import esbuild, { type PartialMessage, type Plugin } from "esbuild";
 
 const STATIC_DIR = "../internal/site/static";
 const MIN_DIR = "../min";
@@ -63,20 +63,26 @@ const minifyCssText: Plugin = {
 // Minify the CSS inside inline <style>...</style> shadow-template strings.
 // esbuild minifies JS but treats template-literal contents as opaque.
 // Without this, a component's inlined shadow CSS would ship with its source
-// indentation in bundle.js. These blocks are static (no interpolation or escapes),
-// which makes a source-level CSS minify of each block safe.
+// indentation in bundle.js. A source-level CSS minify is safe only for a block
+// without interpolation or escapes, and any other block fails the build.
 const minifyInlineStyles: Plugin = {
 	name: "minify-inline-styles",
 	setup(build) {
 		build.onLoad({ filter: /\.ts$/ }, (file) => {
 			const src = fs.readFileSync(file.path, "utf8");
 			if (!src.includes("<style>")) return { contents: src, loader: "ts" };
-			const out = src.replace(/<style>([\s\S]*?)<\/style>/g, (m, css: string) =>
-				/[`\\]|\$\{/.test(css)
-					? m
-					: `<style>${esbuild.transformSync(css, { loader: "css", minify: true }).code.trim()}</style>`,
-			);
-			return { contents: out, loader: "ts" };
+			const errors: PartialMessage[] = [];
+			const out = src.replace(/<style>([\s\S]*?)<\/style>/g, (m, css: string, offset: number) => {
+				if (/[`\\]|\$\{/.test(css)) {
+					errors.push({
+						text: "<style> block holds ${, a backtick or a backslash, which a source-level CSS minify would break",
+						location: { file: path.relative(process.cwd(), file.path), line: src.slice(0, offset).split("\n").length },
+					});
+					return m;
+				}
+				return `<style>${esbuild.transformSync(css, { loader: "css", minify: true }).code.trim()}</style>`;
+			});
+			return errors.length > 0 ? { errors } : { contents: out, loader: "ts" };
 		});
 	},
 };

@@ -127,7 +127,7 @@ TEMPLATE.innerHTML = `
     color: var(--muted);
   }
   [part~="conceal"]::before {
-    content: var(--neo-otp-conceal-glyph, "\\2022");
+    content: var(--neo-otp-conceal-glyph);
   }
   [part~="caret"] {
     height: 1em;

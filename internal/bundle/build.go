@@ -208,12 +208,18 @@ var reStyle = regexp.MustCompile(`(?s)<style>(.*?)</style>`)
 var reDynamicCSS = regexp.MustCompile("[`\\\\]|\\$\\{")
 
 // minifyInlineStyles minifies src's <style> blocks, as web/build.ts does,
-// because esbuild leaves template literals as is.
+// because esbuild leaves template literals as is. A block with an escape
+// or interpolation fails, as it does in web/build.ts.
 func minifyInlineStyles(src string) (string, error) {
 	var err error
 	out := reStyle.ReplaceAllStringFunc(src, func(block string) string {
 		css := reStyle.FindStringSubmatch(block)[1]
-		if err != nil || reDynamicCSS.MatchString(css) {
+		if err != nil {
+			return block
+		}
+		if reDynamicCSS.MatchString(css) {
+			err = errors.New("<style> block holds ${, a backtick or a backslash, " +
+				"which a source-level CSS minify would break")
 			return block
 		}
 		var minified string

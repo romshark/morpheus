@@ -113,6 +113,16 @@ func TestEsbuildPin(t *testing.T) {
 	}
 }
 
+// TestMinifyInlineStylesDynamic tests that a <style> block with an interpolation,
+// a backslash or an escaped backtick fails the build instead of shipping unminified.
+func TestMinifyInlineStylesDynamic(t *testing.T) {
+	for _, css := range []string{"a{b:${c}}", `a{content:"\\2022"}`, "a{content:\"\\`\"}"} {
+		if _, err := minifyInlineStyles("t.innerHTML = `<style>" + css + "</style>`;"); err == nil {
+			t.Errorf("minifyInlineStyles(%q) returned no error", css)
+		}
+	}
+}
+
 func TestSelect(t *testing.T) {
 	s := Select([]string{" NEO-Select, dialog", "nope,option", ""}, nil)
 	if want := []string{

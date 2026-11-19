@@ -92,12 +92,12 @@ TEMPLATE.innerHTML = `
   }
   [data-neo-compare-root] {
     display: contents;
-    --_d: calc(tan(var(${PROP_TILT}, 0deg)) * var(--_h, 0px) / 2);
+    --_d: calc(tan(var(--neo-compare-tilt, 0deg)) * var(--_h, 0px) / 2);
     --_ad: max(var(--_d), -1 * var(--_d));
     --_at: calc((100% + 2 * var(--_ad)) * var(--_v, 0.5) - var(--_ad));
   }
   :host([vertical]:not([vertical="false"])) [data-neo-compare-root] {
-    --_d: calc(tan(var(${PROP_TILT}, 0deg)) * var(--_w, 0px) / 2);
+    --_d: calc(tan(var(--neo-compare-tilt, 0deg)) * var(--_w, 0px) / 2);
   }
   [data-neo-compare-frame] {
     grid-area: 1 / 1;
@@ -148,7 +148,7 @@ TEMPLATE.innerHTML = `
     inset-inline-start: var(--_at);
     width: var(--_divider-width);
     margin-inline-start: calc(var(--_divider-width) / -2);
-    transform: skewX(calc(-1 * var(${PROP_TILT}, 0deg)));
+    transform: skewX(calc(-1 * var(--neo-compare-tilt, 0deg)));
     background: var(--neo-compare-divider-color, var(--btn-bg, #fff));
     box-shadow: var(--neo-compare-shadow, 0 0 4px rgb(0 0 0 / 0.35));
     transition-property: inset-inline-start, inset-block-start;
@@ -161,7 +161,7 @@ TEMPLATE.innerHTML = `
     width: auto;
     height: var(--_divider-width);
     margin: calc(var(--_divider-width) / -2) 0 0;
-    transform: skewY(var(${PROP_TILT}, 0deg));
+    transform: skewY(var(--neo-compare-tilt, 0deg));
   }
   [data-neo-compare-grip] {
     grid-area: 1 / 1;

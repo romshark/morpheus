@@ -18,6 +18,7 @@ This file records the notable changes of each release in the format of [Keep a C
 - Keep the `value` of a `<neo-compare>` that lists `min` or `max` before `value` in its markup. The divider started at 50, or at the range limit nearest to 50.
 - Keep the `<neo-compare>` divider in place on a touch or pen tap on its handle. A slight movement between press and release moved the divider and fired `neo-compare-change`.
 - Move the `<neo-compare>` divider from the first pixel of a mouse drag. It stood still for the first 4px, and a click off the handle moved it only on release.
+- Minify the shadow CSS of `<neo-compare>` and `<neo-otp>` in the bundle. It shipped with its source indentation, 1.4 kB more (0.4 kB brotli).
 
 ## [0.6.1] - 2026-11-18
 
