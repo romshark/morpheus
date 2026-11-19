@@ -59,8 +59,8 @@
 
 	--danger-bg: oklch(0.577 0.245 27.325);
 	--danger-fg: oklch(0.985 0 0);
-	/* Darker, not translucent: a 0.9 alpha lightens the red and drops
-	 * the text below 4.5:1. */
+	/* Darker instead of translucent. A 0.9 alpha lightens the red and
+	 * drops the text below 4.5:1. */
 	--danger-hover-bg: oklch(0.505 0.213 27.518);
 
 	--neo-tooltip-bg: oklch(0.205 0 0);
@@ -93,7 +93,7 @@
 	--btn-border: oklch(1 0 0 / 0.1);
 	--btn-hover-bg: oklch(0.269 0 0);
 
-	/* Dark text: white on this red is 2.77:1. */
+	/* Dark text, because white on this red is 2.77:1. */
 	--danger-bg: oklch(0.704 0.191 22.216);
 	--danger-fg: oklch(0.145 0 0);
 	--danger-hover-bg: oklch(0.704 0.191 22.216 / 0.9);

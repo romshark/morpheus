@@ -8,7 +8,7 @@
 :root {
 	--neo-rating-symbol-size: 1.5rem;
 	--neo-rating-symbol-gap: 0.15rem;
-	/* Amber with 3:1 on the page (WCAG 1.4.11): #f59e0b is 2:1 on a light
+	/* Amber with 3:1 on the page (WCAG 1.4.11). #f59e0b is 2:1 on a light
 	 * bg, which takes the darker #b45309. The theme's color-scheme picks. */
 	--neo-rating-color: light-dark(#b45309, #f59e0b);
 	--neo-rating-preview-color: var(--neo-rating-color);
