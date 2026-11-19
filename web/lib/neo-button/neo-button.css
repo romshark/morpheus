@@ -108,10 +108,21 @@ a[data-neo-link]:where(:not([data-neo-link="false"]))[variant^="button-"] {
 		box-shadow: var(--neo-button-active-shadow);
 		transform: translateY(var(--neo-button-active-lift));
 	}
+	/* A <neo-menu> nests its fixed panels in the button. Any transform, even
+	 * translateY(0), makes the button their containing block and stacking
+	 * context. A lift then moves the panels, and Safari draws a submenu cut
+	 * off during its open transition. Nested here to outrank the rules above. */
+	&:has(> neo-menu) {
+		&,
+		&:hover,
+		&:active {
+			transform: none;
+		}
+	}
 }
 
-/* An open popup nests in the button, which stays :hover and is the
- * containing block of the fixed panel. A lift would move the panel. */
+/* An open popup anchors to the button. A lift would move the button off
+ * its panel. */
 neo-button[aria-expanded="true"] {
 	--neo-button-hover-lift: 0px;
 	--neo-button-active-lift: 0px;

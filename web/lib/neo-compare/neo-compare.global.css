@@ -1,0 +1,71 @@
+/* Registered as an <angle>, the tilt computes to deg, which the script
+ * reads back for the pointer math. */
+@property --neo-compare-tilt {
+	syntax: "<angle>";
+	inherits: true;
+	initial-value: 0deg;
+}
+
+/* The divider position, which changes on every drag move.
+ * Without inheritance a move restyles only the elements that draw the divider,
+ * not every node slotted into the layers. The script writes the value on
+ * each of them, and each derives the line midpoint from it. */
+@property --_neo-compare-v {
+	syntax: "<number>";
+	inherits: false;
+	initial-value: 0.5;
+}
+
+@property --_neo-compare-at {
+	syntax: "*";
+	inherits: false;
+}
+
+/* Before upgrade, stack the 2 layers and split them at 50%, which keeps the box from
+ * changing size when the shadow layers take over. The after layer reaches 1px under
+ * the before layer, which keeps the page from showing through the seam. :where() keeps
+ * the rules at 0 specificity, as the ::slotted() rules are after upgrade. */
+
+:where(neo-compare:not(:defined)) {
+	display: grid;
+	width: fit-content;
+	max-width: 100%;
+	overflow: hidden;
+}
+
+:where(neo-compare:not(:defined) > *) {
+	grid-area: 1 / 1;
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+:where(neo-compare:not(:defined) > [slot="before"]) {
+	z-index: 1;
+	clip-path: inset(0 50% 0 0);
+}
+
+:where(neo-compare:not(:defined) > [slot="after"]) {
+	clip-path: inset(0 0 0 calc(50% - 1px));
+}
+
+:where(neo-compare:not(:defined):dir(rtl) > [slot="before"]) {
+	clip-path: inset(0 0 0 50%);
+}
+
+:where(neo-compare:not(:defined):dir(rtl) > [slot="after"]) {
+	clip-path: inset(0 calc(50% - 1px) 0 0);
+}
+
+:where(neo-compare:not(:defined)[vertical]:not([vertical="false"]) > [slot="before"]) {
+	clip-path: inset(0 0 50% 0);
+}
+
+:where(neo-compare:not(:defined)[vertical]:not([vertical="false"]) > [slot="after"]) {
+	clip-path: inset(calc(50% - 1px) 0 0 0);
+}
+
+:where(neo-compare:not(:defined) > [slot="handle"]) {
+	display: none;
+}

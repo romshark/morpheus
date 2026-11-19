@@ -43,7 +43,7 @@ Component `<neo-compare>` stacks 2 layers, such as 2 versions of a photo, and sp
 
 | Name | Detail | Bubbles | Description |
 | --- | --- | --- | --- |
-| `neo-compare-input` | `{ value: number }` | yes | Fires on each move of a pointer drag. |
+| `neo-compare-input` | `{ value: number }` | yes | Fires on each divider move while a pointer is down. |
 | `neo-compare-change` | `{ value: number }` | yes | Fires when a drag ends, a click or a key moves the divider, only if the value changed. |
 
 ### Parts

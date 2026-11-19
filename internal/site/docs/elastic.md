@@ -13,7 +13,7 @@ Component `<neo-elastic>` is a block container that animates its height whenever
 
 | Name | Type | Default | Description |
 | --- | --- | --- | --- |
-| `open` | `boolean`, observed | `true` | Open by default. Set `open="false"` to animate the host to 0px tall. |
+| `open` | `boolean`, observed | `true` | Open by default. Set `open="false"` to animate the host to 0px tall and make the content `inert`. |
 | `reset-on-collapse` | `boolean` | `false` | Swap content for [`[data-neo-async-placeholder]`](#slots-data-neo-async-placeholder) after the collapse transition. |
 
 ### Slots

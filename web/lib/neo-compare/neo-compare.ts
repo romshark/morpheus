@@ -10,6 +10,8 @@ import { setState } from "../internal-state";
 import { labelAttr } from "../label-name";
 import { clamp, num } from "../num";
 import { IS_APPLE } from "../platform";
+import { scopeCssToHost } from "../shadow-utils";
+import compareCss from "./neo-compare.css";
 
 const ATTR_VALUE = "value";
 const ATTR_VERTICAL = "vertical";
@@ -19,216 +21,17 @@ const ATTR_RECENTER = "recenter";
 const ATTR_MIN = "min";
 const ATTR_MAX = "max";
 const CENTER = 50;
-// 4px matches the OS click-vs-drag threshold. A touch that scrolls the page
-// along the other axis never crosses it and leaves the divider in place.
+// 4px matches the OS click-vs-drag threshold. A touch or pen press moves the
+// divider only past it, which keeps a swipe that scrolls the page along the
+// other axis from moving the divider.
 const DRAG_THRESHOLD = 4;
 const PROP_TILT = "--neo-compare-tilt";
-const DEG_PER_UNIT: Record<string, number> = { deg: 1, rad: 180 / Math.PI, grad: 0.9, turn: 360 };
+
+const SHEET = new CSSStyleSheet();
+SHEET.replaceSync(scopeCssToHost(compareCss, "neo-compare"));
 
 const TEMPLATE = document.createElement("template");
-// Shadow CSS notes, kept out of the template string so the minifier drops them.
-// Anchored by selector:
-// - :host touch-action: the page still scrolls along the other axis.
-// - [data-neo-compare-root]: display: contents. It holds --_v (the value as
-//   a fraction) and --_w/--_h (the frame size), which its children inherit.
-//   A morph can't strip them, as it would the host's style attribute.
-// - --_d: the tilt offset of the line ends from its midpoint, from the frame
-//   size across the axis. The tilt is physical, as rotate() is, and a
-//   right-to-left page mirrors only the sides.
-// - --_at: the midpoint of the line from the start edge. The range stretches
-//   by |--_d| at both ends, which lets 0 and 100 show 1 layer fully.
-// - [data-neo-compare-frame]: clips the rounded corners and the tilted line,
-//   whose ends reach past the edges near 0 and 100.
-// - [data-neo-compare-layer]: both layers fill grid area 1/1 and each clips
-//   to its side of the line, which keeps a transparent area of one layer
-//   from showing the other. The after layer reaches 1px under the before
-//   layer. 2 cuts that meet edge to edge each cover the edge pixels only in
-//   part, and the page shows through the seam.
-// - [data-neo-compare-frame] isolation: contains the z-index that puts the
-//   before layer over that overlap, which keeps the handle on top.
-// - [data-neo-compare-layer] ::slotted(*): fills the layer; the larger content
-//   sizes both layers.
-// - [data-neo-compare-divider]: an absolute grid item, whose containing block
-//   is the grid area and not the padding box. The skew pivots on its
-//   midpoint, which stays on --_at.
-// - [data-neo-compare-grip]: a 0-size box at the line midpoint that centers
-//   the handle. It sits outside the frame, which keeps the handle whole at 0
-//   and 100, and it owns the position, which ::part(handle) can't override.
-//   The clamp stops the handle at the edge while a tilted line moves on.
-// - transition: set once for both axes. An axis rule that sets it would
-//   outrank the :state(dragging) rule.
-// - :state(dragging): no transition, which keeps the divider on the pointer.
-// - :state(instant): no transition for 1 frame after an axis or size change.
-//   Clip paths eased between the axes leave a corner that neither layer
-//   covers, and a resize would let the tilted edges lag the box.
-// - :state(grabbed): the handle is held. A press on the handle sets it at
-//   once, a press elsewhere at the drag threshold, which keeps a touch that
-//   turns into a page scroll from popping the handle up and down.
-// - durations: scaled by --neo-duration-scale, which reduced motion sets to 0.
 TEMPLATE.innerHTML = `
-<style>
-  :host {
-    --_duration: calc(var(--neo-compare-duration, 200ms) * var(--neo-duration-scale, 1));
-    --_easing: var(--neo-compare-easing, var(--neo-easing, ease));
-    --_divider-width: var(--neo-compare-divider-width, 2px);
-    position: relative;
-    display: grid;
-    width: fit-content;
-    max-width: 100%;
-    touch-action: pan-y;
-    cursor: ew-resize;
-    -webkit-user-select: none;
-    user-select: none;
-    -webkit-tap-highlight-color: transparent;
-  }
-  :host([vertical]:not([vertical="false"])) {
-    touch-action: pan-x;
-    cursor: ns-resize;
-  }
-  :host([disabled]:not([disabled="false"])) {
-    touch-action: auto;
-    cursor: default;
-  }
-  [data-neo-compare-root] {
-    display: contents;
-    --_d: calc(tan(var(${PROP_TILT}, 0deg)) * var(--_h, 0px) / 2);
-    --_ad: max(var(--_d), -1 * var(--_d));
-    --_at: calc((100% + 2 * var(--_ad)) * var(--_v, 0.5) - var(--_ad));
-  }
-  :host([vertical]:not([vertical="false"])) [data-neo-compare-root] {
-    --_d: calc(tan(var(${PROP_TILT}, 0deg)) * var(--_w, 0px) / 2);
-  }
-  [data-neo-compare-frame] {
-    grid-area: 1 / 1;
-    position: relative;
-    display: grid;
-    min-width: 0;
-    overflow: hidden;
-    border-radius: inherit;
-    isolation: isolate;
-  }
-  [data-neo-compare-layer] {
-    grid-area: 1 / 1;
-    display: grid;
-    min-width: 0;
-    min-height: 0;
-    transition: clip-path var(--_duration) var(--_easing);
-  }
-  [data-neo-compare-layer="before"] {
-    z-index: 1;
-    clip-path: polygon(0 0, calc(var(--_at) + var(--_d)) 0, calc(var(--_at) - var(--_d)) 100%, 0 100%);
-  }
-  [data-neo-compare-layer="after"] {
-    clip-path: polygon(calc(var(--_at) + var(--_d) - 1px) 0, 100% 0, 100% 100%, calc(var(--_at) - var(--_d) - 1px) 100%);
-  }
-  [data-neo-compare-layer="before"]:dir(rtl) {
-    clip-path: polygon(calc(100% - var(--_at) + var(--_d)) 0, 100% 0, 100% 100%, calc(100% - var(--_at) - var(--_d)) 100%);
-  }
-  [data-neo-compare-layer="after"]:dir(rtl) {
-    clip-path: polygon(0 0, calc(100% - var(--_at) + var(--_d) + 1px) 0, calc(100% - var(--_at) - var(--_d) + 1px) 100%, 0 100%);
-  }
-  :host([vertical]:not([vertical="false"])) [data-neo-compare-layer="before"] {
-    clip-path: polygon(0 0, 100% 0, 100% calc(var(--_at) + var(--_d)), 0 calc(var(--_at) - var(--_d)));
-  }
-  :host([vertical]:not([vertical="false"])) [data-neo-compare-layer="after"] {
-    clip-path: polygon(0 calc(var(--_at) - var(--_d) - 1px), 100% calc(var(--_at) + var(--_d) - 1px), 100% 100%, 0 100%);
-  }
-  [data-neo-compare-layer] > slot::slotted(*) {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  [data-neo-compare-divider] {
-    grid-area: 1 / 1;
-    position: absolute;
-    z-index: 1;
-    inset-block: 0;
-    inset-inline-start: var(--_at);
-    width: var(--_divider-width);
-    margin-inline-start: calc(var(--_divider-width) / -2);
-    transform: skewX(calc(-1 * var(${PROP_TILT}, 0deg)));
-    background: var(--neo-compare-divider-color, var(--btn-bg, #fff));
-    box-shadow: var(--neo-compare-shadow, 0 0 4px rgb(0 0 0 / 0.35));
-    transition-property: inset-inline-start, inset-block-start;
-    transition-duration: var(--_duration);
-    transition-timing-function: var(--_easing);
-  }
-  :host([vertical]:not([vertical="false"])) [data-neo-compare-divider] {
-    inset-inline: 0;
-    inset-block: var(--_at) auto;
-    width: auto;
-    height: var(--_divider-width);
-    margin: calc(var(--_divider-width) / -2) 0 0;
-    transform: skewY(var(${PROP_TILT}, 0deg));
-  }
-  [data-neo-compare-grip] {
-    grid-area: 1 / 1;
-    position: absolute;
-    inset-inline-start: clamp(0%, var(--_at), 100%);
-    inset-block-start: 50%;
-    width: 0;
-    height: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition-property: inset-inline-start, inset-block-start;
-    transition-duration: var(--_duration);
-    transition-timing-function: var(--_easing);
-  }
-  :host([vertical]:not([vertical="false"])) [data-neo-compare-grip] {
-    inset-inline-start: 50%;
-    inset-block-start: clamp(0%, var(--_at), 100%);
-  }
-  :host(:is(:state(dragging), :state(instant))) :is([data-neo-compare-layer], [data-neo-compare-divider], [data-neo-compare-grip]) {
-    transition: none;
-  }
-  [data-neo-compare-handle] {
-    flex: none;
-    display: grid;
-    place-items: center;
-    box-sizing: border-box;
-    width: var(--neo-compare-handle-size, 2.5rem);
-    height: var(--neo-compare-handle-size, 2.5rem);
-    border: 1px solid var(--neo-compare-handle-border, var(--btn-border, transparent));
-    border-radius: var(--neo-compare-handle-radius, 50%);
-    background: var(--neo-compare-handle-bg, var(--neo-compare-divider-color, var(--btn-bg, #fff)));
-    color: var(--neo-compare-handle-fg, var(--btn-fg, #171717));
-    box-shadow: var(--neo-compare-shadow, 0 0 4px rgb(0 0 0 / 0.35));
-    outline: none;
-    transition-property: scale, box-shadow;
-    transition-duration: calc(var(--neo-compare-grab-duration, 150ms) * var(--neo-duration-scale, 1));
-    transition-timing-function: var(--_easing);
-  }
-  :host(:state(grabbed)) [data-neo-compare-handle] {
-    scale: var(--neo-compare-handle-grab-scale, 1.15);
-    box-shadow: var(--neo-compare-handle-grab-shadow, 0 4px 12px rgb(0 0 0 / 0.4));
-  }
-  [data-neo-compare-handle]:focus-visible {
-    outline: 2px solid var(--neo-compare-focus-ring, var(--focus-ring, var(--accent, Highlight)));
-    outline-offset: 2px;
-  }
-  :host([disabled]:not([disabled="false"])) [data-neo-compare-handle] {
-    opacity: 0.5;
-  }
-  [data-neo-compare-handle] svg {
-    width: 55%;
-    height: 55%;
-  }
-  :host([vertical]:not([vertical="false"])) [data-neo-compare-handle] svg {
-    rotate: 90deg;
-  }
-  @media (forced-colors: active) {
-    [data-neo-compare-divider] {
-      background: CanvasText;
-    }
-    [data-neo-compare-handle] {
-      border: 2px solid CanvasText;
-      background: Canvas;
-      color: CanvasText;
-    }
-  }
-</style>
 <div data-neo-compare-root>
   <div data-neo-compare-frame>
     <div data-neo-compare-layer="before" part="before"><slot name="before"></slot></div>
@@ -252,16 +55,23 @@ interface Drag {
 	startX: number;
 	startY: number;
 	startValue: number;
-	started: boolean;
+	// The divider follows the pointer. A mouse press sets it at once,
+	// a touch or pen press at the drag threshold.
+	following: boolean;
+	// The pointer crossed the drag threshold, which rules out a click.
+	dragged: boolean;
 	onHandle: boolean;
-	// Pointer distance from the line along the axis, kept while dragging the
-	// handle so the divider doesn't jump under it.
+	// Value offset from the pointer's line to the divider, kept while dragging
+	// the handle so the divider doesn't jump under it.
 	grabOffset: number;
 	rect: DOMRect;
 	vertical: boolean;
 	rtl: boolean;
 	// Offset of the line ends from its midpoint, which the tilt sets.
 	tiltOffset: number;
+	// The frame along the axis plus the tilt offset at both ends, the range
+	// --_at spans in CSS.
+	span: number;
 }
 
 export class NeoCompare extends HTMLElement {
@@ -278,14 +88,18 @@ export class NeoCompare extends HTMLElement {
 	#root: HTMLElement;
 	#frame: HTMLElement;
 	#handle: HTMLElement;
+	// The elements that draw the divider. Each gets its own --_neo-compare-v,
+	// which doesn't inherit and keeps a move from restyling the slotted content.
+	#drawers: HTMLElement[];
 	// Source of truth for the divider position. `value` mirrors it,
 	// and a morph that strips `value` keeps the divider where it is.
 	#value = CENTER;
 	#reflecting = false;
+	#connectedOnce = false;
 	#drag: Drag | null = null;
 	#jumpFrame = 0;
-	// The min/max pair last warned about, which keeps the per-attribute
-	// callbacks of an upgrade from repeating the warning.
+	// The min/max pair last warned about, which keeps a reconnect or a
+	// rewrite of the same pair from repeating the warning.
 	#rangeWarned = "";
 	// Consecutive clicks on the handle without a drag. A dblclick can't tell
 	// where its presses landed, because the pointer capture retargets it to
@@ -303,10 +117,16 @@ export class NeoCompare extends HTMLElement {
 		super();
 		this.#internals = this.attachInternals();
 		const root = this.attachShadow({ mode: "open" });
+		root.adoptedStyleSheets = [SHEET];
 		root.appendChild(TEMPLATE.content.cloneNode(true));
 		this.#root = root.querySelector("[data-neo-compare-root]") as HTMLElement;
 		this.#frame = root.querySelector("[data-neo-compare-frame]") as HTMLElement;
 		this.#handle = root.querySelector("[data-neo-compare-handle]") as HTMLElement;
+		this.#drawers = [
+			...root.querySelectorAll<HTMLElement>(
+				"[data-neo-compare-layer], [data-neo-compare-divider], [data-neo-compare-grip]",
+			),
+		];
 		// The host and its shadow outlive a morph and a reconnect, which lets
 		// these listeners bind once.
 		this.addEventListener("pointerdown", this.#onPointerDown);
@@ -321,8 +141,7 @@ export class NeoCompare extends HTMLElement {
 	}
 
 	connectedCallback() {
-		const raw = this.getAttribute(ATTR_VALUE);
-		if (raw !== null) this.#value = clamp(num(raw, this.#value), 0, 100);
+		this.#connectedOnce = true;
 		this.#syncRange();
 		this.#syncPosition();
 		this.#syncAria();
@@ -355,7 +174,9 @@ export class NeoCompare extends HTMLElement {
 			return;
 		}
 		if (name === ATTR_MIN || name === ATTR_MAX) {
-			this.#syncRange();
+			// Before the first connect, a parse or upgrade can still have the `value`
+			// callback queued, and a reflect here would overwrite the authored value.
+			if (this.#connectedOnce) this.#syncRange();
 			return;
 		}
 		if (name === ATTR_VERTICAL) this.#jump();
@@ -428,7 +249,8 @@ export class NeoCompare extends HTMLElement {
 	}
 
 	#syncPosition() {
-		this.#root.style.setProperty("--_v", String(this.#value / 100));
+		const fraction = String(this.#value / 100);
+		for (const el of this.#drawers) el.style.setProperty("--_neo-compare-v", fraction);
 		this.#handle.setAttribute("aria-valuenow", String(this.#value));
 		this.#handle.setAttribute("aria-valuetext", `${Math.round(this.#value)}%`);
 	}
@@ -452,13 +274,10 @@ export class NeoCompare extends HTMLElement {
 		return boolAttr(this, ATTR_DISABLED, false);
 	}
 
-	// The clockwise tilt in degrees. neo-compare.css registers the property
-	// as an <angle>, which computes to deg; the other units cover a page
-	// that loads the script without that sheet.
+	// The clockwise tilt in degrees. neo-compare.global.css registers the
+	// property as an <angle>, which computes to deg.
 	#tiltDegrees(): number {
-		const raw = getComputedStyle(this).getPropertyValue(PROP_TILT).trim();
-		const m = /^(-?[\d.]+(?:e-?\d+)?)(deg|rad|grad|turn)$/.exec(raw);
-		return m ? Number(m[1]) * DEG_PER_UNIT[m[2]] : 0;
+		return Number.parseFloat(getComputedStyle(this).getPropertyValue(PROP_TILT)) || 0;
 	}
 
 	#checkSlots() {
@@ -526,29 +345,31 @@ export class NeoCompare extends HTMLElement {
 		// The browser sees no mousedown and would treat the script focus as
 		// keyboard focus, with a focus ring.
 		e.preventDefault();
-		this.#handle.focus({ preventScroll: true, focusVisible: false });
+		const following = e.pointerType === "mouse";
+		// A touch or pen press focuses once it drags or taps. A swipe that scrolls
+		// the page must not blur a text field, which closes the on-screen keyboard.
+		if (following) this.#focusHandle();
 		const vertical = this.#vertical();
 		const rect = this.#frame.getBoundingClientRect();
 		const across = vertical ? rect.width : rect.height;
+		const tiltOffset = (Math.tan((this.#tiltDegrees() * Math.PI) / 180) * across) / 2;
 		const d: Drag = {
 			pointerId: e.pointerId,
 			startX: e.clientX,
 			startY: e.clientY,
 			startValue: this.#value,
-			started: false,
+			following,
+			dragged: false,
 			onHandle: e.composedPath().includes(this.#handle),
 			grabOffset: 0,
 			rect,
 			vertical,
 			rtl: !vertical && isRTL(this),
-			tiltOffset: (Math.tan((this.#tiltDegrees() * Math.PI) / 180) * across) / 2,
+			tiltOffset,
+			span: (vertical ? rect.height : rect.width) + 2 * Math.abs(tiltOffset),
 		};
-		if (d.onHandle) {
-			const span = (vertical ? rect.height : rect.width) + 2 * Math.abs(d.tiltOffset);
-			const at = (this.#value / 100) * span - Math.abs(d.tiltOffset);
-			d.grabOffset = this.#lineAt(e, d) - at;
-			setState(this.#internals, "grabbed", true);
-		}
+		if (d.onHandle) d.grabOffset = this.#pointerValue(e, d) - this.#value;
+		if (d.onHandle || d.following) setState(this.#internals, "grabbed", true);
 		try {
 			this.setPointerCapture(e.pointerId);
 		} catch {
@@ -556,16 +377,30 @@ export class NeoCompare extends HTMLElement {
 			// the drag still works while the pointer stays over the host.
 		}
 		this.#drag = d;
+		// Without `dragging`, the transition eases this jump as it eases a click.
+		// A drag past the threshold sets `dragging`, which drops the rest of it.
+		if (d.following && !d.onHandle) this.#set(this.#pointerValue(e, d), "input");
 	};
 
 	#onPointerMove = (e: PointerEvent) => {
 		const d = this.#drag;
 		if (!d || e.pointerId !== d.pointerId) return;
-		if (!d.started) {
+		// A drag whose pointerup went missing, as after a refused capture, ends
+		// on the next move without the primary button.
+		if ((e.buttons & 1) === 0) {
+			this.#handleClicks = 0;
+			this.#endDrag();
+			return;
+		}
+		if (!d.dragged) {
 			const delta = d.vertical ? e.clientY - d.startY : e.clientX - d.startX;
-			if (Math.abs(delta) < DRAG_THRESHOLD) return;
-			d.started = true;
-			setState(this.#internals, "dragging", true);
+			d.dragged = Math.abs(delta) >= DRAG_THRESHOLD;
+			if (!d.dragged && !d.following) return;
+			if (!d.following) this.#focusHandle();
+			d.following = true;
+			// Below the threshold, a press off the handle retargets the click
+			// transition, which a jittery click would otherwise cut short.
+			if (d.dragged || d.onHandle) setState(this.#internals, "dragging", true);
 			setState(this.#internals, "grabbed", true);
 		}
 		this.#set(this.#pointerValue(e, d), "input");
@@ -574,19 +409,22 @@ export class NeoCompare extends HTMLElement {
 	#onPointerUp = (e: PointerEvent) => {
 		const d = this.#drag;
 		if (!d || e.pointerId !== d.pointerId) return;
-		if (d.started) {
-			this.#set(this.#pointerValue(e, d), "input");
-		} else {
-			// A click without a drag moves the divider to the pointer.
-			// A click on the handle keeps it, because the grab offset cancels the move.
-			this.#set(this.#pointerValue(e, d), "change");
-		}
-		this.#handleClicks = d.onHandle && !d.started ? this.#handleClicks + 1 : 0;
+		// A touch or pen tap elsewhere moves the divider to the pointer.
+		// A tap on the handle leaves it, even when the pointer
+		// moved a few px below the drag threshold.
+		if (d.following) this.#set(this.#pointerValue(e, d), "input");
+		else if (!d.onHandle) this.#set(this.#pointerValue(e, d), "change");
+		if (!d.following) this.#focusHandle();
+		this.#handleClicks = d.onHandle && !d.dragged ? this.#handleClicks + 1 : 0;
 		this.#endDrag();
 	};
 
-	// Only after 2 clicks on the handle, which leave the divider in place.
-	// Elsewhere the 1st click has already moved it to the pointer,
+	#focusHandle() {
+		this.#handle.focus({ preventScroll: true, focusVisible: false });
+	}
+
+	// Only after 2 clicks on the handle, which move the divider less than
+	// the drag threshold. Elsewhere the 1st click has already moved it to the pointer,
 	// and a recenter would follow a visible detour. A drag would snap back.
 	#onDoubleClick = () => {
 		if (this.#disabled() || !boolAttr(this, ATTR_RECENTER, true) || this.#handleClicks < 2) return;
@@ -609,16 +447,13 @@ export class NeoCompare extends HTMLElement {
 		setState(this.#internals, "dragging", false);
 		setState(this.#internals, "grabbed", false);
 		this.#reflect();
-		if (d.started && this.#value !== d.startValue) this.#emit("change");
+		if (d.following && this.#value !== d.startValue) this.#emit("change");
 	}
 
 	// The value whose line, after the grab offset, passes through the pointer.
-	// The range spans the frame plus the tilt offset at both ends, as --_at does in CSS.
 	#pointerValue(e: PointerEvent, d: Drag): number {
-		const reach = Math.abs(d.tiltOffset);
-		const span = (d.vertical ? d.rect.height : d.rect.width) + 2 * reach;
-		if (span <= 0) return this.#value;
-		return ((this.#lineAt(e, d) - d.grabOffset + reach) / span) * 100;
+		if (d.span <= 0) return this.#value;
+		return ((this.#lineAt(e, d) + Math.abs(d.tiltOffset)) / d.span) * 100 - d.grabOffset;
 	}
 
 	// Distance from the start edge to the midpoint of the line through the pointer.

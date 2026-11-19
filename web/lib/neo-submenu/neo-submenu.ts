@@ -144,6 +144,8 @@ export class NeoSubmenu extends HTMLElement {
 			this.appendChild(panel);
 		}
 
+		// Reused scaffolding can have rows beside it, see #checkForReset.
+		this.#adoptItems(row, panel);
 		row.setAttribute("aria-controls", panel.id);
 
 		this.#triggerRow = row;
@@ -191,14 +193,28 @@ export class NeoSubmenu extends HTMLElement {
 		this.#items = [];
 	}
 
+	// Moves every child but the scaffolding into the panel.
+	#adoptItems(row: HTMLElement, panel: HTMLElement): void {
+		let next: ChildNode | null = this.firstChild;
+		while (next) {
+			const after = next.nextSibling;
+			if (next !== row && next !== panel) panel.appendChild(next);
+			next = after;
+		}
+	}
+
 	#checkForReset(): void {
 		if (this.#rebuilding) return;
+		// Rows beside intact scaffolding come from the parser, after a blocking
+		// script ahead of the markup ran connectedCallback at the start tag,
+		// before the rows existed.
 		if (
 			this.#triggerRow &&
 			this.#triggerRow.parentElement === this &&
 			this.#panel &&
 			this.#panel.parentElement === this
 		) {
+			this.#adoptItems(this.#triggerRow, this.#panel);
 			return;
 		}
 		this.#rebuilding = true;

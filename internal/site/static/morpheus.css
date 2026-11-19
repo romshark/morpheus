@@ -19,7 +19,7 @@
 @import "../../../web/lib/neo-collapsible/neo-collapsible.css";
 @import "../../../web/lib/neo-color-field/neo-color-field.css";
 @import "../../../web/lib/neo-combobox/neo-combobox.css";
-@import "../../../web/lib/neo-compare/neo-compare.css";
+@import "../../../web/lib/neo-compare/neo-compare.global.css";
 @import "../../../web/lib/neo-datalist/neo-datalist.css";
 @import "../../../web/lib/neo-dialog/neo-dialog.css";
 @import "../../../web/lib/neo-drawer/neo-drawer.css";

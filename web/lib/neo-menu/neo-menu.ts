@@ -147,13 +147,7 @@ export class NeoMenu extends HTMLElement {
 			panel.id = `neo-menu-${++nextId}`;
 			this.appendChild(panel);
 		}
-		// Everything that isn't the panel is a row; move it inside.
-		let next: ChildNode | null = this.firstChild;
-		while (next) {
-			const after = next.nextSibling;
-			if (next !== panel) panel.appendChild(next);
-			next = after;
-		}
+		this.#adoptRows(panel);
 		this.panel = panel;
 
 		// Resolve the host. The contract is a direct child of the host, which
@@ -208,11 +202,26 @@ export class NeoMenu extends HTMLElement {
 		this.#items = [];
 	}
 
+	// Everything that isn't the panel is a row; move it inside.
+	#adoptRows(panel: HTMLElement): void {
+		let next: ChildNode | null = this.firstChild;
+		while (next) {
+			const after = next.nextSibling;
+			if (next !== panel) panel.appendChild(next);
+			next = after;
+		}
+	}
+
 	#checkForReset() {
 		if (this.#rebuilding) return;
 		// Panel no longer a direct child = morph-reset; an in-panel edit
-		// keeps it and refreshItems handles that.
-		if (this.panel && this.panel.parentElement === this) return;
+		// keeps it and refreshItems handles that. Rows beside an intact panel
+		// come from the parser, after a blocking script ahead of the markup
+		// ran connectedCallback at the start tag, before the rows existed.
+		if (this.panel && this.panel.parentElement === this) {
+			this.#adoptRows(this.panel);
+			return;
+		}
 		this.#rebuilding = true;
 		try {
 			this.#bindStructure();

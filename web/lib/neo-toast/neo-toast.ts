@@ -28,6 +28,8 @@ const TEMPLATE = document.createElement("template");
 // - [data-empty]: hide empty rows. data-empty is toggled from JS via slotchange
 //   (CSS has no portable way to query whether a slot has assigned nodes;
 //   :has-slotted is still behind flags in Safari/Firefox).
+// - [data-neo-toast-close] tabindex="0": Safari's default Tab order skips a
+//   <button> without an explicit tabindex.
 TEMPLATE.innerHTML = `
 <style>
   :host {
@@ -131,7 +133,7 @@ TEMPLATE.innerHTML = `
     <div data-neo-toast-description><slot name="description"></slot></div>
   </div>
   <div data-neo-toast-action><slot name="action"></slot></div>
-  <button data-neo-toast-close type="button">
+  <button data-neo-toast-close type="button" tabindex="0">
     <neo-icon name="x"></neo-icon>
   </button>
 </div>
