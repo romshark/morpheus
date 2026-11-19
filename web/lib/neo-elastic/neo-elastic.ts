@@ -111,7 +111,12 @@ export class NeoElastic extends HTMLElement {
 
 	#applyHeight() {
 		if (!this.#inner) return;
-		const height = boolAttr(this, "open", true) ? this.#inner.offsetHeight : 0;
+		const open = boolAttr(this, "open", true);
+		// A 0px host only clips the content, which stays in the Tab order and the
+		// accessibility tree. `inert` removes it from both, from the collapse start
+		// to the next expand start. toggleAttribute writes only on a change.
+		this.#inner.toggleAttribute("inert", !open);
+		const height = open ? this.#inner.offsetHeight : 0;
 
 		if (this.#firstMeasure) {
 			this.#firstMeasure = false;

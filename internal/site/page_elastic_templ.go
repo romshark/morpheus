@@ -488,7 +488,7 @@ func PageElastic(morpheusVersion string) templ.Component {
 var elasticDoc = ComponentDoc{
 	Attributes: []DocAttribute{
 		{Name: "open", Type: "boolean", Default: "true", Observed: true,
-			Description: templ.Raw("Open by default. Set <code>open=\"false\"</code> to animate the host to 0px tall.")},
+			Description: templ.Raw("Open by default. Set <code>open=\"false\"</code> to animate the host to 0px tall and make the content <code>inert</code>.")},
 		{Name: "reset-on-collapse", Type: "boolean", Default: "false",
 			Description: templ.Raw("Swap content for <a href=\"#slots-data-neo-async-placeholder\"><code>[data-neo-async-placeholder]</code></a> after the collapse transition.")},
 	},
