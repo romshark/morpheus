@@ -409,7 +409,7 @@ var carouselDoc = ComponentDoc{
 		{Name: "--neo-carousel-dot-size", Default: "0.55rem",
 			Description: templ.Raw("Dot diameter.")},
 		{Name: "--neo-carousel-dot-gap", Default: "0.4rem",
-			Description: templ.Raw("Gap between dots, raised to keep dot centers 24px apart.")},
+			Description: templ.Raw("Gap between dots, raised to keep dot centers 24px apart. Give it a unit, such as <code>0px</code>. A unitless <code>0</code> removes the gap.")},
 		{Name: "--neo-carousel-dot-bg", Default: "var(--control-border)",
 			Description: templ.Raw("Inactive dot color.")},
 		{Name: "--neo-carousel-dot-active-bg", Default: "var(--accent-strong, var(--accent, currentColor))",

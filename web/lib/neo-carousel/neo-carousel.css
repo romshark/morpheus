@@ -16,6 +16,8 @@
 	--neo-carousel-track-radius: var(--page-radius, 0);
 	--neo-carousel-focus-ring: var(--focus-ring, var(--accent-strong, var(--accent, currentColor)));
 	--neo-carousel-dot-size: 0.55rem;
+	/* Needs a unit. A unitless 0 is a number, which invalidates the max()
+	 * that keeps dot centers 24px apart, and the dots then touch. */
 	--neo-carousel-dot-gap: 0.4rem;
 	--neo-carousel-dot-bg: var(--control-border);
 	--neo-carousel-dot-active-bg: var(--accent-strong, var(--accent, currentColor));
