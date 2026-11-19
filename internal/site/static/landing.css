@@ -2356,6 +2356,8 @@ neo-sidebar.landing-a11y-demo-nav:not(:defined) {
 		hsl(360 100% 50%)
 	);
 	--neo-slider-fill-bg: transparent;
+	/* The track's own border frames the gradient. */
+	--neo-slider-track-shadow: none;
 	--neo-slider-thumb-bg: hsl(var(--lf-color-hue) 100% 50%);
 	--neo-slider-thumb-border: var(--page-bg);
 	--neo-slider-thumb-border-width: 2px;
@@ -2377,6 +2379,8 @@ neo-sidebar.landing-a11y-demo-nav:not(:defined) {
 		hsl(var(--lf-color-hue) 100% 50%)
 	);
 	--neo-slider-fill-bg: transparent;
+	/* The track's own border frames the gradient. */
+	--neo-slider-track-shadow: none;
 	--neo-slider-thumb-bg: hsl(var(--lf-color-hue) 100% 50%);
 	--neo-slider-thumb-border: var(--page-bg);
 	--neo-slider-thumb-border-width: 2px;
