@@ -638,7 +638,7 @@ var compareDoc = ComponentDoc{
 	},
 	Events: []DocEvent{
 		{Name: "neo-compare-input", Detail: "{ value: number }", Bubbles: true,
-			Description: templ.Raw("Fires on each move of a pointer drag.")},
+			Description: templ.Raw("Fires on each divider move while a pointer is down.")},
 		{Name: "neo-compare-change", Detail: "{ value: number }", Bubbles: true,
 			Description: templ.Raw("Fires when a drag ends, a click or a key moves the divider, only if the value changed.")},
 	},

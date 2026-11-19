@@ -19,8 +19,9 @@ const ATTR_RECENTER = "recenter";
 const ATTR_MIN = "min";
 const ATTR_MAX = "max";
 const CENTER = 50;
-// 4px matches the OS click-vs-drag threshold. A touch that scrolls the page
-// along the other axis never crosses it and leaves the divider in place.
+// 4px matches the OS click-vs-drag threshold. A touch or pen press moves the
+// divider only past it, which keeps a swipe that scrolls the page along the
+// other axis from moving the divider.
 const DRAG_THRESHOLD = 4;
 const PROP_TILT = "--neo-compare-tilt";
 const DEG_PER_UNIT: Record<string, number> = { deg: 1, rad: 180 / Math.PI, grad: 0.9, turn: 360 };
@@ -61,9 +62,9 @@ const TEMPLATE = document.createElement("template");
 // - :state(instant): no transition for 1 frame after an axis or size change.
 //   Clip paths eased between the axes leave a corner that neither layer
 //   covers, and a resize would let the tilted edges lag the box.
-// - :state(grabbed): the handle is held. A press on the handle sets it at
-//   once, a press elsewhere at the drag threshold, which keeps a touch that
-//   turns into a page scroll from popping the handle up and down.
+// - :state(grabbed): the handle is held. A touch or pen press elsewhere sets it
+//   at the drag threshold, which keeps a swipe that turns into a page scroll
+//   from popping the handle up and down. Other presses set it at once.
 // - durations: scaled by --neo-duration-scale, which reduced motion sets to 0.
 TEMPLATE.innerHTML = `
 <style>
@@ -252,7 +253,11 @@ interface Drag {
 	startX: number;
 	startY: number;
 	startValue: number;
-	started: boolean;
+	// The divider follows the pointer. A mouse press sets it at once,
+	// a touch or pen press at the drag threshold.
+	following: boolean;
+	// The pointer crossed the drag threshold, which rules out a click.
+	dragged: boolean;
 	onHandle: boolean;
 	// Pointer distance from the line along the axis, kept while dragging the
 	// handle so the divider doesn't jump under it.
@@ -539,7 +544,8 @@ export class NeoCompare extends HTMLElement {
 			startX: e.clientX,
 			startY: e.clientY,
 			startValue: this.#value,
-			started: false,
+			following: e.pointerType === "mouse",
+			dragged: false,
 			onHandle: e.composedPath().includes(this.#handle),
 			grabOffset: 0,
 			rect,
@@ -551,8 +557,8 @@ export class NeoCompare extends HTMLElement {
 			const span = (vertical ? rect.height : rect.width) + 2 * Math.abs(d.tiltOffset);
 			const at = (this.#value / 100) * span - Math.abs(d.tiltOffset);
 			d.grabOffset = this.#lineAt(e, d) - at;
-			setState(this.#internals, "grabbed", true);
 		}
+		if (d.onHandle || d.following) setState(this.#internals, "grabbed", true);
 		try {
 			this.setPointerCapture(e.pointerId);
 		} catch {
@@ -560,15 +566,19 @@ export class NeoCompare extends HTMLElement {
 			// the drag still works while the pointer stays over the host.
 		}
 		this.#drag = d;
+		// Without `dragging`, the transition eases this jump as it eases a click.
+		// The 1st move sets `dragging`, which drops the rest of the transition.
+		if (d.following && !d.onHandle) this.#set(this.#pointerValue(e, d), "input");
 	};
 
 	#onPointerMove = (e: PointerEvent) => {
 		const d = this.#drag;
 		if (!d || e.pointerId !== d.pointerId) return;
-		if (!d.started) {
+		if (!d.dragged) {
 			const delta = d.vertical ? e.clientY - d.startY : e.clientX - d.startX;
-			if (Math.abs(delta) < DRAG_THRESHOLD) return;
-			d.started = true;
+			d.dragged = Math.abs(delta) >= DRAG_THRESHOLD;
+			if (!d.dragged && !d.following) return;
+			d.following = true;
 			setState(this.#internals, "dragging", true);
 			setState(this.#internals, "grabbed", true);
 		}
@@ -578,19 +588,17 @@ export class NeoCompare extends HTMLElement {
 	#onPointerUp = (e: PointerEvent) => {
 		const d = this.#drag;
 		if (!d || e.pointerId !== d.pointerId) return;
-		if (d.started) {
-			this.#set(this.#pointerValue(e, d), "input");
-		} else {
-			// A click without a drag moves the divider to the pointer.
-			// A click on the handle keeps it, because the grab offset cancels the move.
-			this.#set(this.#pointerValue(e, d), "change");
-		}
-		this.#handleClicks = d.onHandle && !d.started ? this.#handleClicks + 1 : 0;
+		// A touch or pen tap elsewhere moves the divider to the pointer.
+		// A tap on the handle leaves it, even when the pointer
+		// moved a few px below the drag threshold.
+		if (d.following) this.#set(this.#pointerValue(e, d), "input");
+		else if (!d.onHandle) this.#set(this.#pointerValue(e, d), "change");
+		this.#handleClicks = d.onHandle && !d.dragged ? this.#handleClicks + 1 : 0;
 		this.#endDrag();
 	};
 
-	// Only after 2 clicks on the handle, which leave the divider in place.
-	// Elsewhere the 1st click has already moved it to the pointer,
+	// Only after 2 clicks on the handle, which move the divider less than
+	// the drag threshold. Elsewhere the 1st click has already moved it to the pointer,
 	// and a recenter would follow a visible detour. A drag would snap back.
 	#onDoubleClick = () => {
 		if (this.#disabled() || !boolAttr(this, ATTR_RECENTER, true) || this.#handleClicks < 2) return;
@@ -613,7 +621,7 @@ export class NeoCompare extends HTMLElement {
 		setState(this.#internals, "dragging", false);
 		setState(this.#internals, "grabbed", false);
 		this.#reflect();
-		if (d.started && this.#value !== d.startValue) this.#emit("change");
+		if (d.following && this.#value !== d.startValue) this.#emit("change");
 	}
 
 	// The value whose line, after the grab offset, passes through the pointer.
