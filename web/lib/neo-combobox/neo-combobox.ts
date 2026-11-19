@@ -339,7 +339,7 @@ COMBOBOX_SHADOW_TEMPLATE.innerHTML = `
   }
   [data-neo-empty-results] neo-button[data-neo-popover-async-retry]:hover {
     background: transparent;
-    color: var(--accent-hover, var(--accent));
+    color: var(--link-hover, var(--link, var(--accent)));
     text-decoration: underline;
     text-underline-offset: 0.18em;
     box-shadow: none;
