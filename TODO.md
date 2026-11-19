@@ -13,10 +13,6 @@ Server simulator:
 
 - Unsure: non-OK response ignores handler delay (INVESTIGATION: in that case network latency should be used)
 
-Slider:
-
-- (+ range slider) tooltip kind of broken?
-
 Carousel:
 
 - Active status set on carousel and on slides, e.g. check landing page example.

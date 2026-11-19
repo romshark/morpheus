@@ -1170,7 +1170,9 @@ export class NeoSliderRange extends HTMLElement {
 		if (next !== null) {
 			e.preventDefault();
 			const nextSide = this.#commit(side, next, "change");
-			if (nextSide !== side) this.#activateSide(nextSide);
+			// Focus opens the bubble only when it is :focus-visible. After a
+			// pointer press closed it, a key still shows the value.
+			this.#activateSide(nextSide);
 		}
 	};
 
@@ -1178,6 +1180,15 @@ export class NeoSliderRange extends HTMLElement {
 		const thumb = side === "min" ? this.#thumbMinEl : this.#thumbMaxEl;
 		thumb?.focus();
 		this.#showSide(side);
+	}
+
+	// Focus `side` and hold its bubble open for the press. A crossing drag
+	// hands the press to the other thumb, which ends the old thumb's hold.
+	#pressSide(side: Side) {
+		const thumb = side === "min" ? this.#thumbMinEl : this.#thumbMaxEl;
+		thumb?.focus();
+		this.#ctrlFor(side === "min" ? "max" : "min")?.release();
+		this.#ctrlFor(side)?.hold();
 	}
 
 	#showSide(side: Side) {
@@ -1259,7 +1270,7 @@ export class NeoSliderRange extends HTMLElement {
 		const valueAtClick = anchor ?? this.#valueAtPointer(e.clientX, e.clientY);
 		const which = this.#pickThumb(e.target, valueAtClick);
 		this.#dragWhich = which;
-		this.#activateSide(which);
+		this.#pressSide(which);
 		try {
 			this.#trackEl.setPointerCapture(e.pointerId);
 		} catch {
@@ -1277,7 +1288,7 @@ export class NeoSliderRange extends HTMLElement {
 		const nextSide = this.#commit(which, valueAtClick, "input", { snap: anchor === null });
 		if (nextSide !== which) {
 			this.#dragWhich = nextSide;
-			this.#activateSide(nextSide);
+			this.#pressSide(nextSide);
 		}
 	};
 
@@ -1298,14 +1309,13 @@ export class NeoSliderRange extends HTMLElement {
 			// Place the dragged tooltip once; #syncValues then follows it.
 			this.#beginFollowSide(this.#dragWhich);
 		}
-		this.#showSide(this.#dragWhich);
 		const nextSide = this.#commit(this.#dragWhich, this.#valueAtPointer(e.clientX, e.clientY), "input");
 		if (nextSide !== this.#dragWhich) {
 			// Thumbs crossed. Settle the old tooltip and re-baseline the follow
 			// onto the thumb that now carries the drag.
 			this.#ctrlFor(this.#dragWhich)?.endFollow();
 			this.#dragWhich = nextSide;
-			this.#activateSide(nextSide);
+			this.#pressSide(nextSide);
 			if (this.#dragStarted) this.#beginFollowSide(nextSide);
 		}
 	};
@@ -1341,7 +1351,6 @@ export class NeoSliderRange extends HTMLElement {
 		}
 		// Listeners stay bound (see #render / connectedCallback);
 		// clearing the pointer id disarms them.
-		const wasFollowing = this.#followSide;
 		this.#dragPointerId = null;
 		this.#dragWhich = null;
 		this.#dragStarted = false;
@@ -1350,11 +1359,8 @@ export class NeoSliderRange extends HTMLElement {
 		// Reflect the value deferred during the drag now the flag is clear.
 		this.#reflectValues();
 		setState(this.#internals, "dragging", false);
-		// endFollow settles the dragged tooltip's exact placement; reposition
-		// the other so both are correct after the drag.
-		if (wasFollowing) this.#ctrlFor(wasFollowing)?.endFollow();
-		this.#tooltipMinCtrl?.reposition();
-		this.#tooltipMaxCtrl?.reposition();
+		this.#tooltipMinCtrl?.release();
+		this.#tooltipMaxCtrl?.release();
 		// The release point is the last move point, which already committed as input.
 		// Compare against the pointerdown values instead, as a native range input does.
 		if (this.valueMin !== this.#dragStartMin || this.valueMax !== this.#dragStartMax) {

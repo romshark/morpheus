@@ -15,6 +15,7 @@ This file records the notable changes of each release in the format of [Keep a C
 #### Components
 
 - Make `<neo-slider>` and `<neo-slider-range>` stop on marks. With `step="10"` and a mark at 25, the arrow keys go 20, 25, 30, and a click or drag near 25 picks 25. `static-marks` turns this off.
+- Show a `<neo-tooltip>` and the `<neo-slider>` and `<neo-slider-range>` value bubble on the other side when they don't fit. They used to hide at the edge of the screen and cover their trigger inside a `<neo-boundary>`.
 
 ### Fixed
 
@@ -33,6 +34,7 @@ This file records the notable changes of each release in the format of [Keep a C
 - Fix a page scroll that starts on `<neo-compare>` moving focus to its handle, which closed the on-screen keyboard.
 - Fix slow dragging of a `<neo-compare>` whose layers hold a lot of HTML. Each move restyled every element in the layers.
 - Fix a click on a `<neo-slider>` or `<neo-slider-range>` mark dot picking the nearest step instead of the mark. With `step="10"`, the dot at 25 gave 30.
+- Fix the `<neo-slider>` and `<neo-slider-range>` value bubble staying open after a click or drag that ends off the thumb. It also closed while the thumb was held down.
 
 ## [0.6.1] - 2026-11-18
 

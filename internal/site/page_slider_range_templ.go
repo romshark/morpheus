@@ -528,7 +528,7 @@ func PageSliderRange(morpheusVersion string) templ.Component {
 				return nil
 			})
 			templ_7745c5c3_Err = demoFrameWith(DemoFrameOpts{
-				StageMinHeight: "max-content",
+				StageMinHeight: "6rem",
 				HTMLSource:     sliderRangeBareHTML,
 				TemplSource:    sliderRangeBareTempl,
 			}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var20), templ_7745c5c3_Buffer)

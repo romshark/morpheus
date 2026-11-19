@@ -138,7 +138,7 @@ var tooltipDoc = ComponentDoc{
 		{Name: "text", Type: "string", Observed: true,
 			Description: templ.Raw("Plain-text body. Ignored when <code>[data-neo-tooltip-content]</code> is present.")},
 		{Name: "placement", Type: "string", Default: `"bottom-start"`, Observed: true,
-			Description: templ.Raw(`Same values as <a href="` + href.PagePopover() + `"><code>&lt;neo-popover&gt;</code></a>; see its placement values.`)},
+			Description: templ.Raw(`Same values as <a href="` + href.PagePopover() + `"><code>&lt;neo-popover&gt;</code></a>; the bubble moves to the opposite side when it doesn't fit, and hides when neither side fits.`)},
 		{Name: "hover-open-delay", Type: "number", Default: "350",
 			Description: templ.Raw("Hover dwell in ms before showing. Focus shows immediately.")},
 		{Name: "hover-close-delay", Type: "number", Default: "0",

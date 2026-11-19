@@ -980,6 +980,9 @@ export class NeoSlider extends HTMLElement {
 			// marks-only nav lands on a known mark; commit verbatim so an
 			// off-step mark survives.
 			this.#commitValue(next, "change", useMarks ? { snap: false } : {});
+			// Focus opens the bubble only when it is :focus-visible. After a
+			// pointer press closed it, a key still shows the value.
+			this.#tooltipCtrl?.show();
 		}
 	};
 
@@ -1031,7 +1034,7 @@ export class NeoSlider extends HTMLElement {
 		if (!this.#trackEl) return;
 		e.preventDefault();
 		this.#thumbEl?.focus();
-		this.#tooltipCtrl?.show();
+		this.#tooltipCtrl?.hold();
 		try {
 			this.#trackEl.setPointerCapture(e.pointerId);
 		} catch {
@@ -1079,10 +1082,6 @@ export class NeoSlider extends HTMLElement {
 			this.#followBasePct = this.#valuePct(this.value);
 			this.#tooltipCtrl?.beginFollow();
 		}
-		// Defensive re-show in case capture was refused earlier.
-		// Without capture, dragging far from the thumb fires pointerleave
-		// and would blink the tooltip off mid-drag.
-		this.#tooltipCtrl?.show();
 		this.#applyPointerPosition(e.clientX, e.clientY, "input");
 	};
 
@@ -1122,14 +1121,8 @@ export class NeoSlider extends HTMLElement {
 		// Reflect the value deferred during the drag now the flag is clear.
 		this.#reflectValue(this.value);
 		setState(this.#internals, "dragging", false);
-		// endFollow settles the exact placement after a follow drag;
-		// a plain click (never crossed the threshold) just repositions.
-		if (wasDragging) {
-			this.#tooltipCtrl?.endFollow();
-			this.#stopTooltipTracking();
-		} else {
-			this.#tooltipCtrl?.reposition();
-		}
+		this.#tooltipCtrl?.release();
+		if (wasDragging) this.#stopTooltipTracking();
 		// The release point is the last move point, which already committed as input.
 		// Compare against the pointerdown value instead, as a native range input does.
 		if (this.value !== this.#dragStartValue) this.#emit("change", this.value);
