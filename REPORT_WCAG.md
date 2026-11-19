@@ -75,8 +75,8 @@ The kit reads 3 new theme tokens. `_base.css`, which ships in every bundle, give
 | ocean dark | `--danger-hover-bg` | `#dc2626` | `#b91c1c` | hover text, 4.83 and 6.47 |
 | matrix dark | `--accent` | `#1f7a42` | `#2da55a` | primary button text, 3.75 and 6.35 |
 | matrix dark | `--accent-hover` | `#2da55a` | `#45c072` | hover text, 6.35 and 8.65 |
-| matrix dark | `--muted` | `#0a3018` | `#2b9e57` | on the page, 1.39 and 5.87 |
-| matrix dark | `--link-visited` | `#1f7a42` | `#2b9e57` | 3.75 and 5.87 |
+| matrix dark | `--muted` | `#0a3018` | `#6b8f75` | on the page, 1.39 and 5.56 |
+| matrix dark | `--link-visited` | `#1f7a42` | `#6b8f75` | 3.75 and 5.56 |
 | matrix dark | `--danger-bg`, `-fg`, `-hover-bg` | `#b91c1c`, `#fee2e2`, `#7f1d1d` | `#ef4444`, `#1a0007`, `#f87171` | OTP invalid border, 2.92 and 5.02 |
 
 The `--control-border` share of `--page-fg` is the lowest that clears 3:1 on the page, on `--btn-bg` and against the tab list, rounded up:
@@ -117,14 +117,14 @@ Values are contrast ratios. The column prefixes are Def default, Sun sunshine, O
 | Pair | Used by | Def L | Def D | Sun L | Sun D | Oce L | Oce D | Mat L | Mat D | Ros L | Ros D |
 |---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
 | Body text | page-fg on page-bg | 19.79 | 18.96 | 16.94 | 15.93 | 8.87 | 17.14 | 14.72 | 6.35 | 14.23 | 13.51 |
-| Muted on page | help text, placeholder, breadcrumb, slider marks | 5.51 | 7.63 | 5.64 | 7.01 | 5.82 | 11.80 | 6.35 | 5.87 | 7.30 | 10.08 |
-| Muted on popup or card | optgroup label, menu shortcut, card description | 5.51 | 6.91 | 5.89 | 6.18 | 6.20 | 9.33 | 5.77 | 5.52 | 8.02 | 8.27 |
-| Muted on focused menu row | menu shortcut | 4.64 | 5.59 | 5.01 | 5.00 | 5.43 | 7.52 | 4.85 | 5.01 | 6.81 | 7.05 |
-| Muted on tab list | inactive neo-tab | 4.85 | 6.82 | 5.01 | 6.18 | 5.28 | 10.55 | 5.83 | 5.56 | 6.47 | 9.06 |
-| Muted on input-group addon | neo-input-group addon | 5.06 | 6.27 | 5.44 | 5.59 | 5.80 | 8.42 | 5.33 | 5.27 | 7.40 | 7.67 |
+| Muted on page | help text, placeholder, breadcrumb, slider marks | 5.51 | 7.63 | 5.64 | 7.01 | 5.82 | 11.80 | 6.35 | 5.56 | 7.30 | 10.08 |
+| Muted on popup or card | optgroup label, menu shortcut, card description | 5.51 | 6.91 | 5.89 | 6.18 | 6.20 | 9.33 | 5.77 | 5.23 | 8.02 | 8.27 |
+| Muted on focused menu row | menu shortcut | 4.64 | 5.59 | 5.01 | 5.00 | 5.43 | 7.52 | 4.85 | 4.75 | 6.81 | 7.05 |
+| Muted on tab list | inactive neo-tab | 4.85 | 6.82 | 5.01 | 6.18 | 5.28 | 10.55 | 5.83 | 5.27 | 6.47 | 9.06 |
+| Muted on input-group addon | neo-input-group addon | 5.06 | 6.27 | 5.44 | 5.59 | 5.80 | 8.42 | 5.33 | 4.99 | 7.40 | 7.67 |
 | Link | neo-link, prose, combobox retry | 5.17 | 7.79 | 4.66 | 12.64 | 5.57 | 10.89 | 15.65 | 15.65 | 5.72 | 7.08 |
 | Link hover |  | 6.70 | 10.98 | 6.63 | 14.25 | 7.09 | 13.57 | 16.78 | 16.78 | 7.30 | 10.08 |
-| Link visited |  | 5.70 | 10.72 | 5.98 | 9.83 | 5.69 | 12.77 | 6.35 | 5.87 | 7.18 | 10.83 |
+| Link visited |  | 5.70 | 10.72 | 5.98 | 9.83 | 5.69 | 12.77 | 6.35 | 5.56 | 7.18 | 10.83 |
 | Default button | btn-fg on btn-bg | 19.79 | 17.16 | 17.68 | 14.04 | 9.46 | 13.56 | 13.36 | 5.97 | 15.64 | 11.08 |
 | Default button hover | btn-fg on btn-hover-bg | 18.15 | 14.48 | 15.90 | 12.34 | 8.24 | 10.39 | 11.49 | 5.52 | 13.02 | 8.79 |
 | Primary button | accent-fg on accent; selected option, current page | 17.16 | 14.22 | 11.86 | 11.86 | 5.36 | 7.41 | 13.36 | 6.35 | 4.70 | 5.81 |
@@ -135,15 +135,15 @@ Values are contrast ratios. The column prefixes are Def default, Sun sunshine, O
 | Tooltip | neo-tooltip | 17.16 | 18.96 | 12.07 | 14.40 | 7.60 | 15.45 | 14.72 | 5.97 | 11.47 | 13.51 |
 | Toggle pressed | btn-fg on fg 18% | 13.21 | 11.71 | 11.62 | 9.83 | 6.55 | 10.83 | 10.01 | 5.12 | 9.77 | 8.90 |
 | Alert neutral, title | page-fg on the alert tint | 17.80 | 17.33 | 15.33 | 14.38 | 8.18 | 15.67 | 13.74 | 6.08 | 12.89 | 12.40 |
-| Alert neutral, description | muted on the alert tint | 4.95 | 6.98 | 5.11 | 6.33 | 5.36 | 10.79 | 5.93 | 5.62 | 6.61 | 9.25 |
+| Alert neutral, description | muted on the alert tint | 4.95 | 6.98 | 5.11 | 6.33 | 5.36 | 10.79 | 5.93 | 5.33 | 6.61 | 9.25 |
 | Alert info, title | page-fg on the alert tint | 16.82 | 16.40 | 15.32 | 13.68 | 7.98 | 15.22 | 12.97 | 5.89 | 12.62 | 12.19 |
-| Alert info, description | muted on the alert tint | 4.68 | 6.60 | 5.10 | 6.02 | 5.23 | 10.48 | 5.60 | 5.44 | 6.47 | 9.09 |
+| Alert info, description | muted on the alert tint | 4.68 | 6.60 | 5.10 | 6.02 | 5.23 | 10.48 | 5.60 | 5.16 | 6.47 | 9.09 |
 | Alert success, title | page-fg on the alert tint | 17.68 | 17.75 | 15.16 | 14.75 | 7.95 | 15.98 | 13.76 | 5.94 | 12.76 | 12.73 |
-| Alert success, description | muted on the alert tint | 4.92 | 7.15 | 5.05 | 6.49 | 5.21 | 11.00 | 5.94 | 5.48 | 6.54 | 9.49 |
+| Alert success, description | muted on the alert tint | 4.92 | 7.15 | 5.05 | 6.49 | 5.21 | 11.00 | 5.94 | 5.19 | 6.54 | 9.49 |
 | Alert warning, title | page-fg on the alert tint | 17.91 | 17.10 | 15.38 | 14.08 | 8.05 | 15.55 | 13.38 | 5.78 | 12.97 | 11.99 |
-| Alert warning, description | muted on the alert tint | 4.98 | 6.89 | 5.13 | 6.19 | 5.28 | 10.70 | 5.78 | 5.33 | 6.65 | 8.95 |
+| Alert warning, description | muted on the alert tint | 4.98 | 6.89 | 5.13 | 6.19 | 5.28 | 10.70 | 5.78 | 5.05 | 6.65 | 8.95 |
 | Alert danger, title | page-fg on the alert tint | 16.87 | 17.37 | 14.88 | 14.95 | 7.73 | 16.47 | 14.01 | 6.00 | 12.35 | 12.56 |
-| Alert danger, description | muted on the alert tint | 4.69 | 6.99 | 4.96 | 6.58 | 5.07 | 11.33 | 6.05 | 5.54 | 6.33 | 9.37 |
+| Alert danger, description | muted on the alert tint | 4.69 | 6.99 | 4.96 | 6.58 | 5.07 | 11.33 | 6.05 | 5.25 | 6.33 | 9.37 |
 
 ### 1.4.11 Non-text contrast (3:1)
 
@@ -157,7 +157,7 @@ Values are contrast ratios. The column prefixes are Def default, Sun sunshine, O
 | Accent-strong on popup or card | the same, inside a card | 17.91 | 14.22 | 4.87 | 11.14 | 5.36 | 8.61 | 13.36 | 5.97 | 4.70 | 5.81 |
 | Checkbox mark, switch-on thumb | accent-fg on accent | 17.16 | 14.22 | 11.86 | 11.86 | 5.36 | 7.41 | 13.36 | 6.35 | 4.70 | 5.81 |
 | Rating star, filled | light-dark(#b45309, #f59e0b) on page-bg | 5.02 | 9.22 | 4.81 | 8.78 | 4.71 | 9.16 | 9.36 | 9.36 | 4.57 | 8.88 |
-| Sortable handle | muted on page-bg | 5.51 | 7.63 | 5.64 | 7.01 | 5.82 | 11.80 | 6.35 | 5.87 | 7.30 | 10.08 |
+| Sortable handle | muted on page-bg | 5.51 | 7.63 | 5.64 | 7.01 | 5.82 | 11.80 | 6.35 | 5.56 | 7.30 | 10.08 |
 | OTP invalid border | danger-bg on btn-bg | 4.76 | 6.19 | 4.71 | 3.53 | 4.83 | 3.22 | 4.94 | 5.02 | 6.32 | 3.32 |
 
 ### 1.4.11 Focus indicators (3:1)

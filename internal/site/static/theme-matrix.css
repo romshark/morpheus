@@ -133,22 +133,23 @@
 }
 
 :root.theme-matrix.dark {
-	/* The dim body green (6.35:1) is the floor for anything that must
-	 * read: the accent matches it and muted text sits just under it. */
+	/* The accent matches the dim body green (6.35:1). Muted text and
+	 * visited links use a greyer green (5.56:1), which stays distinct
+	 * from body text. */
 	--accent: #2da55a;
 	--accent-hover: #45c072;
 	--accent-fg: #000a04;
 
 	--page-fg: #2da55a;
 	--page-bg: #000a04;
-	--muted: #2b9e57;
+	--muted: #6b8f75;
 	--control-border: color-mix(in srgb, var(--page-fg) 66%, transparent);
 
 	/* Dim mode: body is the dimmer green; links keep the brighter
 	 * mint so they still read as interactive. */
 	--link: #5cffac;
 	--link-hover: #9dffc4;
-	--link-visited: #2b9e57;
+	--link-visited: #6b8f75;
 
 	--page-radius: 0px;
 	--page-spacing: 0.18rem;
