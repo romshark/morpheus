@@ -13,13 +13,16 @@ This file records the notable changes of each release in the format of [Keep a C
 - Add the theme token `--control-border`, for the edge of unchecked controls and text fields. It defaults to `--page-fg` at 50% opacity.
 - Add `--neo-switch-border`, `--neo-switch-border-on` and `--neo-switch-thumb-on` to `<neo-switch>`.
 - Add `--neo-pagination-active-border` to `<neo-pagination>` and `--neo-select-option-selected-border` to `<neo-option>`.
+- Add `--neo-slider-track-shadow` to `<neo-slider>`, `<neo-slider-range>`, `<neo-progress>` and `input[type="range"]`.
 
 ### Changed
 
 #### Components
 
 - Draw the unchecked `<neo-switch>` as an outlined track with a filled thumb. `--neo-switch-thumb` now colors only the unchecked thumb; set `--neo-switch-thumb-on` for the checked one.
-- Draw the slider and progress rails empty with a 1px `--control-border` ring.
+- Draw the slider and progress rails empty with a 1px `--control-border` ring. `--neo-slider-track-bg` defaults to `transparent`, and `--neo-slider-track-shadow` draws the ring. `--neo-slider-anchor-border` defaults to `--control-border` instead of following `--neo-slider-track-bg`.
+- Draw the edges of text fields and of the `<neo-select>` and `<neo-combobox>` triggers in `--neo-textarea-border-color`, which defaults to `--control-border`. Text fields followed `--neo-button-border-color` before, and the triggers read it directly. To restyle these edges, set `--neo-textarea-border-color`.
+- Draw the `<neo-resizable>` handle in `--control-border` at full opacity. `--neo-resizable-handle-color` was `--muted` and `--neo-resizable-handle-opacity` was `0.55`.
 
 ### Fixed
 
