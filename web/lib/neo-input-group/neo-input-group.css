@@ -70,9 +70,10 @@ neo-input-group > input {
 }
 
 /* Select/combobox trigger styling lives in shadow DOM and is controlled
- * by --neo-button-* tokens. When either joins an input-group, the group
- * owns the outer border/ring and the trigger must not paint its own
- * nested border or contrast ring. */
+ * by --neo-button-* tokens, except the edge color, which is
+ * --neo-textarea-border-color. When either joins an input-group, the
+ * group owns the outer border/ring and the trigger must not paint its
+ * own nested border or contrast ring. */
 neo-input-group > neo-select,
 neo-input-group > neo-combobox {
 	height: 100%;
@@ -80,7 +81,6 @@ neo-input-group > neo-combobox {
 	--neo-select-min-width: 0;
 	--neo-combobox-min-width: 0;
 	--neo-button-border-width: 0;
-	--neo-button-border-color: transparent;
 	--neo-button-radius: 0;
 	--neo-button-bg: transparent;
 }

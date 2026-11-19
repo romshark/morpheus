@@ -928,7 +928,6 @@ neo-sidebar.landing-a11y-demo-nav:not(:defined) {
 		 * left corners (granted by the group's :first-child rule). */
 		overflow: hidden;
 		--neo-select-min-width: 0;
-		--neo-button-border-color: transparent;
 		--neo-button-radius: 0;
 		--neo-button-bg: transparent;
 	}
@@ -1840,7 +1839,6 @@ neo-sidebar.landing-a11y-demo-nav:not(:defined) {
 	height: 100%;
 	overflow: hidden;
 	--neo-select-min-width: 0;
-	--neo-button-border-color: transparent;
 	--neo-button-radius: 0;
 	--neo-button-bg: transparent;
 }
@@ -2413,7 +2411,6 @@ neo-sidebar.landing-a11y-demo-nav:not(:defined) {
 		 * left corners (granted by the group's :first-child rule). */
 		overflow: hidden;
 		--neo-select-min-width: 0;
-		--neo-button-border-color: transparent;
 		--neo-button-radius: 0;
 		--neo-button-bg: transparent;
 	}
