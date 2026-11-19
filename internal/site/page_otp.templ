@@ -14,7 +14,8 @@ templ PageOTP(morpheusVersion string) {
 			<p class="intro">
 				Component <code>{ "<neo-otp>" }</code> is a code input with
 				1 box per character, for one-time codes, PINs and similar
-				keys. <code>mask</code> sets the boxes and what each one
+				keys. @AnchorCode("#attributes-mask", "mask")
+				sets the boxes and what each one
 				accepts. A single native input underneath handles paste,
 				autofill and screen readers.
 			</p>
@@ -52,7 +53,7 @@ templ PageOTP(morpheusVersion string) {
 				Groups
 			}
 			<p class="demo-note">
-				Non-slot characters in <code>mask</code>, such as
+				Non-slot characters in @AnchorCode("#attributes-mask", "mask")&comma; such as
 				<code>-</code>, split the boxes into groups and are drawn
 				between them. <code>\</code> makes a slot character a
 				separator, here <code>#</code>. A space splits without a
@@ -83,8 +84,8 @@ templ PageOTP(morpheusVersion string) {
 				Placeholder
 			}
 			<p class="demo-note">
-				A single character fills every empty box. A longer
-				<code>placeholder</code> sets 1 character per box.
+				A single character fills every empty box. A longer @AnchorCode("#attributes-placeholder", "placeholder")
+				sets 1 character per box.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
 				StageMinHeight: "max-content",
@@ -97,9 +98,9 @@ templ PageOTP(morpheusVersion string) {
 				PIN
 			}
 			<p class="demo-note">
-				<code>conceal</code> shows dots, or the glyph in
-				<code>--neo-otp-conceal-glyph</code>.
-				<code>{ `autocomplete="off"` }</code> stops the browser
+				@AnchorCode("#attributes-conceal", "conceal")
+				shows dots, or the glyph in @AnchorCode("#css-variables-neo-otp-conceal-glyph", "--neo-otp-conceal-glyph")&period; @AnchorCode("#attributes-autocomplete", `autocomplete="off"`)
+				stops the browser
 				from suggesting codes from text messages.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
@@ -114,8 +115,8 @@ templ PageOTP(morpheusVersion string) {
 			}
 			<p class="demo-note">
 				The boxes run left to right even in a right-to-left
-				page, as digits do in Arabic text. Set
-				<code>{ `dir="rtl"` }</code> on the element for a code in
+				page, as digits do in Arabic text. Set @AnchorCode("#attributes-dir", `dir="rtl"`)
+				on the element for a code in
 				a right-to-left script. The arrow keys follow the screen.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
@@ -147,7 +148,7 @@ templ PageOTP(morpheusVersion string) {
 				Sizes
 			}
 			<p class="demo-note">
-				Boxes are as tall as a button of the same <code>size</code>.
+				Boxes are as tall as a button of the same @AnchorCode("#attributes-size", "size")&period;
 			</p>
 			@demoFrameWith(DemoFrameOpts{
 				StageMinHeight: "max-content",
@@ -160,10 +161,11 @@ templ PageOTP(morpheusVersion string) {
 				Custom properties
 			}
 			<p class="demo-note">
-				<code>--neo-otp-slot-width</code> and
-				<code>--neo-otp-gap</code> set the box width and spacing,
-				and <code>font-size</code> scales the height with the text.
-				<code>--neo-otp-conceal-glyph</code> swaps the PIN dot.
+				@AnchorCode("#css-variables-neo-otp-slot-width", "--neo-otp-slot-width")
+				and @AnchorCode("#css-variables-neo-otp-gap", "--neo-otp-gap")
+				set the box width and spacing,
+				and <code>font-size</code> scales the height with the text. @AnchorCode("#css-variables-neo-otp-conceal-glyph", "--neo-otp-conceal-glyph")
+				swaps the PIN dot.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
 				StageMinHeight: "max-content",
@@ -209,7 +211,8 @@ templ PageOTP(morpheusVersion string) {
 				Client-side check
 			}
 			<p class="demo-note">
-				A signal set on <code>neo-otp-input</code> shows whether
+				A signal set on @AnchorCode("#events-neo-otp-input", "neo-otp-input")
+				shows whether
 				the code is right, with no server request. A wrapping
 				<code>{ "<label>" }</code> names the field. Type
 				<em>123456</em> or any other code.
@@ -226,7 +229,8 @@ templ PageOTP(morpheusVersion string) {
 				Show and hide
 			}
 			<p class="demo-note">
-				A toggle bound to <code>conceal</code> reveals the PIN.
+				A toggle bound to @AnchorCode("#attributes-conceal", "conceal")
+				reveals the PIN.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
 				StageMinHeight: "max-content",

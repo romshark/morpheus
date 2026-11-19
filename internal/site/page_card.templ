@@ -37,7 +37,8 @@ templ PageCard(morpheusVersion string) {
 				Variants
 			}
 			<p class="demo-note">
-				The default <code>variant</code> is filled with a
+				The default @AnchorCode("#attributes-variant", "variant")
+				is filled with a
 				subtle border, <code>outline</code> has a border
 				and no fill, and <code>elevated</code> has a soft
 				shadow and no border.
@@ -74,11 +75,12 @@ templ PageCard(morpheusVersion string) {
 				Media hero
 			}
 			<p class="demo-note">
-				<code>{ `[data-neo-card-media]` }</code> escapes
+				@AnchorCode("#slots-data-neo-card-media", "[data-neo-card-media]")
+				escapes
 				the card's padding so an image fills it
 				edge-to-edge. The corners that touch the card
-				edge round to match the host's
-				<code>{ `--neo-card-radius` }</code>; the
+				edge round to match the host's @AnchorCode("#css-variables-neo-card-radius", "--neo-card-radius")&semi;
+				the
 				opposite edge stays sharp where it meets the
 				next slot.
 			</p>
@@ -96,13 +98,12 @@ templ PageCard(morpheusVersion string) {
 				Horizontal media
 			}
 			<p class="demo-note">
-				<code>{ `orientation="horizontal"` }</code>
-				lays the card out as a row of
-				<code>[data-neo-card-media]</code> on the left
-				and a column of
-				<code>[data-neo-card-header]</code>,
-				<code>[data-neo-card-body]</code>, and
-				<code>[data-neo-card-footer]</code> on the right.
+				@AnchorCode("#attributes-orientation", `orientation="horizontal"`)
+				lays the card out as a row of @AnchorCode("#slots-data-neo-card-media", "[data-neo-card-media]")
+				on the left
+				and a column of @AnchorCode("#slots-data-neo-card-header", "[data-neo-card-header]")&comma; @AnchorCode("#slots-data-neo-card-body", "[data-neo-card-body]")&comma;
+				and @AnchorCode("#slots-data-neo-card-footer", "[data-neo-card-footer]")
+				on the right.
 				The media slot fills the left column edge-to-edge
 				and rounds the corners that touch the card's left
 				edge.

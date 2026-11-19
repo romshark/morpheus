@@ -16,7 +16,7 @@ templ PageAvatars(morpheusVersion string) {
 				overlapping row of avatar images. Authored avatars
 				stay in light DOM so server patches can append,
 				replace, or remove them. The host folds extras into a
-				<code>+N</code> circle when <code>collapse-at</code>
+				<code>+N</code> circle when @AnchorCode("#attributes-collapse-at", "collapse-at")
 				is exceeded, and reduces the visible count further
 				whenever the row no longer fits its container.
 			</p>
@@ -49,7 +49,8 @@ templ PageAvatars(morpheusVersion string) {
 				Fixed collapse
 			}
 			<p class="demo-note">
-				<code>collapse-at</code> caps the visible authored
+				@AnchorCode("#attributes-collapse-at", "collapse-at")
+				caps the visible authored
 				avatars before responsive fitting applies. Here the
 				row keeps 5 images visible at wide widths and folds
 				the rest into <code>+N</code>.
@@ -70,7 +71,8 @@ templ PageAvatars(morpheusVersion string) {
 				Responsive collapse
 			}
 			<p class="demo-note">
-				Omit <code>collapse-at</code> to let the row show
+				Omit @AnchorCode("#attributes-collapse-at", "collapse-at")
+				to let the row show
 				everything at wide widths. Drag the preview narrower
 				and the host hides trailing avatars into the overflow
 				circle until the row fits.
@@ -91,10 +93,11 @@ templ PageAvatars(morpheusVersion string) {
 				Virtual overflow
 			}
 			<p class="demo-note">
-				<code>overflow-count</code> adds people that are not
+				@AnchorCode("#attributes-overflow-count", "overflow-count")
+				adds people that are not
 				present as image children. The generated circle
-				combines that number with any children hidden by
-				<code>collapse-at</code> or by responsive fitting.
+				combines that number with any children hidden by @AnchorCode("#attributes-collapse-at", "collapse-at")
+				or by responsive fitting.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
 				Width:          "22rem",

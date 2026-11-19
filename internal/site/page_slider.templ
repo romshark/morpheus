@@ -20,8 +20,7 @@ templ PageSlider(morpheusVersion string) {
 				non-numeric keystrokes are dropped at
 				<code>beforeinput</code>. On blur or
 				<neo-kbd>Enter</neo-kbd>, the typed value is parsed, clipped
-				to <code>[min, max]</code>, and snapped to
-				<code>step</code>.
+				to <code>[min, max]</code>, and snapped to @AnchorCode("#attributes-step", "step")&period;
 			</p>
 			@Playground(PlaygroundOpts{
 				ID:     "slider-playground",
@@ -97,7 +96,8 @@ templ PageSlider(morpheusVersion string) {
 				Decimal step + dots only
 			}
 			<p class="demo-note">
-				<code>{ `step="0.1"` }</code> snaps the
+				@AnchorCode("#attributes-step", `step="0.1"`)
+				snaps the
 				value to 1 decimal place. The value display
 				and the value bubble both show <code>3.4</code>,
 				not <code>3.4000000000000004</code>. The
@@ -118,7 +118,8 @@ templ PageSlider(morpheusVersion string) {
 				Custom easing
 			}
 			<p class="demo-note">
-				Set <code>easing</code> to animate the
+				Set @AnchorCode("#attributes-easing", "easing")
+				to animate the
 				thumb and fill between committed values. This one
 				uses a quick elastic curve so clicks on the rail
 				and keyboard nudges settle with a small rubber-band
@@ -173,20 +174,23 @@ templ PageSlider(morpheusVersion string) {
 			</p>
 			<ul class="demo-note">
 				<li>
-					A tall rail comes from
-					<code>--neo-slider-track-height</code>; the fill
-					(<code>--neo-slider-fill-bg</code>) reads as a flat
+					A tall rail comes from @AnchorCode("#css-variables-neo-slider-track-height", "--neo-slider-track-height")&semi;
+					the fill
+					(
+					@AnchorCode("#css-variables-neo-slider-fill-bg", "--neo-slider-fill-bg")&rpar; reads as a flat
 					surface over it.
 				</li>
 				<li>
-					<code>::part(header)</code> is positioned
-					absolutely over the rail to centre the value.
-					<code>hide-tooltip</code> drops the redundant
+					@AnchorCode("#parts-header", "::part(header)")
+					is positioned
+					absolutely over the rail to centre the value. @AnchorCode("#attributes-hide-tooltip", "hide-tooltip")
+					drops the redundant
 					thumb bubble, and the readout is display-only
 					because the header overlays the rail.
 				</li>
 				<li>
-					<code>::part(thumb)</code> hides the thumb marker
+					@AnchorCode("#parts-thumb", "::part(thumb)")
+					hides the thumb marker
 					so the fill's right edge is the position
 					indicator; the thumb stays as an invisible
 					keyboard target with a focus ring.
@@ -205,7 +209,8 @@ templ PageSlider(morpheusVersion string) {
 				Static marks
 			}
 			<p class="demo-note">
-				Set <code>static-marks</code> when
+				Set @AnchorCode("#attributes-static-marks", "static-marks")
+				when
 				the marks should be purely decorative. The click
 				handler bails out, the cursor stays as the
 				default arrow over both the dots and the labels,
@@ -225,8 +230,9 @@ templ PageSlider(morpheusVersion string) {
 				Bare rail (no header)
 			}
 			<p class="demo-note">
-				Omit the <code>label</code>
-				attribute and set <code>hide-value</code> to drop
+				Omit the @AnchorCode("#attributes-label", "label")
+				attribute and set @AnchorCode("#attributes-hide-value", "hide-value")
+				to drop
 				the entire header row. The thumb still focuses on
 				<neo-kbd>Tab</neo-kbd> and the value bubble still pops on
 				hover/press, which keeps the control operable. This
@@ -246,7 +252,8 @@ templ PageSlider(morpheusVersion string) {
 				Vertical
 			}
 			<p class="demo-note">
-				Set <code>vertical</code> to rotate the
+				Set @AnchorCode("#attributes-vertical", "vertical")
+				to rotate the
 				mental model without rotating the DOM. The minimum
 				value sits at the bottom, the maximum at the top,
 				and pointer dragging follows the vertical rail.
@@ -266,7 +273,8 @@ templ PageSlider(morpheusVersion string) {
 				Negative range
 			}
 			<p class="demo-note">
-				When <code>min</code> is below
+				When @AnchorCode("#attributes-min", "min")
+				is below
 				0 the value field accepts a leading
 				<code>-</code>. The fill grows from the left edge
 				to the current value (the slider doesn't draw a
@@ -307,12 +315,13 @@ templ PageSlider(morpheusVersion string) {
 			<p class="demo-note">
 				A Datastar app can
 				fat-morph the page at any moment, and a server reporting
-				a new position just re-emits the slider with a new
-				<code>value</code>. The rail and thumb live in the
+				a new position just re-emits the slider with a new @AnchorCode("#attributes-value", "value")&period;
+				The rail and thumb live in the
 				component's shadow root. A morph of the bare light
-				host only changes the <code>value</code> attribute and
-				never touches the thumb or fill nodes, which lets the
-				<code>easing</code> transition ease them to the new
+				host only changes the @AnchorCode("#attributes-value", "value")
+				attribute and
+				never touches the thumb or fill nodes, which lets the @AnchorCode("#attributes-easing", "easing")
+				transition ease them to the new
 				value. Autoplay cycles the states below, with no signals or
 				morph hints, and the thumb glides between 0%, 30%, and
 				100% just the same.

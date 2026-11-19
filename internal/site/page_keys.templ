@@ -17,13 +17,14 @@ templ PageKeys(morpheusVersion string) {
 				While connected it installs a key listener on a
 				target element (its parent by default) and removes
 				it on disconnect. A matched chord dispatches a
-				bubbling <code>neo-keys</code> event. Renders as
+				bubbling @AnchorCode("#events-neo-keys", "neo-keys")
+				event. Renders as
 				<code>display: contents</code> and shows nothing.
 			</p>
 			<p>
 				It depends on no framework. Configuration arrives
-				through attributes (<code>keys</code>,
-				<code>disabled</code>, <code>target</code>) and
+				through attributes (
+				@AnchorCode("#attributes-keys", "keys")&comma; @AnchorCode("#attributes-disabled", "disabled")&comma; @AnchorCode("#attributes-target", "target")&rpar; and
 				activation leaves through the dispatched event. That
 				is the signals-down-to-attributes,
 				events-up-to-expressions shape. A Datastar
@@ -61,7 +62,7 @@ templ PageKeys(morpheusVersion string) {
 					</tr>
 					<tr>
 						<th scope="row" data-label="Separator"><code>,</code></th>
-						<td data-label="Meaning">Sequences chords, pressed in order within <code>sequence-timeout</code>.</td>
+						<td data-label="Meaning">Sequences chords, pressed in order within @AnchorCode("#attributes-sequence-timeout", "sequence-timeout")&period;</td>
 						<td data-label="Example"><code>g, i</code></td>
 					</tr>
 					<tr>
@@ -88,8 +89,8 @@ templ PageKeys(morpheusVersion string) {
 			<p class="demo-note">
 				Because the listener lives on the panel
 				(the element's parent), <code>mod+s</code> only
-				fires while focus is inside it. Default
-				<code>prevent</code> blocks the browser's own save
+				fires while focus is inside it. Default @AnchorCode("#attributes-prevent", "prevent")
+				blocks the browser's own save
 				dialog. Click away and the shortcut stops firing.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
@@ -138,7 +139,8 @@ templ PageKeys(morpheusVersion string) {
 				Global shortcuts
 			}
 			<p class="demo-note">
-				A <code>target</code> of
+				A @AnchorCode("#attributes-target", "target")
+				of
 				<code>window</code> (or a CSS selector) lifts the
 				binding out of the parent scope so it fires
 				page-wide, even when nothing in the demo is focused.
@@ -154,7 +156,8 @@ templ PageKeys(morpheusVersion string) {
 				Trigger an element
 			}
 			<p class="demo-note">
-				<code>for</code> names an element id; on a match the
+				@AnchorCode("#attributes-for", "for")
+				names an element id; on a match the
 				shortcut calls <code>click()</code> on it. A keyboard
 				trigger then needs no event handler. Here
 				<code>mod+i</code> opens a popover and

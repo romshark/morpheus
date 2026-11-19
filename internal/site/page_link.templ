@@ -15,8 +15,8 @@ templ PageLink(morpheusVersion string) {
 				Component <code>{ `<a data-neo-link>` }</code> is the
 				kit's styled anchor, a plain native <code>{ "<a>" }</code>
 				that behaves exactly like a normal link (focus, keyboard
-				activation, middle-click, <code>:visited</code>); the
-				<code>data-neo-link</code> hook is all the kit's CSS keys
+				activation, middle-click, <code>:visited</code>); the @AnchorCode("#attributes-data-neo-link", "data-neo-link")
+				hook is all the kit's CSS keys
 				on. The default variant reads as an
 				inline prose link; the button variants make the anchor
 				look exactly like&nbsp;
@@ -75,8 +75,9 @@ templ PageLink(morpheusVersion string) {
 			}
 			<p class="demo-note">
 				A button-styled link makes a navigation read as a
-				primary action. Pair <code>{ `target="_blank"` }</code>
-				with <code>{ `rel="noopener noreferrer"` }</code> on
+				primary action. Pair @AnchorCode("#attributes-target", `target="_blank"`)
+				with @AnchorCode("#attributes-rel", `rel="noopener noreferrer"`)
+				on
 				external destinations to get the cross-origin
 				tab-isolation guarantee.
 			</p>

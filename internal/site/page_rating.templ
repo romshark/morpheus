@@ -17,11 +17,12 @@ templ PageRating(morpheusVersion string) {
 				following the WAI-ARIA slider pattern. The host is
 				the single focusable slider and the symbols are
 				decorative, which makes screen readers announce a single value
-				instead of <code>max</code> separate widgets. Hover
+				instead of @AnchorCode("#attributes-max", "max")
+				separate widgets. Hover
 				or drag previews; click commits. Keyboard arrows,
 				<code>Home</code> / <code>End</code>, and digit keys
-				preview; <code>Enter</code> commits. Set
-				<code>precision="0.5"</code> to allow half symbols.
+				preview; <code>Enter</code> commits. Set @AnchorCode("#attributes-precision", `precision="0.5"`)
+				to allow half symbols.
 			</p>
 			@Playground(PlaygroundOpts{
 				ID:     "rating-playground",
@@ -55,7 +56,8 @@ templ PageRating(morpheusVersion string) {
 				Half-symbol precision
 			}
 			<p class="demo-note">
-				With <code>{ `precision="0.5"` }</code> the left half of
+				With @AnchorCode("#attributes-precision", `precision="0.5"`)
+				the left half of
 				a symbol selects the half value and the right half the
 				whole one; pointer and arrow keys both step by
 				<code>0.5</code>.
@@ -71,7 +73,8 @@ templ PageRating(morpheusVersion string) {
 				Read-only
 			}
 			<p class="demo-note">
-				<code>readonly</code> shows an aggregate score. It is
+				@AnchorCode("#attributes-readonly", "readonly")
+				shows an aggregate score. It is
 				still announced to assistive tech but takes no pointer
 				or keyboard input and stays out of the tab order.
 			</p>
@@ -86,7 +89,8 @@ templ PageRating(morpheusVersion string) {
 				Disabled
 			}
 			<p class="demo-note">
-				<code>disabled</code> is read-only plus a dimmed,
+				@AnchorCode("#attributes-disabled", "disabled")
+				is read-only plus a dimmed,
 				non-interactive look; use it when the rating is
 				temporarily unavailable.
 			</p>
@@ -101,7 +105,8 @@ templ PageRating(morpheusVersion string) {
 				Custom range
 			}
 			<p class="demo-note">
-				<code>max</code> sets the symbol count; here a
+				@AnchorCode("#attributes-max", "max")
+				sets the symbol count; here a
 				score out of 10.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
@@ -117,21 +122,23 @@ templ PageRating(morpheusVersion string) {
 				Customization
 			}
 			<p class="demo-note">
-				The symbol is any <code>neo-icon</code> via the
-				<code>icon</code> attribute. The look comes from
-				<code>{ `--neo-rating-color` }</code> (filled),
-				<code>{ `--neo-rating-empty-color` }</code> (track),
-				and <code>{ `--neo-rating-symbol-size` }</code> /
-				<code>{ `--neo-rating-symbol-gap` }</code>. The
-				<code>size</code> attribute is a shorthand for the
+				The symbol is any <code>neo-icon</code> via the @AnchorCode("#attributes-icon", "icon")
+				attribute. The look comes from @AnchorCode("#css-variables-neo-rating-color", "--neo-rating-color")
+				(filled), @AnchorCode("#css-variables-neo-rating-empty-color", "--neo-rating-empty-color")
+				(track),
+				and @AnchorCode("#css-variables-neo-rating-symbol-size", "--neo-rating-symbol-size")
+				/ @AnchorCode("#css-variables-neo-rating-symbol-gap", "--neo-rating-symbol-gap")&period;
+				The @AnchorCode("#attributes-size", "size")
+				attribute is a shorthand for the
 				common small / large symbol sizes.
 			</p>
 			@anchoredH3("hearts") {
 				Hearts, large
 			}
 			<p class="demo-note">
-				<code>{ `icon="heart"` }</code> swaps the symbol;
-				<code>{ `size="lg"` }</code> scales it up.
+				@AnchorCode("#attributes-icon", `icon="heart"`)
+				swaps the symbol; @AnchorCode("#attributes-size", `size="lg"`)
+				scales it up.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
 				StageMinHeight: "max-content",

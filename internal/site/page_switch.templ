@@ -51,7 +51,8 @@ templ PageSwitch(morpheusVersion string) {
 				Small size
 			}
 			<p class="demo-note">
-				The <code>{ `size="sm"` }</code> variant has a
+				The @AnchorCode("#attributes-size", `size="sm"`)
+				variant has a
 				1.5rem x 0.875rem track and 0.75rem thumb, for
 				dense rows where the default 2rem pill would
 				dominate.
@@ -67,7 +68,8 @@ templ PageSwitch(morpheusVersion string) {
 				Disabled
 			}
 			<p class="demo-note">
-				<code>disabled</code> blocks pointer events, drops
+				@AnchorCode("#attributes-disabled", "disabled")
+				blocks pointer events, drops
 				the host from the tab order, and fades it to 50%
 				opacity. Both states stay distinct so the value
 				is still readable.

@@ -17,7 +17,8 @@ templ PageIcon(morpheusVersion string) {
 				SVG body in so
 				<code>{ `stroke="currentColor"` }</code> resolves
 				against the parent's CSS <code>color</code>. Size
-				from <code>{ `--neo-icon-size` }</code> or
+				from @AnchorCode("#css-variables-neo-icon-size", "--neo-icon-size")
+				or
 				<code>width</code> / <code>height</code> on the host.
 				A <code>neo-theme-change</code> event re-fetches the
 				glyph so a themed user sees the theme's own SVG, not
@@ -56,8 +57,8 @@ templ PageIcon(morpheusVersion string) {
 				Sizes
 			}
 			<p class="demo-note">
-				The host reads
-				<code>{ `--neo-icon-size` }</code> as its width
+				The host reads @AnchorCode("#css-variables-neo-icon-size", "--neo-icon-size")
+				as its width
 				and height. Set the var inline (or on an
 				ancestor) to scale the glyph without touching
 				the SVG.

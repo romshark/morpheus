@@ -14,7 +14,7 @@ templ PageCheckbox(morpheusVersion string) {
 			}
 			<p class="intro">
 				Component <code>{ "<neo-checkbox>" }</code> is a 3-state checkbox
-				with <code>checked</code>, unchecked, and <code>indeterminate</code>
+				with @AnchorCode("#attributes-checked", "checked")&comma; unchecked, and @AnchorCode("#attributes-indeterminate", "indeterminate")
 				(<code>{ `aria-checked="mixed"` }</code>) states.
 				Indeterminate is for parent rows whose children are
 				partially selected. Participates in a wrapping <code>{ `<label>` }</code>
@@ -54,7 +54,8 @@ templ PageCheckbox(morpheusVersion string) {
 				Small size
 			}
 			<p class="demo-note">
-				The <code>{ `size="sm"` }</code> variant is a 0.875rem square, for dense
+				The @AnchorCode("#attributes-size", `size="sm"`)
+				variant is a 0.875rem square, for dense
 				rows where the default 1.15rem box would dominate.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
@@ -68,7 +69,8 @@ templ PageCheckbox(morpheusVersion string) {
 				Disabled
 			}
 			<p class="demo-note">
-				<code>disabled</code> blocks pointer events,
+				@AnchorCode("#attributes-disabled", "disabled")
+				blocks pointer events,
 				drops the host from the tab order, and fades it
 				to 50% opacity. Each state still reads correctly.
 			</p>
@@ -143,8 +145,10 @@ templ PageCheckbox(morpheusVersion string) {
 				Tree selection
 			}
 			<p class="demo-note">
-				Parent nodes go <code>indeterminate</code> when
-				only some descendants are selected, <code>checked</code> when all are,
+				Parent nodes go @AnchorCode("#attributes-indeterminate", "indeterminate")
+				when
+				only some descendants are selected, @AnchorCode("#attributes-checked", "checked")
+				when all are,
 				and unchecked when none are. Each change posts to the server,
 				which recomputes the parents and morphs the tree back into place.
 			</p>

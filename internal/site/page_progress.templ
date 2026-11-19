@@ -71,8 +71,9 @@ templ PageProgress(morpheusVersion string) {
 				Bare rail
 			}
 			<p class="demo-note">
-				Omit <code>label</code> and set
-				<code>hide-value</code> to drop the header
+				Omit @AnchorCode("#attributes-label", "label")
+				and set @AnchorCode("#attributes-hide-value", "hide-value")
+				to drop the header
 				entirely. The marks row still hides itself when
 				no mark carries a label, which leaves
 				just the bar.
@@ -88,9 +89,10 @@ templ PageProgress(morpheusVersion string) {
 				Indeterminate
 			}
 			<p class="demo-note">
-				Set <code>indeterminate</code> and a 35% segment
+				Set @AnchorCode("#attributes-indeterminate", "indeterminate")
+				and a 35% segment
 				slides along the rail in a loop for
-				unknown-duration tasks. The <code>value</code>
+				unknown-duration tasks. The @AnchorCode("#attributes-value", "value")
 				attribute is ignored while it's on, and the track
 				drops its <code>aria-valuenow</code> so AT
 				announces it as indeterminate. Honours
@@ -108,8 +110,8 @@ templ PageProgress(morpheusVersion string) {
 			}
 			<p class="demo-note">
 				The rail lives in the shadow root. Reach the
-				fill across the boundary with
-				<code>{ `::part(fill)` }</code>, then override
+				fill across the boundary with @AnchorCode("#parts-fill", "::part(fill)")&comma;
+				then override
 				<code>animation</code> from a per-instance class to
 				swap the kit's default left-to-right loop for any
 				custom keyframe. This one widens the segment to 1/2
@@ -127,7 +129,8 @@ templ PageProgress(morpheusVersion string) {
 				Vertical
 			}
 			<p class="demo-note">
-				Set <code>vertical</code> to rotate the bar. Min
+				Set @AnchorCode("#attributes-vertical", "vertical")
+				to rotate the bar. Min
 				sits at the bottom, max at the top. Use it for
 				capacity meters where the height of the fill maps
 				to the quantity.
@@ -150,11 +153,12 @@ templ PageProgress(morpheusVersion string) {
 			<p class="demo-note">
 				A Datastar app can fat-morph the page at any moment;
 				a server reporting progress just re-emits the bar
-				with a new <code>value</code>. The painted rail lives
+				with a new @AnchorCode("#attributes-value", "value")&period; The painted rail lives
 				in the component's shadow root. A morph of the
-				light host only changes the <code>value</code>
+				light host only changes the @AnchorCode("#attributes-value", "value")
 				attribute and never touches the fill node, letting
-				the <code>easing</code> transition ease the fill to
+				the @AnchorCode("#attributes-easing", "easing")
+				transition ease the fill to
 				the new value. Autoplay cycles the states below, with no
 				signals or morph hints, and the fill eases backward
 				from 40% to 0% on the wrap just the same.
@@ -174,7 +178,7 @@ templ PageProgress(morpheusVersion string) {
 				value signal by 25% on a 1-second beat; the
 				bar's <code>{ `data-attr:value` }</code> binding
 				renders the change without re-emitting the host.
-				A final patch flips the bar's <code>label</code>
+				A final patch flips the bar's @AnchorCode("#attributes-label", "label")
 				through the same signal; its
 				<code>{ `data-attr:label` }</code> binding renders
 				"Done ✓" inside the component's frame. The rail is in

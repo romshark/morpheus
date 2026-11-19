@@ -19,7 +19,8 @@ templ PageToaster(morpheusVersion string) {
 				typically lives in the app shell; show toasts
 				programmatically via the window-attached
 				<code>NeoToast</code> API, or server-side by
-				morph-patching <code>{ `<neo-toast>` }</code> children into
+				morph-patching @AnchorCode("#slots-neo-toast", "<neo-toast>")
+				children into
 				the toaster. Hover or click a toast to pause its
 				auto-dismiss; <neo-kbd>×</neo-kbd> dismisses immediately.
 			</p>
@@ -67,8 +68,8 @@ templ PageToaster(morpheusVersion string) {
 				Examples: Datastar
 			}
 			<p class="intro">
-				The toaster also works declaratively. Drop
-				<code>{ `<neo-toast>` }</code> children
+				The toaster also works declaratively. Drop @AnchorCode("#slots-neo-toast", "<neo-toast>")
+				children
 				into the host (server-side renders or patched in
 				by Datastar SSE
 				<code>datastar-patch-elements</code> events) and a
@@ -82,13 +83,13 @@ templ PageToaster(morpheusVersion string) {
 				.
 			</p>
 			<p class="demo-note">
-				Touch dismissal is on by default. Set
-				<code>touch-dismiss="off"</code> to opt out or a
-				CSS length like <code>touch-dismiss="8ch"</code>
+				Touch dismissal is on by default. Set @AnchorCode("#attributes-touch-dismiss", `touch-dismiss="off"`)
+				to opt out or a
+				CSS length like @AnchorCode("#attributes-touch-dismiss", `touch-dismiss="8ch"`)
 				to override the threshold. Individual toasts with
 				<code>dismissible="false"</code> skip the
-				close button and the swipe gesture.
-				<code>contained</code> anchors the
+				close button and the swipe gesture. @AnchorCode("#attributes-contained", "contained")
+				anchors the
 				toaster to its parent. Previewed toasts paint
 				inside the demo frame.
 			</p>
@@ -98,8 +99,8 @@ templ PageToaster(morpheusVersion string) {
 			}
 			<p class="demo-note">
 				An SSE patch-elements event with
-				<code>{ `mode: "append"` }</code> drops a new
-				<code>{ `<neo-toast>` }</code> into the
+				<code>{ `mode: "append"` }</code> drops a new @AnchorCode("#slots-neo-toast", "<neo-toast>")
+				into the
 				toaster's stack. The new card is the freshest in
 				the stack and auto-dismisses after its
 				<code>duration</code> (3 s here).
@@ -138,8 +139,8 @@ templ PageToaster(morpheusVersion string) {
 				Patch: update 1 toast
 			}
 			<p class="demo-note">
-				The toaster is SSR'd with 1 pinned toast and
-				<code>stack="1"</code> (single visible toast).
+				The toaster is SSR'd with 1 pinned toast and @AnchorCode("#attributes-stack", `stack="1"`)
+				(single visible toast).
 				Clicking <em>Update title</em> streams an SSE
 				patch-elements event keyed by the title node's
 				id (<code>{ "#patch-update-toast-title" }</code>).

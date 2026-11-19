@@ -3,7 +3,6 @@ package site
 import (
 	"github.com/romshark/morpheus/internal/href"
 	"github.com/romshark/morpheus/internal/site/examples"
-	"github.com/romshark/morpheus/neo"
 )
 
 templ PageDatalist(morpheusVersion string) {
@@ -19,22 +18,13 @@ templ PageDatalist(morpheusVersion string) {
 				it carries <code>{ "<neo-option>" }</code> /
 				<code>{ "<neo-optgroup>" }</code> data that control components like
 				{ " " }
-				@neo.Link(neo.LinkOpts{Href: neo.Set(href.PageSelect())}) {
-					Select
-				}
-				,{ " " }
-				@neo.Link(neo.LinkOpts{Href: neo.Set(href.PageCombobox())}) {
-					Combobox
-				}
-				, or
+				@ComponentLink("neo-select", href.PageSelect())&comma;{ " " }
+				@ComponentLink("neo-combobox", href.PageCombobox())&comma; or
 				{ " " }
-				@neo.Link(neo.LinkOpts{Href: neo.Set(href.PageTextInput())}) {
-					Text input
-				}
-				{ " " }
+				@ComponentLink("neo-textinput", href.PageTextInput())
 				suggestions read. Place a datalist
-				inside a control as its option source, or give it an
-				<code>{ "id" }</code> and point one or more controls at it
+				inside a control as its option source, or give it an @AnchorCode("#attributes-id", "id")
+				and point one or more controls at it
 				with <code>{ `list="<id>"` }</code>, exactly like
 				<code>{ `<input list>` }</code>.
 			</p>
@@ -58,7 +48,7 @@ templ PageDatalist(morpheusVersion string) {
 			<ul class="demo-note">
 				<li>
 					A control opts in with <code>{ "list" }</code> set to
-					the datalist's <code>{ "id" }</code>, just like native
+					the datalist's @AnchorCode("#attributes-id", "id")&comma; just like native
 					<code>{ `<input list>` }</code>. One id can feed many
 					controls.
 				</li>

@@ -20,10 +20,10 @@ templ PageTooltip(morpheusVersion string) {
 				dismissal, <code>pointer-events: none</code>,
 				<code>{ `role="tooltip"` }</code>, and
 				<code>aria-describedby</code> on the trigger). The
-				first non-content child is the trigger. The
-				<code>text</code> attribute is the shorthand body;
-				pass a child carrying
-				<code>{ `[data-neo-tooltip-content]` }</code> instead
+				first non-content child is the trigger. The @AnchorCode("#attributes-text", "text")
+				attribute is the shorthand body;
+				pass a child carrying @AnchorCode("#slots-data-neo-tooltip-content", "[data-neo-tooltip-content]")
+				instead
 				to render rich markup.
 			</p>
 			@neo.AlertAttrs(neo.AlertOpts{Variant: neo.Set(neo.AlertVariantWarning)}, templ.Attributes{"class": "demo-callout"}) {
@@ -81,7 +81,8 @@ templ PageTooltip(morpheusVersion string) {
 				Shorthand body
 			}
 			<p class="demo-note">
-				Pass <code>text</code> and skip
+				Pass @AnchorCode("#attributes-text", "text")
+				and skip
 				the slot entirely. Common for icon-only triggers
 				where the tooltip names the action a glyph
 				represents.
@@ -96,10 +97,10 @@ templ PageTooltip(morpheusVersion string) {
 				Rich content
 			}
 			<p class="demo-note">
-				Drop a child carrying
-				<code>{ `[data-neo-tooltip-content]` }</code> to
-				render arbitrary markup as the body. The
-				<code>text</code> attribute is ignored once that
+				Drop a child carrying @AnchorCode("#slots-data-neo-tooltip-content", "[data-neo-tooltip-content]")
+				to
+				render arbitrary markup as the body. The @AnchorCode("#attributes-text", "text")
+				attribute is ignored once that
 				slot is present.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
@@ -113,9 +114,10 @@ templ PageTooltip(morpheusVersion string) {
 				Delays
 			}
 			<p class="demo-note">
-				<code>hover-open-delay</code>
+				@AnchorCode("#attributes-hover-open-delay", "hover-open-delay")
 				is the hover dwell (ms) the host waits before
-				showing the tooltip; <code>hover-close-delay</code> is
+				showing the tooltip; @AnchorCode("#attributes-hover-close-delay", "hover-close-delay")
+				is
 				how long it lingers after the pointer leaves.
 				Defaults are <code>350</code> and <code>0</code>.
 				Focus shows the tooltip immediately; the delays are

@@ -18,17 +18,14 @@ templ PageDrawer(morpheusVersion string) {
 				side-sheet on the platform
 				<code>{ "<dialog>" }</code>. Same browser-owned
 				modal lifecycle as{ " " }
-				@neo.Link(neo.LinkOpts{Href: neo.Set(href.PageDialog())}) {
-					Dialog
-				}
-				, anchored
-				to one of 4 viewport edges via <code>side</code>
+				@ComponentLink("neo-dialog", href.PageDialog())&comma; anchored
+				to one of 4 viewport edges via @AnchorCode("#attributes-side", "side")
 				(<code>right</code> default,
 				<code>left</code> / <code>top</code> /
 				<code>bottom</code>) and animated in with a slide
 				transform. Dismiss via backdrop, Esc, or swipe
-				toward the anchored edge; set
-				<code>{ `dismissible="false"` }</code> to force an
+				toward the anchored edge; set @AnchorCode("#attributes-dismissible", `dismissible="false"`)
+				to force an
 				explicit button choice.
 			</p>
 			@Playground(PlaygroundOpts{
@@ -49,7 +46,7 @@ templ PageDrawer(morpheusVersion string) {
 				Sides
 			}
 			<p class="demo-note">
-				Same markup, different <code>side</code>. The
+				Same markup, different @AnchorCode("#attributes-side", "side")&period; The
 				panel anchors to that edge and slides in along
 				the matching axis; width vs height defaults
 				swap automatically.
@@ -94,8 +91,8 @@ templ PageDrawer(morpheusVersion string) {
 			}
 			<p class="demo-note">
 				For must-decide flows where dismissing implicitly
-				would be ambiguous, set
-				<code>{ `dismissible="false"` }</code> on the
+				would be ambiguous, set @AnchorCode("#attributes-dismissible", `dismissible="false"`)
+				on the
 				host. Backdrop click and Esc then do not close the
 				drawer, and the user must pick a button.
 			</p>
@@ -132,15 +129,15 @@ templ PageDrawer(morpheusVersion string) {
 			</p>
 			<ul class="demo-note">
 				<li>
-					Axis follows <code>side</code>. Left/right
+					Axis follows @AnchorCode("#attributes-side", "side")&period; Left/right
 					drawers take horizontal swipes, top/bottom
 					vertical.
 				</li>
 				<li>
 					The threshold defaults to 50% of the panel's
-					relevant dimension; pass a CSS length (here
-					<code>{ `touch-dismiss="120px"` }</code>) to
-					pin it, or <code>{ `touch-dismiss="off"` }</code>
+					relevant dimension; pass a CSS length (here @AnchorCode("#attributes-touch-dismiss", `touch-dismiss="120px"`)&rpar;
+					to
+					pin it, or @AnchorCode("#attributes-touch-dismiss", `touch-dismiss="off"`)
 					to opt out.
 				</li>
 				<li>
@@ -155,8 +152,8 @@ templ PageDrawer(morpheusVersion string) {
 				resizable handles, color fields, or any element
 				marked
 				<code>{ `[data-neo-drawer-touch-ignore]` }</code>),
-				and is disabled when
-				<code>{ `dismissible="false"` }</code>. Dragging
+				and is disabled when @AnchorCode("#attributes-dismissible", `dismissible="false"`)&period;
+				Dragging
 				the <code>{ `<neo-slider>` }</code> thumb horizontally
 				in the panel below never closes the drawer.
 			</p>
@@ -196,8 +193,7 @@ templ PageDrawer(morpheusVersion string) {
 				Examples: Datastar
 			}
 			<p class="demo-note">
-				Load the body on every open. A
-				<code>{ `[data-neo-async-placeholder]` }</code>
+				Load the body on every open. A @AnchorCode("#slots-data-neo-async-placeholder", "[data-neo-async-placeholder]")
 				child holds skeleton bars; opening posts to the
 				server, whose response morph-patches real content
 				in to replace it.
@@ -311,8 +307,8 @@ templ drawerAsyncFailureDemo() {
 	</p>
 	<ul class="demo-note">
 		<li>
-			The loader lives in the drawer's
-			<code>{ "[data-neo-async-placeholder]" }</code> slot,
+			The loader lives in the drawer's @AnchorCode("#slots-data-neo-async-placeholder", "[data-neo-async-placeholder]")
+			slot,
 			and close/reopen restores it. On success the server
 			morphs <code>{ "<div id=\"<host-id>-body\">" }</code>
 			in place.

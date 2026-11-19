@@ -19,7 +19,8 @@ templ PageSortable(morpheusVersion string) {
 				A child marked <code>data-neo-sortable-handle</code>
 				becomes the grip; absent that, the whole item is draggable.
 				Give every item a stable <code>id</code>
-				so <code>neo-sortable-start</code> /
+				so @AnchorCode("#events-neo-sortable-start", "neo-sortable-start")
+				/
 				<code>-move</code> / <code>-end</code> events
 				identify which item moved and its
 				<code>from</code> / <code>to</code> position.
@@ -68,7 +69,8 @@ templ PageSortable(morpheusVersion string) {
 				the moving item carries <code>aria-grabbed</code> and grips expose
 				<code>aria-keyshortcuts</code>. A handle without a <code>role</code> gets
 				<code>role="button"</code>.
-				The <code>disabled</code> attribute drops the grips from the tab order.
+				The @AnchorCode("#attributes-disabled", "disabled")
+				attribute drops the grips from the tab order.
 			</p>
 		</section>
 		<section class="demo">
@@ -135,7 +137,8 @@ templ PageSortable(morpheusVersion string) {
 				Horizontal row
 			}
 			<p class="demo-note">
-				<code>{ `orientation="horizontal"` }</code> lays the items out
+				@AnchorCode("#attributes-orientation", `orientation="horizontal"`)
+				lays the items out
 				in a row and constrains the drag to the horizontal axis.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
@@ -152,7 +155,8 @@ templ PageSortable(morpheusVersion string) {
 				Grid
 			}
 			<p class="demo-note">
-				<code>{ `orientation="grid"` }</code> reorders in 2 dimensions.
+				@AnchorCode("#attributes-orientation", `orientation="grid"`)
+				reorders in 2 dimensions.
 				The dragged tile drops into the nearest slot,
 				and arrow keys step a row at a time.
 			</p>
@@ -171,8 +175,8 @@ templ PageSortable(morpheusVersion string) {
 			}
 			<p class="demo-note">
 				By default the dragged item is clamped to the list's own box.
-				A drag toward an edge stops at the boundary.
-				<code>unbounded</code> opts out, letting the item follow
+				A drag toward an edge stops at the boundary. @AnchorCode("#attributes-unbounded", "unbounded")
+				opts out, letting the item follow
 				the pointer freely over the rest of the page.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
@@ -208,9 +212,10 @@ templ PageSortable(morpheusVersion string) {
 				Custom move easing
 			}
 			<p class="demo-note">
-				The <code>easing</code> attribute tunes how the displaced items glide.
-				Here a slow <code>{ `easing="420ms ease-in-out"` }</code>
-				makes the reflow obvious; an empty <code>{ `easing=""` }</code>
+				The @AnchorCode("#attributes-easing", "easing")
+				attribute tunes how the displaced items glide.
+				Here a slow @AnchorCode("#attributes-easing", `easing="420ms ease-in-out"`)
+				makes the reflow obvious; an empty @AnchorCode("#attributes-easing", `easing=""`)
 				would turn it off and snap instantly.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
@@ -246,7 +251,8 @@ templ PageSortable(morpheusVersion string) {
 				Disabled
 			}
 			<p class="demo-note">
-				<code>disabled</code> freezes reordering.
+				@AnchorCode("#attributes-disabled", "disabled")
+				freezes reordering.
 				Pointer drags do nothing, the grips drop out of the tab order,
 				and the handles dim to read as inert.
 			</p>
@@ -283,7 +289,8 @@ templ PageSortable(morpheusVersion string) {
 				</li>
 				<li>
 					<strong>Different order</strong>: same ids, reordered.
-					With <code>tolerate-reorder</code> the kit reconciles
+					With @AnchorCode("#attributes-tolerate-reorder", "tolerate-reorder")
+					the kit reconciles
 					the new order in place and the drag survives; the held
 					row keeps its grip.
 				</li>
@@ -295,8 +302,8 @@ templ PageSortable(morpheusVersion string) {
 				</li>
 			</ul>
 			<p class="demo-note">
-				Tolerating an order-only morph needs
-				<code>tolerate-reorder</code>. In the strict default,
+				Tolerating an order-only morph needs @AnchorCode("#attributes-tolerate-reorder", "tolerate-reorder")&period;
+				In the strict default,
 				reordering the other rows already counts as a change and
 				cancels the drag.
 			</p>

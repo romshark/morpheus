@@ -22,8 +22,8 @@ templ PageCarousel(morpheusVersion string) {
 				tracking. Add
 				<code>{ `<neo-button data-neo-carousel-prev>` }</code>
 				/ <code>{ `<neo-button data-neo-carousel-next>` }</code>
-				to opt into arrow controls and the boolean
-				<code>dots</code> attribute to opt into the dot
+				to opt into arrow controls and the boolean @AnchorCode("#attributes-dots", "dots")
+				attribute to opt into the dot
 				pagination (rendered in the host's shadow root).
 			</p>
 			@Playground(PlaygroundOpts{
@@ -46,9 +46,9 @@ templ PageCarousel(morpheusVersion string) {
 				Multiple slides per view
 			}
 			<p class="demo-note">
-				Show more than one slide with
-				<code>{ `per-view="N"` }</code>. Use
-				<code>spacing</code> to set the gap.
+				Show more than one slide with @AnchorCode("#attributes-per-view", `per-view="N"`)&period;
+				Use @AnchorCode("#attributes-spacing", "spacing")
+				to set the gap.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
 				Width:          "100%",
@@ -64,7 +64,8 @@ templ PageCarousel(morpheusVersion string) {
 				Intrinsic widths
 			}
 			<p class="demo-note">
-				Use <code>{ `per-view="auto"` }</code> when slides
+				Use @AnchorCode("#attributes-per-view", `per-view="auto"`)
+				when slides
 				should keep their own widths.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
@@ -98,12 +99,14 @@ templ PageCarousel(morpheusVersion string) {
 			}
 			<p class="demo-note">
 				Dots live in the host's shadow root. Reach them from
-				the page via <code>::part(dots)</code> (the tablist
-				container) and <code>::part(dot)</code> (each button);
+				the page via @AnchorCode("#parts-dots", "::part(dots)")
+				(the tablist
+				container) and @AnchorCode("#parts-dot", "::part(dot)")
+				(each button);
 				the kit also mirrors state into named parts
-				(<code>{ `::part(dot-partial)` }</code>,
-				<code>{ `::part(dot-full)` }</code>,
-				<code>{ `::part(dot-current)` }</code>) so you can
+				(
+				@AnchorCode("#parts-dot-partial", "::part(dot-partial)")&comma; @AnchorCode("#parts-dot-full", "::part(dot-full)")&comma; @AnchorCode("#parts-dot-current", "::part(dot-current)")&rpar;
+				so you can
 				style the 3 visibility states and the active dot.
 				Here a scoped <code>{ "<style>" }</code> block turns the
 				buttons into bars.
@@ -121,8 +124,10 @@ templ PageCarousel(morpheusVersion string) {
 				Autoplay + loop
 			}
 			<p class="demo-note">
-				Set <code>{ `autoplay="3000"` }</code> to advance on
-				a timer. Add <code>loop</code> and an optional pause
+				Set @AnchorCode("#attributes-autoplay", `autoplay="3000"`)
+				to advance on
+				a timer. Add @AnchorCode("#attributes-loop", "loop")
+				and an optional pause
 				button.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
@@ -137,7 +142,8 @@ templ PageCarousel(morpheusVersion string) {
 				Custom easing
 			}
 			<p class="demo-note">
-				Use <code>easing</code> to customize programmatic
+				Use @AnchorCode("#attributes-easing", "easing")
+				to customize programmatic
 				scrolls. Durations can also reuse the theme easing.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
@@ -153,7 +159,8 @@ templ PageCarousel(morpheusVersion string) {
 				Vertical
 			}
 			<p class="demo-note">
-				Set <code>{ `orientation="vertical"` }</code> to get a
+				Set @AnchorCode("#attributes-orientation", `orientation="vertical"`)
+				to get a
 				y-axis carousel. Give the host a height.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
@@ -169,7 +176,8 @@ templ PageCarousel(morpheusVersion string) {
 				No touch
 			}
 			<p class="demo-note">
-				Use <code>{ `touch="false"` }</code> when gestures should belong
+				Use @AnchorCode("#attributes-touch", `touch="false"`)
+				when gestures should belong
 				to slide content. Buttons and keyboard still work.
 			</p>
 			@demoFrameWith(DemoFrameOpts{

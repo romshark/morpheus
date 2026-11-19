@@ -16,8 +16,8 @@ templ PageToggleGroup(morpheusVersion string) {
 				cluster of&nbsp;
 				@ComponentLink("neo-toggle", href.PageToggle())&nbsp;children
 				sharing a selection model. Each child
-				toggle remains independent. The group
-				<code>value</code> is a comma-separated list of the
+				toggle remains independent. The group @AnchorCode("#attributes-value", "value")
+				is a comma-separated list of the
 				pressed child values. For singular segmented choices,
 				use&nbsp;
 				@ComponentLink("neo-buttongroup", href.PageButtonGroup())&period;
@@ -44,8 +44,8 @@ templ PageToggleGroup(morpheusVersion string) {
 				Formatting toolbar
 			}
 			<p class="demo-note">
-				Each toggle flips independently; the group's
-				<code>value</code> is a comma-separated list of
+				Each toggle flips independently; the group's @AnchorCode("#attributes-value", "value")
+				is a comma-separated list of
 				the pressed children's own <code>value</code>
 				attributes.
 			</p>
@@ -75,7 +75,8 @@ templ PageToggleGroup(morpheusVersion string) {
 				Vertical
 			}
 			<p class="demo-note">
-				<code>{ `orientation="vertical"` }</code> only
+				@AnchorCode("#attributes-orientation", `orientation="vertical"`)
+				only
 				changes layout; selection semantics are unchanged
 				and any of the 4 arrow keys move focus.
 			</p>

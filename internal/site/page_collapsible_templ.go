@@ -86,7 +86,7 @@ func PageCollapsible(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = anchorCode("#attributes-name", "name").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = AnchorCode("#attributes-name", "name").Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -107,7 +107,7 @@ func PageCollapsible(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = anchorCode("#attributes-open", "open").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = AnchorCode("#attributes-open", "open").Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -243,7 +243,7 @@ func PageCollapsible(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = anchorCode("#attributes-name", `name="shipping-faq"`).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = AnchorCode("#attributes-name", `name="shipping-faq"`).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -251,7 +251,7 @@ func PageCollapsible(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = anchorCode("#attributes-name", "name").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = AnchorCode("#attributes-name", "name").Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -325,7 +325,7 @@ func PageCollapsible(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = anchorCode("#slots-summary-open", "summary-open").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = AnchorCode("#slots-summary-open", "summary-open").Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -346,7 +346,7 @@ func PageCollapsible(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = anchorCode("#parts-summary", "::part(summary)").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = AnchorCode("#parts-summary", "::part(summary)").Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -407,7 +407,7 @@ func PageCollapsible(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = anchorCode("#attributes-open", `[open]:not([open="false"])`).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = AnchorCode("#attributes-open", `[open]:not([open="false"])`).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -415,7 +415,7 @@ func PageCollapsible(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = anchorCode("#slots-summary-open", "summary-open").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = AnchorCode("#slots-summary-open", "summary-open").Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -476,7 +476,7 @@ func PageCollapsible(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = anchorCode("#parts-summary", "::part(summary)").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = AnchorCode("#parts-summary", "::part(summary)").Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -484,7 +484,7 @@ func PageCollapsible(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = anchorCode("#parts-icon", "::part(icon)").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = AnchorCode("#parts-icon", "::part(icon)").Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -545,7 +545,7 @@ func PageCollapsible(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = anchorCode("#attributes-name", "name").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = AnchorCode("#attributes-name", "name").Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -553,7 +553,7 @@ func PageCollapsible(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = anchorCode("#parts-summary", "::part(summary)").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = AnchorCode("#parts-summary", "::part(summary)").Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -640,7 +640,7 @@ func PageCollapsible(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = anchorCode("#attributes-open", `open="true"`).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = AnchorCode("#attributes-open", `open="true"`).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

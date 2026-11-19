@@ -56,7 +56,8 @@ templ PageToggle(morpheusVersion string) {
 				Sizes
 			}
 			<p class="demo-note">
-				<code>{ `size="sm"` }</code> tightens padding and
+				@AnchorCode("#attributes-size", `size="sm"`)
+				tightens padding and
 				font size for dense rows. Omit it for the default
 				size.
 			</p>
@@ -88,7 +89,8 @@ templ PageToggle(morpheusVersion string) {
 				Disabled
 			}
 			<p class="demo-note">
-				<code>disabled</code> blocks pointer events,
+				@AnchorCode("#attributes-disabled", "disabled")
+				blocks pointer events,
 				drops the host from the tab order, and fades it.
 				Both the off and pressed-disabled states stay
 				readable so the value is still visible.
@@ -117,10 +119,11 @@ templ PageToggle(morpheusVersion string) {
 				@examples.ToggleWithIcon()
 			}
 			<p class="demo-note">
-				Mark up both
-				<code>{ `[data-neo-toggle-off]` }</code> and
-				<code>{ `[data-neo-toggle-on]` }</code> children
-				and <code>pressed</code> swaps which one paints,
+				Mark up both @AnchorCode("#slots-data-neo-toggle-off", "[data-neo-toggle-off]")
+				and @AnchorCode("#slots-data-neo-toggle-on", "[data-neo-toggle-on]")
+				children
+				and @AnchorCode("#attributes-pressed", "pressed")
+				swaps which one paints,
 				when the toggled state needs a different verb,
 				icon, or both. Click to flip.
 			</p>

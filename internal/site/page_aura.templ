@@ -41,8 +41,8 @@ templ PageAura(morpheusVersion string) {
 			}
 			<p class="demo-note">
 				Each light is a set of custom properties on a class.
-				Copy one from the CSS tab.
-				<code>--neo-aura-gradient</code> holds the image, which
+				Copy one from the CSS tab. @AnchorCode("#css-variables-neo-aura-gradient", "--neo-aura-gradient")
+				holds the image, which
 				rotates about the center of the aura. The glow recipe
 				stops the rotation and pulses the glow instead.
 			</p>
@@ -92,7 +92,8 @@ templ PageAura(morpheusVersion string) {
 				Ring width
 			}
 			<p class="demo-note">
-				<code>--neo-aura-width</code> sets the ring thickness,
+				@AnchorCode("#css-variables-neo-aura-width", "--neo-aura-width")
+				sets the ring thickness,
 				which is also the aura's padding. At <code>0</code>
 				only the glow remains.
 			</p>
@@ -108,8 +109,9 @@ templ PageAura(morpheusVersion string) {
 				Color and track
 			}
 			<p class="demo-note">
-				<code>--neo-aura-color</code> colors the light;
-				<code>--neo-aura-track-color</code> fills the ring
+				@AnchorCode("#css-variables-neo-aura-color", "--neo-aura-color")
+				colors the light; @AnchorCode("#css-variables-neo-aura-track-color", "--neo-aura-track-color")
+				fills the ring
 				under it.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
@@ -126,8 +128,8 @@ templ PageAura(morpheusVersion string) {
 			<p class="demo-note">
 				The aura measures the corners of the element it
 				wraps, kit component or not. The square image here
-				needs no configuration. Set
-				<code>--neo-aura-radius</code> to override the
+				needs no configuration. Set @AnchorCode("#css-variables-neo-aura-radius", "--neo-aura-radius")
+				to override the
 				measured value.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
@@ -142,7 +144,8 @@ templ PageAura(morpheusVersion string) {
 				Disabled
 			}
 			<p class="demo-note">
-				<code>disabled</code> fades the light out and stops its
+				@AnchorCode("#attributes-disabled", "disabled")
+				fades the light out and stops its
 				animations. The wrapped element does not move because
 				the aura keeps its padding, and it stays enabled. Flip
 				the switch to see it.

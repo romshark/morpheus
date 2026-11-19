@@ -15,11 +15,11 @@ templ PageColorField(morpheusVersion string) {
 				Component <code>{ "<neo-color-field>" }</code> is a
 				2D saturation/value picker painted over a base hue,
 				with pointer and arrow-key handle movement. The
-				host reflects <code>value</code> (hex); set
-				<code>hue</code> to fix the base hue, or omit it
-				and the kit derives one from <code>value</code>.
-				The simplest usage is a single
-				<code>{ `value="#rrggbb"` }</code>.
+				host reflects @AnchorCode("#attributes-value", "value")
+				(hex); set @AnchorCode("#attributes-hue", "hue")
+				to fix the base hue, or omit it
+				and the kit derives one from @AnchorCode("#attributes-value", "value")&period;
+				The simplest usage is a single @AnchorCode("#attributes-value", `value="#rrggbb"`)&period;
 			</p>
 			@Playground(PlaygroundOpts{
 				ID:     "color-field-playground",
@@ -38,8 +38,8 @@ templ PageColorField(morpheusVersion string) {
 				Derived hue
 			}
 			<p class="demo-note">
-				The simplest form. Pass a
-				<code>value</code> hex and the host derives the
+				The simplest form. Pass a @AnchorCode("#attributes-value", "value")
+				hex and the host derives the
 				base hue from it on connect. A freshly mounted
 				picker shows the handle on the matching point of
 				the saturation/value plane.
@@ -55,7 +55,8 @@ templ PageColorField(morpheusVersion string) {
 				Explicit hue
 			}
 			<p class="demo-note">
-				Set <code>hue</code> in degrees
+				Set @AnchorCode("#attributes-hue", "hue")
+				in degrees
 				to override the derived value. Useful when the
 				selected colour is desaturated (so the derived
 				hue would be ambiguous) or when you want the
@@ -90,9 +91,8 @@ templ PageColorField(morpheusVersion string) {
 			}
 			<p class="demo-note">
 				The field reads its dimensions
-				from the
-				<code>{ "--neo-color-field-width" }</code> and
-				<code>{ "--neo-color-field-height" }</code>
+				from the @AnchorCode("#css-variables-neo-color-field-width", "--neo-color-field-width")
+				and @AnchorCode("#css-variables-neo-color-field-height", "--neo-color-field-height")
 				custom properties. Any inline
 				<code>style</code> or scoped CSS rule resizes
 				the picker without changing markup.
@@ -114,9 +114,8 @@ templ PageColorField(morpheusVersion string) {
 				Morphing during interaction
 			}
 			<p class="demo-note">
-				A Datastar fat-morph can change
-				<code>value</code>, <code>hue</code>, or
-				<code>disabled</code> mid-interaction.
+				A Datastar fat-morph can change @AnchorCode("#attributes-value", "value")&comma; @AnchorCode("#attributes-hue", "hue")&comma; or @AnchorCode("#attributes-disabled", "disabled")
+				mid-interaction.
 			</p>
 			<ul class="demo-note">
 				<li>
@@ -128,7 +127,7 @@ templ PageColorField(morpheusVersion string) {
 				<li>
 					The <code>cf_morph_value</code> signal mirrors
 					the live color (seeded by each morph, updated
-					on <code>neo-color-field-input</code>) and
+					on @AnchorCode("#events-neo-color-field-input", "neo-color-field-input")&rpar; and
 					updates the hex readout below the field.
 				</li>
 			</ul>

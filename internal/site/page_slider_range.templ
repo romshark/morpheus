@@ -39,7 +39,8 @@ templ PageSliderRange(morpheusVersion string) {
 				Decimal step
 			}
 			<p class="demo-note">
-				<code>{ `step="0.1"` }</code> snaps
+				@AnchorCode("#attributes-step", `step="0.1"`)
+				snaps
 				both values to 1 decimal place. The
 				<code>.</code> key is allowed in the value fields
 				because the step is non-integer. Marks show the dB
@@ -77,7 +78,8 @@ templ PageSliderRange(morpheusVersion string) {
 				Negative range
 			}
 			<p class="demo-note">
-				When <code>min</code> is below 0
+				When @AnchorCode("#attributes-min", "min")
+				is below 0
 				both value fields accept a leading
 				<code>-</code>. Useful for symmetric ranges like
 				time offsets or pan positions.
@@ -93,7 +95,8 @@ templ PageSliderRange(morpheusVersion string) {
 				Custom easing
 			}
 			<p class="demo-note">
-				Set <code>easing</code> to animate the
+				Set @AnchorCode("#attributes-easing", "easing")
+				to animate the
 				thumbs and fill between committed values. Click the
 				rail or nudge with the keyboard to see the
 				transition; dragging still tracks the pointer
@@ -110,7 +113,8 @@ templ PageSliderRange(morpheusVersion string) {
 				Vertical temperature
 			}
 			<p class="demo-note">
-				Set <code>vertical</code> to rotate the
+				Set @AnchorCode("#attributes-vertical", "vertical")
+				to rotate the
 				layout. The low value sits at the bottom and the
 				high value at the top; pointer dragging follows the
 				vertical rail. Marks light up when the active range
@@ -130,8 +134,9 @@ templ PageSliderRange(morpheusVersion string) {
 				Bare rail (no header)
 			}
 			<p class="demo-note">
-				Omit <code>label</code> and set
-				<code>hide-value</code> to drop the entire header
+				Omit @AnchorCode("#attributes-label", "label")
+				and set @AnchorCode("#attributes-hide-value", "hide-value")
+				to drop the entire header
 				row. The thumbs still focus on
 				<neo-kbd>Tab</neo-kbd> and the value bubbles still pop on
 				hover/press, which keeps the control operable.
@@ -195,12 +200,12 @@ templ PageSliderRange(morpheusVersion string) {
 			<p class="demo-note">
 				A Datastar app can
 				fat-morph the page at any moment, and a server narrowing
-				or widening the band just re-emits the range with new
-				<code>value-min</code> / <code>value-max</code>
+				or widening the band just re-emits the range with new @AnchorCode("#attributes-value-min", "value-min")
+				/ @AnchorCode("#attributes-value-max", "value-max")
 				attributes. The rail, both thumbs, and the fill live in
 				the component's shadow root. A morph of the bare light
 				host only changes those 2 attributes and never touches
-				the thumb or fill nodes, which lets the <code>easing</code>
+				the thumb or fill nodes, which lets the @AnchorCode("#attributes-easing", "easing")
 				transition ease the band to its new bounds. Autoplay
 				cycles the states below, with no signals or morph hints, and
 				the band glides from Low to Medium to High just the same.

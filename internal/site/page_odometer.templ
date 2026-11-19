@@ -94,8 +94,9 @@ templ PageOdometer(morpheusVersion string) {
 				Custom properties
 			}
 			<p class="demo-note">
-				<code>--neo-odometer-duration</code> and
-				<code>--neo-odometer-easing</code> set the roll, here from
+				@AnchorCode("#css-variables-neo-odometer-duration", "--neo-odometer-duration")
+				and @AnchorCode("#css-variables-neo-odometer-easing", "--neo-odometer-easing")
+				set the roll, here from
 				signals. The duration matches the count interval, which turns
 				the digits without a pause.
 			</p>

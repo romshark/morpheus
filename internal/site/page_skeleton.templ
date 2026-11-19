@@ -16,13 +16,13 @@ templ PageSkeleton(morpheusVersion string) {
 			}
 			<p class="intro">
 				Component <code>{ "<neo-skeleton>" }</code> is a
-				gently-pulsing loading placeholder with optional
-				<code>variant</code> presets (circle, text-height
+				gently-pulsing loading placeholder with optional @AnchorCode("#attributes-variant", "variant")
+				presets (circle, text-height
 				line). It has no intrinsic size. Set width and height in
 				inline style or CSS so the placeholder matches the
 				content that will replace it. By default it fades in
 				after a short delay. Content that resolves quickly
-				never flashes a skeleton; set <code>immediate</code>
+				never flashes a skeleton; set @AnchorCode("#attributes-immediate", "immediate")
 				to show it at once. The pulse honours
 				<code>{ `prefers-reduced-motion` }</code>.
 			</p>
@@ -65,8 +65,8 @@ templ PageSkeleton(morpheusVersion string) {
 				Avatar row
 			}
 			<p class="demo-note">
-				The
-				<code>{ `variant="circle"` }</code> preset gives a
+				The @AnchorCode("#attributes-variant", `variant="circle"`)
+				preset gives a
 				1:1 round placeholder for an avatar, paired with
 				2 stacked line skeletons for the name and a secondary detail.
 				Useful in lists of users or comments while the real data resolves.
@@ -83,8 +83,8 @@ templ PageSkeleton(morpheusVersion string) {
 				Inline placeholder
 			}
 			<p class="demo-note">
-				The
-				<code>{ `variant="line"` }</code> preset makes a skeleton sit on the
+				The @AnchorCode("#attributes-variant", `variant="line"`)
+				preset makes a skeleton sit on the
 				text baseline so it can stand in for a word or short phrase mid-sentence.
 				Size it in <code>em</code> units to track the surrounding font size.
 			</p>
@@ -124,7 +124,8 @@ templ PageSkeleton(morpheusVersion string) {
 				<li>
 					A response that lands inside the fade-in delay
 					swaps straight to content with no skeleton flash;
-					add <code>immediate</code> to opt out.
+					add @AnchorCode("#attributes-immediate", "immediate")
+					to opt out.
 				</li>
 			</ul>
 			@Playground(PlaygroundOpts{

@@ -41,7 +41,8 @@ templ PageAutohide(morpheusVersion string) {
 				Bottom tab bar
 			}
 			<p class="demo-note">
-				<code>{ `side="bottom"` }</code> sticks the bar to the
+				@AnchorCode("#attributes-side", `side="bottom"`)
+				sticks the bar to the
 				bottom edge. Place it after the content. Scroll to see it.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
@@ -72,8 +73,9 @@ templ PageAutohide(morpheusVersion string) {
 				Style by state
 			}
 			<p class="demo-note">
-				<code>:state(scrolled)</code> adds a shadow.
-				<code>:state(hidden)</code> removes it, because a hidden
+				@AnchorCode("#states-scrolled", ":state(scrolled)")
+				adds a shadow. @AnchorCode("#states-hidden", ":state(hidden)")
+				removes it, because a hidden
 				bar's shadow still shows at the edge. Scroll to see it.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
@@ -109,7 +111,8 @@ templ PageAutohide(morpheusVersion string) {
 				Pin the bar
 			}
 			<p class="demo-note">
-				A switch binds <code>disabled</code> to a signal, which
+				A switch binds @AnchorCode("#attributes-disabled", "disabled")
+				to a signal, which
 				keeps the bar on screen while pinned. Flip the switch and
 				scroll to see it.
 			</p>

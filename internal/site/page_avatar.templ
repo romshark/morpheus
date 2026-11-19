@@ -3,7 +3,6 @@ package site
 import (
 	"github.com/romshark/morpheus/internal/href"
 	"github.com/romshark/morpheus/internal/site/examples"
-	"github.com/romshark/morpheus/neo"
 )
 
 templ PageAvatar(morpheusVersion string) {
@@ -16,10 +15,8 @@ templ PageAvatar(morpheusVersion string) {
 				Component <code>{ "<neo-avatar>" }</code> is a
 				style-only frame for one avatar image or fallback.
 				Shares shape tokens with{ " " }
-				@neo.Link(neo.LinkOpts{Href: neo.Set(href.PageAvatars())}) {
-					Avatars
-				}
-				{ " " }so a theme
+				@ComponentLink("neo-avatars", href.PageAvatars())
+				so a theme
 				renders standalone avatars and avatar groups round,
 				square, or hexagonal together.
 			</p>

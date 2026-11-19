@@ -40,7 +40,8 @@ templ PageKbd(morpheusVersion string) {
 				Platform-aware shortcuts
 			}
 			<p class="demo-note">
-				Pass a <code>key</code> token instead of literal content
+				Pass a @AnchorCode("#attributes-key", "key")
+				token instead of literal content
 				and the chip renders the right glyph per OS.
 			</p>
 			<p class="demo-note">
@@ -66,7 +67,8 @@ templ PageKbd(morpheusVersion string) {
 				Aliases
 			}
 			<p class="demo-note">
-				<code>key</code> accepts convenience aliases (<code>esc</code>,
+				@AnchorCode("#attributes-key", "key")
+				accepts convenience aliases (<code>esc</code>,
 				<code>space</code>, <code>up</code>/<code>down</code>/<code>left</code>/<code>right</code>,
 				<code>del</code>, <code>plus</code>, <code>comma</code>) that resolve to
 				the canonical glyph (<code>esc</code> renders ⎋ / Esc).
@@ -82,8 +84,9 @@ templ PageKbd(morpheusVersion string) {
 				Variants and sizes
 			}
 			<p class="demo-note">
-				<code>{ `variant="outline"` }</code> drops the fill and
-				shadow for a flatter look; <code>{ `size="sm"` }</code>
+				@AnchorCode("#attributes-variant", `variant="outline"`)
+				drops the fill and
+				shadow for a flatter look; @AnchorCode("#attributes-size", `size="sm"`)
 				is a compact variant for dense rows like menu
 				items or table cells.
 			</p>

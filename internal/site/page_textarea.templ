@@ -17,7 +17,7 @@ templ PageTextarea(morpheusVersion string) {
 				element's shadow root) with declarative manual-resize
 				handles and auto-grow on either axis. Native textarea
 				attributes (<code>rows</code>, <code>placeholder</code>,
-				<code>maxlength</code>, <code>value</code>, ...) go on
+				<code>maxlength</code>, @AnchorCode("#attributes-value", "value")&comma; ...) go on
 				the host and are forwarded to the field; the field
 				stays fully native (form participation, IME, selection).
 				Because it lives in the shadow, a fat morph can
@@ -40,7 +40,8 @@ templ PageTextarea(morpheusVersion string) {
 				Disabled
 			}
 			<p class="demo-note">
-				<code>disabled</code> on the host disables the
+				@AnchorCode("#attributes-disabled", "disabled")
+				on the host disables the
 				native field in the shadow root and applies the
 				disabled surface state to the host.
 			</p>
@@ -55,8 +56,9 @@ templ PageTextarea(morpheusVersion string) {
 				Manual resize
 			}
 			<p class="demo-note">
-				<code>scale-vertical</code> and
-				<code>scale-horizontal</code> on the host show the
+				@AnchorCode("#attributes-scale-vertical", "scale-vertical")
+				and @AnchorCode("#attributes-scale-horizontal", "scale-horizontal")
+				on the host show the
 				native resize handle on that axis. Without either,
 				the field is fixed at its <code>rows</code>-derived
 				size.
@@ -72,9 +74,9 @@ templ PageTextarea(morpheusVersion string) {
 				Auto-grow height
 			}
 			<p class="demo-note">
-				Bare <code>auto-resize-height</code> grows to fit
-				the content with no upper bound;
-				<code>{ `auto-resize-height="12rem"` }</code>
+				Bare @AnchorCode("#attributes-auto-resize-height", "auto-resize-height")
+				grows to fit
+				the content with no upper bound; @AnchorCode("#attributes-auto-resize-height", `auto-resize-height="12rem"`)
 				caps the growth and reveals the scrollbar past
 				that.
 			</p>
@@ -89,10 +91,11 @@ templ PageTextarea(morpheusVersion string) {
 				Auto-grow width
 			}
 			<p class="demo-note">
-				<code>auto-resize-width</code> stops the field from
+				@AnchorCode("#attributes-auto-resize-width", "auto-resize-width")
+				stops the field from
 				wrapping and grows it horizontally to the natural
-				longest line, capped here at 20rem. Combine with
-				<code>auto-resize-height</code> to get a textarea
+				longest line, capped here at 20rem. Combine with @AnchorCode("#attributes-auto-resize-height", "auto-resize-height")
+				to get a textarea
 				that snaps in both axes.
 			</p>
 			@demoFrameWith(DemoFrameOpts{

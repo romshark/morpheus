@@ -14,7 +14,9 @@ templ PageIfNetwork(morpheusVersion string) {
 			<p class="intro">
 				Component <code>{ "<neo-if-network>" }</code> is a connection
 				gate. It shows its content only while the browser is online
-				(<code>online</code>) or offline (<code>{ `online="false"` }</code>),
+				(
+				@AnchorCode("#attributes-online", "online")&rpar; or offline (
+				@AnchorCode("#attributes-online", `online="false"`)&rpar;,
 				and switches when the connection changes. To require a
 				platform too, nest it
 				in @ComponentLink("neo-if-platform", href.PageIfPlatform())&period;
@@ -43,11 +45,13 @@ templ PageIfNetwork(morpheusVersion string) {
 					changes.
 				</li>
 				<li>
-					<code>online</code> only means the device is on a
+					@AnchorCode("#attributes-online", "online")
+					only means the device is on a
 					network. A server that is down still counts as online.
 				</li>
 				<li>
-					<code>{ `delay="2000"` }</code> switches only after the
+					@AnchorCode("#attributes-delay", `delay="2000"`)
+					switches only after the
 					connection has changed for 2 seconds. A shorter drop shows
 					nothing.
 				</li>

@@ -427,7 +427,7 @@ func PageElastic(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = anchorCode("#attributes-reset-on-collapse", "reset-on-collapse").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = AnchorCode("#attributes-reset-on-collapse", "reset-on-collapse").Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -435,7 +435,7 @@ func PageElastic(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = anchorCode("#slots-data-neo-async-placeholder", "<template data-neo-async-placeholder>").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = AnchorCode("#slots-data-neo-async-placeholder", "<template data-neo-async-placeholder>").Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

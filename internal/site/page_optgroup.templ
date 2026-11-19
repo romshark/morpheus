@@ -1,9 +1,6 @@
 package site
 
-import (
-	"github.com/romshark/morpheus/internal/href"
-	"github.com/romshark/morpheus/neo"
-)
+import "github.com/romshark/morpheus/internal/href"
 
 templ PageOptgroup(morpheusVersion string) {
 	@PageDoc(href.PageOptgroup(), "Optgroup", morpheusVersion) {
@@ -16,26 +13,14 @@ templ PageOptgroup(morpheusVersion string) {
 				option-data carrier, not a rendered or interactive
 				element. It groups its
 				{ " " }
-				@neo.Link(neo.LinkOpts{Href: neo.Set(href.PageOption())}) {
-					Option
-				}
-				{ " " }
+				@ComponentLink("neo-option", href.PageOption())
 				children under a heading the consuming control renders
 				above them. Place it inside a
 				{ " " }
-				@neo.Link(neo.LinkOpts{Href: neo.Set(href.PageSelect())}) {
-					Select
-				}
-				,{ " " }
-				@neo.Link(neo.LinkOpts{Href: neo.Set(href.PageCombobox())}) {
-					Combobox
-				}
-				, or
+				@ComponentLink("neo-select", href.PageSelect())&comma;{ " " }
+				@ComponentLink("neo-combobox", href.PageCombobox())&comma; or
 				{ " " }
-				@neo.Link(neo.LinkOpts{Href: neo.Set(href.PageDatalist())}) {
-					Datalist
-				}
-				. The group itself renders nothing; the control owns the
+				@ComponentLink("neo-datalist", href.PageDatalist())&period; The group itself renders nothing; the control owns the
 				listbox and draws the heading.
 			</p>
 			@anchoredH2("reference") {

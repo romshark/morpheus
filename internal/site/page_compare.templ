@@ -37,8 +37,8 @@ templ PageCompare(morpheusVersion string) {
 				</li>
 				<li>
 					A click moves the divider to the pointer. A double-click or
-					double-tap on the handle moves it to the center, unless
-					<code>recenter</code> is <code>false</code>.
+					double-tap on the handle moves it to the center, unless @AnchorCode("#attributes-recenter", "recenter")
+					is <code>false</code>.
 				</li>
 				<li>The handle lifts while held and drops back on release.</li>
 				<li>On a touch screen, a swipe across the axis scrolls the page.</li>
@@ -48,8 +48,8 @@ templ PageCompare(morpheusVersion string) {
 					and to the limit they point at with
 					<neo-kbd key="mod">Ctrl</neo-kbd>.
 					<neo-kbd>PageUp</neo-kbd> and <neo-kbd>PageDown</neo-kbd> move
-					it 10%, <neo-kbd>Home</neo-kbd> and <neo-kbd>End</neo-kbd> to
-					<code>min</code> and <code>max</code>.
+					it 10%, <neo-kbd>Home</neo-kbd> and <neo-kbd>End</neo-kbd> to @AnchorCode("#attributes-min", "min")
+					and @AnchorCode("#attributes-max", "max")&period;
 				</li>
 				<li>
 					The before layer is on the start side, which is the right
@@ -66,7 +66,8 @@ templ PageCompare(morpheusVersion string) {
 				Vertical
 			}
 			<p class="demo-note">
-				<code>vertical</code> puts the before layer on top and moves the
+				@AnchorCode("#attributes-vertical", "vertical")
+				puts the before layer on top and moves the
 				divider up and down.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
@@ -113,13 +114,16 @@ templ PageCompare(morpheusVersion string) {
 				Customized
 			}
 			<p class="demo-note">
-				The <code>handle</code> slot replaces the arrows, here with a
-				grip icon. <code>--neo-compare-tilt</code> tilts the line,
-				<code>::part(divider)</code> dashes it, and
-				<code>::part(handle)</code> reshapes the handle, which
-				<code>:state(grabbed)</code> stretches while it is held. Custom
-				properties set the line width and the handle colors, and
-				<code>min</code> and <code>max</code> keep the divider off the
+				The @AnchorCode("#slots-handle", "handle")
+				slot replaces the arrows, here with a
+				grip icon. @AnchorCode("#css-variables-neo-compare-tilt", "--neo-compare-tilt")
+				tilts the line, @AnchorCode("#parts-divider", "::part(divider)")
+				dashes it, and @AnchorCode("#parts-handle", "::part(handle)")
+				reshapes the handle, which @AnchorCode("#states-grabbed", ":state(grabbed)")
+				stretches while it is held. Custom
+				properties set the line width and the handle colors, and @AnchorCode("#attributes-min", "min")
+				and @AnchorCode("#attributes-max", "max")
+				keep the divider off the
 				edges.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
@@ -139,7 +143,7 @@ templ PageCompare(morpheusVersion string) {
 				Morphing the content
 			}
 			<p class="demo-note">
-				The states swap the images and carry no <code>value</code>. A
+				The states swap the images and carry no @AnchorCode("#attributes-value", "value")&period; A
 				morph replaces the images, and the divider stays where it was.
 				Drag the divider, then switch the state.
 			</p>
@@ -152,7 +156,7 @@ templ PageCompare(morpheusVersion string) {
 			}
 			<p class="demo-note">
 				Each button posts to the server, which renders the whole element
-				with a new <code>value</code>. The morph changes only that
+				with a new @AnchorCode("#attributes-value", "value")&period; The morph changes only that
 				attribute, and the divider eases to it. Drag the divider, then
 				press a button.
 			</p>

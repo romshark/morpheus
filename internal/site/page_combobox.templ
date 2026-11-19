@@ -3,7 +3,6 @@ package site
 import (
 	"github.com/romshark/morpheus/internal/href"
 	"github.com/romshark/morpheus/internal/site/examples"
-	"github.com/romshark/morpheus/neo"
 )
 
 templ PageCombobox(morpheusVersion string) {
@@ -17,12 +16,9 @@ templ PageCombobox(morpheusVersion string) {
 				Component <code>{ "<neo-combobox>" }</code> is a
 				dropdown with a search field, built for long lists and for options
 				the server generates on demand. It filters loaded options as you type,
-				or, with <code>live-search</code>, asks the server for matches on
+				or, with @AnchorCode("#attributes-live-search", "live-search")&comma; asks the server for matches on
 				each keystroke. For a short list known up front, use{ " " }
-				@neo.Link(neo.LinkOpts{Href: neo.Set(href.PageSelect())}) {
-					Select
-				}
-				.
+				@ComponentLink("neo-select", href.PageSelect())&period;
 			</p>
 			@Playground(PlaygroundOpts{
 				ID:     "combobox-playground",
@@ -42,7 +38,8 @@ templ PageCombobox(morpheusVersion string) {
 				Disabled control
 			}
 			<p class="demo-note">
-				Set <code>disabled</code> on the host to make the
+				Set @AnchorCode("#attributes-disabled", "disabled")
+				on the host to make the
 				whole control non-interactive. The trigger leaves the
 				tab order, ignores clicks and keys, and renders faded.
 				An open panel closes. Distinct from disabling individual options.
@@ -59,9 +56,10 @@ templ PageCombobox(morpheusVersion string) {
 				Native form submission
 			}
 			<p class="demo-note">
-				The combobox is form-associated. Give it a <code>name</code>
+				The combobox is form-associated. Give it a @AnchorCode("#attributes-name", "name")
 				and it submits in a plain <code>{ "<form>" }</code>,
-				no framework binding. In <code>multiple</code> mode it posts one
+				no framework binding. In @AnchorCode("#attributes-multiple", "multiple")
+				mode it posts one
 				entry per selected value under the same name,
 				like <code>{ "<select multiple>" }</code>.
 				Submit to see the posted values.
@@ -109,8 +107,7 @@ templ PageCombobox(morpheusVersion string) {
 				Multiple selection
 			}
 			<p class="demo-note">
-				Pick several options at once with
-				<code>multiple</code>.
+				Pick several options at once with @AnchorCode("#attributes-multiple", "multiple")&period;
 			</p>
 			<ul class="demo-note">
 				<li>
@@ -118,13 +115,14 @@ templ PageCombobox(morpheusVersion string) {
 					popover open; single-select replaces and closes.
 				</li>
 				<li>
-					<code>value</code> is a comma-separated list
-					and <code>neo-combobox-change</code> carries
+					@AnchorCode("#attributes-value", "value")
+					is a comma-separated list
+					and @AnchorCode("#events-neo-combobox-change", "neo-combobox-change")
+					carries
 					<code>{ "{values, labels}" }</code>.
 				</li>
 				<li>
-					A
-					<code>{ "[data-neo-empty-results]" }</code>
+					A @AnchorCode("#slots-data-neo-empty-results", "[data-neo-empty-results]")
 					child replaces the no-match row;
 					<code>{ "[data-neo-empty-query]" }</code>
 					inside it echoes the typed text. Type
@@ -157,9 +155,9 @@ templ PageCombobox(morpheusVersion string) {
 					<code>label</code> or text.
 				</li>
 				<li>
-					<code>{ "[data-neo-combobox-empty]" }</code>
-					is the face shown when nothing is selected;
-					<code>clearable</code> lets Backspace or
+					@AnchorCode("#slots-data-neo-combobox-empty", "[data-neo-combobox-empty]")
+					is the face shown when nothing is selected; @AnchorCode("#attributes-clearable", "clearable")
+					lets Backspace or
 					Delete on the trigger clear the selection.
 				</li>
 				<li>
@@ -184,12 +182,12 @@ templ PageCombobox(morpheusVersion string) {
 			</p>
 			<ul class="demo-note">
 				<li>
-					A <code>{ "[data-neo-option-trigger]" }</code>
+					A @AnchorCode("#slots-data-neo-option-trigger", "[data-neo-option-trigger]")
 					child is cloned onto the trigger;
 					the rest of the option stays the list row.
 				</li>
 				<li>
-					<code>{ "[data-neo-combobox-empty]" }</code>
+					@AnchorCode("#slots-data-neo-combobox-empty", "[data-neo-combobox-empty]")
 					is the empty face. Press Backspace on the
 					trigger to clear and show it.
 				</li>
@@ -206,12 +204,13 @@ templ PageCombobox(morpheusVersion string) {
 				Multi-select chips
 			}
 			<p class="demo-note">
-				<code>multiple</code> with per-option faces.
+				@AnchorCode("#attributes-multiple", "multiple")
+				with per-option faces.
 				Each pick becomes a chip on the trigger.
 			</p>
 			<ul class="demo-note">
 				<li>
-					A chip uses the option's <code>{ "[data-neo-option-trigger]" }</code>
+					A chip uses the option's @AnchorCode("#slots-data-neo-option-trigger", "[data-neo-option-trigger]")
 					face, or falls back to its text.
 				</li>
 				<li>
@@ -234,8 +233,7 @@ templ PageCombobox(morpheusVersion string) {
 				Open above
 			}
 			<p class="demo-note">
-				Open the panel above the trigger with
-				<code>{ `placement="top-start"` }</code>.
+				Open the panel above the trigger with @AnchorCode("#attributes-placement", `placement="top-start"`)&period;
 			</p>
 			<ul class="demo-note">
 				<li>
@@ -271,8 +269,8 @@ templ PageCombobox(morpheusVersion string) {
 			</p>
 			<ul class="demo-note">
 				<li>
-					Options can appear, disappear, or flip to
-					<code>disabled</code> with the popover open.
+					Options can appear, disappear, or flip to @AnchorCode("#attributes-disabled", "disabled")
+					with the popover open.
 				</li>
 				<li>
 					The element stays mounted, the popover stays open,
@@ -290,12 +288,11 @@ templ PageCombobox(morpheusVersion string) {
 				Async load
 			}
 			<p class="demo-note">
-				Fetch options from the server on every open with
-				<code>async</code>.
+				Fetch options from the server on every open with @AnchorCode("#attributes-async", "async")&period;
 			</p>
 			<ul class="demo-note">
 				<li>
-					Each open fires <code>neo-combobox-load</code>; wire
+					Each open fires @AnchorCode("#events-neo-combobox-load", "neo-combobox-load")&semi; wire
 					<code>data-on:neo-combobox-load</code> to post.
 				</li>
 				<li>
@@ -303,7 +300,8 @@ templ PageCombobox(morpheusVersion string) {
 					<code>#&lt;host-id&gt;-options</code>.
 				</li>
 				<li>
-					<code>{ "[data-neo-async-placeholder]" }</code> fills
+					@AnchorCode("#slots-data-neo-async-placeholder", "[data-neo-async-placeholder]")
+					fills
 					the listbox until options arrive; the search field stays usable.
 				</li>
 			</ul>
@@ -325,9 +323,9 @@ templ PageCombobox(morpheusVersion string) {
 			</p>
 			<ul class="demo-note">
 				<li>
-					Add a <code>{ "[data-neo-async-placeholder]" }</code>
-					without <code>async</code>.
-					The first open then fires <code>neo-combobox-load</code>.
+					Add a @AnchorCode("#slots-data-neo-async-placeholder", "[data-neo-async-placeholder]")
+					without @AnchorCode("#attributes-async", "async")&period;
+					The first open then fires @AnchorCode("#events-neo-combobox-load", "neo-combobox-load")&period;
 				</li>
 				<li>
 					Loaded options are cached; later opens reuse them with no refetch.
@@ -348,7 +346,7 @@ templ PageCombobox(morpheusVersion string) {
 			}
 			<p class="demo-note">
 				Let the server filter on every keystroke instead
-				of matching locally, with <code>live-search</code>.
+				of matching locally, with @AnchorCode("#attributes-live-search", "live-search")&period;
 			</p>
 			<ul class="demo-note">
 				<li>
@@ -360,8 +358,7 @@ templ PageCombobox(morpheusVersion string) {
 					holds the typed text; copy it into a signal the server reads.
 				</li>
 				<li>
-					The server returns the matching options, or a
-					<code>{ "[data-neo-empty-results]" }</code>
+					The server returns the matching options, or a @AnchorCode("#slots-data-neo-empty-results", "[data-neo-empty-results]")
 					child when nothing matches.
 				</li>
 			</ul>
@@ -384,8 +381,7 @@ templ PageCombobox(morpheusVersion string) {
 			<ul class="demo-note">
 				<li>
 					On a failed request Datastar retries per its retry config;
-					after retries are exhausted, a failure template replaces the
-					<code>{ "[data-neo-async-placeholder]" }</code>.
+					after retries are exhausted, a failure template replaces the @AnchorCode("#slots-data-neo-async-placeholder", "[data-neo-async-placeholder]")&period;
 				</li>
 				<li>
 					A

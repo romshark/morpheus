@@ -14,11 +14,10 @@ templ PageAlert(morpheusVersion string) {
 			<p class="intro">
 				Component <code>{ "<neo-alert>" }</code> is a
 				CSS-only message surface for status, warning, and
-				error callouts. Compose an optional
-				<code>{ "[data-neo-alert-icon]" }</code> with a
-				<code>{ "[data-neo-alert-title]" }</code>,
-				<code>{ "[data-neo-alert-description]" }</code>, and
-				<code>{ "[data-neo-alert-actions]" }</code>; add a
+				error callouts. Compose an optional @AnchorCode("#slots-data-neo-alert-icon", "[data-neo-alert-icon]")
+				with a @AnchorCode("#slots-data-neo-alert-title", "[data-neo-alert-title]")&comma; @AnchorCode("#slots-data-neo-alert-description", "[data-neo-alert-description]")&comma;
+				and @AnchorCode("#slots-data-neo-alert-actions", "[data-neo-alert-actions]")&semi;
+				add a
 				<code>role</code> based on how assertively the message
 				should be announced.
 			</p>
@@ -57,8 +56,8 @@ templ PageAlert(morpheusVersion string) {
 				With actions
 			}
 			<p class="demo-note">
-				Put controls in a
-				<code>{ "[data-neo-alert-actions]" }</code> row when
+				Put controls in a @AnchorCode("#slots-data-neo-alert-actions", "[data-neo-alert-actions]")
+				row when
 				the alert should offer an immediate next step.
 			</p>
 			@demoFrameWith(DemoFrameOpts{

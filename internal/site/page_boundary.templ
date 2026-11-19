@@ -14,16 +14,19 @@ templ PageBoundary(morpheusVersion string) {
 			<p class="intro">
 				Component <code>{ "<neo-boundary>" }</code> is a logical scoping
 				region for overlays. An overlay inside it
-				(<a href={ href.PagePopover() }>Popover</a>,
-				<a href={ href.PageMenu() }>Menu</a>,
-				<a href={ href.PageSelect() }>Select</a>,
-				<a href={ href.PageCombobox() }>Combobox</a>, or
-				<a href={ href.PageTextInput() }>Text input</a>
+				(
+				@ComponentLink("neo-popover", href.PagePopover())&comma;{ " " }
+				@ComponentLink("neo-menu", href.PageMenu())&comma;{ " " }
+				@ComponentLink("neo-select", href.PageSelect())&comma;{ " " }
+				@ComponentLink("neo-combobox", href.PageCombobox())&comma; or
+				{ " " }
+				@ComponentLink("neo-textinput", href.PageTextInput())
 				suggestions) treats the boundary as its local document and
-				viewport. Its <code>scope</code> attribute is a space-separated token
+				viewport. Its @AnchorCode("#attributes-scope", "scope")
+				attribute is a space-separated token
 				list that defaults to <code>{ `"dismiss positioning"` }</code>.
 				By default, outside clicks and focus do not dismiss the overlay, and its panel
-				clamps to the region instead of the viewport. Setting <code>scope</code>
+				clamps to the region instead of the viewport. Setting @AnchorCode("#attributes-scope", "scope")
 				replaces that default. Add a token to opt into a scope or drop one
 				to turn it off. The <code>scroll</code> token lets independent
 				scrollers outside the region move without closing the overlay;
@@ -65,8 +68,8 @@ templ PageBoundary(morpheusVersion string) {
 			<p class="demo-note">
 				Open the popover. The panel clamps and flips against the dashed region instead of
 				the viewport. The trigger sits at the region's bottom edge, and
-				the panel flips above it to stay inside. Set
-				<code>{ `scope="dismiss"` }</code> to clamp to the viewport
+				the panel flips above it to stay inside. Set @AnchorCode("#attributes-scope", `scope="dismiss"`)
+				to clamp to the viewport
 				instead.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
@@ -83,7 +86,8 @@ templ PageBoundary(morpheusVersion string) {
 			<p class="demo-note">
 				The Account menu is an embedded widget inside a scrollable panel; its
 				boundary adds the <code>scroll</code> token
-				(<code>{ `scope="dismiss positioning scroll"` }</code>). Open the menu,
+				(
+				@AnchorCode("#attributes-scope", `scope="dismiss positioning scroll"`)&rpar;. Open the menu,
 				then scroll the panel around it. Because that scroller carries the
 				boundary itself, the popover closes instead of floating through the
 				container. Independent scrollers outside the boundary can move without
@@ -136,7 +140,8 @@ templ PageBoundary(morpheusVersion string) {
 			}
 			<p class="demo-note">
 				The closest boundary defines the rules; they are not inherited.
-				The inner boundary uses <code>{ `scope="positioning"` }</code> (no dismiss). Its
+				The inner boundary uses @AnchorCode("#attributes-scope", `scope="positioning"`)
+				(no dismiss). Its
 				popover closes on any outside click (document scope), even though
 				the outer boundary enables dismiss scoping. A closer boundary
 				that turns a scope off falls back to the document or viewport

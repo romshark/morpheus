@@ -3,7 +3,6 @@ package site
 import (
 	"github.com/romshark/morpheus/internal/href"
 	"github.com/romshark/morpheus/internal/site/examples"
-	"github.com/romshark/morpheus/neo"
 )
 
 templ PageTextInput(morpheusVersion string) {
@@ -16,10 +15,11 @@ templ PageTextInput(morpheusVersion string) {
 			<p class="intro">
 				Component <code>{ `<neo-textinput>` }</code> is a
 				wrapper around a native <code>&lt;input&gt;</code>
-				with live formatting such as <code>mask</code>,
-				<code>{ `format="number"` }</code>, and composable
-				transforms like <code>numeric-only</code> and
-				<code>{ `case="upper"` }</code>. Reach for it when
+				with live formatting such as @AnchorCode("#attributes-mask", "mask")&comma; @AnchorCode("#attributes-format", `format="number"`)&comma;
+				and composable
+				transforms like @AnchorCode("#attributes-numeric-only", "numeric-only")
+				and @AnchorCode("#attributes-case", `case="upper"`)&period;
+				Reach for it when
 				the displayed value should differ from the typed
 				one; a bare <code>{ `<input>` }</code> is the right
 				answer otherwise. The native field lives in the
@@ -47,7 +47,7 @@ templ PageTextInput(morpheusVersion string) {
 				Card-style mask
 			}
 			<p class="demo-note">
-				In <code>mask</code>, <code>#</code> is a digit
+				In @AnchorCode("#attributes-mask", "mask")&comma; <code>#</code> is a digit
 				slot and the spaces between groups are literal
 				delimiters.
 			</p>
@@ -74,7 +74,8 @@ templ PageTextInput(morpheusVersion string) {
 				Mixed mask
 			}
 			<p class="demo-note">
-				A <code>mask</code> can mix letter, digit, and
+				A @AnchorCode("#attributes-mask", "mask")
+				can mix letter, digit, and
 				literal slots. Cased slots (<code>U</code>,
 				<code>l</code>, <code>A</code>, <code>a</code>)
 				accept either case and coerce on insert; use
@@ -93,7 +94,7 @@ templ PageTextInput(morpheusVersion string) {
 			}
 			<p class="demo-note">
 				Parentheses, space, and dash are all literals
-				in the <code>mask</code>.
+				in the @AnchorCode("#attributes-mask", "mask")&period;
 			</p>
 			@demoFrameWith(DemoFrameOpts{
 				Width:          "26rem",
@@ -125,9 +126,11 @@ templ PageTextInput(morpheusVersion string) {
 				Number
 			}
 			<p class="demo-note">
-				<code>{ `format="number"` }</code> applies
+				@AnchorCode("#attributes-format", `format="number"`)
+				applies
 				right-anchored thousands grouping with optional
-				decimals. The <code>prefix</code> attribute pins
+				decimals. The @AnchorCode("#attributes-prefix", "prefix")
+				attribute pins
 				a literal at the start.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
@@ -142,9 +145,8 @@ templ PageTextInput(morpheusVersion string) {
 				Number (EU)
 			}
 			<p class="demo-note">
-				European notation from the same number format, with
-				<code>{ `decimal-mark=","` }</code> and a period
-				<code>thousands-separator</code>.
+				European notation from the same number format, with @AnchorCode("#attributes-decimal-mark", `decimal-mark=","`)
+				and a period @AnchorCode("#attributes-thousands-separator", "thousands-separator")&period;
 			</p>
 			@demoFrameWith(DemoFrameOpts{
 				Width:          "26rem",
@@ -158,9 +160,10 @@ templ PageTextInput(morpheusVersion string) {
 				Stepper
 			}
 			<p class="demo-note">
-				A number field steps its value by <code>step</code>
-				within <code>min</code> and <code>max</code>.
-				<code>stepper</code> adds increment and decrement
+				A number field steps its value by @AnchorCode("#attributes-step", "step")
+				within @AnchorCode("#attributes-min", "min")
+				and @AnchorCode("#attributes-max", "max")&period; @AnchorCode("#attributes-stepper", "stepper")
+				adds increment and decrement
 				buttons.
 			</p>
 			<ul class="demo-note">
@@ -169,8 +172,8 @@ templ PageTextInput(morpheusVersion string) {
 					PageDown take 10.
 				</li>
 				<li>
-					Hold a button to repeat. It disables at
-					<code>min</code> or <code>max</code>.
+					Hold a button to repeat. It disables at @AnchorCode("#attributes-min", "min")
+					or @AnchorCode("#attributes-max", "max")&period;
 				</li>
 			</ul>
 			@demoFrameWith(DemoFrameOpts{
@@ -185,20 +188,23 @@ templ PageTextInput(morpheusVersion string) {
 				Scrub
 			}
 			<p class="demo-note">
-				<code>scrub</code> adds a drag handle at the start of a
+				@AnchorCode("#attributes-scrub", "scrub")
+				adds a drag handle at the start of a
 				number field. Dragging it steps the value, 1 step per
-				2px by default; <code>scrub-sensitivity</code> sets the
+				2px by default; @AnchorCode("#attributes-scrub-sensitivity", "scrub-sensitivity")
+				sets the
 				steps per pixel.
 			</p>
 			<ul class="demo-note">
 				<li>
-					<code>{ `scrub="horizontal"` }</code> increases toward
-					the end of the line, <code>{ `scrub="vertical"` }</code>
+					@AnchorCode("#attributes-scrub", `scrub="horizontal"`)
+					increases toward
+					the end of the line, @AnchorCode("#attributes-scrub", `scrub="vertical"`)
 					increases upward.
 				</li>
 				<li>
-					Shift takes 10 steps per 2px. The field fires
-					<code>input</code> per step and <code>change</code>
+					Shift takes 10 steps per 2px. The field fires @AnchorCode("#events-input", "input")
+					per step and @AnchorCode("#events-change", "change")
 					on release.
 				</li>
 			</ul>
@@ -215,8 +221,9 @@ templ PageTextInput(morpheusVersion string) {
 			}
 			<p class="demo-note">
 				<code>::part()</code> styles the stepper and the scrub
-				handle. <code>--neo-textinput-stepper-width</code> and
-				<code>--neo-textinput-scrub-width</code> set their
+				handle. @AnchorCode("#css-variables-neo-textinput-stepper-width", "--neo-textinput-stepper-width")
+				and @AnchorCode("#css-variables-neo-textinput-scrub-width", "--neo-textinput-scrub-width")
+				set their
 				widths.
 			</p>
 			<ul class="demo-note">
@@ -227,22 +234,24 @@ templ PageTextInput(morpheusVersion string) {
 				<li>
 					The price pads the stepper and rounds each button
 					into a tile. Its vertical scrub handle is a matching
-					tile with a banknote from <code>scrub-icon</code> that
-					darkens while <code>:state(scrubbing)</code> is set.
+					tile with a banknote from @AnchorCode("#attributes-scrub-icon", "scrub-icon")
+					that
+					darkens while @AnchorCode("#states-scrubbing", ":state(scrubbing)")
+					is set.
 				</li>
 				<li>
 					The font size lays the buttons out in a row with
 					<code>{ `flex-direction: row-reverse` }</code>,
 					which puts decrement first, and swaps the chevrons
-					via <code>decrement-icon</code> and
-					<code>increment-icon</code>.
+					via @AnchorCode("#attributes-decrement-icon", "decrement-icon")
+					and @AnchorCode("#attributes-increment-icon", "increment-icon")&period;
 				</li>
 				<li>
 					The time steps the hours or the minutes, whichever
-					group holds the caret, between
-					<code>{ `min="00:00"` }</code> and
-					<code>{ `max="23:59"` }</code>. Its
-					<code>{ `mask="##:##"` }</code> makes it a text field,
+					group holds the caret, between @AnchorCode("#attributes-min", `min="00:00"`)
+					and @AnchorCode("#attributes-max", `max="23:59"`)&period;
+					Its @AnchorCode("#attributes-mask", `mask="##:##"`)
+					makes it a text field,
 					not a number field.
 				</li>
 			</ul>
@@ -259,10 +268,12 @@ templ PageTextInput(morpheusVersion string) {
 				Scrub customization
 			}
 			<p class="demo-note">
-				<code>{ `scrub-side="end"` }</code> moves the handle to the
-				end of the field, before the stepper if there is one.
-				<code>scrub-icon</code> swaps its icon, here for a percent
-				sign. <code>{ `scrub-sensitivity="0.25"` }</code> halves
+				@AnchorCode("#attributes-scrub-side", `scrub-side="end"`)
+				moves the handle to the
+				end of the field, before the stepper if there is one. @AnchorCode("#attributes-scrub-icon", "scrub-icon")
+				swaps its icon, here for a percent
+				sign. @AnchorCode("#attributes-scrub-sensitivity", `scrub-sensitivity="0.25"`)
+				halves
 				the drag speed to 1% per 4px.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
@@ -277,10 +288,12 @@ templ PageTextInput(morpheusVersion string) {
 				Disabled
 			}
 			<p class="demo-note">
-				<code>disabled</code> and <code>readonly</code>
-				pass through to the inner field.
-				<code>disabled</code> fades the host and blocks
-				all interaction; <code>readonly</code> leaves the
+				@AnchorCode("#attributes-disabled", "disabled")
+				and @AnchorCode("#attributes-readonly", "readonly")
+				pass through to the inner field. @AnchorCode("#attributes-disabled", "disabled")
+				fades the host and blocks
+				all interaction; @AnchorCode("#attributes-readonly", "readonly")
+				leaves the
 				value selectable but immutable.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
@@ -309,8 +322,8 @@ templ PageTextInput(morpheusVersion string) {
 					<strong>Initial</strong> has no suggestions;
 					<strong>Suggestions</strong>,
 					<strong>Disabled</strong>, and <strong>Rich</strong>
-					morph in plain rows,
-					<code>disabled</code> rows, then rich rows (icon plus
+					morph in plain rows, @AnchorCode("#attributes-disabled", "disabled")
+					rows, then rich rows (icon plus
 					a short description). The typed value is untouched.
 				</li>
 				<li>
@@ -320,7 +333,8 @@ templ PageTextInput(morpheusVersion string) {
 					closing.
 				</li>
 				<li>
-					The <code>open</code> attribute forces the popover
+					The @AnchorCode("#attributes-open", "open")
+					attribute forces the popover
 					open so each state shows without focusing the preview;
 					normally suggestions appear on focus.
 				</li>
@@ -343,7 +357,8 @@ templ PageTextInput(morpheusVersion string) {
 				<li>
 					Each debounced keystroke posts the query; the server
 					morphs matching <code>{ "<neo-option>" }</code> rows
-					into the <code>suggestions</code> slot, a
+					into the @AnchorCode("#slots-suggestions", "suggestions")
+					slot, a
 					<code>[data-neo-empty-results]</code> row when nothing
 					matches, or nothing to close the popover.
 				</li>
@@ -357,10 +372,8 @@ templ PageTextInput(morpheusVersion string) {
 				</li>
 				<li>
 					Constrain the value to a fixed set instead?{ " " }
-					@neo.Link(neo.LinkOpts{Href: neo.Set(href.PageCombobox())}) {
-						Combobox
-					}
-					{ " " }is the constrained-selection version.
+					@ComponentLink("neo-combobox", href.PageCombobox())
+					is the constrained-selection version.
 				</li>
 			</ul>
 			@simDelayHint()

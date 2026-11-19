@@ -40,8 +40,8 @@ templ PageDialog(morpheusVersion string) {
 				Non-dismissible
 			}
 			<p class="demo-note">
-				For must-decide flows, set
-				<code>{ `dismissible="false"` }</code>. Backdrop
+				For must-decide flows, set @AnchorCode("#attributes-dismissible", `dismissible="false"`)&period;
+				Backdrop
 				clicks and <neo-kbd>Esc</neo-kbd> are then ignored and the user
 				must pick an action. Pair it with a clearly
 				destructive primary button.
@@ -110,8 +110,7 @@ templ PageDialog(morpheusVersion string) {
 				States:   dialogMorphStates(),
 			})
 			<p class="demo-note">
-				Load the body on every open. A
-				<code>{ `[data-neo-async-placeholder]` }</code>
+				Load the body on every open. A @AnchorCode("#slots-data-neo-async-placeholder", "[data-neo-async-placeholder]")
 				child holds skeleton bars; opening posts to the
 				server, whose response morph-patches real content
 				in to replace it.
@@ -229,8 +228,8 @@ templ dialogAsyncFailureDemo() {
 	</p>
 	<ul class="demo-note">
 		<li>
-			The loader lives in the dialog's
-			<code>{ "[data-neo-async-placeholder]" }</code> slot,
+			The loader lives in the dialog's @AnchorCode("#slots-data-neo-async-placeholder", "[data-neo-async-placeholder]")
+			slot,
 			and close/reopen restores it. On success the server
 			morphs <code>{ "<div id=\"<host-id>-body\">" }</code>
 			in place.

@@ -16,8 +16,9 @@ templ PagePopover(morpheusVersion string) {
 			<p class="intro">
 				Component <code>{ "<neo-popover>" }</code> is an
 				anchored floating panel attached to a trigger, with
-				a <code>[data-neo-popover-trigger]</code> child and a
-				<code>[data-neo-popover-content]</code> panel. The
+				a @AnchorCode("#slots-data-neo-popover-trigger", "[data-neo-popover-trigger]")
+				child and a @AnchorCode("#slots-data-neo-popover-content", "[data-neo-popover-content]")
+				panel. The
 				host owns positioning, the open/close events,
 				outside-click and <neo-kbd>Esc</neo-kbd> dismissal, and the
 				strict-placement clamp logic.
@@ -79,8 +80,8 @@ templ PagePopover(morpheusVersion string) {
 			}
 			<p class="demo-note">
 				When the panel is taller than the
-				viewport it clamps to the screen (leaving
-				<code>screen-offset</code> of margin) and scrolls
+				viewport it clamps to the screen (leaving @AnchorCode("#attributes-screen-offset", "screen-offset")
+				of margin) and scrolls
 				internally rather than overflowing the page.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
@@ -97,14 +98,15 @@ templ PagePopover(morpheusVersion string) {
 				Strict placement
 			}
 			<p class="demo-note">
-				Setting <code>{ `flip="false"` }</code> pins the
+				Setting @AnchorCode("#attributes-flip", `flip="false"`)
+				pins the
 				panel to <code>bottom-start</code> and keeps that
 				side instead of flipping above when the slot runs
-				short. When the bottom slot is shorter than
-				<code>min-fit-height</code>, opening the popover
+				short. When the bottom slot is shorter than @AnchorCode("#attributes-min-fit-height", "min-fit-height")&comma;
+				opening the popover
 				scrolls the trigger into a useful position and shows
-				the panel immediately. Set the
-				<code>clamp-placement</code> attribute to let the
+				the panel immediately. Set the @AnchorCode("#attributes-clamp-placement", "clamp-placement")
+				attribute to let the
 				panel re-anchor inside the viewport instead. Scroll
 				so the trigger sits near the bottom of the viewport,
 				then open the panel to see it scroll into place.
@@ -124,8 +126,8 @@ templ PagePopover(morpheusVersion string) {
 			}
 			<p class="demo-note">
 				Strict placement keeps the panel glued to the
-				configured side. When that slot is shorter than
-				<code>min-fit-height</code> (here <code>8rem</code>;
+				configured side. When that slot is shorter than @AnchorCode("#attributes-min-fit-height", "min-fit-height")
+				(here <code>8rem</code>;
 				default <code>content</code>) and the opposite side
 				has more room, the primary axis flips
 				(<code>bottom-start</code> becomes
@@ -148,8 +150,8 @@ templ PagePopover(morpheusVersion string) {
 			}
 			<p class="demo-note">
 				When the panel is wider than the
-				viewport it clamps to the screen (leaving
-				<code>screen-offset</code> of margin) and scrolls
+				viewport it clamps to the screen (leaving @AnchorCode("#attributes-screen-offset", "screen-offset")
+				of margin) and scrolls
 				horizontally inside the panel. The horizontal
 				clamp mirrors the vertical one.
 			</p>
@@ -167,12 +169,13 @@ templ PagePopover(morpheusVersion string) {
 				Hover to open
 			}
 			<p class="demo-note">
-				Set <code>hover</code> on the host
+				Set @AnchorCode("#attributes-hover", "hover")
+				on the host
 				and the panel opens when the pointer enters the
 				trigger, closing after the pointer leaves both the
-				trigger and the panel. The
-				<code>hover-open-delay</code> filters incidental
-				cursor crossings; <code>hover-close-delay</code>
+				trigger and the panel. The @AnchorCode("#attributes-hover-open-delay", "hover-open-delay")
+				filters incidental
+				cursor crossings; @AnchorCode("#attributes-hover-close-delay", "hover-close-delay")
 				gives the pointer time to bridge the gap from
 				trigger to panel before the close kicks in. Click
 				still works (instantly, no delay) so touch and
@@ -202,8 +205,8 @@ templ PagePopover(morpheusVersion string) {
 				while it is open. Open the popover and watch
 				autoplay push progress into it. The panel stays open
 				and its content reconciles in place because the host
-				element stays mounted across the morph, with no
-				<code>open</code> attribute needed.
+				element stays mounted across the morph, with no @AnchorCode("#attributes-open", "open")
+				attribute needed.
 			</p>
 			@Playground(PlaygroundOpts{
 				ID:       "popover-morph-playground",
@@ -253,7 +256,8 @@ templ PagePopover(morpheusVersion string) {
 					be dropped.
 				</li>
 				<li>
-					<code>neo-popover-close</code> aborts the
+					@AnchorCode("#events-neo-popover-close", "neo-popover-close")
+					aborts the
 					in-flight request. Closing mid-load leaves
 					no stale content. Open the popover to see it.
 				</li>

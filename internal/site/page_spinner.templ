@@ -19,7 +19,8 @@ templ PageSpinner(morpheusVersion string) {
 				<strong>determinate</strong> draws an arc filled to
 				<code>(value - min) / (max - min)</code>, the round
 				counterpart of <code>{ "<neo-progress>" }</code>.
-				Sized off <code>--neo-spinner-size</code> (defaults
+				Sized off @AnchorCode("#css-variables-neo-spinner-size", "--neo-spinner-size")
+				(defaults
 				to <code>1em</code>) and inherits
 				<code>currentColor</code>.
 				The ring lives in an open shadow root; customize its
@@ -44,8 +45,8 @@ templ PageSpinner(morpheusVersion string) {
 				Indeterminate
 			}
 			<p class="demo-note">
-				A bare <code>{ "<neo-spinner>" }</code> with no
-				<code>value</code> stays decorative and CSS-driven;
+				A bare <code>{ "<neo-spinner>" }</code> with no @AnchorCode("#attributes-value", "value")
+				stays decorative and CSS-driven;
 				pair it with adjacent status text.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
@@ -61,7 +62,7 @@ templ PageSpinner(morpheusVersion string) {
 			}
 			<p class="demo-note">
 				A faint track with a <code>currentColor</code> arc
-				filled by <code>value</code>. No text is drawn on the
+				filled by @AnchorCode("#attributes-value", "value")&period; No text is drawn on the
 				ring; the value goes to <code>aria-valuenow</code>,
 				and a wrapping <code>{ "<neo-tooltip>" }</code> can
 				surface it visually (see below).
@@ -78,10 +79,11 @@ templ PageSpinner(morpheusVersion string) {
 				Live progression
 			}
 			<p class="demo-note">
-				The ring is just an attribute; set
-				<code>value</code> from anything (SSE, a
+				The ring is just an attribute; set @AnchorCode("#attributes-value", "value")
+				from anything (SSE, a
 				<code>fetch</code> progress callback, a timer) and the
-				arc sweeps to it. <code>easing</code> tweens the arc
+				arc sweeps to it. @AnchorCode("#attributes-easing", "easing")
+				tweens the arc
 				between commits (same syntax as
 				<code>{ "<neo-progress>" }</code>); this one is wired to
 				a 60 ms ticker.
@@ -98,7 +100,8 @@ templ PageSpinner(morpheusVersion string) {
 				Labelled, with value tooltip
 			}
 			<p class="demo-note">
-				With a <code>label</code> the host reports
+				With a @AnchorCode("#attributes-label", "label")
+				the host reports
 				<code>{ `role="progressbar"` }</code> with
 				<code>aria-valuemin</code> /
 				<code>aria-valuemax</code> /
@@ -122,8 +125,8 @@ templ PageSpinner(morpheusVersion string) {
 				Sizes
 			}
 			<p class="demo-note">
-				Set the visual size with the
-				<code>--neo-spinner-size</code> custom property.
+				Set the visual size with the @AnchorCode("#css-variables-neo-spinner-size", "--neo-spinner-size")
+				custom property.
 				It defaults to <code>1em</code> so a bare spinner
 				inherits the surrounding line-height naturally;
 				override it inline (or via a wrapper class) to
@@ -175,8 +178,8 @@ templ PageSpinner(morpheusVersion string) {
 				>WCAG 2.3.3</a>.
 				The determinate ring keeps its fill
 				and only drops its commit tween. Values jump
-				rather than sweep. The kit's
-				<code>--neo-spinner-duration</code> token sits on its
+				rather than sweep. The kit's @AnchorCode("#css-variables-neo-spinner-duration", "--neo-spinner-duration")
+				token sits on its
 				own (not routed through the global
 				<code>--neo-duration-scale</code>) so the spin isn't
 				accidentally stopped when other kit motion is dialed
@@ -196,8 +199,8 @@ templ PageSpinner(morpheusVersion string) {
 				server-reported percentages. Each state re-emits only
 				the bare host. The SVG ring lives in the component's
 				shadow root. The morph leaves the existing arc in
-				place. The
-				<code>easing</code> transition sweeps between
+				place. The @AnchorCode("#attributes-easing", "easing")
+				transition sweeps between
 				determinate values, while the indeterminate state
 				switches the same arc back to its rotating animation.
 				Autoplay cycles through all 5 states below with no

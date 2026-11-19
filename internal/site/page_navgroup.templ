@@ -17,11 +17,14 @@ templ PageNavgroup(morpheusVersion string) {
 				roving-tabindex keyboard navigation host. Arrow keys
 				move focus across children marked
 				<code>data-neo-navgroup-item</code>;
-				<neo-kbd>Tab</neo-kbd> enters and leaves as a single stop.
-				<code>orientation</code> picks the axis (horizontal,
-				vertical, or 2D grid); <code>columns</code> fixes the
-				grid column count; <code>wrap</code> opts into edge
-				wrapping; <code>typeahead</code> opts into focus by
+				<neo-kbd>Tab</neo-kbd> enters and leaves as a single stop. @AnchorCode("#attributes-orientation", "orientation")
+				picks the axis (horizontal,
+				vertical, or 2D grid); @AnchorCode("#attributes-columns", "columns")
+				fixes the
+				grid column count; @AnchorCode("#attributes-wrap", "wrap")
+				opts into edge
+				wrapping; @AnchorCode("#attributes-typeahead", "typeahead")
+				opts into focus by
 				printable key. No implicit ARIA role; author
 				<code>role</code> and <code>aria-label</code> to fit
 				the semantics.
@@ -82,7 +85,8 @@ templ PageNavgroup(morpheusVersion string) {
 			}
 			<p class="demo-note">
 				A horizontal row of formatting buttons
-				with <code>wrap</code> on, which makes arrow keys cycle
+				with @AnchorCode("#attributes-wrap", "wrap")
+				on, which makes arrow keys cycle
 				past either edge. <code>{ `role="toolbar"` }</code> and
 				<code>aria-label</code> turn the group into a
 				single labelled landmark for assistive tech.
@@ -99,8 +103,8 @@ templ PageNavgroup(morpheusVersion string) {
 			}
 			<p class="demo-note">
 				Same component, axis flipped to
-				match a stacked list. Up/down arrows move focus,
-				<code>wrap</code> keeps the cursor inside the
+				match a stacked list. Up/down arrows move focus, @AnchorCode("#attributes-wrap", "wrap")
+				keeps the cursor inside the
 				group when it reaches either end.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
@@ -114,9 +118,11 @@ templ PageNavgroup(morpheusVersion string) {
 				Grid
 			}
 			<p class="demo-note">
-				Set <code>{ `orientation="grid"` }</code> with a
-				<code>columns</code> count and arrow keys move in
-				2 dimensions. <code>wrap</code> wraps both
+				Set @AnchorCode("#attributes-orientation", `orientation="grid"`)
+				with a @AnchorCode("#attributes-columns", "columns")
+				count and arrow keys move in
+				2 dimensions. @AnchorCode("#attributes-wrap", "wrap")
+				wraps both
 				axes. A Right at the end of a row jumps to the
 				start of the next row.
 			</p>

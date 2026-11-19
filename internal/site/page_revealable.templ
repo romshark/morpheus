@@ -16,7 +16,8 @@ templ PageRevealable(morpheusVersion string) {
 				spoiler that obscures children behind an animated
 				grain veil until the user activates it (click,
 				<neo-kbd>Enter</neo-kbd>, or <neo-kbd>Space</neo-kbd>). Re-conceals
-				after <code>rehide-after</code> ms and whenever the
+				after @AnchorCode("#attributes-rehide-after", "rehide-after")
+				ms and whenever the
 				content is patched, important for server-driven UIs
 				so a morph that swaps the secret never flashes it.
 				While concealed the content is <code>inert</code>
@@ -43,8 +44,8 @@ templ PageRevealable(morpheusVersion string) {
 			<p class="demo-note">
 				The default (inline) variant draws fine grain in the
 				element's own text colour, sized to the run. Once
-				revealed it stays revealed; set
-				<code>rehide-after</code> to auto-conceal.
+				revealed it stays revealed; set @AnchorCode("#attributes-rehide-after", "rehide-after")
+				to auto-conceal.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
 				StageMinHeight: "max-content",
@@ -57,9 +58,10 @@ templ PageRevealable(morpheusVersion string) {
 				Image spoiler
 			}
 			<p class="demo-note">
-				<code>{ `variant="media"` }</code> lays a veil plus
-				sparser particles over a block. Here
-				<code>{ `rehide-after="4000"` }</code> re-covers it 4s
+				@AnchorCode("#attributes-variant", `variant="media"`)
+				lays a veil plus
+				sparser particles over a block. Here @AnchorCode("#attributes-rehide-after", `rehide-after="4000"`)
+				re-covers it 4s
 				after reveal and after all interactions and focus are gone.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
@@ -74,7 +76,8 @@ templ PageRevealable(morpheusVersion string) {
 				Blurred image spoiler
 			}
 			<p class="demo-note">
-				<code>blur-content</code> keeps the image visible
+				@AnchorCode("#attributes-blur-content", "blur-content")
+				keeps the image visible
 				but heavily blurred. The composition teases
 				without giving the subject away, a softer mode than
 				the fully-veiled image above.
@@ -91,7 +94,8 @@ templ PageRevealable(morpheusVersion string) {
 				Section spoiler
 			}
 			<p class="demo-note">
-				Any subtree works. <code>blur-content</code> also
+				Any subtree works. @AnchorCode("#attributes-blur-content", "blur-content")
+				also
 				blurs the hidden block. The shape teases without
 				giving the text away.
 			</p>
@@ -108,10 +112,10 @@ templ PageRevealable(morpheusVersion string) {
 			}
 			<p class="demo-note">
 				Cover and grain are CSS custom properties, not
-				attributes. Override
-				<code>--neo-revealable-veil</code> (panel
-				background) and
-				<code>--neo-revealable-particle-color</code> (grain)
+				attributes. Override @AnchorCode("#css-variables-neo-revealable-veil", "--neo-revealable-veil")
+				(panel
+				background) and @AnchorCode("#css-variables-neo-revealable-particle-color", "--neo-revealable-particle-color")
+				(grain)
 				per instance via inline style, or theme-wide.
 			</p>
 			@demoFrameWith(DemoFrameOpts{

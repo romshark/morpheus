@@ -3,7 +3,6 @@ package site
 import (
 	"github.com/romshark/morpheus/internal/href"
 	"github.com/romshark/morpheus/internal/site/examples"
-	"github.com/romshark/morpheus/neo"
 )
 
 templ PageSelect(morpheusVersion string) {
@@ -16,20 +15,13 @@ templ PageSelect(morpheusVersion string) {
 			<p class="intro">
 				Component <code>{ "<neo-select>" }</code> is a
 				single-select dropdown of{ " " }
-				@neo.Link(neo.LinkOpts{Href: neo.Set(href.PageOption())}) {
-					<code>{ "<neo-option>" }</code>
-				}
-				{ " " }/{ " " }
-				@neo.Link(neo.LinkOpts{Href: neo.Set(href.PageOptgroup())}) {
-					<code>{ "<neo-optgroup>" }</code>
-				}
-				{ " " }children, built for a short list known up front.
+				@ComponentLink("neo-option", href.PageOption())
+				/{ " " }
+				@ComponentLink("neo-optgroup", href.PageOptgroup())
+				children, built for a short list known up front.
 				Type a few letters to jump to a match. For long or
 				server-side lists, or for multiple selection, use{ " " }
-				@neo.Link(neo.LinkOpts{Href: neo.Set(href.PageCombobox())}) {
-					Combobox
-				}
-				.
+				@ComponentLink("neo-combobox", href.PageCombobox())&period;
 			</p>
 			@Playground(PlaygroundOpts{
 				ID:     "select-playground",
@@ -49,8 +41,8 @@ templ PageSelect(morpheusVersion string) {
 				Disabled options
 			}
 			<p class="demo-note">
-				Mark an option unavailable with
-				<code>disabled</code>. It renders muted, is skipped by
+				Mark an option unavailable with @AnchorCode("#attributes-disabled", "disabled")&period;
+				It renders muted, is skipped by
 				arrow-key navigation, and can't be selected.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
@@ -64,7 +56,8 @@ templ PageSelect(morpheusVersion string) {
 				Disabled control
 			}
 			<p class="demo-note">
-				Set <code>disabled</code> on the host to make the
+				Set @AnchorCode("#attributes-disabled", "disabled")
+				on the host to make the
 				whole control non-interactive. The trigger leaves the
 				tab order, ignores clicks and keys, and renders faded.
 				An open panel closes. Distinct from disabling individual options.
@@ -80,7 +73,8 @@ templ PageSelect(morpheusVersion string) {
 				Native form submission
 			}
 			<p class="demo-note">
-				The select is form-associated. Give it a <code>name</code> and it
+				The select is form-associated. Give it a @AnchorCode("#attributes-name", "name")
+				and it
 				submits its value in a plain <code>{ "<form>" }</code>,
 				no framework binding. Pick a plan and submit to see the posted value.
 			</p>
@@ -123,12 +117,13 @@ templ PageSelect(morpheusVersion string) {
 			</p>
 			<ul class="demo-note">
 				<li>
-					<code>clearable</code> makes Backspace or
+					@AnchorCode("#attributes-clearable", "clearable")
+					makes Backspace or
 					Delete on the trigger drop the selection.
 				</li>
 				<li>
-					Tag an empty <code>{ `<neo-option value="">` }</code> with
-					<code>{ "[data-neo-select-empty]" }</code> to serve as both
+					Tag an empty <code>{ `<neo-option value="">` }</code> with @AnchorCode("#slots-data-neo-select-empty", "[data-neo-select-empty]")
+					to serve as both
 					a selectable "none" row and the trigger face shown once cleared.
 				</li>
 			</ul>
@@ -181,8 +176,8 @@ templ PageSelect(morpheusVersion string) {
 			</p>
 			<ul class="demo-note">
 				<li>
-					A
-					<code>{ "[data-neo-option-trigger]" }</code> child is cloned onto
+					A @AnchorCode("#slots-data-neo-option-trigger", "[data-neo-option-trigger]")
+					child is cloned onto
 					the trigger when its option is selected; the list keeps the full card.
 				</li>
 				<li>
@@ -213,7 +208,8 @@ templ PageSelect(morpheusVersion string) {
 					panel anchored and scrolls its content.
 				</li>
 				<li>
-					Set <code>clamp-placement</code> to re-anchor
+					Set @AnchorCode("#attributes-clamp-placement", "clamp-placement")
+					to re-anchor
 					the panel's position so it fits instead.
 				</li>
 			</ul>
@@ -235,12 +231,13 @@ templ PageSelect(morpheusVersion string) {
 			</p>
 			<ul class="demo-note">
 				<li>
-					If the slot is shorter than <code>min-fit-height</code>
+					If the slot is shorter than @AnchorCode("#attributes-min-fit-height", "min-fit-height")
 					(default <code>content</code>) and the opposite side
 					has more room, the listbox flips there.
 				</li>
 				<li>
-					Here <code>min-fit-height</code> is <code>8rem</code>.
+					Here @AnchorCode("#attributes-min-fit-height", "min-fit-height")
+					is <code>8rem</code>.
 					When the trigger sits low in the viewport the listbox flips
 					from <code>bottom-start</code> to <code>top-start</code>.
 					Scroll it down to see it.
@@ -268,8 +265,8 @@ templ PageSelect(morpheusVersion string) {
 			</p>
 			<ul class="demo-note">
 				<li>
-					Options can appear, disappear, or flip to
-					<code>disabled</code> with the popover open.
+					Options can appear, disappear, or flip to @AnchorCode("#attributes-disabled", "disabled")
+					with the popover open.
 				</li>
 				<li>
 					The element stays mounted, the popover stays
@@ -287,21 +284,20 @@ templ PageSelect(morpheusVersion string) {
 				Async load
 			}
 			<p class="demo-note">
-				Fetch options from the server on every open with <code>async</code>.
+				Fetch options from the server on every open with @AnchorCode("#attributes-async", "async")&period;
 			</p>
 			<ul class="demo-note">
 				<li>
-					Each open fires <code>neo-select-load</code>;
+					Each open fires @AnchorCode("#events-neo-select-load", "neo-select-load")&semi;
 					wire <code>data-on:neo-select-load</code> to post.
 				</li>
 				<li>
 					The server morphs an options fragment into
-					<code>#&lt;host-id&gt;-options</code>; the
-					<code>{ "[data-neo-async-placeholder]" }</code>
+					<code>#&lt;host-id&gt;-options</code>; the @AnchorCode("#slots-data-neo-async-placeholder", "[data-neo-async-placeholder]")
 					shows until it arrives.
 				</li>
 				<li>
-					With <code>clearable</code>, Backspace clears
+					With @AnchorCode("#attributes-clearable", "clearable")&comma; Backspace clears
 					the selection and the next open reloads.
 				</li>
 				<li>
@@ -330,9 +326,9 @@ templ PageSelect(morpheusVersion string) {
 			</p>
 			<ul class="demo-note">
 				<li>
-					Add a <code>{ "[data-neo-async-placeholder]" }</code>
-					without <code>async</code>.
-					The first open fires <code>neo-select-load</code>.
+					Add a @AnchorCode("#slots-data-neo-async-placeholder", "[data-neo-async-placeholder]")
+					without @AnchorCode("#attributes-async", "async")&period;
+					The first open fires @AnchorCode("#events-neo-select-load", "neo-select-load")&period;
 				</li>
 				<li>
 					Loaded options are cached; later opens reuse them with no refetch.
@@ -364,8 +360,7 @@ templ PageSelect(morpheusVersion string) {
 			<ul class="demo-note">
 				<li>
 					On a failed request Datastar retries per its retry config;
-					after retries are exhausted, a failure template replaces the
-					<code>{ "[data-neo-async-placeholder]" }</code>.
+					after retries are exhausted, a failure template replaces the @AnchorCode("#slots-data-neo-async-placeholder", "[data-neo-async-placeholder]")&period;
 				</li>
 				<li>
 					A

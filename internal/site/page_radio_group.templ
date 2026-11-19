@@ -19,7 +19,8 @@ templ PageRadioGroup(morpheusVersion string) {
 				manual by default (like
 				<code>{ "<neo-tabs>" }</code>). Arrow keys move
 				focus and <code>Enter</code> / <code>Space</code>
-				commit; add <code>auto-activate</code> to select on
+				commit; add @AnchorCode("#attributes-auto-activate", "auto-activate")
+				to select on
 				arrow. Wrap a radio in a
 				<code>{ "<label>" }</code> to make the whole row
 				clickable.
@@ -41,8 +42,8 @@ templ PageRadioGroup(morpheusVersion string) {
 				Horizontal
 			}
 			<p class="demo-note">
-				With
-				<code>{ `orientation="horizontal"` }</code> the
+				With @AnchorCode("#attributes-orientation", `orientation="horizontal"`)
+				the
 				group lays out on a single row, wrapping if it
 				overflows. Suited to short binary or trinary
 				choices.
@@ -76,7 +77,8 @@ templ PageRadioGroup(morpheusVersion string) {
 				Disabled
 			}
 			<p class="demo-note">
-				<code>disabled</code> on the host disables every
+				@AnchorCode("#attributes-disabled", "disabled")
+				on the host disables every
 				nested radio and skips them in arrow navigation,
 				regardless of per-radio state. The selected value
 				is preserved. The form still submits a
@@ -94,7 +96,8 @@ templ PageRadioGroup(morpheusVersion string) {
 				Auto-activate
 			}
 			<p class="demo-note">
-				With <code>auto-activate</code> an arrow key
+				With @AnchorCode("#attributes-auto-activate", "auto-activate")
+				an arrow key
 				selects the focused radio immediately, the classic
 				radio-group behaviour. By default arrows only move
 				focus and <code>Enter</code> / <code>Space</code>

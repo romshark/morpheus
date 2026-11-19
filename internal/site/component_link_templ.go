@@ -147,11 +147,11 @@ func W3CEventURL(name string) string {
 	}
 }
 
-// anchorCode links code in prose to an anchor on the same page,
+// AnchorCode links code in prose to an anchor on the same page,
 // such as a reference row:
 //
-//	@anchorCode("#parts-summary", "::part(summary)")
-func anchorCode(href, code string) templ.Component {
+//	@AnchorCode("#parts-summary", "::part(summary)")
+func AnchorCode(href, code string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {

@@ -62,10 +62,10 @@ func W3CEventURL(name string) string {
 	}
 }
 
-// anchorCode links code in prose to an anchor on the same page,
+// AnchorCode links code in prose to an anchor on the same page,
 // such as a reference row:
 //
-//	@anchorCode("#parts-summary", "::part(summary)")
-templ anchorCode(href, code string) {
+//	@AnchorCode("#parts-summary", "::part(summary)")
+templ AnchorCode(href, code string) {
 	<a href={ templ.SafeURL(href) }><code>{ code }</code></a>
 }

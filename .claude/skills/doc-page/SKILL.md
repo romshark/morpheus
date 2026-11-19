@@ -36,6 +36,11 @@ In order:
   - One term per concept (trigger / listbox / popover), matching the element's own naming.
   - Structure with lists and formatting, not prose paragraphs; keep the text minimal.
   - Link, don't repeat. Describe shared behavior once, link to it elsewhere.
+- Links:
+  - A mention of the page's own attribute, slot, part, state, event or CSS variable links to its reference row: `@AnchorCode("#parts-summary", "::part(summary)")`. The row id is the section plus the name (`attributes-open`, `slots-summary-open`, `css-variables-neo-foo-gap`), with the doc's `Prefix` in front on pages with several references (`item-attributes-neo-hide-below`).
+  - Another component links with `@ComponentLink("neo-foo", href.PageFoo())`, never `@neo.Link` or a raw `<a>` with its name as plain text.
+  - Both are calls without children; the `templ` skill's spacing rules apply (`&comma;` / `&period;` after the call, the call on the same line as the text before it).
+  - `templ.Raw` reference descriptions can't call them; write `<a href="#…"><code>…</code></a>` there.
 - Intro: opens with ``Component <code>{ "<neo-foo>" }</code> is ...``.
 - Example notes (`<p class="demo-note">` above each demo):
   - Say what it's for, then how it works.

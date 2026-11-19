@@ -14,7 +14,7 @@ templ PagePersist(morpheusVersion string) {
 			<p class="intro">
 				Component <code>{ "<neo-persist>" }</code> is a
 				behavioural primitive that snapshots properties of
-				the element it targets (via <code>for</code>, or its first child by default) to
+				the element it targets (via @AnchorCode("#attributes-for", "for")&comma; or its first child by default) to
 				<a
 					href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API"
 					target="_blank"
@@ -55,7 +55,7 @@ templ PagePersist(morpheusVersion string) {
 				Textarea draft (sessionStorage)
 			}
 			<p class="demo-note">
-				Passing <code>session</code>
+				Passing @AnchorCode("#attributes-session", "session")
 				switches the backing store to
 				<code>sessionStorage</code>, scoping the snapshot
 				to the current tab. Type a draft, reload the page,

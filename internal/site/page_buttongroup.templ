@@ -14,8 +14,8 @@ templ PageButtonGroup(morpheusVersion string) {
 			<p class="intro">
 				Component <code>{ "<neo-buttongroup>" }</code> is a
 				segmented row (or column) of
-				<code>{ "<neo-button>" }</code> children. Setting
-				<code>value</code> on the host promotes it into a
+				<code>{ "<neo-button>" }</code> children. Setting @AnchorCode("#attributes-value", "value")
+				on the host promotes it into a
 				radiogroup with the matching child as the selected
 				option.
 			</p>
@@ -47,16 +47,19 @@ templ PageButtonGroup(morpheusVersion string) {
 			</p>
 			<ul class="demo-note">
 				<li>
-					Without <code>value</code> the buttons share
+					Without @AnchorCode("#attributes-value", "value")
+					the buttons share
 					borders only. There is no selection state, and each is
 					its own tab stop with no arrow-key navigation.
 				</li>
 				<li>
-					Setting <code>value</code> on the host and a
+					Setting @AnchorCode("#attributes-value", "value")
+					on the host and a
 					matching <code>value</code> on one button makes
 					it a radiogroup with a single roving tab stop where
 					arrow keys and Home / End move focus between
-					buttons. Add <code>auto-activate</code> to commit
+					buttons. Add @AnchorCode("#attributes-auto-activate", "auto-activate")
+					to commit
 					the selection as focus moves.
 				</li>
 			</ul>

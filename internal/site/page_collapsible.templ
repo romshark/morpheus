@@ -13,11 +13,11 @@ templ PageCollapsible(morpheusVersion string) {
 			}
 			<p class="intro">
 				Component <code>{ "<neo-collapsible>" }</code> is a summary button
-				that shows and hides the content below it. Elements that share a @anchorCode("#attributes-name", "name")
+				that shows and hides the content below it. Elements that share a @AnchorCode("#attributes-name", "name")
 				form a group, in which opening 1 closes the others.
 				Unlike a native <code>{ "<details>" }</code>, it preserves its state
 				when morph-patched (stays open if it was opened) and can optionally
-				be server-controlled through the @anchorCode("#attributes-open", "open")
+				be server-controlled through the @AnchorCode("#attributes-open", "open")
 				attribute.
 			</p>
 			@Playground(PlaygroundOpts{
@@ -61,9 +61,9 @@ templ PageCollapsible(morpheusVersion string) {
 				Accordion
 			}
 			<p class="demo-note">
-				The 3 elements share @anchorCode("#attributes-name", `name="shipping-faq"`)&comma;
+				The 3 elements share @AnchorCode("#attributes-name", `name="shipping-faq"`)&comma;
 				and opening 1 closes the open one. The kit has no separate accordion
-				component, because @anchorCode("#attributes-name", "name")
+				component, because @AnchorCode("#attributes-name", "name")
 				already gives this behavior.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
@@ -81,9 +81,9 @@ templ PageCollapsible(morpheusVersion string) {
 				Only the hidden text is in the element, and the preview stays
 				outside. <code>{ "flex-direction: column-reverse" }</code>
 				on the element puts the panel above the summary, which keeps the
-				button under the text it shows. The @anchorCode("#slots-summary-open", "summary-open")
+				button under the text it shows. The @AnchorCode("#slots-summary-open", "summary-open")
 				slot holds the label while open, and
-				<code>{ "width: fit-content" }</code> on @anchorCode("#parts-summary", "::part(summary)")
+				<code>{ "width: fit-content" }</code> on @AnchorCode("#parts-summary", "::part(summary)")
 				keeps the chevron next to the label.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
@@ -99,9 +99,9 @@ templ PageCollapsible(morpheusVersion string) {
 			}
 			<p class="demo-note">
 				Same structure as Read more, but the summary holds both labels,
-				stacked in a grid. @anchorCode("#attributes-open", `[open]:not([open="false"])`)
+				stacked in a grid. @AnchorCode("#attributes-open", `[open]:not([open="false"])`)
 				selectors move 1 out and the other in while the color fades from
-				the link color to the muted color. The @anchorCode("#slots-summary-open", "summary-open")
+				the link color to the muted color. The @AnchorCode("#slots-summary-open", "summary-open")
 				slot can't do this, because it swaps the label without a
 				transition. Open the element to see it.
 			</p>
@@ -117,8 +117,8 @@ templ PageCollapsible(morpheusVersion string) {
 				Customized
 			}
 			<p class="demo-note">
-				@anchorCode("#parts-summary", "::part(summary)")
-				puts the icon before the label, and @anchorCode("#parts-icon", "::part(icon)")
+				@AnchorCode("#parts-summary", "::part(summary)")
+				puts the icon before the label, and @AnchorCode("#parts-icon", "::part(icon)")
 				points the chevron at the label while closed. <a href="#css-variables">Custom properties</a> slow the transition and set the padding
 				and the icon color.
 			</p>
@@ -134,9 +134,9 @@ templ PageCollapsible(morpheusVersion string) {
 				Sidebar
 			}
 			<p class="demo-note">
-				Each nav section is a collapsible without a @anchorCode("#attributes-name", "name")&comma;
+				Each nav section is a collapsible without a @AnchorCode("#attributes-name", "name")&comma;
 				which lets several stay open. Buttons in a closed section are out
-				of the tab order. @anchorCode("#parts-summary", "::part(summary)")
+				of the tab order. @AnchorCode("#parts-summary", "::part(summary)")
 				styles the summary as a section heading.
 			</p>
 			@demoFrameWith(DemoFrameOpts{
@@ -157,7 +157,7 @@ templ PageCollapsible(morpheusVersion string) {
 			}
 			<p class="demo-note">
 				Each state is a server render that a morph applies. The second
-				state sets @anchorCode("#attributes-open", `open="true"`)&comma;
+				state sets @AnchorCode("#attributes-open", `open="true"`)&comma;
 				which opens the element. The third keeps it and swaps the content for an alert,
 				and the element stays open while the morph replaces the content.
 				A @ComponentLink("neo-elastic", href.PageElastic())&nbsp;around the

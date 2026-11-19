@@ -20,7 +20,8 @@ templ PageMenu(morpheusVersion string) {
 				<code>{ `<hr>` }</code> children; the host wraps
 				them into a fly-out panel and owns hover, focus,
 				ArrowRight / ArrowLeft submenu navigation, Esc, and
-				a global <code>shortcut</code> binding per item.
+				a global @AnchorCode("#menuitem-attributes-shortcut", "shortcut")
+				binding per item.
 				<neo-kbd>{ "⌘" }</neo-kbd>+<neo-kbd>S</neo-kbd> works from anywhere
 				on this page.
 			</p>
@@ -39,7 +40,8 @@ templ PageMenu(morpheusVersion string) {
 				it opens at the pointer instead. Its children are the rows; it wraps them into
 				a self-contained fly-out and owns hover, focus,
 				ArrowRight-to-enter / ArrowLeft-to-exit, and a global
-				keyboard <code>shortcut</code> per item. From a button
+				keyboard @AnchorCode("#menuitem-attributes-shortcut", "shortcut")
+				per item. From a button
 				host, click or focus the button and press
 				<neo-kbd>Enter</neo-kbd> / <neo-kbd>Space</neo-kbd> / <neo-kbd>↓</neo-kbd> to
 				open; outside-click, focus loss, or <neo-kbd>Esc</neo-kbd>
@@ -53,8 +55,9 @@ templ PageMenu(morpheusVersion string) {
 			<p class="api-element-desc">
 				A leaf row inside a menu or submenu. Activates on
 				click, <neo-kbd>Enter</neo-kbd>, <neo-kbd>Space</neo-kbd>, or a
-				global <code>shortcut</code> binding; emits
-				<code>neo-menuitem-select</code> and the enclosing
+				global @AnchorCode("#menuitem-attributes-shortcut", "shortcut")
+				binding; emits @AnchorCode("#menu-events-neo-menuitem-select", "neo-menuitem-select")
+				and the enclosing
 				menu collapses the chain.
 			</p>
 			@ComponentDocs(menuItemDoc)
@@ -63,7 +66,7 @@ templ PageMenu(morpheusVersion string) {
 				A nested fly-out. Place it as a child of
 				<code>{ `<neo-menu>` }</code> or another
 				<code>{ `<neo-submenu>` }</code>; the host
-				auto-renders the trigger row from <code>label</code>,
+				auto-renders the trigger row from @AnchorCode("#submenu-attributes-label", "label")&comma;
 				and the element's children become the panel. Opens on
 				hover, click, or <neo-kbd>→</neo-kbd>; <neo-kbd>←</neo-kbd> closes
 				and returns focus to the trigger row.
@@ -83,8 +86,8 @@ templ PageMenu(morpheusVersion string) {
 				synthesized back row. This is the native mobile
 				pattern and the default for narrow viewports
 				(<code>(hover: none) and (pointer: coarse)</code>
-				or <code>(max-width: 36rem)</code>) when
-				<code>mode</code> is left at its default
+				or <code>(max-width: 36rem)</code>) when @AnchorCode("#menu-attributes-mode", "mode")
+				is left at its default
 				<code>auto</code>. Forced here to preview on
 				desktop.
 			</p>
@@ -105,8 +108,8 @@ templ PageMenu(morpheusVersion string) {
 				<code>top-*</code>, shrinks its
 				<code>max-height</code> to the slot above the
 				trigger, and scrolls the items inside. Submenu
-				fly-outs inherit. Toggle
-				<code>clamp-placement</code> on to opt into the
+				fly-outs inherit. Toggle @AnchorCode("#menu-attributes-clamp-placement", "clamp-placement")
+				on to opt into the
 				alternative, where the menu re-anchors below the
 				trigger when there isn't enough room above.
 			</p>
@@ -146,7 +149,8 @@ templ PageMenu(morpheusVersion string) {
 				A Datastar app can
 				fat-morph the page at any moment. The rows under a
 				<code>{ "<neo-menu>" }</code> may then appear, disappear, or
-				flip to <code>disabled</code> while the menu is open.
+				flip to @AnchorCode("#menuitem-attributes-disabled", "disabled")
+				while the menu is open.
 				Autoplay cycles the states below to simulate those
 				server-driven morphs. Open the menu and watch it
 				reconcile in place. The trigger and panel stay

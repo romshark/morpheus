@@ -15,8 +15,8 @@ templ PageSidebar(morpheusVersion string) {
 			}
 			<p class="intro">
 				Component <code>{ "<neo-sidebar>" }</code> is a
-				responsive navigation rail. At or below the
-				<code>overlay-breakpoint</code> width (50rem
+				responsive navigation rail. At or below the @AnchorCode("#attributes-overlay-breakpoint", "overlay-breakpoint")
+				width (50rem
 				default) it switches to a fixed overlay with a
 				backdrop; dismiss via the header X, backdrop click,
 				or <neo-kbd>Esc</neo-kbd>.
@@ -38,8 +38,8 @@ templ PageSidebar(morpheusVersion string) {
 			}
 			<p class="demo-note">
 				Both sidebars use the global <code>50rem</code>
-				threshold by default; the
-				<code>overlay-breakpoint</code> attribute overrides
+				threshold by default; the @AnchorCode("#attributes-overlay-breakpoint", "overlay-breakpoint")
+				attribute overrides
 				it per instance. With a left nav and a right drawer
 				both in-flow, push the drawer into overlay mode
 				sooner (larger breakpoint) while keeping the nav
@@ -49,10 +49,10 @@ templ PageSidebar(morpheusVersion string) {
 				Mixed breakpoints
 			}
 			<p class="demo-note">
-				The preview has a left nav at
-				<code>{ `overlay-breakpoint="30rem"` }</code> and a
-				right settings drawer at
-				<code>{ `overlay-breakpoint="50rem"` }</code>, the
+				The preview has a left nav at @AnchorCode("#attributes-overlay-breakpoint", `overlay-breakpoint="30rem"`)
+				and a
+				right settings drawer at @AnchorCode("#attributes-overlay-breakpoint", `overlay-breakpoint="50rem"`)&comma;
+				the
 				same strategy the doc-app frame uses. Drag the
 				frame's right handle to try it.
 			</p>
@@ -74,8 +74,8 @@ templ PageSidebar(morpheusVersion string) {
 			}
 			<p class="demo-note">
 				Wrap the sidebar in a
-				<code>{ `<neo-resizable>` }</code> and set
-				<code>--neo-sidebar-width</code> from
+				<code>{ `<neo-resizable>` }</code> and set @AnchorCode("#css-variables-neo-sidebar-width", "--neo-sidebar-width")
+				from
 				<code>--neo-resizable-width</code> so the sidebar
 				follows the wrapper's width. The wrapper's
 				<code>min-width</code> / <code>max-width</code> set
@@ -114,9 +114,10 @@ templ PageSidebar(morpheusVersion string) {
 			<ul class="demo-note">
 				<li>
 					The threshold defaults to 1/2 the host's width;
-					pass a CSS length (here
-					<code>{ `touch-dismiss="120px"` }</code>) to pin
-					it, or <code>{ `touch-dismiss="off"` }</code> to
+					pass a CSS length (here @AnchorCode("#attributes-touch-dismiss", `touch-dismiss="120px"`)&rpar;
+					to pin
+					it, or @AnchorCode("#attributes-touch-dismiss", `touch-dismiss="off"`)
+					to
 					opt out.
 				</li>
 				<li>
@@ -154,8 +155,8 @@ templ PageSidebar(morpheusVersion string) {
 			}
 			<p class="demo-note">
 				Load content on every open. Mark the resting content
-				with
-				<code>{ `[data-neo-async-placeholder]` }</code>. The
+				with @AnchorCode("#slots-data-neo-async-placeholder", "[data-neo-async-placeholder]")&period;
+				The
 				sidebar snapshots it on connect and restores it on
 				close, which makes every open load fresh (same slot pattern as
 				<code>{ "<neo-dialog>" }</code> and
@@ -163,14 +164,15 @@ templ PageSidebar(morpheusVersion string) {
 			</p>
 			<ul class="demo-note">
 				<li>
-					Open emits <code>neo-sidebar-open</code>; wire
+					Open emits @AnchorCode("#events-neo-sidebar-open", "neo-sidebar-open")&semi; wire
 					<code>data-on:neo-sidebar-open</code> to post and
-					morph the returned panel into the
-					<code>{ `[data-neo-sidebar-content]` }</code> slot
+					morph the returned panel into the @AnchorCode("#slots-data-neo-sidebar-content", "[data-neo-sidebar-content]")
+					slot
 					(matched by id).
 				</li>
 				<li>
-					The <code>neo-sidebar-close</code> handler only
+					The @AnchorCode("#events-neo-sidebar-close", "neo-sidebar-close")
+					handler only
 					aborts the in-flight request; the host resets the
 					placeholder.
 				</li>
@@ -194,8 +196,7 @@ templ PageSidebar(morpheusVersion string) {
 			</p>
 			<ul class="demo-note">
 				<li>
-					The loader lives in the sidebar's
-					<code>{ "[data-neo-async-placeholder]" }</code>
+					The loader lives in the sidebar's @AnchorCode("#slots-data-neo-async-placeholder", "[data-neo-async-placeholder]")
 					slot and close/reopen restores it; on success the
 					server morphs
 					<code>{ "<div id=\"<host-id>-body\">" }</code>

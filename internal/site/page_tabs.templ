@@ -14,12 +14,14 @@ templ PageTabs(morpheusVersion string) {
 			<p class="intro">
 				Component <code>{ "<neo-tabs>" }</code> is a tabbed
 				interface. Clicking a <code>{ `<neo-tab>` }</code>
-				commits its <code>value</code> to the host, which
+				commits its @AnchorCode("#attributes-value", "value")
+				to the host, which
 				reveals the matching
 				<code>{ `<neo-tabpanel>` }</code>. Arrow keys move
 				focus across tabs; activation is manual
 				(<neo-kbd>Enter</neo-kbd> or <neo-kbd>Space</neo-kbd> commits).
-				Set <code>auto-activate</code> to opt into the
+				Set @AnchorCode("#attributes-auto-activate", "auto-activate")
+				to opt into the
 				selection-follows-focus pattern.
 			</p>
 			@Playground(PlaygroundOpts{
@@ -57,7 +59,8 @@ templ PageTabs(morpheusVersion string) {
 				No animation
 			}
 			<p class="demo-note">
-				Omit <code>easing</code> and the panel swap is
+				Omit @AnchorCode("#attributes-easing", "easing")
+				and the panel swap is
 				instant. This is the default; the examples below
 				opt into transitions and keyframe animations.
 			</p>
@@ -72,12 +75,14 @@ templ PageTabs(morpheusVersion string) {
 				Custom animation
 			}
 			<p class="demo-note">
-				Point <code>enter-animation</code> and
-				<code>exit-animation</code> at author-defined
+				Point @AnchorCode("#attributes-enter-animation", "enter-animation")
+				and @AnchorCode("#attributes-exit-animation", "exit-animation")
+				at author-defined
 				<code>{ "@keyframes" }</code>. The
 				<code>tabs-tilt</code> set here branches on the
-				host's <code>:state(forward)</code> /
-				<code>:state(backward)</code> custom state (set
+				host's @AnchorCode("#states-forward", ":state(forward)")
+				/ @AnchorCode("#states-backward", ":state(backward)")
+				custom state (set
 				when the active tab changes). The panel
 				rotates and slides in from the side of travel.
 			</p>
@@ -111,7 +116,8 @@ templ PageTabs(morpheusVersion string) {
 				Auto-activate
 			}
 			<p class="demo-note">
-				Set <code>auto-activate</code> on the host so
+				Set @AnchorCode("#attributes-auto-activate", "auto-activate")
+				on the host so
 				arrow keys commit the selection as focus moves,
 				matching the classic WAI-ARIA radiogroup pattern.
 				A click works as in a normal tab list.
@@ -127,7 +133,8 @@ templ PageTabs(morpheusVersion string) {
 				Vertical
 			}
 			<p class="demo-note">
-				Set <code>{ `orientation="vertical"` }</code> on
+				Set @AnchorCode("#attributes-orientation", `orientation="vertical"`)
+				on
 				the host. The tablist stacks, arrow-key axes
 				flip to <neo-kbd>↑</neo-kbd>/<neo-kbd>↓</neo-kbd>, and the
 				<code>aria-orientation</code> hint propagates

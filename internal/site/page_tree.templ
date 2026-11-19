@@ -96,11 +96,13 @@ templ PageTree(morpheusVersion string) {
 					doesn't infer it.
 				</li>
 				<li>
-					<code>[data-neo-tree-text]</code> marks the row
+					@AnchorCode("#slots-data-neo-tree-text", "[data-neo-tree-text]")
+					marks the row
 					text so it consumes the available width.
 				</li>
 				<li>
-					<code>[data-neo-tree-actions]</code> pins trailing
+					@AnchorCode("#slots-data-neo-tree-actions", "[data-neo-tree-actions]")
+					pins trailing
 					controls (here an inert eye button) to the tree's
 					right edge.
 				</li>
@@ -128,8 +130,8 @@ templ PageTree(morpheusVersion string) {
 			</p>
 			<ul class="demo-note">
 				<li>
-					Opening a branch bubbles
-					<code>neo-tree-item-toggle</code> to the root
+					Opening a branch bubbles @AnchorCode("#events-neo-tree-item-toggle", "neo-tree-item-toggle")
+					to the root
 					<code>{ "<neo-tree>" }</code>, whose action posts
 					the opened item's id.
 				</li>

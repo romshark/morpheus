@@ -1,9 +1,6 @@
 package site
 
-import (
-	"github.com/romshark/morpheus/internal/href"
-	"github.com/romshark/morpheus/neo"
-)
+import "github.com/romshark/morpheus/internal/href"
 
 templ PageOption(morpheusVersion string) {
 	@PageDoc(href.PageOption(), "Option", morpheusVersion) {
@@ -17,23 +14,11 @@ templ PageOption(morpheusVersion string) {
 				element. It holds a single selectable value and its label for a
 				control to read and render. Place it inside a
 				{ " " }
-				@neo.Link(neo.LinkOpts{Href: neo.Set(href.PageSelect())}) {
-					Select
-				}
-				,{ " " }
-				@neo.Link(neo.LinkOpts{Href: neo.Set(href.PageCombobox())}) {
-					Combobox
-				}
-				,{ " " }
-				@neo.Link(neo.LinkOpts{Href: neo.Set(href.PageDatalist())}) {
-					Datalist
-				}
-				, or
+				@ComponentLink("neo-select", href.PageSelect())&comma;{ " " }
+				@ComponentLink("neo-combobox", href.PageCombobox())&comma;{ " " }
+				@ComponentLink("neo-datalist", href.PageDatalist())&comma; or
 				{ " " }
-				@neo.Link(neo.LinkOpts{Href: neo.Set(href.PageTextInput())}) {
-					Text input
-				}
-				{ " " }
+				@ComponentLink("neo-textinput", href.PageTextInput())
 				suggestion list. The consuming control owns the trigger,
 				listbox, keyboard, and selection; the option renders
 				nothing on its own.
