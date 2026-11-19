@@ -6,7 +6,7 @@ import { boolAttr, openCommand } from "../command";
 import { isRTL } from "../direction";
 import { setState } from "../internal-state";
 import { labelAttr } from "../label-name";
-import { type ClassSlot, isDigit, type MaskSlot, parseMask } from "../mask";
+import { asciiDigits, type ClassSlot, isDigit, type MaskSlot, parseMask } from "../mask";
 import { cloneDatalistOptionsInto, externalDatalistFor } from "../neo-datalist";
 import { OPTION_OBSERVE_ATTRS, readOptionData, wireOptionEl } from "../neo-listbox";
 import { setAttrIfChanged } from "../neo-morph-resilient";
@@ -113,7 +113,7 @@ class PlainFormatter implements Formatter {
 
 	format(raw: string): FormatResult {
 		let r = raw;
-		if (this.#numericOnly) r = r.replace(/\D/g, "");
+		if (this.#numericOnly) r = asciiDigits(r).replace(/\D/g, "");
 		if (this.#caseMode === "upper") r = r.toUpperCase();
 		else if (this.#caseMode === "lower") r = r.toLowerCase();
 		return { formatted: this.#prefix + r, raw: r };
@@ -284,6 +284,10 @@ class MaskFormatter implements Formatter {
 // A number field's canonical value, such as "-1234.56".
 const CANONICAL_NUMBER = /^-?\d*\.?\d*$/;
 
+// The decimal separator Arabic and Persian keyboards type.
+// Unmapped, it drops from a pasted 12.5 written with it, which leaves 125.
+const ARABIC_DECIMAL_SEPARATOR = "\u066B";
+
 class NumberFormatter implements Formatter {
 	#decimalPlaces: number;
 	#decimalMark: string;
@@ -304,7 +308,9 @@ class NumberFormatter implements Formatter {
 	format(raw: string): FormatResult {
 		// Raw uses "." whatever the decimal-mark.
 		// Other chars come from a paste or a separator extractRaw missed.
-		const s = raw.replace(/[^\d.-]/g, "");
+		const s = asciiDigits(raw)
+			.replaceAll(ARABIC_DECIMAL_SEPARATOR, ".")
+			.replace(/[^\d.-]/g, "");
 		const sign = s.startsWith("-") ? "-" : "";
 		// The first "." splits the parts, and later ones drop. decimal-places="0"
 		// drops the mark too, which makes "1.5" "1" rather than "1.".
@@ -322,17 +328,20 @@ class NumberFormatter implements Formatter {
 	}
 
 	// The last replace drops paste debris, such as the "$" of "$1,234.50".
+	// The Arabic decimal separator becomes "." only after the separators are
+	// removed, because thousands-separator="." would remove it too.
 	extractRaw(formatted: string): string {
-		return stripPrefix(formatted, this.#prefix)
+		const s = stripPrefix(formatted, this.#prefix)
 			.replaceAll(this.#thousandsSep, "")
 			.replaceAll(this.#decimalMark, ".")
-			.replace(/[^\d.-]/g, "");
+			.replaceAll(ARABIC_DECIMAL_SEPARATOR, ".");
+		return asciiDigits(s).replace(/[^\d.-]/g, "");
 	}
 
 	acceptsChar(ch: string): boolean {
 		if (isDigit(ch)) return true;
 		if (ch === "-") return true;
-		if (ch === "." || ch === this.#decimalMark) {
+		if (ch === "." || ch === this.#decimalMark || ch === ARABIC_DECIMAL_SEPARATOR) {
 			return this.#decimalPlaces !== 0;
 		}
 		return false;

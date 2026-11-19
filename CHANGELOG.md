@@ -37,6 +37,7 @@ This file records the notable changes of each release in the format of [Keep a C
 - Fix the `<neo-slider>` and `<neo-slider-range>` value bubble staying open after a click or drag that ends off the thumb. It also closed while the thumb was held down.
 - Fix the focus ring showing on the `<neo-slider>` and `<neo-slider-range>` thumb after a mouse click. It now shows on the next key press, as on a native slider. The new `:state(pointer-focus)` is set in between.
 - Fix `--neo-tooltip-max-width` having no effect. A long tooltip grew as wide as the screen.
+- Fix `<neo-textinput>` and `<neo-otp>` dropping digits typed on an Arabic or Persian keyboard. They now become ASCII digits in a `mask`, with `numeric-only` and with `format="number"`, which also reads the Arabic decimal separator as a decimal point.
 
 ## [0.6.1] - 2026-11-18
 

@@ -416,7 +416,7 @@ var textInputDoc = ComponentDoc{
 		{Name: "size", Type: `"sm" | "lg"`,
 			Description: templ.Raw("Control-size step: <code>sm</code> compact, <code>lg</code> large. Omit for the default size.")},
 		{Name: "mask", Type: "string", Observed: true,
-			Description: templ.Raw("Static template. Slots are <code>#</code> digit, <code>U</code> letter to upper, <code>l</code> letter to lower, <code>A</code> alnum to upper, <code>a</code> alnum to lower, <code>X</code> alnum (case preserved), and <code>*</code> any char. Other chars are literal, and <code>\\</code> makes the next one literal, as in <code>\\#</code>. Cased slots accept either case and coerce on insert.")},
+			Description: templ.Raw("Static template. Slots are <code>#</code> digit, <code>U</code> letter to upper, <code>l</code> letter to lower, <code>A</code> alnum to upper, <code>a</code> alnum to lower, <code>X</code> alnum (case preserved), and <code>*</code> any char. Other chars are literal, and <code>\\</code> makes the next one literal, as in <code>\\#</code>. Cased slots accept either case and coerce on insert, and Arabic-Indic and Persian digits are stored as ASCII digits.")},
 		{Name: "format", Type: `"number"`, Observed: true,
 			Description: templ.Raw("Right-anchored thousands grouping for numeric input. Makes the field a number field, like <code>type=\"number\"</code>.")},
 		{Name: "min", Type: "number", Observed: true,
