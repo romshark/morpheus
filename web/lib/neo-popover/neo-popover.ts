@@ -1,6 +1,7 @@
 import { setAriaRef } from "../aria-ref";
 import { boolAttr, openCommand } from "../command";
 import { retryWhileParsing, stillParsing } from "../document-parsing";
+import { attachHostStyle, type HostStyle } from "../host-style";
 import { observeManagedAttrs, setAttrIfChanged } from "../neo-morph-resilient";
 import {
 	applyOpenSizeDuringScroll,
@@ -17,8 +18,8 @@ import { deepActiveElement, eventEnters, isIndependentBoundaryScroll, scopingBou
 
 const TRIGGER_RESILIENT_ATTRS = ["aria-controls", "aria-expanded", "aria-haspopup", "role", "tabindex"];
 
-// The shadow tree holds a default slot for the trigger followed by a
-// positioned panel that contains a named slot for the content.
+// The shadow tree holds a default slot for the trigger followed by
+// a positioned panel that contains a named slot for the content.
 // The panel is shadow-owned so the inline top/left/max-*/positioned marker
 // the component writes can't be stripped by a fat morph (which can only
 // reach light DOM). The user's `[data-neo-popover-content]` div still
@@ -127,6 +128,8 @@ export class NeoPopover extends HTMLElement {
 	// they survive a morph; the panel's data-neo-popover-positioned
 	// marker gates the visibility CSS in POPOVER_SHADOW_TEMPLATE.
 	#panel!: HTMLElement;
+	// Holds the custom properties mirrored from configuration attributes.
+	#hostStyle: HostStyle;
 	#previousFocus: Element | null = null;
 	#resizeObserver: ResizeObserver | null = null;
 	#childObserver: MutationObserver | null = null;
@@ -182,6 +185,7 @@ export class NeoPopover extends HTMLElement {
 		this.#panel = root.querySelector<HTMLElement>("[data-neo-popover-panel]")!;
 		this.#defaultSlot = root.querySelector<HTMLSlotElement>("slot:not([name])")!;
 		this.#contentSlot = root.querySelector<HTMLSlotElement>("slot[name='content']")!;
+		this.#hostStyle = attachHostStyle(root);
 	}
 
 	connectedCallback() {
@@ -247,8 +251,7 @@ export class NeoPopover extends HTMLElement {
 				this.#scheduleReposition();
 			} else {
 				// Morph re-attach of an already-open panel. Layout is ready;
-				// snap it back in place without replaying the entry
-				// animation.
+				// snap it back in place without replaying the entry animation.
 				this.#suppressEntryAnimation();
 			}
 		} else {
@@ -333,8 +336,8 @@ export class NeoPopover extends HTMLElement {
 		setAttrIfChanged(this.#trigger, "aria-haspopup", "dialog");
 		setAriaRef(this.#trigger, "aria-controls", this.#content ? [this.#content] : []);
 		// In-place morphs strip these without re-firing connectedCallback.
-		// Guards preserve composite overrides (navgroup roving tabindex,
-		// `role="menuitem"` in cascading menus).
+		// Guards preserve composite overrides
+		// (navgroup roving tabindex, `role="menuitem"` in cascading menus).
 		if (!this.#trigger.hasAttribute("role")) {
 			setAttrIfChanged(this.#trigger, "role", "button");
 		}
@@ -381,11 +384,8 @@ export class NeoPopover extends HTMLElement {
 			return;
 		}
 		if (name === "screen-offset") {
-			if (newValue === null) {
-				this.style.removeProperty("--neo-popover-screen-offset");
-			} else {
-				this.style.setProperty("--neo-popover-screen-offset", newValue);
-			}
+			if (newValue === null) this.#hostStyle.removeProperty("--neo-popover-screen-offset");
+			else this.#hostStyle.setProperty("--neo-popover-screen-offset", newValue);
 			if (this.#ready && this.hasAttribute("open")) this.#position();
 			return;
 		}
@@ -395,15 +395,15 @@ export class NeoPopover extends HTMLElement {
 		}
 		if (name === "min-fit-height" || name === "min-fit-width") {
 			const cssVar = name === "min-fit-height" ? "--neo-popover-min-fit-height" : "--neo-popover-min-fit-width";
-			if (newValue === null) this.style.removeProperty(cssVar);
-			else this.style.setProperty(cssVar, newValue);
+			if (newValue === null) this.#hostStyle.removeProperty(cssVar);
+			else this.#hostStyle.setProperty(cssVar, newValue);
 			if (this.#ready && this.hasAttribute("open")) this.#position();
 			return;
 		}
 		if (name === "min-open-height" || name === "min-open-width") {
 			const cssVar = name === "min-open-height" ? "--neo-popover-min-open-height" : "--neo-popover-min-open-width";
-			if (newValue === null) this.style.removeProperty(cssVar);
-			else this.style.setProperty(cssVar, newValue);
+			if (newValue === null) this.#hostStyle.removeProperty(cssVar);
+			else this.#hostStyle.setProperty(cssVar, newValue);
 			if (this.#ready && this.hasAttribute("open")) this.#position();
 			return;
 		}
@@ -500,11 +500,10 @@ export class NeoPopover extends HTMLElement {
 
 	// childObserver callback: a fat morph re-emitted trigger/content,
 	// or a subtree morph just changed the content's descendants.
-	// Re-acquire refs and silently re-establish the panel
-	// (no neo-popover-open re-fire). Subtree mutations that don't swap
-	// trigger/content still need an immediate position() pass;
-	// the ResizeObserver-based path runs 1 frame late and leaves the
-	// panel painted at the old anchor with the new size for that frame.
+	// Re-acquire refs and silently re-establish the panel (no neo-popover-open re-fire).
+	// Subtree mutations that don't swap trigger/content still need an immediate
+	// position() pass; the ResizeObserver-based path runs 1 frame late and leaves
+	// the panel painted at the old anchor with the new size for that frame.
 	#onChildMutation = () => {
 		const prevTrigger = this.#trigger;
 		const prevContent = this.#content;
@@ -949,8 +948,8 @@ export class NeoPopover extends HTMLElement {
 		const minFitWidth = resolveCssLengthPxOrContent(this, "--neo-popover-min-fit-width", "content");
 		const minOpenHeight = resolveOptionalCssLengthPx(this, "--neo-popover-min-open-height");
 		const minOpenWidth = resolveOptionalCssLengthPx(this, "--neo-popover-min-open-width");
-		// --neo-popover-max-height isn't a kit token; pass only the
-		// width cap. resolveCssLengthPx returns the fallback if a var is unset;
+		// --neo-popover-max-height isn't a kit token; pass only the width cap.
+		// resolveCssLengthPx returns the fallback if a var is unset;
 		// --neo-popover-max-width is :root-defined (22rem) so this
 		// always reflects the resolved cap, host-overridden or default.
 		const maxWidth = boolAttr(this, "match-trigger-width", false)
@@ -976,11 +975,10 @@ export class NeoPopover extends HTMLElement {
 
 	#writePositionResult(result: PositionResult): void {
 		const effectivePlacement = result.placement;
-		this.dataset.neoPopoverPlacement = effectivePlacement;
 		this.#panel.dataset.neoPopoverPlacement = effectivePlacement;
 		// Gate the panel's visibility CSS in the shadow stylesheet.
-		// Until the first position() writes inline top/left, the
-		// :not([data-neo-popover-positioned]) rule keeps the panel
+		// Until the first position() writes inline top/left,
+		// the :not([data-neo-popover-positioned]) rule keeps the panel
 		// visibility: hidden so the CSS-default 0,0 corner never paints.
 		this.#panel.dataset.neoPopoverPositioned = "";
 		this.dispatchEvent(
@@ -1046,9 +1044,9 @@ export class NeoPopover extends HTMLElement {
 	}
 }
 
-// Closure that re-finds `el` by identifier (id, data-neo-value, or a
-// unique data-neo-* marker) so it survives a morph swap. Returns null
-// when no stable identifier is available.
+// Closure that re-finds `el` by identifier (id, data-neo-value, an option's
+// value, or a unique data-neo-* marker) so it survives a morph swap.
+// Returns null when no stable identifier is available.
 function makeFocusResolver(el: HTMLElement, content: Element): ((root: Element) => HTMLElement | null) | null {
 	if (el.id) {
 		const id = el.id;
@@ -1059,6 +1057,13 @@ function makeFocusResolver(el: HTMLElement, content: Element): ((root: Element) 
 		return (root) =>
 			Array.from(root.querySelectorAll<HTMLElement>("[data-neo-value]")).find(
 				(e) => e.getAttribute("data-neo-value") === dataValue,
+			) ?? null;
+	}
+	const optionValue = el.localName === "neo-option" ? el.getAttribute("value") : null;
+	if (optionValue !== null) {
+		return (root) =>
+			Array.from(root.querySelectorAll<HTMLElement>("neo-option[value]")).find(
+				(e) => e.getAttribute("value") === optionValue,
 			) ?? null;
 	}
 	for (const a of Array.from(el.attributes)) {

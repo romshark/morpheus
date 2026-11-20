@@ -14,7 +14,6 @@ const CONTROL_OWNED_OPTION_ATTRS = new Set([
 	"aria-disabled",
 	"aria-selected",
 	"data-neo-navgroup-item",
-	"data-neo-value",
 	"id",
 	"role",
 	"tabindex",
@@ -25,9 +24,9 @@ export class NeoDatalist extends HTMLElement {
 
 	#observer: MutationObserver | null = null;
 
-	// Shared when it stands outside any control. An inline datalist (a child
-	// of one control) is re-read by that control's own observer and needs
-	// no self-observer here.
+	// Shared when it stands outside any control. An inline datalist
+	// (a child of one control) is re-read by that control's own observer
+	// and needs no self-observer here.
 	get isShared(): boolean {
 		return !this.closest(DATALIST_CONTROLS);
 	}
@@ -37,8 +36,8 @@ export class NeoDatalist extends HTMLElement {
 	}
 
 	disconnectedCallback() {
-		// Capture targets before tearing down so they re-resolve (and drop
-		// this source) once it's gone.
+		// Capture targets before tearing down so they re-resolve
+		// (and drop this source) once it's gone.
 		const targets = this.#controlsFor(this.id);
 		this.#deactivate();
 		for (const t of targets) notify(t);
@@ -86,20 +85,19 @@ function notify(host: HTMLElement) {
 	(host as HTMLElement & { syncDatalist?: () => void }).syncDatalist?.();
 }
 
-// A control has its own option source (inline datalist or directly authored
-// options), which an external datalist must not override. Clones a control made
-// from an external datalist live under [data-neo-datalist-managed] and don't
-// count as an inline source.
+// A control has its own option source (inline datalist or directly authored options),
+// which an external datalist must not override. Clones a control made from an external
+// datalist live under [data-neo-datalist-managed] and don't count as an inline source.
 export function hasInlineSource(host: HTMLElement): boolean {
 	return Array.from(host.querySelectorAll("neo-option, neo-optgroup")).some(
 		(o) => !o.closest("[data-neo-datalist-managed]"),
 	);
 }
 
-// The external datalist a control should read, honoring precedence. A control
-// opts in with list="<id>" (like native <input list>). Returns null when an
-// inline source takes precedence, the list attribute is absent, or it
-// points at no upgraded <neo-datalist>.
+// The external datalist a control should read, honoring precedence.
+// A control opts in with list="<id>" (like native <input list>).
+// Returns null when an inline source takes precedence,
+// the list attribute is absent, or it points at no upgraded <neo-datalist>.
 export function externalDatalistFor(host: HTMLElement): NeoDatalist | null {
 	if (hasInlineSource(host)) return null;
 	const id = host.getAttribute("list");
@@ -108,11 +106,11 @@ export function externalDatalistFor(host: HTMLElement): NeoDatalist | null {
 	return el instanceof NeoDatalist ? el : null;
 }
 
-// Reconcile a control's managed container with clones of the datalist's
-// options. Clones (not the live nodes) because one datalist may feed several
-// controls, and a node can't be slotted into more than one at once. Reusing a
-// keyed clone when possible keeps an already-open listbox/textinput popover
-// from seeing stable options as removed-and-reinserted rows.
+// Reconcile a control's managed container with clones of the datalist's options.
+// Clones (not the live nodes) because one datalist may feed several controls,
+// and a node can't be slotted into more than one at once.
+// Reusing a keyed clone when possible keeps an already-open listbox/textinput
+// popover from seeing stable options as removed-and-reinserted rows.
 export function cloneDatalistOptionsInto(container: HTMLElement, datalist: NeoDatalist) {
 	reconcileOptionChildren(container, Array.from(datalist.querySelectorAll<HTMLElement>(`:scope > ${OPTION_NODES}`)));
 }

@@ -7,10 +7,9 @@ neo-navgroup {
 	gap: var(--neo-navgroup-gap);
 }
 
-/* The explicit `display` on neo-navgroup (and the grid orientation
- * rule) otherwise beats the UA `[hidden]` rule, and `hidden` wouldn't
- * hide the group (e.g. neo-select toggling its option source off during
- * async load). */
+/* The explicit `display` on neo-navgroup (and the grid orientation rule)
+ * otherwise beats the UA `[hidden]` rule, and `hidden` wouldn't hide the group
+ * (e.g. neo-select toggling its option source off during async load). */
 neo-navgroup[hidden] {
 	/* biome-ignore lint/complexity/noImportantStyles: must beat the explicit display on neo-navgroup so `hidden` actually hides the group. */
 	display: none !important;
@@ -22,9 +21,9 @@ neo-navgroup[orientation="vertical"] {
 
 neo-navgroup[orientation="grid"] {
 	display: inline-grid;
-	/* JS mirrors arbitrary `columns` values into this property after
-	 * upgrade. The [columns="N"] selectors cover common counts for first
-	 * paint so server-rendered grids don't flash as 1 column. */
+	/* The [columns="N"] selectors cover common counts for first paint so
+	 * server-rendered grids don't flash as 1 column. JS adds a rule keyed on
+	 * any other `columns` value after upgrade. */
 	grid-template-columns: repeat(var(--neo-navgroup-columns, 1), auto);
 }
 

@@ -4,6 +4,7 @@
 // and the shadow stylesheet derives the mode from those public attributes.
 
 import { boolAttr } from "../command";
+import { observeManagedAttrs, setAttrIfChanged } from "../neo-morph-resilient";
 import { clamp, num } from "../num";
 import { scopeCssToHost } from "../shadow-utils";
 import spinnerCss from "./neo-spinner.css";
@@ -14,6 +15,7 @@ const ATTR_VALUE = "value";
 const ATTR_INDETERMINATE = "indeterminate";
 const ATTR_LABEL = "label";
 const ATTR_EASING = "easing";
+const MANAGED_ARIA = ["role", "aria-valuemin", "aria-valuemax", "aria-valuenow", "aria-label"];
 
 const SPIN = "data-neo-spinner-spin";
 const RING = "data-neo-spinner-ring";
@@ -35,8 +37,8 @@ const SUN_LINES: ReadonlyArray<readonly [number, number, number, number]> = [
 
 const SVG_NS = "http://www.w3.org/2000/svg";
 
-// Ring geometry. The visible radius defaults to R=10.5 (so a 3-unit stroke fits the
-// 24-unit viewBox exactly), but CSS (`r: calc(12px - ringWidth/2)`)
+// Ring geometry. The visible radius defaults to R=10.5 (so a 3-unit stroke fits
+// the 24-unit viewBox exactly), but CSS (`r: calc(12px - ringWidth/2)`)
 // shrinks it whenever a theme bumps --neo-spinner-ring-width.
 // Dash values use a normalised 0-100 scale via pathLength so they survive
 // that shrink without redoing the maths.
@@ -59,6 +61,7 @@ export class NeoSpinner extends HTMLElement {
 	// a bare indeterminate spinner that never had one stays decorative.
 	#valueIntent = 0;
 	#hasValue = false;
+	#ariaObserver: MutationObserver | null = null;
 	// set value()/reflect write `value` via setAttribute, which would otherwise
 	// re-enter #reconcile() through attributeChangedCallback.
 	#reflectingValue = false;
@@ -80,6 +83,12 @@ export class NeoSpinner extends HTMLElement {
 		// Mirror state to the attribute (clamped) so it stays the state mirror.
 		if (this.#hasValue) this.#reflectValue();
 		this.#reconcile();
+		this.#ariaObserver ??= observeManagedAttrs(this, MANAGED_ARIA, this.#syncAria);
+	}
+
+	disconnectedCallback() {
+		this.#ariaObserver?.disconnect();
+		this.#ariaObserver = null;
 	}
 
 	attributeChangedCallback(name: string, _old: string | null, newValue: string | null) {
@@ -143,8 +152,12 @@ export class NeoSpinner extends HTMLElement {
 		if (determinate) this.#syncDeterminate();
 		else this.#syncIndeterminate();
 		this.#syncEasing();
-		this.#applyAria(determinate ? this.value : null);
+		this.#syncAria();
 	}
+
+	#syncAria = () => {
+		this.#applyAria(this.#determinate ? this.value : null);
+	};
 
 	#ensureRing() {
 		if (this.#ringEl) return;
@@ -234,13 +247,13 @@ export class NeoSpinner extends HTMLElement {
 			this.removeAttribute("aria-valuenow");
 			return;
 		}
-		this.setAttribute("role", "progressbar");
-		this.setAttribute("aria-valuemin", String(this.min));
-		this.setAttribute("aria-valuemax", String(this.max));
-		if (determinate) this.setAttribute("aria-valuenow", String(valuenow));
+		setAttrIfChanged(this, "role", "progressbar");
+		setAttrIfChanged(this, "aria-valuemin", String(this.min));
+		setAttrIfChanged(this, "aria-valuemax", String(this.max));
+		if (determinate) setAttrIfChanged(this, "aria-valuenow", String(valuenow));
 		else this.removeAttribute("aria-valuenow");
 		if (label && !this.hasAttribute("aria-labelledby")) {
-			this.setAttribute("aria-label", label);
+			setAttrIfChanged(this, "aria-label", label);
 		}
 	}
 }

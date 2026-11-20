@@ -5,6 +5,9 @@
 
 import { boolCommand } from "../command";
 import { logicalArrow } from "../direction";
+import { observeManagedAttrs, setAttrIfChanged } from "../neo-morph-resilient";
+
+const ITEM_ARIA = ["role", "tabindex", "aria-expanded"];
 
 const TREE_TEMPLATE = document.createElement("template");
 TREE_TEMPLATE.innerHTML = `<slot></slot>`;
@@ -120,6 +123,7 @@ ITEM_TEMPLATE.innerHTML = `
 
 export class NeoTree extends HTMLElement {
 	#observer: MutationObserver | null = null;
+	#roleObserver: MutationObserver | null = null;
 	// Id of the item that last held focus, for restoration after a morph.
 	#focusedItemId = "";
 
@@ -130,16 +134,17 @@ export class NeoTree extends HTMLElement {
 	}
 
 	connectedCallback() {
-		if (!this.hasAttribute("role")) this.setAttribute("role", "tree");
+		this.#syncRole();
+		this.#roleObserver = observeManagedAttrs(this, ["role"], this.#syncRole);
 		this.addEventListener("keydown", this.#onKeyDown);
 		this.addEventListener("focusin", this.#onFocusIn);
 		this.addEventListener("focusout", this.#onFocusOut);
 		queueMicrotask(() => this.#ensureEntry());
 		// The roving tabindex is kit-set and absent from SSR. A fat morph
-		// strips it (leaving no tab stop) and blurs a focused item to
-		// <body>. connectedCallback runs once; re-establish a tab stop and
-		// reseat focus after every morph. The observer settles even though
-		// the callbacks write tabindex themselves because they are idempotent.
+		// strips it (leaving no tab stop) and blurs a focused item to <body>.
+		// connectedCallback runs once; re-establish a tab stop and reseat focus
+		// after every morph. The observer settles even though the callbacks write
+		// tabindex themselves because they are idempotent.
 		this.#observer = new MutationObserver(() => {
 			this.#ensureEntry();
 			this.#restoreFocusIfLost();
@@ -158,7 +163,13 @@ export class NeoTree extends HTMLElement {
 		this.removeEventListener("focusout", this.#onFocusOut);
 		this.#observer?.disconnect();
 		this.#observer = null;
+		this.#roleObserver?.disconnect();
+		this.#roleObserver = null;
 	}
+
+	#syncRole = () => {
+		if (!this.hasAttribute("role")) this.setAttribute("role", "tree");
+	};
 
 	// Make the first visible item the tab-stop unless one already is.
 	#ensureEntry() {
@@ -280,6 +291,7 @@ export class NeoTreeItem extends HTMLElement {
 	#chevron: HTMLElement;
 	#row: HTMLElement;
 	#childObserver: MutationObserver | null = null;
+	#ariaObserver: MutationObserver | null = null;
 	#branch = false;
 	// Expanded intent; `expanded` reflects it (see command). Survives a morph
 	// that strips the attribute so a fat morph omitting `expanded` can't
@@ -300,24 +312,22 @@ export class NeoTreeItem extends HTMLElement {
 	}
 
 	connectedCallback() {
-		if (!this.hasAttribute("role")) this.setAttribute("role", "treeitem");
-		if (!this.hasAttribute("tabindex")) this.tabIndex = -1;
 		// Explicit expanded / expanded="false" commands intent; absent keeps it.
 		const cmd = boolCommand(this, "expanded");
 		if (cmd !== null) this.#expandedIntent = cmd;
 		this.#reflectExpanded();
 		if (!this.#childObserver) {
-			// Morph may replace direct children wholesale; re-run slot
-			// assignment on every childList change.
+			// Morph may replace direct children wholesale;
+			// re-run slot assignment on every childList change.
 			this.#childObserver = new MutationObserver(() => this.#assignSlots());
 			this.#childObserver.observe(this, { childList: true });
-			// Click delegation lives on the shadow row, not the host. A
-			// click on the chevron (in shadow) would be retargeted to the
+			this.#ariaObserver = observeManagedAttrs(this, ITEM_ARIA, () => this.#syncAria());
+			// Click delegation lives on the shadow row, not the host.
+			// A click on the chevron (in shadow) would be retargeted to the
 			// host at the shadow boundary, and a host-level listener can't
 			// tell it apart from a click outside the row; binding to the
 			// row makes the chevron + padding + slotted label a single click
-			// surface and lets us use composedPath() to gate on author
-			// controls.
+			// surface and lets us use composedPath() to gate on author controls.
 			this.#row.addEventListener("click", this.#onClick);
 			this.addEventListener("keydown", this.#onKeyDown);
 		}
@@ -327,6 +337,8 @@ export class NeoTreeItem extends HTMLElement {
 	disconnectedCallback() {
 		this.#childObserver?.disconnect();
 		this.#childObserver = null;
+		this.#ariaObserver?.disconnect();
+		this.#ariaObserver = null;
 		this.#row.removeEventListener("click", this.#onClick);
 		this.removeEventListener("keydown", this.#onKeyDown);
 	}
@@ -335,8 +347,8 @@ export class NeoTreeItem extends HTMLElement {
 		if (this.#reflectingExpanded) return;
 		const cmd = boolCommand(this, "expanded");
 		if (cmd !== null) this.#expandedIntent = cmd;
-		// Absent re-asserts intent for the [expanded] CSS; explicit normalizes
-		// the "true"/"false" form to bare / removed.
+		// Absent re-asserts intent for the [expanded] CSS;
+		// explicit normalizes the "true"/"false" form to bare / removed.
 		this.#reflectExpanded();
 	}
 
@@ -353,8 +365,8 @@ export class NeoTreeItem extends HTMLElement {
 		);
 	}
 
-	// State -> attribute, guarded so it isn't read back as a command. The bare
-	// `expanded` attribute stays in sync with intent, which lets the
+	// State -> attribute, guarded so it isn't read back as a command.
+	// The bare `expanded` attribute stays in sync with intent, which lets the
 	// keyboard-nav and visibility helpers keep reading hasAttribute("expanded").
 	#reflectExpanded() {
 		this.#reflectingExpanded = true;
@@ -407,15 +419,17 @@ export class NeoTreeItem extends HTMLElement {
 		// attribute is outranked by our `display:inline-flex` rule.
 		this.#chevron.style.display = this.#branch || hasUserIcon ? "" : "none";
 		this.#childrenWrapper.style.display = this.#branch ? "" : "none";
-		// Custom icon -> suppress the 90deg rotation on expand; the class
-		// gates the shadow CSS rule.
+		// Custom icon -> suppress the 90deg rotation on expand;
+		// the class gates the shadow CSS rule.
 		this.#chevron.classList.toggle("has-user-icon", hasUserIcon);
 		this.#syncAria();
 	}
 
 	#syncAria() {
+		if (!this.hasAttribute("role")) this.setAttribute("role", "treeitem");
+		if (!this.hasAttribute("tabindex")) this.tabIndex = -1;
 		if (this.#branch) {
-			this.setAttribute("aria-expanded", String(this.hasAttribute("expanded")));
+			setAttrIfChanged(this, "aria-expanded", String(this.hasAttribute("expanded")));
 		} else {
 			this.removeAttribute("aria-expanded");
 		}
@@ -427,8 +441,7 @@ export class NeoTreeItem extends HTMLElement {
 		// Walk composedPath from the click target up to the shadow row.
 		// Any author-supplied interactive control between them (buttons /
 		// links / form fields inside the slotted label) claims the click.
-		// Once we cross the row we stop; ancestors above the row aren't
-		// part of it.
+		// Once we cross the row we stop; ancestors above the row aren't part of it.
 		const path = e.composedPath();
 		for (const node of path) {
 			if (node === this.#row) break;

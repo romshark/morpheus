@@ -174,7 +174,7 @@ var menuDoc = ComponentDoc{
 		{Name: "placement", Type: "string", Default: `"bottom-start"`, Observed: true,
 			Description: templ.Raw("Anchor position relative to the trigger; same values as <code>&lt;neo-popover&gt;</code>.")},
 		{Name: "mode", Type: `"auto" | "cascade" | "push"`, Default: `"auto"`, Observed: true,
-			Description: templ.Raw("Submenu presentation. <code>cascade</code> flies out to the side (desktop). <code>push</code> replaces the parent panel with a back row (mobile). <code>auto</code> picks based on <code>(hover: none) and (pointer: coarse), (max-width: 36rem)</code>. Resolved value is mirrored to <code>data-mode-effective</code>.")},
+			Description: templ.Raw("Submenu presentation. <code>cascade</code> flies out to the side (desktop). <code>push</code> replaces the parent panel with a back row (mobile). <code>auto</code> picks based on <code>(hover: none) and (pointer: coarse), (max-width: 36rem)</code>. The resolved push mode sets <a href=\"#menu-states-push\"><code>:state(push)</code></a>.")},
 		{Name: "screen-offset", Type: "string", Observed: true,
 			Description: templ.Raw("Minimum margin between the panel and viewport edge; inherited by descendant <code>&lt;neo-submenu&gt;</code>s via the <code>--neo-menu-screen-offset</code> CSS cascade.")},
 		{Name: "clamp-placement", Type: "boolean", Default: "false", Observed: true,
@@ -183,6 +183,10 @@ var menuDoc = ComponentDoc{
 			Description: templ.Raw("Minimum vertical slot the strict placement requires. If the slot at the configured side is shorter and the opposite side has more room, the menu auto-flips (e.g. <code>bottom-start</code> to <code>top-start</code>). <code>content</code> resolves from the menu panel's scroll height on each positioning pass. Inherited by descendant <code>&lt;neo-submenu&gt;</code>s via the <code>--neo-menu-min-fit-height</code> CSS cascade.")},
 		{Name: "min-fit-width", Type: `CSS length | "content"`, Default: `"content"`, Observed: true,
 			Description: templ.Raw("Same as <code>min-fit-height</code> but for the horizontal axis (<code>left-*</code>/<code>right-*</code>). <code>content</code> resolves from the panel's scroll width. Use <code>0</code> to disable the horizontal flip.")},
+	},
+	States: []DocState{
+		{Name: "push",
+			Description: templ.Raw("Set while <a href=\"#menu-attributes-mode\"><code>mode</code></a> resolves to <code>push</code>.")},
 	},
 	Slots: []DocSlot{
 		{Name: "host",

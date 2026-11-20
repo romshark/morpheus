@@ -11,11 +11,21 @@ This file records the notable changes of each release in the format of [Keep a C
 - Stop writing `id` on elements the page renders. `<neo-carousel>`, its slides, `<neo-tabs>`, its tabs and panels, the `<dialog>` of `<neo-dialog>` and `<neo-drawer>` and their title and description, the `<neo-lightbox>` title, `<neo-tooltip>` content and the active `<neo-textinput>` suggestion get no generated `id`. A tab or panel `id` you set is no longer overwritten. ARIA references use your `id` when the target has one, else ARIA element reflection, which Chrome before 135 and Firefox before 136 lack. Migration: give an element an `id` in your markup if your CSS or script selects it by the generated one.
 - Replace the `copied` attribute of `<neo-clipcopy>` with `:state(copied)`. Migration: change `neo-clipcopy[copied]` selectors to `neo-clipcopy:state(copied)`.
 - Stop writing `variant` on `<neo-revealable>`, `orientation` on `<neo-tabs>` and `position` on `<neo-toaster>` when they are absent. The inferred revealable variant is `:state(inline)` or `:state(media)`. Migration: select `neo-revealable:state(media)` instead of `neo-revealable[variant="media"]` to match an inferred variant.
-- Give `<neo-avatars>`, `<neo-breadcrumb>`, `<neo-elastic>` and `<neo-resizable>` a shadow root. Their children stay in the page markup and page CSS still styles them.
+- Give `<neo-avatars>`, `<neo-breadcrumb>`, `<neo-color-field>`, `<neo-elastic>`, `<neo-rating>`, `<neo-resizable>`, `<neo-sidebar>` and `<neo-tooltip>` a shadow root. Their children stay in the page markup and page CSS still styles them.
   - Hidden avatars and collapsed crumbs are left out of the shadow root's slot and carry no `data-neo-avatars-hidden` or `data-neo-breadcrumb-hidden`.
   - `<neo-elastic>` no longer wraps its children. Its wrapper is in the shadow root as `::part(content)`.
   - `<neo-resizable>` keeps its size in the shadow root instead of the host `style`. A dragged size now overrides page CSS on the host, and page CSS can still override the size mirrored from the `width`, `height`, `min-*` and `max-*` attributes.
-  - Migration: select hidden avatars and crumbs through the `neo-avatars-change` and `neo-breadcrumb-change` events instead of the attributes. Change `neo-elastic > [data-neo-elastic-content]` to `neo-elastic::part(content)`. Read a resizable's size from `getBoundingClientRect()` or the `neo-resizable-resize` event instead of its `style`.
+  - `<neo-sidebar>` no longer writes `inert` on its children.
+  - `<neo-tooltip>` positions a shadow panel around `[data-neo-tooltip-content]`, which no longer gets `position`, `top`, `left` or `z-index`.
+  - `<neo-rating>` renders its symbols in the shadow root after upgrade.
+  - Migration: select hidden avatars and crumbs through the `neo-avatars-change` and `neo-breadcrumb-change` events instead of the attributes. Change `neo-elastic > [data-neo-elastic-content]` to `neo-elastic::part(content)`. Read a resizable's size from `getBoundingClientRect()` or the `neo-resizable-resize` event instead of its `style`. Detect a closed sidebar with `neo-sidebar:not([open])` instead of `[inert]` on its children. Set the tooltip stacking order with `--neo-tooltip-z-index` and drop `position` overrides on its content. Change `neo-rating neo-icon::part(svg)` to `neo-rating::part(svg)`, and restyle other rating internals through the `--neo-rating-*` tokens.
+- Replace runtime marker attributes with custom states. Migration: change the selectors as listed.
+  - `<neo-menu>` `data-mode-effective="push"` is `:state(push)`.
+  - `<neo-select>` and `<neo-combobox>` `data-neo-trigger-rich` is `:state(trigger-rich)`.
+  - The `<neo-toast>` markers `data-neo-mounted`, `data-neo-toast-leaving`, `data-neo-toast-hidden`, `data-neo-toast-dragging` and `data-neo-toast-swipe-dismiss` are `:state(mounted)`, `:state(leaving)`, `:state(hidden)`, `:state(dragging)` and `:state(swipe-dismiss)`. A server can still render `data-neo-toast-leaving` to play the exit before it removes a toast.
+- Stop writing `data-neo-popover-placement` on `<neo-popover>`, `data-neo-value` on `<neo-option>`, `data-neo-toast-tracked` and `data-neo-toast-id` on toasts from markup, `data-neo-sortable-grip`, `data-neo-sortable-dragging` and inline styles on `<neo-sortable>` items, `data-neo-has-keyboard` and `data-neo-resizable-cursor` on `<html>`, and `overflow-anchor` on `<html>` and `<body>`. Migration: read the placement from `detail.placement` of `neo-popover-position`, select an option by `[value]`, take a toast's id from the return value of `NeoToast.show()`, and restyle the lifted sortable item through `--neo-sortable-drag-ring` and `--neo-sortable-drag-shadow`.
+- Stop copying `mode`, `screen-offset`, `clamp-placement`, `min-fit-height` and `min-fit-width` from `<neo-contextmenu>` onto its `<neo-menu>`. The menu reads them from the contextmenu, and an attribute on the menu wins. Migration: read these attributes from the `<neo-contextmenu>`.
+- Let page CSS override the values `<neo-popover>`, `<neo-textarea>`, `<neo-menu>` and `<neo-submenu>` mirror from their attributes. They were inline styles, which page CSS couldn't beat.
 
 ### Fixed
 
@@ -29,6 +39,17 @@ This file records the notable changes of each release in the format of [Keep a C
 - Keep the dragged size of `<neo-resizable>` across a Datastar morph, and the size from its attributes in markup without a matching `style`. The morph reset both.
 - Keep Safari in full screen when Escape closes `<neo-dialog>`, `<neo-drawer>`, `<neo-lightbox>`, `<neo-popover>`, an overlay `<neo-sidebar>` or a tooltip. Safari also left full screen.
 - Close only the open `<neo-popover>` or tooltip when Escape is pressed inside `<neo-dialog>` or `<neo-drawer>`. The dialog closed with it.
+- Restore the ARIA that a Datastar morph strips from `<neo-buttongroup>`, `<neo-color-field>`, `<neo-input-group>`, `<neo-optgroup>`, `<neo-pagination>`, `<neo-progress>`, `<neo-radio-group>`, `<neo-rating>`, `<neo-revealable>`, `<neo-spinner>`, `<neo-toast>`, `<neo-toggle-group>`, `<neo-tree>`, the options of `<neo-select>`, `<neo-combobox>` and `<neo-textinput>`, the `<neo-contextmenu>` trigger, the `<neo-button>` that opens a `<neo-menu>`, the roving tab stop of `<neo-navgroup>` and `aria-grabbed` of `<neo-sortable>`. Roles, states and tab stops stayed missing.
+- Keep per-instance styles across a Datastar morph: the `screen-offset`, `min-fit-*` and `min-open-*` of `<neo-popover>`, `<neo-menu>` and `<neo-submenu>`, the caps, `resize` and grown size of `<neo-textarea>`, the hue and handle of `<neo-color-field>`, a `<neo-navgroup>` grid over 12 `columns`, the `<neo-rating>` fill, the tooltip position, the `<neo-toaster>` stack and a swipe in progress on `<neo-sidebar>`, `<neo-drawer>` and toasts. The morph stripped them from `style`.
+- Keep the children of a closed `<neo-sidebar>` inert across a Datastar morph. Its links became reachable by Tab.
+- Keep the `mode`, `screen-offset`, `clamp-placement` and `min-fit-*` of a `<neo-contextmenu>` in effect after a morph strips them from its `<neo-menu>`.
+- Point `aria-controls` of the `<neo-contextmenu>` trigger at the menu from load on. It was set only once the menu opened.
+- Keep a group-disabled `<neo-radio>` announced as disabled. The radio removed the group's `aria-disabled`.
+- Give a segmented `<neo-buttongroup>` a tab stop when no button matches `value`.
+- Keep an authored `role` on `<neo-revealable>`. It was always replaced with `button`.
+- Return `<neo-rating>` to the tab order when `disabled` or `readonly` is removed.
+- Update the `role` and `aria-live` of `<neo-toast>` when `variant` changes to or from `error`.
+- Keep a swiped toast in its stack slot. The drag moved it to the front slot.
 
 ## [0.7.0] - 2026-11-20
 

@@ -1300,10 +1300,12 @@ export class NeoTextInput extends HTMLElement {
 	}
 
 	// The option wiring of <neo-select> and <neo-combobox>, without a roving
-	// tabindex, because focus stays in the field.
+	// tabindex, because focus stays in the field. Runs paused.
 	#wireSuggestions() {
+		const active = this.#suggestActiveEl;
 		for (const el of this.#suggestOptionEls()) {
 			wireOptionEl(el, readOptionData(el), false);
+			setAttrIfChanged(el, "aria-selected", String(el === active));
 		}
 	}
 
@@ -1931,20 +1933,23 @@ export class NeoTextInput extends HTMLElement {
 	}
 
 	// The active option carries aria-selected, per the APG listbox-popup combobox,
-	// and neo-option.css paints it from that.
+	// and neo-option.css paints it from that. The writes run paused,
+	// because the option observer restores a stripped aria-selected.
 	#setActive(el: HTMLElement | null) {
 		this.#clearActive();
 		if (!el) return;
-		el.setAttribute("aria-selected", "true");
+		this.#withObserverPaused(() => setAttrIfChanged(el, "aria-selected", "true"));
 		this.#suggestActiveEl = el;
 		this.#pointActiveDescendant(el);
 		el.scrollIntoView({ block: "nearest" });
 	}
 
 	#clearActive() {
-		for (const el of this.#suggestOptionEls()) {
-			if (el.getAttribute("aria-selected") === "true") el.setAttribute("aria-selected", "false");
-		}
+		this.#withObserverPaused(() => {
+			for (const el of this.#suggestOptionEls()) {
+				if (el.getAttribute("aria-selected") === "true") el.setAttribute("aria-selected", "false");
+			}
+		});
 		this.#suggestActiveEl = null;
 		this.#pointActiveDescendant(null);
 	}

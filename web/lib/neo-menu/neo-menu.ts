@@ -3,9 +3,13 @@
 // <neo-contextmenu> via openAtPoint. neo-menu owns all menu behavior so
 // the hosts don't duplicate any of it.
 
+import { setAriaRef } from "../aria-ref";
 import { boolAttr, openCommand } from "../command";
+import { setState } from "../internal-state";
+import { observeManagedAttrs, setAttrIfChanged } from "../neo-morph-resilient";
 import { type Placement, positionPanel, resolveCssLengthPx, resolveCssLengthPxOrContent } from "../neo-position";
 import { eventEnters, isIndependentBoundaryScroll, scopingBoundary } from "../shadow-utils";
+import { isMenuLengthAttr, keyMenuLengths } from "./menu-length-sheet";
 
 let nextId = 0;
 
@@ -33,10 +37,17 @@ export class NeoMenu extends HTMLElement {
 	#hostEl: HTMLElement | null = null;
 	#anchorEl: HTMLElement | null = null;
 	#pointAnchor: HTMLElement | null = null;
+	#internals: ElementInternals;
+	#push = false;
+	// aria-haspopup on the trigger is this menu's only where the server rendered
+	// none. Kept per trigger, because a morph strips it and the next sync restores it.
+	#haspopupTrigger: HTMLElement | null = null;
+	#ownsHaspopup = false;
 
 	#items: HTMLElement[] = [];
 	#childObserver: MutationObserver | null = null;
 	#hostObserver: MutationObserver | null = null;
+	#triggerObserver: MutationObserver | null = null;
 	#ready = false;
 	#rebuilding = false;
 	#pushMQL: MediaQueryList | null = null;
@@ -48,6 +59,11 @@ export class NeoMenu extends HTMLElement {
 	// Value of the row that last held focus, so a morph restores the user's
 	// roving position instead of snapping back to the first item.
 	#focusedItemValue: string | null = null;
+
+	constructor() {
+		super();
+		this.#internals = this.attachInternals();
+	}
 
 	connectedCallback() {
 		if (this.#ready) return;
@@ -81,7 +97,7 @@ export class NeoMenu extends HTMLElement {
 			this.#pushMQL.addEventListener("change", this.#onPushMQChange);
 		}
 		this.#applyEffectiveMode();
-		this.#syncCssBackedAttrs();
+		keyMenuLengths(this);
 		this.#ready = true;
 	}
 
@@ -111,7 +127,7 @@ export class NeoMenu extends HTMLElement {
 		const wasOpen = this.#openIntent;
 		this.#openIntent = true;
 		this.#reflectOpen();
-		this.trigger?.setAttribute("aria-expanded", "true");
+		this.#syncTriggerAria();
 		this.#position();
 		this.#focusFirst();
 		if (!wasOpen && !opts.silent) {
@@ -123,7 +139,7 @@ export class NeoMenu extends HTMLElement {
 		const wasOpen = this.#openIntent;
 		this.#openIntent = false;
 		this.#reflectClose();
-		this.trigger?.setAttribute("aria-expanded", "false");
+		this.#syncTriggerAria();
 		this.querySelectorAll<HTMLElement>("neo-submenu[open]").forEach((s) => {
 			const hide = (s as NeoSubmenuLike).hide;
 			if (typeof hide === "function") hide.call(s);
@@ -162,11 +178,12 @@ export class NeoMenu extends HTMLElement {
 			this.trigger = host;
 			this.returnFocusEl = host;
 			this.#anchorEl = host;
-			if (!host.hasAttribute("aria-haspopup")) {
-				host.setAttribute("aria-haspopup", "menu");
+			if (host !== this.#haspopupTrigger) {
+				this.#haspopupTrigger = host;
+				this.#ownsHaspopup = !host.hasAttribute("aria-haspopup");
 			}
-			host.setAttribute("aria-controls", panel.id);
-			host.setAttribute("aria-expanded", String(this.hasAttribute("open")));
+			this.#syncTriggerAria();
+			this.#triggerObserver = observeManagedAttrs(host, TRIGGER_ARIA, this.#syncTriggerAria);
 			host.addEventListener("click", this.#onTriggerClick);
 			host.addEventListener("keydown", this.#onTriggerKeyDown);
 		}
@@ -185,12 +202,17 @@ export class NeoMenu extends HTMLElement {
 		this.#childObserver = new MutationObserver(() => this.#refreshItems());
 		this.#childObserver.observe(panel, { childList: true });
 		this.#refreshItems();
+		// The host's trigger links to the panel, which can upgrade after the
+		// host binds or be rebuilt after a morph.
+		if (host?.localName === "neo-contextmenu") (host as HTMLElement & { menuBound?: () => void }).menuBound?.();
 		return true;
 	}
 
 	#unbindStructure() {
 		this.trigger?.removeEventListener("click", this.#onTriggerClick);
 		this.trigger?.removeEventListener("keydown", this.#onTriggerKeyDown);
+		this.#triggerObserver?.disconnect();
+		this.#triggerObserver = null;
 		this.panel?.removeEventListener("keydown", this.#onPanelKeyDown);
 		this.panel?.removeEventListener("mouseover", this.#onPanelMouseOver);
 		this.panel?.removeEventListener("neo-menuitem-select", this.#onItemSelect);
@@ -227,7 +249,6 @@ export class NeoMenu extends HTMLElement {
 		try {
 			this.#bindStructure();
 			this.#applyEffectiveMode();
-			this.#syncCssBackedAttrs();
 			// The morph stripped `open`; bindStructure already re-projected
 			// the new authored rows. Act on intent, not the attribute.
 			if (this.#openIntent) {
@@ -274,24 +295,11 @@ export class NeoMenu extends HTMLElement {
 
 	attributeChangedCallback(name: string) {
 		if (!this.#ready) return;
-		if (name === "mode") {
-			this.#applyEffectiveMode();
+		if (name !== "open") {
+			this.#onConfigChanged(name);
 			return;
 		}
-		if (
-			name === "placement" ||
-			name === "screen-offset" ||
-			name === "clamp-placement" ||
-			name === "min-fit-height" ||
-			name === "min-fit-width"
-		) {
-			if (name === "screen-offset" || name === "min-fit-height" || name === "min-fit-width") {
-				this.#syncCssBackedAttr(name);
-			}
-			if (this.hasAttribute("open")) this.#position();
-			return;
-		}
-		if (name !== "open" || this.#reflectingOpen) return;
+		if (this.#reflectingOpen) return;
 		const cmd = openCommand(this);
 		if (cmd === null) {
 			// Absent: keep state; re-assert for `[open]` CSS. checkForReset
@@ -303,17 +311,40 @@ export class NeoMenu extends HTMLElement {
 		else this.#applyClose();
 	}
 
+	#onConfigChanged(name: string): void {
+		if (name === "mode") {
+			this.#applyEffectiveMode();
+			return;
+		}
+		if (isMenuLengthAttr(name)) keyMenuLengths(this);
+		if (this.hasAttribute("open")) this.#position();
+	}
+
+	// configSource returns the element whose `name` attribute configures this
+	// menu, which is the menu when it carries the attribute, else its
+	// <neo-contextmenu> host.
+	configSource(name: string): Element {
+		const host = this.#hostEl;
+		if (this.hasAttribute(name) || host?.localName !== "neo-contextmenu") return this;
+		return host;
+	}
+
+	// hostConfigChanged is called by the <neo-contextmenu> host when an
+	// attribute it configures the menu with changes.
+	hostConfigChanged(name: string): void {
+		if (this.#ready) this.#onConfigChanged(name);
+	}
+
+	// pushMode reports whether submenus replace the parent panel instead of
+	// flying out. CSS reads it as :state(push).
+	get pushMode(): boolean {
+		return this.#push;
+	}
+
 	#applyEffectiveMode(): void {
-		const requested = this.getAttribute("mode") ?? "auto";
-		let effective: "cascade" | "push";
-		if (requested === "push" || requested === "cascade") {
-			effective = requested;
-		} else {
-			effective = this.#pushMQL?.matches ? "push" : "cascade";
-		}
-		if (this.dataset.modeEffective !== effective) {
-			this.dataset.modeEffective = effective;
-		}
+		const requested = this.configSource("mode").getAttribute("mode") ?? "auto";
+		this.#push = requested === "push" || (requested !== "cascade" && this.#pushMQL?.matches === true);
+		setState(this.#internals, "push", this.#push);
 	}
 
 	#onPushMQChange = () => {
@@ -321,18 +352,13 @@ export class NeoMenu extends HTMLElement {
 		if (this.hasAttribute("open")) this.#position();
 	};
 
-	#syncCssBackedAttrs(): void {
-		for (const attr of CSS_BACKED_MENU_ATTRS) {
-			this.#syncCssBackedAttr(attr);
-		}
-	}
-
-	#syncCssBackedAttr(attr: CssBackedMenuAttr): void {
-		const cssVar = menuCssVar(attr);
-		const value = this.getAttribute(attr);
-		if (value === null) this.style.removeProperty(cssVar);
-		else this.style.setProperty(cssVar, value);
-	}
+	#syncTriggerAria = (): void => {
+		const t = this.trigger;
+		if (!t || !this.panel) return;
+		if (this.#ownsHaspopup) setAttrIfChanged(t, "aria-haspopup", "menu");
+		setAriaRef(t, "aria-controls", [this.panel]);
+		setAttrIfChanged(t, "aria-expanded", String(this.#openIntent));
+	};
 
 	show(): void {
 		if (!this.#openIntent) this.#applyOpen();
@@ -485,7 +511,7 @@ export class NeoMenu extends HTMLElement {
 		let item: Element | null = target;
 		while (item && item.parentElement !== this.panel) item = item.parentElement;
 		if (!(item instanceof HTMLElement) || !this.#items.includes(item)) return;
-		if (this.dataset.modeEffective === "push") {
+		if (this.#push) {
 			// Push opens submenus on click, not hover. Skip the open submenu,
 			// because its pushed panel owns its own hover focus and
 			// refocusing its trigger here would conflict with that.
@@ -578,7 +604,7 @@ export class NeoMenu extends HTMLElement {
 		const minFitWidth = resolveCssLengthPxOrContent(this, "--neo-menu-min-fit-width", "content");
 		const edgeOffset = resolveCssLengthPx(this, "--neo-menu-screen-offset");
 		positionPanel(this.#anchorEl, this.panel, placement, edgeOffset, 4, {
-			clamp: boolAttr(this, "clamp-placement", false),
+			clamp: boolAttr(this.configSource("clamp-placement"), "clamp-placement", false),
 			boundaryContext: this,
 			minFitHeight,
 			minFitWidth,
@@ -593,14 +619,7 @@ interface NeoSubmenuLike extends HTMLElement {
 	hide?: () => void;
 }
 
-const CSS_BACKED_MENU_ATTRS = ["screen-offset", "min-fit-height", "min-fit-width"] as const;
-
-type CssBackedMenuAttr = (typeof CSS_BACKED_MENU_ATTRS)[number];
-
-function menuCssVar(attr: CssBackedMenuAttr) {
-	if (attr === "screen-offset") return "--neo-menu-screen-offset";
-	return attr === "min-fit-height" ? "--neo-menu-min-fit-height" : "--neo-menu-min-fit-width";
-}
+const TRIGGER_ARIA = ["aria-haspopup", "aria-controls", "aria-expanded"];
 
 if (!customElements.get("neo-menu")) {
 	customElements.define("neo-menu", NeoMenu);

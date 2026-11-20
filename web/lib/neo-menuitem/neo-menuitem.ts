@@ -61,9 +61,14 @@ function matchesShortcut(e: KeyboardEvent, m: ShortcutMatcher): boolean {
 }
 
 // One-shot keyboard detection for coarse touch/no-hover devices. CSS
-// shows shortcuts by default on desktop/laptop contexts, hides them on
-// touch-first devices, then reveals them again when a trusted keydown
-// proves a hardware keyboard is available.
+// shows shortcuts by default on desktop/laptop contexts and hides them on
+// touch-first devices. A trusted keydown proves a hardware keyboard, and
+// this document sheet then shows them again. A sheet, not a marker on
+// <html>, because a morph strips an attribute the server didn't render.
+const keyboardSheet = new CSSStyleSheet();
+keyboardSheet.replaceSync(
+	`@media (hover: none) and (pointer: coarse) { [${SHORTCUT_HINT_ATTR}] { display: revert; } }`,
+);
 let keyboardObserverInstalled = false;
 
 function observeKeyboardOnce(): void {
@@ -71,7 +76,7 @@ function observeKeyboardOnce(): void {
 	keyboardObserverInstalled = true;
 	const handler = (e: KeyboardEvent) => {
 		if (!e.isTrusted) return;
-		document.documentElement.setAttribute("data-neo-has-keyboard", "");
+		document.adoptedStyleSheets = [...document.adoptedStyleSheets, keyboardSheet];
 		document.removeEventListener("keydown", handler, true);
 	};
 	document.addEventListener("keydown", handler, true);

@@ -24,6 +24,9 @@ let nextId = 0;
 
 export class TooltipController {
 	#host: HTMLElement;
+	// Positioned in place of the content when the content is authored
+	// light DOM, whose style belongs to the server.
+	#panel: HTMLElement | null;
 	#trigger: HTMLElement | null = null;
 	#content: HTMLElement | null = null;
 	#openTimer: number | null = null;
@@ -56,8 +59,9 @@ export class TooltipController {
 	// Guards reflective `open` writes so they aren't read back as commands.
 	#reflecting = false;
 
-	constructor(host: HTMLElement) {
+	constructor(host: HTMLElement, panel: HTMLElement | null = null) {
 		this.#host = host;
+		this.#panel = panel;
 	}
 
 	connect(): void {
@@ -334,14 +338,20 @@ export class TooltipController {
 		this.#following = false;
 		this.#position();
 		this.#following = true;
-		this.#baseLeft = parseFloat(this.#content?.style.left || "0") || 0;
-		this.#baseTop = parseFloat(this.#content?.style.top || "0") || 0;
+		const bubble = this.#bubble();
+		this.#baseLeft = parseFloat(bubble?.style.left || "0") || 0;
+		this.#baseTop = parseFloat(bubble?.style.top || "0") || 0;
 	}
 
 	nudge(dx: number, dy: number): void {
-		if (!this.#following || !this.#content) return;
-		this.#content.style.left = `${this.#baseLeft + dx}px`;
-		this.#content.style.top = `${this.#baseTop + dy}px`;
+		const bubble = this.#bubble();
+		if (!this.#following || !bubble) return;
+		bubble.style.left = `${this.#baseLeft + dx}px`;
+		bubble.style.top = `${this.#baseTop + dy}px`;
+	}
+
+	#bubble(): HTMLElement | null {
+		return this.#content && (this.#panel ?? this.#content);
 	}
 
 	endFollow(): void {
@@ -429,7 +439,8 @@ export class TooltipController {
 	};
 
 	#position() {
-		if (!this.#trigger || !this.#content) return;
+		const bubble = this.#bubble();
+		if (!this.#trigger || !bubble) return;
 		const placement = (this.#host.getAttribute("placement") as Placement | null) ?? "bottom-start";
 		if (this.#edgeOffset === null) {
 			const [edgeOffset, maxWidth] = resolveCssLengthsPx(this.#host, [
@@ -442,22 +453,22 @@ export class TooltipController {
 		const edgeOffset = this.#edgeOffset;
 		const triggerGap = 6;
 
-		this.#content.style.maxWidth = "";
-		this.#content.style.maxHeight = "";
+		bubble.style.maxWidth = "";
+		bubble.style.maxHeight = "";
 		if (!intersectsVisualViewport(this.#trigger)) {
-			this.#content.style.visibility = "hidden";
+			bubble.style.visibility = "hidden";
 			return;
 		}
 		// Flip to the opposite side when the bubble doesn't fit, and hide it when
 		// neither side fits. Clamped into the window, it would cover the trigger.
 		// The inline max-width placement writes overrides the CSS cap, which
 		// therefore goes in as `maxWidth`.
-		const fit = positionPanelResult(this.#trigger, this.#content, placement, edgeOffset, triggerGap, {
+		const fit = positionPanelResult(this.#trigger, bubble, placement, edgeOffset, triggerGap, {
 			minFitHeight: "content",
 			minFitWidth: "content",
 			maxWidth: this.#maxWidth > 0 ? this.#maxWidth : undefined,
 		});
-		this.#content.style.visibility = fit.fitsFitSize ? "" : "hidden";
+		bubble.style.visibility = fit.fitsFitSize ? "" : "hidden";
 	}
 
 	#readDelayAttr(name: string, fallback: number): number {

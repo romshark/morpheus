@@ -3,7 +3,9 @@
  * overflow:hidden clips the fixed-size inner svg, which makes a partial
  * value show an exact left fraction of the icon. The host carries the
  * slider semantics (the symbol row is aria-hidden); the focus ring goes
- * on the row. */
+ * on the row. These rules paint the server's prerendered row until the upgrade.
+ * The element then renders its own copy in its shadow root, styled by the same rules
+ * in SHEET in neo-rating.ts, and only the tokens below reach it. */
 
 :root {
 	--neo-rating-symbol-size: 1.5rem;
@@ -80,9 +82,8 @@ neo-rating [data-neo-rating-preview] neo-icon::part(svg) {
 	stroke: currentColor;
 }
 
-/* The inner icon must stay the full symbol size so the full layer's
- * overflow clip reveals an exact fraction (it must not shrink with the
- * clip width). */
+/* The inner icon must stay the full symbol size so the full layer's overflow
+ * clip reveals an exact fraction (it must not shrink with the clip width). */
 neo-rating [data-neo-rating-empty] neo-icon,
 neo-rating [data-neo-rating-preview] neo-icon,
 neo-rating [data-neo-rating-full] neo-icon,
@@ -95,8 +96,8 @@ neo-rating [data-neo-rating-full] svg {
 	height: var(--neo-rating-symbol-size);
 }
 
-/* Match the kit-wide focus baseline (_base.css), a 2px accent outline
- * offset 2px. It sits on the symbol row so it rounds to the row's radius;
+/* Match the kit-wide focus baseline (_base.css), a 2px accent outline offset 2px.
+ * It sits on the symbol row so it rounds to the row's radius;
  * suppress the baseline's own outline on the host so the 2 don't stack
  * into a double ring (`:focus-visible` here outranks the baseline). */
 neo-rating:focus-visible {

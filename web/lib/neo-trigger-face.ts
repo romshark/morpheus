@@ -1,7 +1,7 @@
-// Trigger-face renderer shared by <neo-select> and <neo-combobox>. Clones
-// an option's "face" into a `slot="trigger"` host child (light DOM, where
-// the page's option CSS styles it) and toggles the host's
-// `data-neo-trigger-rich` attribute; plain text falls back to the shadow
+// Trigger-face renderer shared by <neo-select> and <neo-combobox>.
+// Clones an option's "face" into a `slot="trigger"` host child
+// (light DOM, where the page's option CSS styles it) and toggles
+// the host's `:state(trigger-rich)`; plain text falls back to the shadow
 // label instead. The 2 components differ only in their view attribute.
 export class TriggerFace {
 	#view: HTMLElement | null = null;
@@ -12,12 +12,21 @@ export class TriggerFace {
 	readonly #viewAttr: string;
 	// Runs `fn` with the host's light-DOM MutationObserver paused.
 	readonly #pause: (fn: () => void) => void;
+	// Sets the host's trigger-rich custom state.
+	readonly #setRich: (on: boolean) => void;
 
-	constructor(host: HTMLElement, label: HTMLElement, viewAttr: string, pause: (fn: () => void) => void) {
+	constructor(
+		host: HTMLElement,
+		label: HTMLElement,
+		viewAttr: string,
+		pause: (fn: () => void) => void,
+		setRich: (on: boolean) => void,
+	) {
 		this.#host = host;
 		this.#label = label;
 		this.#viewAttr = viewAttr;
 		this.#pause = pause;
+		this.#setRich = setRich;
 	}
 
 	// Precedence: a `[data-neo-option-trigger]` child (a compact face distinct
@@ -66,7 +75,7 @@ export class TriggerFace {
 	}
 
 	rich(on: boolean): void {
-		this.#host.toggleAttribute("data-neo-trigger-rich", on);
+		this.#setRich(on);
 	}
 
 	// Lazy + reused clone container, slotted into the shadow trigger.

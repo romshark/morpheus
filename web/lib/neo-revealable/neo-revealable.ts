@@ -1,14 +1,15 @@
 // On hydration the children are wrapped in a [data-neo-revealable-content]
 // div and a [data-neo-revealable-canvas] overlay sibling is appended.
 // While concealed the content wrapper is inert plus aria-hidden so the
-// secret never leaks to AT, and it re-conceals on patch so a morph can't
-// flash it.
+// secret never leaks to AT, and it re-conceals on patch so a morph can't flash it.
 
 import { boolCommand } from "../command";
 import { setState } from "../internal-state";
+import { observeManagedAttrs, setAttrIfChanged } from "../neo-morph-resilient";
 
 const CANVAS_ATTR = "data-neo-revealable-canvas";
 const CONTENT_ATTR = "data-neo-revealable-content";
+const HOST_ARIA = ["role", "tabindex", "aria-expanded", "aria-label"];
 
 interface Particle {
 	x: number;
@@ -37,13 +38,13 @@ export class NeoRevealable extends HTMLElement {
 	#rehideTimer: ReturnType<typeof setTimeout> | null = null;
 	#resizeObserver: ResizeObserver | null = null;
 	#mutationObserver: MutationObserver | null = null;
+	#ariaObserver: MutationObserver | null = null;
 	// Set while the component edits its own light DOM so that the content
 	// MutationObserver doesn't treat the canvas/wrapper it injects as an
 	// external content patch.
 	#internalMutation = false;
 	// Gates for the rehide-after timer. Either being true pauses it
-	// (clears any pending callback); the timer (re)starts only when both
-	// fall false.
+	// (clears any pending callback); the timer (re)starts only when both fall false.
 	#hovered = false;
 	#focused = false;
 	#width = 0;
@@ -61,8 +62,6 @@ export class NeoRevealable extends HTMLElement {
 	connectedCallback() {
 		this.#inferredVariant ??= this.#inferVariant();
 		this.#syncVariantState();
-		if (!this.hasAttribute("tabindex")) this.tabIndex = 0;
-		this.setAttribute("role", "button");
 
 		// Explicit open / open="false" commands intent; absent keeps it.
 		const cmd = boolCommand(this, "open");
@@ -86,6 +85,7 @@ export class NeoRevealable extends HTMLElement {
 				characterData: true,
 				subtree: true,
 			});
+			this.#ariaObserver = observeManagedAttrs(this, HOST_ARIA, () => this.#syncAria());
 			this.#ready = true;
 		}
 
@@ -110,8 +110,10 @@ export class NeoRevealable extends HTMLElement {
 		this.#clearRehideTimer();
 		this.#resizeObserver?.disconnect();
 		this.#mutationObserver?.disconnect();
+		this.#ariaObserver?.disconnect();
 		this.#resizeObserver = null;
 		this.#mutationObserver = null;
+		this.#ariaObserver = null;
 		this.#content = null;
 		this.#canvas = null;
 		this.#ctx = null;
@@ -212,8 +214,8 @@ export class NeoRevealable extends HTMLElement {
 	}
 
 	#onClick = (e: MouseEvent) => {
-		// Content is live once revealed; let clicks pass through (text
-		// selection, links). The hover/focus gate keeps the timer paused.
+		// Content is live once revealed; let clicks pass through
+		// (text selection, links). The hover/focus gate keeps the timer paused.
 		if (this.open) return;
 		e.preventDefault();
 		window.getSelection()?.removeAllRanges();
@@ -221,8 +223,8 @@ export class NeoRevealable extends HTMLElement {
 	};
 
 	#onKeyDown = (e: KeyboardEvent) => {
-		// Like click, never re-conceal from a keystroke; let it through to
-		// whatever has focus inside the content.
+		// Like click, never re-conceal from a keystroke;
+		// let it through to whatever has focus inside the content.
 		if (this.open) return;
 		if (e.key !== "Enter" && e.key !== " ") return;
 		e.preventDefault();
@@ -230,10 +232,10 @@ export class NeoRevealable extends HTMLElement {
 		this.reveal();
 	};
 
-	// Hover and focus gate the rehide-after timer. Either one live pauses
-	// it; both gone restarts it. mouseenter/mouseleave fire on
-	// the host (crossing into / out of its bounding box, ignoring
-	// children); focusin/focusout bubble from descendants.
+	// Hover and focus gate the rehide-after timer. Either one live pauses it;
+	// both gone restarts it. mouseenter/mouseleave fire on
+	// the host (crossing into / out of its bounding box, ignoring children);
+	// focusin/focusout bubble from descendants.
 	#onMouseEnter = () => {
 		this.#hovered = true;
 		this.#clearRehideTimer();
@@ -336,7 +338,9 @@ export class NeoRevealable extends HTMLElement {
 	}
 
 	#syncAria(): void {
-		this.setAttribute("aria-expanded", String(this.open));
+		if (!this.hasAttribute("role")) this.setAttribute("role", "button");
+		if (!this.hasAttribute("tabindex")) this.tabIndex = 0;
+		setAttrIfChanged(this, "aria-expanded", String(this.open));
 		if (!this.hasAttribute("aria-label") && !this.hasAttribute("aria-labelledby")) {
 			this.setAttribute("aria-label", "Spoiler, hidden content");
 		}
@@ -410,10 +414,10 @@ export class NeoRevealable extends HTMLElement {
 		const media = this.#variant() === "media";
 		const area = rect.width * rect.height;
 		const maxCount = media ? 3500 : 420;
-		// Clamp the area-derived baseline to the ceiling before applying
-		// density, then density scales it within [24, maxCount]. Applying
-		// density first lets a large area absorb a low density. A 400x50px
-		// inline run at density 0.5 gives 500, still clamped to 420.
+		// Clamp the area-derived baseline to the ceiling before applying density,
+		// then density scales it within [24, maxCount].
+		// Applying density first lets a large area absorb a low density.
+		// A 400x50px inline run at density 0.5 gives 500, still clamped to 420.
 		const base = Math.min(area * (media ? 0.007 : 0.05), maxCount);
 		const count = Math.max(24, Math.min(Math.round(base * this.#density), maxCount));
 

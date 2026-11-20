@@ -269,6 +269,10 @@ var toasterDoc = ComponentDoc{
 	States: []DocState{
 		{Name: "expanded",
 			Description: templ.Raw("Set while the stack is unfolded (hover, focus, or click). Dismiss timers are paused for as long as it holds.")},
+		{Name: "<neo-toast> leaving",
+			Description: templ.Raw("Set on a toast while it animates out, before its removal.")},
+		{Name: "<neo-toast> dragging",
+			Description: templ.Raw("Set on a toast while a touch-dismiss drag is in flight.")},
 	},
 	Slots: []DocSlot{
 		{Name: "<neo-toast>",

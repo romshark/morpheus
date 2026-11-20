@@ -12,16 +12,17 @@
  *     vertical list. All auto-dismiss timers pause for the duration.
  *   - Toasts past the visible cap fade to opacity 0 in collapsed
  *     mode and reappear in the expanded view.
- *   - Entry / exit are pure transitions. The pre-mount /
- *     [data-neo-toast-leaving] state has the toast translated off-
- *     screen along the anchor axis; flipping [data-neo-mounted]
- *     (or removing the leaving marker) lets the transform interpolate
- *     to / from the resting position.
+ *   - Entry / exit are pure transitions. Before :state(mounted) and
+ *     during :state(leaving) the toast sits off-screen along the anchor axis,
+ *     which makes each state flip interpolate the transform to / from
+ *     the resting position. A server about to remove a toast can
+ *     render [data-neo-toast-leaving] for the same exit.
  *
  * This file holds the toaster's positioning + Sonner-pile transforms, scoped to
  * <neo-toast> children of a <neo-toaster>. The inner stack wrapper (host's shadow root)
  * and each toast's markup (icon / body / close button, in <neo-toast>'s shadow root)
- * are styled via in-component <style> blocks. */
+ * are styled via in-component <style> blocks. The toaster writes each toast's
+ * --toast-* layout properties into that toast's :host rule. */
 
 :root {
 	--neo-toaster-z-index: 1200;
@@ -108,8 +109,8 @@ neo-toaster[position="bottom-center"] {
 
 /* Each toast is an absolutely-positioned light-DOM child of the
  * toaster, projected through the host's shadow stack via a single slot.
- * Layout custom properties are written by the toaster's updateLayout() per-toast;
- * the shadow markup inherits them through normal CSS inheritance. */
+ * A swipe moves the toast by --toast-drag-x through `translate`, which adds
+ * to the stack transform. Releasing transitions it back from the finger. */
 neo-toaster > neo-toast {
 	position: absolute;
 	left: 0;
@@ -117,13 +118,20 @@ neo-toaster > neo-toast {
 	pointer-events: auto;
 	touch-action: pan-y;
 	will-change: transform, opacity;
+	translate: var(--toast-drag-x, 0px) 0;
 	transition:
 		transform var(--neo-toaster-transition),
-		opacity var(--neo-toaster-transition);
+		opacity var(--neo-toaster-transition),
+		translate var(--neo-toaster-transition);
 	/* Higher z-index for the freshest toasts so they paint above the
 	 * older ones in the stacked view. The constant keeps a wide
 	 * range positive even with double-digit toasts. */
 	z-index: calc(100 - var(--toast-stack-index, 0));
+}
+
+/* The toast tracks the finger 1:1 instead of chasing the easing curve. */
+neo-toaster > neo-toast:state(dragging) {
+	transition: none;
 }
 
 /* A bottom-anchored stack grows away from the screen edge upward.
@@ -140,21 +148,20 @@ neo-toaster[position*="top"] > neo-toast {
 	transform: translateY(var(--toast-collapsed-offset, 0px)) scale(var(--toast-collapsed-scale, 1));
 }
 
-/* In the pre-mount state the toast hasn't received [data-neo-mounted] yet.
- * Park it off-screen along the anchor axis so the entry transition
- * reads as "slid in from outside the corner". */
-neo-toaster:is([position*="bottom"], :not([position])) > neo-toast:not([data-neo-mounted]),
-neo-toaster:is([position*="bottom"], :not([position])) > neo-toast[data-neo-toast-leaving] {
+/* Before :state(mounted), park the toast off-screen along the anchor axis
+ * so the entry transition reads as "slid in from outside the corner". */
+neo-toaster:is([position*="bottom"], :not([position])) > neo-toast:not(:state(mounted)),
+neo-toaster:is([position*="bottom"], :not([position])) > neo-toast:is(:state(leaving), [data-neo-toast-leaving]) {
 	transform: translateY(150%);
 	opacity: 0;
 }
-neo-toaster[position*="top"] > neo-toast:not([data-neo-mounted]),
-neo-toaster[position*="top"] > neo-toast[data-neo-toast-leaving] {
+neo-toaster[position*="top"] > neo-toast:not(:state(mounted)),
+neo-toaster[position*="top"] > neo-toast:is(:state(leaving), [data-neo-toast-leaving]) {
 	transform: translateY(-150%);
 	opacity: 0;
 }
 
-neo-toaster > neo-toast[data-neo-toast-swipe-dismiss][data-neo-toast-leaving] {
+neo-toaster > neo-toast:state(swipe-dismiss):state(leaving) {
 	transform: translateX(var(--toast-swipe-exit, 120%));
 	opacity: 0;
 }
@@ -162,7 +169,7 @@ neo-toaster > neo-toast[data-neo-toast-swipe-dismiss][data-neo-toast-leaving] {
 /* Toasts beyond the visible cap fade to invisible in collapsed mode;
  * they're still in the DOM (and reappear in the expanded view)
  * so the reader can browse a long backlog by hovering. */
-neo-toaster > neo-toast[data-neo-toast-hidden] {
+neo-toaster > neo-toast:state(hidden) {
 	opacity: 0;
 	pointer-events: none;
 }

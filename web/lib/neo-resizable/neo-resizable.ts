@@ -38,6 +38,29 @@ const CURSOR_BY_HANDLE: Record<Handle, string> = {
 	"bottom-left": "nesw-resize",
 };
 
+// The drag cursor holds over the whole page, including content the pointer
+// crosses. It comes from a document sheet, not an attribute on <html>,
+// which a morph of the document strips. Counted, in case 2 drags overlap.
+const cursorSheets = new Map<string, { sheet: CSSStyleSheet; users: number }>();
+
+function holdCursor(cursor: string): void {
+	let entry = cursorSheets.get(cursor);
+	if (!entry) {
+		const sheet = new CSSStyleSheet();
+		sheet.replaceSync(`:root, :root * { cursor: ${cursor} !important; }`);
+		entry = { sheet, users: 0 };
+		cursorSheets.set(cursor, entry);
+	}
+	if (entry.users++ === 0) document.adoptedStyleSheets = [...document.adoptedStyleSheets, entry.sheet];
+}
+
+function releaseCursor(cursor: string): void {
+	const entry = cursorSheets.get(cursor);
+	if (!entry || entry.users === 0) return;
+	entry.users--;
+	if (entry.users === 0) document.adoptedStyleSheets = document.adoptedStyleSheets.filter((s) => s !== entry.sheet);
+}
+
 interface ActiveDrag {
 	handle: Handle;
 	pointerId: number;
@@ -287,7 +310,7 @@ export class NeoResizable extends HTMLElement {
 			this.#setSizeVar("height", `${r.height}px`, true);
 		}
 		this.#setDragState(dir);
-		document.documentElement.setAttribute("data-neo-resizable-cursor", CURSOR_BY_HANDLE[dir]);
+		holdCursor(CURSOR_BY_HANDLE[dir]);
 		(e.currentTarget as Element).setPointerCapture?.(e.pointerId);
 		document.addEventListener("pointermove", this.#onPointerMove);
 		document.addEventListener("pointerup", this.#onPointerUp);
@@ -352,9 +375,9 @@ export class NeoResizable extends HTMLElement {
 
 	#endDrag() {
 		if (!this.#active) return;
+		releaseCursor(CURSOR_BY_HANDLE[this.#active.handle]);
 		this.#active = null;
 		this.#setDragState(null);
-		document.documentElement.removeAttribute("data-neo-resizable-cursor");
 		document.removeEventListener("pointermove", this.#onPointerMove);
 		document.removeEventListener("pointerup", this.#onPointerUp);
 		document.removeEventListener("pointercancel", this.#onPointerUp);

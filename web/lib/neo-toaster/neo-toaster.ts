@@ -1,15 +1,15 @@
 // Stack of transient toasts, either app-level (fixed to a viewport corner) or
 // contained (absolute, anchored to a positioned ancestor).
 // A MutationObserver adopts any <neo-toast> child that appears (including
-// via a Datastar SSE morph), assigning it a stack id and tracking its
-// `duration`. The <neo-toast> element renders its own icon and close button.
+// via a Datastar SSE morph), assigning it a stack id and tracking its `duration`.
+// The <neo-toast> element renders its own icon and close button.
 
 import "../neo-button";
 import "../neo-icon";
 import "../neo-spinner";
-import "../neo-toast";
 import { boolAttr } from "../command";
 import { setState } from "../internal-state";
+import { NeoToast as NeoToastElement } from "../neo-toast";
 import { resolveTouchDismiss } from "../touch-dismiss";
 
 type ToastVariant = "default" | "success" | "error" | "warning" | "info" | "loading";
@@ -73,7 +73,7 @@ interface ToastOptions {
 
 interface ToastEntry {
 	id: number;
-	el: HTMLElement;
+	el: NeoToastElement;
 	duration: number;
 	timer: number | null;
 	removalTimer: number | null;
@@ -110,6 +110,12 @@ let nextId = 0;
 // A predicate of `el is HTMLElement` would over-narrow the else branch to `never`.
 function isToast(el: Element): boolean {
 	return el.tagName.toLowerCase() === "neo-toast";
+}
+
+// The server may render `data-neo-toast-leaving` on a toast it is about to remove,
+// which plays the same exit as a dismissal.
+function isLeaving(el: Element): boolean {
+	return (el instanceof NeoToastElement && el.hasStackState("leaving")) || el.hasAttribute("data-neo-toast-leaving");
 }
 
 export class NeoToaster extends HTMLElement {
@@ -224,31 +230,13 @@ export class NeoToaster extends HTMLElement {
 		// direct light-DOM children of the host.
 		this.#mutationObserver = new MutationObserver((records) => {
 			for (const record of records) {
-				// Datastar's morph removes any attribute the source doesn't list.
-				// Re-apply kit bookkeeping the tracking entry still holds.
-				// `data-neo-mounted` loss re-triggers the pre-mount slide-off;
-				// `data-neo-toast-id` loss breaks `dismiss(id)`.
 				if (record.type === "attributes") {
 					const el = record.target;
 					if (!(el instanceof HTMLElement) || !isToast(el)) continue;
 					const entry = this.#toasts.find((t) => t.el === el);
 					if (!entry) continue;
-					if (
-						record.attributeName === "data-neo-toast-leaving" &&
-						!el.hasAttribute("data-neo-toast-leaving") &&
-						entry.removalTimer !== null
-					) {
-						this.#cancelToastRemoval(entry);
-					}
-					if (
-						record.attributeName === "data-neo-mounted" &&
-						!el.hasAttribute("data-neo-mounted") &&
-						!el.hasAttribute("data-neo-toast-leaving")
-					) {
-						el.setAttribute("data-neo-mounted", "");
-					}
-					if (record.attributeName === "data-neo-toast-id" && !el.hasAttribute("data-neo-toast-id")) {
-						el.setAttribute("data-neo-toast-id", String(entry.id));
+					if (record.attributeName === "data-neo-toast-leaving") {
+						this.#updateLayout();
 					}
 					if (record.attributeName === "duration") {
 						this.#refreshToastDuration(entry);
@@ -265,7 +253,7 @@ export class NeoToaster extends HTMLElement {
 						toast = isToast(record.target) ? record.target : record.target.closest<HTMLElement>("neo-toast");
 					}
 					const entry = toast ? this.#toasts.find((t) => t.el === toast) : undefined;
-					if (entry && toast && !toast.hasAttribute("data-neo-toast-leaving")) {
+					if (entry && toast && !isLeaving(toast)) {
 						refreshedToasts.add(entry);
 					}
 				}
@@ -314,7 +302,7 @@ export class NeoToaster extends HTMLElement {
 			childList: true,
 			subtree: true,
 			attributes: true,
-			attributeFilter: ["data-neo-mounted", "duration", "data-neo-toast-id", "data-neo-toast-leaving"],
+			attributeFilter: ["duration", "data-neo-toast-leaving"],
 		});
 
 		for (const child of Array.from(this.children)) {
@@ -362,8 +350,8 @@ export class NeoToaster extends HTMLElement {
 		// projects it into the positioning wrapper.
 		this.insertBefore(el, this.firstChild);
 		// Adopt synchronously so the caller gets back a fully-wired toast.
-		// The observer sees the node a microtask later but skips it
-		// (data-neo-toast-tracked already set).
+		// The observer sees the node a microtask later but skips it,
+		// because #toasts already holds it.
 		this.#adoptToast(el, { id, action: options.action });
 		return id;
 	}
@@ -381,13 +369,14 @@ export class NeoToaster extends HTMLElement {
 	// pre-allocated id + action callback through; declarative toasts
 	// generate their own id and don't get an action callback (those
 	// would be wired declaratively, e.g. via `data-on:click`).
-	#adoptToast(el: HTMLElement, seed?: { id?: number; action?: ToastAction }): void {
-		// Tracking lives in `#toasts` (not on the element) so a
-		// morph stripping `data-neo-toast-tracked` can't make us
-		// double-track.
+	#adoptToast(node: HTMLElement, seed?: { id?: number; action?: ToastAction }): void {
+		customElements.upgrade(node);
+		if (!(node instanceof NeoToastElement)) return;
+		const el = node;
 		if (this.#toasts.some((t) => t.el === el)) return;
-		el.setAttribute("data-neo-toast-tracked", "");
 
+		// The server may render `data-neo-toast-id`; the id otherwise lives
+		// only in the entry.
 		let id: number;
 		if (seed?.id !== undefined) {
 			id = seed.id;
@@ -395,7 +384,6 @@ export class NeoToaster extends HTMLElement {
 			const fromAttr = Number(el.getAttribute("data-neo-toast-id"));
 			id = Number.isFinite(fromAttr) && fromAttr > 0 ? fromAttr : ++nextId;
 		}
-		el.setAttribute("data-neo-toast-id", String(id));
 
 		if (seed?.action) {
 			const actionBtn = el.querySelector<HTMLElement>(":scope > [slot='action']");
@@ -426,7 +414,7 @@ export class NeoToaster extends HTMLElement {
 
 		void el.offsetWidth;
 		requestAnimationFrame(() => {
-			el.setAttribute("data-neo-mounted", "");
+			el.setStackState("mounted", true);
 		});
 
 		this.#startTimer(entry);
@@ -463,13 +451,7 @@ export class NeoToaster extends HTMLElement {
 	}
 
 	#patchToastElement(entry: ToastEntry, incoming: HTMLElement): void {
-		const preservedAttrs = [
-			"data-neo-mounted",
-			"data-neo-toast-id",
-			"data-neo-toast-tracked",
-			"data-neo-toast-leaving",
-			"data-neo-toast-hidden",
-		];
+		const preservedAttrs = ["data-neo-toast-id"];
 		const preserved = new Map<string, string | null>();
 		for (const name of preservedAttrs) {
 			preserved.set(name, entry.el.hasAttribute(name) ? entry.el.getAttribute(name) : null);
@@ -560,7 +542,7 @@ export class NeoToaster extends HTMLElement {
 		const toast = target?.closest<HTMLElement>("neo-toast");
 		if (!toast || !this.contains(toast)) return;
 		if (!boolAttr(toast, "dismissible", true)) return;
-		if (toast.hasAttribute("data-neo-toast-leaving")) return;
+		if (isLeaving(toast)) return;
 		if (this.#touchStartIneligible(e.target)) return;
 		const entry = this.#toasts.find((t) => t.el === toast);
 		if (!entry) return;
@@ -599,12 +581,11 @@ export class NeoToaster extends HTMLElement {
 			}
 			d.decided = true;
 			this.#pauseTimer(d.entry);
-			d.entry.el.setAttribute("data-neo-toast-dragging", "");
-			d.entry.el.style.transition = "none";
+			d.entry.el.setStackState("dragging", true);
 		}
 		e.preventDefault();
 		const offset = Math.max(-d.width, Math.min(d.width, dx));
-		d.entry.el.style.transform = `translateX(${offset}px)`;
+		d.entry.el.setStackProperty("--toast-drag-x", `${offset}px`);
 	};
 
 	#onTouchEnd = (e: TouchEvent) => {
@@ -640,19 +621,18 @@ export class NeoToaster extends HTMLElement {
 		}
 	}
 
-	#clearTouchDragStyles(el: HTMLElement) {
-		el.removeAttribute("data-neo-toast-dragging");
-		el.style.transform = "";
-		el.style.transition = "";
+	// Clearing the offset with the dragging state lets the `translate`
+	// transition run from the finger position.
+	#clearTouchDragStyles(el: NeoToastElement) {
+		el.setStackState("dragging", false);
+		el.setStackProperty("--toast-drag-x", null);
 	}
 
 	#finishSwipeDismiss(entry: ToastEntry, closeDir: -1 | 1) {
-		entry.el.removeAttribute("data-neo-toast-dragging");
-		entry.el.setAttribute("data-neo-toast-swipe-dismiss", "");
-		entry.el.style.setProperty("--toast-swipe-exit", `${closeDir * 120}%`);
-		entry.el.style.transition = "";
+		this.#clearTouchDragStyles(entry.el);
+		entry.el.setStackState("swipe-dismiss", true);
+		entry.el.setStackProperty("--toast-swipe-exit", `${closeDir * 120}%`);
 		this.#removeToast(entry, "swipe");
-		entry.el.style.transform = "";
 	}
 
 	#getStackLimit(): number {
@@ -665,8 +645,8 @@ export class NeoToaster extends HTMLElement {
 	#updateLayout(): void {
 		// Iterate live light-DOM toasts. The shadow stack only holds a
 		// <slot>; the toasts themselves are direct host children.
-		const live = (Array.from(this.children) as HTMLElement[]).filter(
-			(c) => isToast(c) && !c.hasAttribute("data-neo-toast-leaving"),
+		const live = Array.from(this.children).filter(
+			(c): c is NeoToastElement => c instanceof NeoToastElement && !isLeaving(c),
 		);
 		if (live.length === 0) {
 			this.#clickExpanded = false;
@@ -681,6 +661,7 @@ export class NeoToaster extends HTMLElement {
 		const stackLimit = this.#getStackLimit();
 		let expandedOffset = 0;
 		let collapsedReach = 0;
+		const collapsedOffsets: number[] = [];
 		for (let i = 0; i < live.length; i++) {
 			const el = live[i];
 			let scale = 1;
@@ -691,24 +672,19 @@ export class NeoToaster extends HTMLElement {
 				const peekIndex = i - stackLimit + 1;
 				scale = Math.max(0, 1 - peekIndex * scaleStep);
 				const scaledHeight = el.offsetHeight * scale;
-				const anchorOffset = live[stackLimit - 1]
-					? Number.parseFloat(live[stackLimit - 1].style.getPropertyValue("--toast-collapsed-offset")) || 0
-					: 0;
+				const anchorOffset = collapsedOffsets[stackLimit - 1] ?? 0;
 				collapsedOffset = Math.max(anchorOffset + peekIndex * stackOffset, collapsedReach - scaledHeight + stackOffset);
 				hidden = peekIndex > MAX_COLLAPSED_PEEK;
 			}
 
 			const scaledHeight = el.offsetHeight * scale;
 			collapsedReach = collapsedOffset + scaledHeight;
-			el.style.setProperty("--toast-stack-index", String(i));
-			el.style.setProperty("--toast-collapsed-offset", `${collapsedOffset}px`);
-			el.style.setProperty("--toast-collapsed-scale", String(scale));
-			el.style.setProperty("--toast-expanded-offset", `${expandedOffset}px`);
-			if (hidden) {
-				el.setAttribute("data-neo-toast-hidden", "");
-			} else {
-				el.removeAttribute("data-neo-toast-hidden");
-			}
+			collapsedOffsets.push(collapsedOffset);
+			el.setStackProperty("--toast-stack-index", String(i));
+			el.setStackProperty("--toast-collapsed-offset", `${collapsedOffset}px`);
+			el.setStackProperty("--toast-collapsed-scale", String(scale));
+			el.setStackProperty("--toast-expanded-offset", `${expandedOffset}px`);
+			el.setStackState("hidden", hidden);
 			expandedOffset += el.offsetHeight + gap;
 		}
 
@@ -784,7 +760,7 @@ export class NeoToaster extends HTMLElement {
 
 	#startTimer(entry: ToastEntry): void {
 		if (entry.duration <= 0) return; // persistent
-		if (entry.el.hasAttribute("data-neo-toast-leaving")) return;
+		if (isLeaving(entry.el)) return;
 		if (this.#internals.states.has("expanded")) return; // paused while expanded
 
 		const now = Date.now();
@@ -813,13 +789,13 @@ export class NeoToaster extends HTMLElement {
 	}
 
 	#removeToast(entry: ToastEntry, reason: ToastCloseReason): void {
-		if (entry.el.hasAttribute("data-neo-toast-leaving")) return;
+		if (isLeaving(entry.el)) return;
 		if (entry.timer !== null) {
 			window.clearTimeout(entry.timer);
 			entry.timer = null;
 		}
 		if (entry.el.isConnected) {
-			entry.el.setAttribute("data-neo-toast-leaving", "");
+			entry.el.setStackState("leaving", true);
 			this.#updateLayout();
 
 			entry.removalTimer = window.setTimeout(() => {
@@ -846,11 +822,10 @@ export class NeoToaster extends HTMLElement {
 			window.clearTimeout(entry.removalTimer);
 			entry.removalTimer = null;
 		}
-		entry.el.removeAttribute("data-neo-toast-leaving");
-		entry.el.removeAttribute("data-neo-toast-dragging");
-		entry.el.removeAttribute("data-neo-toast-swipe-dismiss");
-		entry.el.style.removeProperty("--toast-swipe-exit");
-		entry.el.style.transition = "";
+		entry.el.setStackState("leaving", false);
+		entry.el.setStackState("swipe-dismiss", false);
+		entry.el.setStackProperty("--toast-swipe-exit", null);
+		this.#clearTouchDragStyles(entry.el);
 		this.#resizeObserver?.observe(entry.el);
 		this.#updateLayout();
 		this.#refreshToastDuration(entry);

@@ -1,6 +1,32 @@
 import { boolAttr } from "../command";
 import { NavEngine } from "../nav-engine";
 
+// neo-navgroup.css keys `--neo-navgroup-columns` on `columns` values 1 to 12.
+// Other values get a rule here, keyed on the server-rendered attribute,
+// which a morph leaves in place, unlike a write to the host style.
+// 1 sheet per root, because a document sheet doesn't reach a shadow tree.
+const columnSheets = new WeakMap<Document | ShadowRoot, { sheet: CSSStyleSheet; values: Set<string> }>();
+
+function ensureColumnsRule(host: HTMLElement, raw: string, n: number): void {
+	if (raw === String(n) && n <= 12) return;
+	const root = host.getRootNode();
+	if (!(root instanceof Document || root instanceof ShadowRoot)) return;
+	let entry = columnSheets.get(root);
+	if (!entry) {
+		entry = { sheet: new CSSStyleSheet(), values: new Set() };
+		columnSheets.set(root, entry);
+	}
+	if (!root.adoptedStyleSheets.includes(entry.sheet)) {
+		root.adoptedStyleSheets = [...root.adoptedStyleSheets, entry.sheet];
+	}
+	if (entry.values.has(raw)) return;
+	entry.values.add(raw);
+	entry.sheet.insertRule(
+		`neo-navgroup[columns="${CSS.escape(raw)}"] { --neo-navgroup-columns: ${n}; }`,
+		entry.sheet.cssRules.length,
+	);
+}
+
 // Thin element wrapper over the shared NavEngine. It owns lifecycle, the
 // `columns` CSS variable, and change detection (mutation/resize observers),
 // and feeds the engine its light-DOM items ([data-neo-navgroup-item],
@@ -21,8 +47,8 @@ export class NeoNavGroup extends HTMLElement {
 			host: this,
 			getItems: () => this.#collectItems(),
 			// Verb is `navigate`, not `change`, because onMove fires on
-			// every roving-focus move and navgroup holds no selected-value
-			// state. Focus moving is not a committed value change.
+			// every roving-focus move and navgroup holds no selected-value state.
+			// Focus moving is not a committed value change.
 			onMove: (item, index) =>
 				this.dispatchEvent(new CustomEvent("neo-navgroup-navigate", { bubbles: true, detail: { index, item } })),
 		});
@@ -37,12 +63,14 @@ export class NeoNavGroup extends HTMLElement {
 		this.#connected = true;
 		this.#engine.attach();
 
+		// tabindex catches a morph stripping the roving tabindex.
+		// NavEngine writes only changed values, which lets the refresh settle.
 		this.#mutationObserver = new MutationObserver(() => this.#refreshSoon());
 		this.#mutationObserver.observe(this, {
 			childList: true,
 			subtree: true,
 			attributes: true,
-			attributeFilter: ["data-neo-navgroup-item", "disabled", "aria-disabled"],
+			attributeFilter: ["data-neo-navgroup-item", "disabled", "aria-disabled", "tabindex"],
 		});
 
 		if (typeof ResizeObserver !== "undefined") {
@@ -77,12 +105,10 @@ export class NeoNavGroup extends HTMLElement {
 		this.#engine.resetTypeahead();
 	}
 
-	// Mirror explicit `columns` values into the CSS variable. Omitted columns
-	// may come from authored CSS; leave the variable unset in that case.
+	// Omitted columns may come from authored CSS, which no rule overrides.
 	#syncColumns() {
 		const n = this.#explicitColumns();
-		if (n) this.style.setProperty("--neo-navgroup-columns", String(n));
-		else this.style.removeProperty("--neo-navgroup-columns");
+		if (n) ensureColumnsRule(this, this.getAttribute("columns") ?? "", n);
 	}
 
 	#explicitColumns(): number | null {

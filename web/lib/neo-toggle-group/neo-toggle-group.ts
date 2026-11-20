@@ -25,9 +25,7 @@ export class NeoToggleGroup extends HTMLElement {
 	connectedCallback() {
 		warnBadAxis(this);
 		this.#valueIntent = this.getAttribute("value");
-		if (!this.hasAttribute("role")) {
-			this.setAttribute("role", "group");
-		}
+		this.#syncHostRole();
 		this.addEventListener("neo-toggle-change", this.#onToggleChange);
 		this.addEventListener("keydown", this.#onKeyDown);
 		this.addEventListener("focusin", this.#onFocusIn);
@@ -48,9 +46,9 @@ export class NeoToggleGroup extends HTMLElement {
 			childList: true,
 			subtree: true,
 			attributes: true,
-			// tabindex: catch a morph stripping the kit-managed tabindex in
-			// place (neo-toggle isn't focusable without it).
-			attributeFilter: ["value", "disabled", "tabindex"],
+			// tabindex and role: catch a morph stripping the kit-managed
+			// tabindex (neo-toggle isn't focusable without it) or the host role.
+			attributeFilter: ["value", "disabled", "tabindex", "role"],
 		});
 
 		this.#ready = true;

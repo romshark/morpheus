@@ -2,6 +2,7 @@ import "../neo-button";
 import "../neo-icon";
 import { boolAttr } from "../command";
 import { labelAttr } from "../label-name";
+import { observeManagedAttrs } from "../neo-morph-resilient";
 import { clampInt } from "../num";
 
 const ATTR_PAGE = "page";
@@ -30,6 +31,7 @@ export class NeoPagination extends HTMLElement {
 
 	#resizeObserver: ResizeObserver | null = null;
 	#hostObserver: MutationObserver | null = null;
+	#ariaObserver: MutationObserver | null = null;
 	// Current page; `page` reflects it (see command). Survives a morph that
 	// strips the attribute so a fat morph omitting `page` can't reset to 1.
 	#pageValue = 1;
@@ -46,15 +48,13 @@ export class NeoPagination extends HTMLElement {
 	// resize or attribute changes that affect layout shape.
 	#appliedSibling: number | null = null;
 	#appliedBoundary: number | null = null;
-	// Identity of the chip that last held focus ("prev" | "next" |
-	// "page:N"), so a rebuild (innerHTML) / morph can reseat it.
+	// Identity of the chip that last held focus ("prev" | "next" | "page:N"),
+	// so a rebuild (innerHTML) / morph can reseat it.
 	#focusedKey: string | null = null;
 
 	connectedCallback() {
-		if (!this.hasAttribute("role")) this.setAttribute("role", "navigation");
-		if (!this.hasAttribute("aria-label")) {
-			this.setAttribute("aria-label", "Pagination");
-		}
+		this.#syncHostAria();
+		this.#ariaObserver = observeManagedAttrs(this, ["role", "aria-label"], this.#syncHostAria);
 		// Explicit page commands the value; absent keeps the prior value.
 		const raw = this.getAttribute(ATTR_PAGE);
 		if (raw !== null) {
@@ -71,9 +71,8 @@ export class NeoPagination extends HTMLElement {
 		this.#render();
 
 		// Self catches shrink, container catches grow. A collapsed host
-		// tracks content width, not parent slack. Skip `display:contents`
-		// ancestors, because they generate no box and ResizeObserver never
-		// fires for them.
+		// tracks content width, not parent slack. Skip `display:contents` ancestors,
+		// because they generate no box and ResizeObserver never fires for them.
 		this.#resizeObserver = new ResizeObserver(() => {
 			this.#appliedSibling = null;
 			this.#appliedBoundary = null;
@@ -84,8 +83,8 @@ export class NeoPagination extends HTMLElement {
 		if (container) this.#resizeObserver.observe(container);
 
 		// Morph can rewrite our markup with the host still connected
-		// (no reconnect lifecycle). Recapture and re-render; our own
-		// writes drain via takeRecords() in renderWith.
+		// (no reconnect lifecycle). Recapture and re-render;
+		// our own writes drain via takeRecords() in renderWith.
 		this.#hostObserver = new MutationObserver(this.#onChildrenChanged);
 		this.#hostObserver.observe(this, { childList: true });
 	}
@@ -99,12 +98,18 @@ export class NeoPagination extends HTMLElement {
 		this.#resizeObserver = null;
 		this.#hostObserver?.disconnect();
 		this.#hostObserver = null;
+		this.#ariaObserver?.disconnect();
+		this.#ariaObserver = null;
 	}
 
-	// Reseat focus on the chip that had it (rebuild via innerHTML, or a
-	// morph, blurs it to <body>). preventScroll so the refocus can't
-	// perturb the adapt() fit measurement. Drops the target if the chip
-	// vanished or is now disabled.
+	#syncHostAria = () => {
+		if (!this.hasAttribute("role")) this.setAttribute("role", "navigation");
+		if (!this.hasAttribute("aria-label")) this.setAttribute("aria-label", "Pagination");
+	};
+
+	// Reseat focus on the chip that had it (rebuild via innerHTML, or a morph,
+	// blurs it to <body>). preventScroll so the refocus can't perturb the adapt()
+	// fit measurement. Drops the target if the chip vanished or is now disabled.
 	#restoreFocusIfLost() {
 		if (this.#focusedKey === null) return;
 		if (this.contains(document.activeElement)) return;

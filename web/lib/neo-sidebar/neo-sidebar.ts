@@ -1,4 +1,5 @@
 import { boolAttr, openCommand } from "../command";
+import { attachHostStyle, type HostStyle } from "../host-style";
 import { setState } from "../internal-state";
 import { observeManagedAttrs, setAttrIfChanged } from "../neo-morph-resilient";
 import { deepActiveElement, eventEnters } from "../shadow-utils";
@@ -10,14 +11,27 @@ const FOCUSABLE =
 	"select:not([disabled]), textarea:not([disabled]), " +
 	'[tabindex]:not([tabindex="-1"]):not([tabindex=""])';
 
+// Each child renders through its own slot in a display:contents wrapper,
+// which keeps the children's order and layout. `inert` on a wrapper reaches
+// its slotted child, because inertness covers flat-tree descendants.
+const SHADOW_HTML = "<style>div { display: contents; }</style>";
+
 export class NeoSidebar extends HTMLElement {
 	static readonly observedAttributes = ["open", "overlay", "overlay-breakpoint"];
 
 	#internals: ElementInternals;
+	#root: ShadowRoot;
+	// Holds the swipe offset.
+	#hostStyle: HostStyle;
+	#wrappers = new Map<Node, HTMLDivElement>();
+	#childObserver: MutationObserver | null = null;
 
 	constructor() {
 		super();
 		this.#internals = this.attachInternals();
+		this.#root = this.attachShadow({ mode: "open", slotAssignment: "manual" });
+		this.#root.innerHTML = SHADOW_HTML;
+		this.#hostStyle = attachHostStyle(this.#root);
 	}
 
 	#backdropEl: HTMLDivElement | null = null;
@@ -26,14 +40,14 @@ export class NeoSidebar extends HTMLElement {
 	#onBackdropClick = () => this.hide();
 	// True when the original markup didn't pin a state; null until the
 	// first connect reads it. Auto-mode tracks the host's parent width
-	// so the sidebar stays in sync across breakpoint crossings (window
-	// resize, preview pane drag).
+	// so the sidebar stays in sync across breakpoint crossings
+	// (window resize, preview pane drag).
 	#autoMode: boolean | null = null;
 	#parentResizeObserver: ResizeObserver | null = null;
 	#wideMode: boolean | null = null;
 	// Persistent "user wants the sidebar closed in wide layouts" flag.
-	// Only updated by explicit user actions while in wide mode; narrow-
-	// mode toggles are transient overlay opens/closes and shouldn't
+	// Only updated by explicit user actions while in wide mode;
+	// narrow-mode toggles are transient overlay opens/closes and shouldn't
 	// bleed into the wide preference.
 	#wideClosed = false;
 	// Rendered open state; `open` is its reflection (see command).
@@ -59,8 +73,8 @@ export class NeoSidebar extends HTMLElement {
 
 	// Active single-touch drag state, populated on touchstart and
 	// cleared on touchend / touchcancel. `decided` flips on once the
-	// gesture has unambiguously committed to a horizontal closing
-	// drag. Until then we leave the browser alone so taps and
+	// gesture has unambiguously committed to a horizontal closing drag.
+	// Until then we leave the browser alone so taps and
 	// vertical scrolls inside the sidebar still work.
 	#touchDrag: {
 		startX: number;
@@ -102,6 +116,9 @@ export class NeoSidebar extends HTMLElement {
 	connectedCallback() {
 		this.#syncManagedAttrs();
 		this.#morphObserver ??= observeManagedAttrs(this, RESILIENT_ATTRS, this.#syncManagedAttrs);
+		this.#syncSlots();
+		this.#childObserver ??= new MutationObserver(this.#syncSlots);
+		this.#childObserver.observe(this, { childList: true });
 
 		const cmd = openCommand(this);
 		// `open` in the original markup, true or false, pins the state;
@@ -141,11 +158,11 @@ export class NeoSidebar extends HTMLElement {
 				setState(this.#internals, "mode-snap", true);
 			}
 
-			// Auto-mode is asymmetric. Going narrow always closes (an
-			// overlay sidebar would otherwise dump a full-width modal on
+			// Auto-mode is asymmetric. Going narrow always closes
+			// (an overlay sidebar would otherwise dump a full-width modal on
 			// the reader on every resize down). Going wide auto-opens
-			// unless the user has previously closed in wide mode; that
-			// preference sticks across narrow round-trips.
+			// unless the user has previously closed in wide mode;
+			// that preference sticks across narrow round-trips.
 			if (this.#autoMode) {
 				this.#suspendUserOverride = true;
 				if (wide && !this.#wideClosed) this.show();
@@ -153,9 +170,8 @@ export class NeoSidebar extends HTMLElement {
 				this.#suspendUserOverride = false;
 			}
 			// Re-sync after a mode change even when [open] didn't move.
-			// Going narrow+open -> wide+open keeps [open] set and
-			// attributeChanged doesn't fire, but the backdrop's visibility
-			// flipped.
+			// Going narrow+open -> wide+open keeps [open] set and attributeChanged
+			// doesn't fire, but the backdrop's visibility flipped.
 			this.#syncBackdrop();
 			this.#syncOverlayMode();
 
@@ -217,6 +233,8 @@ export class NeoSidebar extends HTMLElement {
 		this.#wideMode = null;
 		this.#morphObserver?.disconnect();
 		this.#morphObserver = null;
+		this.#childObserver?.disconnect();
+		this.#childObserver = null;
 		this.#previousFocus = null;
 		this.#backdropEl?.remove();
 		this.#backdropEl = null;
@@ -227,8 +245,7 @@ export class NeoSidebar extends HTMLElement {
 			// `overlay` pins the mode regardless of width. A runtime flip
 			// has to re-derive both the state CSS keys on and the backdrop.
 			// Auto-mode stays as connect computed it, because the responsive
-			// default follows the authored markup, not a later configuration
-			// change.
+			// default follows the authored markup, not a later configuration change.
 			if (this.#wideMode === null) return;
 			this.#syncBackdrop();
 			this.#syncOverlayMode();
@@ -250,8 +267,8 @@ export class NeoSidebar extends HTMLElement {
 			return;
 		}
 		if (name !== "open" || this.#reflecting) return;
-		// Before connect, connectedCallback reads the command for
-		// auto-mode; a close applied here would remove it first.
+		// Before connect, connectedCallback reads the command for auto-mode;
+		// a close applied here would remove it first.
 		if (this.#wideMode === null) return;
 		this.#syncOpen();
 	}
@@ -260,8 +277,8 @@ export class NeoSidebar extends HTMLElement {
 	#syncOpen(): void {
 		const cmd = openCommand(this);
 		if (cmd === null) {
-			// Absent: keep state; re-assert for `[open]` CSS. No
-			// auto/breakpoint reconcile here; that runs on resize.
+			// Absent: keep state; re-assert for `[open]` CSS.
+			// No auto/breakpoint reconcile here; that runs on resize.
 			if (this.#openIntent) this.#reflectOpen();
 			return;
 		}
@@ -327,8 +344,8 @@ export class NeoSidebar extends HTMLElement {
 		}
 	}
 
-	// Snapshot the placeholder's parent (the content slot) and its initial
-	// innerHTML. Captured once; re-captures are skipped so a morph before
+	// Snapshot the placeholder's parent (the content slot) and its initial innerHTML.
+	// Captured once; re-captures are skipped so a morph before
 	// close doesn't overwrite the saved placeholder.
 	#captureAsyncSlot(): void {
 		if (this.#asyncSlotInitialHTML !== null) return;
@@ -356,8 +373,7 @@ export class NeoSidebar extends HTMLElement {
 
 	#restoreAsyncSlot(): void {
 		if (!this.#asyncSlot || this.#asyncSlotInitialHTML === null) return;
-		// Slot wrapper got patched away; invalidate so future closes stop
-		// retrying.
+		// Slot wrapper got patched away; invalidate so future closes stop retrying.
 		if (!document.contains(this.#asyncSlot)) {
 			this.#asyncSlot = null;
 			this.#asyncSlotInitialHTML = null;
@@ -369,8 +385,8 @@ export class NeoSidebar extends HTMLElement {
 			this.#asyncSlotInitialHTML = null;
 			return;
 		}
-		// Opened and closed before the load landed. The placeholder is
-		// still live; skip the redundant reset.
+		// Opened and closed before the load landed.
+		// The placeholder is still live; skip the redundant reset.
 		if (this.#asyncSlot.querySelector("[data-neo-async-placeholder]")) return;
 		this.#asyncSlot.innerHTML = this.#asyncSlotInitialHTML;
 	}
@@ -397,20 +413,19 @@ export class NeoSidebar extends HTMLElement {
 		else this.show();
 	}
 
-	// True while the panel is rendering as a fixed overlay, either
-	// because the author pinned `[overlay]` or because the parent sits
-	// at/below this instance's breakpoint. Touch-dismiss is gated on
-	// this because in wide in-flow mode the host is a column whose width
-	// animates, not a sliding panel. A horizontal swipe has nothing to
-	// interpolate against there.
+	// True while the panel is rendering as a fixed overlay,
+	// either because the author pinned `[overlay]` or because the parent sits
+	// at/below this instance's breakpoint. Touch-dismiss is gated on this because
+	// in wide in-flow mode the host is a column whose width animates,
+	// not a sliding panel. A horizontal swipe has nothing to interpolate against there.
 	get #isOverlayMode(): boolean {
 		return boolAttr(this, "overlay", false) || this.#wideMode === false;
 	}
 
 	// Returns the threshold in px, or null if touch-dismiss is
-	// explicitly disabled. The gesture is on by default in overlay
-	// mode; a missing or bare attribute falls back to half the host's
-	// current width (a classic mobile-drawer feel).
+	// explicitly disabled. The gesture is on by default in overlay mode;
+	// a missing or bare attribute falls back to half the host's current width
+	// (a classic mobile-drawer feel).
 	#getTouchDismissThreshold(width: number): number | null {
 		return resolveTouchDismiss(this.getAttribute("touch-dismiss"), width, Math.max(40, width / 2), this);
 	}
@@ -485,26 +500,23 @@ export class NeoSidebar extends HTMLElement {
 				d.cancelled = true;
 				return;
 			}
-			// Horizontal but in the opening direction (sidebar already
-			// open, can't open further) -> leave the gesture to whatever
-			// descendant might want it.
+			// Horizontal but in the opening direction (sidebar already open, can't
+			// open further) -> leave the gesture to whatever descendant might want it.
 			if (dxClose <= 0) {
 				d.cancelled = true;
 				return;
 			}
 			d.decided = true;
+			// :state(dragging) drops the transitions, which makes each
+			// touchmove repaint at once instead of chasing the easing curve.
 			setState(this.#internals, "dragging", true);
-			// Inline `transition: none` while the finger is down so each
-			// touchmove repaints the new transform instantaneously instead
-			// of chasing the previous frame on a 200ms easing curve.
-			this.style.transition = "none";
 			if (this.#backdropEl) {
 				this.#backdropEl.style.transition = "none";
 			}
 		}
 		e.preventDefault();
 		const offset = Math.max(0, Math.min(dxClose, d.width)) * d.closeDir;
-		this.style.transform = `translateX(${offset}px)`;
+		this.#hostStyle.setProperty("translate", `${offset}px 0`, "important");
 		if (this.#backdropEl) {
 			const progress = Math.max(0, Math.min(1, dxClose / d.width));
 			this.#backdropEl.style.opacity = String(1 - progress);
@@ -540,16 +552,12 @@ export class NeoSidebar extends HTMLElement {
 		if (d.decided) this.#clearDragStyles();
 	}
 
-	// Clears every inline value stamped on by the drag so the cascade
-	// resumes ownership. Browsers compute the transition's from-value
-	// from the prior rendered transform. Removing the inline values
-	// then lets the snap-back / slide-out animate from the current
-	// finger position to either translateX(0) (snap) or the closed
-	// -100% (after hide()).
+	// Clearing the offset with the dragging state lets the `translate`
+	// transition run from the finger position back to 0, alongside the
+	// transform slide to the closed -100% after hide().
 	#clearDragStyles() {
 		setState(this.#internals, "dragging", false);
-		this.style.transform = "";
-		this.style.transition = "";
+		this.#hostStyle.removeProperty("translate");
 		if (this.#backdropEl) {
 			this.#backdropEl.style.opacity = "";
 			this.#backdropEl.style.transition = "";
@@ -649,15 +657,14 @@ export class NeoSidebar extends HTMLElement {
 		this.#backdropEl = el;
 	}
 
-	// [data-neo-open] reflects "actually visible right now" (open and
-	// overlay-mode), not just the host's [open]. Setting visibility
-	// from combined JS state instead of CSS-gating eliminates a
-	// fade-in flicker on breakpoint crossing; CSS recomputes 1
-	// frame before the ResizeObserver callback runs.
+	// [data-neo-open] reflects "actually visible right now"
+	// (open and overlay-mode), not just the host's [open].
+	// Setting visibility from combined JS state instead of CSS-gating eliminates
+	// a fade-in flicker on breakpoint crossing;
+	// CSS recomputes 1 frame before the ResizeObserver callback runs.
 	#syncBackdrop() {
 		// Self-heal, because a parent-subtree morph can have removed the
-		// backdrop while the host stayed connected. ensureBackdrop is
-		// idempotent.
+		// backdrop while the host stayed connected. ensureBackdrop is idempotent.
 		this.#ensureBackdrop();
 		if (!this.#backdropEl) return;
 		const visible = this.hasAttribute("open") && this.#isOverlayMode;
@@ -668,20 +675,42 @@ export class NeoSidebar extends HTMLElement {
 		}
 	}
 
+	// Gives every child element and non-blank text node its own wrapper and
+	// slot, in child order. A child without a slot doesn't render.
+	#syncSlots = (): void => {
+		const seen = new Set<Node>();
+		let prev: Node = this.#root.firstChild!;
+		for (const n of this.childNodes) {
+			if (!(n instanceof Element) && !(n instanceof Text && n.data.trim() !== "")) continue;
+			seen.add(n);
+			let w = this.#wrappers.get(n);
+			if (!w) {
+				w = document.createElement("div");
+				w.append(document.createElement("slot"));
+				this.#wrappers.set(n, w);
+			}
+			if (prev.nextSibling !== w) this.#root.insertBefore(w, prev.nextSibling);
+			const slot = w.firstChild as HTMLSlotElement;
+			if (slot.assignedNodes()[0] !== n) slot.assign(n as Element | Text);
+			prev = w;
+		}
+		for (const [n, w] of this.#wrappers) {
+			if (seen.has(n)) continue;
+			w.remove();
+			this.#wrappers.delete(n);
+		}
+		this.#syncInert();
+	};
+
 	// When closed, the header/content/footer slots are either translated
-	// off-screen (overlay) or clipped to 0 width (in-flow), but neither
-	// removes them from focus or the a11y tree. `inert` does. The
-	// minimized rail is exempt because it's the one slot the
+	// off-screen (overlay) or clipped to 0 width (in-flow),
+	// but neither removes them from focus or the a11y tree. `inert` does.
+	// The minimized rail is exempt because it's the one slot the
 	// closed-wide-in-flow state renders as visible/interactive.
 	#syncInert() {
 		const open = this.hasAttribute("open");
-		for (const child of Array.from(this.children)) {
-			if (!(child instanceof HTMLElement)) continue;
-			if (child.matches("[data-neo-sidebar-minimized]")) {
-				child.inert = false;
-			} else {
-				child.inert = !open;
-			}
+		for (const [n, w] of this.#wrappers) {
+			w.inert = !open && !(n instanceof Element && n.matches("[data-neo-sidebar-minimized]"));
 		}
 	}
 }

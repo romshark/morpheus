@@ -2,10 +2,9 @@
 	--neo-select-min-width: 12rem;
 }
 
-/* No fixed height. The trigger sizes to its intrinsic button box
- * (--neo-control-height), which makes a plain select match a button/input
- * in a row. The trigger's `height: 100%` resolves to that against the
- * shrink-wrapped host. */
+/* No fixed height. The trigger sizes to its intrinsic button box (--neo-control-height),
+ * which makes a plain select match a button/input in a row.
+ * The trigger's `height: 100%` resolves to that against the shrink-wrapped host. */
 neo-select {
 	display: inline-block;
 }
@@ -13,7 +12,7 @@ neo-select {
 /* A rich trigger holds a multi-line card; the host already follows it
  * (auto height) and its focus ring wraps the card. Floor it so a
  * near-empty card isn't shorter than a plain control. */
-neo-select[data-neo-trigger-rich] {
+neo-select:state(trigger-rich) {
 	min-height: var(--neo-control-height);
 }
 
@@ -21,8 +20,8 @@ neo-select[data-neo-trigger-rich] {
  * placeholder for async selects) would render as a visible stack before
  * the bundle moves them. Hide them and stand in with a trigger-shaped
  * shell that matches the hydrated button exactly (same bg, border,
- * padding, radius, placeholder text, caret) so there's no flash on
- * upgrade. CSS `attr()` lets us render the placeholder text without JS. */
+ * padding, radius, placeholder text, caret) so there's no flash on upgrade.
+ * CSS `attr()` lets us render the placeholder text without JS. */
 neo-select:not(:defined) {
 	display: inline-flex;
 	align-items: center;
@@ -102,16 +101,14 @@ neo-select > [data-neo-select-trigger-view] {
 }
 
 /* Trigger / label / caret / list markup live in the select's shadow
- * stylesheet (see neo-select.ts). Descendant selectors here can't
- * pierce the shadow boundary; compose via --neo-button-* /
- * --neo-select-* tokens instead. */
+ * stylesheet (see neo-select.ts). Descendant selectors here can't pierce the shadow
+ * boundary; compose via --neo-button-* / --neo-select-* tokens instead. */
 
-/* Loading content is cloned into a light-DOM slot projected into the
- * shadow listbox. The placeholder owns its padding; a
- * skeleton placeholder drops it and each row supplies its own margin
- * to match the option rhythm so the panel height doesn't jump when
- * options morph in. Author inline styles (e.g. flex-direction:row for
- * a spinner+label) still override these defaults. */
+/* Loading content is cloned into a light-DOM slot projected into the shadow listbox.
+ * The placeholder owns its padding; a skeleton placeholder drops it and each row
+ * supplies its own margin to match the option rhythm so the panel height doesn't jump
+ * when options morph in. Author inline styles
+ * (e.g. flex-direction:row for a spinner+label) still override these defaults. */
 neo-select > [data-neo-select-loading-content] [data-neo-async-placeholder] {
 	display: flex;
 	flex-direction: column;

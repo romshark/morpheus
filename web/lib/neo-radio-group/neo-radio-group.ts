@@ -3,18 +3,23 @@ import { logicalArrow } from "../direction";
 import { nameFromLabel } from "../label-name";
 import { observeManagedAttrs, setAttrIfChanged } from "../neo-morph-resilient";
 
-// `aria-checked` and `tabindex` are written by the enclosing group's
-// #refresh. The group's observer catches a morph stripping `tabindex`
-// but not `aria-checked`. The radio's own observer re-asserts a safe
-// default until the group's next refresh writes the roving state.
+// The radio writes `aria-checked` and `aria-disabled` from the state the
+// enclosing group hands it through setGroupState, which lets its own resync
+// restore both after a morph strips them. The group writes `tabindex` and observes it.
 const RESILIENT_ATTRS = ["role", "aria-checked", "aria-disabled", "tabindex", "aria-label"];
 
 export class NeoRadio extends HTMLElement {
 	static readonly observedAttributes = ["disabled"];
 
 	#morphObserver: MutationObserver | null = null;
+	#checked = false;
+	#groupDisabled = false;
+	// Set once the group has handed over its state.
+	// Until then a standalone radio's authored aria-checked stands.
+	#grouped = false;
 
 	connectedCallback() {
+		if (!this.#grouped) this.#checked = this.getAttribute("aria-checked") === "true";
 		this.#resync();
 		this.#morphObserver = observeManagedAttrs(this, RESILIENT_ATTRS, this.#resync);
 	}
@@ -22,6 +27,10 @@ export class NeoRadio extends HTMLElement {
 	disconnectedCallback() {
 		this.#morphObserver?.disconnect();
 		this.#morphObserver = null;
+		// A group refreshes a radio it gains, and a radio moved out of one
+		// must not keep its old group state.
+		this.#grouped = false;
+		this.#groupDisabled = false;
 	}
 
 	attributeChangedCallback(name: string) {
@@ -37,20 +46,27 @@ export class NeoRadio extends HTMLElement {
 	}
 
 	get checked(): boolean {
-		return this.getAttribute("aria-checked") === "true";
+		return this.#checked;
+	}
+
+	// The enclosing <neo-radio-group> owns selection and the group-level
+	// disabled flag, which composes with the radio's own `disabled`.
+	setGroupState(checked: boolean, groupDisabled: boolean): void {
+		this.#grouped = true;
+		this.#checked = checked;
+		this.#groupDisabled = groupDisabled;
+		this.#resync();
 	}
 
 	#resync = () => {
 		if (!this.hasAttribute("role")) this.setAttribute("role", "radio");
 		nameFromLabel(this);
-		if (!this.hasAttribute("aria-checked")) {
-			this.setAttribute("aria-checked", "false");
-		}
+		setAttrIfChanged(this, "aria-checked", String(this.#checked));
 		this.#syncDisabledState();
 	};
 
 	#syncDisabledState() {
-		if (boolAttr(this, "disabled", false)) {
+		if (this.#groupDisabled || boolAttr(this, "disabled", false)) {
 			setAttrIfChanged(this, "aria-disabled", "true");
 		} else {
 			this.removeAttribute("aria-disabled");
@@ -63,23 +79,24 @@ if (!customElements.get("neo-radio")) {
 }
 
 export class NeoRadioGroup extends HTMLElement {
-	// `orientation` is a CSS-only layout hook (see neo-radio-group.css). JS
-	// never reads it because arrow-key nav is orientation-agnostic.
+	// `orientation` is a CSS-only layout hook (see neo-radio-group.css).
+	// JS never reads it because arrow-key nav is orientation-agnostic.
 	static readonly observedAttributes = ["value", "disabled"];
 
 	#applyingValue = false;
 	#ready = false;
 	#radioObserver: MutationObserver | null = null;
+	#roleObserver: MutationObserver | null = null;
 	// Value of the radio that last held focus, for restoration after a morph.
 	#focusedValue: string | null = null;
 	// Source of truth for the selected value. The attribute is a state mirror
-	// for CSS and DOM readers; the client keeps this on a morph that strips
-	// `value`.
+	// for CSS and DOM readers; the client keeps this on a morph that strips `value`.
 	#valueIntent: string | null = null;
 
 	connectedCallback() {
 		warnBadAxis(this);
-		if (!this.hasAttribute("role")) this.setAttribute("role", "radiogroup");
+		this.#syncRole();
+		this.#roleObserver = observeManagedAttrs(this, ["role"], this.#syncRole);
 		this.#valueIntent = this.getAttribute("value");
 		this.addEventListener("click", this.#onClick);
 		this.addEventListener("keydown", this.#onKeyDown);
@@ -88,8 +105,8 @@ export class NeoRadioGroup extends HTMLElement {
 
 		// Re-sync on radio add/remove (Datastar morph, dynamic option lists)
 		// and on child `disabled` changes so roving tabindex and skip
-		// behaviour stay truthful. A morph also blurs a focused radio to
-		// <body>; reseat it after refresh re-stamps the roving state.
+		// behaviour stay truthful. A morph also blurs a focused radio to <body>;
+		// reseat it after refresh re-stamps the roving state.
 		this.#radioObserver = new MutationObserver(() => {
 			this.#refresh();
 			this.#restoreFocusIfLost();
@@ -114,8 +131,14 @@ export class NeoRadioGroup extends HTMLElement {
 		this.removeEventListener("focusout", this.#onFocusOut);
 		this.#radioObserver?.disconnect();
 		this.#radioObserver = null;
+		this.#roleObserver?.disconnect();
+		this.#roleObserver = null;
 		this.#ready = false;
 	}
+
+	#syncRole = () => {
+		if (!this.hasAttribute("role")) this.setAttribute("role", "radiogroup");
+	};
 
 	// Reseat focus on the radio whose value matches focusedValue if a morph
 	// blurred it to <body>. Drops the target when the radio is gone.
@@ -144,8 +167,8 @@ export class NeoRadioGroup extends HTMLElement {
 			this.#focusedValue = null;
 			return;
 		}
-		// Blur to nothing comes from a morph strip (observer reseats first) or
-		// a click-away.
+		// Blur to nothing comes from a morph strip
+		// (observer reseats first) or a click-away.
 		queueMicrotask(() => {
 			if (this.contains(document.activeElement)) return;
 			this.#focusedValue = null;
@@ -180,8 +203,8 @@ export class NeoRadioGroup extends HTMLElement {
 		this.#refresh();
 	}
 
-	// Single writer for the selected value. Intent is the source of truth, the
-	// attribute its guarded mirror.
+	// Single writer for the selected value. Intent is the source of truth,
+	// the attribute its guarded mirror.
 	#writeValue(value: string | null) {
 		this.#valueIntent = value;
 		this.#reflectValue();
@@ -219,21 +242,15 @@ export class NeoRadioGroup extends HTMLElement {
 		const groupDisabled = boolAttr(this, "disabled", false);
 		const all = this.#radios();
 
-		// Group-disabled propagates via aria-disabled, not the child's own
-		// `disabled` attribute. Removing the group flag then preserves any
-		// per-radio disabled state authors set explicitly.
+		// Group-disabled reaches the radio as state, not as its own
+		// `disabled` attribute. Removing the group flag then preserves
+		// any per-radio disabled state authors set explicitly.
 		for (const r of all) {
-			const isChecked = value !== null && r.getAttribute("value") === value;
-			r.setAttribute("aria-checked", isChecked ? "true" : "false");
-			if (groupDisabled) {
-				r.setAttribute("aria-disabled", "true");
-			} else if (!boolAttr(r, "disabled", false)) {
-				r.removeAttribute("aria-disabled");
-			}
+			r.setGroupState(value !== null && r.getAttribute("value") === value, groupDisabled);
 		}
 
-		// Roving tabindex with 1 tab stop, the checked radio if any, else
-		// the first enabled. Disabled radios always tabindex=-1.
+		// Roving tabindex with 1 tab stop, the checked radio if any,
+		// else the first enabled. Disabled radios always tabindex=-1.
 		const enabled = this.#enabledRadios();
 		const checkedEnabled = enabled.find((r) => r.checked);
 		const stopRadio = checkedEnabled ?? enabled[0] ?? null;

@@ -1,4 +1,5 @@
 import { boolAttr } from "../command";
+import { observeManagedAttrs, setAttrIfChanged } from "../neo-morph-resilient";
 
 const ATTR_VALUE = "value";
 const ATTR_MAX = "max";
@@ -14,6 +15,72 @@ const EMPTY = "data-neo-rating-empty";
 const PREVIEW = "data-neo-rating-preview";
 const FULL = "data-neo-rating-full";
 
+const MANAGED_ATTRS = [
+	"role",
+	"tabindex",
+	"aria-valuemin",
+	"aria-valuemax",
+	"aria-valuenow",
+	"aria-valuetext",
+	"aria-orientation",
+	"aria-label",
+	"aria-disabled",
+	"aria-readonly",
+];
+
+// The live symbol row sits in a shadow root without a <slot>, where its
+// layer widths are the element's own to write. The server's prerendered row
+// paints until the upgrade, then stays in the light DOM untouched for the
+// next morph. These rules mirror the light-DOM ones in neo-rating.css.
+const SHEET = new CSSStyleSheet();
+SHEET.replaceSync(`
+[${SYMBOLS}] {
+	display: inline-flex;
+	gap: var(--neo-rating-symbol-gap);
+	border-radius: var(--page-radius, 0.25rem);
+}
+[${SYMBOL}] {
+	position: relative;
+	display: inline-flex;
+	width: var(--neo-rating-symbol-size);
+	height: var(--neo-rating-symbol-size);
+	line-height: 0;
+}
+[${EMPTY}], [${PREVIEW}], [${FULL}] {
+	position: absolute;
+	inset: 0;
+	display: inline-flex;
+	overflow: hidden;
+}
+[${EMPTY}] { color: var(--neo-rating-empty-color); }
+[${PREVIEW}], [${FULL}] {
+	width: 0;
+	transition: width var(--neo-rating-transition-duration) var(--neo-easing, ease);
+}
+[${PREVIEW}] { color: var(--neo-rating-preview-color); }
+[${FULL}] { color: var(--neo-rating-color); }
+[${FULL}] neo-icon::part(svg) { fill: currentColor; stroke: currentColor; }
+[${PREVIEW}] neo-icon::part(svg) { fill: none; stroke: currentColor; }
+neo-icon, svg {
+	display: block;
+	flex: none;
+	width: var(--neo-rating-symbol-size);
+	height: var(--neo-rating-symbol-size);
+}
+:host(:focus-visible) [${SYMBOLS}] {
+	outline: 2px solid var(--accent, currentColor);
+	outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+	[${PREVIEW}], [${FULL}] { transition: none; }
+}
+@media (forced-colors: active) {
+	[${EMPTY}] { color: GrayText; }
+	[${PREVIEW}], [${FULL}] { color: Highlight; }
+	:host(:focus-visible) [${SYMBOLS}] { outline-color: Highlight; }
+}
+`);
+
 export class NeoRating extends HTMLElement {
 	static readonly observedAttributes = [
 		ATTR_VALUE,
@@ -25,23 +92,31 @@ export class NeoRating extends HTMLElement {
 		ATTR_DISABLED,
 	];
 
+	#root: ShadowRoot;
 	#symbolsEl: HTMLElement | null = null;
 	// Non-null while a hover/drag preview is showing; painted as the
 	// hollow candidate layer while the committed value stays filled.
 	#preview: number | null = null;
 	#pointerDown = false;
-	#observer: MutationObserver | null = null;
+	#ariaObserver: MutationObserver | null = null;
+	#ownsRole = false;
 	// Current value; `value` reflects it (see command). Survives a morph
-	// that strips the attribute so a fat morph omitting `value` can't reset
-	// to 0. Stored raw; `get value()` clamp/snaps on read so a `max` or
+	// that strips the attribute so a fat morph omitting `value` can't reset to 0.
+	// Stored raw; `get value()` clamp/snaps on read so a `max` or
 	// `precision` change re-clamps.
 	#valueIntent = 0;
 	// #reflectValue() writes `value` via setAttribute, which would otherwise
 	// re-enter through attributeChangedCallback as a command.
 	#reflecting = false;
 
+	constructor() {
+		super();
+		this.#root = this.attachShadow({ mode: "open" });
+		this.#root.adoptedStyleSheets = [SHEET];
+	}
+
 	connectedCallback() {
-		if (!this.hasAttribute("role")) this.setAttribute("role", "slider");
+		this.#ownsRole = !this.hasAttribute("role") || this.getAttribute("role") === "slider";
 		// Explicit value commands the intent; absent keeps the prior value.
 		const raw = this.getAttribute(ATTR_VALUE);
 		if (raw !== null) {
@@ -57,18 +132,7 @@ export class NeoRating extends HTMLElement {
 		this.addEventListener("pointerdown", this.#onPointerDown);
 		this.addEventListener("pointerup", this.#onPointerUp);
 		this.addEventListener("blur", this.#onBlur);
-		// External DOM patching (Datastar morph) can wipe the rendered
-		// symbols without firing an attribute change; rebuild when the
-		// container goes missing or is reset.
-		if (!this.#observer) {
-			this.#observer = new MutationObserver(() => {
-				if (!this.isConnected) return;
-				if (this.#symbolsEl && this.contains(this.#symbolsEl)) return;
-				this.#reconcile();
-				this.#syncState();
-			});
-			this.#observer.observe(this, { childList: true });
-		}
+		this.#ariaObserver ??= observeManagedAttrs(this, MANAGED_ATTRS, this.#syncAria);
 	}
 
 	disconnectedCallback() {
@@ -79,8 +143,8 @@ export class NeoRating extends HTMLElement {
 		this.removeEventListener("pointerdown", this.#onPointerDown);
 		this.removeEventListener("pointerup", this.#onPointerUp);
 		this.removeEventListener("blur", this.#onBlur);
-		this.#observer?.disconnect();
-		this.#observer = null;
+		this.#ariaObserver?.disconnect();
+		this.#ariaObserver = null;
 	}
 
 	attributeChangedCallback(name: string, _old: string | null, newValue: string | null) {
@@ -152,37 +216,30 @@ export class NeoRating extends HTMLElement {
 		return getComputedStyle(this).direction === "rtl";
 	}
 
-	// Adopt the server-prerendered markup when its shape already matches
-	// (symbol count == max, same icon) so first paint isn't thrown away;
-	// otherwise (no markup, or max/icon changed) build it. Detection is
-	// by DOM shape, not a cached flag, which keeps it correct across morph
-	// re-insertions and SSR adoption alike.
+	// Keeps the shadow row while its shape (symbol count == max, same icon)
+	// still matches. Otherwise copies the server's prerendered row when it matches,
+	// which carries over its inlined icons and paints at once, or builds a row.
 	#reconcile() {
-		const host = this.querySelector<HTMLElement>(`:scope > [${SYMBOLS}]`);
-		if (host && this.#matchesShape(host)) {
-			this.#symbolsEl = host;
-			return;
+		if (this.#symbolsEl && this.#matchesShape(this.#symbolsEl)) return;
+		const light = this.querySelector<HTMLElement>(`:scope > [${SYMBOLS}]`);
+		let next: HTMLElement;
+		if (light && this.#matchesShape(light)) {
+			next = light.cloneNode(true) as HTMLElement;
+			for (const icon of next.querySelectorAll("neo-icon")) icon.setAttribute("exportparts", "svg");
+		} else {
+			next = document.createElement("div");
+			next.setAttribute(SYMBOLS, "");
+			next.setAttribute("aria-hidden", "true");
+			for (let i = 0; i < this.max; i++) {
+				const sym = document.createElement("span");
+				sym.setAttribute(SYMBOL, "");
+				sym.appendChild(this.#layer(EMPTY));
+				sym.appendChild(this.#layer(PREVIEW));
+				sym.appendChild(this.#layer(FULL));
+				next.appendChild(sym);
+			}
 		}
-		const next = document.createElement("div");
-		next.setAttribute(SYMBOLS, "");
-		next.setAttribute("aria-hidden", "true");
-		const value = this.value;
-		const preview = this.#preview;
-		const hollow = preview == null ? 0 : Math.max(value, preview);
-		const filled = preview == null ? value : Math.min(value, preview);
-		for (let i = 0; i < this.max; i++) {
-			const sym = document.createElement("span");
-			const previewLayer = this.#layer(PREVIEW);
-			const fullLayer = this.#layer(FULL);
-			previewLayer.style.width = `${this.#symbolPct(hollow, i)}%`;
-			fullLayer.style.width = `${this.#symbolPct(filled, i)}%`;
-			sym.setAttribute(SYMBOL, "");
-			sym.appendChild(this.#layer(EMPTY));
-			sym.appendChild(previewLayer);
-			sym.appendChild(fullLayer);
-			next.appendChild(sym);
-		}
-		this.replaceChildren(next);
+		this.#root.replaceChildren(next);
 		this.#symbolsEl = next;
 	}
 
@@ -203,54 +260,60 @@ export class NeoRating extends HTMLElement {
 		wrap.setAttribute(marker, "");
 		const icon = document.createElement("neo-icon");
 		icon.setAttribute("name", this.#icon);
+		icon.setAttribute("exportparts", "svg");
 		wrap.appendChild(icon);
 		return wrap;
 	}
 
-	// Push state into ARIA and the per-symbol layer widths. Idempotent,
-	// safe to call repeatedly.
+	// Push state into ARIA and the per-symbol layer widths.
+	// Idempotent, safe to call repeatedly.
 	#syncState() {
-		const max = this.max;
+		this.#syncAria();
 		const value = this.value;
 		const preview = this.#preview;
+		const hollow = preview == null ? 0 : Math.max(value, preview);
+		const filled = preview == null ? value : Math.min(value, preview);
+		const symbols = this.#symbolsEl?.querySelectorAll<HTMLElement>(`:scope > [${SYMBOL}]`);
+		symbols?.forEach((sym, i) => {
+			const previewEl = sym.querySelector<HTMLElement>(`:scope > [${PREVIEW}]`);
+			const full = sym.querySelector<HTMLElement>(`:scope > [${FULL}]`);
+			if (previewEl) previewEl.style.width = `${this.#symbolPct(hollow, i)}%`;
+			if (full) full.style.width = `${this.#symbolPct(filled, i)}%`;
+		});
+	}
 
-		this.setAttribute("aria-valuemin", "0");
-		this.setAttribute("aria-valuemax", String(max));
-		this.setAttribute("aria-valuenow", String(this.value));
-		this.setAttribute("aria-valuetext", `${this.value} / ${max}`);
-		this.setAttribute("aria-orientation", "horizontal");
+	// Writes nothing when nothing changed, which lets the managed-attribute
+	// observer that calls it settle.
+	#syncAria = () => {
+		const max = this.max;
+		const value = this.value;
+		if (this.#ownsRole) setAttrIfChanged(this, "role", "slider");
+		setAttrIfChanged(this, "aria-valuemin", "0");
+		setAttrIfChanged(this, "aria-valuemax", String(max));
+		setAttrIfChanged(this, "aria-valuenow", String(value));
+		setAttrIfChanged(this, "aria-valuetext", `${value} / ${max}`);
+		setAttrIfChanged(this, "aria-orientation", "horizontal");
 
 		const label = this.getAttribute(ATTR_LABEL);
 		if (label && !this.hasAttribute("aria-labelledby")) {
-			this.setAttribute("aria-label", label);
+			setAttrIfChanged(this, "aria-label", label);
 		}
 
-		if (boolAttr(this, ATTR_DISABLED, false)) {
-			this.setAttribute("aria-disabled", "true");
-			this.setAttribute("tabindex", "-1");
+		const disabled = boolAttr(this, ATTR_DISABLED, false);
+		const readonly = boolAttr(this, ATTR_READONLY, false);
+		if (disabled) setAttrIfChanged(this, "aria-disabled", "true");
+		else this.removeAttribute("aria-disabled");
+		if (readonly && !disabled) setAttrIfChanged(this, "aria-readonly", "true");
+		else this.removeAttribute("aria-readonly");
+		if (disabled || readonly) {
+			setAttrIfChanged(this, "tabindex", "-1");
 		} else {
-			this.removeAttribute("aria-disabled");
-			if (boolAttr(this, ATTR_READONLY, false)) {
-				this.setAttribute("aria-readonly", "true");
-				this.setAttribute("tabindex", "-1");
-			} else {
-				this.removeAttribute("aria-readonly");
-				if (!this.hasAttribute("tabindex")) this.setAttribute("tabindex", "0");
-			}
+			// An authored tab position stays; a stripped one or the -1 a
+			// disabled or readonly pass wrote returns to the tab order.
+			const cur = this.getAttribute("tabindex");
+			if (cur === null || cur === "-1") setAttrIfChanged(this, "tabindex", "0");
 		}
-
-		const symbols = this.#symbolsEl?.querySelectorAll<HTMLElement>(`:scope > [${SYMBOL}]`);
-		symbols?.forEach((sym, i) => {
-			const hollow = preview == null ? 0 : Math.max(value, preview);
-			const filled = preview == null ? value : Math.min(value, preview);
-			const fillPct = this.#symbolPct(filled, i);
-			const previewPct = this.#symbolPct(hollow, i);
-			const previewEl = sym.querySelector<HTMLElement>(`:scope > [${PREVIEW}]`);
-			const full = sym.querySelector<HTMLElement>(`:scope > [${FULL}]`);
-			if (previewEl) previewEl.style.width = `${previewPct}%`;
-			if (full) full.style.width = `${fillPct}%`;
-		});
-	}
+	};
 
 	#symbolPct(v: number, index: number): number {
 		return Math.max(0, Math.min(1, v - index)) * 100;
@@ -301,8 +364,8 @@ export class NeoRating extends HTMLElement {
 				return Math.min(this.max, i + 1);
 			}
 		}
-		// Past the last symbol on the inline-end side -> max; before the
-		// start -> smallest step.
+		// Past the last symbol on the inline-end side -> max;
+		// before the start -> smallest step.
 		const first = syms[0].getBoundingClientRect();
 		const last = syms[syms.length - 1].getBoundingClientRect();
 		const beforeStart = rtl ? e.clientX > first.right : e.clientX < first.left;
