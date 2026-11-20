@@ -1,4 +1,7 @@
 import { boolAttr } from "../command";
+import { attachHostStyle, type HostStyle } from "../host-style";
+import { observeManagedAttrs, setAttrIfChanged } from "../neo-morph-resilient";
+import { assignChildren, attachSlotRoot } from "../slot-root";
 
 interface HSV {
 	h: number;
@@ -13,6 +16,17 @@ interface ActiveDrag {
 }
 
 const DEFAULT_VALUE = "#2563eb";
+
+const MANAGED_ATTRS = [
+	"role",
+	"tabindex",
+	"aria-label",
+	"aria-valuemin",
+	"aria-valuemax",
+	"aria-valuenow",
+	"aria-valuetext",
+	"aria-disabled",
+];
 
 function clamp(n: number, min = 0, max = 100) {
 	return Math.min(max, Math.max(min, n));
@@ -101,12 +115,23 @@ export class NeoColorField extends HTMLElement {
 
 	#surface: HTMLElement | null = null;
 	#active: ActiveDrag | null = null;
+	#slot: HTMLSlotElement;
+	// Holds the hue and handle position, which the surface and handle read.
+	// Important, because the kit CSS sets their defaults on the host.
+	#hostStyle: HostStyle;
 	#childObserver: MutationObserver | null = null;
+	#attrObserver: MutationObserver | null = null;
 	#ready = false;
 	#syncingValue = false;
 	#hueValue = 221;
 	#xValue = 85;
 	#yValue = 8;
+
+	constructor() {
+		super();
+		this.#slot = attachSlotRoot(this);
+		this.#hostStyle = attachHostStyle(this.shadowRoot!);
+	}
 
 	connectedCallback() {
 		if (this.#ready) return;
@@ -117,6 +142,7 @@ export class NeoColorField extends HTMLElement {
 		this.addEventListener("lostpointercapture", this.#onLostPointerCapture);
 		this.#childObserver = new MutationObserver(this.#onChildrenChanged);
 		this.#childObserver.observe(this, { childList: true, subtree: true });
+		this.#attrObserver = observeManagedAttrs(this, MANAGED_ATTRS, () => this.#syncAria());
 		const hsv = parseValue(this.getAttribute("value") || DEFAULT_VALUE);
 		const hueAttr = Number(this.getAttribute("hue"));
 		this.#hueValue = this.hasAttribute("hue") ? clampHue(hueAttr) : hsv.h;
@@ -132,6 +158,8 @@ export class NeoColorField extends HTMLElement {
 		this.removeEventListener("lostpointercapture", this.#onLostPointerCapture);
 		this.#childObserver?.disconnect();
 		this.#childObserver = null;
+		this.#attrObserver?.disconnect();
+		this.#attrObserver = null;
 		this.#ready = false;
 	}
 
@@ -177,8 +205,8 @@ export class NeoColorField extends HTMLElement {
 	}
 
 	// Re-assert focus after a morph strips `tabindex` and blurs the host.
-	// Deferred to a microtask so it runs after the morph's attribute-removal
-	// pass; a no-op when focus never moved or the host is now disabled.
+	// Deferred to a microtask so it runs after the morph's attribute-removal pass;
+	// a no-op when focus never moved or the host is now disabled.
 	#restoreFocusAfterMorph() {
 		queueMicrotask(() => {
 			if (boolAttr(this, "disabled", false)) return;
@@ -189,19 +217,13 @@ export class NeoColorField extends HTMLElement {
 	}
 
 	#ensureStructure() {
-		if (!this.hasAttribute("role")) this.setAttribute("role", "slider");
-		if (!this.hasAttribute("tabindex")) this.setAttribute("tabindex", "0");
-		if (!this.hasAttribute("aria-label")) {
-			this.setAttribute("aria-label", "Color field");
-		}
-
 		// Reconcile against the DOM, never a cached pointer, because a morph
 		// can re-emit the surface markup, leaving duplicate
 		// [data-neo-color-field-surface] siblings. Keep 1 surface + 1 handle
-		// as the host's only child; drop extras and strays. The reconciling
-		// mutations only fire when the DOM isn't already canonical, which
-		// makes a re-entrant observer call post-reconcile a no-op. That
-		// fixpoint breaks the childObserver loop.
+		// as the host's only child; drop extras and strays.
+		// The reconciling mutations only fire when the DOM isn't already canonical,
+		// which makes a re-entrant observer call post-reconcile a no-op.
+		// That fixpoint breaks the childObserver loop.
 		const surfaces = this.querySelectorAll<HTMLElement>(":scope > [data-neo-color-field-surface]");
 		let surface = surfaces[0] ?? null;
 		if (!surface) {
@@ -225,6 +247,7 @@ export class NeoColorField extends HTMLElement {
 		if (surface.parentElement !== this) this.appendChild(surface);
 
 		this.#surface = surface;
+		assignChildren(this, this.#slot);
 	}
 
 	#onChildrenChanged = () => {
@@ -235,23 +258,29 @@ export class NeoColorField extends HTMLElement {
 
 	#sync(reflect: boolean) {
 		const color = hsvToHex(this.#hueValue, this.#xValue, 100 - this.#yValue);
-		this.style.setProperty("--neo-color-field-hue", String(this.#hueValue));
-		this.style.setProperty("--neo-color-field-x", `${this.#xValue}%`);
-		this.style.setProperty("--neo-color-field-y", `${this.#yValue}%`);
-		this.setAttribute("aria-valuemin", "0");
-		this.setAttribute("aria-valuemax", "100");
-		this.setAttribute("aria-valuenow", String(Math.round(this.#xValue)));
-		this.setAttribute("aria-valuetext", color);
-		const disabled = boolAttr(this, "disabled", false);
-		this.toggleAttribute("aria-disabled", disabled);
-		if (disabled) this.setAttribute("tabindex", "-1");
-		else this.setAttribute("tabindex", "0");
+		this.#hostStyle.setProperty("--neo-color-field-hue", String(this.#hueValue), "important");
+		this.#hostStyle.setProperty("--neo-color-field-x", `${this.#xValue}%`, "important");
+		this.#hostStyle.setProperty("--neo-color-field-y", `${this.#yValue}%`, "important");
+		this.#syncAria();
 
 		if (reflect) {
 			this.#syncingValue = true;
 			this.setAttribute("value", color);
 			this.#syncingValue = false;
 		}
+	}
+
+	#syncAria() {
+		if (!this.hasAttribute("role")) this.setAttribute("role", "slider");
+		if (!this.hasAttribute("aria-label")) this.setAttribute("aria-label", "Color field");
+		setAttrIfChanged(this, "aria-valuemin", "0");
+		setAttrIfChanged(this, "aria-valuemax", "100");
+		setAttrIfChanged(this, "aria-valuenow", String(Math.round(this.#xValue)));
+		setAttrIfChanged(this, "aria-valuetext", hsvToHex(this.#hueValue, this.#xValue, 100 - this.#yValue));
+		const disabled = boolAttr(this, "disabled", false);
+		if (disabled) setAttrIfChanged(this, "aria-disabled", "true");
+		else this.removeAttribute("aria-disabled");
+		setAttrIfChanged(this, "tabindex", disabled ? "-1" : "0");
 	}
 
 	#detail() {

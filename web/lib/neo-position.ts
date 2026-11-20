@@ -541,12 +541,12 @@ function panelContentSize(panel: HTMLElement): { width: number; height: number }
 	let width = panel.scrollWidth;
 	let height = panel.scrollHeight;
 
-	// <neo-elastic> inside a closed popover starts at wrapper height 0
-	// and animates open. Measure its target content; otherwise placement
-	// chosen from the in-flight wrapper size flips 1 frame later when
-	// ResizeObserver catches up.
+	// <neo-elastic> inside a closed popover starts at height 0 and animates
+	// open. Measure its target content, the wrapper in its shadow root;
+	// otherwise placement chosen from the in-flight host size flips 1 frame
+	// later when ResizeObserver catches up.
 	for (const elastic of panel.querySelectorAll<HTMLElement>("neo-elastic")) {
-		const inner = elastic.querySelector<HTMLElement>(":scope > [data-neo-elastic-content]");
+		const inner = elastic.shadowRoot?.querySelector<HTMLElement>("[data-neo-elastic-content]");
 		if (!inner) continue;
 		const rendered = elastic.getBoundingClientRect();
 		const naturalWidth = inner.scrollWidth;

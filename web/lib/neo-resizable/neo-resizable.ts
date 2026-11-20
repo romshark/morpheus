@@ -1,5 +1,7 @@
+import { attachHostStyle, type HostStyle } from "../host-style";
 import { setState } from "../internal-state";
 import { num } from "../num";
+import { assignChildren, attachSlotRoot } from "../slot-root";
 
 type Handle = "top" | "bottom" | "left" | "right" | "top-left" | "top-right" | "bottom-left" | "bottom-right";
 
@@ -36,6 +38,29 @@ const CURSOR_BY_HANDLE: Record<Handle, string> = {
 	"bottom-left": "nesw-resize",
 };
 
+// The drag cursor holds over the whole page, including content the pointer
+// crosses. It comes from a document sheet, not an attribute on <html>,
+// which a morph of the document strips. Counted, in case 2 drags overlap.
+const cursorSheets = new Map<string, { sheet: CSSStyleSheet; users: number }>();
+
+function holdCursor(cursor: string): void {
+	let entry = cursorSheets.get(cursor);
+	if (!entry) {
+		const sheet = new CSSStyleSheet();
+		sheet.replaceSync(`:root, :root * { cursor: ${cursor} !important; }`);
+		entry = { sheet, users: 0 };
+		cursorSheets.set(cursor, entry);
+	}
+	if (entry.users++ === 0) document.adoptedStyleSheets = [...document.adoptedStyleSheets, entry.sheet];
+}
+
+function releaseCursor(cursor: string): void {
+	const entry = cursorSheets.get(cursor);
+	if (!entry || entry.users === 0) return;
+	entry.users--;
+	if (entry.users === 0) document.adoptedStyleSheets = document.adoptedStyleSheets.filter((s) => s !== entry.sheet);
+}
+
 interface ActiveDrag {
 	handle: Handle;
 	pointerId: number;
@@ -47,10 +72,15 @@ interface ActiveDrag {
 
 export class NeoResizable extends HTMLElement {
 	#internals: ElementInternals;
+	#slot: HTMLSlotElement;
+	// The size from the attributes and the drag.
+	#hostStyle: HostStyle;
 
 	constructor() {
 		super();
 		this.#internals = this.attachInternals();
+		this.#slot = attachSlotRoot(this);
+		this.#hostStyle = attachHostStyle(this.shadowRoot!);
 	}
 
 	static readonly observedAttributes = [
@@ -82,12 +112,12 @@ export class NeoResizable extends HTMLElement {
 		this.#ready = true;
 		this.#syncAll();
 		// Re-reconcile handles when a morph strips/replaces the injected
-		// handle spans while the host stays connected (no disconnect/
-		// connect fires). Handles are re-resolved from the DOM, never
-		// trusted from the cached map. childList only (not subtree) so
-		// slotted-content morphs don't thrash this.
+		// handle spans while the host stays connected (no disconnect/ connect fires).
+		// Handles are re-resolved from the DOM, never trusted from the cached map.
+		// childList only (not subtree) so slotted-content morphs don't thrash this.
 		this.#childObserver = new MutationObserver(() => {
 			if (this.#ready) this.#syncHandles();
+			assignChildren(this, this.#slot);
 		});
 		this.#childObserver.observe(this, { childList: true });
 	}
@@ -116,32 +146,29 @@ export class NeoResizable extends HTMLElement {
 			if (this.hasAttribute(attr)) this.#applyAttr(attr);
 		}
 		this.#syncHandles();
+		assignChildren(this, this.#slot);
 	}
 
-	// Mirror one size attr to its inline-style counterpart. Per-attr
-	// rather than full sync because a drag mutates `style.width/height`
-	// directly, and a later `min-width` change mustn't clobber it.
+	// Mirror 1 size attribute, which is named like its CSS property.
+	// Per attribute rather than a full sync, because a drag sets width and height
+	// and a later `min-width` change mustn't clobber them.
 	#applyAttr(name: string) {
-		const map: Record<string, string> = {
-			"min-width": "minWidth",
-			"max-width": "maxWidth",
-			"min-height": "minHeight",
-			"max-height": "maxHeight",
-			width: "width",
-			height: "height",
-		};
-		const prop = map[name];
-		if (!prop) return;
+		if (!/^(min-|max-)?(width|height)$/.test(name)) return;
 		const v = this.getAttribute(name);
-		(this.style as unknown as Record<string, string>)[prop] = v ?? "";
-		if (name === "width") this.#setSizeVar("width", v);
-		if (name === "height") this.#setSizeVar("height", v);
+		this.#setSize(name, v);
+		if (name === "width" || name === "height") this.#setSizeVar(name, v);
 	}
 
-	#setSizeVar(axis: "width" | "height", value: string | null) {
-		const prop = `--neo-resizable-${axis}`;
-		if (value) this.style.setProperty(prop, value);
-		else this.style.removeProperty(prop);
+	// A size the user set is important, which holds it against page CSS and the
+	// server's `style`. One mirrored from an attribute is not, which lets page
+	// CSS override it, as the doc site's footer does with `min-height`.
+	#setSize(prop: string, value: string | null, important = false) {
+		if (value === null || value === "") this.#hostStyle.removeProperty(prop);
+		else this.#hostStyle.setProperty(prop, value, important ? "important" : "");
+	}
+
+	#setSizeVar(axis: "width" | "height", value: string | null, important = false) {
+		this.#setSize(`--neo-resizable-${axis}`, value, important);
 	}
 
 	#parseHandles(): Set<Handle> {
@@ -161,9 +188,9 @@ export class NeoResizable extends HTMLElement {
 		// Reconcile against the live DOM, not the cached map, because a morph
 		// can strip or replace handle spans while the host stays connected.
 		// Adopt the DOM's handles (prerendered or morph-preserved) so the
-		// inlined icon survives, drop undesired/duplicate ones, then
-		// create whatever's still missing. wireHandle self-guards against
-		// double-binding, which makes re-entrant observer calls converge.
+		// inlined icon survives, drop undesired/duplicate ones, then create
+		// whatever's still missing. wireHandle self-guards against double-binding,
+		// which makes re-entrant observer calls converge.
 		const seen = new Map<Handle, HTMLElement>();
 		for (const el of this.querySelectorAll<HTMLElement>(":scope > [data-neo-resizable-handle]")) {
 			const dir = el.getAttribute("data-neo-resizable-handle") as Handle | null;
@@ -229,12 +256,14 @@ export class NeoResizable extends HTMLElement {
 		const isCorner = dir.includes("-");
 		const resetW = isCorner || dir === "left" || dir === "right";
 		const resetH = isCorner || dir === "top" || dir === "bottom";
+		// Also drops the size mirrored from `width` or `height`,
+		// which hands the axis back to page CSS or its natural size.
 		if (resetW) {
-			this.style.width = "";
+			this.#setSize("width", null);
 			this.#setSizeVar("width", null);
 		}
 		if (resetH) {
-			this.style.height = "";
+			this.#setSize("height", null);
 			this.#setSizeVar("height", null);
 		}
 	};
@@ -266,22 +295,22 @@ export class NeoResizable extends HTMLElement {
 			startH: r.height,
 		};
 		// Pin pixel values so the first move resolves cleanly even when the
-		// host was previously sized by the surrounding layout. Pin only the
-		// axis this handle controls; pinning the other axis freezes
+		// host was previously sized by the surrounding layout.
+		// Pin only the axis this handle controls; pinning the other axis freezes
 		// content-driven growth (a width drag would lock the height and a
 		// taller layout could no longer stretch the host). Mirrors onPointerMove.
 		const setW = dir !== "top" && dir !== "bottom";
 		const setH = dir !== "left" && dir !== "right";
 		if (setW) {
-			this.style.width = `${r.width}px`;
-			this.#setSizeVar("width", `${r.width}px`);
+			this.#setSize("width", `${r.width}px`, true);
+			this.#setSizeVar("width", `${r.width}px`, true);
 		}
 		if (setH) {
-			this.style.height = `${r.height}px`;
-			this.#setSizeVar("height", `${r.height}px`);
+			this.#setSize("height", `${r.height}px`, true);
+			this.#setSizeVar("height", `${r.height}px`, true);
 		}
 		this.#setDragState(dir);
-		document.documentElement.setAttribute("data-neo-resizable-cursor", CURSOR_BY_HANDLE[dir]);
+		holdCursor(CURSOR_BY_HANDLE[dir]);
 		(e.currentTarget as Element).setPointerCapture?.(e.pointerId);
 		document.addEventListener("pointermove", this.#onPointerMove);
 		document.addEventListener("pointerup", this.#onPointerUp);
@@ -305,22 +334,15 @@ export class NeoResizable extends HTMLElement {
 		// would lock the other axis and freeze content-driven growth.
 		const setW = h !== "top" && h !== "bottom";
 		const setH = h !== "left" && h !== "right";
-		if (setW) {
-			const next = `${this.#snapToStep(Math.max(0, w), "step-horizontal")}px`;
-			this.style.width = next;
-		}
-		if (setH) {
-			const next = `${this.#snapToStep(Math.max(0, ht), "step-vertical")}px`;
-			this.style.height = next;
-		}
+		if (setW) this.#setSize("width", `${this.#snapToStep(Math.max(0, w), "step-horizontal")}px`, true);
+		if (setH) this.#setSize("height", `${this.#snapToStep(Math.max(0, ht), "step-vertical")}px`, true);
 
 		const r = this.getBoundingClientRect();
 		// CSS min/max constraints can clamp the host away from the raw
-		// pointer-derived style width/height. Publish the used size so
-		// children sized by --neo-resizable-* stay aligned with the
-		// actual handle edge.
-		if (setW) this.#setSizeVar("width", `${r.width}px`);
-		if (setH) this.#setSizeVar("height", `${r.height}px`);
+		// pointer-derived width/height. Publish the used size so children sized by
+		// --neo-resizable-* stay aligned with the actual handle edge.
+		if (setW) this.#setSizeVar("width", `${r.width}px`, true);
+		if (setH) this.#setSizeVar("height", `${r.height}px`, true);
 		this.dispatchEvent(
 			new CustomEvent("neo-resizable-resize", {
 				bubbles: true,
@@ -330,8 +352,8 @@ export class NeoResizable extends HTMLElement {
 	};
 
 	// Snap a pixel size to the axis step grid (origin 0, which puts the size
-	// on a multiple of the step). A missing or non-positive step disables
-	// snapping. CSS min/max still clamp the snapped value afterward.
+	// on a multiple of the step). A missing or non-positive step disables snapping.
+	// CSS min/max still clamp the snapped value afterward.
 	#snapToStep(px: number, attr: "step-horizontal" | "step-vertical"): number {
 		const step = num(this.getAttribute(attr), 0);
 		if (step <= 0) return px;
@@ -353,9 +375,9 @@ export class NeoResizable extends HTMLElement {
 
 	#endDrag() {
 		if (!this.#active) return;
+		releaseCursor(CURSOR_BY_HANDLE[this.#active.handle]);
 		this.#active = null;
 		this.#setDragState(null);
-		document.documentElement.removeAttribute("data-neo-resizable-cursor");
 		document.removeEventListener("pointermove", this.#onPointerMove);
 		document.removeEventListener("pointerup", this.#onPointerUp);
 		document.removeEventListener("pointercancel", this.#onPointerUp);

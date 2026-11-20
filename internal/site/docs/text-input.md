@@ -31,7 +31,7 @@ Component `<neo-textinput>` is a wrapper around a native `<input>` with live for
 | `readonly` | `boolean`, observed | `false` | Value cannot be edited but stays focusable and submittable. |
 | `required` | `boolean`, observed | `false` | Form validation requires a non-empty value. |
 | `size` | `"sm" \| "lg"` |  | Control-size step: `sm` compact, `lg` large. Omit for the default size. |
-| `mask` | `string`, observed |  | Static template. Slots are `#` digit, `U` letter to upper, `l` letter to lower, `A` alnum to upper, `a` alnum to lower, `X` alnum (case preserved), and `*` any char. Other chars are literal, and `\` makes the next one literal, as in `\#`. Cased slots accept either case and coerce on insert. |
+| `mask` | `string`, observed |  | Static template. Slots are `#` digit, `U` letter to upper, `l` letter to lower, `A` alnum to upper, `a` alnum to lower, `X` alnum (case preserved), and `*` any char. Other chars are literal, and `\` makes the next one literal, as in `\#`. Cased slots accept either case and coerce on insert, and Arabic-Indic and Persian digits are stored as ASCII digits. |
 | `format` | `"number"`, observed |  | Right-anchored thousands grouping for numeric input. Makes the field a number field, like `type="number"`. |
 | `min` | `number`, observed |  | Lowest value a step reaches in a number field. In a masked field it is written in mask form, as in `00:00`, and bounds each digit group. |
 | `max` | `number`, observed |  | Highest value a step reaches in a number field. In a masked field it is written in mask form, as in `23:59`, and bounds each digit group. |

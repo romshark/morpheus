@@ -14,11 +14,10 @@ neo-combobox {
 	display: inline-block;
 }
 
-/* A rich trigger holds a multi-line card; the host follows it (auto
- * height) so its focus ring wraps the whole card. Floor it at the
- * single-line control height. A document rule outranks the shadow
- * `:host` it overrides. */
-neo-combobox[data-neo-trigger-rich] {
+/* A rich trigger holds a multi-line card; the host follows it (auto height)
+ * so its focus ring wraps the whole card. Floor it at the single-line control height.
+ * A document rule outranks the shadow `:host` it overrides. */
+neo-combobox:state(trigger-rich) {
 	min-height: var(--neo-control-height);
 }
 
@@ -111,12 +110,11 @@ neo-combobox [data-neo-combobox-trigger-chip] {
 	overflow: hidden;
 }
 
-/* Loading content is cloned into a light-DOM slot projected into the
- * shadow popover. The placeholder owns its padding; a skeleton
- * placeholder drops it and each row supplies its own margin to match the
- * option rhythm so the panel height doesn't jump when options morph in.
- * Author inline styles (e.g. flex-direction:row for a spinner+label)
- * still override these defaults. */
+/* Loading content is cloned into a light-DOM slot projected into the shadow popover.
+ * The placeholder owns its padding; a skeleton placeholder drops it and each row
+ * supplies its own margin to match the option rhythm so the panel height doesn't jump
+ * when options morph in. Author inline styles
+ * (e.g. flex-direction:row for a spinner+label) still override these defaults. */
 neo-combobox > [data-neo-combobox-loading-content] [data-neo-async-placeholder] {
 	display: flex;
 	flex-direction: column;

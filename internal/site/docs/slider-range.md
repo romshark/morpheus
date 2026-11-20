@@ -24,7 +24,7 @@ Component `<neo-slider-range>` is a 2-handle slider picking a `[min, max]` range
 | `value-max` | `number`, reflected, observed |  | Upper bound. |
 | `min` | `number`, observed | `0` | Lower bound. |
 | `max` | `number`, observed | `100` | Upper bound. |
-| `step` | `number`, observed | `1` | Increment between snap points. |
+| `step` | `number`, observed | `1` | Increment between snap points; each mark adds one unless [`static-marks`](#attributes-static-marks) is set. |
 | `label` | `string`, observed |  | Plain-text caption. |
 | `unit` | `string`, observed |  | Plain-text suffix; rendered after the upper bound. |
 | `hide-value` | `boolean`, observed | `false` | Suppress the value-pair display. |
@@ -39,6 +39,7 @@ Component `<neo-slider-range>` is a 2-handle slider picking a `[min, max]` range
 | Name | Description |
 | --- | --- |
 | `:state(dragging)` | Set while a pointer drag is in flight; suppresses the `easing` transition so the thumb tracks the cursor. |
+| `:state(pointer-focus)` | Set from a pointer press until the next key press or until focus leaves; hides the thumbs' focus ring. |
 
 ### Slots
 
@@ -121,7 +122,7 @@ max-height: 32rem
 Omit [`label`](#attributes-label) and set [`hide-value`](#attributes-hide-value) to drop the entire header row. The thumbs still focus on <neo-kbd>Tab</neo-kbd> and the value bubbles still pop on hover/press, which keeps the control operable.
 
 ```example slider_range_bare
-min-height: max-content
+min-height: 6rem
 ```
 
 ### Disabled

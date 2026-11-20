@@ -19,6 +19,7 @@ import {
 import tooltipCss from "../neo-tooltip/tooltip-pill.css";
 import { num } from "../num";
 import { scopeCssToHost, setTextInPlace } from "../shadow-utils";
+import { decimalDigits, snapToGrid, stepOnGrid } from "../step-grid";
 import { TooltipController } from "../tooltip-controller";
 import sliderRangeCss from "./neo-slider-range.css";
 
@@ -447,6 +448,8 @@ export class NeoSliderRange extends HTMLElement {
 		root.replaceChildren(this.#headerEl, this.#trackEl, this.#marksEl);
 
 		this.#trackEl.addEventListener("pointerdown", this.#onTrackPointerDown);
+		this.addEventListener("keydown", this.#clearPointerFocus);
+		this.addEventListener("focusout", this.#clearPointerFocus);
 		this.#trackEl.addEventListener("pointermove", this.#onTrackMarkPointerMove);
 		this.#trackEl.addEventListener("pointerleave", this.#onTrackMarkPointerLeave);
 		// Drag listeners bound once here, not per pointerdown, because each
@@ -458,8 +461,7 @@ export class NeoSliderRange extends HTMLElement {
 		this.#trackEl.addEventListener("pointerup", this.#onTrackPointerUp);
 		this.#trackEl.addEventListener("pointercancel", this.#onTrackPointerCancel);
 		this.#trackEl.addEventListener("lostpointercapture", this.#onTrackLostPointerCapture);
-		// Delegate click from track + marks row instead of N listeners.
-		this.#trackEl.addEventListener("click", this.#onAnchorClick);
+		// Delegate from the marks row rather than per-label listeners.
 		this.#marksEl.addEventListener("click", this.#onMarkLabelClick);
 		this.#marksEl.addEventListener("pointermove", this.#onMarkLabelPointerMove);
 		this.#marksEl.addEventListener("pointerleave", this.#onMarkLabelPointerLeave);
@@ -954,14 +956,16 @@ export class NeoSliderRange extends HTMLElement {
 	// regardless of which bound is supplied. Then trim FP debris.
 	#clampSnap(v: number, lo: number, hi: number): number {
 		if (!Number.isFinite(v)) return lo;
-		const step = this.step;
-		const baseMin = this.min;
-		let x = Math.min(hi, Math.max(lo, v));
-		const k = Math.round((x - baseMin) / step);
-		x = baseMin + k * step;
-		x = Math.min(hi, Math.max(lo, x));
-		const decimals = decimalDigits(step);
-		return Number(x.toFixed(decimals));
+		return snapToGrid(v, this.min, this.step, lo, hi, this.#stops());
+	}
+
+	#stepFrom(v: number, dir: 1 | -1): number {
+		return stepOnGrid(v, dir, this.min, this.step, this.min, this.max, this.#stops());
+	}
+
+	// Static marks are decorative and add no stops to the step grid.
+	#stops(): readonly MarkSpec[] {
+		return boolAttr(this, ATTR_STATIC_MARKS, false) ? [] : this.#marks;
 	}
 
 	#commit(side: Side, v: number, kind: "input" | "change", opts: { snap?: boolean } = {}): Side {
@@ -1094,13 +1098,15 @@ export class NeoSliderRange extends HTMLElement {
 		} else if (e.key === "ArrowUp") {
 			e.preventDefault();
 			const cur = side === "min" ? this.valueMin : this.valueMax;
-			const nextSide = this.#commit(side, cur + this.step * (e.shiftKey ? 10 : 1), "change");
+			const next = e.shiftKey ? cur + this.step * 10 : this.#stepFrom(cur, 1);
+			const nextSide = this.#commit(side, next, "change");
 			if (nextSide !== side) this.#focusValue(nextSide);
 			this.#refreshValueText(nextSide);
 		} else if (e.key === "ArrowDown") {
 			e.preventDefault();
 			const cur = side === "min" ? this.valueMin : this.valueMax;
-			const nextSide = this.#commit(side, cur - this.step * (e.shiftKey ? 10 : 1), "change");
+			const next = e.shiftKey ? cur - this.step * 10 : this.#stepFrom(cur, -1);
+			const nextSide = this.#commit(side, next, "change");
 			if (nextSide !== side) this.#focusValue(nextSide);
 			this.#refreshValueText(nextSide);
 		}
@@ -1144,11 +1150,11 @@ export class NeoSliderRange extends HTMLElement {
 		switch (this.#isVertical() ? e.key : logicalArrow(this, e.key)) {
 			case "ArrowLeft":
 			case "ArrowDown":
-				next = cur - this.step;
+				next = this.#stepFrom(cur, -1);
 				break;
 			case "ArrowRight":
 			case "ArrowUp":
-				next = cur + this.step;
+				next = this.#stepFrom(cur, 1);
 				break;
 			case "PageDown":
 				next = cur - big;
@@ -1166,7 +1172,9 @@ export class NeoSliderRange extends HTMLElement {
 		if (next !== null) {
 			e.preventDefault();
 			const nextSide = this.#commit(side, next, "change");
-			if (nextSide !== side) this.#activateSide(nextSide);
+			// Focus opens the bubble only when it is :focus-visible. After a
+			// pointer press closed it, a key still shows the value.
+			this.#activateSide(nextSide);
 		}
 	};
 
@@ -1174,6 +1182,25 @@ export class NeoSliderRange extends HTMLElement {
 		const thumb = side === "min" ? this.#thumbMinEl : this.#thumbMaxEl;
 		thumb?.focus();
 		this.#showSide(side);
+	}
+
+	// A press focuses the thumb from script, which Chrome and WebKit count as
+	// :focus-visible, and `focus({ focusVisible: false })` keeps the ring off
+	// after a later key in Chrome. `pointer-focus` hides the ring from the
+	// press until a key press. Focus leaving the host fires focusout here,
+	// and a move between its shadow elements, as in a crossing drag, doesn't.
+	#clearPointerFocus = () => {
+		setState(this.#internals, "pointer-focus", false);
+	};
+
+	// Focus `side` and hold its bubble open for the press. A crossing drag
+	// hands the press to the other thumb, which ends the old thumb's hold.
+	#pressSide(side: Side) {
+		const thumb = side === "min" ? this.#thumbMinEl : this.#thumbMaxEl;
+		setState(this.#internals, "pointer-focus", true);
+		thumb?.focus();
+		this.#ctrlFor(side === "min" ? "max" : "min")?.release();
+		this.#ctrlFor(side)?.hold();
 	}
 
 	#showSide(side: Side) {
@@ -1194,19 +1221,14 @@ export class NeoSliderRange extends HTMLElement {
 		return dLo <= dHi ? "min" : "max";
 	}
 
-	// Anchor dot click (post-drag clicks are suppressed by the browser).
-	// Commits the mark's exact value with no step-snap so
-	// off-step marks survive the round-trip.
-	#onAnchorClick = (e: MouseEvent) => {
-		if (boolAttr(this, ATTR_DISABLED, false)) return;
-		if (boolAttr(this, ATTR_STATIC_MARKS, false)) return;
-		const target = (e.target as Element | null)?.closest("[data-neo-slider-anchor]");
-		if (!target || !this.#trackEl?.contains(target)) return;
-		const v = readMarkValue(target);
-		if (v === null) return;
-		const side = this.#pickThumb(null, v);
-		this.#commit(side, v, "change", { snap: false });
-	};
+	// Value of the anchor dot a press starts on. The press commits it, not a `click`
+	// handler, because the track's pointer capture retargets the `click` at the track.
+	#pressedAnchorValue(target: EventTarget | null): number | null {
+		if (boolAttr(this, ATTR_STATIC_MARKS, false)) return null;
+		const anchor = (target as Element | null)?.closest("[data-neo-slider-anchor]");
+		if (!anchor || !this.#trackEl?.contains(anchor)) return null;
+		return readMarkValue(anchor);
+	}
 
 	#onTrackMarkPointerMove = (e: PointerEvent) => {
 		// While a pointer is down (drag or click) the mark-hover highlight is
@@ -1254,10 +1276,13 @@ export class NeoSliderRange extends HTMLElement {
 		// before the first #valueAtPointer call.
 		this.#dragMirrored = !this.#isVertical() && isRTL(this);
 		this.#dragTrackRect = this.#trackEl.getBoundingClientRect();
-		const valueAtClick = this.#valueAtPointer(e.clientX, e.clientY);
+		// An anchor commits verbatim. A press near the dot's edge can sit nearer
+		// to a grid point than to the mark, and snapping would land there.
+		const anchor = this.#pressedAnchorValue(e.target);
+		const valueAtClick = anchor ?? this.#valueAtPointer(e.clientX, e.clientY);
 		const which = this.#pickThumb(e.target, valueAtClick);
 		this.#dragWhich = which;
-		this.#activateSide(which);
+		this.#pressSide(which);
 		try {
 			this.#trackEl.setPointerCapture(e.pointerId);
 		} catch {
@@ -1272,10 +1297,10 @@ export class NeoSliderRange extends HTMLElement {
 		// Drag pointer listeners are bound once in #render; setting #dragPointerId
 		// arms them. Scroll/resize rect-invalidators are bound for the element's
 		// lifetime (see connectedCallback). Nothing is attached here.
-		const nextSide = this.#commit(which, valueAtClick, "input");
+		const nextSide = this.#commit(which, valueAtClick, "input", { snap: anchor === null });
 		if (nextSide !== which) {
 			this.#dragWhich = nextSide;
-			this.#activateSide(nextSide);
+			this.#pressSide(nextSide);
 		}
 	};
 
@@ -1296,21 +1321,22 @@ export class NeoSliderRange extends HTMLElement {
 			// Place the dragged tooltip once; #syncValues then follows it.
 			this.#beginFollowSide(this.#dragWhich);
 		}
-		this.#showSide(this.#dragWhich);
 		const nextSide = this.#commit(this.#dragWhich, this.#valueAtPointer(e.clientX, e.clientY), "input");
 		if (nextSide !== this.#dragWhich) {
 			// Thumbs crossed. Settle the old tooltip and re-baseline the follow
 			// onto the thumb that now carries the drag.
 			this.#ctrlFor(this.#dragWhich)?.endFollow();
 			this.#dragWhich = nextSide;
-			this.#activateSide(nextSide);
+			this.#pressSide(nextSide);
 			if (this.#dragStarted) this.#beginFollowSide(nextSide);
 		}
 	};
 
 	#onTrackPointerUp = (e: PointerEvent) => {
 		if (e.pointerId !== this.#dragPointerId) return;
-		if (this.#dragWhich !== null) {
+		// Under the drag threshold the pointerdown value stands, as it does on
+		// pointermove. Re-reading the pointer would step-snap a pressed anchor.
+		if (this.#dragWhich !== null && this.#dragStarted) {
 			this.#dragWhich = this.#commit(this.#dragWhich, this.#valueAtPointer(e.clientX, e.clientY), "input");
 		}
 		this.#endDrag();
@@ -1337,7 +1363,6 @@ export class NeoSliderRange extends HTMLElement {
 		}
 		// Listeners stay bound (see #render / connectedCallback);
 		// clearing the pointer id disarms them.
-		const wasFollowing = this.#followSide;
 		this.#dragPointerId = null;
 		this.#dragWhich = null;
 		this.#dragStarted = false;
@@ -1346,11 +1371,8 @@ export class NeoSliderRange extends HTMLElement {
 		// Reflect the value deferred during the drag now the flag is clear.
 		this.#reflectValues();
 		setState(this.#internals, "dragging", false);
-		// endFollow settles the dragged tooltip's exact placement; reposition
-		// the other so both are correct after the drag.
-		if (wasFollowing) this.#ctrlFor(wasFollowing)?.endFollow();
-		this.#tooltipMinCtrl?.reposition();
-		this.#tooltipMaxCtrl?.reposition();
+		this.#tooltipMinCtrl?.release();
+		this.#tooltipMaxCtrl?.release();
 		// The release point is the last move point, which already committed as input.
 		// Compare against the pointerdown values instead, as a native range input does.
 		if (this.valueMin !== this.#dragStartMin || this.valueMax !== this.#dragStartMax) {
@@ -1388,17 +1410,6 @@ function readMarkValue(el: Element): number | null {
 	if (raw === null) return null;
 	const v = Number(raw);
 	return Number.isFinite(v) ? v : null;
-}
-
-function decimalDigits(step: number): number {
-	if (!Number.isFinite(step) || step <= 0) return 0;
-	const s = String(step);
-	const dot = s.indexOf(".");
-	if (dot < 0) {
-		const exp = s.indexOf("e-");
-		return exp < 0 ? 0 : Number(s.slice(exp + 2)) || 0;
-	}
-	return s.length - dot - 1;
 }
 
 function formatNumber(v: number, step: number): string {

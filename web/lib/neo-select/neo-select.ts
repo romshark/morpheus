@@ -1,20 +1,26 @@
 // Shadow DOM owns the trigger/panel/scroll shell. Light DOM stays the
 // option/template source and is projected into the shell. Rich option
-// content then keeps its real custom-element lifecycle instead of being
-// cloned.
+// content then keeps its real custom-element lifecycle instead of being cloned.
 
 import { boolAttr } from "../command";
 import { NavEngine } from "../nav-engine";
-import { cloneAsyncPlaceholder, NeoListbox, POPOVER_ATTRS, setHiddenIfChanged } from "../neo-listbox";
+import {
+	cloneAsyncPlaceholder,
+	isOwnTabindexWrite,
+	NeoListbox,
+	optionValue,
+	POPOVER_ATTRS,
+	setHiddenIfChanged,
+} from "../neo-listbox";
 import { setAttrIfChanged } from "../neo-morph-resilient";
 import { deepActiveElement } from "../shadow-utils";
 
 const SELECT_SHADOW_TEMPLATE = document.createElement("template");
 // Shadow CSS notes, kept out of the template string so the minifier drops
 // them from the bundle. Anchored by selector:
-// - [data-neo-select-trigger] box-shadow: contrast-more edge. Inherited
-//   no-op shadow until prefers-contrast, then a 1px inset ring; avoids the
-//   reflow a wider border would cause.
+// - [data-neo-select-trigger] box-shadow: contrast-more edge.
+//   Inherited no-op shadow until prefers-contrast, then a 1px inset ring;
+//   avoids the reflow a wider border would cause.
 // - [data-neo-select-trigger]:focus: ring lives on :host, not the trigger.
 //   A trigger ring would be clipped by a host overflow:hidden (e.g. inside
 //   neo-input-group). JS mirrors the trigger's :focus-visible onto the host
@@ -31,7 +37,7 @@ const SELECT_SHADOW_TEMPLATE = document.createElement("template");
 // - [data-neo-select-trigger-slot]: rich trigger face. When the kit (or an
 //   author slot="trigger" child) fills the trigger with markup, swap the
 //   text label for the slot and let the trigger grow to fit a multi-line card.
-// - :host([data-neo-trigger-rich]): sizes to the cloned card (host auto,
+// - :host(:state(trigger-rich)): sizes to the cloned card (host auto,
 //   trigger auto); floor both at the single-line control height so a short
 //   card isn't shorter than a plain trigger.
 // - :host([popover-fit-content]) [data-neo-select-list]: size to the option
@@ -41,8 +47,7 @@ const SELECT_SHADOW_TEMPLATE = document.createElement("template");
 //   <neo-datalist> container).
 // - ::slotted([hidden]): the inline <neo-datalist> source is hidden while its
 //   async placeholder is cloned into the loading slot. !important overrides the
-//   component/source display rules so the template does not render alongside
-//   its clone.
+//   component/source display rules so the template does not render alongside its clone.
 // - [data-neo-select-empty-message], ::slotted([slot="loading"]): reset the
 //   cursor:pointer inherited from [data-neo-select-list]; these are static
 //   status messages, not clickable rows. Loading content is projected light
@@ -110,14 +115,14 @@ SELECT_SHADOW_TEMPLATE.innerHTML = `
     margin-block: -0.15em;
   }
   [data-neo-select-trigger-slot] { display: none; }
-  :host([data-neo-trigger-rich]) [data-neo-select-label] { display: none; }
-  :host([data-neo-trigger-rich]) [data-neo-select-trigger-slot] {
+  :host(:state(trigger-rich)) [data-neo-select-label] { display: none; }
+  :host(:state(trigger-rich)) [data-neo-select-trigger-slot] {
     display: block;
     flex: 1 1 auto;
     min-width: 0;
   }
-  :host([data-neo-trigger-rich]) { min-height: var(--neo-control-height); }
-  :host([data-neo-trigger-rich]) [data-neo-select-trigger] { height: auto; }
+  :host(:state(trigger-rich)) { min-height: var(--neo-control-height); }
+  :host(:state(trigger-rich)) [data-neo-select-trigger] { height: auto; }
   [data-neo-select-caret] {
     display: inline-flex;
     align-items: center;
@@ -236,8 +241,8 @@ export class NeoSelect extends NeoListbox {
 		const root = this.attachShadow({ mode: "open" });
 		root.appendChild(SELECT_SHADOW_TEMPLATE.content.cloneNode(true));
 		// Shared keyboard engine for typeahead + Home/End over the options.
-		// Arrow nav stays in onOptionKeyDown so it works regardless of
-		// orientation; the engine adds typeahead + Home/End.
+		// Arrow nav stays in onOptionKeyDown so it works regardless of orientation;
+		// the engine adds typeahead + Home/End.
 		this.#nav = new NavEngine({
 			host: this,
 			getItems: () => this.optionEls().filter((el) => el.getAttribute("aria-disabled") !== "true" && !el.hidden),
@@ -374,9 +379,9 @@ export class NeoSelect extends NeoListbox {
 		const scrollIntoView = opts.scrollIntoView ?? opts.focus !== false;
 		if (!this.position({ scrollIntoView })) return;
 		this.#dispatchOpen();
-		// `loading` means options need fetching now, on every open for
-		// `async` or on a lazy select's first open. Fire the load request
-		// only then. neo-popover-open means only "panel opened", which keeps
+		// `loading` means options need fetching now, on every open for `async`
+		// or on a lazy select's first open. Fire the load request only then.
+		// neo-popover-open means only "panel opened", which keeps
 		// a wired-up lazy select from re-fetching (and re-morphing) on reopen.
 		if (this.loading) this.#dispatchLoad();
 		// Hover-open passes focus:false so it can't pull the caret out of
@@ -406,8 +411,8 @@ export class NeoSelect extends NeoListbox {
 	#cacheTemplates() {
 		// Retain the last-seen placeholder when the live one is gone. An async
 		// select's first options morph replaces it, but reopen and reload()
-		// still render the author's skeleton from the retained ref. Lifecycle
-		// (lazy trigger, loading done) keys on live presence via
+		// still render the author's skeleton from the retained ref.
+		// Lifecycle (lazy trigger, loading done) keys on live presence via
 		// #sourceHasAsyncPlaceholder(), never on this possibly detached ref.
 		this.loadingTemplateEl = this.#findLightTemplate("[data-neo-async-placeholder]") ?? this.loadingTemplateEl;
 		// Re-find each time (not ??=) because a morph that replaces the source
@@ -485,8 +490,8 @@ export class NeoSelect extends NeoListbox {
 	}
 
 	// Stand-in when the author supplies no [data-neo-async-placeholder],
-	// made of the kit's spinner plus a label. Carries the placeholder marker so
-	// it inherits the loading-content layout from neo-select.css.
+	// made of the kit's spinner plus a label. Carries the placeholder marker
+	// so it inherits the loading-content layout from neo-select.css.
 	#defaultLoadingNode(): HTMLElement {
 		const el = document.createElement("div");
 		el.setAttribute("data-neo-async-placeholder", "");
@@ -530,6 +535,7 @@ export class NeoSelect extends NeoListbox {
 		else this.listEl.removeAttribute("aria-label");
 		if (this.id) {
 			const listID = `${this.id}-list`;
+			// biome-ignore lint/plugin/no-id-write: listEl is in the shadow root
 			this.listEl.id = listID;
 			this.trigger.setAttribute("aria-controls", listID);
 		}
@@ -538,8 +544,8 @@ export class NeoSelect extends NeoListbox {
 	#applyValueFromAttr() {
 		this.#syncOptionSelection();
 		this.updateFormValue();
-		// An author/server-provided slot="trigger" child owns the trigger
-		// face; the kit yields and only flips the rich/text split.
+		// An author/server-provided slot="trigger" child owns the trigger face;
+		// the kit yields and only flips the rich/text split.
 		if (this.querySelector(':scope > [slot="trigger"]:not([data-neo-select-trigger-view])')) {
 			this.labelEl.textContent = "";
 			this.triggerFace.rich(true);
@@ -553,9 +559,8 @@ export class NeoSelect extends NeoListbox {
 	}
 
 	// Effective selected value. An absent `value` resolves to the zero-value
-	// option ("") when the list has one, because "no value" and the empty
-	// option are the same selection, like a native <select> defaulting to its
-	// "" option.
+	// option ("") when the list has one, because "no value" and the empty option
+	// are the same selection, like a native <select> defaulting to its "" option.
 	#selectedValue(options = this.optionData()): string | null {
 		const attr = this.getAttribute("value");
 		if (attr !== null) return attr;
@@ -578,7 +583,7 @@ export class NeoSelect extends NeoListbox {
 
 	#activate(el: HTMLElement) {
 		if (el.getAttribute("aria-disabled") === "true") return;
-		const value = el.getAttribute("data-neo-value") ?? "";
+		const value = optionValue(el);
 		const data = this.optionData().find((o) => o.value === value);
 		this.applyingValue = true;
 		// Paused because #applyValueFromAttr re-renders synchronously; letting
@@ -699,13 +704,13 @@ export class NeoSelect extends NeoListbox {
 	#onHostFocusIn = (e: FocusEvent) => {
 		const opt = (e.target as Element | null)?.closest<HTMLElement>("neo-option");
 		if (!opt || !this.contains(opt)) return;
-		this.lastFocusedOptionValue = opt.getAttribute("data-neo-value");
+		this.lastFocusedOptionValue = optionValue(opt);
 	};
 
 	// After a morph, the patched-out option may have held focus; the
 	// browser then drops focus to <body> and arrow keys go nowhere.
-	// Reseat focus on the same value if it survived, else on the initial
-	// candidate. Skip if focus is already on a live option.
+	// Reseat focus on the same value if it survived, else on the initial candidate.
+	// Skip if focus is already on a live option.
 	#restoreOpenFocusAfterPatch() {
 		if (!this.open) return;
 		const active = deepActiveElement();
@@ -715,7 +720,7 @@ export class NeoSelect extends NeoListbox {
 		if (this.lastFocusedOptionValue !== null) {
 			const restored = this.optionEls().find(
 				(opt) =>
-					opt.getAttribute("data-neo-value") === this.lastFocusedOptionValue &&
+					optionValue(opt) === this.lastFocusedOptionValue &&
 					!opt.hidden &&
 					opt.getAttribute("aria-disabled") !== "true",
 			);
@@ -745,8 +750,8 @@ export class NeoSelect extends NeoListbox {
 		if (this.open) {
 			this.position();
 			this.#restoreOpenFocusAfterPatch();
-			// Trigger may still shift as morphed siblings (async CodeMirror,
-			// images) reflow after this synchronous pass; re-anchor next frame.
+			// Trigger may still shift as morphed siblings (async CodeMirror, images)
+			// reflow after this synchronous pass; re-anchor next frame.
 			this.scheduleReposition();
 		}
 	}
@@ -765,6 +770,7 @@ export class NeoSelect extends NeoListbox {
 				continue;
 			}
 			if (r.type === "attributes") {
+				if (isOwnTabindexWrite(r)) continue;
 				const el = r.target as Element;
 				if (el === source || el === this) return true;
 				if (el.matches("neo-option, neo-optgroup")) return true;

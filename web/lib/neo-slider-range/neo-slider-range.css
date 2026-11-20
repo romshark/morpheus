@@ -170,7 +170,7 @@ neo-slider-range[vertical]:where(:not([vertical="false"])) [data-neo-slider-thum
 	transform: translate(-50%, var(--neo-slider-thumb-offset-y, 50%));
 }
 
-neo-slider-range [data-neo-slider-thumb]:focus-visible {
+neo-slider-range:not(:state(pointer-focus)) [data-neo-slider-thumb]:focus-visible {
 	box-shadow:
 		var(--neo-slider-thumb-shadow),
 		0 0 0 3px var(--neo-slider-focus-ring);

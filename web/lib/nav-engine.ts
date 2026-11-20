@@ -9,6 +9,7 @@
 // Disabled items must be excluded by getItems, matching the roving set.
 
 import { boolAttr } from "./command";
+import { setAttrIfChanged } from "./neo-morph-resilient";
 
 type Orientation = "horizontal" | "vertical" | "grid";
 
@@ -86,14 +87,19 @@ export class NavEngine {
 
 		// Roving tabindex priority: live focus, then existing tabindex=0, then
 		// first item. Focus-first protects keyboard position across a morph,
-		// which reverts JS-set tabindex back to the source's first.
+		// which reverts or strips the JS-set tabindex. The attribute, not the
+		// tabIndex property, because a stripped <button> still reports 0.
 		const active = document.activeElement as HTMLElement | null;
 		const focused = active ? items.find((el) => el === active || el.contains(active)) : undefined;
-		const current = focused ?? items.find((el) => el.tabIndex === 0) ?? items[0];
-		for (const el of items) {
-			el.tabIndex = el === current ? 0 : -1;
-		}
+		const current = focused ?? items.find((el) => el.getAttribute("tabindex") === "0") ?? items[0];
+		this.#rove(current);
 		this.#restoreFocusIfLost();
+	}
+
+	// Writes only changed values, which lets a host observing tabindex
+	// strips call refresh() from its observer without looping.
+	#rove(current: HTMLElement): void {
+		for (const el of this.#items) setAttrIfChanged(el, "tabindex", el === current ? "0" : "-1");
 	}
 
 	#itemKey(el: HTMLElement): string {
@@ -117,7 +123,7 @@ export class NavEngine {
 			this.#focusedIndex = -1;
 			return;
 		}
-		for (const el of this.#items) el.tabIndex = el === target ? 0 : -1;
+		this.#rove(target);
 		target.focus();
 	}
 
@@ -178,9 +184,7 @@ export class NavEngine {
 		if (!item) return;
 		this.#focusedKey = this.#itemKey(item);
 		this.#focusedIndex = this.#items.indexOf(item);
-		for (const el of this.#items) {
-			el.tabIndex = el === item ? 0 : -1;
-		}
+		this.#rove(item);
 	};
 
 	#onFocusOut = (e: FocusEvent) => {
@@ -220,9 +224,7 @@ export class NavEngine {
 	}
 
 	#moveFocusTo(item: HTMLElement): void {
-		for (const el of this.#items) {
-			el.tabIndex = el === item ? 0 : -1;
-		}
+		this.#rove(item);
 		item.focus();
 		this.#cfg.onMove?.(item, this.#items.indexOf(item));
 	}

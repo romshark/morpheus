@@ -22,11 +22,17 @@ A triggerless menu panel. Nest it directly inside a `<neo-button>` (the button b
 | --- | --- | --- | --- |
 | `open` | `boolean`, reflected, observed | `false` | Controls visibility. |
 | `placement` | `string`, observed | `"bottom-start"` | Anchor position relative to the trigger; same values as `<neo-popover>`. |
-| `mode` | `"auto" \| "cascade" \| "push"`, observed | `"auto"` | Submenu presentation. `cascade` flies out to the side (desktop). `push` replaces the parent panel with a back row (mobile). `auto` picks based on `(hover: none) and (pointer: coarse), (max-width: 36rem)`. Resolved value is mirrored to `data-mode-effective`. |
+| `mode` | `"auto" \| "cascade" \| "push"`, observed | `"auto"` | Submenu presentation. `cascade` flies out to the side (desktop). `push` replaces the parent panel with a back row (mobile). `auto` picks based on `(hover: none) and (pointer: coarse), (max-width: 36rem)`. The resolved push mode sets [`:state(push)`](#menu-states-push). |
 | `screen-offset` | `string`, observed |  | Minimum margin between the panel and viewport edge; inherited by descendant `<neo-submenu>`s via the `--neo-menu-screen-offset` CSS cascade. |
 | `clamp-placement` | `boolean`, observed | `false` | Opt out of the default strict placement. The menu panel re-anchors its position to keep itself inside the viewport when content would otherwise overflow, instead of staying glued to the configured side and shrinking `max-width`/`max-height`. Inherited by descendant `<neo-submenu>`s unless they set their own value. |
 | `min-fit-height` | `CSS length \| "content"`, observed | `"content"` | Minimum vertical slot the strict placement requires. If the slot at the configured side is shorter and the opposite side has more room, the menu auto-flips (e.g. `bottom-start` to `top-start`). `content` resolves from the menu panel's scroll height on each positioning pass. Inherited by descendant `<neo-submenu>`s via the `--neo-menu-min-fit-height` CSS cascade. |
 | `min-fit-width` | `CSS length \| "content"`, observed | `"content"` | Same as `min-fit-height` but for the horizontal axis (`left-*`/`right-*`). `content` resolves from the panel's scroll width. Use `0` to disable the horizontal flip. |
+
+### States {#menu-states}
+
+| Name | Description |
+| --- | --- |
+| `:state(push)` | Set while [`mode`](#menu-attributes-mode) resolves to `push`. |
 
 ### Slots {#menu-slots}
 

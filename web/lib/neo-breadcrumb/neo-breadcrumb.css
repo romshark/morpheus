@@ -66,16 +66,6 @@ neo-breadcrumb > [data-neo-breadcrumb-sep] > neo-icon {
 	--neo-icon-size: 1em;
 }
 
-/* Items folded into the overflow popover. Markup stays in the DOM so
- * the menu can clone it and a resize can re-show it; this only hides the box. */
-neo-breadcrumb > [data-neo-breadcrumb-hidden] {
-	/* biome-ignore lint/complexity/noImportantStyles: hard hide for
-	 * JS-marked items. Must override an author's inline `display`
-	 * (e.g. chip wrappers), which a stylesheet `display:none` would lose to,
-	 * leaving the item visible and breaking collapse. */
-	display: none !important;
-}
-
 /* Strip the overflow trigger's inherited button padding/height so it
  * sits inline with the text instead of forcing button-height on the row. */
 neo-breadcrumb > [data-neo-breadcrumb-menu] {

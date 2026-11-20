@@ -1,13 +1,12 @@
 /* Drag-to-reorder container. The host owns layout, which is a default
  * flex column, a flex row, or an auto-fill grid keyed off `orientation`.
- * The grip carries `data-neo-sortable-grip` (set by the element on the
- * handle, or on the item when there's no handle). During a pointer
- * drag the grabbed item is `data-neo-sortable-dragging` and pinned
- * `position: fixed` by JS (CSS only lends elevation); a same-size
+ * The grip is an item's [data-neo-sortable-handle], or the item itself
+ * when it has none. The held item's lift (position: fixed during a
+ * pointer drag, the ring and shadow) is a rule in the host's shadow root,
+ * which leaves the authored item's attributes alone. A same-size
  * `[data-neo-sortable-placeholder]` holds its slot, and the displaced
- * items FLIP-glide via a JS transition tuned by the `easing` attribute
- * (--neo-sortable-move-duration is the unset-attribute default).
- */
+ * items FLIP-glide via Web Animations tuned by the `easing` attribute
+ * (--neo-sortable-move-duration is the unset-attribute default). */
 
 :root {
 	--neo-sortable-gap: 0.5rem;
@@ -53,9 +52,14 @@ neo-sortable:state(active) {
 
 /* The grip is a handle subtree, or the whole item when none is given.
  * touch-action:none so a touch drag reorders instead of scrolling.
- * :where() keeps the false-form test from raising specificity above the
- * later active/disabled cursor overrides. */
-neo-sortable:not([disabled]:where(:not([disabled="false"]))) [data-neo-sortable-grip] {
+ * :defined keeps a not-yet-upgraded list scrollable by touch.
+ * :where() keeps the false-form test and :defined from raising specificity
+ * above the later pointer/disabled cursor overrides. */
+neo-sortable:where(:defined):not([disabled]:where(:not([disabled="false"])))
+	> :where(:not(template, [data-neo-sortable-ignore], :has([data-neo-sortable-handle]))),
+neo-sortable:where(:defined):not([disabled]:where(:not([disabled="false"])))
+	> :where(:not(template, [data-neo-sortable-ignore]))
+	[data-neo-sortable-handle] {
 	cursor: grab;
 	touch-action: none;
 }
@@ -63,36 +67,21 @@ neo-sortable:not([disabled]:where(:not([disabled="false"]))) [data-neo-sortable-
 /* A nodrag region inside a whole-item grip starts no drag and must
  * not advertise grab. Reset to auto so the region's own control cursor
  * (or the default arrow) shows through instead of the inherited grab. */
-neo-sortable [data-neo-sortable-grip] [data-neo-sortable-nodrag] {
+neo-sortable > :where(:not(:has([data-neo-sortable-handle]))) [data-neo-sortable-nodrag] {
 	cursor: auto;
 }
 
 /* Grabbing cursor only for a pointer drag; a keyboard reorder has
  * no pointer and must not hijack the mouse cursor. */
 neo-sortable:state(pointer),
-neo-sortable:state(pointer) [data-neo-sortable-grip],
-neo-sortable:state(pointer) [data-neo-sortable-dragging] {
+neo-sortable:state(pointer) > :where(:not(template, [data-neo-sortable-ignore], :has([data-neo-sortable-handle]))),
+neo-sortable:state(pointer) > :where(:not(template, [data-neo-sortable-ignore])) [data-neo-sortable-handle] {
 	cursor: grabbing;
 }
 
-/* Elevation cue on the lifted item for both pointer and keyboard. JS
- * owns position/left/top/z-index inline. */
-/* biome-ignore lint/style/noDescendingSpecificity: sets box-shadow; the higher-specificity active="pointer" dragging rule sets cursor, disjoint, no conflict */
-neo-sortable [data-neo-sortable-dragging] {
-	box-shadow: var(--neo-sortable-drag-ring), var(--neo-sortable-drag-shadow);
-}
-
-/* Forced-colors drops box-shadow entirely; keep a grabbed cue. */
-@media (forced-colors: active) {
-	neo-sortable [data-neo-sortable-dragging] {
-		outline: 2px solid Highlight;
-		outline-offset: -2px;
-	}
-}
-
 /* The gap left behind is a dashed outline of the grabbed item's slot.
- * JS applies sibling FLIP transitions inline, not this file, which keeps
- * the `easing` attribute the single source of truth. */
+ * JS animates the sibling FLIP, not this file, which keeps the `easing`
+ * attribute the single source of truth. */
 neo-sortable [data-neo-sortable-placeholder] {
 	box-sizing: border-box;
 	border: 1px dashed var(--neo-sortable-placeholder-color);
@@ -108,7 +97,11 @@ neo-sortable [data-neo-sortable-placeholder][data-neo-sortable-custom-placeholde
 	border-radius: 0;
 }
 
-neo-sortable[disabled]:where(:not([disabled="false"])) [data-neo-sortable-grip] {
+neo-sortable:where(:defined)[disabled]:where(:not([disabled="false"]))
+	> :where(:not(template, [data-neo-sortable-ignore], :has([data-neo-sortable-handle]))),
+neo-sortable:where(:defined)[disabled]:where(:not([disabled="false"]))
+	> :where(:not(template, [data-neo-sortable-ignore]))
+	[data-neo-sortable-handle] {
 	cursor: default;
 }
 
@@ -125,13 +118,14 @@ neo-sortable[disabled]:where(:not([disabled="false"])) [data-neo-sortable-handle
 	transition: color var(--neo-duration-hover, calc(120ms * var(--neo-duration-scale, 1))) var(--neo-easing, ease);
 }
 
-[data-neo-sortable-grip][data-neo-sortable-handle]:hover:where(:not(neo-sortable[disabled]:not([disabled="false"]) *)),
-[data-neo-sortable-grip][data-neo-sortable-handle]:focus-visible {
+neo-sortable:where(:defined)
+	[data-neo-sortable-handle]:hover:where(:not(neo-sortable[disabled]:not([disabled="false"]) *)),
+neo-sortable:where(:defined) [data-neo-sortable-handle]:focus-visible {
 	color: var(--neo-sortable-handle-hover-color);
 }
 
-/* Default item styling is a plain row with the handle leading. Authors
- * can restyle freely; this just keeps the bare element legible. */
+/* Default item styling is a plain row with the handle leading.
+ * Authors can restyle freely; this just keeps the bare element legible. */
 [data-neo-sortable-item] {
 	display: flex;
 	align-items: center;

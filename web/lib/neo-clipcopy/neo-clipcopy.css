@@ -1,5 +1,5 @@
 /* <neo-clipcopy> is a pure wrapper with no visual styling of its own. It
- * provides a conventional idle/copied swap driven by the `copied` attribute
+ * provides a conventional idle/copied swap driven by `:state(copied)`
  * so that consumers can mark up 2 mutually-exclusive labels and let CSS
  * handle the toggle:
  *
@@ -26,10 +26,10 @@ neo-clipcopy [data-neo-clipcopy-copied] {
 	display: none;
 }
 
-neo-clipcopy[copied] [data-neo-clipcopy-idle] {
+neo-clipcopy:state(copied) [data-neo-clipcopy-idle] {
 	display: none;
 }
 
-neo-clipcopy[copied] [data-neo-clipcopy-copied] {
+neo-clipcopy:state(copied) [data-neo-clipcopy-copied] {
 	display: contents;
 }

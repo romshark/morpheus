@@ -6,6 +6,8 @@ export class NeoButtonGroup extends HTMLElement {
 	static readonly observedAttributes = ["value"];
 
 	#segmented = false;
+	// Whether `role` is the group's own default rather than the server's.
+	#ownsRole = false;
 	#ready = false;
 	#applyingValue = false;
 	#childObserver: MutationObserver | null = null;
@@ -24,12 +26,10 @@ export class NeoButtonGroup extends HTMLElement {
 		if (this.hasAttribute("value")) this.#enterSegmented();
 
 		// Re-sync segmented ARIA / roving tabindex on button add / remove /
-		// reorder (Datastar morph, dynamic option lists) and on child
-		// value/disabled changes. Children are queried live, never cached,
-		// which means an in-place child morph can't strand selection on stale
-		// nodes.
-		// attributeFilter excludes the attributes syncSegmentedAttrs writes
-		// (role/aria-checked/tabindex) so it can't observe its own writes.
+		// reorder (Datastar morph, dynamic option lists), on child
+		// value/disabled changes and on a morph stripping the ARIA the sync
+		// writes. Children are queried live, never cached, which means an
+		// in-place child morph can't strand selection on stale nodes.
 		this.#childObserver = new MutationObserver(() => {
 			if (!this.#segmented) return;
 			this.#syncSegmentedAttrs();
@@ -41,10 +41,10 @@ export class NeoButtonGroup extends HTMLElement {
 			childList: true,
 			subtree: true,
 			attributes: true,
-			// Not tabindex, because neo-button re-asserts its own tabindex
-			// and observing it here would ping-pong. The in-place strip is
-			// recovered via onFocusOut instead.
-			attributeFilter: ["disabled", "value", "aria-disabled"],
+			// The sync writes only changed values, and it gives a disabled
+			// segment the same tabindex "-1" as neo-button's own DisabledFocus,
+			// which lets both observe tabindex without a ping-pong.
+			attributeFilter: ["disabled", "value", "aria-disabled", "role", "aria-checked", "tabindex"],
 		});
 
 		this.#ready = true;
@@ -55,7 +55,7 @@ export class NeoButtonGroup extends HTMLElement {
 	// morph adds one later.
 	#enterSegmented() {
 		this.#segmented = true;
-		if (!this.hasAttribute("role")) this.setAttribute("role", "radiogroup");
+		this.#ownsRole = !this.hasAttribute("role") || this.getAttribute("role") === "radiogroup";
 		this.addEventListener("keydown", this.#onKeyDown);
 		this.addEventListener("focusin", this.#onFocusIn);
 		this.addEventListener("focusout", this.#onFocusOut);
@@ -99,9 +99,9 @@ export class NeoButtonGroup extends HTMLElement {
 			return;
 		}
 		// Blur to nothing. A morph strips the segment's tabindex in place
-		// (absent at this synchronous focusout) and neo-button re-adds one
-		// async. Reseat focus once it has. A genuine click-away leaves the
-		// tabindex intact and ends the tracking.
+		// (absent at this synchronous focusout) and neo-button re-adds one async.
+		// Reseat focus once it has. A genuine click-away leaves the tabindex intact
+		// and ends the tracking.
 		const btn = this.#buttons().find((b) => b === e.target || b.contains(e.target as Node));
 		if (btn && !btn.hasAttribute("tabindex")) {
 			queueMicrotask(() => {
@@ -163,14 +163,17 @@ export class NeoButtonGroup extends HTMLElement {
 	}
 
 	#syncSegmentedAttrs() {
+		if (this.#ownsRole) setAttrIfChanged(this, "role", "radiogroup");
 		const value = this.#valueIntent;
-		for (const btn of this.#buttons()) {
-			btn.setAttribute("role", "radio");
-			const bv = btn.getAttribute("value");
-			const checked = bv !== null && bv === value;
-			btn.setAttribute("aria-checked", String(checked));
-			// setAttrIfChanged so observing tabindex doesn't loop on our writes.
-			setAttrIfChanged(btn, "tabindex", checked ? "0" : "-1");
+		const buttons = this.#buttons();
+		const focusable = this.#focusableButtons();
+		const checked = buttons.find((b) => value !== null && b.getAttribute("value") === value);
+		// 1 tab stop, the checked segment, else the first focusable one.
+		const stop = checked && focusable.includes(checked) ? checked : (focusable[0] ?? null);
+		for (const btn of buttons) {
+			setAttrIfChanged(btn, "role", "radio");
+			setAttrIfChanged(btn, "aria-checked", String(btn === checked));
+			setAttrIfChanged(btn, "tabindex", btn === stop ? "0" : "-1");
 		}
 	}
 

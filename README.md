@@ -1,4 +1,4 @@
-![Static Badge](https://img.shields.io/badge/version-alpha%20v0.6.1-yellow?style=for-the-badge)
+![Static Badge](https://img.shields.io/badge/version-alpha%20v0.7.0-yellow?style=for-the-badge)
 [![Requires Baseline 2024](https://img.shields.io/badge/requires-Baseline%202024-4285f4?style=for-the-badge)](#browser-support)
 
 # Morpheus
@@ -10,9 +10,9 @@ Morpheus is an open alpha web component UI kit. It provides 54 UI components and
 Load the base stylesheet, 1 theme stylesheet and the component bundle. [jsDelivr](https://www.jsdelivr.com) serves every tagged release straight from this repository.
 
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/romshark/morpheus@v0.6.1/min/morpheus.css"/>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/romshark/morpheus@v0.6.1/min/theme-default.css"/>
-<script type="module" src="https://cdn.jsdelivr.net/gh/romshark/morpheus@v0.6.1/min/bundle.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/romshark/morpheus@v0.7.0/min/morpheus.css"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/romshark/morpheus@v0.7.0/min/theme-default.css"/>
+<script type="module" src="https://cdn.jsdelivr.net/gh/romshark/morpheus@v0.7.0/min/bundle.js"></script>
 ```
 
 Pin the tag. Floating refs such as `@latest` resolve to the newest matching tag and pull in breaking changes. To self-host, take the same files from [`/min/`](min) or from a [release](https://github.com/romshark/morpheus/releases).
@@ -20,7 +20,7 @@ Pin the tag. Floating refs such as `@latest` resolve to the newest matching tag 
 To ship only the components a page uses, build a trimmed bundle on the [bundle builder](https://romshark.github.io/morpheus/bundle-builder/) page or with the `morpheus` command, which needs Go:
 
 ```sh
-go run github.com/romshark/morpheus@v0.6.1 bundle -components select,dialog -o static/morpheus
+go run github.com/romshark/morpheus@v0.7.0 bundle -components select,dialog -o static/morpheus
 ```
 
 Its `morpheus.min.js` and `morpheus.min.css` replace `bundle.js` and `morpheus.css`. It also writes `theme-default.css`, and `-themes` picks others, such as `-themes default,rose`. [Command line](https://romshark.github.io/morpheus/bundle-builder/#command-line) describes the command.
@@ -63,7 +63,7 @@ There is no polyfill layer and no legacy fallback path. The kit uses the platfor
 - [Popover API](https://developer.mozilla.org/en-US/docs/Web/API/Popover_API) and [`<dialog>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/dialog): top-layer rendering, modal lifecycle, and light dismiss.
 - [`:has()`](https://developer.mozilla.org/en-US/docs/Web/CSS/:has), [container queries](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_containment/Container_queries), and [`round()`](https://developer.mozilla.org/en-US/docs/Web/CSS/round): layout and sizing that reacts to content and to the parent box rather than the viewport.
 
-[`scrollend`](https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollend_event) and [`:host-context()`](https://developer.mozilla.org/en-US/docs/Web/CSS/:host-context) degrade instead of setting the floor. `scrollend` falls back to a settle timer where it is missing. `:host-context()` (Chromium and WebKit only) carries an increased-contrast refinement that Firefox skips.
+[`scrollend`](https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollend_event), [`:host-context()`](https://developer.mozilla.org/en-US/docs/Web/CSS/:host-context) and [ARIA element reflection](https://developer.mozilla.org/en-US/docs/Web/API/Element#instance_properties_reflected_from_aria_element_references) degrade instead of setting the floor. `scrollend` falls back to a settle timer where it is missing. `:host-context()` (Chromium and WebKit only) carries an increased-contrast refinement that Firefox skips. Element reflection links an ARIA reference (`aria-controls`, `aria-labelledby`, ...) to a target without an `id`. Chrome before 135 and Firefox before 136 lack it, and there the reference is missing.
 
 ## Developing
 

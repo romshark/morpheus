@@ -1,0 +1,449 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Decision: style on hosts without a shadow root</title>
+	<link rel="stylesheet" href="../min/morpheus.css">
+	<link rel="stylesheet" href="../min/theme-default.css">
+	<!-- A classic deferred script, unlike a module, also loads from file://. -->
+	<script defer src="../min/bundle.js"></script>
+	<style>
+		body {
+			max-width: 50rem;
+			margin: 2rem auto;
+			padding: 0 1rem;
+			font: 16px/1.5 system-ui, sans-serif;
+		}
+
+		.case {
+			margin: 0.75rem 0;
+			padding: 0.5rem 0.75rem;
+			border: 1px solid #ccc;
+			border-radius: 0.5rem;
+		}
+
+		.case h3 {
+			margin: 0 0 0.25rem;
+			font-size: 1rem;
+		}
+
+		/* Page CSS on the toy hosts and their children. */
+		x-style,
+		x-shadow-host,
+		x-observed {
+			display: flex;
+			gap: 12px;
+			width: 12rem;
+			padding: 0.5rem;
+			background: #c9d6f2;
+		}
+
+		.a {
+			color: rgb(0, 96, 0);
+		}
+
+		table {
+			width: 100%;
+			border-collapse: collapse;
+			font: 13px/1.4 monospace;
+		}
+
+		th,
+		td {
+			padding: 0.25rem 0.5rem;
+			border-bottom: 1px solid;
+			text-align: left;
+			vertical-align: top;
+		}
+
+		h3 {
+			margin-bottom: 0;
+		}
+
+		h3 + p,
+		ul + p {
+			margin: 0.5rem 0 0;
+		}
+
+		ul {
+			margin-top: 0.25rem;
+		}
+
+		.pass {
+			color: #070;
+		}
+
+		.fail {
+			color: #b00;
+		}
+	</style>
+</head>
+<body>
+	<h1>Decision: style on hosts without a shadow root</h1>
+	<p>
+		<code>&lt;neo-resizable&gt;</code> keeps the size the user drags in the host
+		<code>style</code>, and <code>&lt;neo-elastic&gt;</code> keeps its pinned height there. A
+		morph sets <code>style</code> to the server's and drops the rest, which resets the size.
+		Neither host has a shadow root to hold a <code>:host</code> rule, as
+		<code>&lt;neo-carousel&gt;</code> now does.
+	</p>
+	<p>The options, each run below by a small element on the same markup. The trade-offs follow the table.</p>
+	<ul>
+		<li><b>Today.</b> Write <code>style.width</code> on the host.</li>
+		<li><b>A, shadow root.</b> Attach a shadow root with 1 <code>&lt;slot&gt;</code> and keep <code>:host { width: 304px !important }</code> in an adopted sheet.</li>
+		<li><b>B, observed style.</b> Write <code>style.width</code> and re-apply it from a <code>MutationObserver</code> on <code>style</code> after a morph.</li>
+	</ul>
+	<p>
+		Every server copy carries <code>style="outline: 2px dashed tomato"</code>, which the server
+		owns. The toy hosts are page-styled <code>display: flex; gap: 12px; width: 12rem</code>, and
+		their first child is page-styled green.
+	</p>
+	<ol>
+		<li>Click <b>Drag</b>. It drags the <code>&lt;neo-resizable&gt;</code> right edge 80px with synthetic pointer events and resizes each toy 80px. You can also drag the resizable edge by hand.</li>
+		<li>Click <b>Morph</b>. It patches the server markup of every case over the live one.</li>
+		<li>Read the table. "after morph" is sampled on the next animation frame, which is what paints.</li>
+	</ol>
+	<p>
+		<button type="button" id="drag">Drag</button>
+		<button type="button" id="morph">Morph</button>
+		<button type="button" id="reset">Reset</button>
+		<span id="mode"></span>
+	</p>
+
+	<div class="case">
+		<h3>Today: <code>&lt;neo-resizable&gt;</code></h3>
+		<div id="case-resizable"></div>
+	</div>
+	<div class="case">
+		<h3>Today: <code>style.width</code></h3>
+		<div id="case-today"></div>
+	</div>
+	<div class="case">
+		<h3>A, shadow root</h3>
+		<div id="case-a"></div>
+	</div>
+	<div class="case">
+		<h3>B, observed style</h3>
+		<div id="case-b"></div>
+	</div>
+
+	<table>
+		<thead>
+			<tr>
+				<th>case</th>
+				<th>width</th>
+				<th>dragged</th>
+				<th>after morph</th>
+				<th>server style kept</th>
+				<th>page CSS on child</th>
+				<th>host flex gap</th>
+				<th>host writes</th>
+			</tr>
+		</thead>
+		<tbody id="log"></tbody>
+	</table>
+
+	<h2>Trade-offs</h2>
+	<p>
+		"Table" marks a point the table above measures. "Checked" marks one tested separately in
+		Chrome 158.
+	</p>
+
+	<h3>Today, <code>style</code> on the host</h3>
+	<p><b>Pros</b></p>
+	<ul>
+		<li>No extra DOM and no observer.</li>
+		<li>The value shows in the <code>style</code> attribute in devtools.</li>
+		<li>Page CSS with <code>!important</code> can override it.</li>
+	</ul>
+	<p><b>Cons</b></p>
+	<ul>
+		<li>A morph drops it, and the size resets. For <code>&lt;neo-resizable&gt;</code> that includes the <code>width</code> attribute value the component copies into <code>style</code>, which leaves it full width (table).</li>
+		<li>It writes an attribute the server owns, against the ownership rule.</li>
+		<li>The server can't send its own <code>style</code> without wiping what the component wrote.</li>
+	</ul>
+
+	<h3>A, shadow root with a <code>:host</code> rule</h3>
+	<p><b>Pros</b></p>
+	<ul>
+		<li>A morph can't reach the rule. The size survives with 0 writes per morph (table).</li>
+		<li>The server's own <code>style</code> stays separate and intact (table).</li>
+		<li>No observer, which means no mutation records for other scripts to see.</li>
+		<li>Same mechanism as <code>&lt;neo-carousel&gt;</code> now, and as option C of <a href="decision-child-state-markers.html">the child-state decision</a>, which gives the kit 1 pattern for both.</li>
+		<li>Complies with the ownership rule as written.</li>
+	</ul>
+	<p><b>Cons</b></p>
+	<ul>
+		<li>It changes the host's structure. Its children render through the slot from then on. Page CSS still reaches them and the host's flex layout still applies (table).</li>
+		<li>A child with a <code>slot</code> attribute matches no slot and stops rendering (checked). Manual slot assignment, as in <code>&lt;neo-lightbox&gt;</code> and <code>&lt;neo-popover&gt;</code>, avoids this (checked), at the cost of re-assigning the children on every child change.</li>
+		<li><code>!important</code> is required, because page CSS on the host beats a normal <code>:host</code> rule. A shadow <code>!important</code> also beats the page's <code>!important</code> (checked), which means the page can no longer override that property at all.</li>
+		<li>The value doesn't show in the <code>style</code> attribute. Devtools lists it under the shadow root's adopted sheet.</li>
+		<li>The host can't take another shadow root later. Code that calls <code>attachShadow</code> on it throws.</li>
+		<li>1 shadow root and 1 <code>CSSStyleSheet</code> per instance.</li>
+	</ul>
+
+	<h3>B, <code>style</code> re-applied by an observer</h3>
+	<p><b>Pros</b></p>
+	<ul>
+		<li>No structural change to the host.</li>
+		<li>The value stays visible in the <code>style</code> attribute.</li>
+		<li>The page's <code>!important</code> still overrides it (checked).</li>
+		<li>The smallest code change: 1 observer per host, like the ARIA re-application.</li>
+		<li>The observer runs before the next paint, and no reset shows (table).</li>
+	</ul>
+	<p><b>Cons</b></p>
+	<ul>
+		<li>It still writes an attribute the server owns. The ownership rule needs an exception that makes <code>style</code> partly managed.</li>
+		<li>1 write per host per morph (table). Each is a mutation record other scripts see.</li>
+		<li>The equality check must compare the value the browser reads back. <code>style.width</code> returns <code>304px</code> for <code>304.0px</code> and <code>calc(104px)</code> for <code>calc(100px + 4px)</code> (checked). Comparing against the unnormalized value rewrites on every callback, which loops.</li>
+		<li>Code that reads layout during the morph, in the same task, sees the server's size. The observer only runs afterwards.</li>
+	</ul>
+
+	<script>
+	// A function scope, because the minified bundle is a classic script whose
+	// top-level names clash with globals declared here.
+	(async () => {
+		const DX = 80;
+
+		class XStyle extends HTMLElement {
+			setWidth(px) {
+				this.style.width = `${px}px`;
+			}
+		}
+
+		class XShadowHost extends HTMLElement {
+			constructor() {
+				super();
+				this.sheet = new CSSStyleSheet();
+				const root = this.attachShadow({ mode: "open" });
+				root.innerHTML = "<slot></slot>";
+				root.adoptedStyleSheets = [this.sheet];
+			}
+			setWidth(px) {
+				this.sheet.replaceSync(`:host { width: ${px}px !important; }`);
+			}
+		}
+
+		class XObserved extends HTMLElement {
+			connectedCallback() {
+				this.observer ??= new MutationObserver(() => this.apply());
+				this.observer.observe(this, { attributes: true, attributeFilter: ["style"] });
+			}
+			disconnectedCallback() {
+				this.observer.disconnect();
+			}
+			setWidth(px) {
+				this.want = `${px}px`;
+				this.apply();
+			}
+			apply() {
+				if (this.want && this.style.width !== this.want) this.style.width = this.want;
+			}
+		}
+
+		customElements.define("x-style", XStyle);
+		customElements.define("x-shadow-host", XShadowHost);
+		customElements.define("x-observed", XObserved);
+
+		const outline = 'style="outline: 2px dashed tomato"';
+		const kids = '<span class="a">child A</span><span class="b">child B</span>';
+		const server = {
+			resizable: `<neo-resizable handles="right" width="12rem" ${outline}>Drag my right edge</neo-resizable>`,
+			today: `<x-style ${outline}>${kids}</x-style>`,
+			a: `<x-shadow-host ${outline}>${kids}</x-shadow-host>`,
+			b: `<x-observed ${outline}>${kids}</x-observed>`,
+		};
+		const names = Object.keys(server);
+
+		// The real Datastar morph needs the page over http, because datastar.js is
+		// a module. From file:// an imitation of its pairing rule runs instead.
+		let datastar = false;
+		try {
+			await import("../internal/site/static/datastar.js");
+			datastar = true;
+		} catch {}
+		document.getElementById("mode").textContent = datastar
+			? "Morph: Datastar 1.0.5"
+			: "Morph: imitation (serve the repo over http for the real one)";
+
+		// Datastar 1.0.5 pairs a live element with the next live sibling of the same
+		// tag whose id is empty or equal, sets the server's attributes, strips the
+		// rest, and removes live children left unpaired.
+		function imitate(live, srv) {
+			for (const n of live.getAttributeNames()) if (!srv.hasAttribute(n)) live.removeAttribute(n);
+			for (const n of srv.getAttributeNames()) {
+				if (live.getAttribute(n) !== srv.getAttribute(n)) live.setAttribute(n, srv.getAttribute(n));
+			}
+			let cursor = live.firstChild;
+			for (const s of [...srv.childNodes]) {
+				let match = null;
+				for (let c = cursor; c; c = c.nextSibling) {
+					const same = c.nodeType === s.nodeType && (c.nodeType !== 1 || (c.localName === s.localName && (!c.id || c.id === s.id)));
+					if (same) {
+						match = c;
+						break;
+					}
+				}
+				if (!match) {
+					live.insertBefore(document.importNode(s, true), cursor);
+					continue;
+				}
+				while (cursor !== match) {
+					const next = cursor.nextSibling;
+					cursor.remove();
+					cursor = next;
+				}
+				if (s.nodeType === 1) imitate(match, s);
+				else if (match.nodeValue !== s.nodeValue) match.nodeValue = s.nodeValue;
+				cursor = match.nextSibling;
+			}
+			while (cursor) {
+				const next = cursor.nextSibling;
+				cursor.remove();
+				cursor = next;
+			}
+		}
+
+		function morph(name) {
+			const html = `<div id="case-${name}">${server[name]}</div>`;
+			if (datastar) {
+				document.dispatchEvent(new CustomEvent("datastar-fetch", {
+					detail: { type: "datastar-patch-elements", argsRaw: { elements: html } },
+				}));
+				return;
+			}
+			const tpl = document.createElement("template");
+			tpl.innerHTML = html;
+			imitate(document.getElementById(`case-${name}`), tpl.content.firstElementChild);
+		}
+
+		const host = (name) => document.getElementById(`case-${name}`).firstElementChild;
+		const width = (name) => Math.round(host(name).getBoundingClientRect().width);
+		// The timer covers headless runs, where animation frames may not fire.
+		const nextFrame = () =>
+			new Promise((r) => {
+				requestAnimationFrame(() => r());
+				setTimeout(r, 100);
+			});
+
+		// <neo-resizable> listens for pointerdown on the handle and pointermove on
+		// the document. pointerId 1 is the mouse, which setPointerCapture accepts.
+		function dragResizable(el, dx) {
+			const handle = el.querySelector(':scope > [data-neo-resizable-handle="right"]');
+			if (!handle) return;
+			const r = handle.getBoundingClientRect();
+			const x = r.left + r.width / 2;
+			const y = r.top + r.height / 2;
+			const init = (cx, buttons) => ({
+				pointerId: 1,
+				pointerType: "mouse",
+				isPrimary: true,
+				button: 0,
+				buttons,
+				clientX: cx,
+				clientY: y,
+				bubbles: true,
+				cancelable: true,
+			});
+			handle.dispatchEvent(new PointerEvent("pointerdown", init(x, 1)));
+			document.dispatchEvent(new PointerEvent("pointermove", init(x + dx, 1)));
+			document.dispatchEvent(new PointerEvent("pointerup", init(x + dx, 0)));
+		}
+
+		function checks(name) {
+			const el = host(name);
+			const toy = name !== "resizable";
+			const a = el.querySelector(".a");
+			const b = el.querySelector(".b");
+			return {
+				outline: getComputedStyle(el).outlineStyle === "dashed",
+				childCss: toy ? getComputedStyle(a).color === "rgb(0, 96, 0)" : null,
+				gap: toy ? Math.round(b.getBoundingClientRect().left - a.getBoundingClientRect().right) : null,
+			};
+		}
+
+		const state = {};
+		function render() {
+			const log = document.getElementById("log");
+			log.replaceChildren();
+			for (const name of names) {
+				const s = state[name] ?? {};
+				const c = s.checks;
+				const cells = [
+					[name],
+					[`${s.initial ?? ""}`],
+					[s.dragged === undefined ? "" : `${s.dragged}`],
+					s.after === undefined ? [""] : [`${s.after}`, s.after === s.dragged],
+					c ? [String(c.outline), c.outline] : [""],
+					c && c.childCss !== null ? [String(c.childCss), c.childCss] : [c ? "-" : ""],
+					c && c.gap !== null ? [`${c.gap}px`, c.gap === 12] : [c ? "-" : ""],
+					[s.writes === undefined ? "" : String(s.writes)],
+				];
+				const tr = document.createElement("tr");
+				for (const [text, ok] of cells) {
+					const td = document.createElement("td");
+					td.textContent = text;
+					if (ok !== undefined) td.className = ok ? "pass" : "fail";
+					tr.append(td);
+				}
+				log.append(tr);
+			}
+		}
+
+		async function reset() {
+			for (const name of names) {
+				document.getElementById(`case-${name}`).innerHTML = server[name];
+				state[name] = {};
+			}
+			await customElements.whenDefined("neo-resizable");
+			await nextFrame();
+			for (const name of names) state[name].initial = width(name);
+			render();
+		}
+
+		async function drag() {
+			dragResizable(host("resizable"), DX);
+			for (const name of ["today", "a", "b"]) host(name).setWidth(state[name].initial + DX);
+			await nextFrame();
+			for (const name of names) state[name].dragged = width(name);
+			render();
+		}
+
+		async function runMorph() {
+			const recorders = names.map((name) => {
+				state[name].dragged ??= width(name);
+				state[name].writes = 0;
+				const r = new MutationObserver((records) => {
+					state[name].writes += records.length;
+				});
+				morph(name);
+				// Started after the morph, it records only the host's own writes.
+				r.observe(host(name), { attributes: true, attributeFilter: ["style"] });
+				return [name, r];
+			});
+			await nextFrame();
+			for (const name of names) {
+				state[name].after = width(name);
+				state[name].checks = checks(name);
+			}
+			await nextFrame();
+			for (const [name, r] of recorders) {
+				state[name].writes += r.takeRecords().length;
+				r.disconnect();
+			}
+			render();
+		}
+
+		document.getElementById("drag").addEventListener("click", drag);
+		document.getElementById("morph").addEventListener("click", runMorph);
+		document.getElementById("reset").addEventListener("click", reset);
+		await reset();
+		if (location.search.includes("auto")) {
+			await drag();
+			await runMorph();
+		}
+	})();
+	</script>
+</body>
+</html>

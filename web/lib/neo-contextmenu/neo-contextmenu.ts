@@ -1,24 +1,37 @@
 // Wraps exactly 1 <neo-menu> and opens it at the pointer; all menu
 // behavior comes from <neo-menu>, none of it reimplemented here.
 
+import { setAriaRef } from "../aria-ref";
 import { openCommand } from "../command";
 import { retryWhileParsing, stillParsing } from "../document-parsing";
+import { keyMenuLengths } from "../menu-length-sheet";
+import { observeManagedAttrs, setAttrIfChanged } from "../neo-morph-resilient";
 
 interface NeoMenuLike extends HTMLElement {
 	panel: HTMLElement | null;
 	returnFocusEl: HTMLElement | null;
 	openAtPoint(x: number, y: number): void;
 	hide(): void;
+	hostConfigChanged?(name: string): void;
 }
 
-const FORWARDED_ATTRS = ["mode", "screen-offset", "clamp-placement", "min-fit-height", "min-fit-width"] as const;
+// The wrapped <neo-menu> reads these from this element unless it carries its own.
+// Copying them onto the menu would need a rewrite after every morph strip.
+const MENU_CONFIG_ATTRS = ["mode", "screen-offset", "clamp-placement", "min-fit-height", "min-fit-width"] as const;
+
+const TRIGGER_ARIA = ["tabindex", "aria-haspopup", "aria-expanded", "aria-controls"];
 
 export class NeoContextMenu extends HTMLElement {
-	static readonly observedAttributes = ["open", ...FORWARDED_ATTRS];
+	static readonly observedAttributes = ["open", ...MENU_CONFIG_ATTRS];
 
 	#trigger: HTMLElement | null = null;
 	#menu: NeoMenuLike | null = null;
 	#hostObserver: MutationObserver | null = null;
+	#triggerObserver: MutationObserver | null = null;
+	// tabindex on the trigger is this element's only where the server rendered none.
+	// Kept per trigger, because a morph strips it and the next sync restores it.
+	#tabindexTrigger: HTMLElement | null = null;
+	#ownsTabindex = false;
 	#ready = false;
 	#rebuilding = false;
 	#reflecting = false;
@@ -34,6 +47,7 @@ export class NeoContextMenu extends HTMLElement {
 		}
 		this.#hostObserver = new MutationObserver(() => this.#checkForReset());
 		this.#hostObserver.observe(this, { childList: true });
+		keyMenuLengths(this);
 		this.#ready = true;
 		// On connect, an explicit open/close command is obeyed; an absent
 		// one keeps prior intent (persists across reconnect/morph).
@@ -82,7 +96,8 @@ export class NeoContextMenu extends HTMLElement {
 			}
 			return;
 		}
-		this.#forwardAttr(name);
+		keyMenuLengths(this);
+		this.#menu?.hostConfigChanged?.(name);
 	}
 
 	#bindStructure(): boolean {
@@ -104,19 +119,12 @@ export class NeoContextMenu extends HTMLElement {
 		this.#trigger = trigger;
 		this.#menu = menus[0];
 
-		if (!trigger.hasAttribute("tabindex")) trigger.setAttribute("tabindex", "0");
-		// No role stamp. The trigger opens the menu only on right-click and
-		// the context-menu key, never on primary activation (left-click /
-		// Enter / Space). It is not a button. role="button" would promise
-		// an activation that never happens and would mask the surface from
-		// other components that reason about roles (e.g. <neo-tree>'s
-		// click-to-toggle). The primary, keyboard-activatable control for
-		// these actions belongs on a real button elsewhere; aria-haspopup /
-		// aria-expanded remain as popup hints.
-		trigger.setAttribute("aria-haspopup", "menu");
-		trigger.setAttribute("aria-expanded", "false");
-
-		for (const attr of FORWARDED_ATTRS) this.#forwardAttr(attr);
+		if (trigger !== this.#tabindexTrigger) {
+			this.#tabindexTrigger = trigger;
+			this.#ownsTabindex = !trigger.hasAttribute("tabindex");
+		}
+		this.#syncTrigger();
+		this.#triggerObserver = observeManagedAttrs(trigger, TRIGGER_ARIA, this.#syncTrigger);
 
 		trigger.addEventListener("contextmenu", this.#onTriggerContextMenu);
 		trigger.addEventListener("keydown", this.#onTriggerKeyDown);
@@ -138,6 +146,8 @@ export class NeoContextMenu extends HTMLElement {
 	}
 
 	#unbindStructure() {
+		this.#triggerObserver?.disconnect();
+		this.#triggerObserver = null;
 		this.#trigger?.removeEventListener("contextmenu", this.#onTriggerContextMenu);
 		this.#trigger?.removeEventListener("keydown", this.#onTriggerKeyDown);
 		this.#menu?.removeEventListener("neo-menu-open", this.#onMenuOpen);
@@ -176,11 +186,26 @@ export class NeoContextMenu extends HTMLElement {
 		}
 	}
 
-	#forwardAttr(name: string) {
-		if (!this.#menu) return;
-		const v = this.getAttribute(name);
-		if (v === null) this.#menu.removeAttribute(name);
-		else this.#menu.setAttribute(name, v);
+	// No role. The trigger opens the menu only on right-click and the
+	// context-menu key, never on primary activation (left-click / Enter / Space).
+	// role="button" would promise an activation that never happens
+	// and would mask the surface from other components that reason about
+	// roles (e.g. <neo-tree>'s click-to-toggle). The primary control for
+	// these actions belongs on a real button elsewhere; aria-haspopup and
+	// aria-expanded remain as popup hints.
+	#syncTrigger = (): void => {
+		const t = this.#trigger;
+		if (!t) return;
+		if (this.#ownsTabindex) setAttrIfChanged(t, "tabindex", "0");
+		setAttrIfChanged(t, "aria-haspopup", "menu");
+		setAttrIfChanged(t, "aria-expanded", String(this.#openIntent));
+		const panel = this.#menu?.panel;
+		setAriaRef(t, "aria-controls", panel ? [panel] : []);
+	};
+
+	// menuBound is called by the inner <neo-menu> after it builds its panel.
+	menuBound(): void {
+		this.#syncTrigger();
 	}
 
 	#openFromTrigger(): void {
@@ -206,11 +231,8 @@ export class NeoContextMenu extends HTMLElement {
 	};
 
 	#onMenuOpen = () => {
-		this.#trigger?.setAttribute("aria-expanded", "true");
-		if (this.#menu?.panel?.id) {
-			this.#trigger?.setAttribute("aria-controls", this.#menu.panel.id);
-		}
 		this.#openIntent = true;
+		this.#syncTrigger();
 		this.#reflecting = true;
 		this.setAttribute("open", "");
 		this.#reflecting = false;
@@ -218,8 +240,8 @@ export class NeoContextMenu extends HTMLElement {
 	};
 
 	#onMenuClose = () => {
-		this.#trigger?.setAttribute("aria-expanded", "false");
 		this.#openIntent = false;
+		this.#syncTrigger();
 		this.#reflecting = true;
 		this.removeAttribute("open");
 		this.#reflecting = false;

@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>neo-elastic: collapsed content and focus</title>
+	<link rel="stylesheet" href="../min/morpheus.css">
+	<!-- A classic deferred script, unlike a module, also loads from file://. -->
+	<script defer src="../min/bundle.js"></script>
+	<style>
+		body {
+			max-width: 42rem;
+			margin: 2rem auto;
+			padding: 0 1rem;
+			font: 16px/1.5 system-ui, sans-serif;
+		}
+
+		/* Shows the collapsed 0px box as a dashed line. */
+		neo-elastic {
+			outline: 1px dashed currentColor;
+		}
+
+		.row {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 0.5rem;
+			align-items: center;
+			margin: 1rem 0;
+		}
+
+		#status {
+			padding: 0.75rem;
+			border: 1px solid;
+			border-radius: 0.5rem;
+			white-space: pre-wrap;
+		}
+
+		#status.bug {
+			color: #c00;
+			border-color: #c00;
+		}
+	</style>
+</head>
+<body>
+	<h1>neo-elastic: collapsed content and focus</h1>
+	<p>
+		<code>&lt;neo-elastic open="false"&gt;</code> collapses to <code>height: 0</code>
+		with <code>overflow: hidden</code> and makes its content <code>inert</code>.
+		Without <code>inert</code>, the link, the input and the button inside stay in the
+		Tab order and in the accessibility tree, with no visible area for a focus ring.
+	</p>
+	<ol>
+		<li>Click <b>Before</b>.</li>
+		<li>Press <kbd>Tab</kbd>.</li>
+	</ol>
+	<p>
+		Expected: focus moves to <b>After</b>. With <b>Toggle open</b> expanded, it moves
+		to the link instead. The status turns red if focus lands inside the collapsed
+		element.
+	</p>
+
+	<div class="row">
+		<button type="button" id="before">Before</button>
+	</div>
+	<neo-elastic id="elastic" open="false">
+		<p>Orders ship within 2 business days. <a href="#track">Track an order</a></p>
+		<p>
+			<label>Order number <input name="order" size="10"></label>
+			<button type="button">Look up</button>
+		</p>
+	</neo-elastic>
+	<div class="row">
+		<button type="button" id="after">After</button>
+		<button type="button" id="toggle">Toggle open</button>
+	</div>
+
+	<pre id="status">Loading ../min/bundle.js</pre>
+
+	<script>
+		const elastic = document.getElementById("elastic");
+		const status = document.getElementById("status");
+
+		// The shadow wrapper neo-elastic slots its children into. It carries
+		// `inert`, which the slotted children inherit through the flat tree.
+		const content = () => elastic.shadowRoot?.querySelector("[data-neo-elastic-content]");
+		const collapsed = () => elastic.getAttribute("open") === "false";
+
+		function describe(el) {
+			if (!el || el === document.body) return "none";
+			const name = el.labels?.[0]?.textContent || el.textContent;
+			return `<${el.localName}> "${name.trim()}"`;
+		}
+
+		function update() {
+			const c = content();
+			// closest("[inert]") doesn't cross into the shadow root, which means
+			// the wrapper's own flag decides for every child.
+			const focusable =
+				c && !c.inert ? [...elastic.querySelectorAll("a[href], button, input, select, textarea, [tabindex]")] : [];
+			const hiddenFocus = collapsed() && elastic.contains(document.activeElement);
+			status.classList.toggle("bug", hiddenFocus || (collapsed() && focusable.length > 0));
+			status.textContent = [
+				`open: ${elastic.getAttribute("open")}`,
+				`host height: ${elastic.getBoundingClientRect().height}px`,
+				`content inert: ${c ? c.inert : "no wrapper, bundle not loaded"}`,
+				`focusable inside: ${focusable.length}${collapsed() && focusable.length ? " (bug while collapsed)" : ""}`,
+				`focus: ${describe(document.activeElement)}${hiddenFocus ? ", inside the collapsed element (bug)" : ""}`,
+			].join("\n");
+		}
+
+		document.getElementById("toggle").addEventListener("click", () => {
+			elastic.setAttribute("open", collapsed() ? "true" : "false");
+		});
+		// neo-elastic applies `open` in a microtask, after this observer runs.
+		new MutationObserver(() => queueMicrotask(update)).observe(elastic, {
+			attributes: true,
+			attributeFilter: ["open"],
+		});
+		elastic.addEventListener("neo-elastic-end", update);
+		document.addEventListener("focusin", update);
+		// Focus moving to the body fires no focusin.
+		document.addEventListener("focusout", () => setTimeout(update));
+		customElements.whenDefined("neo-elastic").then(update);
+	</script>
+</body>
+</html>

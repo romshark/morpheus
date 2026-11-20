@@ -1,7 +1,7 @@
 /* <neo-drawer> is a side-anchored modal sheet. Same native-<dialog>
  * foundation as <neo-dialog> (top layer, focus trap, scroll lock, Esc).
- * The difference is purely visual. Instead of centering and fading the
- * panel, we pin it to one of the 4 viewport edges and slide it in.
+ * The difference is purely visual. Instead of centering and fading the panel,
+ * we pin it to one of the 4 viewport edges and slide it in.
  * Reuses --neo-dialog-* tokens so theme overrides apply to the drawer
  * as well as the dialog. */
 
@@ -29,9 +29,12 @@ neo-drawer > dialog {
 	overscroll-behavior: contain;
 
 	opacity: 0;
+	/* A swipe moves the panel through `translate`, which adds to `transform`.
+	 * Releasing transitions it back from the finger. */
 	transition:
 		opacity var(--neo-drawer-enter-duration) var(--neo-easing, ease-out),
 		transform var(--neo-drawer-enter-duration) var(--neo-easing, ease-out),
+		translate var(--neo-drawer-enter-duration) var(--neo-easing, ease-out),
 		display var(--neo-drawer-enter-duration) allow-discrete,
 		overlay var(--neo-drawer-enter-duration) allow-discrete;
 }
@@ -111,6 +114,11 @@ neo-drawer > dialog[open] {
 	transform: translate(0, 0);
 }
 
+/* The panel tracks the finger 1:1 instead of chasing the easing curve. */
+neo-drawer:state(dragging) > dialog {
+	transition: none;
+}
+
 @starting-style {
 	neo-drawer[side="right"] > dialog[open],
 	neo-drawer:not([side]) > dialog[open] {
@@ -153,8 +161,8 @@ neo-drawer > dialog[open]::backdrop {
 }
 
 /* Optional structural slots use the same naming convention as
- * <neo-dialog>'s slots, with `data-neo-drawer-*` prefixes. The body
- * stretches to fill the remaining vertical space so the footer
+ * <neo-dialog>'s slots, with `data-neo-drawer-*` prefixes.
+ * The body stretches to fill the remaining vertical space so the footer
  * sticks to the bottom of the panel even when the body is short. */
 neo-drawer [data-neo-drawer-header] {
 	display: flex;

@@ -1,14 +1,19 @@
 // Shadow DOM owns the markup (variant icon, body wrapper, close button) so a
 // fat morph reaching <neo-toaster>'s children can't strip it; the user's
 // title/description/action live in light DOM via named slots.
-// Layout transforms are inline custom properties written
-// by <neo-toaster> and inherited into the shadow.
+// <neo-toaster> writes the stack layout into the toast's :host rule and its
+// stack state into the toast's custom states, both out of a morph's reach.
 
 import "../neo-icon";
 import "../neo-spinner";
+import { attachHostStyle, type HostStyle } from "../host-style";
+import { setState } from "../internal-state";
 import { labelAttr } from "../label-name";
+import { observeManagedAttrs, setAttrIfChanged } from "../neo-morph-resilient";
 
 type ToastVariant = "default" | "success" | "error" | "warning" | "info" | "loading";
+
+export type ToastStackState = "mounted" | "leaving" | "hidden" | "dragging" | "swipe-dismiss";
 
 const VARIANT_ICON: Record<Exclude<ToastVariant, "default" | "loading">, string> = {
 	success: "circle-check",
@@ -20,9 +25,8 @@ const VARIANT_ICON: Record<Exclude<ToastVariant, "default" | "loading">, string>
 const TEMPLATE = document.createElement("template");
 // Shadow CSS notes, kept out of the template string so the minifier drops
 // them from the bundle. Anchored by selector:
-// - :host custom properties: shadow inherits these from the host; the toaster
-//   writes them inline on the host to lay out the Sonner pile. Declared here
-//   too so a stand-alone <neo-toast> still renders.
+// - :host custom properties: defaults for a stand-alone <neo-toast>.
+//   The toaster overrides them through setStackProperty to lay out the Sonner pile.
 // - :host(:not([variant])) [data-neo-toast-icon]: hide the icon slot entirely
 //   when there's nothing to show.
 // - [data-empty]: hide empty rows. data-empty is toggled from JS via slotchange
@@ -142,14 +146,23 @@ TEMPLATE.innerHTML = `
 export class NeoToast extends HTMLElement {
 	static readonly observedAttributes = ["variant", "dismiss-label"];
 
+	#internals: ElementInternals;
+	#hostStyle: HostStyle;
 	#iconSlot!: HTMLSlotElement;
 	#closeBtn!: HTMLButtonElement;
 	#emptyTrackers: Array<[HTMLSlotElement, HTMLElement]> = [];
+	#ariaObserver: MutationObserver | null = null;
+	// The last role and aria-live this wrote.
+	// A different present value is the author's and stays.
+	#writtenRole: string | null = null;
+	#writtenLive: string | null = null;
 
 	constructor() {
 		super();
+		this.#internals = this.attachInternals();
 		const root = this.attachShadow({ mode: "open" });
 		root.appendChild(TEMPLATE.content.cloneNode(true));
+		this.#hostStyle = attachHostStyle(root);
 		this.#iconSlot = root.querySelector<HTMLSlotElement>("slot[name='icon']")!;
 		this.#closeBtn = root.querySelector<HTMLButtonElement>("[data-neo-toast-close]")!;
 		// Pair each "row" slot with its wrapper so we can collapse the row
@@ -164,6 +177,7 @@ export class NeoToast extends HTMLElement {
 	connectedCallback() {
 		this.#syncDefaultIcon();
 		this.#syncAriaLive();
+		this.#ariaObserver ??= observeManagedAttrs(this, ["role", "aria-live"], this.#syncAriaLive);
 		this.#syncDismissLabel();
 		for (const [slot, wrap] of this.#emptyTrackers) {
 			const update = () => {
@@ -172,6 +186,25 @@ export class NeoToast extends HTMLElement {
 			slot.addEventListener("slotchange", update);
 			update();
 		}
+	}
+
+	disconnectedCallback() {
+		this.#ariaObserver?.disconnect();
+		this.#ariaObserver = null;
+	}
+
+	setStackState(name: ToastStackState, on: boolean): void {
+		setState(this.#internals, name, on);
+	}
+
+	hasStackState(name: ToastStackState): boolean {
+		return this.#internals.states.has(name);
+	}
+
+	// Sets a `--toast-*` layout property, or removes it for null.
+	setStackProperty(name: `--toast-${string}`, value: string | null): void {
+		if (value === null) this.#hostStyle.removeProperty(name);
+		else this.#hostStyle.setProperty(name, value);
 	}
 
 	attributeChangedCallback(name: string) {
@@ -204,15 +237,19 @@ export class NeoToast extends HTMLElement {
 		}
 	}
 
-	// Live-region semantics: only set if absent so authors can override.
-	#syncAriaLive(): void {
-		const variant = this.getAttribute("variant");
-		if (!this.hasAttribute("role")) {
-			this.setAttribute("role", variant === "error" ? "alert" : "status");
-		}
-		if (!this.hasAttribute("aria-live")) {
-			this.setAttribute("aria-live", variant === "error" ? "assertive" : "polite");
-		}
+	#syncAriaLive = (): void => {
+		const error = this.getAttribute("variant") === "error";
+		this.#writtenRole = this.#writeDefault("role", error ? "alert" : "status", this.#writtenRole);
+		this.#writtenLive = this.#writeDefault("aria-live", error ? "assertive" : "polite", this.#writtenLive);
+	};
+
+	// Writes value where the attribute is absent or still holds the last write,
+	// and returns the attribute's value when it is this component's.
+	#writeDefault(name: string, value: string, written: string | null): string | null {
+		const cur = this.getAttribute(name);
+		if (cur !== null && cur !== written) return null;
+		setAttrIfChanged(this, name, value);
+		return value;
 	}
 }
 

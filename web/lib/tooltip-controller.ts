@@ -5,15 +5,16 @@
 // pointer-events: none, role="tooltip", aria-describedby semantics,
 // and positions the content on the same primitives as <neo-popover>.
 //
-// The host carries the config attributes (text, placement,
-// hover-open-delay, hover-close-delay) and the reflected `open` state.
-// A caller reads `open` and sets `text` on the host exactly as on the element.
-// connect()/disconnect() are idempotent and reconnect-safe. A shadow-internal
-// host is re-bound by its owner's connectedCallback (no nested element
-// lifecycle fires for it).
+// The host carries the config attributes (text, placement, hover-open-delay,
+// hover-close-delay) and the reflected `open` state. A caller reads `open` and
+// sets `text` on the host exactly as on the element. connect()/disconnect() are
+// idempotent and reconnect-safe. A shadow-internal host is re-bound by its
+// owner's connectedCallback (no nested element lifecycle fires for it).
 
+import { setAriaRef } from "./aria-ref";
 import { openCommand } from "./command";
-import { type Placement, positionPanel, resolveCssLengthPx, visibleViewportRect } from "./neo-position";
+import { observeManagedAttrs, setAttrIfChanged } from "./neo-morph-resilient";
+import { type Placement, positionPanelResult, resolveCssLengthsPx, visibleViewportRect } from "./neo-position";
 import { setTextInPlace } from "./shadow-utils";
 
 const DEFAULT_OPEN_DELAY_MS = 350;
@@ -23,23 +24,33 @@ let nextId = 0;
 
 export class TooltipController {
 	#host: HTMLElement;
+	// Positioned in place of the content when the content is authored
+	// light DOM, whose style belongs to the server.
+	#panel: HTMLElement | null;
 	#trigger: HTMLElement | null = null;
 	#content: HTMLElement | null = null;
 	#openTimer: number | null = null;
 	#closeTimer: number | null = null;
 	#resizeObserver: ResizeObserver | null = null;
 	#childObserver: MutationObserver | null = null;
+	#ariaObservers: MutationObserver[] = [];
+	// The trigger's aria-describedby ids that aren't the tooltip's, kept ahead
+	// of the tooltip in the chained description.
+	#otherDescIds: string[] = [];
 	#repositionFrame: number | null = null;
-	// Resolved --neo-tooltip-screen-offset in px, cached per open. A moving
-	// trigger (slider thumb) repositions every frame; re-probing the length
-	// each time inserts/measures/removes a throwaway node and forces a reflow.
+	// Resolved --neo-tooltip-screen-offset and --neo-tooltip-max-width in px,
+	// cached per open. A moving trigger (slider thumb) repositions every frame;
+	// re-probing each time inserts/measures/removes a throwaway node and forces a reflow.
 	#edgeOffset: number | null = null;
+	#maxWidth = 0;
 	// Follow-drag baseline. During a drag the caller shifts the bubble by the
 	// trigger's delta from where the last real placement put it, and no layout
 	// is read per frame (see beginFollow / nudge / endFollow).
 	#following = false;
 	#baseLeft = 0;
 	#baseTop = 0;
+	// Set between hold() and release(), while the owner tracks a press.
+	#held = false;
 	#connected = false;
 	#ready = false;
 	// Rendered open state; `open` is its guarded reflection (see command).
@@ -48,8 +59,9 @@ export class TooltipController {
 	// Guards reflective `open` writes so they aren't read back as commands.
 	#reflecting = false;
 
-	constructor(host: HTMLElement) {
+	constructor(host: HTMLElement, panel: HTMLElement | null = null) {
 		this.#host = host;
+		this.#panel = panel;
 	}
 
 	connect(): void {
@@ -57,8 +69,8 @@ export class TooltipController {
 		this.#connected = true;
 		this.#bind();
 		// Re-bind when a morph swaps the trigger/content subtree while the
-		// host stays connected (no disconnect/connect fires). Children are
-		// re-resolved from the DOM each time, never from a cached pointer.
+		// host stays connected (no disconnect/connect fires).
+		// Children are re-resolved from the DOM each time, never from a cached pointer.
 		this.#childObserver = new MutationObserver(this.#onChildrenChanged);
 		this.#childObserver.observe(this.#host, { childList: true, subtree: true });
 		window.addEventListener("resize", this.#repositionOnAmbientChange);
@@ -75,6 +87,7 @@ export class TooltipController {
 		this.#clearTimers();
 		this.#cancelReposition();
 		this.#following = false;
+		this.#held = false;
 		this.#edgeOffset = null;
 		this.#unbind();
 		window.removeEventListener("resize", this.#repositionOnAmbientChange);
@@ -85,8 +98,8 @@ export class TooltipController {
 		this.#childObserver = null;
 	}
 
-	// Resolve trigger + content from the live DOM and wire them. Idempotent,
-	// a no-op once the same nodes are bound. A re-entrant observer call
+	// Resolve trigger + content from the live DOM and wire them.
+	// Idempotent, a no-op once the same nodes are bound. A re-entrant observer call
 	// after the auto-created content span settles is the loop fixpoint.
 	#bind() {
 		const wasReady = this.#ready;
@@ -94,6 +107,8 @@ export class TooltipController {
 		const text = this.#host.getAttribute("text");
 		if (!content && text !== null) {
 			content = document.createElement("span");
+			// biome-ignore lint/plugin/no-id-write: generated content span
+			content.id = `neo-tooltip-${++nextId}`;
 			content.setAttribute("data-neo-tooltip-content", "");
 			content.textContent = text;
 			this.#host.appendChild(content);
@@ -108,15 +123,12 @@ export class TooltipController {
 
 		this.#trigger = trigger;
 		this.#content = content;
-
-		if (!content.id) content.id = `neo-tooltip-${++nextId}`;
-		content.setAttribute("role", "tooltip");
-
-		// Chain aria-describedby; callers may have other descriptions already.
-		const existing = trigger.getAttribute("aria-describedby");
-		const ids = existing ? existing.split(/\s+/).filter(Boolean) : [];
-		if (!ids.includes(content.id)) ids.push(content.id);
-		trigger.setAttribute("aria-describedby", ids.join(" "));
+		this.#otherDescIds = [];
+		this.#syncAria();
+		this.#ariaObservers = [
+			observeManagedAttrs(trigger, ["aria-describedby"], this.#syncAria),
+			observeManagedAttrs(content, ["role"], this.#syncAria),
+		];
 
 		trigger.addEventListener("pointerenter", this.#onPointerEnter);
 		trigger.addEventListener("pointerleave", this.#onPointerLeave);
@@ -137,13 +149,45 @@ export class TooltipController {
 		if (!wasReady) this.#syncOpen();
 	}
 
+	// Chains the tooltip onto the trigger's aria-describedby, after the ids the
+	// trigger already carries. An empty attribute is this method's own
+	// reflection write, not a list from the server.
+	#syncAria = (): void => {
+		const trigger = this.#trigger;
+		const content = this.#content;
+		if (!trigger || !content) return;
+		setAttrIfChanged(content, "role", "tooltip");
+		const raw = trigger.getAttribute("aria-describedby");
+		if (raw !== "") {
+			this.#otherDescIds = (raw ?? "").split(/\s+/).filter((id) => id !== "" && id !== content.id);
+		}
+		// The IDREF list keeps an id whose element doesn't exist yet, as when it
+		// comes later in the page. Reflection takes elements and can't.
+		if (content.id !== "" && content.getRootNode() === trigger.getRootNode()) {
+			setAttrIfChanged(trigger, "aria-describedby", [...this.#otherDescIds, content.id].join(" "));
+			return;
+		}
+		const root = trigger.getRootNode() as Document | ShadowRoot;
+		const others = this.#otherDescIds
+			.map((id) => root.getElementById(id))
+			.filter((el): el is HTMLElement => el !== null);
+		setAriaRef(trigger, "aria-describedby", [...others, content]);
+	};
+
 	#unbind() {
+		for (const o of this.#ariaObservers) o.disconnect();
+		this.#ariaObservers = [];
 		if (this.#trigger) {
 			this.#trigger.removeEventListener("pointerenter", this.#onPointerEnter);
 			this.#trigger.removeEventListener("pointerleave", this.#onPointerLeave);
 			this.#trigger.removeEventListener("focus", this.#onFocus);
 			this.#trigger.removeEventListener("blur", this.#onBlur);
 			this.#trigger.removeEventListener("keydown", this.#onKeyDown);
+			if (this.#otherDescIds.length > 0) {
+				setAttrIfChanged(this.#trigger, "aria-describedby", this.#otherDescIds.join(" "));
+			} else {
+				this.#trigger.removeAttribute("aria-describedby");
+			}
 		}
 		this.#resizeObserver?.disconnect();
 		this.#resizeObserver = null;
@@ -224,6 +268,23 @@ export class TooltipController {
 		this.#reflectClose();
 	}
 
+	// Open for a press the owner tracks with pointer capture (slider thumb).
+	// Capture fires pointerleave on the trigger, which would close the bubble
+	// mid-press, so pointerleave is ignored until release().
+	hold(): void {
+		this.#held = true;
+		this.show();
+	}
+
+	// End a hold() and close. A release off the trigger fires no pointerleave on it,
+	// which would leave the bubble open until blur. On the trigger the
+	// browser fires pointerenter after pointerup, which reopens it.
+	release(): void {
+		if (!this.#held) return;
+		this.#held = false;
+		this.hide();
+	}
+
 	#cancelReposition(): void {
 		if (this.#repositionFrame === null) return;
 		cancelAnimationFrame(this.#repositionFrame);
@@ -277,14 +338,20 @@ export class TooltipController {
 		this.#following = false;
 		this.#position();
 		this.#following = true;
-		this.#baseLeft = parseFloat(this.#content?.style.left || "0") || 0;
-		this.#baseTop = parseFloat(this.#content?.style.top || "0") || 0;
+		const bubble = this.#bubble();
+		this.#baseLeft = parseFloat(bubble?.style.left || "0") || 0;
+		this.#baseTop = parseFloat(bubble?.style.top || "0") || 0;
 	}
 
 	nudge(dx: number, dy: number): void {
-		if (!this.#following || !this.#content) return;
-		this.#content.style.left = `${this.#baseLeft + dx}px`;
-		this.#content.style.top = `${this.#baseTop + dy}px`;
+		const bubble = this.#bubble();
+		if (!this.#following || !bubble) return;
+		bubble.style.left = `${this.#baseLeft + dx}px`;
+		bubble.style.top = `${this.#baseTop + dy}px`;
+	}
+
+	#bubble(): HTMLElement | null {
+		return this.#content && (this.#panel ?? this.#content);
 	}
 
 	endFollow(): void {
@@ -321,7 +388,7 @@ export class TooltipController {
 	};
 
 	#onPointerLeave = (e: PointerEvent) => {
-		if (e.pointerType === "touch") return;
+		if (e.pointerType === "touch" || this.#held) return;
 		this.#clearOpenTimer();
 		if (!this.#openIntent) return;
 		const delay = this.#readDelayAttr("hover-close-delay", DEFAULT_CLOSE_DELAY_MS);
@@ -337,9 +404,9 @@ export class TooltipController {
 
 	// Focus reveals immediately because focus is intentional and a hover
 	// delay would feel unresponsive. Gated on :focus-visible so a tap-induced
-	// focus (which fires after click on iOS Safari and similar) doesn't pop the
-	// tooltip back open after the user activated the trigger; keyboard
-	// focus still satisfies :focus-visible and opens normally.
+	// focus (which fires after click on iOS Safari and similar) doesn't pop
+	// the tooltip back open after the user activated the trigger;
+	// keyboard focus still satisfies :focus-visible and opens normally.
 	#onFocus = () => {
 		this.#clearOpenTimer();
 		this.#clearCloseTimer();
@@ -360,6 +427,8 @@ export class TooltipController {
 	// APG: Escape dismisses a tooltip without moving focus.
 	#onKeyDown = (e: KeyboardEvent) => {
 		if (e.key === "Escape" && this.#openIntent) {
+			// Uncanceled, Escape also leaves macOS full screen in Safari.
+			e.preventDefault();
 			e.stopPropagation();
 			this.hide();
 		}
@@ -370,23 +439,36 @@ export class TooltipController {
 	};
 
 	#position() {
-		if (!this.#trigger || !this.#content) return;
+		const bubble = this.#bubble();
+		if (!this.#trigger || !bubble) return;
 		const placement = (this.#host.getAttribute("placement") as Placement | null) ?? "bottom-start";
-		this.#edgeOffset ??= resolveCssLengthPx(this.#host, "--neo-tooltip-screen-offset");
+		if (this.#edgeOffset === null) {
+			const [edgeOffset, maxWidth] = resolveCssLengthsPx(this.#host, [
+				{ varName: "--neo-tooltip-screen-offset", fallback: "8px" },
+				{ varName: "--neo-tooltip-max-width", fallback: "18rem" },
+			]) as number[];
+			this.#edgeOffset = edgeOffset;
+			this.#maxWidth = maxWidth;
+		}
 		const edgeOffset = this.#edgeOffset;
 		const triggerGap = 6;
 
-		this.#content.style.maxWidth = "";
-		this.#content.style.maxHeight = "";
-		if (
-			!intersectsVisualViewport(this.#trigger) ||
-			!fitsPrimarySlot(this.#trigger, this.#content, placement, edgeOffset, triggerGap)
-		) {
-			this.#content.style.visibility = "hidden";
+		bubble.style.maxWidth = "";
+		bubble.style.maxHeight = "";
+		if (!intersectsVisualViewport(this.#trigger)) {
+			bubble.style.visibility = "hidden";
 			return;
 		}
-		this.#content.style.visibility = "";
-		positionPanel(this.#trigger, this.#content, placement, edgeOffset, triggerGap);
+		// Flip to the opposite side when the bubble doesn't fit, and hide it when
+		// neither side fits. Clamped into the window, it would cover the trigger.
+		// The inline max-width placement writes overrides the CSS cap, which
+		// therefore goes in as `maxWidth`.
+		const fit = positionPanelResult(this.#trigger, bubble, placement, edgeOffset, triggerGap, {
+			minFitHeight: "content",
+			minFitWidth: "content",
+			maxWidth: this.#maxWidth > 0 ? this.#maxWidth : undefined,
+		});
+		bubble.style.visibility = fit.fitsFitSize ? "" : "hidden";
 	}
 
 	#readDelayAttr(name: string, fallback: number): number {
@@ -422,31 +504,4 @@ function intersectsVisualViewport(el: HTMLElement): boolean {
 
 	const view = visibleViewportRect();
 	return rect.right > view.left && rect.left < view.right && rect.bottom > view.top && rect.top < view.bottom;
-}
-
-function fitsPrimarySlot(
-	trigger: HTMLElement,
-	content: HTMLElement,
-	placement: Placement,
-	edgeOffset: number,
-	triggerGap: number,
-): boolean {
-	const viewport = visibleViewportRect();
-	const triggerRect = trigger.getBoundingClientRect();
-	const contentRect = content.getBoundingClientRect();
-	const left = triggerRect.left - viewport.left;
-	const right = triggerRect.right - viewport.left;
-	const top = triggerRect.top - viewport.top;
-	const bottom = triggerRect.bottom - viewport.top;
-
-	if (placement.startsWith("top")) {
-		return top - triggerGap - contentRect.height >= edgeOffset;
-	}
-	if (placement.startsWith("bottom")) {
-		return viewport.height - bottom - triggerGap - contentRect.height >= edgeOffset;
-	}
-	if (placement.startsWith("left")) {
-		return left - triggerGap - contentRect.width >= edgeOffset;
-	}
-	return viewport.width - right - triggerGap - contentRect.width >= edgeOffset;
 }

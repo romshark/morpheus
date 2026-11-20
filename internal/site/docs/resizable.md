@@ -1,6 +1,6 @@
 # Resizable
 
-Component `<neo-resizable>` is a wrapper that turns any content into a draggable box. The [`handles`](#attributes-handles) attribute picks which edges and corners get a drag handle; clamp the result with `min-/max-width` and `min-/max-height`, and snap to a pixel grid with [`step-horizontal`](#attributes-step-horizontal) and [`step-vertical`](#attributes-step-vertical). After the first drag the host owns size as inline styles. Double-click or double-tap a handle to reset its axis back to the natural size.
+Component `<neo-resizable>` is a wrapper that turns any content into a draggable box. The [`handles`](#attributes-handles) attribute picks which edges and corners get a drag handle; clamp the result with `min-/max-width` and `min-/max-height`, and snap to a pixel grid with [`step-horizontal`](#attributes-step-horizontal) and [`step-vertical`](#attributes-step-vertical). The dragged size outlasts a morph and overrides page CSS on the host. Double-click or double-tap a handle to reset its axis back to the natural size.
 
 ```playground
 - resizable_state_default: Default
@@ -20,10 +20,10 @@ Component `<neo-resizable>` is a wrapper that turns any content into a draggable
 | Name | Type | Default | Description |
 | --- | --- | --- | --- |
 | `handles` | `string`, observed |  | Space-separated list: `top`, `bottom`, `left`, `right`, `top-left`, `top-right`, `bottom-left`, `bottom-right`. |
-| `min-width` | `string`, observed |  | CSS length, mirrored to the inline `min-width` style. Omit for no minimum (`none` is invalid for `min-*`). |
-| `max-width` | `string`, observed |  | CSS length or `none` (no maximum), mirrored to the inline `max-width` style. |
-| `min-height` | `string`, observed |  | CSS length, mirrored to the inline `min-height` style. Omit for no minimum (`none` is invalid for `min-*`). |
-| `max-height` | `string`, observed |  | CSS length or `none` (no maximum), mirrored to the inline `max-height` style. |
+| `min-width` | `string`, observed |  | CSS length for the host's `min-width`, which page CSS can override. Omit for no minimum (`none` is invalid for `min-*`). |
+| `max-width` | `string`, observed |  | CSS length or `none` (no maximum) for the host's `max-width`, which page CSS can override. |
+| `min-height` | `string`, observed |  | CSS length for the host's `min-height`, which page CSS can override. Omit for no minimum (`none` is invalid for `min-*`). |
+| `max-height` | `string`, observed |  | CSS length or `none` (no maximum) for the host's `max-height`, which page CSS can override. |
 | `width` | `string`, observed |  | Initial width. |
 | `height` | `string`, observed |  | Initial height. |
 | `step-horizontal` | `number` |  | Snap width to a multiple of this many pixels while dragging. Omit for free resize. |

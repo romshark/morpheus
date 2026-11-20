@@ -1,6 +1,7 @@
 import { boolAttr, openCommand } from "../command";
 import { isRTL, logicalArrow } from "../direction";
 import { labelAttr } from "../label-name";
+import { isMenuLengthAttr, keyMenuLengths } from "../menu-length-sheet";
 import { type Placement, positionPanel, resolveCssLengthPx, resolveCssLengthPxOrContent } from "../neo-position";
 import { eventEnters, scopingBoundary } from "../shadow-utils";
 
@@ -62,7 +63,7 @@ export class NeoSubmenu extends HTMLElement {
 		this.#hostObserver = new MutationObserver(() => this.#checkForReset());
 		this.#hostObserver.observe(this, { childList: true });
 
-		this.#syncCssBackedAttrs();
+		keyMenuLengths(this);
 		this.#ready = true;
 	}
 
@@ -113,6 +114,7 @@ export class NeoSubmenu extends HTMLElement {
 			panel.setAttribute("data-neo-submenu-panel", "");
 			panel.setAttribute("role", "menu");
 			panel.setAttribute("tabindex", "-1");
+			// biome-ignore lint/plugin/no-id-write: generated panel
 			panel.id = `neo-submenu-${++nextId}`;
 
 			// Back row: hidden by CSS in cascade mode, shown in push mode.
@@ -316,16 +318,8 @@ export class NeoSubmenu extends HTMLElement {
 			this.#syncBackLabel();
 		} else if (name === "disabled") {
 			this.#syncDisabled();
-		} else if (
-			name === "placement" ||
-			name === "screen-offset" ||
-			name === "clamp-placement" ||
-			name === "min-fit-height" ||
-			name === "min-fit-width"
-		) {
-			if (name === "screen-offset" || name === "min-fit-height" || name === "min-fit-width") {
-				this.#syncCssBackedAttr(name, value);
-			}
+		} else if (name === "placement" || name === "clamp-placement" || isMenuLengthAttr(name)) {
+			if (isMenuLengthAttr(name)) keyMenuLengths(this);
 			if (this.hasAttribute("open")) this.#position();
 		}
 	}
@@ -361,18 +355,6 @@ export class NeoSubmenu extends HTMLElement {
 		}
 	}
 
-	#syncCssBackedAttrs(): void {
-		for (const attr of CSS_BACKED_MENU_ATTRS) {
-			this.#syncCssBackedAttr(attr, this.getAttribute(attr));
-		}
-	}
-
-	#syncCssBackedAttr(attr: CssBackedMenuAttr, value: string | null): void {
-		const cssVar = menuCssVar(attr);
-		if (value === null) this.style.removeProperty(cssVar);
-		else this.style.setProperty(cssVar, value);
-	}
-
 	#refreshItems(): void {
 		if (!this.#panel) return;
 		this.#items = Array.from(this.#panel.querySelectorAll<HTMLElement>(ITEM_SELECTOR))
@@ -384,12 +366,10 @@ export class NeoSubmenu extends HTMLElement {
 		if (this.#backRow) this.#backRow.tabIndex = -1;
 	}
 
-	/** Items navigable by arrow keys. Push mode includes the back row in
-	 *  the cycle; cascade mode excludes it (hidden by CSS). */
+	/* Items navigable by arrow keys. Push mode includes the back row in
+	 * the cycle; cascade mode excludes it (hidden by CSS). */
 	#currentItems(): HTMLElement[] {
-		const root = this.#parentMenu();
-		const push = root?.dataset.modeEffective === "push";
-		return push && this.#backRow ? [this.#backRow, ...this.#items] : this.#items;
+		return this.#isPush() && this.#backRow ? [this.#backRow, ...this.#items] : this.#items;
 	}
 
 	#focusFirst(): void {
@@ -463,8 +443,7 @@ export class NeoSubmenu extends HTMLElement {
 	#onTriggerHover = () => {
 		if (boolAttr(this, "disabled", false)) return;
 		// In push mode hover would replace the panel. Open via click/ArrowRight only.
-		const root = this.#parentMenu();
-		if (root?.dataset.modeEffective === "push") return;
+		if (this.#isPush()) return;
 		this.show();
 	};
 
@@ -528,7 +507,7 @@ export class NeoSubmenu extends HTMLElement {
 		// The back row is a focus target too (push mode) and highlights on
 		// hover via the same focus-driven rule as the menu rows.
 		if (this.#items.includes(item)) {
-			if (this.#parentMenu()?.dataset.modeEffective === "push") {
+			if (this.#isPush()) {
 				// Push opens nested submenus on click; skip an already-open one
 				// so its pushed panel keeps its own hover focus.
 				if (item.tagName === "NEO-SUBMENU" && item.hasAttribute("open")) return;
@@ -570,8 +549,7 @@ export class NeoSubmenu extends HTMLElement {
 		if (!this.#triggerRow || !this.#panel) return;
 		// In push mode CSS overlays the parent panel.
 		// Skip inline top/left so CSS applies without an !important fight.
-		const root = this.#parentMenu();
-		if (root?.dataset.modeEffective === "push") {
+		if (this.#isPush()) {
 			this.#panel.style.removeProperty("top");
 			this.#panel.style.removeProperty("left");
 			this.#panel.style.removeProperty("z-index");
@@ -581,9 +559,8 @@ export class NeoSubmenu extends HTMLElement {
 		// The default opens toward the inline end, which is left right to left.
 		const placement =
 			(this.getAttribute("placement") as Placement | null) ?? (isRTL(this) ? "left-start" : "right-start");
-		const parent = this.#parentMenu();
-		const clamp =
-			boolAttr(this, "clamp-placement", false) || (parent ? boolAttr(parent, "clamp-placement", false) : false);
+		const src = this.#rootMenu()?.configSource?.("clamp-placement");
+		const clamp = boolAttr(this, "clamp-placement", false) || (src ? boolAttr(src, "clamp-placement", false) : false);
 		// Inherits the ancestor <neo-menu>'s --neo-menu-min-fit-* through the cascade;
 		// submenus typically share the root's policy without setting their own.
 		const minFitHeight = resolveCssLengthPxOrContent(this, "--neo-menu-min-fit-height", "content");
@@ -596,8 +573,12 @@ export class NeoSubmenu extends HTMLElement {
 		});
 	}
 
-	#parentMenu(): HTMLElement | null {
-		return this.closest("neo-menu, neo-contextmenu");
+	#rootMenu(): NeoMenuLike | null {
+		return this.closest<NeoMenuLike>("neo-menu");
+	}
+
+	#isPush(): boolean {
+		return this.#rootMenu()?.pushMode === true;
 	}
 
 	#cascadeDepth(): number {
@@ -623,13 +604,10 @@ interface NeoSubmenuLike extends HTMLElement {
 	hide?: () => void;
 }
 
-const CSS_BACKED_MENU_ATTRS = ["screen-offset", "min-fit-height", "min-fit-width"] as const;
-
-type CssBackedMenuAttr = (typeof CSS_BACKED_MENU_ATTRS)[number];
-
-function menuCssVar(attr: CssBackedMenuAttr) {
-	if (attr === "screen-offset") return "--neo-menu-screen-offset";
-	return attr === "min-fit-height" ? "--neo-menu-min-fit-height" : "--neo-menu-min-fit-width";
+// The <neo-menu> members read here, which keeps the import graph one-directional.
+interface NeoMenuLike extends HTMLElement {
+	pushMode?: boolean;
+	configSource?: (name: string) => Element;
 }
 
 if (!customElements.get("neo-submenu")) {

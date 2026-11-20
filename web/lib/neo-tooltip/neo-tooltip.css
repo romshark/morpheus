@@ -23,9 +23,7 @@ neo-tooltip {
 }
 
 neo-tooltip > [data-neo-tooltip-content] {
-	position: fixed;
-	top: 0;
-	left: 0;
+	display: block;
 	pointer-events: none;
 	background: var(--neo-tooltip-bg);
 	color: var(--neo-tooltip-color);
@@ -35,13 +33,20 @@ neo-tooltip > [data-neo-tooltip-content] {
 	line-height: 1.35;
 	max-width: min(var(--neo-tooltip-max-width), calc(100vw - 2 * var(--neo-tooltip-screen-offset)));
 	box-shadow: var(--neo-tooltip-shadow);
-	z-index: var(--neo-tooltip-z-index);
 	opacity: 1;
 	transform: translateY(0);
 	transition:
 		opacity var(--neo-tooltip-enter-duration) var(--neo-easing, ease-out),
 		transform var(--neo-tooltip-enter-duration) var(--neo-easing, ease-out),
 		display var(--neo-tooltip-enter-duration) allow-discrete;
+}
+
+/* The upgraded host positions its shadow panel, which holds the content. */
+neo-tooltip:not(:defined) > [data-neo-tooltip-content] {
+	position: fixed;
+	top: 0;
+	left: 0;
+	z-index: var(--neo-tooltip-z-index);
 }
 
 neo-tooltip:not([open]:where(:not([open="false"]))) > [data-neo-tooltip-content] {

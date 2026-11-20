@@ -444,6 +444,7 @@ class SitePlayground extends HTMLElement {
 
 	#createStateItem(state: PlaygroundState): HTMLElement {
 		const item = document.createElement("div");
+		// biome-ignore lint/plugin/no-id-write: generated item
 		item.id = state.id;
 		item.className = "neo-sortable-item component-playground-state";
 		item.setAttribute("title", `Select ${state.label}`);

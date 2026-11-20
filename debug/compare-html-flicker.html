@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>neo-compare: HTML layers flicker in Chrome</title>
+	<link rel="stylesheet" href="../min/morpheus.css">
+	<link rel="stylesheet" href="../min/theme-default.css">
+	<!-- A classic deferred script, unlike a module, also loads from file://. -->
+	<script defer src="../min/bundle.js"></script>
+	<style>
+		body {
+			max-width: 42rem;
+			margin: 2rem auto;
+			padding: 0 1rem;
+			font: 16px/1.5 system-ui, sans-serif;
+		}
+
+		.row {
+			display: flex;
+			flex-direction: column;
+			gap: 0.5rem;
+			margin: 1rem 0;
+		}
+
+		/* The doc page's "HTML layers" example, unchanged. */
+		.compare-redesign-bar {
+			display: flex;
+			gap: 0.5rem;
+			padding: 0.75rem 1.5rem;
+		}
+
+		.compare-redesign-search {
+			flex: 1;
+			min-width: 0;
+			color: inherit;
+			font: inherit;
+		}
+
+		.compare-redesign-button {
+			color: inherit;
+			font: inherit;
+		}
+
+		.compare-redesign-order {
+			padding: 1.5rem;
+		}
+
+		.compare-redesign-head,
+		.compare-redesign-items li,
+		.compare-redesign-total {
+			display: flex;
+			justify-content: space-between;
+			align-items: baseline;
+			gap: 1rem;
+		}
+
+		.compare-redesign-title,
+		.compare-redesign-total {
+			margin: 0;
+		}
+
+		.compare-redesign-items {
+			margin: 1rem 0;
+			padding: 0;
+			list-style: none;
+		}
+
+		.compare-redesign-items li {
+			padding: 0.5rem 0;
+		}
+
+		.compare-redesign-old {
+			background: #fdf6e3;
+			color: #3b3024;
+			font-family: Georgia, "Times New Roman", serif;
+		}
+
+		.compare-redesign-old .compare-redesign-bar {
+			border-bottom: 1px solid #b8a88a;
+			background: #e8dfc8;
+		}
+
+		.compare-redesign-old .compare-redesign-search {
+			padding: 0.125rem 0.375rem;
+			border: 2px inset #d4c8a8;
+			background: #fff;
+		}
+
+		.compare-redesign-old .compare-redesign-button {
+			padding: 0.125rem 0.75rem;
+			border: 2px outset #d4c8a8;
+			background: #efe6cf;
+		}
+
+		.compare-redesign-old .compare-redesign-title {
+			color: #1d4ed8;
+			font-size: 1.25rem;
+			text-decoration: underline;
+		}
+
+		.compare-redesign-old .compare-redesign-status {
+			padding: 0 0.375rem;
+			border: 1px solid currentColor;
+			font-size: 0.75rem;
+			letter-spacing: 0.05em;
+			text-transform: uppercase;
+		}
+
+		.compare-redesign-old .compare-redesign-items li {
+			border-bottom: 1px dotted #b8a88a;
+		}
+
+		.compare-redesign-old .compare-redesign-total {
+			font-style: italic;
+		}
+
+		.compare-redesign-new {
+			background: #0f172a;
+			color: #e2e8f0;
+			font-family: ui-sans-serif, system-ui, sans-serif;
+		}
+
+		.compare-redesign-new .compare-redesign-bar {
+			border-bottom: 1px solid #334155;
+		}
+
+		.compare-redesign-new .compare-redesign-search {
+			padding: 0.375rem 0.75rem;
+			border: 1px solid #334155;
+			border-radius: 0.5rem;
+			background: #1e293b;
+		}
+
+		.compare-redesign-new .compare-redesign-button {
+			padding: 0.375rem 1rem;
+			border: 0;
+			border-radius: 0.5rem;
+			background: #6366f1;
+			color: #fff;
+			font-weight: 500;
+		}
+
+		.compare-redesign-new .compare-redesign-title {
+			font-size: 1.125rem;
+			font-weight: 600;
+		}
+
+		.compare-redesign-new .compare-redesign-status {
+			padding: 0.125rem 0.625rem;
+			border-radius: 999px;
+			background: #14532d;
+			color: #86efac;
+			font-size: 0.75rem;
+			font-weight: 500;
+		}
+
+		.compare-redesign-new .compare-redesign-items li {
+			color: #94a3b8;
+			font-variant-numeric: tabular-nums;
+		}
+
+		.compare-redesign-new .compare-redesign-total {
+			padding-top: 0.75rem;
+			border-top: 1px solid #334155;
+			font-weight: 600;
+		}
+	</style>
+	<!-- Switched on by the checkboxes below; media="not all" keeps them off. -->
+	<style id="no-transitions" media="not all">
+		neo-compare::part(before),
+		neo-compare::part(after),
+		neo-compare::part(divider) {
+			transition: none !important;
+		}
+	</style>
+	<style id="own-layers" media="not all">
+		neo-compare::part(before),
+		neo-compare::part(after) {
+			will-change: transform;
+		}
+	</style>
+</head>
+<body>
+	<h1>neo-compare: HTML layers flicker in Chrome</h1>
+	<p>
+		The doc page's "HTML layers" example. Headless Chrome draws every frame of a click and a
+		drag correctly, which points at the GPU compositing a regular Chrome window uses.
+	</p>
+	<ol>
+		<li>Click around the compare and drag the divider until you see the flicker.</li>
+		<li>Switch on 1 checkbox at a time and repeat. The one that stops it names the cause.</li>
+	</ol>
+
+	<div class="row">
+		<label>
+			<input type="checkbox" data-style="no-transitions">
+			No transitions on the layers and the divider
+		</label>
+		<label>
+			<input type="checkbox" data-style="own-layers">
+			Layers always on their own GPU layer (<code>will-change: transform</code>)
+		</label>
+	</div>
+
+	<neo-compare style="width: 24rem">
+		<div slot="before" class="compare-redesign-old" inert>
+			<div class="compare-redesign-bar">
+				<input type="search" class="compare-redesign-search" placeholder="Search orders" aria-label="Search orders">
+				<button type="button" class="compare-redesign-button">Search</button>
+			</div>
+			<div class="compare-redesign-order">
+				<div class="compare-redesign-head">
+					<p class="compare-redesign-title">Order #1042</p>
+					<span class="compare-redesign-status">Shipped</span>
+				</div>
+				<ul class="compare-redesign-items">
+					<li><span>Linen shirt</span><span>$48.00</span></li>
+					<li><span>Canvas tote</span><span>$22.00</span></li>
+					<li><span>Wool socks, 2 pairs</span><span>$18.00</span></li>
+				</ul>
+				<p class="compare-redesign-total"><span>Total</span><span>$88.00</span></p>
+			</div>
+		</div>
+		<div slot="after" class="compare-redesign-new" inert>
+			<div class="compare-redesign-bar">
+				<input type="search" class="compare-redesign-search" placeholder="Search orders" aria-label="Search orders">
+				<button type="button" class="compare-redesign-button">Search</button>
+			</div>
+			<div class="compare-redesign-order">
+				<div class="compare-redesign-head">
+					<p class="compare-redesign-title">Order #1042</p>
+					<span class="compare-redesign-status">Shipped</span>
+				</div>
+				<ul class="compare-redesign-items">
+					<li><span>Linen shirt</span><span>$48.00</span></li>
+					<li><span>Canvas tote</span><span>$22.00</span></li>
+					<li><span>Wool socks, 2 pairs</span><span>$18.00</span></li>
+				</ul>
+				<p class="compare-redesign-total"><span>Total</span><span>$88.00</span></p>
+			</div>
+		</div>
+	</neo-compare>
+
+	<script>
+		for (const box of document.querySelectorAll("input[data-style]")) {
+			box.addEventListener("change", () => {
+				document.getElementById(box.dataset.style).media = box.checked ? "all" : "not all";
+			});
+		}
+	</script>
+</body>
+</html>

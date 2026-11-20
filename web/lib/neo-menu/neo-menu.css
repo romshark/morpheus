@@ -178,15 +178,12 @@ neo-menuitem[disabled]:not([disabled="false"]),
 }
 
 /* Desktop/laptop contexts should show shortcuts immediately. Hide them
- * only for coarse touch/no-hover devices, then reveal again if a real
- * keydown is observed (e.g. tablet with a hardware keyboard). */
+ * only for coarse touch/no-hover devices. <neo-menuitem> adopts a sheet
+ * that shows them again once a real keydown is observed
+ * (e.g. a tablet with a hardware keyboard). */
 @media (hover: none) and (pointer: coarse) {
 	[data-neo-menuitem-shortcut] {
 		display: none;
-	}
-
-	[data-neo-has-keyboard] [data-neo-menuitem-shortcut] {
-		display: revert;
 	}
 }
 
@@ -205,8 +202,8 @@ neo-menuitem[disabled]:not([disabled="false"]),
 	background: var(--neo-menu-separator-color);
 }
 
-/* The submenu's synthesized "Back" row. Hidden in cascade mode (the
- * default); it is only needed in push mode where the submenu replaces
+/* The submenu's synthesized "Back" row. Hidden in cascade mode (the default);
+ * it is only needed in push mode where the submenu replaces
  * the parent panel and the user needs a control to go back up. */
 [data-neo-submenu-back] {
 	display: none;
@@ -226,12 +223,12 @@ neo-menuitem[disabled]:not([disabled="false"]),
 }
 
 /* Push mode: submenus replace the parent's visible rows rather than
- * fly out. Submenu panels flow inline inside their parent panel (no
- * fixed/absolute positioning, no styling of their own). The root
- * panel's natural height then grows or shrinks to match whichever level
- * is currently visible. `:has()` hides every sibling of an open submenu
- * so its panel becomes the visible content of the level. Cascade mode
- * (the default) is untouched.
+ * fly out. Submenu panels flow inline inside their parent panel
+ * (no fixed/absolute positioning, no styling of their own).
+ * The root panel's natural height then grows or shrinks to match whichever
+ * level is currently visible. `:has()` hides every sibling of an open submenu
+ * so its panel becomes the visible content of the level.
+ * Cascade mode (the default) is untouched.
  *
  * Transitions are disabled in push mode so navigation between levels
  * is instantaneous; the 120ms opacity/display fade leaves the
@@ -239,13 +236,11 @@ neo-menuitem[disabled]:not([disabled="false"]),
  * un-hide (because `:has(> neo-submenu[open])` no longer matches),
  * which paints both layers for the duration of the fade. Snap-close
  * is also closer to native mobile behaviour. */
-neo-menu[data-mode-effective="push"] > [data-neo-menu-panel],
-neo-contextmenu[data-mode-effective="push"] > [data-neo-contextmenu-panel],
-neo-menu[data-mode-effective="push"] [data-neo-submenu-panel] {
+neo-menu:state(push) > [data-neo-menu-panel],
+neo-menu:state(push) [data-neo-submenu-panel] {
 	transition: none;
 }
-neo-menu[data-mode-effective="push"] [data-neo-submenu-panel],
-neo-contextmenu[data-mode-effective="push"] [data-neo-submenu-panel] {
+neo-menu:state(push) [data-neo-submenu-panel] {
 	position: static;
 	inset: auto;
 	min-width: 0;
@@ -259,23 +254,15 @@ neo-contextmenu[data-mode-effective="push"] [data-neo-submenu-panel] {
 	z-index: auto;
 }
 
-neo-menu[data-mode-effective="push"] [data-neo-menu-panel]:has(> neo-submenu[open]) > :not(neo-submenu[open]),
-neo-contextmenu[data-mode-effective="push"]
-	[data-neo-contextmenu-panel]:has(> neo-submenu[open])
-	> :not(neo-submenu[open]),
-neo-menu[data-mode-effective="push"] [data-neo-submenu-panel]:has(> neo-submenu[open]) > :not(neo-submenu[open]),
-neo-contextmenu[data-mode-effective="push"]
-	[data-neo-submenu-panel]:has(> neo-submenu[open])
-	> :not(neo-submenu[open]) {
+neo-menu:state(push) [data-neo-menu-panel]:has(> neo-submenu[open]) > :not(neo-submenu[open]),
+neo-menu:state(push) [data-neo-submenu-panel]:has(> neo-submenu[open]) > :not(neo-submenu[open]) {
 	display: none;
 }
 
-neo-menu[data-mode-effective="push"] neo-submenu[open] > [data-neo-submenu-trigger],
-neo-contextmenu[data-mode-effective="push"] neo-submenu[open] > [data-neo-submenu-trigger] {
+neo-menu:state(push) neo-submenu[open] > [data-neo-submenu-trigger] {
 	display: none;
 }
 
-neo-menu[data-mode-effective="push"] [data-neo-submenu-back],
-neo-contextmenu[data-mode-effective="push"] [data-neo-submenu-back] {
+neo-menu:state(push) [data-neo-submenu-back] {
 	display: flex;
 }

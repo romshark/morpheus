@@ -24,10 +24,10 @@ Component `<neo-slider>` is a labelled numeric slider with a contenteditable val
 
 | Name | Type | Default | Description |
 | --- | --- | --- | --- |
-| `value` | `number`, reflected, observed |  | Current value. Clamped and snapped to `step`. |
+| `value` | `number`, reflected, observed |  | Current value. Clamped and snapped to [`step`](#attributes-step) or a mark. |
 | `min` | `number`, observed | `0` | Lower bound. |
 | `max` | `number`, observed | `100` | Upper bound. |
-| `step` | `number`, observed | `1` | Increment between snap points. |
+| `step` | `number`, observed | `1` | Increment between snap points; each mark adds one unless [`static-marks`](#attributes-static-marks) is set. |
 | `label` | `string`, observed |  | Plain-text caption. |
 | `unit` | `string`, observed |  | Plain-text suffix on the value display. |
 | `hide-value` | `boolean`, observed | `false` | Suppress the editable value display. |
@@ -43,6 +43,7 @@ Component `<neo-slider>` is a labelled numeric slider with a contenteditable val
 | Name | Description |
 | --- | --- |
 | `:state(dragging)` | Set while a pointer drag is in flight; suppresses the `easing` transition so the thumb tracks the cursor. |
+| `:state(pointer-focus)` | Set from a pointer press until the next key press or until focus leaves; hides the thumb's focus ring. |
 
 ### Slots
 

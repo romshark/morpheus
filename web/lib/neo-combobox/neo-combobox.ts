@@ -7,7 +7,9 @@ import { labelAttr } from "../label-name";
 import {
 	cloneAsyncPlaceholder,
 	cloneTemplateSource,
+	isOwnTabindexWrite,
 	NeoListbox,
+	optionValue,
 	POPOVER_ATTRS,
 	setHiddenIfChanged,
 } from "../neo-listbox";
@@ -46,10 +48,10 @@ const COMBOBOX_SHADOW_TEMPLATE = document.createElement("template");
 // - [data-neo-combobox-trigger-slot]: rich trigger face. When the kit (or an
 //   author slot="trigger" child) fills the trigger with markup, swap the text
 //   label for the slot and let the trigger grow to fit a multi-line card.
-// - :host([data-neo-trigger-rich]): rich trigger sizes to the cloned card
+// - :host(:state(trigger-rich)): rich trigger sizes to the cloned card
 //   (host auto, trigger auto); floor the host at the single-line control
 //   height.
-// - :host([data-neo-trigger-rich]) [data-neo-combobox-trigger]: floor the
+// - :host(:state(trigger-rich)) [data-neo-combobox-trigger]: floor the
 //   visible button too, not just the host. With height:auto a single short row
 //   (1 chip / 1-line face) would leave the bordered trigger shorter than a
 //   single-select trigger. min-height keeps them equal; taller content still
@@ -150,14 +152,14 @@ COMBOBOX_SHADOW_TEMPLATE.innerHTML = `
     margin-block: -0.15em;
   }
   [data-neo-combobox-trigger-slot] { display: none; }
-  :host([data-neo-trigger-rich]) [data-neo-combobox-label] { display: none; }
-  :host([data-neo-trigger-rich]) [data-neo-combobox-trigger-slot] {
+  :host(:state(trigger-rich)) [data-neo-combobox-label] { display: none; }
+  :host(:state(trigger-rich)) [data-neo-combobox-trigger-slot] {
     display: block;
     flex: 1 1 auto;
     min-width: 0;
   }
-  :host([data-neo-trigger-rich]) { min-height: var(--neo-control-height); }
-  :host([data-neo-trigger-rich]) [data-neo-combobox-trigger] { height: auto; min-height: var(--neo-control-height); }
+  :host(:state(trigger-rich)) { min-height: var(--neo-control-height); }
+  :host(:state(trigger-rich)) [data-neo-combobox-trigger] { height: auto; min-height: var(--neo-control-height); }
   :host([multiple]:not([multiple="false"])) [data-neo-combobox-trigger] { padding-block: 0.15rem; }
   [data-neo-combobox-caret] {
     display: inline-flex;
@@ -786,6 +788,7 @@ export class NeoCombobox extends NeoListbox {
 		this.#input.setAttribute("aria-label", labelAttr(this, "search-label", label ? `${label}: search` : "Search"));
 		if (this.id) {
 			const listID = `${this.id}-list`;
+			// biome-ignore lint/plugin/no-id-write: listEl is in the shadow root
 			this.listEl.id = listID;
 			this.trigger.setAttribute("aria-controls", listID);
 		}
@@ -866,7 +869,7 @@ export class NeoCombobox extends NeoListbox {
 			this.#setTriggerChips(values);
 			return;
 		}
-		const optEl = this.optionEls().find((el) => (el.getAttribute("data-neo-value") ?? "") === values[0]) ?? null;
+		const optEl = this.optionEls().find((el) => optionValue(el) === values[0]) ?? null;
 		this.triggerFace.fromSource(optEl, values[0]);
 	}
 
@@ -882,7 +885,7 @@ export class NeoCombobox extends NeoListbox {
 		// for duplicate values, matching find().
 		const optByValue = new Map<string, HTMLElement>();
 		for (const el of this.optionEls()) {
-			const v = el.getAttribute("data-neo-value") ?? "";
+			const v = optionValue(el);
 			if (!optByValue.has(v)) optByValue.set(v, el);
 		}
 		const chips = values.map((v) => {
@@ -921,7 +924,7 @@ export class NeoCombobox extends NeoListbox {
 		const opt = (e.target as Element | null)?.closest<HTMLElement>("neo-option");
 		if (!opt || !this.contains(opt)) return;
 		this.#lastFocusedKind = "option";
-		this.lastFocusedOptionValue = opt.getAttribute("data-neo-value");
+		this.lastFocusedOptionValue = optionValue(opt);
 	};
 
 	#onOptionsScroll = () => {
@@ -939,7 +942,7 @@ export class NeoCombobox extends NeoListbox {
 
 	#activate(el: HTMLElement) {
 		if (el.getAttribute("aria-disabled") === "true") return;
-		const value = el.getAttribute("data-neo-value") ?? "";
+		const value = optionValue(el);
 		const current = this.selectedValues;
 		const next = this.isMultiple()
 			? current.includes(value)
@@ -1043,7 +1046,7 @@ export class NeoCombobox extends NeoListbox {
 			return;
 		}
 		const selected = new Set(this.selectedValues);
-		const target = visible.find((o) => selected.has(o.getAttribute("data-neo-value") ?? "")) ?? visible[0];
+		const target = visible.find((o) => selected.has(optionValue(o))) ?? visible[0];
 		this.#focusOption(target, { center: true });
 	}
 
@@ -1054,7 +1057,7 @@ export class NeoCombobox extends NeoListbox {
 			opt.tabIndex = opt === el ? 0 : -1;
 		}
 		this.#lastFocusedKind = "option";
-		this.lastFocusedOptionValue = el.getAttribute("data-neo-value");
+		this.lastFocusedOptionValue = optionValue(el);
 		el.focus({ preventScroll: !!opts.preventScroll || !!opts.center });
 		if (opts.center) this.centerOptionInScroller(this.#optionsEl, el);
 		else if (!opts.preventScroll) el.scrollIntoView({ block: "nearest" });
@@ -1096,9 +1099,7 @@ export class NeoCombobox extends NeoListbox {
 			return;
 		}
 		if (this.#lastFocusedKind === "option" && this.lastFocusedOptionValue !== null) {
-			const restored = this.#focusableOptions().find(
-				(opt) => opt.getAttribute("data-neo-value") === this.lastFocusedOptionValue,
-			);
+			const restored = this.#focusableOptions().find((opt) => optionValue(opt) === this.lastFocusedOptionValue);
 			if (restored) {
 				this.#focusOption(restored, { preventScroll: true });
 				return;
@@ -1370,6 +1371,7 @@ export class NeoCombobox extends NeoListbox {
 				continue;
 			}
 			if (r.type === "attributes") {
+				if (isOwnTabindexWrite(r)) continue;
 				const el = r.target as Element;
 				if (el === source || el === this) return true;
 				if (el.matches("neo-option, neo-optgroup")) return true;

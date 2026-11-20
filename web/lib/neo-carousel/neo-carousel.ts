@@ -1,14 +1,13 @@
-// Slides and nav buttons are light DOM so Datastar morphs reach them; the
-// dot-pagination markup lives in the host's shadow root. Scrolling is
+// Slides and nav buttons are light DOM so Datastar morphs reach them;
+// the dot-pagination markup lives in the host's shadow root. Scrolling is
 // native (overflow plus scroll-snap); JS only computes the next snap
 // target on prev/next/keyboard/autoplay and dispatches change events.
 
 import { boolAttr, warnBadAxis } from "../command";
 import { isRTL, logicalArrow } from "../direction";
+import { attachHostStyle, type HostStyle } from "../host-style";
 import { setState } from "../internal-state";
 import { labelAttr } from "../label-name";
-
-let nextCarouselId = 0;
 
 // Shadow template for <neo-carousel>. Holds dot markup + autoplay sweep
 // + the slot for slides/track/buttons. Pages override layout via
@@ -18,21 +17,21 @@ let nextCarouselId = 0;
 // - :host flex column (not plain block) lets a CSS `order` on the dots
 //   container place it visually below the slotted content even though DOM
 //   order puts it first. DOM-first is needed so Tab reaches the dots
-//   tablist before any slotted controls (e.g. a data-neo-carousel-pause
-//   button). Pages overriding display (e.g. to grid) keep their own
-//   layout; grid-area on ::part(dots) takes precedence.
+//   tablist before any slotted controls (e.g. a data-neo-carousel-pause button).
+//   Pages overriding display (e.g. to grid) keep their own layout; grid-area on
+//   ::part(dots) takes precedence.
 // - :host(:state(autoplay)) [data-neo-carousel-dots] >
-//   button[aria-current="true"]::after: active-dot sweep when autoplay is
-//   configured. The ::after grows from 0 -> full over
-//   --neo-carousel-autoplay-interval, set per-host by the JS.
+//   button[aria-current="true"]::after: active-dot sweep when autoplay is configured.
+//   The ::after grows from 0 -> full over --neo-carousel-autoplay-interval,
+//   set per-host by the JS.
 // - @media (forced-colors: active) [data-neo-carousel-dots] > button:
-//   dots are ~0.55rem so a real border would fill the visible area; inset
-//   box-shadow gives the ring instead. forced-color-adjust keeps our
+//   dots are ~0.55rem so a real border would fill the visible area;
+//   inset box-shadow gives the ring instead. forced-color-adjust keeps our
 //   colours through the UA remap.
 // - :host-context(:root[data-pref-contrast-more]) [data-neo-carousel-dots]
 //   > button: host-context pierces the shadow boundary for the page-level
-//   data-pref-contrast-more attribute. At 0.55rem a ring is too thin to
-//   read; inactive = solid currentColor, active = accent + scale.
+//   data-pref-contrast-more attribute. At 0.55rem a ring is too thin to read;
+//   inactive = solid currentColor, active = accent + scale.
 const CAROUSEL_TEMPLATE = document.createElement("template");
 CAROUSEL_TEMPLATE.innerHTML = `
 <style>
@@ -171,9 +170,9 @@ CAROUSEL_TEMPLATE.innerHTML = `
 
 // Honour both the OS-level prefers-reduced-motion media query and
 // the kit's `:root[data-pref-reduced-motion]` simulator attribute
-// (toggled by the a11y settings panel). They are independent
-// triggers, mirrored on the CSS side as `@media (prefers-reduced-
-// motion)` + `:root[data-pref-reduced-motion]` selectors.
+// (toggled by the a11y settings panel). They are independent triggers,
+// mirrored on the CSS side as `@media (prefers-reduced-motion)` +
+// `:root[data-pref-reduced-motion]` selectors.
 function prefersReducedMotion(): boolean {
 	if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
 		return true;
@@ -204,9 +203,11 @@ export class NeoCarousel extends HTMLElement {
 		this.#internals = this.attachInternals();
 		const root = this.attachShadow({ mode: "open" });
 		root.appendChild(CAROUSEL_TEMPLATE.content.cloneNode(true));
+		this.#hostStyle = attachHostStyle(root);
 	}
 
-	#hostId = "";
+	// Holds --neo-carousel-autoplay-interval.
+	#hostStyle: HostStyle;
 	#ready = false;
 	#dotsEl: HTMLElement | null = null;
 	#childObserver: MutationObserver | null = null;
@@ -218,8 +219,7 @@ export class NeoCarousel extends HTMLElement {
 	// Snap target index, updated only on settle. Mid-scroll updates
 	// would interfere with macOS trackpad momentum.
 	#activeIndex = -1;
-	// Active value as of last sync(); gates change events to real
-	// transitions.
+	// Active value as of last sync(); gates change events to real transitions.
 	#previousActiveValue: string | null = null;
 	#autoplayTimer: number | null = null;
 	// performance.now() of last autoplay tick; with autoplayElapsed
@@ -229,13 +229,13 @@ export class NeoCarousel extends HTMLElement {
 	#autoplayElapsed = 0;
 	// Set while a programmatic scrollTo is in flight; gates
 	// updateActiveFromScroll so pre-settle callbacks don't revert
-	// `value` to the pre-scroll slide. Cleared on scrollend (or by the
-	// fallback timer for browsers without it).
+	// `value` to the pre-scroll slide. Cleared on scrollend
+	// (or by the fallback timer for browsers without it).
 	#scrollLock = false;
 	#scrollLockTimer: number | null = null;
-	// Set for the setAttribute("value", ...) call updateActiveFromScroll
-	// makes; attributeChangedCallback sees it and skips its smooth
-	// scrollTo, which would otherwise stutter macOS trackpad momentum.
+	// Set for the setAttribute("value", ...) call updateActiveFromScroll makes;
+	// attributeChangedCallback sees it and skips its smooth scrollTo,
+	// which would otherwise stutter macOS trackpad momentum.
 	#syncingFromScroll = false;
 	// Set for the carousel's own nav writes (commitIndex: next/prev/dots/
 	// keys/autoplay). Those always animate; an external `value` patch
@@ -263,21 +263,18 @@ export class NeoCarousel extends HTMLElement {
 	#scrollAnimRaf: number | null = null;
 	#scrollAnimAnim: Animation | null = null;
 	#scrollAnimProbe: HTMLElement | null = null;
-	// Track + its inline scroll-snap-type, saved while the JS animator
-	// runs. mandatory snap would move each interpolated scrollLeft to
-	// the nearest target, defeating the easing.
+	// Track + its inline scroll-snap-type, saved while the JS animator runs.
+	// mandatory snap would move each interpolated scrollLeft to the nearest target,
+	// defeating the easing.
 	#scrollAnimTrack: HTMLElement | null = null;
 	#scrollAnimSavedSnap = "";
-	// Deadline (performance.now()) until which onTrackScroll's settle
-	// path is suppressed. Set on orientation flip; a co-occurring
-	// patchElements morph briefly shifts slide positions, and a settle
-	// tick on that in-flux layout would write a stale `value` and
-	// trigger a smooth scroll to it.
+	// Deadline (performance.now()) until which onTrackScroll's settle path is suppressed.
+	// Set on orientation flip; a co-occurring patchElements morph briefly shifts slide
+	// positions, and a settle tick on that in-flux layout would write a stale `value`
+	// and trigger a smooth scroll to it.
 	#postOrientationSettleAt = 0;
 
 	connectedCallback() {
-		if (!this.id) this.id = `neo-carousel-${++nextCarouselId}`;
-		this.#hostId = this.id;
 		warnBadAxis(this);
 		if (!this.hasAttribute("role")) this.setAttribute("role", "region");
 		if (!this.hasAttribute("aria-roledescription")) {
@@ -288,8 +285,7 @@ export class NeoCarousel extends HTMLElement {
 		const track = this.#track();
 		// Author can opt the track out of the tab order with `tabindex="-1"`
 		// (useful when the carousel is controlled entirely by external prev /
-		// next buttons and the scrollable region itself has no value as a
-		// focus stop).
+		// next buttons and the scrollable region itself has no value as a focus stop).
 		if (track && !track.hasAttribute("tabindex")) {
 			track.setAttribute("tabindex", "0");
 		}
@@ -304,8 +300,8 @@ export class NeoCarousel extends HTMLElement {
 		this.addEventListener("pointercancel", this.#onPointerEnd);
 		this.addEventListener("dragstart", this.#onDragStart);
 
-		// Initial render races the parser; a fat-morph can also re-emit
-		// slides. Sync on any child change so ARIA + dots stay accurate.
+		// Initial render races the parser; a fat-morph can also re-emit slides.
+		// Sync on any child change so ARIA + dots stay accurate.
 		this.#childObserver = new MutationObserver(() => this.#sync());
 		this.#childObserver.observe(this, {
 			childList: true,
@@ -314,14 +310,13 @@ export class NeoCarousel extends HTMLElement {
 			attributeFilter: ["value"],
 		});
 
-		// Track width changes can shift which slide is centered; keep
-		// the dots' aria-current honest after a resize.
+		// Track width changes can shift which slide is centered;
+		// keep the dots' aria-current honest after a resize.
 		this.#resizeObserver = new ResizeObserver(() => this.#onResize());
 
 		this.#ready = true;
 		this.#sync();
-		// Defer until layout settles so the track has a measurable
-		// scrollWidth.
+		// Defer until layout settles so the track has a measurable scrollWidth.
 		queueMicrotask(() => this.#scrollToValue(this.#resolvedValue(), "auto"));
 		this.#refreshAutoplay();
 	}
@@ -356,9 +351,6 @@ export class NeoCarousel extends HTMLElement {
 		this.#observedSignature = "";
 		this.#cancelScrollAnim();
 		this.#stopAutoplay();
-		if (this.id) {
-			document.getElementById(`neo-carousel-autoplay-${this.id}`)?.remove();
-		}
 		this.#ready = false;
 	}
 
@@ -367,16 +359,14 @@ export class NeoCarousel extends HTMLElement {
 		if (oldValue === newValue) return;
 		if (name === "autoplay" || name === "autoplay-step") {
 			// A changed interval/step starts fresh; clear any accumulated
-			// pause-elapsed so the dot-fill animation and the timer both
-			// begin at 0.
+			// pause-elapsed so the dot-fill animation and the timer both begin at 0.
 			this.#refreshAutoplay(true);
 			return;
 		}
 		if (name === "paused") {
-			// Don't reset elapsed here; refreshAutoplay's stopAutoplay
-			// call will accumulate the time spent running before this
-			// pause toggle, which lets a subsequent unpause pick up where the
-			// animation visibly stopped.
+			// Don't reset elapsed here; refreshAutoplay's stopAutoplay call will
+			// accumulate the time spent running before this pause toggle, which lets
+			// a subsequent unpause pick up where the animation visibly stopped.
 			this.#refreshAutoplay();
 			return;
 		}
@@ -421,8 +411,8 @@ export class NeoCarousel extends HTMLElement {
 		}
 		if (name === "orientation") {
 			// Axis flip zeroes the new axis to slide 1; jump instantly to
-			// avoid a backtrack-then-animate. Deferred 1 rAF so layout
-			// settles before getBoundingClientRect.
+			// avoid a backtrack-then-animate.
+			// Deferred 1 rAF so layout settles before getBoundingClientRect.
 			this.#sync();
 			this.#postOrientationSettleAt = performance.now() + 400;
 			requestAnimationFrame(() => {
@@ -431,8 +421,8 @@ export class NeoCarousel extends HTMLElement {
 			return;
 		}
 		if (name === "per-view" || name === "spacing") {
-			// Defer a frame so getBoundingClientRect reads post-layout
-			// sizes; same reasoning as `align` for the smooth scroll.
+			// Defer a frame so getBoundingClientRect reads post-layout sizes;
+			// same reasoning as `align` for the smooth scroll.
 			this.#sync();
 			requestAnimationFrame(() => {
 				this.#scrollToValue(this.#resolvedValue(), this.#isPostOrientationPatch() ? "auto" : "smooth");
@@ -472,9 +462,9 @@ export class NeoCarousel extends HTMLElement {
 	}
 
 	// Light-DOM <template data-neo-carousel-dot>, the per-button
-	// inner-content template the kit clones into each dot. Author writes it
-	// as a child of <neo-carousel>; absent -> empty button (default
-	// CSS-styled circle).
+	// inner-content template the kit clones into each dot.
+	// Author writes it as a child of <neo-carousel>;
+	// absent -> empty button (default CSS-styled circle).
 	#dotTemplate(): HTMLTemplateElement | null {
 		return this.querySelector<HTMLTemplateElement>(":scope > template[data-neo-carousel-dot]");
 	}
@@ -499,8 +489,8 @@ export class NeoCarousel extends HTMLElement {
 		}
 	}
 
-	// Re-assert `value` after a morph stripped it, guarded so the write
-	// isn't read back as a command.
+	// Re-assert `value` after a morph stripped it,
+	// guarded so the write isn't read back as a command.
 	#reflectValue(v: string) {
 		if (this.getAttribute("value") === v) return;
 		this.#reflectingValue = true;
@@ -511,10 +501,10 @@ export class NeoCarousel extends HTMLElement {
 		}
 	}
 
-	// Apply an external `value` patch after a microtask so that the scroll
-	// behavior reads `animate-patch` once the whole morph/batch has landed
-	// (order-independent). A self write (nav / scroll reflection) bumps the
-	// token to supersede a still-pending external scroll.
+	// Apply an external `value` patch after a microtask so that the scroll behavior
+	// reads `animate-patch` once the whole morph/batch has landed (order-independent).
+	// A self write (nav / scroll reflection) bumps the token
+	// to supersede a still-pending external scroll.
 	#scheduleExternalScroll() {
 		const token = ++this.#externalScrollToken;
 		queueMicrotask(() => {
@@ -526,9 +516,9 @@ export class NeoCarousel extends HTMLElement {
 		});
 	}
 
-	// ARIA on slides, dot rendering + aria-current, pause-button
-	// aria-pressed, observer wiring. Cheap enough for the mutation
-	// observer to call every tick.
+	// ARIA on slides, dot rendering + aria-current,
+	// pause-button aria-pressed, observer wiring.
+	// Cheap enough for the mutation observer to call every tick.
 	#sync() {
 		const slides = this.#slides();
 		const value = this.#resolvedValue();
@@ -548,7 +538,6 @@ export class NeoCarousel extends HTMLElement {
 				slide.setAttribute("aria-roledescription", "slide");
 			}
 			slide.setAttribute("aria-label", `${i + 1} of ${total}`);
-			slide.id = `${this.#hostId}-slide-${v}`;
 		}
 		this.#warnOnDuplicateValues(seen);
 
@@ -613,13 +602,13 @@ export class NeoCarousel extends HTMLElement {
 	// Writes visibility markers on slides and dot buttons in a single pass:
 	//   - data-neo-carousel-slide-visibility="full" | "partial" on each
 	//     slide (absent when off-screen).
-	//   - data-neo-carousel-dot-visibility="full" | "partial" on each
-	//     dot, mirroring its slide.
+	//   - data-neo-carousel-dot-visibility="full" | "partial" on each dot,
+	//     mirroring its slide.
 	//   - aria-current="true" on 1 dot. During user scroll this may
 	//     point at the live snapped candidate before `value` settles;
 	//     during programmatic scroll it stays on the target value.
-	// Falls back to anchor-only when layout isn't ready (initial render
-	// before the track has measurable bounds).
+	// Falls back to anchor-only when layout isn't ready
+	// (initial render before the track has measurable bounds).
 	#syncDotsCurrent(slides: HTMLElement[], value: string | null, currentValue = value) {
 		const visibility = this.#slideVisibility(slides);
 		const anchorIdx =
@@ -657,10 +646,9 @@ export class NeoCarousel extends HTMLElement {
 			const tabstop = focused ? buttons[i] === focused : isAnchor;
 			buttons[i].tabIndex = tabstop ? 0 : -1;
 			// Multi-value `part` is the only way for external CSS to style
-			// state-specific dots, because ::part() can be followed by
-			// pseudo-classes but not attribute selectors. Mirror state into
-			// named parts (`dot-partial`, `dot-full`, `dot-current`) the page
-			// can target directly.
+			// state-specific dots, because ::part() can be followed by pseudo-classes
+			// but not attribute selectors. Mirror state into named parts
+			// (`dot-partial`, `dot-full`, `dot-current`) the page can target directly.
 			const partNames = ["dot"];
 			if (v === "partial") partNames.push("dot-partial");
 			else if (v === "full") partNames.push("dot-full");
@@ -669,11 +657,10 @@ export class NeoCarousel extends HTMLElement {
 		}
 	}
 
-	// Per-slide visibility against the track viewport. "full" means the
-	// slide box is entirely inside; "partial" means it intersects but
-	// pokes past an edge; "none" means it's off-screen. 2px tolerance
-	// avoids edge flicker. Returns null when layout isn't ready (track
-	// has zero dimensions).
+	// Per-slide visibility against the track viewport. "full" means the slide box is
+	// entirely inside; "partial" means it intersects but pokes past an edge;
+	// "none" means it's off-screen. 2px tolerance avoids edge flicker.
+	// Returns null when layout isn't ready (track has zero dimensions).
 	#slideVisibility(slides: HTMLElement[]): ("full" | "partial" | "none")[] | null {
 		const track = this.#track();
 		if (!track) return null;
@@ -753,8 +740,8 @@ export class NeoCarousel extends HTMLElement {
 	}
 
 	// ResizeObserver callback. Re-center the active slide when the track
-	// gains a measurable box (revealed from a hidden tab panel / closed
-	// lightbox), because a `value` set while display:none couldn't scroll.
+	// gains a measurable box (revealed from a hidden tab panel / closed lightbox),
+	// because a `value` set while display:none couldn't scroll.
 	#onResize() {
 		const track = this.#track();
 		const measurable = !!track && (track.clientWidth > 0 || track.clientHeight > 0);
@@ -766,8 +753,8 @@ export class NeoCarousel extends HTMLElement {
 	}
 
 	// Re-attach scroll listeners only when the slide set changes.
-	// `value` is never written mid-scroll; settle handlers (scrollend,
-	// or the debounced timer for Safari < 17) cover it.
+	// `value` is never written mid-scroll; settle handlers
+	// (scrollend, or the debounced timer for Safari < 17) cover it.
 	#observeSlides() {
 		const track = this.#track();
 		if (!track) return;
@@ -807,8 +794,8 @@ export class NeoCarousel extends HTMLElement {
 		if (this.#dragState) {
 			// A drag-nav drag owns its settle (onPointerEnd). Arming the
 			// settle timer here would let a 140ms mid-drag pause fire
-			// endUserScroll and resume autoplay while the pointer is still
-			// down; autoplay must stay paused for the whole drag.
+			// endUserScroll and resume autoplay while the pointer is still down;
+			// autoplay must stay paused for the whole drag.
 			if (this.#scrollSettleTimer !== null) {
 				window.clearTimeout(this.#scrollSettleTimer);
 				this.#scrollSettleTimer = null;
@@ -821,18 +808,16 @@ export class NeoCarousel extends HTMLElement {
 		this.#scrollSettleTimer = window.setTimeout(() => {
 			this.#scrollSettleTimer = null;
 			this.#updateActiveFromScroll();
-			// 140ms of quiet counts as settle; resume autoplay with a
-			// fresh interval (scrollend covers most browsers but Safari
-			// pre-17 doesn't fire it).
+			// 140ms of quiet counts as settle; resume autoplay with a fresh interval
+			// (scrollend covers most browsers but Safari pre-17 doesn't fire it).
 			this.#endUserScroll();
 		}, 140);
 	};
 
 	// Mid-scroll dot indicator. Every dot whose slide is currently in
-	// view lights up. Multiple dots can be active under per-view=N or
-	// while a gesture is between snap points. For user scrolls,
-	// aria-current follows the live snapped candidate; `value` still
-	// updates only after settle.
+	// view lights up. Multiple dots can be active under per-view=N or while
+	// a gesture is between snap points. For user scrolls, aria-current follows
+	// the live snapped candidate; `value` still updates only after settle.
 	#updateDotsFromScroll(liveCurrent = false) {
 		const slides = this.#slides();
 		if (slides.length === 0) return;
@@ -850,8 +835,8 @@ export class NeoCarousel extends HTMLElement {
 	#onScrollEnd = () => {
 		// A drag-nav drag assigns scrollLeft on every pointermove, and the
 		// browser fires scrollend whenever motion momentarily stalls.
-		// Mid-drag scrollend bursts would re-run the settle path on every
-		// pause. Let the drag own its settle. onPointerEnd restores snap
+		// Mid-drag scrollend bursts would re-run the settle path on every pause.
+		// Let the drag own its settle. onPointerEnd restores snap
 		// and the snap-back scroll produces the real terminal scrollend
 		// (dragState is null by then and this guard doesn't apply).
 		if (this.#dragState) return;
@@ -859,8 +844,8 @@ export class NeoCarousel extends HTMLElement {
 			window.clearTimeout(this.#scrollSettleTimer);
 			this.#scrollSettleTimer = null;
 		}
-		// Programmatic scrolls already have `value` at the target; re-
-		// deriving here can pick a different slide at scroll-range
+		// Programmatic scrolls already have `value` at the target;
+		// re-deriving here can pick a different slide at scroll-range
 		// boundaries (multiple slides -> same scrollLeft) and flap.
 		const wasProgrammatic = this.#scrollLock;
 		if (this.#scrollLockTimer !== null) {
@@ -879,8 +864,8 @@ export class NeoCarousel extends HTMLElement {
 
 	// For each slide, compute the scrollPos at which it would be
 	// snapped under the configured alignment, then pick the closest to
-	// the current scrollPos. Picking by snap-pos (not by centre
-	// distance) keeps multi-item layouts from ratcheting value forward.
+	// the current scrollPos. Picking by snap-pos (not by centre distance)
+	// keeps multi-item layouts from ratcheting value forward.
 	// Ties at the end-of-track boundary go to the slide already in
 	// `value` so prev/next don't oscillate between collapsed candidates.
 	#computeSnappedIndex(slides: HTMLElement[]): number {
@@ -904,8 +889,7 @@ export class NeoCarousel extends HTMLElement {
 			let snapPoint = slideStart;
 			if (align === "center") snapPoint -= (trackInner - slideSize) / 2;
 			else if (align === "end") snapPoint -= trackInner - slideSize;
-			// Clamp to achievable range; end-of-track slides share a single
-			// snapPoint.
+			// Clamp to achievable range; end-of-track slides share a single snapPoint.
 			snapPoint = Math.max(0, Math.min(maxScroll, snapPoint));
 			const d = Math.abs(snapPoint - pos);
 			if (d < bestDist - 0.5) {
@@ -933,9 +917,9 @@ export class NeoCarousel extends HTMLElement {
 		this.#activeIndex = bestIdx;
 		const newValue = slides[bestIdx].getAttribute("value") ?? String(bestIdx + 1);
 		if (this.getAttribute("value") === newValue) return;
-		// Mark the write so attributeChangedCallback skips the counter-
-		// scroll. Flag clears synchronously after the call returns; the
-		// callback runs in the same tick.
+		// Mark the write so attributeChangedCallback skips the counter-scroll.
+		// Flag clears synchronously after the call returns;
+		// the callback runs in the same tick.
 		this.#syncingFromScroll = true;
 		try {
 			this.setAttribute("value", newValue);
@@ -944,9 +928,8 @@ export class NeoCarousel extends HTMLElement {
 		}
 	}
 
-	// Scroll the track so `value` lands at the configured snap
-	// alignment. lockScroll prevents pre-settle callbacks from reverting
-	// `value` mid-scroll.
+	// Scroll the track so `value` lands at the configured snap alignment.
+	// lockScroll prevents pre-settle callbacks from reverting `value` mid-scroll.
 	#scrollToValue(value: string | null, behavior: ScrollBehavior) {
 		const track = this.#track();
 		if (!track || value === null) return;
@@ -964,16 +947,15 @@ export class NeoCarousel extends HTMLElement {
 		this.#animateScrollTo(track, vertical, target, b);
 	}
 
-	// Routes to native smooth, instant jump, or a JS rAF animator. The
-	// animator sets scrollLeft/Top from a hidden probe whose transform is
+	// Routes to native smooth, instant jump, or a JS rAF animator.
+	// The animator sets scrollLeft/Top from a hidden probe whose transform is
 	// animated via WAAPI, which makes every CSS timing-function shape work
 	// (cubic-bezier, steps, linear-easing) without a JS evaluator.
 	#animateScrollTo(track: HTMLElement, vertical: boolean, target: number, behavior: ScrollBehavior) {
 		this.#cancelScrollAnim();
 		if (behavior === "auto") {
-			// CSS sets `scroll-behavior: smooth` on the track; a temporary
-			// override is the reliable instant path and cancels any native
-			// smooth scroll in flight.
+			// CSS sets `scroll-behavior: smooth` on the track; a temporary override is
+			// the reliable instant path and cancels any native smooth scroll in flight.
 			const savedBehavior = track.style.scrollBehavior;
 			track.style.scrollBehavior = "auto";
 			setScrollPos(track, vertical, target);
@@ -1056,10 +1038,9 @@ export class NeoCarousel extends HTMLElement {
 
 	// Returns the JS animator config, or null to fall through to the
 	// browser's native smooth scroll. Bare-duration `easing` attribute
-	// values pair with the theme's --neo-easing; an unset attribute
-	// still returns one if the theme defines --neo-easing (so a
-	// theme's stepped easing like `steps(2, end)` applies without
-	// per-component opt-in).
+	// values pair with the theme's --neo-easing; an unset attribute still returns
+	// one if the theme defines --neo-easing  (so a theme's stepped easing
+	// like `steps(2, end)` applies without per-component opt-in).
 	#resolveEasing(): { duration: number; timingFn: string } | null {
 		const themed = getComputedStyle(this).getPropertyValue("--neo-easing").trim();
 		const raw = this.getAttribute("easing");
@@ -1114,10 +1095,10 @@ export class NeoCarousel extends HTMLElement {
 		this.style.setProperty("--neo-carousel-spacing", raw);
 	}
 
-	// Override --neo-carousel-per-view inline with min(per-view,
-	// slides.length) so per-view=7 with 5 slides splits into 5 columns,
-	// not the CSS attribute selectors' fallback (which only cover
-	// per-view 1..6). Cleared when not clamping or per-view="auto".
+	// Override --neo-carousel-per-view inline with min(per-view, slides.length)
+	// so per-view=7 with 5 slides splits into 5 columns,
+	// not the CSS attribute selectors' fallback (which only cover per-view 1..6).
+	// Cleared when not clamping or per-view="auto".
 	#clampPerView(slides: HTMLElement[]) {
 		const raw = this.getAttribute("per-view");
 		if (raw === null || raw === "auto") {
@@ -1136,11 +1117,10 @@ export class NeoCarousel extends HTMLElement {
 		}
 	}
 
-	// Suppress updateActiveFromScroll until the programmatic scroll
-	// settles. scrollend is primary; the 600ms timer is a fallback for
-	// cases it doesn't fire (Safari < 17, zero-distance scrolls).
-	// onTrackScroll bumps the timer per event so long smooth scrolls
-	// don't fire it mid-animation.
+	// Suppress updateActiveFromScroll until the programmatic scroll settles.
+	// scrollend is primary; the 600ms timer is a fallback for cases it doesn't fire
+	// (Safari < 17, zero-distance scrolls). onTrackScroll bumps the timer per event
+	// so long smooth scrolls don't fire it mid-animation.
 	#lockScroll() {
 		const track = this.#track();
 		if (!track) return;
@@ -1150,8 +1130,8 @@ export class NeoCarousel extends HTMLElement {
 
 	#bumpScrollLockTimer() {
 		if (this.#scrollLockTimer === null) return;
-		// Quiet period after the last scroll event. 200ms outlasts a
-		// typical rAF burst, which means the timer only fires when the
+		// Quiet period after the last scroll event. 200ms outlasts
+		// a typical rAF burst, which means the timer only fires when the
 		// smooth scroll has stopped emitting frames.
 		this.#armScrollLockTimer(200);
 	}
@@ -1196,8 +1176,8 @@ export class NeoCarousel extends HTMLElement {
 		this.#commitIndex(this.#currentIndex() - this.#navStep());
 	}
 
-	// Number of slides a prev/next or arrow-key step advances. Default is
-	// per-view (page mode, where a press exposes a whole new visible group);
+	// Number of slides a prev/next or arrow-key step advances.
+	// Default is per-view (page mode, where a press exposes a whole new visible group);
 	// author can override with `step="N"`.
 	#navStep(): number {
 		const raw = this.getAttribute("step");
@@ -1210,12 +1190,11 @@ export class NeoCarousel extends HTMLElement {
 
 	#autoplayNext() {
 		if (!this.#canScroll(1)) return;
-		// Roving tabindex keeps the current dot at tabindex 0 and the rest
-		// at -1. If a dot has focus when autoplay advances, move focus to
-		// the dot that just became current so it isn't stranded on a now
-		// un-tabbable dot. Dots live in this.shadowRoot. Check the shadow
-		// root's activeElement, because document.activeElement retargets to
-		// the host across the shadow boundary.
+		// Roving tabindex keeps the current dot at tabindex 0 and the rest at -1.
+		// If a dot has focus when autoplay advances, move focus to the dot that
+		// just became current so it isn't stranded on a now un-tabbable dot.
+		// Dots live in this.shadowRoot. Check the shadow root's activeElement, because
+		// document.activeElement retargets to the host across the shadow boundary.
 		const focusedInShadow = this.shadowRoot?.activeElement;
 		const dotHadFocus = !!focusedInShadow && (this.#dotsHost()?.contains(focusedInShadow) ?? false);
 		this.#commitIndex(this.#currentIndex() + this.#autoplayStep);
@@ -1254,8 +1233,8 @@ export class NeoCarousel extends HTMLElement {
 			else this.setAttribute("paused", "");
 			return;
 		}
-		// Dots live in this.shadowRoot, which means the event retargets to
-		// the host before reaching this listener; composedPath()[0] is still
+		// Dots live in this.shadowRoot, which means the event retargets to the host
+		// before reaching this listener; composedPath()[0] is still
 		// the original click target.
 		const inner = e.composedPath()[0];
 		if (inner instanceof Element) {
@@ -1268,8 +1247,8 @@ export class NeoCarousel extends HTMLElement {
 			}
 		}
 		if (boolAttr(this, "click-nav", false)) {
-			// Drag-then-release fires click; ignore those so a mouse drag
-			// doesn't double as a slide activation.
+			// Drag-then-release fires click;
+			// ignore those so a mouse drag doesn't double as a slide activation.
 			if (this.#dragMoved) return;
 			// Skip clicks on interactive content inside a slide so links,
 			// buttons, form fields keep their normal click semantics.
@@ -1284,8 +1263,8 @@ export class NeoCarousel extends HTMLElement {
 		}
 	};
 
-	// Mouse / pen drag-to-scroll under `drag-nav`. Touch handled
-	// natively. snap and scroll-behavior are suspended only after
+	// Mouse / pen drag-to-scroll under `drag-nav`. Touch handled natively.
+	// snap and scroll-behavior are suspended only after
 	// movement crosses the threshold (see onPointerMove).
 	#dragState: null | {
 		x: number;
@@ -1336,10 +1315,10 @@ export class NeoCarousel extends HTMLElement {
 	#onPointerMove = (e: PointerEvent) => {
 		const ds = this.#dragState;
 		if (!ds || ds.pointerId !== e.pointerId) return;
-		// If the primary button is no longer down, a pointerup landed
-		// outside the host (a fast swipe that left the carousel before
-		// pointer capture engaged) and onPointerEnd never ran. Tear the
-		// stale drag down here instead of resuming it on this unrelated move.
+		// If the primary button is no longer down, a pointerup landed outside the host
+		// (a fast swipe that left the carousel before pointer capture engaged)
+		// and onPointerEnd never ran.
+		// Tear the stale drag down here instead of resuming it on this unrelated move.
 		if (!(e.buttons & 1)) {
 			this.#onPointerEnd(e);
 			return;
@@ -1350,9 +1329,9 @@ export class NeoCarousel extends HTMLElement {
 		const dy = e.clientY - ds.y;
 		if (!this.#dragMoved && (Math.abs(dx) > 4 || Math.abs(dy) > 4)) {
 			this.#dragMoved = true;
-			// Promote to a real drag now that the pointer crossed the
-			// threshold. Capture the pointer (so the drag survives leaving the
-			// track) and suspend snap + smooth scroll-behavior so each
+			// Promote to a real drag now that the pointer crossed the threshold.
+			// Capture the pointer (so the drag survives leaving the track)
+			// and suspend snap + smooth scroll-behavior so each
 			// scrollLeft assignment is instant and isn't moved to a snap point.
 			this.#dragSavedSnap = track.style.scrollSnapType;
 			this.#dragSavedBehavior = track.style.scrollBehavior;
@@ -1382,10 +1361,10 @@ export class NeoCarousel extends HTMLElement {
 		this.#dragSavedSnap = "";
 		this.#dragSavedBehavior = "";
 		if (this.#dragMoved) {
-			// The drag suppressed onTrackScroll's settle timer. Settle
-			// explicitly now, because a post-drag scrollend never fires when
-			// the release already sits on a snap point. endUserScroll resumes
-			// the autoplay that the drag's beginUserScroll paused.
+			// The drag suppressed onTrackScroll's settle timer.
+			// Settle explicitly now, because a post-drag scrollend never fires
+			// when the release already sits on a snap point.
+			// endUserScroll resumes the autoplay that the drag's beginUserScroll paused.
 			this.#updateActiveFromScroll();
 			this.#endUserScroll();
 			// Clear in a microtask so the synthesised click that follows
@@ -1396,13 +1375,12 @@ export class NeoCarousel extends HTMLElement {
 		}
 	};
 
-	// Keyboard nav fires when focus is on the host, the track (Tab lands
-	// there because it carries the visible scroll viewport), or a dot
-	// button. Slides themselves may contain arrow-key consumers (sliders,
-	// textareas, etc.); we don't want to steal those. Read composedPath,
-	// because dot events retarget to the host before reaching this
-	// listener and e.target is the host; the path's innermost entry is
-	// still the dot.
+	// Keyboard nav fires when focus is on the host, the track
+	// (Tab lands there because it carries the visible scroll viewport), or a dot button.
+	// Slides themselves may contain arrow-key consumers (sliders, textareas, etc.);
+	// we don't want to steal those. Read composedPath, because dot events retarget to
+	// the host before reaching this listener and e.target is the host;
+	// the path's innermost entry is still the dot.
 	#onKeyDown = (e: KeyboardEvent) => {
 		if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey) return;
 		const inner = e.composedPath()[0];
@@ -1420,9 +1398,9 @@ export class NeoCarousel extends HTMLElement {
 		const key = logicalArrow(this, e.key);
 
 		if (onDot) {
-			// Tablist semantics. Arrow / Home / End move focus only. Enter or
-			// Space commits the focused dot. `auto-activate` (mirrors neo-tabs)
-			// commits during focus move as well.
+			// Tablist semantics. Arrow / Home / End move focus only.
+			// Enter or Space commits the focused dot.
+			// `auto-activate` (mirrors neo-tabs) commits during focus move as well.
 			const autoActivate = boolAttr(this, "auto-activate", false);
 			const dots = this.#dotButtons();
 			const idx = dots.indexOf(dot as HTMLButtonElement);
@@ -1446,10 +1424,10 @@ export class NeoCarousel extends HTMLElement {
 			return;
 		}
 
-		// With focus on the host or track, navigate slides directly. The
-		// track has tabindex 0 so Tab lands there for native scroll; without
-		// this branch arrow keys would scroll the track by ~40px instead of
-		// advancing a whole slide.
+		// With focus on the host or track, navigate slides directly.
+		// The track has tabindex 0 so Tab lands there for native scroll;
+		// without this branch arrow keys would scroll the track by ~40px
+		// instead of advancing a whole slide.
 		if (key === prevKey) {
 			e.preventDefault();
 			this.prev();
@@ -1499,8 +1477,7 @@ export class NeoCarousel extends HTMLElement {
 	// Transient autoplay pause during user scrolling. On settle the
 	// timer restarts with a fresh full interval so the user gets the
 	// whole window to read the slide they landed on. Internal-only;
-	// doesn't surface as aria-pressed on pause buttons (sticky [paused]
-	// does that).
+	// doesn't surface as aria-pressed on pause buttons (sticky [paused] does that).
 	#userScrolling = false;
 
 	#beginUserScroll() {
@@ -1521,9 +1498,9 @@ export class NeoCarousel extends HTMLElement {
 		if (!this.#userScrolling) return;
 		this.#userScrolling = false;
 		setState(this.#internals, "interacting", false);
-		// Restart the active dot's fill animation from frame 0. The CSS
-		// animation is tied to the [aria-current="true"] selector; the
-		// bounce un-matches and re-matches the rule, which the engine
+		// Restart the active dot's fill animation from frame 0.
+		// The CSS animation is tied to the [aria-current="true"] selector;
+		// the bounce un-matches and re-matches the rule, which the engine
 		// treats as a fresh animation application.
 		this.#restartDotAnimation();
 		// Schedule a new tick at full interval (autoplayElapsed is 0).
@@ -1571,8 +1548,8 @@ export class NeoCarousel extends HTMLElement {
 
 	#stopAutoplay() {
 		if (this.#autoplayTimer !== null) {
-			// Accumulate elapsed regardless of reason; the caller resets
-			// it (via attributeChangedCallback for "value" / "autoplay")
+			// Accumulate elapsed regardless of reason; the caller resets it
+			// (via attributeChangedCallback for "value" / "autoplay")
 			// when a fresh interval should start.
 			this.#autoplayElapsed += performance.now() - this.#autoplayLastTickAt;
 			window.clearTimeout(this.#autoplayTimer);
@@ -1580,27 +1557,11 @@ export class NeoCarousel extends HTMLElement {
 		}
 	}
 
-	// Publish the autoplay interval as --neo-carousel-autoplay-interval
-	// on a per-host <head> <style>. Inline style would be stripped by
-	// Datastar fat-morphs and the dot animation would lose its duration.
 	#syncAutoplayDuration() {
-		if (!this.id) return;
-		const styleId = `neo-carousel-autoplay-${this.id}`;
-		let styleEl = document.getElementById(styleId) as HTMLStyleElement | null;
 		const interval = this.#autoplayInterval;
-		if (interval === null) {
-			setState(this.#internals, "autoplay", false);
-			styleEl?.remove();
-			return;
-		}
-		setState(this.#internals, "autoplay", true);
-		if (!styleEl) {
-			styleEl = document.createElement("style");
-			styleEl.id = styleId;
-			document.head.appendChild(styleEl);
-		}
-		const sel = `[id="${this.id.replace(/"/g, '\\"')}"]`;
-		styleEl.textContent = `${sel} { --neo-carousel-autoplay-interval: ${interval}ms; }`;
+		setState(this.#internals, "autoplay", interval !== null);
+		if (interval === null) this.#hostStyle.removeProperty("--neo-carousel-autoplay-interval");
+		else this.#hostStyle.setProperty("--neo-carousel-autoplay-interval", `${interval}ms`);
 	}
 
 	get #autoplayInterval(): number | null {
@@ -1629,9 +1590,9 @@ export class NeoCarousel extends HTMLElement {
 	}
 }
 
-// Track + slide markers are light-DOM author wrappers; behaviour lives on
-// the host. Dots are not a light-DOM element; the host auto-renders
-// them inside <neo-carousel>'s shadow root.
+// Track + slide markers are light-DOM author wrappers; behaviour lives on the host.
+// Dots are not a light-DOM element;
+// the host auto-renders them inside <neo-carousel>'s shadow root.
 export class NeoCarouselTrack extends HTMLElement {}
 export class NeoCarouselSlide extends HTMLElement {}
 

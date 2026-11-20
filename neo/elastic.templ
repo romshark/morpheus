@@ -12,7 +12,6 @@ type ElasticOpts struct {
 
 // Elastic renders <neo-elastic>, a block container that smoothly
 // animates its height when the inner content's natural size changes.
-// On hydration the children are wrapped in [data-neo-elastic-content].
 templ Elastic(opts ElasticOpts) {
 	@ElasticAttrs(opts, nil) {
 		{ children... }

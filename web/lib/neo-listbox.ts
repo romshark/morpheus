@@ -20,9 +20,15 @@ export interface OptionData {
 	el: HTMLElement;
 }
 
+// optionValue is the key of an option, which the server renders as `value`
+// (or `data-neo-value`). The kit never writes the key onto the option.
+export function optionValue(el: Element): string {
+	return el.getAttribute("value") ?? el.getAttribute("data-neo-value") ?? "";
+}
+
 export function readOptionData(el: HTMLElement): OptionData {
 	return {
-		value: el.getAttribute("value") ?? el.getAttribute("data-neo-value") ?? "",
+		value: optionValue(el),
 		label: el.getAttribute("label") ?? el.textContent?.trim() ?? "",
 		// `disabled` is a command; an explicit value overrides the ARIA hint.
 		// `disabled="false"` re-enables an option whose aria-disabled the
@@ -60,23 +66,41 @@ export function setHiddenIfChanged(el: HTMLElement, hidden: boolean) {
 }
 
 // Shared option wiring for the listbox controls (<neo-select>, <neo-combobox>)
-// and <neo-textinput>'s suggestions. Options are keyed by data-neo-value and
+// and <neo-textinput>'s suggestions. Options are keyed by optionValue and
 // never get an `id`. A fat morph then patches them in place instead of replacing
 // id-mismatched nodes (which tears down and re-animates an open popover).
 // `roving` gives each option a focusable tabindex so the control can move focus
 // into the list; a textbox-with-suggestions keeps focus in the field and omits it.
+// The control sets the real aria-selected after this.
 export function wireOptionEl(el: HTMLElement, opt: OptionData, roving: boolean) {
 	setAttrIfChanged(el, "role", "option");
-	setAttrIfChanged(el, "data-neo-value", opt.value);
 	if (roving && !el.hasAttribute("tabindex")) el.setAttribute("tabindex", "-1");
 	if (!el.hasAttribute("aria-selected")) el.setAttribute("aria-selected", "false");
 	if (opt.disabled) setAttrIfChanged(el, "aria-disabled", "true");
 	else el.removeAttribute("aria-disabled");
 }
 
-// Light-DOM attributes a control reconciles when an option set changes in place
-// (a morph patching disabled/value/etc. without replacing the node).
-export const OPTION_OBSERVE_ATTRS = ["value", "label", "disabled", "aria-disabled", "slot", "hidden"];
+// Light-DOM attributes a control reconciles when an option set changes in place:
+// a morph patching disabled/value/etc. without replacing the node, or stripping
+// the ARIA the wiring wrote.
+export const OPTION_OBSERVE_ATTRS = [
+	"value",
+	"label",
+	"disabled",
+	"aria-disabled",
+	"slot",
+	"hidden",
+	"role",
+	"aria-selected",
+	"tabindex",
+];
+
+// isOwnTabindexWrite reports a tabindex record that left the attribute in place.
+// The roving focus writes one on every move, outside the observer pause, and only
+// a strip needs a reconcile.
+export function isOwnTabindexWrite(r: MutationRecord): boolean {
+	return r.type === "attributes" && r.attributeName === "tabindex" && (r.target as Element).hasAttribute("tabindex");
+}
 
 // Shared base for <neo-select> and <neo-combobox>, a trigger button opening a
 // fixed-position listbox of <neo-option> children. Holds the option wiring,
@@ -133,8 +157,12 @@ export abstract class NeoListbox extends HTMLElement {
 	#trackedTriggerRect: DOMRect | null = null;
 
 	protected initTriggerFace() {
-		this.triggerFace = new TriggerFace(this, this.labelEl, `data-neo-${this.ns}-trigger-view`, (fn) =>
-			this.withLightDomObserverPaused(fn),
+		this.triggerFace = new TriggerFace(
+			this,
+			this.labelEl,
+			`data-neo-${this.ns}-trigger-view`,
+			(fn) => this.withLightDomObserverPaused(fn),
+			(on) => setState(this.internals, "trigger-rich", on),
 		);
 	}
 
@@ -376,6 +404,7 @@ export abstract class NeoListbox extends HTMLElement {
 			this.querySelector<HTMLElement>(":scope > [data-neo-datalist-managed]");
 		if (!container) {
 			container = document.createElement("neo-datalist");
+			// biome-ignore lint/plugin/no-id-write: generated container
 			if (optionsID) container.id = optionsID;
 			container.setAttribute("data-neo-datalist-created", "");
 			this.appendChild(container);
@@ -445,8 +474,8 @@ export abstract class NeoListbox extends HTMLElement {
 	}
 
 	// Mirror the trigger's live :focus-visible onto the host, which paints
-	// the ring (the trigger's own outline is suppressed). It is a custom
-	// state, which a fat morph reconciling the host's attributes against SSR
+	// the ring (the trigger's own outline is suppressed). It is a custom state,
+	// which a fat morph reconciling the host's attributes against SSR
 	// can't strip off a trigger that still holds focus.
 	protected syncFocusVisible() {
 		setState(this.internals, "focus-visible", this.trigger?.matches(":focus-visible") === true);
@@ -456,9 +485,9 @@ export abstract class NeoListbox extends HTMLElement {
 
 	protected onTriggerBlur = () => this.syncFocusVisible();
 
-	// Escape closes the open popover and returns focus to the trigger, from
-	// any focus state (option, list, trigger). stopPropagation so an enclosing
-	// dialog/drawer doesn't also dismiss on the same press.
+	// Escape closes the open popover and returns focus to the trigger,
+	// from any focus state (option, list, trigger). stopPropagation so an
+	// enclosing dialog/drawer doesn't also dismiss on the same press.
 	protected onEscapeKeyDown = (e: KeyboardEvent) => {
 		if (e.key !== "Escape" || !this.open || e.isComposing) return;
 		e.preventDefault();
@@ -589,8 +618,8 @@ export abstract class NeoListbox extends HTMLElement {
 	}
 
 	// anchorPopoverResult clears the panel's inline max-* to measure its
-	// natural size. While cleared, the options scroller fits its whole
-	// content, which clamps scrollTop to 0. Re-applying max-height does not
+	// natural size. While cleared, the options scroller fits its whole content,
+	// which clamps scrollTop to 0. Re-applying max-height does not
 	// bring the scroll back, and every reposition would reset the list to the top.
 	// Snapshot and restore around the pass.
 	#anchorPreservingScroll(opts?: { ignorePositioningBoundary?: boolean }): ReturnType<typeof anchorPopoverResult> {

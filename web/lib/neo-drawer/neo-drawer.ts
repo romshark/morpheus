@@ -5,10 +5,20 @@
 import { boolAttr, openCommand } from "../command";
 import { retryWhileParsing, stillParsing } from "../document-parsing";
 import { setState } from "../internal-state";
-import { DialogBackdropClickTracker, lockBodyScroll, unlockBodyScroll } from "../native-dialog";
+import { DialogAria, DialogBackdropClickTracker, lockBodyScroll, takeEscape, unlockBodyScroll } from "../native-dialog";
 import { resolveTouchDismiss } from "../touch-dismiss";
 
-let nextId = 0;
+// Only 1 touch drag runs at a time, because a 2nd finger cancels it. That lets
+// 1 document sheet keyed on :state(dragging) hold the dragged drawer's offset,
+// with no write on its server-rendered <dialog>.
+const dragSheet = new CSSStyleSheet();
+
+function setDragTranslate(translate: string | null): void {
+	if (!document.adoptedStyleSheets.includes(dragSheet)) {
+		document.adoptedStyleSheets = [...document.adoptedStyleSheets, dragSheet];
+	}
+	dragSheet.replaceSync(translate === null ? "" : `neo-drawer:state(dragging) > dialog { translate: ${translate}; }`);
+}
 
 export class NeoDrawer extends HTMLElement {
 	static readonly observedAttributes = ["open", "side"];
@@ -23,6 +33,7 @@ export class NeoDrawer extends HTMLElement {
 	#trigger: HTMLElement | null = null;
 	#dialog: HTMLDialogElement | null = null;
 	#childObserver: MutationObserver | null = null;
+	#aria = new DialogAria("[data-neo-drawer-title]", "[data-neo-drawer-description]", () => this.#openIntent);
 	#previousFocus: Element | null = null;
 	#ready = false;
 	#holdsScrollLock = false;
@@ -102,6 +113,7 @@ export class NeoDrawer extends HTMLElement {
 		this.#dialog?.removeEventListener("close", this.#onDialogClose);
 		this.#dialog?.removeEventListener("cancel", this.#onDialogCancel);
 		this.#dialog?.removeEventListener("keydown", this.#onDialogKeydown, true);
+		this.#dialog?.removeEventListener("keydown", this.#onDialogEscape);
 		this.#dialog?.removeEventListener("touchstart", this.#onTouchStart);
 		this.#dialog?.removeEventListener("touchmove", this.#onTouchMove);
 		this.#dialog?.removeEventListener("touchend", this.#onTouchEnd);
@@ -113,6 +125,7 @@ export class NeoDrawer extends HTMLElement {
 		this.#touchDrag = null;
 		this.#childObserver?.disconnect();
 		this.#childObserver = null;
+		this.#aria.disconnect();
 		if (this.#holdsScrollLock) {
 			unlockBodyScroll();
 			this.#holdsScrollLock = false;
@@ -284,10 +297,11 @@ export class NeoDrawer extends HTMLElement {
 			this.#dialog.addEventListener("click", this.#onDialogClick);
 			this.#dialog.addEventListener("close", this.#onDialogClose);
 			this.#dialog.addEventListener("cancel", this.#onDialogCancel);
-			// Capture-phase Esc swallow, a second guard next to the cancel
-			// handler. Stops descendant Esc handlers (popover etc.) from
+			// Capture-phase Esc swallow, a second guard next to the cancel handler.
+			// Stops descendant Esc handlers (popover etc.) from
 			// acting when the drawer is locked open.
 			this.#dialog.addEventListener("keydown", this.#onDialogKeydown, true);
+			this.#dialog.addEventListener("keydown", this.#onDialogEscape);
 			// Listen on the dialog (the panel), not the host (`display:
 			// contents`). touchmove is non-passive so we can preventDefault
 			// page scroll once the drag commits.
@@ -301,30 +315,7 @@ export class NeoDrawer extends HTMLElement {
 			this.#dialog.addEventListener("touchcancel", this.#onTouchCancel);
 		}
 
-		if (!this.#dialog.id) this.#dialog.id = `neo-drawer-${++nextId}`;
-		this.#trigger?.setAttribute("aria-haspopup", "dialog");
-		this.#trigger?.setAttribute("aria-controls", this.#dialog.id);
-		if (!this.#dialog.hasAttribute("role")) {
-			this.#dialog.setAttribute("role", "dialog");
-		}
-		this.#dialog.setAttribute("aria-modal", "true");
-
-		const title = this.#dialog.querySelector<HTMLElement>("[data-neo-drawer-title]");
-		if (title) {
-			if (!title.id) title.id = `${this.#dialog.id}-title`;
-			this.#dialog.setAttribute("aria-labelledby", title.id);
-		} else {
-			this.#dialog.removeAttribute("aria-labelledby");
-		}
-		const desc = this.#dialog.querySelector<HTMLElement>("[data-neo-drawer-description]");
-		if (desc) {
-			if (!desc.id) desc.id = `${this.#dialog.id}-desc`;
-			this.#dialog.setAttribute("aria-describedby", desc.id);
-		} else {
-			this.#dialog.removeAttribute("aria-describedby");
-		}
-
-		this.#trigger?.setAttribute("aria-expanded", String(this.#openIntent));
+		this.#aria.bind(this.#trigger, this.#dialog);
 		return true;
 	}
 
@@ -332,7 +323,7 @@ export class NeoDrawer extends HTMLElement {
 		if (!this.#dialog) return;
 		const want = this.#openIntent;
 		const have = this.#dialog.open;
-		this.#trigger?.setAttribute("aria-expanded", String(want));
+		this.#aria.sync();
 		if (want && !have) {
 			if (!this.#previousFocus) this.#previousFocus = document.activeElement;
 			this.#openModal();
@@ -358,8 +349,7 @@ export class NeoDrawer extends HTMLElement {
 
 	// Native <dialog> sets `e.target === dialog` for both backdrop clicks
 	// and clicks on the dialog box itself. Require the press and release to
-	// both be outside so selection drags out of the panel do not dismiss
-	// the drawer.
+	// both be outside so selection drags out of the panel do not dismiss the drawer.
 	#onDialogClick = (e: MouseEvent) => {
 		if (!this.#dialog) return;
 		const backdropDismiss = this.#backdropClick.shouldDismiss(this.#dialog, e);
@@ -367,8 +357,7 @@ export class NeoDrawer extends HTMLElement {
 		if (backdropDismiss) this.hide();
 	};
 
-	// Esc fires `cancel`; preventDefault keeps it open when
-	// non-dismissible.
+	// Esc fires `cancel`; preventDefault keeps it open when non-dismissible.
 	#onDialogCancel = (e: Event) => {
 		if (!this.#isDismissible()) {
 			e.preventDefault();
@@ -386,9 +375,13 @@ export class NeoDrawer extends HTMLElement {
 		e.stopImmediatePropagation();
 	};
 
-	// The authoritative "actually closed" signal (Esc, backdrop,
-	// [data-neo-drawer-close], programmatic close()). Clear intent so a
-	// later silent fat-morph recovery won't re-open it.
+	#onDialogEscape = (e: KeyboardEvent) => {
+		if (takeEscape(e)) this.hide();
+	};
+
+	// The authoritative "actually closed" signal
+	// (Esc, backdrop, [data-neo-drawer-close], programmatic close()).
+	// Clear intent so a later silent fat-morph recovery won't re-open it.
 	#onDialogClose = () => {
 		this.#openIntent = false;
 		this.#reflectClose();
@@ -426,8 +419,8 @@ export class NeoDrawer extends HTMLElement {
 		}, ms);
 	}
 
-	// Snapshot the placeholder's parent (the slot) and its initial
-	// innerHTML. Captured once; re-captures are skipped so a morph
+	// Snapshot the placeholder's parent (the slot) and its initial innerHTML.
+	// Captured once; re-captures are skipped so a morph
 	// before close doesn't replace the saved skeleton.
 	#captureAsyncSlot() {
 		if (this.#asyncSlotInitialHTML !== null) return;
@@ -442,8 +435,7 @@ export class NeoDrawer extends HTMLElement {
 
 	#restoreAsyncSlot() {
 		if (!this.#asyncSlot || this.#asyncSlotInitialHTML === null) return;
-		// Slot wrapper got patched away; invalidate so future closes
-		// don't keep retrying.
+		// Slot wrapper got patched away; invalidate so future closes don't keep retrying.
 		if (!document.contains(this.#asyncSlot)) {
 			this.#asyncSlot = null;
 			this.#asyncSlotInitialHTML = null;
@@ -455,8 +447,8 @@ export class NeoDrawer extends HTMLElement {
 			this.#asyncSlotInitialHTML = null;
 			return;
 		}
-		// Drawer opened and closed before the patch landed. The placeholder
-		// is still live; skip the redundant innerHTML reset.
+		// Drawer opened and closed before the patch landed.
+		// The placeholder is still live; skip the redundant innerHTML reset.
 		if (this.#asyncSlot.querySelector("[data-neo-async-placeholder]")) {
 			return;
 		}
@@ -479,16 +471,16 @@ export class NeoDrawer extends HTMLElement {
 		return { axis: "x", closeDir: 1 };
 	}
 
-	// Threshold in px, or null when explicitly disabled. Missing/bare
-	// -> half the panel's relevant dimension. Probe in the dialog for
-	// the panel's own font/layout context.
+	// Threshold in px, or null when explicitly disabled.
+	// Missing/bare -> half the panel's relevant dimension.
+	// Probe in the dialog for the panel's own font/layout context.
 	#getTouchDismissThreshold(size: number): number | null {
 		if (!this.#dialog) return Math.max(40, size / 2);
 		return resolveTouchDismiss(this.getAttribute("touch-dismiss"), size, Math.max(40, size / 2), this.#dialog);
 	}
 
-	// Walk target -> host, bailing on any element that owns a same-axis
-	// gesture. Cross-axis scrollers are left alone; that contest is
+	// Walk target -> host, bailing on any element that owns a same-axis gesture.
+	// Cross-axis scrollers are left alone; that contest is
 	// resolved in onTouchMove by comparing dx vs dy.
 	#touchStartIneligible(target: EventTarget | null, axis: "x" | "y"): boolean {
 		let el: Element | null = target instanceof Element ? target : null;
@@ -572,15 +564,10 @@ export class NeoDrawer extends HTMLElement {
 			}
 			d.decided = true;
 			setState(this.#internals, "dragging", true);
-			// Disable transition so the panel tracks the finger 1:1
-			// instead of chasing the easing curve.
-			if (this.#dialog) this.#dialog.style.transition = "none";
 		}
 		e.preventDefault();
 		const offset = Math.max(0, Math.min(alongClose, d.size)) * d.closeDir;
-		if (this.#dialog) {
-			this.#dialog.style.transform = d.axis === "x" ? `translateX(${offset}px)` : `translateY(${offset}px)`;
-		}
+		setDragTranslate(d.axis === "x" ? `${offset}px 0` : `0 ${offset}px`);
 	};
 
 	#onTouchEnd = (e: TouchEvent) => {
@@ -613,15 +600,12 @@ export class NeoDrawer extends HTMLElement {
 		if (d.decided) this.#clearDragStyles();
 	}
 
-	// Drop inline overrides so the cascade resumes; the transition
-	// then animates from the current rendered transform to either
-	// translate(0,0) (snap-back) or the closed transform (after hide).
+	// Clearing the offset with the dragging state lets the `translate`
+	// transition run from the finger position back to 0, alongside the
+	// transform slide to the closed position after hide().
 	#clearDragStyles() {
 		setState(this.#internals, "dragging", false);
-		if (this.#dialog) {
-			this.#dialog.style.transform = "";
-			this.#dialog.style.transition = "";
-		}
+		setDragTranslate(null);
 	}
 }
 

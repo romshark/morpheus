@@ -2,11 +2,12 @@
 // which keeps its focus, caret and value when a server re-renders the host.
 
 import "../neo-icon";
+import { setAriaRef } from "../aria-ref";
 import { boolAttr, openCommand } from "../command";
 import { isRTL } from "../direction";
 import { setState } from "../internal-state";
 import { labelAttr } from "../label-name";
-import { type ClassSlot, isDigit, type MaskSlot, parseMask } from "../mask";
+import { asciiDigits, type ClassSlot, isDigit, type MaskSlot, parseMask } from "../mask";
 import { cloneDatalistOptionsInto, externalDatalistFor } from "../neo-datalist";
 import { OPTION_OBSERVE_ATTRS, readOptionData, wireOptionEl } from "../neo-listbox";
 import { setAttrIfChanged } from "../neo-morph-resilient";
@@ -113,7 +114,7 @@ class PlainFormatter implements Formatter {
 
 	format(raw: string): FormatResult {
 		let r = raw;
-		if (this.#numericOnly) r = r.replace(/\D/g, "");
+		if (this.#numericOnly) r = asciiDigits(r).replace(/\D/g, "");
 		if (this.#caseMode === "upper") r = r.toUpperCase();
 		else if (this.#caseMode === "lower") r = r.toLowerCase();
 		return { formatted: this.#prefix + r, raw: r };
@@ -284,6 +285,10 @@ class MaskFormatter implements Formatter {
 // A number field's canonical value, such as "-1234.56".
 const CANONICAL_NUMBER = /^-?\d*\.?\d*$/;
 
+// The decimal separator Arabic and Persian keyboards type.
+// Unmapped, it drops from a pasted 12.5 written with it, which leaves 125.
+const ARABIC_DECIMAL_SEPARATOR = "\u066B";
+
 class NumberFormatter implements Formatter {
 	#decimalPlaces: number;
 	#decimalMark: string;
@@ -304,7 +309,9 @@ class NumberFormatter implements Formatter {
 	format(raw: string): FormatResult {
 		// Raw uses "." whatever the decimal-mark.
 		// Other chars come from a paste or a separator extractRaw missed.
-		const s = raw.replace(/[^\d.-]/g, "");
+		const s = asciiDigits(raw)
+			.replaceAll(ARABIC_DECIMAL_SEPARATOR, ".")
+			.replace(/[^\d.-]/g, "");
 		const sign = s.startsWith("-") ? "-" : "";
 		// The first "." splits the parts, and later ones drop. decimal-places="0"
 		// drops the mark too, which makes "1.5" "1" rather than "1.".
@@ -322,17 +329,20 @@ class NumberFormatter implements Formatter {
 	}
 
 	// The last replace drops paste debris, such as the "$" of "$1,234.50".
+	// The Arabic decimal separator becomes "." only after the separators are
+	// removed, because thousands-separator="." would remove it too.
 	extractRaw(formatted: string): string {
-		return stripPrefix(formatted, this.#prefix)
+		const s = stripPrefix(formatted, this.#prefix)
 			.replaceAll(this.#thousandsSep, "")
 			.replaceAll(this.#decimalMark, ".")
-			.replace(/[^\d.-]/g, "");
+			.replaceAll(ARABIC_DECIMAL_SEPARATOR, ".");
+		return asciiDigits(s).replace(/[^\d.-]/g, "");
 	}
 
 	acceptsChar(ch: string): boolean {
 		if (isDigit(ch)) return true;
 		if (ch === "-") return true;
-		if (ch === "." || ch === this.#decimalMark) {
+		if (ch === "." || ch === this.#decimalMark || ch === ARABIC_DECIMAL_SEPARATOR) {
 			return this.#decimalPlaces !== 0;
 		}
 		return false;
@@ -666,10 +676,8 @@ export class NeoTextInput extends HTMLElement {
 	// An open command that came before any option, as when a morph sets `open`
 	// ahead of the options. The next reconcile opens the list, focused or not.
 	#suggestOpenCommanded = false;
-	// Held by reference, which keeps the idle options id-less and morph-stable.
+	// Held by reference, which keeps the options id-less and morph-stable.
 	#suggestActiveEl: HTMLElement | null = null;
-	// The option carrying the aria-activedescendant id.
-	#activeIdEl: HTMLElement | null = null;
 	#observerPauseDepth = 0;
 	#suggestAnchorRect: DOMRect | null = null;
 	// Set while the component writes `open`,
@@ -710,6 +718,7 @@ export class NeoTextInput extends HTMLElement {
 		root.appendChild(SHADOW_TEMPLATE.content.cloneNode(true));
 		this.#suggestList = root.querySelector("[data-neo-suggest-list]")!;
 		this.#suggestSlot = root.querySelector('slot[name="suggestions"]')!;
+		// biome-ignore lint/plugin/no-id-write: the list is in the shadow root
 		this.#suggestList.id = `${this.#suggestPrefix}-list`;
 		// mousedown's default would blur the field, and the blur would close the
 		// list before `click` commits the option.
@@ -1291,10 +1300,12 @@ export class NeoTextInput extends HTMLElement {
 	}
 
 	// The option wiring of <neo-select> and <neo-combobox>, without a roving
-	// tabindex, because focus stays in the field.
+	// tabindex, because focus stays in the field. Runs paused.
 	#wireSuggestions() {
+		const active = this.#suggestActiveEl;
 		for (const el of this.#suggestOptionEls()) {
 			wireOptionEl(el, readOptionData(el), false);
+			setAttrIfChanged(el, "aria-selected", String(el === active));
 		}
 	}
 
@@ -1691,27 +1702,11 @@ export class NeoTextInput extends HTMLElement {
 		if (this.#innerInput && this.#innerInput.value !== drag.start) this.#onChange();
 	};
 
-	// An IDREF from the shadow field can't reach a light-DOM option, which makes
-	// ariaActiveDescendantElement the link. Firefox lacks it and reads the IDREF.
-	// Only the active option carries an id, which keeps the idle ones id-less
-	// and lets a morph patch them in place.
+	// The field is in the shadow root and the options in the light DOM,
+	// which only ARIA element reflection links.
 	#pointActiveDescendant(el: HTMLElement | null) {
 		const inp = this.#innerInput;
-		if (!inp) return;
-		const activeId = `${this.#suggestPrefix}-active`;
-		if (this.#activeIdEl && this.#activeIdEl !== el && this.#activeIdEl.id === activeId) {
-			this.#activeIdEl.removeAttribute("id");
-		}
-		this.#activeIdEl = el;
-		if ("ariaActiveDescendantElement" in inp) {
-			(inp as unknown as { ariaActiveDescendantElement: Element | null }).ariaActiveDescendantElement = el;
-		}
-		if (el) {
-			if (!el.id) el.id = activeId;
-			inp.setAttribute("aria-activedescendant", el.id);
-		} else {
-			inp.removeAttribute("aria-activedescendant");
-		}
+		if (inp) setAriaRef(inp, "aria-activedescendant", el ? [el] : []);
 	}
 
 	// Reconciles after the options changed, through a server patch or a morph.
@@ -1938,20 +1933,23 @@ export class NeoTextInput extends HTMLElement {
 	}
 
 	// The active option carries aria-selected, per the APG listbox-popup combobox,
-	// and neo-option.css paints it from that.
+	// and neo-option.css paints it from that. The writes run paused,
+	// because the option observer restores a stripped aria-selected.
 	#setActive(el: HTMLElement | null) {
 		this.#clearActive();
 		if (!el) return;
-		el.setAttribute("aria-selected", "true");
+		this.#withObserverPaused(() => setAttrIfChanged(el, "aria-selected", "true"));
 		this.#suggestActiveEl = el;
 		this.#pointActiveDescendant(el);
 		el.scrollIntoView({ block: "nearest" });
 	}
 
 	#clearActive() {
-		for (const el of this.#suggestOptionEls()) {
-			if (el.getAttribute("aria-selected") === "true") el.setAttribute("aria-selected", "false");
-		}
+		this.#withObserverPaused(() => {
+			for (const el of this.#suggestOptionEls()) {
+				if (el.getAttribute("aria-selected") === "true") el.setAttribute("aria-selected", "false");
+			}
+		});
 		this.#suggestActiveEl = null;
 		this.#pointActiveDescendant(null);
 	}

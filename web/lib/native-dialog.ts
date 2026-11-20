@@ -1,3 +1,90 @@
+import { type AriaRef, setAriaRef } from "./aria-ref";
+import { observeManagedAttrs, setAttrIfChanged } from "./neo-morph-resilient";
+
+const TRIGGER_ATTRS = ["aria-haspopup", "aria-controls", "aria-expanded"];
+const DIALOG_ATTRS = ["role", "aria-modal", "aria-labelledby", "aria-describedby"];
+
+// DialogAria links a trigger to its <dialog> and the dialog to its title and
+// description parts, and re-applies the links after a morph strips them.
+// Without a title or description part, an author's own aria-labelledby or
+// aria-describedby stays; only a link this wrote is removed.
+export class DialogAria {
+	#titleSel: string;
+	#descSel: string;
+	#expanded: () => boolean;
+	#trigger: HTMLElement | null = null;
+	#dialog: HTMLDialogElement | null = null;
+	#observers: MutationObserver[] = [];
+	#ownsLabel = false;
+	#ownsDesc = false;
+
+	constructor(titleSel: string, descSel: string, expanded: () => boolean) {
+		this.#titleSel = titleSel;
+		this.#descSel = descSel;
+		this.#expanded = expanded;
+	}
+
+	bind(trigger: HTMLElement | null, dialog: HTMLDialogElement): void {
+		if (trigger !== this.#trigger || dialog !== this.#dialog) {
+			this.disconnect();
+			this.#trigger = trigger;
+			this.#dialog = dialog;
+			if (trigger) this.#observers.push(observeManagedAttrs(trigger, TRIGGER_ATTRS, this.sync));
+			this.#observers.push(observeManagedAttrs(dialog, DIALOG_ATTRS, this.sync));
+		}
+		this.sync();
+	}
+
+	sync = (): void => {
+		const trigger = this.#trigger;
+		const dialog = this.#dialog;
+		if (!dialog) return;
+		if (trigger) {
+			setAttrIfChanged(trigger, "aria-haspopup", "dialog");
+			setAriaRef(trigger, "aria-controls", [dialog]);
+			setAttrIfChanged(trigger, "aria-expanded", String(this.#expanded()));
+		}
+		if (!dialog.hasAttribute("role")) dialog.setAttribute("role", "dialog");
+		setAttrIfChanged(dialog, "aria-modal", "true");
+		this.#ownsLabel = linkPart(dialog, "aria-labelledby", this.#titleSel, this.#ownsLabel);
+		this.#ownsDesc = linkPart(dialog, "aria-describedby", this.#descSel, this.#ownsDesc);
+	};
+
+	disconnect(): void {
+		for (const o of this.#observers) o.disconnect();
+		this.#observers = [];
+		this.#trigger = null;
+		this.#dialog = null;
+		this.#ownsLabel = false;
+		this.#ownsDesc = false;
+	}
+}
+
+// Points `name` at the dialog's part and returns whether the link is this
+// module's, which decides whether a later pass without the part removes it.
+function linkPart(dialog: HTMLElement, name: AriaRef, partSel: string, owned: boolean): boolean {
+	const part = dialog.querySelector(partSel);
+	if (part) {
+		setAriaRef(dialog, name, [part]);
+		return true;
+	}
+	if (owned) dialog.removeAttribute(name);
+	return false;
+}
+
+// takeEscape cancels an Escape keydown that no descendant handled and reports
+// whether the caller should close. Safari leaves macOS full screen on an Escape
+// the page doesn't cancel, and the native <dialog> close doesn't cancel it.
+// Listen in the bubble phase, which lets a descendant that handles Escape
+// (a listbox, a menu) cancel it first. An open auto or hint popover, which the
+// native close request dismisses first, keeps the key.
+export function takeEscape(e: KeyboardEvent): boolean {
+	if (e.key !== "Escape" || e.defaultPrevented || e.isComposing) return false;
+	if (document.querySelector(':is([popover=""], [popover="auto"], [popover="hint"]):popover-open')) return false;
+	e.preventDefault();
+	return true;
+}
+
 // On a native <dialog>, ::backdrop and dialog-box clicks both target <dialog>.
 
 export class DialogBackdropClickTracker {

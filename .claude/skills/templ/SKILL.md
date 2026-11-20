@@ -6,52 +6,34 @@ paths:
   - "*.templ"
 ---
 
-This skill covers the parser gotchas that apply to every `.templ` file and the naming rule for wrapper `Opts` fields.
-
-Component doc pages (`internal/site/page_*.templ`), their examples, and their playgrounds have their own conventions in the `doc-page` skill.
+This skill covers the rules for every `.templ` file. Doc pages, their examples and playgrounds also follow the `doc-page` skill.
 
 ## Parser gotchas
 
-### No Go keywords at the start of a text run
+- Templ reads a Go keyword (`for`, `if`, `switch`, `case`, `default`, `else`, `range`) as control flow when it starts a text line or follows a closing tag. Reword the sentence, or write the word as `{ "for" }`.
+- An `@` after whitespace starts a component call. Write a literal one as `{ "@media" }`.
+- After other punctuation, `@` renders as text. Put a call that follows punctuation on its own line.
+- Templ treats any attribute whose name starts with `on` as an event handler and drops a plain string value. Pass the value through `attrValue`, as `Attr.Attrs` already does.
+- Inside `<code>`, text with `=` or `"` parses as an attribute. Write it as a backtick expression, as in `<code>{ `foo="bar"` }</code>`.
 
-Inside `.templ` element content, the words `for`, `if`, `switch`, `case`, `default`, `else`, `range` are parsed as control-flow keywords when one is the first token on a line (ignoring leading whitespace), as in `<p>X to do.\n\tfor a Y</p>`. `for`, `if`, and `switch` are also parsed as keywords right after an element's closing tag, and `<p>add <code>flag</code> for the Y</p>` fails. Mid-line after plain text is fine, as in `<p>add the flag for the Y</p>`.
+## Spaces around component calls
 
-Symptom: `for: unterminated (missing closing '{')`, or `expected nodes, but none were found: line N, col M`, often pointing at EOF.
+In inline content, line breaks around a call render like this:
 
-Reword, or write the word as the string expression `{ "for" }`.
+- Text followed by a call on the next line gets no space. Keep the call on the same line after a space, or add `{ " " }`.
+- A call without children followed by text on the next line gets a space. To attach the text, write it right after the call, as in `@x()&nbsp;word`, and write a period as `&period;`.
+- A call with children followed by text on the next line gets no space. Put trailing punctuation on its own line after the closing `}`.
+- 2 calls on consecutive lines get no space between them.
 
-### `@` after whitespace starts a component call
+## What a wrapper renders
 
-In text, `@` preceded by a space or tab starts a templ element expression, and `no @media query` calls `media`. `user@example.com` stays text. Write a literal `@` after whitespace as a string expression such as `{ "@media" }`.
-
-`@` after other punctuation, as in `&#34;@neo.X()`, renders as text, and templ warns that a future release will call it. To call it, put the call on its own line.
-
-### Attributes named `on*`
-
-templ reads every attribute name starting with `on` as an event handler, written literally or spread, and replaces a string value with a `failed sanitization` comment. This hits `on` and `online`. In the `neo` package, pass such values through `attrValue`, which `Attr.Attrs` already does.
-
-### Spaces around component calls in prose
-
-Line breaks around a `@call` render as follows:
-
-- Text, then a call on the next line: no space. Put the call on the same line after a space (`see @neo.Icon("x")`) or add `{ " " }`.
-- A call without a children block, then text on the next line: the line break renders as a space. To attach the text, write it on the same line right after the call, as in `@ComponentLink("neo-button", href.PageButton())&nbsp;children`. A period cannot follow the call directly (`x().` parses as a Go selector); write `&period;`.
-- A call with a children block (`@neo.Link(...) { label }`), then text on the next line: no space. Trailing punctuation goes on its own line after the closing `}`.
-- 2 calls on consecutive lines: no space between them.
-
-These rules matter in inline content only, because whitespace between flex or grid items does not render.
-
-### Literal `=` / `"` inside `<code>`
-
-`<code>foo="bar"</code>` is parsed as a `<code>` tag with attribute `foo="bar"` and breaks the same way. Wrap with backticks, as in `<code>{ `foo="bar"` }</code>`.
+A wrapper renders only the attributes the server owns (see "Attribute ownership" in the `neo-component` skill). It never invents an `id`. It renders the caller's `id`, or a part `id` derived from it the same way on every render. It may render the initial value of a managed attribute, which gives correct semantics before the element upgrades.
 
 ## Opts field naming
 
-A wrapper `Opts` field has the same name as the custom-element attribute it sets, exported (PascalCase, since it's Go) and typed `Attr[T]`. Use the most specific type, not `Attr[string]`. Use a named enum for a fixed set of values, `CSSUnit` for a CSS length, `int` for a whole number (count, index, ms delay) and `float64` for a value that can be fractional (a slider `value`/`min`/`max`/`step`).
+A wrapper `Opts` field takes the name of the attribute it sets, in PascalCase, typed `Attr[T]` with the most specific `T`. Use a named enum for a fixed set of values, `CSSUnit` for a CSS length, `int` for a whole number and `float64` for anything fractional. A layout-axis field is `Attr[Axis]` when the component supports only horizontal and vertical, and `Attr[Orientation]` when it also supports `grid`.
 
-- attribute `touch` becomes `Touch Attr[bool]`
-- attribute `align` becomes `Align Attr[CarouselAlign]`
-- attribute `spacing` becomes `Spacing Attr[CSSUnit]`
-- attribute `page` becomes `Page Attr[int]`
-
-For a layout-axis field, type it `Attr[Axis]` when the component supports only horizontal and vertical, or `Attr[Orientation]` when it also supports `grid` (e.g. navgroup, sortable). Using `Axis` keeps an unsupported `grid` unrepresentable.
+- `touch` becomes `Touch Attr[bool]`
+- `align` becomes `Align Attr[CarouselAlign]`
+- `spacing` becomes `Spacing Attr[CSSUnit]`
+- `page` becomes `Page Attr[int]`

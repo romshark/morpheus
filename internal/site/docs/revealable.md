@@ -19,9 +19,16 @@ Component `<neo-revealable>` is a spoiler that obscures children behind an anima
 | --- | --- | --- | --- |
 | `open` | `boolean`, reflected, observed | `false` | Set/remove (or use the `open` JS property / `reveal()` / `conceal()` / `toggle()`) to control it. |
 | `rehide-after` | `number`, observed | `0` | Milliseconds before auto re-conceal after a reveal. `0` or absent keeps it revealed until re-activated. |
-| `variant` | `"inline" \| "media"`, observed |  | Obscure treatment. Inferred from the host's height when absent (media when tall, inline when short). |
+| `variant` | `"inline" \| "media"`, observed |  | Obscure treatment. Inferred from the host's height when absent (media when tall, inline when short). The applied value is [`:state(inline)`](#states-inline) or [`:state(media)`](#states-media). |
 | `density` | `number`, observed | `1` | Particle-count multiplier, clamped to 0.3-3. |
 | `blur-content` | `boolean`, observed | `false` | Media variant only: tease the shape with a heavy blur instead of hiding it outright. No effect on text (already hidden, and blurring it would waste a composite). |
+
+### States
+
+| Name | Description |
+| --- | --- |
+| `:state(inline)` | Set while the inline treatment applies, from `variant` or inferred. |
+| `:state(media)` | Set while the media treatment applies, from `variant` or inferred. |
 
 ### Slots
 

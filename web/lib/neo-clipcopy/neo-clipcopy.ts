@@ -1,3 +1,5 @@
+import { setState } from "../internal-state";
+
 async function writeClipboardText(text: string): Promise<void> {
 	if (navigator.clipboard && window.isSecureContext) {
 		await navigator.clipboard.writeText(text);
@@ -22,6 +24,7 @@ const DEFAULT_COPIED_DURATION_MS = 1500;
 
 export class NeoClipcopy extends HTMLElement {
 	#copiedTimer: number | null = null;
+	#internals = this.attachInternals();
 
 	connectedCallback() {
 		// Listen on the host, not the trigger child. Trigger clicks bubble
@@ -75,12 +78,12 @@ export class NeoClipcopy extends HTMLElement {
 
 	#flashCopied() {
 		this.#clearCopiedTimer();
-		this.setAttribute("copied", "");
+		setState(this.#internals, "copied", true);
 		const duration = this.#readDurationAttr();
 		if (duration <= 0) return;
 		this.#copiedTimer = window.setTimeout(() => {
 			this.#copiedTimer = null;
-			this.removeAttribute("copied");
+			setState(this.#internals, "copied", false);
 		}, duration);
 	}
 

@@ -15,6 +15,7 @@ import {
 	syncHoveredMarkLabel,
 	syncMarkActive as syncMarkRailActive,
 } from "../neo-marks";
+import { observeManagedAttrs, setAttrIfChanged } from "../neo-morph-resilient";
 import { clamp, num } from "../num";
 import { scopeCssToHost } from "../shadow-utils";
 import progressCss from "./neo-progress.css";
@@ -28,6 +29,7 @@ const ATTR_HIDE_VALUE = "hide-value";
 const ATTR_VERTICAL = "vertical";
 const ATTR_EASING = "easing";
 const ATTR_INDETERMINATE = "indeterminate";
+const MANAGED_ARIA = ["role", "aria-valuemin", "aria-valuemax", "aria-valuenow", "aria-label"];
 
 const MARK_CFG: MarkRailConfig = {
 	markAttr: "data-neo-progress-mark",
@@ -36,9 +38,9 @@ const MARK_CFG: MarkRailConfig = {
 };
 
 // The whole module stylesheet, tag selectors rewritten to `:host`, adopted
-// into every instance's shadow root. Built once and shared. The internals
-// live in the shadow so that a Datastar fat-morph of the light host can't
-// wipe them. The fill node persists, and an `easing` transition runs on a
+// into every instance's shadow root. Built once and shared.
+// The internals live in the shadow so that a Datastar fat-morph of the light host
+// can't wipe them. The fill node persists, and an `easing` transition runs on a
 // plain `value` change instead of snapping after a rebuild.
 const SHEET = new CSSStyleSheet();
 SHEET.replaceSync(scopeCssToHost(progressCss, "neo-progress"));
@@ -73,6 +75,7 @@ export class NeoProgress extends HTMLElement {
 	#marksEl: HTMLElement | null = null;
 	#marks: MarkSpec[] = [];
 	#childObserver: MutationObserver | null = null;
+	#ariaObserver: MutationObserver | null = null;
 	#markResizeObserver: ResizeObserver | null = null;
 	#markLayoutFrame: number | null = null;
 
@@ -94,11 +97,14 @@ export class NeoProgress extends HTMLElement {
 		this.#observeMarkLayout();
 		this.#scheduleMarkLayoutSync();
 		this.#observeChildren();
+		this.#ariaObserver ??= observeManagedAttrs(this, MANAGED_ARIA, this.#syncAria);
 	}
 
 	disconnectedCallback() {
 		this.#childObserver?.disconnect();
 		this.#childObserver = null;
+		this.#ariaObserver?.disconnect();
+		this.#ariaObserver = null;
 		this.#markResizeObserver?.disconnect();
 		this.#markResizeObserver = null;
 		if (this.#markLayoutFrame !== null) {
@@ -187,9 +193,6 @@ export class NeoProgress extends HTMLElement {
 		const root = this.shadowRoot;
 		if (!root) return;
 		this.#rendered = true;
-
-		// Host is the progressbar; the shadow track is presentational.
-		this.setAttribute("role", "progressbar");
 
 		this.#captureUserContent();
 
@@ -282,9 +285,9 @@ export class NeoProgress extends HTMLElement {
 	}
 
 	#syncEasing() {
-		// Set the transition on the shadow fill, not the host. A Datastar
-		// fat-morph of the bare light host reconciles its attributes to the
-		// source, which has no `style`. Putting it on the host would strip
+		// Set the transition on the shadow fill, not the host.
+		// A Datastar fat-morph of the bare light host reconciles its attributes
+		// to the source, which has no `style`. Putting it on the host would strip
 		// the transition on every morph and the fill would snap to the new
 		// value instead of easing. The shadow tree is untouched by the morph.
 		if (!this.#fillEl) return;
@@ -333,23 +336,27 @@ export class NeoProgress extends HTMLElement {
 		return boolAttr(this, ATTR_INDETERMINATE, false);
 	}
 
+	// The host carries the progressbar semantics. The header and track are in
+	// the shadow and presentational. The visible `label` lives in the shadow too,
+	// and mirroring it to aria-label names the progressbar.
+	// An author-set aria-label is the fallback when there's no visible label.
+	#syncAria = () => {
+		if (!this.#rendered) return;
+		setAttrIfChanged(this, "role", "progressbar");
+		setAttrIfChanged(this, "aria-valuemin", String(this.min));
+		setAttrIfChanged(this, "aria-valuemax", String(this.max));
+		if (this.#isIndeterminate()) this.removeAttribute("aria-valuenow");
+		else setAttrIfChanged(this, "aria-valuenow", String(this.value));
+		const label = this.getAttribute(ATTR_LABEL) || this.getAttribute("aria-label");
+		if (label) setAttrIfChanged(this, "aria-label", label);
+		else this.removeAttribute("aria-label");
+	};
+
 	#syncValue() {
 		const indeterminate = this.#isIndeterminate();
 		const v = this.value;
 		if (this.#valueEl) this.#valueEl.textContent = indeterminate ? "" : String(v);
-		// Host carries the progressbar semantics (the header/track are in the
-		// shadow and presentational). aria-valuenow sets the announced
-		// value; indeterminate drops it.
-		this.setAttribute("aria-valuemin", String(this.min));
-		this.setAttribute("aria-valuemax", String(this.max));
-		if (indeterminate) this.removeAttribute("aria-valuenow");
-		else this.setAttribute("aria-valuenow", String(v));
-		// The visible `label` lives in the shadow. Mirror it to the host's
-		// aria-label to name the progressbar. An author-set aria-label is the
-		// fallback when there's no visible label.
-		const label = this.getAttribute(ATTR_LABEL) || this.getAttribute("aria-label");
-		if (label) this.setAttribute("aria-label", label);
-		else this.removeAttribute("aria-label");
+		this.#syncAria();
 		const span = this.max - this.min;
 		const pct = span > 0 ? ((v - this.min) / span) * 100 : 0;
 		if (this.#fillEl && !indeterminate) {

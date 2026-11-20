@@ -4,6 +4,7 @@
 // (border, background, resize handle); the field fills it.
 
 import { boolAttr } from "../command";
+import { attachHostStyle, type HostStyle } from "../host-style";
 import { setState } from "../internal-state";
 
 // Standard <textarea> attributes mirrored verbatim to the inner field.
@@ -123,6 +124,7 @@ export class NeoTextarea extends HTMLElement {
 
 	#internals: ElementInternals;
 	#textarea!: HTMLTextAreaElement;
+	#hostStyle: HostStyle;
 	#resizeObserver: ResizeObserver | null = null;
 	#ready = false;
 
@@ -132,6 +134,7 @@ export class NeoTextarea extends HTMLElement {
 		const root = this.attachShadow({ mode: "open" });
 		root.appendChild(TEMPLATE.content.cloneNode(true));
 		this.#textarea = root.querySelector("textarea")!;
+		this.#hostStyle = attachHostStyle(root);
 	}
 
 	get value(): string {
@@ -245,10 +248,8 @@ export class NeoTextarea extends HTMLElement {
 
 	#applyCaps() {
 		// Caps live on the host (the resizable box); the field fills it.
-		const maxH = this.getAttribute("auto-resize-height");
-		this.style.maxHeight = maxH ? maxH : "";
-		const maxW = this.getAttribute("auto-resize-width");
-		this.style.maxWidth = maxW ? maxW : "";
+		this.#setHostProp("max-height", this.getAttribute("auto-resize-height"));
+		this.#setHostProp("max-width", this.getAttribute("auto-resize-width"));
 	}
 
 	#applyWrap() {
@@ -267,11 +268,12 @@ export class NeoTextarea extends HTMLElement {
 	}
 
 	#applyResize() {
-		// Resize handle on the host so the dragged size lands in the host's light-DOM
-		// inline style (observable, persistable). auto-resize takes precedence.
+		// Resize handle on the host, where the browser writes the dragged size
+		// into the host's style attribute (observable, persistable).
+		// auto-resize takes precedence.
 		const canH = boolAttr(this, "scale-horizontal", false) && !boolAttr(this, "auto-resize-width", false);
 		const canV = boolAttr(this, "scale-vertical", false) && !boolAttr(this, "auto-resize-height", false);
-		this.style.resize = canH && canV ? "both" : canH ? "horizontal" : canV ? "vertical" : "none";
+		this.#hostStyle.setProperty("resize", canH && canV ? "both" : canH ? "horizontal" : canV ? "vertical" : "none");
 		setState(this.#internals, "resizable", canH || canV);
 	}
 
@@ -279,18 +281,29 @@ export class NeoTextarea extends HTMLElement {
 		const ta = this.#textarea;
 		if (boolAttr(this, "auto-resize-width", false)) {
 			// Reset to auto so scrollWidth reflects natural content width, not
-			// the previously-grown value. Gate on value because with wrap="off" a
-			// long placeholder also widens scrollWidth. An empty field stays put.
-			this.style.width = "auto";
-			if (ta.value.length > 0) this.style.width = `${ta.scrollWidth + this.#borderX()}px`;
+			// the previously-grown value. Gate on value because with wrap="off"
+			// a long placeholder also widens scrollWidth. An empty field stays put.
+			this.#hostStyle.setProperty("width", "auto", "important");
+			if (ta.value.length > 0)
+				this.#hostStyle.setProperty("width", `${ta.scrollWidth + this.#borderX()}px`, "important");
+		} else {
+			this.#hostStyle.removeProperty("width");
 		}
 		if (boolAttr(this, "auto-resize-height", false)) {
 			// scrollHeight is the field's content box (incl. its padding) but
 			// excludes the host border; add it back so the box doesn't shrink.
-			this.style.height = "auto";
-			this.style.height = `${ta.scrollHeight + this.#borderY()}px`;
+			this.#hostStyle.setProperty("height", "auto", "important");
+			this.#hostStyle.setProperty("height", `${ta.scrollHeight + this.#borderY()}px`, "important");
+		} else {
+			this.#hostStyle.removeProperty("height");
 		}
 	};
+
+	// An empty cap attribute (`auto-resize-height` alone) means no cap.
+	#setHostProp(name: string, value: string | null): void {
+		if (value) this.#hostStyle.setProperty(name, value);
+		else this.#hostStyle.removeProperty(name);
+	}
 
 	#borderX(): number {
 		const cs = getComputedStyle(this);

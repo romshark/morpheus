@@ -30,6 +30,8 @@ height: 22rem
 | Name | Description |
 | --- | --- |
 | `:state(expanded)` | Set while the stack is unfolded (hover, focus, or click). Dismiss timers are paused for as long as it holds. |
+| `<neo-toast>:state(leaving)` | Set on a toast while it animates out, before its removal. |
+| `<neo-toast>:state(dragging)` | Set on a toast while a touch-dismiss drag is in flight. |
 
 ### Slots
 

@@ -1,6 +1,6 @@
 # Clipcopy
 
-Component `<neo-clipcopy>` is a wrapper that copies a value to the clipboard when its first child is clicked. The host toggles a `copied` attribute so consumers style idle and copied states from CSS.
+Component `<neo-clipcopy>` is a wrapper that copies a value to the clipboard when its first child is clicked. The host sets [`:state(copied)`](#states-copied) after a copy, which CSS uses to swap the idle and copied labels.
 
 ```playground
 - clipcopy_default: Default
@@ -15,7 +15,13 @@ Component `<neo-clipcopy>` is a wrapper that copies a value to the clipboard whe
 | --- | --- | --- | --- |
 | `value` | `string` |  | Literal text to copy. Takes precedence over `for`. |
 | `for` | `string` |  | Id of an element whose `textContent` is copied. |
-| `copied-duration` | `number` | `1500` | Milliseconds the `copied` attribute stays on the host. |
+| `copied-duration` | `number` | `1500` | Milliseconds [`:state(copied)`](#states-copied) stays set. |
+
+### States
+
+| Name | Description |
+| --- | --- |
+| `:state(copied)` | Set after a successful copy for `copied-duration` milliseconds. |
 
 ### Slots
 

@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>neo-menu: submenu cut off in Safari</title>
+	<link rel="stylesheet" href="../min/morpheus.css">
+	<link rel="stylesheet" href="../min/theme-default.css">
+	<!-- A classic deferred script, unlike a module, also loads from file://. -->
+	<script defer src="../min/bundle.js"></script>
+	<style>
+		body {
+			max-width: 42rem;
+			margin: 2rem auto;
+			padding: 0 1rem;
+			font: 16px/1.5 system-ui, sans-serif;
+		}
+
+		.stage {
+			height: 18rem;
+		}
+
+		#status {
+			padding: 0.75rem;
+			border: 1px solid;
+			border-radius: 0.5rem;
+		}
+
+		#status.bug {
+			color: #c00;
+			border-color: #c00;
+		}
+	</style>
+</head>
+<body>
+	<h1>neo-menu: submenu cut off in Safari</h1>
+	<p>
+		Safari drew a submenu cut off for a split second as it opened, when its panel was drawn
+		inside a transformed <code>&lt;neo-button&gt;</code>. Any <code>transform</code>, even
+		<code>translateY(0)</code>, makes the button the containing block and stacking context
+		of the fixed menu panels. A <code>&lt;neo-button&gt;</code> that holds a
+		<code>&lt;neo-menu&gt;</code> now has no transform.
+	</p>
+	<ol>
+		<li>Click <b>File</b>, hover <b>Settings</b>, then move between <b>Editor</b> and <b>Theme</b>.</li>
+		<li>Expected: the <b>Theme</b> submenu renders whole every time.</li>
+	</ol>
+
+	<pre id="status">Loading ../min/bundle.js</pre>
+
+	<div class="stage">
+		<neo-button>
+			File
+			<neo-menu>
+				<neo-menuitem value="new">New file</neo-menuitem>
+				<neo-menuitem value="save">Save</neo-menuitem>
+				<hr>
+				<neo-submenu label="Open recent">
+					<neo-menuitem value="a">Project A.json</neo-menuitem>
+					<neo-menuitem value="b">Project B.json</neo-menuitem>
+					<neo-menuitem value="c">Notes.md</neo-menuitem>
+				</neo-submenu>
+				<neo-submenu label="Settings">
+					<neo-menuitem value="editor">Editor</neo-menuitem>
+					<neo-submenu label="Theme">
+						<neo-menuitem value="light">Light</neo-menuitem>
+						<neo-menuitem value="dark">Dark</neo-menuitem>
+						<neo-menuitem value="system">System</neo-menuitem>
+					</neo-submenu>
+					<neo-menuitem value="keys">Keybindings</neo-menuitem>
+				</neo-submenu>
+				<hr>
+				<neo-menuitem value="quit">Quit</neo-menuitem>
+			</neo-menu>
+		</neo-button>
+	</div>
+
+	<script>
+		// Checked on hover too, because the :hover lift is the transform that returns most easily.
+		const button = document.querySelector(".stage neo-button");
+		function update() {
+			const transform = getComputedStyle(button).transform;
+			const status = document.getElementById("status");
+			status.classList.toggle("bug", transform !== "none");
+			status.textContent = `<neo-button> transform: ${transform}${transform !== "none" ? " (bug)" : ""}`;
+		}
+		button.addEventListener("pointerenter", () => setTimeout(update, 200));
+		button.addEventListener("pointerleave", () => setTimeout(update, 200));
+		document.addEventListener("DOMContentLoaded", update);
+	</script>
+</body>
+</html>

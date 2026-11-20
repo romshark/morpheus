@@ -23,7 +23,7 @@ height: 20rem
 | Name | Type | Default | Description |
 | --- | --- | --- | --- |
 | `text` | `string`, observed |  | Plain-text body. Ignored when `[data-neo-tooltip-content]` is present. |
-| `placement` | `string`, observed | `"bottom-start"` | Same values as [`<neo-popover>`](popover.md); see its placement values. |
+| `placement` | `string`, observed | `"bottom-start"` | Same values as [`<neo-popover>`](popover.md); the bubble moves to the opposite side when it doesn't fit, and hides when neither side fits. |
 | `hover-open-delay` | `number` | `350` | Hover dwell in ms before showing. Focus shows immediately. |
 | `hover-close-delay` | `number` | `0` | Linger in ms after pointer leaves. |
 | `open` | `boolean`, reflected, observed | `false` | Controls tooltip visibility. |

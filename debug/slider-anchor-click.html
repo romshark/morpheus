@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>neo-slider: off-step anchor click</title>
+	<link rel="stylesheet" href="../min/morpheus.css">
+	<link rel="stylesheet" href="../min/theme-default.css">
+	<!-- A classic deferred script, unlike a module, also loads from file://. -->
+	<script defer src="../min/bundle.js"></script>
+	<style>
+		body {
+			max-width: 46rem;
+			margin: 2rem auto;
+			padding: 0 1rem;
+			font: 16px/1.5 system-ui, sans-serif;
+		}
+
+		neo-slider,
+		neo-slider-range {
+			--neo-slider-anchor-size: 0.875rem;
+			margin: 1.5rem 0;
+		}
+
+		table {
+			width: 100%;
+			border-collapse: collapse;
+			font: 14px/1.4 monospace;
+		}
+
+		th,
+		td {
+			padding: 0.25rem 0.5rem;
+			border-bottom: 1px solid;
+			text-align: left;
+		}
+
+		.pass {
+			color: #070;
+		}
+
+		.fail {
+			color: #b00;
+		}
+	</style>
+</head>
+<body>
+	<h1>neo-slider: off-step anchor click</h1>
+	<p>
+		Both sliders have <code>step="10"</code> and marks at 25, 50 and 75. A click on the 25 or
+		75 dot used to commit 30 or 80, the nearest step. <code>#onTrackPointerDown</code> sets
+		pointer capture on the track, which makes the browser fire the <code>click</code> at the
+		track, not the dot, and the anchor click handler never ran. The press now commits the
+		dot's value. Marks are also stops on the step grid, unless <code>static-marks</code> is set.
+	</p>
+	<ol>
+		<li>Click the 25 dot and the 75 dot on each slider without moving the pointer. Each row should read PASS. The 50 mark is on the step grid and passes either way.</li>
+		<li>Focus the <code>neo-slider</code> thumb, press Home, then ArrowRight 4 times. The value goes 10, 20, 25, 30.</li>
+		<li>Click the rail just right of the 25 dot. The value is 25.</li>
+	</ol>
+	<p>
+		<b>click target</b> in the log shows where the browser sent the <code>click</code>. A press
+		that moves 4px or more is a drag and isn't judged.
+	</p>
+	<p>
+		Synthetic events can't reproduce this, because <code>setPointerCapture</code> throws for
+		a pointer the browser doesn't track, and the <code>click</code> then reaches the dot.
+	</p>
+
+	<neo-slider id="single" label="neo-slider" min="0" max="100" step="10" value="50">
+		<span data-neo-slider-mark="25">25</span>
+		<span data-neo-slider-mark="50">50</span>
+		<span data-neo-slider-mark="75">75</span>
+	</neo-slider>
+
+	<neo-slider-range id="range" label="neo-slider-range" min="0" max="100" step="10" value-min="10" value-max="90">
+		<span data-neo-slider-mark="25">25</span>
+		<span data-neo-slider-mark="50">50</span>
+		<span data-neo-slider-mark="75">75</span>
+	</neo-slider-range>
+
+	<p><button type="button" id="reset">Reset values</button></p>
+
+	<table>
+		<thead>
+			<tr>
+				<th>slider</th>
+				<th>pressed</th>
+				<th>moved</th>
+				<th>click target</th>
+				<th>value</th>
+				<th>result</th>
+			</tr>
+		</thead>
+		<tbody id="log"></tbody>
+	</table>
+
+	<script>
+		const log = document.getElementById("log");
+
+		function anchorValue(el) {
+			const a = el instanceof Element ? el.closest("[data-neo-slider-anchor]") : null;
+			return a ? Number(a.getAttribute("data-neo-mark-value")) : null;
+		}
+
+		function describe(el) {
+			if (!(el instanceof Element)) return "none";
+			const v = anchorValue(el);
+			if (v !== null) return `anchor ${v}`;
+			for (const name of el.getAttributeNames()) {
+				if (name.startsWith("data-neo-slider-")) return name.slice("data-neo-slider-".length);
+			}
+			return el.localName;
+		}
+
+		function values(slider) {
+			return slider.localName === "neo-slider" ? [slider.value] : [slider.valueMin, slider.valueMax];
+		}
+
+		// Listeners on the host in the capture phase see every composed event
+		// from the open shadow root. composedPath()[0] is the target inside it.
+		function watch(slider) {
+			let press = null;
+			let timer = 0;
+
+			function finish() {
+				if (!press) return;
+				const got = values(slider);
+				let result = "-";
+				let cls = "";
+				if (press.aimed !== null && press.moved >= 4) result = "drag";
+				else if (press.aimed !== null && got.includes(press.aimed)) {
+					result = "PASS";
+					cls = "pass";
+				} else if (press.aimed !== null) {
+					result = `FAIL, expected ${press.aimed}`;
+					cls = "fail";
+				}
+				const row = document.createElement("tr");
+				for (const text of [slider.localName, press.down, `${press.moved}px`, press.click, got.join(" - "), result]) {
+					const td = document.createElement("td");
+					td.textContent = text;
+					row.append(td);
+				}
+				row.className = cls;
+				log.prepend(row);
+				press = null;
+			}
+
+			slider.addEventListener(
+				"pointerdown",
+				(e) => {
+					clearTimeout(timer);
+					finish();
+					const t = e.composedPath()[0];
+					press = { aimed: anchorValue(t), down: describe(t), x: e.clientX, y: e.clientY, moved: 0, click: "none" };
+				},
+				true,
+			);
+			slider.addEventListener(
+				"pointermove",
+				(e) => {
+					if (!press) return;
+					const d = Math.max(Math.abs(e.clientX - press.x), Math.abs(e.clientY - press.y));
+					press.moved = Math.max(press.moved, Math.round(d));
+				},
+				true,
+			);
+			slider.addEventListener(
+				"click",
+				(e) => {
+					if (press) press.click = describe(e.composedPath()[0]);
+				},
+				true,
+			);
+			// click follows pointerup in the same task; the timeout reads the
+			// value after #onAnchorClick had its chance to run.
+			slider.addEventListener("pointerup", () => {
+				clearTimeout(timer);
+				timer = setTimeout(finish, 50);
+			});
+		}
+
+		const single = document.getElementById("single");
+		const range = document.getElementById("range");
+		document.getElementById("reset").addEventListener("click", () => {
+			single.setAttribute("value", "50");
+			range.setAttribute("value-min", "10");
+			range.setAttribute("value-max", "90");
+		});
+		watch(single);
+		watch(range);
+	</script>
+</body>
+</html>

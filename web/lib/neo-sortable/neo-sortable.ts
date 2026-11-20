@@ -17,7 +17,24 @@ SHADOW_TEMPLATE.innerHTML = `
   :host([hidden]) { display: none; }
 </style>
 <slot></slot>
+<i data-probe hidden></i>
 `;
+
+// overflow-anchor: none on the page while any sortable drags.
+// Otherwise a per-patch 1px content-height jitter scrolls the page beneath
+// the position:fixed dragged item, which reads as the item creeping.
+const ANCHOR_LOCK = new CSSStyleSheet();
+ANCHOR_LOCK.replaceSync(":root, body { overflow-anchor: none !important; }");
+let anchorLocks = 0;
+
+function lockAnchor(): void {
+	if (anchorLocks++ === 0) document.adoptedStyleSheets = [...document.adoptedStyleSheets, ANCHOR_LOCK];
+}
+
+function unlockAnchor(): void {
+	if (anchorLocks === 0 || --anchorLocks > 0) return;
+	document.adoptedStyleSheets = document.adoptedStyleSheets.filter((s) => s !== ANCHOR_LOCK);
+}
 
 const ORIENTATIONS: readonly Orientation[] = ["vertical", "horizontal", "grid"] as const;
 
@@ -41,9 +58,8 @@ interface PointerDrag {
 	// Floating-element size captured at promote; the bounds-clamp uses it.
 	w: number;
 	h: number;
-	savedCss: string;
-	// Last float position from #onPointerMove. Re-applied by the
-	// reconcile path after a no-op morph strips d.item's inline style.
+	// Last float position from #onPointerMove. The reconcile path moves
+	// the float to it on the node a no-op morph left in d.item's place.
 	lastLeft: number;
 	lastTop: number;
 	// Latest pointer position. The auto-scroll tick re-runs the hit-test
@@ -93,22 +109,29 @@ export class NeoSortable extends HTMLElement {
 	#keyboard: KeyboardDrag | null = null;
 	#childObserver: MutationObserver | null = null;
 	// Separate from #childObserver. childList triggers the FLIP/drag-reconcile path;
-	// attribute strips just need #syncItems to re-stamp grip flags.
+	// attribute strips just need #syncItems to re-stamp tabindex and ARIA.
 	#attrObserver: MutationObserver | null = null;
-	#flipRaf: number | null = null;
+	// In-flight FLIP glides of the displaced items.
+	#flips = new Map<HTMLElement, Animation>();
+	// Holds the floating item at the pointer, which keeps the authored
+	// item's style attribute untouched.
+	#floatAnim: Animation | null = null;
+	// The held item's lift styles, see #syncDragSheet.
+	#dragSheet = new CSSStyleSheet();
+	#dragCss = "";
+	// Resolves the move transition's var() and calc() for the Web Animations
+	// API, which takes no CSS values.
+	#probe: HTMLElement;
+	// Grip -> the tabindex the server rendered ("" for none) and the one
+	// #syncItems wrote. A value other than the written one is the server's.
+	#gripTabindex = new WeakMap<HTMLElement, { authored: string; written: string }>();
 	#pendingPatchLayout: LayoutSnapshot | null = null;
 	#ownsRole = false;
 	// Pointer id of an externally aborted drag. While the button is
 	// still down, pointermove is absorbed (preventDefault) so the
 	// browser can't grow a native text-selection drag until pointerup.
 	#abortedPointerId: number | null = null;
-	// overflow-anchor: none on <html>/<body> for the drag duration.
-	// Otherwise a per-patch 1px content-height jitter scrolls the page
-	// beneath the position:fixed dragged item; visually that reads as
-	// the dragged element creeping though its rect never moves.
 	#scrollAnchorLockDepth = 0;
-	#savedHtmlAnchor = "";
-	#savedBodyAnchor = "";
 	// Item id whose grip last held focus. #restoreFocusIfLost re-focuses
 	// the grip after morph blurs it to <body>.
 	#focusedItemId = "";
@@ -119,7 +142,10 @@ export class NeoSortable extends HTMLElement {
 	constructor() {
 		super();
 		this.#internals = this.attachInternals();
-		this.attachShadow({ mode: "open" }).appendChild(SHADOW_TEMPLATE.content.cloneNode(true));
+		const root = this.attachShadow({ mode: "open" });
+		root.appendChild(SHADOW_TEMPLATE.content.cloneNode(true));
+		root.adoptedStyleSheets = [this.#dragSheet];
+		this.#probe = root.querySelector<HTMLElement>("[data-probe]")!;
 	}
 
 	// A drag in flight, and whether it is a pointer drag.
@@ -141,19 +167,19 @@ export class NeoSortable extends HTMLElement {
 		this.#childObserver = new MutationObserver(this.#onChildrenMutated);
 		this.#childObserver.observe(this, { childList: true, subtree: true });
 		// Morph reconciles JS-set attributes back to source, stripping
-		// grip/tabindex/role on each pass. Re-stamp via #syncItems;
+		// tabindex/role/ARIA on each pass. Re-stamp via #syncItems;
 		// idempotent writes (setAttrIfChanged) settle the observer.
 		this.#attrObserver = new MutationObserver(this.#onManagedAttrChanged);
 		this.#attrObserver.observe(this, {
 			subtree: true,
 			attributes: true,
 			attributeFilter: [
-				"data-neo-sortable-grip",
 				"tabindex",
 				"role",
 				"aria-roledescription",
 				"aria-keyshortcuts",
 				"aria-disabled",
+				"aria-grabbed",
 			],
 		});
 		this.addEventListener("pointerdown", this.#onPointerDown);
@@ -166,6 +192,8 @@ export class NeoSortable extends HTMLElement {
 		this.#ready = false;
 		this.#cancelPointer();
 		this.#keyboard = null;
+		this.#clearFlip();
+		this.#syncDragSheet();
 		// A sortable disconnected mid-drag must not leave overflow-anchor
 		// pinned globally or an auto-scroll frame queued.
 		while (this.#scrollAnchorLockDepth > 0) this.#unlockScrollAnchor();
@@ -310,16 +338,16 @@ export class NeoSortable extends HTMLElement {
 		else this.removeAttribute("aria-disabled");
 
 		const items = this.#items();
-		const grips = new Set<HTMLElement>();
+		const held = this.#keyboard?.item ?? null;
 		const listSemantics = this.getAttribute("role") === "list";
 		for (const item of items) {
 			if (item === this.#pointer?.placeholder) continue;
 			if (listSemantics && !item.hasAttribute("role")) {
 				setAttrIfChanged(item, "role", "listitem");
 			}
+			if (item === held) setAttrIfChanged(item, "aria-grabbed", "true");
+			else item.removeAttribute("aria-grabbed");
 			const grip = this.#gripOf(item);
-			grips.add(grip);
-			setAttrIfChanged(grip, "data-neo-sortable-grip", "");
 			// A handle is a focusable control. As a generic <span> it may not
 			// carry the aria-label that names it (axe aria-prohibited-attr).
 			if (grip !== item && !grip.hasAttribute("role") && !(grip instanceof HTMLButtonElement)) {
@@ -333,44 +361,86 @@ export class NeoSortable extends HTMLElement {
 				setAttrIfChanged(grip, "aria-keyshortcuts", "Space Enter");
 			}
 			// Preserve author tabindex across disabled toggles.
-			if (grip.dataset.neoSortableTabindex === undefined) {
-				const authored = grip.getAttribute("tabindex");
-				grip.dataset.neoSortableTabindex = authored ?? "";
-			}
-			const authored = grip.dataset.neoSortableTabindex;
-			if (disabled) setAttrIfChanged(grip, "tabindex", "-1");
-			else if (authored) setAttrIfChanged(grip, "tabindex", authored);
-			else setAttrIfChanged(grip, "tabindex", "0");
+			const known = this.#gripTabindex.get(grip);
+			const cur = grip.getAttribute("tabindex") ?? "";
+			const authored = known && cur === known.written ? known.authored : cur;
+			const want = disabled ? "-1" : authored || "0";
+			setAttrIfChanged(grip, "tabindex", want);
+			this.#gripTabindex.set(grip, { authored, written: want });
 		}
-		for (const stale of this.querySelectorAll<HTMLElement>("[data-neo-sortable-grip]")) {
-			if (!grips.has(stale)) {
-				stale.removeAttribute("data-neo-sortable-grip");
-				stale.removeAttribute("data-neo-sortable-tabindex");
+	}
+
+	// The held item's lift styles. An authored item takes no marker,
+	// which leaves its position among the slotted children as the selector,
+	// and every DOM move of the item or the placeholder rewrites it.
+	// !important beats page CSS on the item the way an inline style did.
+	#syncDragSheet(): void {
+		const d = this.#pointer?.active ? this.#pointer : null;
+		const item = d?.item ?? this.#keyboard?.item ?? null;
+		let css = "";
+		if (item?.parentElement === this) {
+			const sel = `::slotted(:nth-child(${Array.prototype.indexOf.call(this.children, item) + 1}))`;
+			const decls = ["box-shadow: var(--neo-sortable-drag-ring), var(--neo-sortable-drag-shadow)"];
+			if (d?.proxy) {
+				decls.push("position: relative", "visibility: hidden");
+			} else if (d) {
+				decls.push(
+					"position: fixed",
+					"margin: 0",
+					"box-sizing: border-box",
+					`width: ${d.w}px`,
+					`height: ${d.h}px`,
+					`left: ${d.homeLeft}px`,
+					`top: ${d.homeTop}px`,
+					"z-index: 9999",
+					"pointer-events: none",
+					"transition: none",
+				);
 			}
+			const body = decls.map((decl) => `${decl} !important`).join("; ");
+			css =
+				`${sel} { ${body} } ` +
+				`@media (forced-colors: active) { ${sel} { outline: 2px solid Highlight !important; outline-offset: -2px !important; } }`;
 		}
+		if (css === this.#dragCss) return;
+		this.#dragCss = css;
+		this.#dragSheet.replaceSync(css);
+	}
+
+	// Offsets the floating item from its fixed home slot
+	// (see #syncDragSheet) to d.lastLeft/d.lastTop.
+	#placeFloat(d: PointerDrag): void {
+		const t = `translate(${d.lastLeft - d.homeLeft}px, ${d.lastTop - d.homeTop}px)`;
+		const frames = [{ transform: t }, { transform: t }];
+		const effect = this.#floatAnim?.effect as KeyframeEffect | null | undefined;
+		if (effect?.target === d.item) {
+			effect.setKeyframes(frames);
+			return;
+		}
+		this.#floatAnim?.cancel();
+		this.#floatAnim = d.item.animate(frames, { fill: "forwards" });
+	}
+
+	#endFloat(): void {
+		this.#floatAnim?.cancel();
+		this.#floatAnim = null;
 	}
 
 	#announce(msg: string) {
 		announce(this, msg);
 	}
 
-	// overflow-anchor: none for the drag duration. Refcounted so the
-	// pointer-abort handoff keeps it locked until pointerup.
+	// ANCHOR_LOCK for the drag duration. Refcounted so the pointer-abort
+	// handoff keeps it locked until pointerup.
 	#lockScrollAnchor(): void {
 		if (this.#scrollAnchorLockDepth++ > 0) return;
-		const html = document.documentElement;
-		const body = document.body;
-		this.#savedHtmlAnchor = html.style.overflowAnchor;
-		this.#savedBodyAnchor = body.style.overflowAnchor;
-		html.style.overflowAnchor = "none";
-		body.style.overflowAnchor = "none";
+		lockAnchor();
 	}
 
 	#unlockScrollAnchor(): void {
 		if (this.#scrollAnchorLockDepth === 0) return;
 		if (--this.#scrollAnchorLockDepth > 0) return;
-		document.documentElement.style.overflowAnchor = this.#savedHtmlAnchor;
-		document.body.style.overflowAnchor = this.#savedBodyAnchor;
+		unlockAnchor();
 	}
 
 	#snapshotOf(items: HTMLElement[], settled = false): LayoutSnapshot {
@@ -470,18 +540,13 @@ export class NeoSortable extends HTMLElement {
 		// On a no-op morph, re-link the dragged ref by id so future
 		// pointer/key events act on the live node.
 		const liveDragEl = items.find((el) => this.#idOf(el) === dragId)!;
-		drag.item.removeAttribute("data-neo-sortable-dragging");
-		liveDragEl.setAttribute("data-neo-sortable-dragging", "");
-		if (drag === this.#keyboard && liveDragEl !== drag.item) {
-			drag.item.removeAttribute("aria-grabbed");
-			liveDragEl.setAttribute("aria-grabbed", "true");
-		}
+		if (liveDragEl !== drag.item) drag.item.removeAttribute("aria-grabbed");
 		drag.item = liveDragEl;
 		// Re-stamp the role stripped by morph when the component owns it.
 		// The drag states are custom states, out of a morph's reach.
 		if (this.#ownsRole) setAttrIfChanged(this, "role", "list");
 		if (drag === this.#keyboard) {
-			drag.item.setAttribute("aria-grabbed", "true");
+			setAttrIfChanged(drag.item, "aria-grabbed", "true");
 			// Morph stripped tabindex (or replaced the grip span) and the
 			// browser blurred synchronously. #onFocusOut deferred its drop;
 			// this refocus runs first.
@@ -489,9 +554,8 @@ export class NeoSortable extends HTMLElement {
 		}
 		const ptr = drag === this.#pointer ? this.#pointer : null;
 		if (ptr) {
-			// Morph reconciled d.item's inline style to source;
-			// the position:fixed block is gone. Re-apply to keep it floating.
-			this.#applyPointerFloatStyles(ptr);
+			// A node the morph put in d.item's place has no float animation.
+			if (!ptr.proxy) this.#placeFloat(ptr);
 			// The placeholder is light-DOM with no id in the morph source.
 			// Morph either strips it or position-pairs it into a real item.
 			// In the second case d.placeholder is still connected but masquerading;
@@ -510,6 +574,8 @@ export class NeoSortable extends HTMLElement {
 				this.insertBefore(ptr.placeholder, ref);
 			}
 		}
+		// After the placeholder settled, which shifts the held item's position.
+		this.#syncDragSheet();
 	}
 
 	// Fresh placeholder mirroring #promote's inline styles.
@@ -539,28 +605,6 @@ export class NeoSortable extends HTMLElement {
 		return ph;
 	}
 
-	// Re-apply the inline-style block #promote / #onPointerMove wrote
-	// after a no-op morph stripped it.
-	#applyPointerFloatStyles(d: PointerDrag): void {
-		if (d.proxy) {
-			// Proxy mode: d.item hides in place; the body-resident proxy
-			// does the floating, untouched by this host's morphs.
-			d.item.style.position = "relative";
-			d.item.style.visibility = "hidden";
-			return;
-		}
-		d.item.style.position = "fixed";
-		d.item.style.margin = "0";
-		d.item.style.boxSizing = "border-box";
-		d.item.style.width = `${d.w}px`;
-		d.item.style.height = `${d.h}px`;
-		d.item.style.left = `${d.lastLeft}px`;
-		d.item.style.top = `${d.lastTop}px`;
-		d.item.style.zIndex = "9999";
-		d.item.style.pointerEvents = "none";
-		d.item.style.transition = "none";
-	}
-
 	// Tear down the drag because slot data changed under it. Don't restore
 	// because the morph owns the new state. Emit neo-sortable-end with aborted:
 	// true so hosts can distinguish from cancel / clean drop.
@@ -573,6 +617,8 @@ export class NeoSortable extends HTMLElement {
 			this.#abortedPointerId = d.pointerId;
 			this.#pointer = null;
 			this.#clearFlip();
+			this.#endFloat();
+			this.#syncDragSheet();
 			d.proxy?.remove();
 			// Morph can position-pair our unkey'd placeholder into a real item,
 			// and d.placeholder by identity may then be a live entry.
@@ -584,11 +630,6 @@ export class NeoSortable extends HTMLElement {
 			// (re-emitted by morph, nested-sortable leakage).
 			for (const stray of this.querySelectorAll<HTMLElement>(":scope > [data-neo-sortable-placeholder]")) {
 				stray.remove();
-			}
-			// d.item may have been removed by morph; touch only if attached.
-			if (d.item.isConnected) {
-				d.item.style.cssText = d.savedCss;
-				d.item.removeAttribute("data-neo-sortable-dragging");
 			}
 			this.#setDragState(null);
 			// Drop any text selection the browser grew between mousedown
@@ -606,10 +647,8 @@ export class NeoSortable extends HTMLElement {
 			const k = this.#keyboard;
 			this.#keyboard = null;
 			this.#clearFlip();
-			if (k.item.isConnected) {
-				k.item.removeAttribute("data-neo-sortable-dragging");
-				k.item.removeAttribute("aria-grabbed");
-			}
+			this.#syncDragSheet();
+			if (k.item.isConnected) k.item.removeAttribute("aria-grabbed");
 			this.#setDragState(null);
 			this.#unlockScrollAnchor();
 			this.#announce("Reordering cancelled. List updated by another source.");
@@ -660,11 +699,23 @@ export class NeoSortable extends HTMLElement {
 		return `${m[1]} ${fn}`;
 	}
 
+	// The move transition as Web Animations timing, or null for none.
+	// The probe resolves var() and calc() the way a CSS transition would.
+	#moveTiming(): { duration: number; easing: string } | null {
+		const trans = this.#resolveTransition();
+		if (!trans) return null;
+		this.#probe.style.transition = `transform ${trans}`;
+		const cs = getComputedStyle(this.#probe);
+		const raw = cs.transitionDuration.trim();
+		const duration = raw.endsWith("ms") ? Number.parseFloat(raw) : Number.parseFloat(raw) * 1000;
+		if (!(duration > 0)) return null;
+		return { duration, easing: cs.transitionTimingFunction.trim() || "ease" };
+	}
+
 	// Hit-test settled layout, not in-flight FLIP boxes.
 	#layoutRect(el: HTMLElement): DOMRectReadOnly {
 		const r = el.getBoundingClientRect();
-		const ownsTransform = el.style.transform.startsWith("translate(") || /\btransform\b/.test(el.style.transition);
-		if (!ownsTransform) return r;
+		if (!this.#flips.has(el)) return r;
 
 		const transform = getComputedStyle(el).transform;
 		if (!transform || transform === "none") return r;
@@ -817,44 +868,38 @@ export class NeoSortable extends HTMLElement {
 		const els = this.#items().filter((el) => el !== dragged && el !== this.#pointer?.placeholder);
 		const first = this.#snapshotOf(els);
 		mutate();
+		// Before any measurement, because the move shifted the held
+		// item's position, which the lift rule selects by.
+		this.#syncDragSheet();
 		this.#animateFromSnapshot(first, els);
 	}
 
 	#animateFromSnapshot(first: LayoutSnapshot, els: HTMLElement[], onlyIds: ReadonlySet<string> | null = null) {
-		const trans = this.#resolveTransition();
-		if (!trans) {
-			return;
-		}
-		if (this.#flipRaf !== null) cancelAnimationFrame(this.#flipRaf);
+		const timing = this.#moveTiming();
+		if (!timing) return;
+		const moving = els.filter(
+			(el) => (!onlyIds || onlyIds.has(this.#idOf(el))) && this.#snapshotRectFor(first, el) !== undefined,
+		);
 		// Clear in-flight FLIP before measuring final boxes.
-		for (const el of els) {
-			if (onlyIds && !onlyIds.has(this.#idOf(el))) continue;
-			if (!this.#snapshotRectFor(first, el)) continue;
-			el.removeEventListener("transitionend", this.#onFlipEnd);
-			el.style.transition = "none";
-			el.style.transform = "";
-		}
-		const invert: [HTMLElement, number, number][] = [];
-		for (const el of els) {
-			if (onlyIds && !onlyIds.has(this.#idOf(el))) continue;
-			const f = this.#snapshotRectFor(first, el);
-			if (!f) continue;
+		for (const el of moving) this.#flips.get(el)?.cancel();
+		for (const el of moving) {
+			const f = this.#snapshotRectFor(first, el)!;
 			const l = this.#pageRect(el.getBoundingClientRect());
 			const dx = f.left - l.left;
 			const dy = f.top - l.top;
-			if (Math.abs(dx) < 0.5 && Math.abs(dy) < 0.5) continue;
-			el.style.transform = `translate(${dx}px, ${dy}px)`;
-			invert.push([el, dx, dy]);
-		}
-		if (invert.length === 0) return;
-		this.#flipRaf = requestAnimationFrame(() => {
-			this.#flipRaf = null;
-			for (const [el] of invert) {
-				el.style.transition = `transform ${trans}`;
-				el.style.transform = "";
-				el.addEventListener("transitionend", this.#onFlipEnd);
+			if (Math.abs(dx) < 0.5 && Math.abs(dy) < 0.5) {
+				this.#flips.delete(el);
+				continue;
 			}
-		});
+			// No end keyframe, which glides the item back to its own transform.
+			const anim = el.animate([{ offset: 0, transform: `translate(${dx}px, ${dy}px)` }], timing);
+			this.#flips.set(el, anim);
+			const done = () => {
+				if (this.#flips.get(el) === anim) this.#flips.delete(el);
+			};
+			anim.addEventListener("finish", done);
+			anim.addEventListener("cancel", done);
+		}
 	}
 
 	#snapshotRectFor(snapshot: LayoutSnapshot, el: HTMLElement): DOMRectReadOnly | undefined {
@@ -864,26 +909,10 @@ export class NeoSortable extends HTMLElement {
 		return id ? snapshot.byId.get(id) : byEl?.rect;
 	}
 
-	#onFlipEnd = (e: TransitionEvent) => {
-		if (e.propertyName !== "transform") return;
-		const el = e.currentTarget as HTMLElement;
-		el.style.transition = "";
-		el.style.transform = "";
-		el.removeEventListener("transitionend", this.#onFlipEnd);
-	};
-
 	#clearFlip() {
-		if (this.#flipRaf !== null) {
-			cancelAnimationFrame(this.#flipRaf);
-			this.#flipRaf = null;
-		}
-		for (const el of this.#items()) {
-			if (el.style.transition || el.style.transform) {
-				el.removeEventListener("transitionend", this.#onFlipEnd);
-				el.style.transition = "";
-				el.style.transform = "";
-			}
-		}
+		const flips = [...this.#flips.values()];
+		this.#flips.clear();
+		for (const anim of flips) anim.cancel();
 	}
 
 	#placeItemAt(item: HTMLElement, index: number): boolean {
@@ -934,7 +963,6 @@ export class NeoSortable extends HTMLElement {
 			homeTop: 0,
 			w: 0,
 			h: 0,
-			savedCss: "",
 			lastLeft: 0,
 			lastTop: 0,
 			lastClientX: e.clientX,
@@ -967,7 +995,6 @@ export class NeoSortable extends HTMLElement {
 		d.lastTop = r.top;
 		d.w = r.width;
 		d.h = r.height;
-		d.savedCss = d.item.style.cssText;
 
 		const ph = d.placeholder;
 		ph.setAttribute("data-neo-sortable-placeholder", "");
@@ -983,14 +1010,15 @@ export class NeoSortable extends HTMLElement {
 
 		if (this.#orientation === "grid") {
 			const proxy = d.item.cloneNode(true) as HTMLElement;
+			// biome-ignore lint/plugin/no-id-write: generated clone
 			proxy.removeAttribute("id");
 			for (const el of proxy.querySelectorAll<HTMLElement>("[id]")) {
+				// biome-ignore lint/plugin/no-id-write: generated clone
 				el.removeAttribute("id");
 			}
 			proxy.setAttribute("aria-hidden", "true");
 			proxy.setAttribute("inert", "");
 			proxy.setAttribute("data-neo-sortable-ignore", "");
-			proxy.setAttribute("data-neo-sortable-dragging", "");
 			proxy.style.position = "fixed";
 			proxy.style.margin = "0";
 			proxy.style.boxSizing = "border-box";
@@ -1009,29 +1037,18 @@ export class NeoSortable extends HTMLElement {
 			ph.style.pointerEvents = "none";
 			ph.style.visibility = "visible";
 			d.item.appendChild(ph);
-			d.item.style.position = "relative";
-			d.item.style.visibility = "hidden";
 		} else {
 			ph.style.width = `${r.width}px`;
 			ph.style.height = `${r.height}px`;
 			ph.style.flex = "0 0 auto";
 			ph.style.margin = getComputedStyle(d.item).margin;
-
-			d.item.style.position = "fixed";
-			d.item.style.margin = "0";
-			d.item.style.boxSizing = "border-box";
-			d.item.style.width = `${r.width}px`;
-			d.item.style.height = `${r.height}px`;
-			d.item.style.left = `${r.left}px`;
-			d.item.style.top = `${r.top}px`;
-			d.item.style.zIndex = "9999";
-			d.item.style.pointerEvents = "none";
-			d.item.style.transition = "none";
 			this.insertBefore(ph, d.item);
 		}
 
 		this.#setDragState("pointer");
-		d.item.setAttribute("data-neo-sortable-dragging", "");
+		// The item floats (or hides, in proxy mode) through the drag sheet.
+		this.#syncDragSheet();
+		if (!d.proxy) this.#placeFloat(d);
 		this.setPointerCapture?.(e.pointerId);
 		this.#lockScrollAnchor();
 		d.scrollers = this.#scrollers();
@@ -1068,7 +1085,6 @@ export class NeoSortable extends HTMLElement {
 	// tick, which calls it with the last pointer position after a scroll.
 	#dragMoveTo(d: PointerDrag, clientX: number, clientY: number) {
 		const o = this.#orientation;
-		const dragEl = d.proxy ?? d.item;
 		// Natural (unclamped) position the floating element would take.
 		const rawLeft = o === "vertical" ? d.homeLeft : clientX - d.grabX;
 		const rawTop = o === "horizontal" ? d.homeTop : clientY - d.grabY;
@@ -1082,12 +1098,14 @@ export class NeoSortable extends HTMLElement {
 			left = Math.min(Math.max(left, host.left), Math.max(host.left, host.right - d.w));
 			top = Math.min(Math.max(top, host.top), Math.max(host.top, host.bottom - d.h));
 		}
-		dragEl.style.left = `${left}px`;
-		dragEl.style.top = `${top}px`;
-		// Cached for the reconcile path, which re-applies them after a
-		// no-op morph strips d.item's inline style.
 		d.lastLeft = left;
 		d.lastTop = top;
+		if (d.proxy) {
+			d.proxy.style.left = `${left}px`;
+			d.proxy.style.top = `${top}px`;
+		} else {
+			this.#placeFloat(d);
+		}
 
 		const siblings = this.#items().filter((el) => el !== d.item && el !== d.placeholder);
 		let targetX = clientX;
@@ -1253,10 +1271,10 @@ export class NeoSortable extends HTMLElement {
 		this.#unlockScrollAnchor();
 
 		this.#clearFlip();
+		this.#endFloat();
+		this.#syncDragSheet();
 		d.proxy?.remove();
 		if (d.proxy) d.placeholder.remove();
-		d.item.style.cssText = d.savedCss;
-		d.item.removeAttribute("data-neo-sortable-dragging");
 		this.#setDragState(null);
 
 		if (cancelled) {
@@ -1295,10 +1313,9 @@ export class NeoSortable extends HTMLElement {
 		if (this.#isDisabled) return;
 		const target = e.target as Element | null;
 		if (!target) return;
-		const grip = target.closest<HTMLElement>("[data-neo-sortable-grip]");
-		if (!grip || !this.contains(grip)) return;
-		const item = this.#items().find((it) => it === grip || it.contains(grip));
-		if (!item) return;
+		const item = this.#itemContaining(target);
+		if (!item || !this.#items().includes(item)) return;
+		if (!this.#gripOf(item).contains(target)) return;
 
 		const key = e.key;
 		// Space/Enter picks the focused item up, or drops the held one.
@@ -1362,8 +1379,8 @@ export class NeoSortable extends HTMLElement {
 			startContent: this.#snapshotContent(items),
 		};
 		this.#setDragState("keyboard");
-		item.setAttribute("data-neo-sortable-dragging", "");
-		item.setAttribute("aria-grabbed", "true");
+		setAttrIfChanged(item, "aria-grabbed", "true");
+		this.#syncDragSheet();
 		this.#lockScrollAnchor();
 		this.#emit("neo-sortable-start", {
 			id: this.#idOf(item),
@@ -1414,8 +1431,8 @@ export class NeoSortable extends HTMLElement {
 		const k = this.#keyboard;
 		if (!k) return;
 		this.#keyboard = null;
-		k.item.removeAttribute("data-neo-sortable-dragging");
 		k.item.removeAttribute("aria-grabbed");
+		this.#syncDragSheet();
 		this.#setDragState(null);
 		this.#unlockScrollAnchor();
 		const count = this.#items().length;
@@ -1436,8 +1453,8 @@ export class NeoSortable extends HTMLElement {
 		this.#keyboard = null;
 		this.#clearFlip();
 		this.#restore(k.startOrderEls);
-		k.item.removeAttribute("data-neo-sortable-dragging");
 		k.item.removeAttribute("aria-grabbed");
+		this.#syncDragSheet();
 		this.#setDragState(null);
 		this.#unlockScrollAnchor();
 		this.#gripOf(k.item).focus?.();

@@ -29,6 +29,12 @@ Component `<neo-elastic>` is a block container that animates its height whenever
 | `neo-elastic-start` | `{ from: number, to: number }` | yes | Fires at the start of a height transition. |
 | `neo-elastic-end` | `{ height: number }` | yes | Fires once the height transition ends. |
 
+### Parts
+
+| Name | Description |
+| --- | --- |
+| `::part(content)` | Wrapper around the children in the shadow root. The host measures it and animates to its height. |
+
 ### CSS variables
 
 | Name | Default | Description |
@@ -39,7 +45,7 @@ Component `<neo-elastic>` is a block container that animates its height whenever
 
 ### Toggle reveal
 
-The accordion case. While the inner is `display: none` the wrapper measures 0 and the host collapses; on reveal it animates back to the natural content height. The button just flips the inner's `hidden` attribute; the host re-measures on its own.
+The accordion case. While the inner is `display: none` the content measures 0 and the host collapses; on reveal it animates back to the natural content height. The button just flips the inner's `hidden` attribute; the host re-measures on its own.
 
 ```example elastic_toggle_reveal
 min-height: max-content
@@ -63,7 +69,7 @@ autoplay: true
 
 ### Growing list
 
-A Datastar morph patch replaces the inner `<ul>` with a fresh count of items. The wrapper re-measures on every replacement and the host transitions between the old and new heights.
+A Datastar morph patch replaces the inner `<ul>` with a fresh count of items. The content re-measures on every replacement and the host transitions between the old and new heights.
 
 ```example elastic_growing_list
 min-height: max-content
@@ -72,7 +78,7 @@ script: sim/elastic/list.js
 
 ### Content swap
 
-Besides expanding from 0 height, the host shrinks or grows between 2 differently sized blocks. Whatever the wrapper measures, the host transitions to. Re-toggling mid-flight retargets the latest height instead of finishing the old one.
+Besides expanding from 0 height, the host shrinks or grows between 2 differently sized blocks. Whatever the content measures, the host transitions to. Re-toggling mid-flight retargets the latest height instead of finishing the old one.
 
 ```example elastic_content_swap
 min-height: max-content

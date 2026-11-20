@@ -1,7 +1,10 @@
+import { observeManagedAttrs } from "../neo-morph-resilient";
 import { clampInt } from "../num";
+import { assignChildren, attachSlotRoot } from "../slot-root";
 
-// Avatar children stay in light DOM so server patches can replace the row;
-// the host only hides and shows them in place.
+// Avatar children stay in light DOM so server patches can replace the row.
+// The host hides an avatar by leaving it out of its slot, which writes
+// nothing a morph could strip.
 
 const ATTR_COLLAPSE_AT = "collapse-at";
 const ATTR_OVERFLOW_COUNT = "overflow-count";
@@ -9,13 +12,15 @@ const OVERFLOW_ATTR = "data-neo-avatars-overflow";
 const OVERFLOW_TEMPLATE_SELECTOR = "template[data-neo-avatars-overflow]";
 const OVERFLOW_COUNT_SELECTOR = "[data-neo-avatars-overflow-count]";
 const OVERFLOW_LABEL_ATTR = "data-neo-avatars-overflow-label";
-const HIDDEN_ATTR = "data-neo-avatars-hidden";
 
 export class NeoAvatars extends HTMLElement {
 	static readonly observedAttributes = [ATTR_COLLAPSE_AT, ATTR_OVERFLOW_COUNT];
 
+	#slot: HTMLSlotElement;
+	#hidden = new Set<Node>();
 	#resizeObserver: ResizeObserver | null = null;
 	#mutationObserver: MutationObserver | null = null;
+	#labelObserver: MutationObserver | null = null;
 	#items: HTMLElement[] = [];
 	#overflow: HTMLElement | null = null;
 	#overflowTemplate: HTMLTemplateElement | null = null;
@@ -24,8 +29,14 @@ export class NeoAvatars extends HTMLElement {
 	#adaptFrame = 0;
 	#lastPartition: string | null = null;
 
+	constructor() {
+		super();
+		this.#slot = attachSlotRoot(this);
+	}
+
 	connectedCallback() {
-		if (!this.hasAttribute("aria-label")) this.setAttribute("aria-label", "Avatars");
+		this.#syncLabel();
+		this.#labelObserver = observeManagedAttrs(this, ["aria-label"], this.#syncLabel);
 		this.#captureChildren();
 		this.#adapt();
 
@@ -39,10 +50,14 @@ export class NeoAvatars extends HTMLElement {
 		const ancestor = this.#layoutAncestor();
 		if (ancestor) this.#resizeObserver.observe(ancestor);
 
-		this.#mutationObserver = new MutationObserver((records) => {
-			if (this.#adapting) return;
-			if (records.every((record) => this.#isInternalMutation(record))) return;
-			this.#scheduleAdapt(true);
+		// #adapt drops the records of its own writes, which leaves only outside
+		// changes here. A morph removing the generated "+N" chip is one of them.
+		this.#mutationObserver = new MutationObserver(() => {
+			this.#captureChildren();
+			// New children render at once, before the next paint; the adapt in the
+			// next frame then hides the ones that don't fit.
+			assignChildren(this, this.#slot, this.#hidden);
+			this.#scheduleAdapt();
 		});
 		this.#mutationObserver.observe(this, { childList: true });
 	}
@@ -56,7 +71,13 @@ export class NeoAvatars extends HTMLElement {
 		this.#resizeObserver = null;
 		this.#mutationObserver?.disconnect();
 		this.#mutationObserver = null;
+		this.#labelObserver?.disconnect();
+		this.#labelObserver = null;
 	}
+
+	#syncLabel = () => {
+		if (!this.hasAttribute("aria-label")) this.setAttribute("aria-label", "Avatars");
+	};
 
 	attributeChangedCallback() {
 		if (!this.isConnected) return;
@@ -90,6 +111,9 @@ export class NeoAvatars extends HTMLElement {
 				!child.hasAttribute(OVERFLOW_ATTR) &&
 				!child.matches(OVERFLOW_TEMPLATE_SELECTOR),
 		);
+		for (const node of this.#hidden) {
+			if (node.parentNode !== this) this.#hidden.delete(node);
+		}
 	}
 
 	#ensureOverflow(): HTMLElement {
@@ -123,10 +147,6 @@ export class NeoAvatars extends HTMLElement {
 		return button;
 	}
 
-	#setItemHidden(item: HTMLElement, hidden: boolean) {
-		item.toggleAttribute(HIDDEN_ATTR, hidden);
-	}
-
 	#renderVisible(visible: number) {
 		const total = this.#items.length;
 		const hidden = Math.max(0, total - visible);
@@ -134,21 +154,21 @@ export class NeoAvatars extends HTMLElement {
 		const needsOverflow = overflowTotal > 0;
 
 		for (let i = 0; i < total; i++) {
-			this.#setItemHidden(this.#items[i], i >= visible);
+			if (i >= visible) this.#hidden.add(this.#items[i]);
+			else this.#hidden.delete(this.#items[i]);
 		}
 
 		if (!needsOverflow) {
 			this.#overflow?.remove();
-			return;
+		} else {
+			const overflow = this.#ensureOverflow();
+			this.#updateOverflow(overflow, overflowTotal);
+			const anchor = this.#items[visible] ?? null;
+			if (overflow.parentElement !== this || overflow.nextElementSibling !== anchor) {
+				this.insertBefore(overflow, anchor);
+			}
 		}
-
-		const overflow = this.#ensureOverflow();
-		this.#updateOverflow(overflow, overflowTotal);
-
-		const anchor = this.#items[visible] ?? null;
-		if (overflow.parentElement !== this || overflow.nextElementSibling !== anchor) {
-			this.insertBefore(overflow, anchor);
-		}
+		assignChildren(this, this.#slot, this.#hidden);
 	}
 
 	#updateOverflow(overflow: HTMLElement, overflowTotal: number) {
@@ -193,7 +213,7 @@ export class NeoAvatars extends HTMLElement {
 	#fits(): boolean {
 		// scrollWidth only counts rightward overflow in LTR. A flex-end row
 		// (chat header) overflows left and always reports "fits".
-		// Zero-size boxes (display:none children, the <template>) drop out.
+		// Zero-size boxes (unassigned children, the <template>) drop out.
 		const host = this.getBoundingClientRect();
 		if (host.width <= 0) return true;
 		let left = Infinity;
@@ -209,20 +229,12 @@ export class NeoAvatars extends HTMLElement {
 		return right - left <= host.width + 1;
 	}
 
-	#scheduleAdapt(capture = false) {
-		if (capture) this.#captureChildren();
+	#scheduleAdapt() {
 		if (this.#adaptFrame) return;
 		this.#adaptFrame = requestAnimationFrame(() => {
 			this.#adaptFrame = 0;
 			this.#adapt();
 		});
-	}
-
-	#isInternalMutation(record: MutationRecord): boolean {
-		const changed = [...Array.from(record.addedNodes), ...Array.from(record.removedNodes)];
-		return (
-			changed.length > 0 && changed.every((node) => node instanceof HTMLElement && node.hasAttribute(OVERFLOW_ATTR))
-		);
 	}
 
 	#adapt() {
@@ -238,6 +250,7 @@ export class NeoAvatars extends HTMLElement {
 			}
 		} finally {
 			this.#adapting = false;
+			this.#mutationObserver?.takeRecords();
 		}
 		this.#emitChange();
 	}
@@ -251,7 +264,7 @@ export class NeoAvatars extends HTMLElement {
 		for (const item of this.#items) {
 			const id = avatarId(item);
 			if (id === null) continue;
-			(item.hasAttribute(HIDDEN_ATTR) ? hidden : shown).push(id);
+			(this.#hidden.has(item) ? hidden : shown).push(id);
 		}
 		const signature = JSON.stringify([shown, hidden]);
 		if (signature === this.#lastPartition) return;

@@ -56,8 +56,6 @@ neo-resizable > [data-neo-resizable-handle] > * {
 	pointer-events: none;
 }
 
-:root[data-neo-resizable-cursor="ns-resize"],
-:root[data-neo-resizable-cursor="ns-resize"] *,
 :root:has(neo-resizable > [data-neo-resizable-handle="top"]:hover),
 :root:has(neo-resizable > [data-neo-resizable-handle="top"]:hover) *,
 :root:has(neo-resizable > [data-neo-resizable-handle="bottom"]:hover),
@@ -66,8 +64,6 @@ neo-resizable > [data-neo-resizable-handle] > * {
 	cursor: ns-resize !important;
 }
 
-:root[data-neo-resizable-cursor="ew-resize"],
-:root[data-neo-resizable-cursor="ew-resize"] *,
 :root:has(neo-resizable > [data-neo-resizable-handle="left"]:hover),
 :root:has(neo-resizable > [data-neo-resizable-handle="left"]:hover) *,
 :root:has(neo-resizable > [data-neo-resizable-handle="right"]:hover),
@@ -76,8 +72,6 @@ neo-resizable > [data-neo-resizable-handle] > * {
 	cursor: ew-resize !important;
 }
 
-:root[data-neo-resizable-cursor="nwse-resize"],
-:root[data-neo-resizable-cursor="nwse-resize"] *,
 :root:has(neo-resizable > [data-neo-resizable-handle="top-left"]:hover),
 :root:has(neo-resizable > [data-neo-resizable-handle="top-left"]:hover) *,
 :root:has(neo-resizable > [data-neo-resizable-handle="bottom-right"]:hover),
@@ -86,8 +80,6 @@ neo-resizable > [data-neo-resizable-handle] > * {
 	cursor: nwse-resize !important;
 }
 
-:root[data-neo-resizable-cursor="nesw-resize"],
-:root[data-neo-resizable-cursor="nesw-resize"] *,
 :root:has(neo-resizable > [data-neo-resizable-handle="top-right"]:hover),
 :root:has(neo-resizable > [data-neo-resizable-handle="top-right"]:hover) *,
 :root:has(neo-resizable > [data-neo-resizable-handle="bottom-left"]:hover),
@@ -197,11 +189,11 @@ neo-resizable > [data-neo-resizable-handle] > neo-icon {
 	--neo-icon-size: var(--neo-resizable-icon-size);
 }
 
-/* Author-supplied [data-neo-resizable-icon] children are templates, which
- * the component lifts into a managed handle wrapper on upgrade. The
- * `> [data-neo-resizable-icon]` direct-child selector only matches the raw
- * pre-hydration markup (after the move, the icon is a grand-child). This
- * rule therefore suppresses the pre-paint flash without affecting the
+/* Author-supplied [data-neo-resizable-icon] children are templates,
+ * which the component lifts into a managed handle wrapper on upgrade.
+ * The `> [data-neo-resizable-icon]` direct-child selector only matches
+ * the raw pre-hydration markup (after the move, the icon is a grand-child).
+ * This rule therefore suppresses the pre-paint flash without affecting the
  * lifted icon. */
 neo-resizable > [data-neo-resizable-icon] {
 	display: none;
