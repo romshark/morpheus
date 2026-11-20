@@ -6,10 +6,10 @@
 import { setAriaRef } from "../aria-ref";
 import { boolAttr, openCommand } from "../command";
 import { setState } from "../internal-state";
+import { isMenuLengthAttr, keyMenuLengths } from "../menu-length-sheet";
 import { observeManagedAttrs, setAttrIfChanged } from "../neo-morph-resilient";
 import { type Placement, positionPanel, resolveCssLengthPx, resolveCssLengthPxOrContent } from "../neo-position";
 import { eventEnters, isIndependentBoundaryScroll, scopingBoundary } from "../shadow-utils";
-import { isMenuLengthAttr, keyMenuLengths } from "./menu-length-sheet";
 
 let nextId = 0;
 

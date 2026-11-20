@@ -1,7 +1,7 @@
 import { boolAttr, openCommand } from "../command";
 import { isRTL, logicalArrow } from "../direction";
 import { labelAttr } from "../label-name";
-import { isMenuLengthAttr, keyMenuLengths } from "../neo-menu/menu-length-sheet";
+import { isMenuLengthAttr, keyMenuLengths } from "../menu-length-sheet";
 import { type Placement, positionPanel, resolveCssLengthPx, resolveCssLengthPxOrContent } from "../neo-position";
 import { eventEnters, scopingBoundary } from "../shadow-utils";
 

@@ -4,7 +4,7 @@
 import { setAriaRef } from "../aria-ref";
 import { openCommand } from "../command";
 import { retryWhileParsing, stillParsing } from "../document-parsing";
-import { keyMenuLengths } from "../neo-menu/menu-length-sheet";
+import { keyMenuLengths } from "../menu-length-sheet";
 import { observeManagedAttrs, setAttrIfChanged } from "../neo-morph-resilient";
 
 interface NeoMenuLike extends HTMLElement {
