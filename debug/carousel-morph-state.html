@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>neo-carousel: state lost on a morph</title>
+	<link rel="stylesheet" href="../min/morpheus.css">
+	<link rel="stylesheet" href="../min/theme-default.css">
+	<!-- A classic deferred script, unlike a module, also loads from file://. -->
+	<script defer src="../min/bundle.js"></script>
+	<style>
+		body {
+			max-width: 46rem;
+			margin: 2rem auto;
+			padding: 0 1rem;
+			font: 16px/1.5 system-ui, sans-serif;
+		}
+
+		#stage neo-carousel {
+			--neo-carousel-per-view: 2;
+			margin: 1rem 0;
+		}
+
+		#stage neo-carousel-slide {
+			display: grid;
+			place-items: center;
+			height: 8rem;
+			border-radius: 0.5rem;
+			background: #c9d6f2;
+			font-size: 2rem;
+		}
+
+		table {
+			width: 100%;
+			border-collapse: collapse;
+			font: 13px/1.4 monospace;
+		}
+
+		th,
+		td {
+			padding: 0.25rem 0.5rem;
+			border-bottom: 1px solid;
+			text-align: left;
+			vertical-align: top;
+		}
+
+		.pass {
+			color: #070;
+		}
+
+		.fail {
+			color: #b00;
+		}
+	</style>
+</head>
+<body>
+	<h1>neo-carousel: state lost on a morph</h1>
+	<p>
+		<code>&lt;neo-carousel&gt;</code> writes attributes at runtime that no server template
+		renders: <code>id</code>, <code>role</code> and <code>aria-roledescription</code> on the
+		host, <code>tabindex="0"</code> on the track, and <code>id</code>, <code>role</code>,
+		<code>aria-roledescription</code>, <code>aria-label</code> and
+		<code>data-neo-carousel-slide-visibility</code> on each slide. A morph strips every
+		attribute the template lacks and keeps the elements. The carousel sets the host and track
+		attributes only on connect, and the slide ARIA only in a sync that a <code>value</code> or
+		child change starts. After a morph that keeps <code>value</code>, they stay gone. The
+		track can no longer take focus, and screen readers lose the carousel and slide roles.
+	</p>
+	<p>
+		The slide visibility marker returns about 200ms later. Until then, the visible slides
+		dim under <code>highlight-active</code>. DESIGN.md "Internal state" puts this marker in a
+		custom state on <code>&lt;neo-carousel-slide&gt;</code>, which a morph can't reach, and the
+		ARIA attributes and <code>tabindex</code> need re-applying after a strip, as
+		<code>observeManagedAttrs</code> does in other components.
+	</p>
+	<ol>
+		<li>Click <b>Morph</b>. It reconciles the live carousel's attributes against the server markup below, as a Datastar morph does.</li>
+		<li>Every row should read PASS. Before the fix, the ARIA, <code>id</code> and <code>tabindex</code> rows fail, and the visible slides dim at 100ms.</li>
+		<li>In Safari, press Tab from the <b>Reset</b> button. Before the morph, Tab reaches a dot and then the track. After it, Tab skips the track. Chrome focuses a scroll container without <code>tabindex</code> and still reaches it.</li>
+	</ol>
+
+	<p>
+		<button type="button" id="morph">Morph</button>
+		<button type="button" id="reset">Reset</button>
+	</p>
+	<div id="stage"></div>
+
+	<table>
+		<thead>
+			<tr>
+				<th>check</th>
+				<th>before morph</th>
+				<th>100ms after</th>
+				<th>600ms after</th>
+				<th>result</th>
+			</tr>
+		</thead>
+		<tbody id="log"></tbody>
+	</table>
+
+	<!-- The server markup. It carries no runtime attributes, as a template wouldn't. -->
+	<template id="server">
+		<neo-carousel aria-label="Numbers" highlight-active dots>
+			<neo-carousel-track>
+				<neo-carousel-slide value="1">1</neo-carousel-slide>
+				<neo-carousel-slide value="2">2</neo-carousel-slide>
+				<neo-carousel-slide value="3">3</neo-carousel-slide>
+				<neo-carousel-slide value="4">4</neo-carousel-slide>
+			</neo-carousel-track>
+		</neo-carousel>
+	</template>
+
+	<script>
+	// A function scope, because the minified bundle is a classic script whose
+	// top-level names clash with globals declared here.
+	(() => {
+		const stage = document.getElementById("stage");
+		const server = document.getElementById("server");
+
+		function render() {
+			stage.replaceChildren(server.content.cloneNode(true));
+		}
+
+		// The live elements and their template twins, in document order. The
+		// carousel adds no light-DOM elements, so both lists line up.
+		function pairs() {
+			const live = [...stage.querySelectorAll("neo-carousel, neo-carousel *")];
+			const tmpl = [...server.content.querySelectorAll("neo-carousel, neo-carousel *")];
+			return live.map((el, i) => [el, tmpl[i]]);
+		}
+
+		// Attribute reconciliation of a morph that keeps every element: drop what
+		// the template lacks, set what it has.
+		function morph() {
+			for (const [el, t] of pairs()) {
+				for (const name of el.getAttributeNames()) {
+					if (!t.hasAttribute(name)) el.removeAttribute(name);
+				}
+				for (const name of t.getAttributeNames()) {
+					if (el.getAttribute(name) !== t.getAttribute(name)) el.setAttribute(name, t.getAttribute(name));
+				}
+			}
+		}
+
+		function snapshot() {
+			const host = stage.querySelector("neo-carousel");
+			const slides = [...host.querySelectorAll("neo-carousel-slide")];
+			const visible = slides.filter((s) => s.getBoundingClientRect().right <= host.getBoundingClientRect().right + 1);
+			const attr = (el, name) => (el.hasAttribute(name) ? JSON.stringify(el.getAttribute(name)) : "missing");
+			const rows = [
+				["host id", attr(host, "id")],
+				["host role", attr(host, "role")],
+				["host aria-roledescription", attr(host, "aria-roledescription")],
+				["track tabindex", attr(host.querySelector("neo-carousel-track"), "tabindex")],
+			];
+			for (const s of visible) {
+				const n = s.getAttribute("value");
+				rows.push([`slide ${n} data-neo-carousel-slide-visibility`, attr(s, "data-neo-carousel-slide-visibility")]);
+				rows.push([`slide ${n} opacity`, getComputedStyle(s).opacity]);
+				rows.push([`slide ${n} role`, attr(s, "role")]);
+				rows.push([`slide ${n} aria-label`, attr(s, "aria-label")]);
+				rows.push([`slide ${n} id`, attr(s, "id")]);
+			}
+			return rows;
+		}
+
+		// A row passes when both samples after the morph match the one before it.
+		function show(before, early, late) {
+			const log = document.getElementById("log");
+			log.replaceChildren();
+			before.forEach(([name, b], i) => {
+				const e = early ? early[i][1] : "";
+				const l = late ? late[i][1] : "";
+				const ok = late && e === b && l === b;
+				const tr = document.createElement("tr");
+				for (const text of [name, b, e, l, late ? (ok ? "PASS" : "FAIL") : ""]) {
+					const td = document.createElement("td");
+					td.textContent = text;
+					tr.append(td);
+				}
+				tr.className = late ? (ok ? "pass" : "fail") : "";
+				log.append(tr);
+			});
+		}
+
+		let before = null;
+		async function reset() {
+			render();
+			await new Promise((r) => setTimeout(r, 400));
+			before = snapshot();
+			show(before, null, null);
+		}
+
+		document.getElementById("morph").addEventListener("click", async () => {
+			morph();
+			await new Promise((r) => setTimeout(r, 100));
+			const early = snapshot();
+			// Past the opacity transition, and long enough for any async resync.
+			await new Promise((r) => setTimeout(r, 500));
+			show(before, early, snapshot());
+		});
+		document.getElementById("reset").addEventListener("click", reset);
+		customElements.whenDefined("neo-carousel").then(reset);
+	})();
+	</script>
+</body>
+</html>

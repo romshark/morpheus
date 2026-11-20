@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>neo-menu: empty menu with a blocking script</title>
+	<link rel="stylesheet" href="../min/morpheus.css">
+	<link rel="stylesheet" href="../min/theme-default.css">
+	<!-- The bug needs a blocking script ahead of the markup: no defer, no module. -->
+	<script src="../min/bundle.js"></script>
+	<style>
+		body {
+			max-width: 42rem;
+			margin: 2rem auto;
+			padding: 0 1rem;
+			font: 16px/1.5 system-ui, sans-serif;
+		}
+
+		.row {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 1rem;
+			align-items: flex-start;
+			margin: 1rem 0;
+		}
+
+		#status {
+			padding: 0.75rem;
+			border: 1px solid;
+			border-radius: 0.5rem;
+			white-space: pre-wrap;
+		}
+
+		#status.bug {
+			color: #c00;
+			border-color: #c00;
+		}
+	</style>
+</head>
+<body>
+	<h1>neo-menu: empty menu with a blocking script</h1>
+	<p>
+		This page loads <code>bundle.js</code> as a blocking script in the
+		<code>&lt;head&gt;</code>, which defines <code>&lt;neo-menu&gt;</code> before the parser
+		reaches it. Its connect then runs at the start tag, before any row exists, and the rows
+		parsed after that land beside its panel. <code>&lt;neo-menu&gt;</code> and
+		<code>&lt;neo-submenu&gt;</code> move them into the panel. Without that, the menu
+		opens empty and its rows render inside the button.
+	</p>
+	<ol>
+		<li>Click <b>File (parsed)</b>.</li>
+		<li>Click <b>File (inserted)</b>, the same menu inserted after parsing.</li>
+	</ol>
+	<p>
+		Expected: both open a menu with 4 rows, and <b>Open recent</b> opens 2 more. The status
+		below turns red if rows stay outside a panel.
+	</p>
+
+	<div class="row">
+		<neo-button id="parsed">
+			File (parsed)
+			<neo-menu>
+				<neo-menuitem value="new">New file</neo-menuitem>
+				<neo-menuitem value="save">Save</neo-menuitem>
+				<neo-submenu label="Open recent">
+					<neo-menuitem value="a">Project A.json</neo-menuitem>
+					<neo-menuitem value="b">Notes.md</neo-menuitem>
+				</neo-submenu>
+				<neo-menuitem value="quit">Quit</neo-menuitem>
+			</neo-menu>
+		</neo-button>
+		<span id="inserted-host"></span>
+	</div>
+
+	<pre id="status"></pre>
+
+	<script>
+		// innerHTML builds the whole subtree before it connects, which gives the menu its rows.
+		document.getElementById("inserted-host").innerHTML = `
+			<neo-button id="inserted">
+				File (inserted)
+				<neo-menu>
+					<neo-menuitem value="new">New file</neo-menuitem>
+					<neo-menuitem value="save">Save</neo-menuitem>
+					<neo-submenu label="Open recent">
+						<neo-menuitem value="a">Project A.json</neo-menuitem>
+						<neo-menuitem value="b">Notes.md</neo-menuitem>
+					</neo-submenu>
+					<neo-menuitem value="quit">Quit</neo-menuitem>
+				</neo-menu>
+			</neo-button>`;
+
+		// Rows are the menu's direct items, and the submenu's items in its own panel.
+		function report(id) {
+			const menu = document.querySelector(`#${id} > neo-menu`);
+			const panel = menu.querySelector(":scope > [data-neo-menu-panel]");
+			const inside = panel ? panel.querySelectorAll(":scope > neo-menuitem, :scope > neo-submenu").length : 0;
+			const outside = [...menu.children].filter((el) => el !== panel).length;
+			const sub = menu.querySelector("neo-submenu");
+			const subPanel = sub.querySelector(":scope > [data-neo-submenu-panel]");
+			const subInside = subPanel ? subPanel.querySelectorAll(":scope > neo-menuitem").length : 0;
+			const subOutside = sub.querySelectorAll(":scope > neo-menuitem").length;
+			const bug = outside > 0 || subOutside > 0;
+			return {
+				bug,
+				text: `${id}: menu ${inside} rows in the panel, ${outside} outside; submenu ${subInside} in its panel, ${subOutside} outside${bug ? " (bug)" : ""}`,
+			};
+		}
+
+		document.addEventListener("DOMContentLoaded", () => {
+			const lines = [report("parsed"), report("inserted")];
+			const status = document.getElementById("status");
+			status.classList.toggle("bug", lines.some((l) => l.bug));
+			status.textContent = lines.map((l) => l.text).join("\n");
+		});
+	</script>
+</body>
+</html>

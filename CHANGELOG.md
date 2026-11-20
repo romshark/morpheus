@@ -4,6 +4,30 @@ This file records the notable changes of each release in the format of [Keep a C
 
 ## [Unreleased]
 
+### Changed
+
+#### Components
+
+- Stop writing `id` on elements the page renders. `<neo-carousel>`, its slides, `<neo-tabs>`, its tabs and panels, the `<dialog>` of `<neo-dialog>` and `<neo-drawer>` and their title and description, the `<neo-lightbox>` title, `<neo-tooltip>` content and the active `<neo-textinput>` suggestion get no generated `id`. A tab or panel `id` you set is no longer overwritten. ARIA references use your `id` when the target has one, else ARIA element reflection, which Chrome before 135 and Firefox before 136 lack. Migration: give an element an `id` in your markup if your CSS or script selects it by the generated one.
+- Replace the `copied` attribute of `<neo-clipcopy>` with `:state(copied)`. Migration: change `neo-clipcopy[copied]` selectors to `neo-clipcopy:state(copied)`.
+- Stop writing `variant` on `<neo-revealable>`, `orientation` on `<neo-tabs>` and `position` on `<neo-toaster>` when they are absent. The inferred revealable variant is `:state(inline)` or `:state(media)`. Migration: select `neo-revealable:state(media)` instead of `neo-revealable[variant="media"]` to match an inferred variant.
+- Give `<neo-avatars>`, `<neo-breadcrumb>`, `<neo-elastic>` and `<neo-resizable>` a shadow root. Their children stay in the page markup and page CSS still styles them.
+  - Hidden avatars and collapsed crumbs are left out of the shadow root's slot and carry no `data-neo-avatars-hidden` or `data-neo-breadcrumb-hidden`.
+  - `<neo-elastic>` no longer wraps its children. Its wrapper is in the shadow root as `::part(content)`.
+  - `<neo-resizable>` keeps its size in the shadow root instead of the host `style`. A dragged size now overrides page CSS on the host, and page CSS can still override the size mirrored from the `width`, `height`, `min-*` and `max-*` attributes.
+  - Migration: select hidden avatars and crumbs through the `neo-avatars-change` and `neo-breadcrumb-change` events instead of the attributes. Change `neo-elastic > [data-neo-elastic-content]` to `neo-elastic::part(content)`. Read a resizable's size from `getBoundingClientRect()` or the `neo-resizable-resize` event instead of its `style`.
+
+### Fixed
+
+#### Components
+
+- Keep `<neo-carousel>`, `<neo-tabs>` without an `id`, carousel slides and the `<dialog>` of `<neo-dialog>` and `<neo-drawer>` across a Datastar morph. The morph replaced them with new elements, which reset their state.
+- Restore the ARIA of `<neo-tabs>`, `<neo-dialog>`, `<neo-drawer>`, `<neo-lightbox>` triggers and `<neo-tooltip>` after a morph strips it. Tabs lost `aria-selected` and `tabindex`, and dialogs lost their name and description.
+- Point `aria-controls` of the `<neo-popover>` and `<neo-lightbox>` trigger at the content, and label the lightbox from its title. Both referenced ids in another tree, which resolved to nothing.
+- Keep the collapsed `<neo-avatars>` row across a Datastar morph. It showed every avatar and lost its "+N" chip.
+- Keep the content of `<neo-elastic>` across a Datastar morph. The morph replaced it with new elements, which lost typed input.
+- Keep the dragged size of `<neo-resizable>` across a Datastar morph, and the size from its attributes in markup without a matching `style`. The morph reset both.
+
 ## [0.7.0] - 2026-11-20
 
 ### Added

@@ -1,8 +1,31 @@
+import { setAriaRef } from "../aria-ref";
 import { boolAttr, warnBadAxis } from "../command";
 import { logicalArrow } from "../direction";
 import { setState } from "../internal-state";
+import { setAttrIfChanged } from "../neo-morph-resilient";
 
-let nextTabsId = 0;
+// The attributes #sync writes on tabs, panels and the tablist, which a morph strips.
+const MANAGED_ATTRS = [
+	"role",
+	"aria-selected",
+	"aria-disabled",
+	"aria-controls",
+	"aria-labelledby",
+	"aria-orientation",
+	"tabindex",
+	"hidden",
+	"inert",
+];
+
+// The easing rules depend only on the `easing`, `enter-animation` and
+// `exit-animation` values. Attribute selectors on those let 1 document sheet
+// serve every <neo-tabs>, which has no shadow root for a :host rule.
+const easingSheet = new CSSStyleSheet();
+const easingRules = new Set<string>();
+
+function attrSel(name: string, value: string): string {
+	return `[${name}="${CSS.escape(value)}"]`;
+}
 
 export class NeoTabs extends HTMLElement {
 	static readonly observedAttributes = ["value", "orientation", "easing", "enter-animation", "exit-animation"];
@@ -14,9 +37,9 @@ export class NeoTabs extends HTMLElement {
 		this.#internals = this.attachInternals();
 	}
 
-	#hostId = "";
 	#ready = false;
 	#childObserver: MutationObserver | null = null;
+	#attrObserver: MutationObserver | null = null;
 	#previousActiveValue: string | null = null;
 	#leavingPanel: HTMLElement | null = null;
 	#leavingHandler: ((e: AnimationEvent) => void) | null = null;
@@ -29,12 +52,7 @@ export class NeoTabs extends HTMLElement {
 	#reflectingValue = false;
 
 	connectedCallback() {
-		if (!this.id) this.id = `neo-tabs-${++nextTabsId}`;
-		this.#hostId = this.id;
 		warnBadAxis(this);
-		if (!this.hasAttribute("orientation")) {
-			this.setAttribute("orientation", "horizontal");
-		}
 		this.addEventListener("click", this.#onClick);
 		this.addEventListener("keydown", this.#onKeyDown);
 		this.addEventListener("focusin", this.#onFocusIn);
@@ -44,6 +62,10 @@ export class NeoTabs extends HTMLElement {
 		// and a fat-morph re-emitting tabs/panels needs re-linking by value.
 		this.#childObserver = new MutationObserver(() => this.#sync());
 		this.#childObserver.observe(this, { childList: true, subtree: true });
+		this.#attrObserver = new MutationObserver((records) => {
+			if (records.some((r) => this.#isPart(r.target))) this.#sync();
+		});
+		this.#attrObserver.observe(this, { subtree: true, attributes: true, attributeFilter: MANAGED_ATTRS });
 
 		this.#ready = true;
 		this.#valueIntent = this.getAttribute("value");
@@ -55,18 +77,9 @@ export class NeoTabs extends HTMLElement {
 		this.#scrollActiveTabIntoView("auto");
 	}
 
-	// Per-host rules go in a <head> <style> keyed by host id.
-	// Inline custom properties wouldn't survive because a morph strips the
-	// host's runtime `style` attribute; <head> is outside the morph zone.
 	#syncEasing() {
-		if (!this.id) return;
-		const styleId = `neo-tabs-easing-${this.id}`;
 		const raw = this.getAttribute("easing");
-		let styleEl = document.getElementById(styleId) as HTMLStyleElement | null;
-		if (raw === null) {
-			styleEl?.remove();
-			return;
-		}
+		if (raw === null) return;
 		const trimmed = raw.trim() || "200ms";
 		// Duration via --neo-duration-scale, timing via --neo-easing with
 		// the author value as fallback. Theme + reduced-motion overrides
@@ -75,28 +88,51 @@ export class NeoTabs extends HTMLElement {
 		const dur = m ? m[1] : "200ms";
 		const fn = m?.[2].trim() ? m[2].trim() : "ease";
 		const value = `calc(${dur} * var(--neo-duration-scale, 1)) ` + `var(--neo-easing, ${fn})`;
-		if (!styleEl) {
-			styleEl = document.createElement("style");
-			styleEl.id = styleId;
-			document.head.appendChild(styleEl);
-		}
-		const sel = `[id="${this.id.replace(/"/g, '\\"')}"]`;
+		const host = `neo-tabs${attrSel("easing", raw)}`;
 		const enter = this.getAttribute("enter-animation");
 		const exit = this.getAttribute("exit-animation");
 		const rules: string[] = [];
 		if (enter) {
 			rules.push(
-				`${sel} > neo-tabpanel:not([hidden]):not(:state(leaving)) ` + `{ animation: ${enter} ${value} both; }`,
+				`${host}${attrSel("enter-animation", enter)} > neo-tabpanel:not([hidden]):not(:state(leaving)) ` +
+					`{ animation: ${enter} ${value} both; }`,
 			);
 		}
 		if (exit) {
-			rules.push(`${sel} > neo-tabpanel:state(leaving) ` + `{ animation: ${exit} ${value} both; }`);
+			rules.push(
+				`${host}${attrSel("exit-animation", exit)} > neo-tabpanel:state(leaving) ` +
+					`{ animation: ${exit} ${value} both; }`,
+			);
 		}
 		if (!enter && !exit) {
 			// Fall back to opacity crossfade via the [hidden] override.
-			rules.push(`${sel} > neo-tabpanel { transition: ${value}; }`);
+			// Like the `enter` and `exit` checks, the selector treats
+			// an empty animation attribute as absent.
+			rules.push(
+				`${host}:not([enter-animation]:not([enter-animation=""])):not([exit-animation]:not([exit-animation=""])) ` +
+					`> neo-tabpanel { transition: ${value}; }`,
+			);
 		}
-		styleEl.textContent = rules.join("\n");
+		for (const rule of rules) {
+			if (easingRules.has(rule)) continue;
+			easingRules.add(rule);
+			try {
+				easingSheet.insertRule(rule, easingSheet.cssRules.length);
+			} catch {
+				console.warn(`<neo-tabs>: invalid easing or animation value in: ${rule}`);
+			}
+		}
+		if (!document.adoptedStyleSheets.includes(easingSheet)) {
+			document.adoptedStyleSheets = [...document.adoptedStyleSheets, easingSheet];
+		}
+	}
+
+	// A tab, panel or tablist of this <neo-tabs>, not of one nested in a panel.
+	#isPart(node: Node): boolean {
+		if (!(node instanceof Element)) return false;
+		const n = node.localName;
+		if (n !== "neo-tab" && n !== "neo-tabpanel" && n !== "neo-tablist") return false;
+		return node.closest("neo-tabs") === this;
 	}
 
 	disconnectedCallback() {
@@ -106,14 +142,13 @@ export class NeoTabs extends HTMLElement {
 		this.removeEventListener("focusout", this.#onFocusOut);
 		this.#childObserver?.disconnect();
 		this.#childObserver = null;
+		this.#attrObserver?.disconnect();
+		this.#attrObserver = null;
 		if (this.#leavingPanel && this.#leavingHandler) {
 			this.#leavingPanel.removeEventListener("animationend", this.#leavingHandler);
 		}
 		this.#leavingPanel = null;
 		this.#leavingHandler = null;
-		if (this.id) {
-			document.getElementById(`neo-tabs-easing-${this.id}`)?.remove();
-		}
 		this.#ready = false;
 	}
 
@@ -188,6 +223,9 @@ export class NeoTabs extends HTMLElement {
 		const orientation = this.getAttribute("orientation") === "vertical" ? "vertical" : "horizontal";
 
 		const tabs = this.#tabs();
+		const panels = this.#panels();
+		const byValue = (els: HTMLElement[], v: string | null) =>
+			v === null ? [] : els.filter((el) => el.getAttribute("value") === v).slice(0, 1);
 		for (const tab of tabs) {
 			const v = tab.getAttribute("value");
 			const selected = v !== null && v === value;
@@ -195,13 +233,10 @@ export class NeoTabs extends HTMLElement {
 			// A morph strips the role stamped in the child's connectedCallback
 			// (absent from SSR) and never re-fires it; re-assert here.
 			if (!tab.hasAttribute("role")) tab.setAttribute("role", "tab");
-			tab.setAttribute("aria-selected", String(selected));
-			if (disabled) tab.setAttribute("aria-disabled", "true");
-			tab.setAttribute("tabindex", selected && !disabled ? "0" : "-1");
-			const tabId = `${this.#hostId}-tab-${v ?? ""}`;
-			const panelId = `${this.#hostId}-panel-${v ?? ""}`;
-			tab.id = tabId;
-			tab.setAttribute("aria-controls", panelId);
+			setAttrIfChanged(tab, "aria-selected", String(selected));
+			if (disabled) setAttrIfChanged(tab, "aria-disabled", "true");
+			setAttrIfChanged(tab, "tabindex", selected && !disabled ? "0" : "-1");
+			setAriaRef(tab, "aria-controls", byValue(panels, v));
 		}
 
 		// Direction derived from the value transition, and published as a
@@ -218,7 +253,6 @@ export class NeoTabs extends HTMLElement {
 			setState(this.#internals, "backward", !forward);
 		}
 
-		const panels = this.#panels();
 		const newActivePanel = panels.find((p) => p.getAttribute("value") === value);
 		const oldActivePanel =
 			this.#previousActiveValue !== null && this.#previousActiveValue !== value
@@ -229,12 +263,8 @@ export class NeoTabs extends HTMLElement {
 		this.#finalizeLeaving();
 
 		for (const panel of panels) {
-			const v = panel.getAttribute("value");
-			const panelId = `${this.#hostId}-panel-${v ?? ""}`;
-			const tabId = `${this.#hostId}-tab-${v ?? ""}`;
-			panel.id = panelId;
 			if (!panel.hasAttribute("role")) panel.setAttribute("role", "tabpanel");
-			panel.setAttribute("aria-labelledby", tabId);
+			setAriaRef(panel, "aria-labelledby", byValue(tabs, panel.getAttribute("value")));
 
 			const isActive = panel === newActivePanel;
 			const isLeaving = panel === oldActivePanel && !!exitAnim;
@@ -254,11 +284,11 @@ export class NeoTabs extends HTMLElement {
 				};
 				panel.addEventListener("animationend", this.#leavingHandler);
 			} else {
-				panel.setAttribute("hidden", "");
+				setAttrIfChanged(panel, "hidden", "");
 				setLeaving(panel, false);
 				// The crossfade fallback keeps [hidden] panels at display:block;
 				// `inert` keeps their descendants out of focus / a11y tree.
-				panel.setAttribute("inert", "");
+				setAttrIfChanged(panel, "inert", "");
 			}
 
 			// Tab stop the panel only when active/leaving, has content,
@@ -271,7 +301,7 @@ export class NeoTabs extends HTMLElement {
 					"[tabindex]:not([tabindex='-1']), [contenteditable]:not([contenteditable='false'])",
 			);
 			const wantsFocus = (isActive || isLeaving) && hasContent && !hasFocusable;
-			panel.setAttribute("tabindex", wantsFocus ? "0" : "-1");
+			setAttrIfChanged(panel, "tabindex", wantsFocus ? "0" : "-1");
 		}
 
 		this.#previousActiveValue = value;
@@ -279,10 +309,13 @@ export class NeoTabs extends HTMLElement {
 		const list = this.querySelector<HTMLElement>(":scope > neo-tablist");
 		if (list) {
 			if (!list.hasAttribute("role")) list.setAttribute("role", "tablist");
-			list.setAttribute("aria-orientation", orientation);
+			setAttrIfChanged(list, "aria-orientation", orientation);
 		}
 
 		this.#restoreFocusIfLost();
+		// Drop the records of the writes above. Re-running #sync on them would
+		// end a running exit animation through #finalizeLeaving.
+		this.#attrObserver?.takeRecords();
 	}
 
 	// Reseat focus on the tab matching focusedTabValue when a morph
@@ -322,19 +355,20 @@ export class NeoTabs extends HTMLElement {
 		});
 	};
 
-	// Hide the leaving panel and clear tracking. Called from
-	// animationend (natural finish) and from sync() (new transition
-	// starting before the previous one finished).
+	// Hide the leaving panel and clear tracking.
+	// Called from animationend (natural finish) and from sync()
+	// (new transition starting before the previous one finished).
 	#finalizeLeaving() {
 		const panel = this.#leavingPanel;
 		if (!panel) return;
 		if (this.#leavingHandler) {
 			panel.removeEventListener("animationend", this.#leavingHandler);
 		}
-		panel.setAttribute("hidden", "");
+		setAttrIfChanged(panel, "hidden", "");
 		setLeaving(panel, false);
-		panel.setAttribute("tabindex", "-1");
-		panel.setAttribute("inert", "");
+		setAttrIfChanged(panel, "tabindex", "-1");
+		setAttrIfChanged(panel, "inert", "");
+		this.#attrObserver?.takeRecords();
 		this.#leavingPanel = null;
 		this.#leavingHandler = null;
 	}

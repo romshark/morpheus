@@ -144,6 +144,7 @@ export class NeoMenu extends HTMLElement {
 			panel.setAttribute("data-neo-menu-panel", "");
 			panel.setAttribute("role", "menu");
 			panel.setAttribute("tabindex", "-1");
+			// biome-ignore lint/plugin/no-id-write: generated panel
 			panel.id = `neo-menu-${++nextId}`;
 			this.appendChild(panel);
 		}

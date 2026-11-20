@@ -2,6 +2,7 @@
 // which keeps its focus, caret and value when a server re-renders the host.
 
 import "../neo-icon";
+import { setAriaRef } from "../aria-ref";
 import { boolAttr, openCommand } from "../command";
 import { isRTL } from "../direction";
 import { setState } from "../internal-state";
@@ -675,10 +676,8 @@ export class NeoTextInput extends HTMLElement {
 	// An open command that came before any option, as when a morph sets `open`
 	// ahead of the options. The next reconcile opens the list, focused or not.
 	#suggestOpenCommanded = false;
-	// Held by reference, which keeps the idle options id-less and morph-stable.
+	// Held by reference, which keeps the options id-less and morph-stable.
 	#suggestActiveEl: HTMLElement | null = null;
-	// The option carrying the aria-activedescendant id.
-	#activeIdEl: HTMLElement | null = null;
 	#observerPauseDepth = 0;
 	#suggestAnchorRect: DOMRect | null = null;
 	// Set while the component writes `open`,
@@ -719,6 +718,7 @@ export class NeoTextInput extends HTMLElement {
 		root.appendChild(SHADOW_TEMPLATE.content.cloneNode(true));
 		this.#suggestList = root.querySelector("[data-neo-suggest-list]")!;
 		this.#suggestSlot = root.querySelector('slot[name="suggestions"]')!;
+		// biome-ignore lint/plugin/no-id-write: the list is in the shadow root
 		this.#suggestList.id = `${this.#suggestPrefix}-list`;
 		// mousedown's default would blur the field, and the blur would close the
 		// list before `click` commits the option.
@@ -1700,27 +1700,11 @@ export class NeoTextInput extends HTMLElement {
 		if (this.#innerInput && this.#innerInput.value !== drag.start) this.#onChange();
 	};
 
-	// An IDREF from the shadow field can't reach a light-DOM option, which makes
-	// ariaActiveDescendantElement the link. Firefox lacks it and reads the IDREF.
-	// Only the active option carries an id, which keeps the idle ones id-less
-	// and lets a morph patch them in place.
+	// The field is in the shadow root and the options in the light DOM,
+	// which only ARIA element reflection links.
 	#pointActiveDescendant(el: HTMLElement | null) {
 		const inp = this.#innerInput;
-		if (!inp) return;
-		const activeId = `${this.#suggestPrefix}-active`;
-		if (this.#activeIdEl && this.#activeIdEl !== el && this.#activeIdEl.id === activeId) {
-			this.#activeIdEl.removeAttribute("id");
-		}
-		this.#activeIdEl = el;
-		if ("ariaActiveDescendantElement" in inp) {
-			(inp as unknown as { ariaActiveDescendantElement: Element | null }).ariaActiveDescendantElement = el;
-		}
-		if (el) {
-			if (!el.id) el.id = activeId;
-			inp.setAttribute("aria-activedescendant", el.id);
-		} else {
-			inp.removeAttribute("aria-activedescendant");
-		}
+		if (inp) setAriaRef(inp, "aria-activedescendant", el ? [el] : []);
 	}
 
 	// Reconciles after the options changed, through a server patch or a morph.

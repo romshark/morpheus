@@ -14,9 +14,9 @@ templ PageClipcopy(morpheusVersion string) {
 			<p class="intro">
 				Component <code>{ "<neo-clipcopy>" }</code> is a
 				wrapper that copies a value to the clipboard when
-				its first child is clicked. The host toggles a
-				<code>copied</code> attribute so consumers style
-				idle and copied states from CSS.
+				its first child is clicked. The host sets
+				@AnchorCode("#states-copied", ":state(copied)")
+				after a copy, which CSS uses to swap the idle and copied labels.
 			</p>
 			@Playground(PlaygroundOpts{
 				ID:     "clipcopy-playground",
@@ -63,7 +63,11 @@ var clipcopyDoc = ComponentDoc{
 		{Name: "for", Type: "string",
 			Description: templ.Raw("Id of an element whose <code>textContent</code> is copied.")},
 		{Name: "copied-duration", Type: "number", Default: "1500",
-			Description: templ.Raw("Milliseconds the <code>copied</code> attribute stays on the host.")},
+			Description: templ.Raw("Milliseconds <a href=\"#states-copied\"><code>:state(copied)</code></a> stays set.")},
+	},
+	States: []DocState{
+		{Name: "copied",
+			Description: templ.Raw("Set after a successful copy for <code>copied-duration</code> milliseconds.")},
 	},
 	Slots: []DocSlot{
 		{Name: "default",

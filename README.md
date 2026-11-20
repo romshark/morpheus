@@ -63,7 +63,7 @@ There is no polyfill layer and no legacy fallback path. The kit uses the platfor
 - [Popover API](https://developer.mozilla.org/en-US/docs/Web/API/Popover_API) and [`<dialog>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/dialog): top-layer rendering, modal lifecycle, and light dismiss.
 - [`:has()`](https://developer.mozilla.org/en-US/docs/Web/CSS/:has), [container queries](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_containment/Container_queries), and [`round()`](https://developer.mozilla.org/en-US/docs/Web/CSS/round): layout and sizing that reacts to content and to the parent box rather than the viewport.
 
-[`scrollend`](https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollend_event) and [`:host-context()`](https://developer.mozilla.org/en-US/docs/Web/CSS/:host-context) degrade instead of setting the floor. `scrollend` falls back to a settle timer where it is missing. `:host-context()` (Chromium and WebKit only) carries an increased-contrast refinement that Firefox skips.
+[`scrollend`](https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollend_event), [`:host-context()`](https://developer.mozilla.org/en-US/docs/Web/CSS/:host-context) and [ARIA element reflection](https://developer.mozilla.org/en-US/docs/Web/API/Element#instance_properties_reflected_from_aria_element_references) degrade instead of setting the floor. `scrollend` falls back to a settle timer where it is missing. `:host-context()` (Chromium and WebKit only) carries an increased-contrast refinement that Firefox skips. Element reflection links an ARIA reference (`aria-controls`, `aria-labelledby`, ...) to a target without an `id`. Chrome before 135 and Firefox before 136 lack it, and there the reference is missing.
 
 ## Developing
 

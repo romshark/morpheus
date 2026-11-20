@@ -175,7 +175,7 @@ func PageElastic(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<p class=\"demo-note\">The accordion case. While the inner is <code>display: none</code> the wrapper measures 0 and the host collapses; on reveal it animates back to the natural content height. The button just flips the inner's <code>hidden</code> attribute; the host re-measures on its own.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<p class=\"demo-note\">The accordion case. While the inner is <code>display: none</code> the content measures 0 and the host collapses; on reveal it animates back to the natural content height. The button just flips the inner's <code>hidden</code> attribute; the host re-measures on its own.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -317,7 +317,7 @@ func PageElastic(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</code> with a fresh count of items. The wrapper re-measures on every replacement and the host transitions between the old and new heights.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</code> with a fresh count of items. The content re-measures on every replacement and the host transitions between the old and new heights.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -370,7 +370,7 @@ func PageElastic(morpheusVersion string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<p class=\"demo-note\">Besides expanding from 0 height, the host shrinks or grows between 2 differently sized blocks. Whatever the wrapper measures, the host transitions to. Re-toggling mid-flight retargets the latest height instead of finishing the old one.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<p class=\"demo-note\">Besides expanding from 0 height, the host shrinks or grows between 2 differently sized blocks. Whatever the content measures, the host transitions to. Re-toggling mid-flight retargets the latest height instead of finishing the old one.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -495,6 +495,10 @@ var elasticDoc = ComponentDoc{
 	Slots: []DocSlot{
 		{Name: "[data-neo-async-placeholder]",
 			Description: templ.Raw("Replacement content shown after collapse when <a href=\"#attributes-reset-on-collapse\"><code>reset-on-collapse</code></a> is set.")},
+	},
+	Parts: []DocPart{
+		{Name: "content",
+			Description: templ.Raw("Wrapper around the children in the shadow root. The host measures it and animates to its height.")},
 	},
 	Events: []DocEvent{
 		{Name: "neo-elastic-start", Detail: "{ from: number, to: number }", Bubbles: true,

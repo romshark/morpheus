@@ -136,12 +136,6 @@ neo-avatars > :where(a, button, span, div) > neo-avatar {
 	background: transparent;
 }
 
-neo-avatars > [data-neo-avatars-hidden] {
-	/* biome-ignore lint/complexity/noImportantStyles: hard hide for JS-marked
-	 * overflow avatars; overrides the avatar's display and any inline style. */
-	display: none !important;
-}
-
 /* Before upgrade, apply collapse-at so the row has its final width:
  * hide the avatars past it and hold the slot of the +N circle with ::after.
  * CSS can't read the attribute as a number, which is why each value from 1

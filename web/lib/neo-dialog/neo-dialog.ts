@@ -2,11 +2,9 @@
 // the modal lifecycle, top layer, focus trap, and Esc handling. Without a
 // portal the markup stays in light DOM and the kit's CSS can theme it directly.
 
-let nextId = 0;
-
 import { boolAttr, openCommand } from "../command";
 import { retryWhileParsing, stillParsing } from "../document-parsing";
-import { DialogBackdropClickTracker, lockBodyScroll, unlockBodyScroll } from "../native-dialog";
+import { DialogAria, DialogBackdropClickTracker, lockBodyScroll, unlockBodyScroll } from "../native-dialog";
 
 export class NeoDialog extends HTMLElement {
 	static readonly observedAttributes = ["open"];
@@ -29,6 +27,7 @@ export class NeoDialog extends HTMLElement {
 	// morph re-creates it (showModal otherwise lands on the first focusable).
 	#focusedDescendantId = "";
 	#backdropClick = new DialogBackdropClickTracker();
+	#aria = new DialogAria("[data-neo-dialog-title]", "[data-neo-dialog-description]", () => this.#openIntent);
 
 	// Captured once at connect. asyncSlot is the parent of the
 	// [data-neo-async-placeholder]; asyncSlotInitialHTML is the
@@ -94,6 +93,7 @@ export class NeoDialog extends HTMLElement {
 		this.removeEventListener("focusout", this.#onHostFocusOut);
 		this.#childObserver?.disconnect();
 		this.#childObserver = null;
+		this.#aria.disconnect();
 		// Browser closes the dialog implicitly on host teardown, but
 		// no `close` event fires for that path. Release the lock here
 		// too or it leaks on navigation away from any page with an
@@ -199,7 +199,7 @@ export class NeoDialog extends HTMLElement {
 			this.#recoverScheduled = false;
 			if (this.#openIntent && this.#dialog && !this.#dialog.open && this.isConnected) {
 				this.#openModal();
-				this.#trigger?.setAttribute("aria-expanded", "true");
+				this.#aria.sync();
 				this.#restoreFocusedDescendant();
 			}
 		});
@@ -268,30 +268,7 @@ export class NeoDialog extends HTMLElement {
 			this.#dialog.addEventListener("keydown", this.#onDialogKeydown, true);
 		}
 
-		if (!this.#dialog.id) this.#dialog.id = `neo-dialog-${++nextId}`;
-		this.#trigger.setAttribute("aria-haspopup", "dialog");
-		this.#trigger.setAttribute("aria-controls", this.#dialog.id);
-		if (!this.#dialog.hasAttribute("role")) {
-			this.#dialog.setAttribute("role", "dialog");
-		}
-		this.#dialog.setAttribute("aria-modal", "true");
-
-		const title = this.#dialog.querySelector<HTMLElement>("[data-neo-dialog-title]");
-		if (title) {
-			if (!title.id) title.id = `${this.#dialog.id}-title`;
-			this.#dialog.setAttribute("aria-labelledby", title.id);
-		} else {
-			this.#dialog.removeAttribute("aria-labelledby");
-		}
-		const desc = this.#dialog.querySelector<HTMLElement>("[data-neo-dialog-description]");
-		if (desc) {
-			if (!desc.id) desc.id = `${this.#dialog.id}-desc`;
-			this.#dialog.setAttribute("aria-describedby", desc.id);
-		} else {
-			this.#dialog.removeAttribute("aria-describedby");
-		}
-
-		this.#trigger.setAttribute("aria-expanded", String(this.hasAttribute("open")));
+		this.#aria.bind(this.#trigger, this.#dialog);
 		return true;
 	}
 
@@ -299,7 +276,7 @@ export class NeoDialog extends HTMLElement {
 		if (!this.#dialog || !this.#trigger) return;
 		const want = this.#openIntent;
 		const have = this.#dialog.open;
-		this.#trigger.setAttribute("aria-expanded", String(want));
+		this.#aria.sync();
 		if (want && !have) {
 			// Fallback capture for opens made through [open] (Datastar
 			// `data-attr:open`, imperative setAttribute) so focus still

@@ -1,13 +1,17 @@
 // Author writes the full trail in light DOM; the component redistributes
 // those nodes at runtime, collapsing middle items into an overflow popover
-// at narrow widths. Menu items are clones with aria-current stripped so the
-// active-page styling stays on the still-visible item.
+// at narrow widths. A collapsed item is left out of the host's slot, which
+// writes nothing a morph could strip. Menu items are clones with
+// aria-current stripped so the active-page styling stays on the
+// still-visible item.
 
 import "../neo-button";
 import "../neo-icon";
 import "../neo-navgroup";
 import "../neo-popover";
 import { labelAttr } from "../label-name";
+import { observeManagedAttrs } from "../neo-morph-resilient";
+import { assignChildren, attachSlotRoot } from "../slot-root";
 
 const ATTR_MORE_LABEL = "more-label";
 
@@ -29,6 +33,9 @@ const BOOLEAN_POPOVER_ATTRS = new Set<PopoverAttr>(["clamp-placement"]);
 export class NeoBreadcrumb extends HTMLElement {
 	static readonly observedAttributes = [...POPOVER_ATTRS, ATTR_MORE_LABEL];
 
+	#slot: HTMLSlotElement;
+	#hidden = new Set<Node>();
+	#hostAttrObserver: MutationObserver | null = null;
 	// All authored children in source order; the adapter hides/shows them.
 	#trailNodes: HTMLElement[] = [];
 	// Items only, used for menu cloning and the index math deciding
@@ -60,11 +67,14 @@ export class NeoBreadcrumb extends HTMLElement {
 	// checkForReset re-inserts the cached instance and hands focus back.
 	#overflowHadFocus = false;
 
+	constructor() {
+		super();
+		this.#slot = attachSlotRoot(this);
+	}
+
 	connectedCallback() {
-		if (!this.hasAttribute("role")) this.setAttribute("role", "navigation");
-		if (!this.hasAttribute("aria-label")) {
-			this.setAttribute("aria-label", "Breadcrumb");
-		}
+		this.#syncHostAttrs();
+		this.#hostAttrObserver = observeManagedAttrs(this, ["role", "aria-label"], this.#syncHostAttrs);
 
 		this.#captureChildren();
 		this.#adapt();
@@ -81,8 +91,13 @@ export class NeoBreadcrumb extends HTMLElement {
 			this.#resizeObserver.observe(growthAncestor);
 		}
 
-		// Detect a Datastar fat-morph reinstating authored items fresh.
-		this.#hostObserver = new MutationObserver(() => this.#checkForReset());
+		// Detect a Datastar fat-morph reinstating authored items fresh. New
+		// children render at once, before the next paint; the adapt then
+		// collapses the ones that don't fit.
+		this.#hostObserver = new MutationObserver(() => {
+			assignChildren(this, this.#slot, this.#hidden);
+			this.#checkForReset();
+		});
 		this.#hostObserver.observe(this, { childList: true });
 
 		this.addEventListener("focusin", this.#onOverflowFocusIn);
@@ -94,6 +109,8 @@ export class NeoBreadcrumb extends HTMLElement {
 		this.#resizeObserver = null;
 		this.#hostObserver?.disconnect();
 		this.#hostObserver = null;
+		this.#hostAttrObserver?.disconnect();
+		this.#hostAttrObserver = null;
 		this.removeEventListener("focusin", this.#onOverflowFocusIn);
 		this.removeEventListener("focusout", this.#onOverflowFocusOut);
 	}
@@ -106,6 +123,11 @@ export class NeoBreadcrumb extends HTMLElement {
 		if (!this.#overflowPopover) return;
 		this.#syncOverflowPopoverAttr(this.#overflowPopover, name);
 	}
+
+	#syncHostAttrs = () => {
+		if (!this.hasAttribute("role")) this.setAttribute("role", "navigation");
+		if (!this.hasAttribute("aria-label")) this.setAttribute("aria-label", "Breadcrumb");
+	};
 
 	#syncMoreLabel() {
 		this.#overflowTrigger()?.setAttribute("aria-label", labelAttr(this, ATTR_MORE_LABEL, "Show hidden breadcrumbs"));
@@ -190,11 +212,14 @@ export class NeoBreadcrumb extends HTMLElement {
 			return !el.hasAttribute("data-neo-breadcrumb-menu") && !el.hasAttribute("data-neo-breadcrumb-generated-sep");
 		}) as HTMLElement[];
 		this.#itemNodes = this.#trailNodes.filter((el) => !el.hasAttribute("data-neo-breadcrumb-sep"));
+		for (const node of this.#hidden) {
+			if (node.parentNode !== this) this.#hidden.delete(node);
+		}
 	}
 
 	#setHidden(node: HTMLElement, hidden: boolean) {
-		if (hidden) node.setAttribute("data-neo-breadcrumb-hidden", "");
-		else node.removeAttribute("data-neo-breadcrumb-hidden");
+		if (hidden) this.#hidden.add(node);
+		else this.#hidden.delete(node);
 	}
 
 	// Idempotent. Builds once and is reused across adapt / morph cycles so
@@ -268,6 +293,7 @@ export class NeoBreadcrumb extends HTMLElement {
 		for (const sep of this.#overflowSeparators) sep.remove();
 		this.#overflowSeparators = [];
 		for (const node of this.#trailNodes) this.#setHidden(node, false);
+		assignChildren(this, this.#slot, this.#hidden);
 	}
 
 	#separatorBeforeItem(itemIndex: number): HTMLElement | null {
@@ -295,7 +321,6 @@ export class NeoBreadcrumb extends HTMLElement {
 		let clone = this.#overflowSepClones.get(source);
 		if (!clone) {
 			clone = source.cloneNode(true) as HTMLElement;
-			clone.removeAttribute("data-neo-breadcrumb-hidden");
 			clone.setAttribute("data-neo-breadcrumb-generated-sep", "");
 			this.#overflowSepClones.set(source, clone);
 		}
@@ -348,6 +373,7 @@ export class NeoBreadcrumb extends HTMLElement {
 		if (before) this.insertBefore(before, anchor);
 		if (this.#overflowPopover) this.insertBefore(this.#overflowPopover, anchor);
 		if (after) this.insertBefore(after, anchor);
+		assignChildren(this, this.#slot, this.#hidden);
 	}
 
 	#adapt() {
@@ -367,7 +393,7 @@ export class NeoBreadcrumb extends HTMLElement {
 		for (const item of this.#itemNodes) {
 			const id = breadcrumbId(item);
 			if (id === null) continue;
-			const collapsed = item.hasAttribute("data-neo-breadcrumb-hidden");
+			const collapsed = this.#hidden.has(item);
 			(collapsed ? hidden : shown).push(id);
 		}
 		const signature = JSON.stringify([shown, hidden]);

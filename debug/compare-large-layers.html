@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>neo-compare: dragging large HTML layers</title>
+	<link rel="stylesheet" href="../min/morpheus.css">
+	<link rel="stylesheet" href="../min/theme-default.css">
+	<!-- A classic deferred script, unlike a module, also loads from file://. -->
+	<script defer src="../min/bundle.js"></script>
+	<style>
+		body {
+			max-width: 46rem;
+			margin: 2rem auto;
+			padding: 0 1rem;
+			font: 16px/1.5 system-ui, sans-serif;
+		}
+
+		.row {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 0.75rem;
+			align-items: center;
+			margin: 1rem 0;
+		}
+
+		.layer {
+			width: 600px;
+			max-width: 100%;
+			height: 300px;
+			overflow: hidden;
+			font: 10px/1.2 monospace;
+		}
+
+		.layer[slot="before"] {
+			background: #fde2e2;
+			color: #900;
+		}
+
+		.layer[slot="after"] {
+			background: #e2e8fd;
+			color: #009;
+		}
+
+		#status {
+			padding: 0.75rem;
+			border: 1px solid;
+			border-radius: 0.5rem;
+			white-space: pre-wrap;
+		}
+	</style>
+</head>
+<body>
+	<h1>neo-compare: dragging large HTML layers</h1>
+	<p>
+		Each drag move used to write an inherited custom property on the shadow root of
+		<code>&lt;neo-compare&gt;</code>, which made every slotted node restyle. At 10000 spans a
+		move took 2.9 ms in Chrome and 36 ms in WebKit. The position now goes in
+		<code>--_neo-compare-v</code>, registered with <code>inherits: false</code> and written on
+		the 4 elements that draw the divider. A move should stay under 0.2 ms at any size.
+	</p>
+	<ol>
+		<li>Pick a number of slotted spans.</li>
+		<li>Click <b>Measure</b>, or drag the divider and read the frame times.</li>
+	</ol>
+	<p>
+		A frame lasts 16.7 ms at 60 Hz and 8.3 ms at 120 Hz. A frame time above that means the
+		drag dropped frames.
+	</p>
+
+	<div class="row">
+		<label>
+			Slotted spans
+			<select id="count">
+				<option value="2">2 (like 2 images)</option>
+				<option value="1000">1000</option>
+				<option value="10000" selected>10000</option>
+				<option value="50000">50000</option>
+			</select>
+		</label>
+		<button type="button" id="measure">Measure</button>
+	</div>
+
+	<neo-compare id="compare">
+		<div slot="before" class="layer"></div>
+		<div slot="after" class="layer"></div>
+	</neo-compare>
+
+	<pre id="status">Loading ../min/bundle.js</pre>
+
+	<script>
+		const compare = document.getElementById("compare");
+		const status = document.getElementById("status");
+		const lines = { measure: "Measure: not run", drag: "Last drag: none" };
+		const show = () => {
+			status.textContent = `${lines.measure}\n${lines.drag}`;
+		};
+
+		// Splits the spans across both layers. With 2, each layer holds 1 element.
+		function fill(count) {
+			for (const layer of compare.querySelectorAll(".layer")) {
+				const spans = [];
+				for (let i = 0; i < Math.max(0, count / 2 - 1); i++) spans.push("<span>lorem </span>");
+				layer.innerHTML = spans.join("");
+			}
+			lines.measure = "Measure: not run";
+			show();
+		}
+
+		// Average cost of fn plus the style and layout it forces, per call.
+		function time(fn, n) {
+			for (let i = 0; i < 5; i++) {
+				fn(i);
+				document.body.offsetWidth;
+			}
+			const t0 = performance.now();
+			for (let i = 0; i < n; i++) {
+				fn(i);
+				document.body.offsetWidth;
+			}
+			return (performance.now() - t0) / n;
+		}
+
+		// Drives a drag with synthetic pointer events, which take the same path
+		// as a real drag, and times each move against a write that doesn't inherit.
+		function measure() {
+			const handle = compare.shadowRoot.querySelector("[data-neo-compare-handle]");
+			const frame = compare.shadowRoot.querySelector("[data-neo-compare-frame]");
+			const r = handle.getBoundingClientRect();
+			const x = r.left + r.width / 2;
+			const y = r.top + r.height / 2;
+			const value = compare.value;
+			const send = (target, type, dx, buttons) =>
+				target.dispatchEvent(
+					new PointerEvent(type, {
+						bubbles: true,
+						composed: true,
+						cancelable: true,
+						pointerId: 99,
+						pointerType: "mouse",
+						button: 0,
+						buttons,
+						clientX: x + dx,
+						clientY: y,
+					}),
+				);
+			send(handle, "pointerdown", 0, 1);
+			const move = time((i) => send(compare, "pointermove", (i % 60) - 30, 1), 50);
+			send(compare, "pointerup", 0, 0);
+			compare.value = value;
+			const plain = time((i) => frame.style.setProperty("outline-offset", `${i % 60}px`), 50);
+			frame.style.removeProperty("outline-offset");
+			const count = document.getElementById("count").value;
+			lines.measure = `Measure, ${count} spans: ${move.toFixed(2)} ms per drag move, ${plain.toFixed(3)} ms per non-inherited write`;
+			show();
+		}
+
+		// Frame times while a pointer drags the divider.
+		let frames = null;
+		let last = 0;
+		function tick(now) {
+			if (!frames) return;
+			if (last) frames.push(now - last);
+			last = now;
+			requestAnimationFrame(tick);
+		}
+		compare.addEventListener("pointerdown", () => {
+			frames = [];
+			last = 0;
+			requestAnimationFrame(tick);
+		});
+		function endDrag() {
+			if (frames?.length) {
+				const avg = frames.reduce((a, b) => a + b, 0) / frames.length;
+				lines.drag = `Last drag: ${frames.length} frames, average ${avg.toFixed(1)} ms, longest ${Math.max(...frames).toFixed(1)} ms`;
+				show();
+			}
+			frames = null;
+		}
+		compare.addEventListener("pointerup", endDrag);
+		compare.addEventListener("pointercancel", endDrag);
+
+		document.getElementById("count").addEventListener("change", (e) => fill(Number(e.target.value)));
+		document.getElementById("measure").addEventListener("click", measure);
+		customElements.whenDefined("neo-compare").then(() => fill(10000));
+	</script>
+</body>
+</html>

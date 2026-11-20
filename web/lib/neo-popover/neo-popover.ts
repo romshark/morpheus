@@ -1,3 +1,4 @@
+import { setAriaRef } from "../aria-ref";
 import { boolAttr, openCommand } from "../command";
 import { retryWhileParsing, stillParsing } from "../document-parsing";
 import { observeManagedAttrs, setAttrIfChanged } from "../neo-morph-resilient";
@@ -14,7 +15,6 @@ import {
 } from "../neo-position";
 import { deepActiveElement, eventEnters, isIndependentBoundaryScroll, scopingBoundary } from "../shadow-utils";
 
-let nextId = 0;
 const TRIGGER_RESILIENT_ATTRS = ["aria-controls", "aria-expanded", "aria-haspopup", "role", "tabindex"];
 
 // The shadow tree holds a default slot for the trigger followed by a
@@ -317,10 +317,6 @@ export class NeoPopover extends HTMLElement {
 			this.#resizeObserver?.observe(this.#resizeTarget);
 		}
 
-		// aria-controls points at the shadow panel (the actual dialog surface),
-		// which owns role="dialog" and tabindex/aria-modal,
-		// while `content` is just a user-authored body slotted inside it.
-		if (!this.#panel.id) this.#panel.id = `neo-popover-${++nextId}`;
 		if (!this.#panel.hasAttribute("aria-modal")) {
 			this.#panel.setAttribute("aria-modal", "false");
 		}
@@ -330,10 +326,12 @@ export class NeoPopover extends HTMLElement {
 		return true;
 	}
 
+	// aria-controls names the slotted content, because no reference from the
+	// light DOM reaches the panel in the shadow root.
 	#syncTriggerAttrs = () => {
 		if (!this.#trigger) return;
 		setAttrIfChanged(this.#trigger, "aria-haspopup", "dialog");
-		setAttrIfChanged(this.#trigger, "aria-controls", this.#panel.id);
+		setAriaRef(this.#trigger, "aria-controls", this.#content ? [this.#content] : []);
 		// In-place morphs strip these without re-firing connectedCallback.
 		// Guards preserve composite overrides (navgroup roving tabindex,
 		// `role="menuitem"` in cascading menus).

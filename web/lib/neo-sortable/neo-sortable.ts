@@ -983,8 +983,10 @@ export class NeoSortable extends HTMLElement {
 
 		if (this.#orientation === "grid") {
 			const proxy = d.item.cloneNode(true) as HTMLElement;
+			// biome-ignore lint/plugin/no-id-write: generated clone
 			proxy.removeAttribute("id");
 			for (const el of proxy.querySelectorAll<HTMLElement>("[id]")) {
+				// biome-ignore lint/plugin/no-id-write: generated clone
 				el.removeAttribute("id");
 			}
 			proxy.setAttribute("aria-hidden", "true");

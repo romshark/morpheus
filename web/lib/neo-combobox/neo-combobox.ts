@@ -786,6 +786,7 @@ export class NeoCombobox extends NeoListbox {
 		this.#input.setAttribute("aria-label", labelAttr(this, "search-label", label ? `${label}: search` : "Search"));
 		if (this.id) {
 			const listID = `${this.id}-list`;
+			// biome-ignore lint/plugin/no-id-write: listEl is in the shadow root
 			this.listEl.id = listID;
 			this.trigger.setAttribute("aria-controls", listID);
 		}

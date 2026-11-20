@@ -21,7 +21,6 @@ type ElasticOpts struct {
 
 // Elastic renders <neo-elastic>, a block container that smoothly
 // animates its height when the inner content's natural size changes.
-// On hydration the children are wrapped in [data-neo-elastic-content].
 func Elastic(opts ElasticOpts) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context

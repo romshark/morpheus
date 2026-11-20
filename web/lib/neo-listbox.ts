@@ -376,6 +376,7 @@ export abstract class NeoListbox extends HTMLElement {
 			this.querySelector<HTMLElement>(":scope > [data-neo-datalist-managed]");
 		if (!container) {
 			container = document.createElement("neo-datalist");
+			// biome-ignore lint/plugin/no-id-write: generated container
 			if (optionsID) container.id = optionsID;
 			container.setAttribute("data-neo-datalist-created", "");
 			this.appendChild(container);

@@ -1,0 +1,454 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Decision: state on page-rendered children</title>
+	<link rel="stylesheet" href="../min/morpheus.css">
+	<link rel="stylesheet" href="../min/theme-default.css">
+	<!-- A classic deferred script, unlike a module, also loads from file://. -->
+	<script defer src="../min/bundle.js"></script>
+	<style>
+		body {
+			max-width: 50rem;
+			margin: 2rem auto;
+			padding: 0 1rem;
+			font: 16px/1.5 system-ui, sans-serif;
+		}
+
+		.case {
+			margin: 0.75rem 0;
+			padding: 0.5rem 0.75rem;
+			border: 1px solid #ccc;
+			border-radius: 0.5rem;
+		}
+
+		.case h3 {
+			margin: 0 0 0.25rem;
+			font-size: 1rem;
+		}
+
+		.chip {
+			margin: 0.1rem;
+			padding: 0.1rem 0.6rem;
+			border-radius: 1rem;
+			background: #c9d6f2;
+		}
+
+		/* Page CSS an author could write. Option B loses to it. */
+		.chip.flex {
+			display: inline-flex;
+		}
+
+		/* Option A's component CSS. */
+		x-marker > [data-x-hidden] {
+			display: none !important;
+		}
+
+		#avatars-box {
+			width: 9rem;
+		}
+
+		table {
+			width: 100%;
+			border-collapse: collapse;
+			font: 13px/1.4 monospace;
+		}
+
+		th,
+		td {
+			padding: 0.25rem 0.5rem;
+			border-bottom: 1px solid;
+			text-align: left;
+			vertical-align: top;
+		}
+
+		h3 {
+			margin-bottom: 0;
+		}
+
+		h3 + p,
+		ul + p {
+			margin: 0.5rem 0 0;
+		}
+
+		ul {
+			margin-top: 0.25rem;
+		}
+
+		.pass {
+			color: #070;
+		}
+
+		.fail {
+			color: #b00;
+		}
+	</style>
+</head>
+<body>
+	<h1>Decision: state on page-rendered children</h1>
+	<p>
+		<code>&lt;neo-avatars&gt;</code> and <code>&lt;neo-breadcrumb&gt;</code> hide children the
+		page renders by writing <code>data-neo-avatars-hidden</code> and
+		<code>data-neo-breadcrumb-hidden</code> on them. A morph strips both. The children
+		(<code>&lt;neo-avatar&gt;</code>, links, list items) are no custom elements with a class,
+		which leaves them no <code>:state()</code>. The host needs another way to hide them.
+	</p>
+	<p>The options, each run below by a small element on the same 6 children. The trade-offs follow the table.</p>
+	<ul>
+		<li><b>A, managed marker.</b> Keep the <code>data-*</code> marker and re-apply it from an attribute observer after a strip, like <code>role</code> and ARIA. Kit CSS hides it with <code>display: none !important</code>.</li>
+		<li><b>B, <code>hidden</code>.</b> Toggle the <code>hidden</code> attribute and re-apply it the same way.</li>
+		<li><b>C, shadow root.</b> Give the host a shadow root with 1 <code>&lt;slot&gt;</code> and keep a <code>::slotted(:nth-child(n+4)) { display: none !important }</code> rule in an adopted sheet.</li>
+	</ul>
+	<p>
+		Every element shows the first 3 children and hides the rest. Child 2 carries a
+		server-rendered <code>hidden</code>, and child 5 has page CSS <code>display: inline-flex</code>.
+	</p>
+	<ol>
+		<li>Click <b>Morph</b>. It patches the server markup of every case over the live one.</li>
+		<li>Read the table. The "after" columns are sampled on the next animation frame, which is what paints.</li>
+	</ol>
+	<p>
+		<button type="button" id="morph">Morph</button>
+		<button type="button" id="reset">Reset</button>
+		<span id="mode"></span>
+	</p>
+
+	<div class="case">
+		<h3>Today: <code>&lt;neo-avatars&gt;</code></h3>
+		<div id="avatars-box"><div id="case-avatars"></div></div>
+	</div>
+	<div class="case">
+		<h3>A, managed marker</h3>
+		<div id="case-a"></div>
+	</div>
+	<div class="case">
+		<h3>B, <code>hidden</code></h3>
+		<div id="case-b"></div>
+	</div>
+	<div class="case">
+		<h3>C, shadow root</h3>
+		<div id="case-c"></div>
+	</div>
+
+	<table>
+		<thead>
+			<tr>
+				<th>case</th>
+				<th>visible before</th>
+				<th>visible after</th>
+				<th>visible 1s after</th>
+				<th>child 2 stays hidden</th>
+				<th>child 5 hidden</th>
+				<th>host writes on children</th>
+			</tr>
+		</thead>
+		<tbody id="log"></tbody>
+	</table>
+
+	<h2>Trade-offs</h2>
+	<p>
+		"Table" marks a point the table above measures. "Checked" marks one tested separately in
+		Chrome 158.
+	</p>
+
+	<h3>Today, a marker written once</h3>
+	<p><b>Pros</b></p>
+	<ul>
+		<li>The hidden state shows in the DOM, and 1 attribute selector styles it.</li>
+	</ul>
+	<p><b>Cons</b></p>
+	<ul>
+		<li>A morph strips it and nothing restores it. <code>&lt;neo-avatars&gt;</code> shows all 6 avatars and no "+N" chip, still 1s later (table).</li>
+		<li>Runtime state in an attribute, against the rule that a <code>data-neo-*</code> mark names a part.</li>
+	</ul>
+
+	<h3>A, marker re-applied by an observer</h3>
+	<p><b>Pros</b></p>
+	<ul>
+		<li>No structural change to the host.</li>
+		<li>The hidden state stays visible in the DOM, and page CSS can still select hidden items, for example to fade them instead of hiding them.</li>
+		<li>Respects a server <code>hidden</code> and beats page <code>display</code> (table).</li>
+		<li>Same mechanism as the ARIA re-application the kit already uses.</li>
+	</ul>
+	<p><b>Cons</b></p>
+	<ul>
+		<li>It writes on children the server owns: 1 write per hidden item per morph (table), each a mutation record other scripts see.</li>
+		<li>The rule that marks name parts, not state, needs an exception for children that aren't kit elements.</li>
+		<li>The kit CSS needs <code>!important</code> to beat page <code>display</code>.</li>
+	</ul>
+
+	<h3>B, <code>hidden</code></h3>
+	<p><b>Pros</b></p>
+	<ul>
+		<li>A standard attribute that needs no kit CSS.</li>
+		<li>Hidden items leave the accessibility tree, as with the other options.</li>
+	</ul>
+	<p><b>Cons</b></p>
+	<ul>
+		<li>Page CSS that sets <code>display</code> on an item beats it, because <code>[hidden] { display: none }</code> is a user-agent rule (child 5, table).</li>
+		<li>The host can't tell its own <code>hidden</code> from one the server rendered, and it revealed child 2 (table).</li>
+		<li>It fights the server on every morph: the server sends its <code>hidden</code>, and the observer rewrites it (table, 4 writes).</li>
+		<li>It writes on children the server owns, as A does.</li>
+	</ul>
+
+	<h3>C, shadow root with a <code>::slotted()</code> rule</h3>
+	<p><b>Pros</b></p>
+	<ul>
+		<li>0 writes on the children, and a morph can't reach the rule (table).</li>
+		<li>Respects a server <code>hidden</code> and beats page <code>display</code> (table).</li>
+		<li>Same mechanism as <code>&lt;neo-carousel&gt;</code> now, and as option A of <a href="decision-shadowless-host-style.html">the host-style decision</a>, which gives the kit 1 pattern for both.</li>
+		<li>Complies with the rules as written.</li>
+	</ul>
+	<p><b>Cons</b></p>
+	<ul>
+		<li>It changes the host's structure. A child with a <code>slot</code> attribute matches no slot and stops rendering (checked), unless the host assigns its children manually as <code>&lt;neo-lightbox&gt;</code> does (checked). The host can't take another shadow root later.</li>
+		<li><code>::slotted()</code> matches only direct children. Avatars, crumbs and separators are direct children today, and future markup must keep them so.</li>
+		<li>The hidden set must be expressible as position selectors. A contiguous run fits, such as the breadcrumb's middle with <code>:nth-child(n+2):nth-last-child(n+3)</code>. An arbitrary set needs 1 selector per item.</li>
+		<li>A shadow <code>!important</code> beats the page's <code>!important</code> (checked), and the page can't show an item the host hides.</li>
+		<li>The hidden state leaves the DOM. Page CSS or tests that select <code>[data-neo-avatars-hidden]</code> break. The doc pages don't list it as a hook, and only the kit CSS uses it (<code>neo-avatar.css</code>, <code>neo-breadcrumb.css</code>).</li>
+	</ul>
+
+	<!-- The server markup. It carries no runtime attributes, as a template wouldn't. -->
+	<template id="server-avatars">
+		<neo-avatars collapse-at="3" aria-label="Team">
+			<neo-avatar>DV</neo-avatar>
+			<neo-avatar>JO</neo-avatar>
+			<neo-avatar>EK</neo-avatar>
+			<neo-avatar>SK</neo-avatar>
+			<neo-avatar>AL</neo-avatar>
+			<neo-avatar>CD</neo-avatar>
+		</neo-avatars>
+	</template>
+	<template id="server-children">
+		<span class="chip">1</span>
+		<span class="chip" hidden>2 (server hidden)</span>
+		<span class="chip">3</span>
+		<span class="chip">4</span>
+		<span class="chip flex">5 (display: inline-flex)</span>
+		<span class="chip">6</span>
+	</template>
+
+	<script>
+	// A function scope, because the minified bundle is a classic script whose
+	// top-level names clash with globals declared here.
+	(async () => {
+		const VISIBLE = 3;
+
+		// A: the marker, re-applied whenever a child's marker changes.
+		class XMarker extends HTMLElement {
+			connectedCallback() {
+				this.observer ??= new MutationObserver(() => this.sync());
+				this.observer.observe(this, { childList: true, subtree: true, attributeFilter: ["data-x-hidden"] });
+				this.sync();
+			}
+			disconnectedCallback() {
+				this.observer.disconnect();
+			}
+			sync() {
+				[...this.children].forEach((el, i) => {
+					const hide = i >= VISIBLE;
+					if (el.hasAttribute("data-x-hidden") !== hide) el.toggleAttribute("data-x-hidden", hide);
+				});
+			}
+		}
+
+		// B: `hidden`, re-applied the same way.
+		class XHidden extends HTMLElement {
+			connectedCallback() {
+				this.observer ??= new MutationObserver(() => this.sync());
+				this.observer.observe(this, { childList: true, subtree: true, attributeFilter: ["hidden"] });
+				this.sync();
+			}
+			disconnectedCallback() {
+				this.observer.disconnect();
+			}
+			sync() {
+				[...this.children].forEach((el, i) => {
+					const hide = i >= VISIBLE;
+					if (el.hidden !== hide) el.hidden = hide;
+				});
+			}
+		}
+
+		// C: a ::slotted rule in the shadow root, rewritten when the count changes.
+		class XShadow extends HTMLElement {
+			constructor() {
+				super();
+				this.sheet = new CSSStyleSheet();
+				const root = this.attachShadow({ mode: "open" });
+				root.innerHTML = "<slot></slot>";
+				root.adoptedStyleSheets = [this.sheet];
+			}
+			connectedCallback() {
+				this.sheet.replaceSync(`::slotted(:nth-child(n+${VISIBLE + 1})) { display: none !important; }`);
+			}
+		}
+
+		customElements.define("x-marker", XMarker);
+		customElements.define("x-hidden", XHidden);
+		customElements.define("x-shadow", XShadow);
+
+		const children = document.getElementById("server-children").innerHTML;
+		const server = {
+			avatars: document.getElementById("server-avatars").innerHTML,
+			a: `<x-marker>${children}</x-marker>`,
+			b: `<x-hidden>${children}</x-hidden>`,
+			c: `<x-shadow>${children}</x-shadow>`,
+		};
+		const names = Object.keys(server);
+
+		// The real Datastar morph needs the page over http, because datastar.js is
+		// a module. From file:// an imitation of its pairing rule runs instead.
+		let datastar = false;
+		try {
+			await import("../internal/site/static/datastar.js");
+			datastar = true;
+		} catch {}
+		document.getElementById("mode").textContent = datastar
+			? "Morph: Datastar 1.0.5"
+			: "Morph: imitation (serve the repo over http for the real one)";
+
+		// Datastar 1.0.5 pairs a live element with the next live sibling of the same
+		// tag whose id is empty or equal, sets the server's attributes, strips the
+		// rest, and removes live children left unpaired.
+		function imitate(live, srv) {
+			for (const n of live.getAttributeNames()) if (!srv.hasAttribute(n)) live.removeAttribute(n);
+			for (const n of srv.getAttributeNames()) {
+				if (live.getAttribute(n) !== srv.getAttribute(n)) live.setAttribute(n, srv.getAttribute(n));
+			}
+			let cursor = live.firstChild;
+			for (const s of [...srv.childNodes]) {
+				let match = null;
+				for (let c = cursor; c; c = c.nextSibling) {
+					const same = c.nodeType === s.nodeType && (c.nodeType !== 1 || (c.localName === s.localName && (!c.id || c.id === s.id)));
+					if (same) {
+						match = c;
+						break;
+					}
+				}
+				if (!match) {
+					live.insertBefore(document.importNode(s, true), cursor);
+					continue;
+				}
+				while (cursor !== match) {
+					const next = cursor.nextSibling;
+					cursor.remove();
+					cursor = next;
+				}
+				if (s.nodeType === 1) imitate(match, s);
+				else if (match.nodeValue !== s.nodeValue) match.nodeValue = s.nodeValue;
+				cursor = match.nextSibling;
+			}
+			while (cursor) {
+				const next = cursor.nextSibling;
+				cursor.remove();
+				cursor = next;
+			}
+		}
+
+		function morph(name) {
+			const html = `<div id="case-${name}">${server[name]}</div>`;
+			if (datastar) {
+				document.dispatchEvent(new CustomEvent("datastar-fetch", {
+					detail: { type: "datastar-patch-elements", argsRaw: { elements: html } },
+				}));
+				return;
+			}
+			const tpl = document.createElement("template");
+			tpl.innerHTML = html;
+			imitate(document.getElementById(`case-${name}`), tpl.content.firstElementChild);
+		}
+
+		const host = (name) => document.getElementById(`case-${name}`).firstElementChild;
+		const items = (name) => [...host(name).children].filter((el) => !el.hasAttribute("data-neo-avatars-overflow"));
+		const visible = (el) => el.checkVisibility();
+		// The timer covers headless runs, where animation frames may not fire.
+		const nextFrame = () =>
+			new Promise((r) => {
+				requestAnimationFrame(() => r());
+				setTimeout(r, 100);
+			});
+
+		function sample(name) {
+			const list = items(name);
+			let shown = list.filter(visible).map((el) => el.textContent.trim().split(" ")[0]).join(" ") || "none";
+			if (name === "avatars") {
+				const chip = host(name).querySelector(":scope > [data-neo-avatars-overflow]");
+				shown += chip && visible(chip) ? ` (chip ${chip.textContent.trim()})` : " (no chip)";
+			}
+			return {
+				shown,
+				child2: name === "avatars" ? "" : !visible(list[1]),
+				child5: name === "avatars" ? "" : !visible(list[4]),
+			};
+		}
+
+		function render(rows) {
+			const log = document.getElementById("log");
+			log.replaceChildren();
+			for (const r of rows) {
+				const tr = document.createElement("tr");
+				for (const [text, ok] of r) {
+					const td = document.createElement("td");
+					td.textContent = text;
+					if (ok !== undefined) td.className = ok ? "pass" : "fail";
+					tr.append(td);
+				}
+				log.append(tr);
+			}
+		}
+
+		let before = {};
+		async function reset() {
+			for (const name of names) document.getElementById(`case-${name}`).innerHTML = server[name];
+			await customElements.whenDefined("neo-avatars");
+			await new Promise((r) => setTimeout(r, 300));
+			before = Object.fromEntries(names.map((n) => [n, sample(n)]));
+			render(names.map((n) => [[n], [before[n].shown], [""], [""], [""], [""], [""]]));
+		}
+
+		async function runMorph() {
+			const writes = Object.fromEntries(names.map((n) => [n, 0]));
+			const recorders = names.map((name) => {
+				const r = new MutationObserver((records) => {
+					writes[name] += records.length;
+				});
+				morph(name);
+				// Started after the morph, it records only the host's own writes.
+				r.observe(document.getElementById(`case-${name}`), { subtree: true, attributes: true });
+				return [name, r];
+			});
+			await nextFrame();
+			const after = Object.fromEntries(names.map((n) => [n, sample(n)]));
+			await nextFrame();
+			for (const [name, r] of recorders) {
+				writes[name] += r.takeRecords().length;
+				r.disconnect();
+			}
+			await new Promise((r) => setTimeout(r, 1000));
+			const later = Object.fromEntries(names.map((n) => [n, sample(n)]));
+			render(names.map((n) => {
+				const b = before[n];
+				const a = after[n];
+				const toy = n !== "avatars";
+				return [
+					[n],
+					[b.shown],
+					[a.shown, a.shown === b.shown],
+					[later[n].shown, later[n].shown === b.shown],
+					toy ? [String(a.child2), a.child2] : ["-"],
+					toy ? [String(a.child5), a.child5] : ["-"],
+					[String(writes[n])],
+				];
+			}));
+		}
+
+		document.getElementById("morph").addEventListener("click", runMorph);
+		document.getElementById("reset").addEventListener("click", reset);
+		await reset();
+		if (location.search.includes("auto")) await runMorph();
+	})();
+	</script>
+</body>
+</html>

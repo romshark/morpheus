@@ -5,6 +5,7 @@
 		"clientKind": "git",
 		"useIgnoreFile": false
 	},
+	"plugins": ["./web/lint/no-id-write.grit"],
 	"files": {
 		"ignoreUnknown": false,
 		"includes": ["web/**/*.{ts,css}", "**/*.{json,jsonc}", "!web/node_modules", "!dst", "!min"]
@@ -17,7 +18,7 @@
 	"linter": {
 		"enabled": true,
 		"rules": {
-			"recommended": true,
+			"preset": "recommended",
 			"correctness": {
 				// Both rules exempt `_`-prefixed identifiers by default.
 				"noUnusedVariables": "error",
@@ -36,18 +37,18 @@
 			"suspicious": {
 				"noDuplicateProperties": "error"
 			},
-			// a11y recommended rules run via the top-level `recommended`.
+			// a11y recommended rules run via the top-level `preset`.
 			// Most target JSX, and this kit builds DOM imperatively.
 			// Only the CSS-applicable ones (e.g. useGenericFontNames) fire today.
 			// The group stays on to guard any future markup.
 			"a11y": {
-				"recommended": true
+				"preset": "recommended"
 			},
 			// nursery rules are unstable across Biome versions; @biomejs/biome is
 			// pinned exactly, and upgrades opt in deliberately.
 			// Only vetted rules with no false positives are enabled here.
 			"nursery": {
-				"recommended": true,
+				"preset": "recommended",
 				// Unhandled Promise (missing await/catch/void).
 				"noFloatingPromises": "error",
 				// Promise passed where a non-Promise is expected.

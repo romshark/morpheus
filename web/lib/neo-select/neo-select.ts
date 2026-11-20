@@ -530,6 +530,7 @@ export class NeoSelect extends NeoListbox {
 		else this.listEl.removeAttribute("aria-label");
 		if (this.id) {
 			const listID = `${this.id}-list`;
+			// biome-ignore lint/plugin/no-id-write: listEl is in the shadow root
 			this.listEl.id = listID;
 			this.trigger.setAttribute("aria-controls", listID);
 		}

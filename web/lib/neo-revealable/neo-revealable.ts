@@ -5,6 +5,7 @@
 // flash it.
 
 import { boolCommand } from "../command";
+import { setState } from "../internal-state";
 
 const CANVAS_ATTR = "data-neo-revealable-canvas";
 const CONTENT_ATTR = "data-neo-revealable-content";
@@ -53,11 +54,13 @@ export class NeoRevealable extends HTMLElement {
 	// reveal the user just made.
 	#openIntent = false;
 	#reflectingOpen = false;
+	#internals = this.attachInternals();
+	// The variant measured on first connect, used while `variant` is absent.
+	#inferredVariant: "inline" | "media" | null = null;
 
 	connectedCallback() {
-		if (!this.hasAttribute("variant")) {
-			this.setAttribute("variant", this.#inferVariant());
-		}
+		this.#inferredVariant ??= this.#inferVariant();
+		this.#syncVariantState();
 		if (!this.hasAttribute("tabindex")) this.tabIndex = 0;
 		this.setAttribute("role", "button");
 
@@ -130,6 +133,7 @@ export class NeoRevealable extends HTMLElement {
 			return;
 		}
 		this.#syncAria();
+		if (name === "variant") this.#syncVariantState();
 		if (name === "density" || name === "variant") {
 			this.#resetParticles();
 		}
@@ -429,7 +433,15 @@ export class NeoRevealable extends HTMLElement {
 	}
 
 	#variant(): string {
-		return this.getAttribute("variant") || "inline";
+		return this.getAttribute("variant") || (this.#inferredVariant ?? "inline");
+	}
+
+	// CSS keys on :state(inline) and :state(media), which hold the inferred
+	// variant while the server renders no `variant`.
+	#syncVariantState(): void {
+		const media = this.#variant() === "media";
+		setState(this.#internals, "media", media);
+		setState(this.#internals, "inline", !media);
 	}
 
 	#draw(time: number): void {

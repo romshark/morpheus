@@ -5,10 +5,8 @@
 import { boolAttr, openCommand } from "../command";
 import { retryWhileParsing, stillParsing } from "../document-parsing";
 import { setState } from "../internal-state";
-import { DialogBackdropClickTracker, lockBodyScroll, unlockBodyScroll } from "../native-dialog";
+import { DialogAria, DialogBackdropClickTracker, lockBodyScroll, unlockBodyScroll } from "../native-dialog";
 import { resolveTouchDismiss } from "../touch-dismiss";
-
-let nextId = 0;
 
 export class NeoDrawer extends HTMLElement {
 	static readonly observedAttributes = ["open", "side"];
@@ -23,6 +21,7 @@ export class NeoDrawer extends HTMLElement {
 	#trigger: HTMLElement | null = null;
 	#dialog: HTMLDialogElement | null = null;
 	#childObserver: MutationObserver | null = null;
+	#aria = new DialogAria("[data-neo-drawer-title]", "[data-neo-drawer-description]", () => this.#openIntent);
 	#previousFocus: Element | null = null;
 	#ready = false;
 	#holdsScrollLock = false;
@@ -113,6 +112,7 @@ export class NeoDrawer extends HTMLElement {
 		this.#touchDrag = null;
 		this.#childObserver?.disconnect();
 		this.#childObserver = null;
+		this.#aria.disconnect();
 		if (this.#holdsScrollLock) {
 			unlockBodyScroll();
 			this.#holdsScrollLock = false;
@@ -301,30 +301,7 @@ export class NeoDrawer extends HTMLElement {
 			this.#dialog.addEventListener("touchcancel", this.#onTouchCancel);
 		}
 
-		if (!this.#dialog.id) this.#dialog.id = `neo-drawer-${++nextId}`;
-		this.#trigger?.setAttribute("aria-haspopup", "dialog");
-		this.#trigger?.setAttribute("aria-controls", this.#dialog.id);
-		if (!this.#dialog.hasAttribute("role")) {
-			this.#dialog.setAttribute("role", "dialog");
-		}
-		this.#dialog.setAttribute("aria-modal", "true");
-
-		const title = this.#dialog.querySelector<HTMLElement>("[data-neo-drawer-title]");
-		if (title) {
-			if (!title.id) title.id = `${this.#dialog.id}-title`;
-			this.#dialog.setAttribute("aria-labelledby", title.id);
-		} else {
-			this.#dialog.removeAttribute("aria-labelledby");
-		}
-		const desc = this.#dialog.querySelector<HTMLElement>("[data-neo-drawer-description]");
-		if (desc) {
-			if (!desc.id) desc.id = `${this.#dialog.id}-desc`;
-			this.#dialog.setAttribute("aria-describedby", desc.id);
-		} else {
-			this.#dialog.removeAttribute("aria-describedby");
-		}
-
-		this.#trigger?.setAttribute("aria-expanded", String(this.#openIntent));
+		this.#aria.bind(this.#trigger, this.#dialog);
 		return true;
 	}
 
@@ -332,7 +309,7 @@ export class NeoDrawer extends HTMLElement {
 		if (!this.#dialog) return;
 		const want = this.#openIntent;
 		const have = this.#dialog.open;
-		this.#trigger?.setAttribute("aria-expanded", String(want));
+		this.#aria.sync();
 		if (want && !have) {
 			if (!this.#previousFocus) this.#previousFocus = document.activeElement;
 			this.#openModal();

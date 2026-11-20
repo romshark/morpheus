@@ -7,112 +7,61 @@ paths:
   - "internal/site/examples/**"
 ---
 
-A component doc page is 3 files working together:
-
-- `internal/site/page_<component>.templ`: the page, with prose, playground, reference table and examples.
-- `internal/site/examples/<name>.templ` (or `.html`) plus an optional sibling `<name>.css`: 1 example each.
-- `internal/site/<component>_demo.go`: embeds the example sources and hands them to the page as playground states and demo frames.
-
-The Templ parser gotchas in the `templ` skill apply to every `.templ` file here.
+A component doc page is made of 3 parts. The page itself is `internal/site/page_<component>.templ`. Each example lives in `internal/site/examples/<name>.templ` (or `.html`), with an optional sibling `<name>.css`. `internal/site/<component>_demo.go` hands the example sources to the page. The `templ` skill applies to every `.templ` file here.
 
 ## Page structure
 
 In order:
 
-1. Title & general description (the intro)
-2. Live playground
+1. Intro
+2. Playground
 3. Reference
 4. Examples
-5. Examples: Datastar (if any)
+5. Datastar examples, if any
 
 ## Prose
 
-- Describe the **custom element**, never the Templ wrapper.
-  - Document the HTML surface (attributes, child elements, events, `[data-neo-*]` hooks), not the `@neo.*` / `datastar.*` helper.
-  - Exception: an example specifically about a wrapper.
-- Write tersely.
-  - Non-obvious only; cut what states the obvious.
-  - Plain simple technical English, as brief as possible.
-  - One term per concept (trigger / listbox / popover), matching the element's own naming.
-  - Structure with lists and formatting, not prose paragraphs; keep the text minimal.
-  - Link, don't repeat. Describe shared behavior once, link to it elsewhere.
-- Links:
-  - A mention of the page's own attribute, slot, part, state, event or CSS variable links to its reference row: `@AnchorCode("#parts-summary", "::part(summary)")`. The row id is the section plus the name (`attributes-open`, `slots-summary-open`, `css-variables-neo-foo-gap`), with the doc's `Prefix` in front on pages with several references (`item-attributes-neo-hide-below`).
-  - Another component links with `@ComponentLink("neo-foo", href.PageFoo())`, never `@neo.Link` or a raw `<a>` with its name as plain text.
-  - Both are calls without children; the `templ` skill's spacing rules apply (`&comma;` / `&period;` after the call, the call on the same line as the text before it).
-  - `templ.Raw` reference descriptions can't call them; write `<a href="#…"><code>…</code></a>` there.
-- Intro: opens with ``Component <code>{ "<neo-foo>" }</code> is ...``.
-- Example notes (`<p class="demo-note">` above each demo):
-  - Say what it's for, then how it works.
-  - No heading-as-prefix (`Disabled options: ...`).
-  - One point: a single `<p class="demo-note">`.
-  - Several points: a lead `<p class="demo-note">` + a `<ul class="demo-note">` (never a 1-item list).
-  - If the effect is visible only through interaction, end with the action ("Type *xyz* to see it").
-- Reference docs (`ComponentDoc` `Description`):
-  - Never empty. If thin/obvious, link to the page it defers to (e.g. forwarded-to-`<neo-popover>` -> Popover page).
+Describe the custom element and its HTML surface, not the Templ wrapper, unless the example is about the wrapper. Say only what isn't obvious, in natural, concise and non-verbose technical English, and prefer lists to paragraphs. Use 1 term per concept, the one the element itself uses. Link to shared behavior instead of repeating descriptions.
+
+- Open the intro with ``Component <code>{ "<neo-foo>" }</code> is ...``.
+- Link a mention of the page's own attribute, slot, part, state, event or CSS variable to its reference row with `@AnchorCode`. The row id is the section plus the name, as in `attributes-open`, with the doc's `Prefix` in front on a page with several references.
+- Link another component with `@ComponentLink`. Inside a `templ.Raw` description, write `<a href="#..."><code>...</code></a>` instead.
+- Give every reference row a description. When there's little to say, link to the page it defers to.
+
+### Example notes
+
+Explain only what the demo can't show, usually how it works, not what the reader would already see. Don't open with a heading-style label. A single point is 1 `<p class="demo-note">`. Several points are a lead `<p class="demo-note">` followed by a `<ul class="demo-note">` of 2 or more items. When the effect only shows through interaction, end with the action to take.
+
+### Alert notes
+
+Call out a limit the reader would otherwise run into, such as a keyboard-only interaction touch devices lack or an API that needs a secure context, in an alert instead of a demo note. Render it with `@neo.AlertAttrs` and the `demo-callout` class, as a warning (`triangle-alert` icon) for a limit or as info (`info` icon) for context the demo can't show. Give it a short title naming the limit and a description of who is affected and what to do instead. Put it after the intro when it applies to the whole component, or next to the demo it concerns.
 
 ## Examples
 
-- One concept per `anchoredH3` demo; if a note needs "and also...", split it.
-- Realistic data, never placeholders (`foo`, `Variant A`).
+Each demo shows 1 concept. If its note needs "and also", split it. Use realistic data, never placeholders.
 
-### Source layout
-
-Each example is one self-contained templ function in `internal/site/examples/<name>.templ`. The `*_demo.go` renders it for the HTML tab and embeds the file verbatim for the Templ tab (`//go:embed examples/<name>.templ`); the page passes both as HTML source and Templ source and renders `@examples.X()` as the live preview. All 3 come from one source. Keep no separate `.html`, hard-coded `const` strings, or Go-built (string concat) HTML var for an example.
-
-Indent example `.templ` files with tabs. The HTML-tab pretty-printer converts those tabs to 2 spaces; space indentation in the source yields ragged output.
+Write each example as 1 self-contained templ function, indented with tabs. It is the only source of the preview, the HTML tab and the Templ tab, which leaves no room for a second copy as an `.html` file, a `const` string or Go-built HTML.
 
 ### Self-sufficiency
 
-Everything the Templ tab needs lives in that one embedded file. The test is visibility, not purity. The tab shows the whole file. Code referenced from another file stays hidden from the reader.
-
-Banned: a shared/cross-file templ helper, a factored-out style-string const, any cross-file markup or data helper (the only cross-package `@...` calls allowed are the `@neo.*` wrappers the example demonstrates).
-
-Allowed (all visible in the same file): a helper templ func defined in this file (e.g. a recursive `templ treeNode(...)` for arbitrary-depth nesting, or a `templ.Component` value the wrapper API requires), a local type/data var, and `for` loops over inline data.
-
-Prefer copying markup/CSS over factoring it out; reach for a same-file helper only when structure forces it (recursion, a component-valued option).
+The Templ tab shows a single file, and everything the example needs has to be in it. Cross-file templ helpers, factored-out style constants and other cross-file markup or data helpers are out. The only calls into another package are the `@neo.*` wrappers the example shows. Inside the file, a helper templ function, a local type or data variable and a `for` loop over inline data are all fine. Prefer copying markup and CSS over factoring it out, and add a helper only when the structure demands one, such as recursion or a component-valued option.
 
 ### Styling
 
-An example's styling lives in an inline `style` attribute on the element or in a sibling `.css` file.
+Style an example inline, or in a sibling `<name>.css` that the demo file embeds and passes to the page. Move a rule to the `.css` file only when it can't be inlined (a descendant or child selector, a pseudo-class, an at-rule, a custom property that has to cascade) or when it removes a duplicated block of about 3 or more declarations. A 1- or 2-declaration tweak stays inline, and so does a dynamic value such as a `data-attr:style` binding with its server-rendered value.
 
-A sibling `internal/site/examples/<name>.css` is embedded with `//go:embed` in `<component>_demo.go` and handed to the page as `PlaygroundState.CSS` or `DemoFrameOpts.CSSSource`. The site injects it as `<style>@scope { ... }</style>` in the preview and shows it verbatim in the CSS tab. An inline `style` attribute needs no wiring and shows up in the HTML tab, where the element it styles is.
+Never put a `<style>` block in an example. It leaks into the whole page, and a test fails the build on it.
 
-Extract to a sibling `.css` when one of these holds:
-
-- The rule cannot be inlined, as with a descendant or child selector, a pseudo-class, an at-rule, or a custom property that has to cascade to a descendant.
-- It removes duplication of a substantive block, roughly 3 or more declarations repeated across elements in 1 example or across several states of 1 playground.
-
-Otherwise keep it inline. A 1- or 2-declaration tweak (`width: 22rem`, `font-size: 3rem`, `margin: 0`) does not justify a class plus a file, even when it repeats.
-
-Requirement: never put a `<style>` block in an example. Example CSS lives in light DOM, where an unscoped rule leaks page-wide and silently styles other demos. `examples/scope_test.go` fails the build on an unscoped block in a `.templ`.
-
-Dynamic values stay inline. A `data-attr:style` binding and the server-rendered value it patches are data, not styling:
-
-	<span
-	  class="color-field-morph-swatch"
-	  style="background: #2563eb"
-	  data-attr:style="'background: ' + $cf_morph_value"
-	></span>
-
-The class carries the box metrics; the inline declaration carries the bound value.
-
-Writing the `.css` file:
-
-- One file per example, named after it (`popover_morph.css` beside `popover_morph_*.html`). States that share one block share one embedded var (`popoverMorphCSS`).
-- Class names are kebab-case and prefixed with the example slug, such as `.popover-morph-panel` and `.skeleton-morph-avatar`.
-- Tab-indented, 1 blank line between rules.
-- Classes defined in `internal/site/static/style.css` already apply to previews. Use them instead of copying their rules into an example's CSS.
+In the `.css` file, name it after the example and let states that share a block share 1 embedded variable. Prefix class names with the example slug in kebab-case, indent with tabs and leave 1 blank line between rules. Reuse the classes `internal/site/static/style.css` already defines rather than copying them.
 
 ## Playgrounds
 
-New or migrated overview pages use the reusable `Playground` Templ component (`internal/site/playground.templ`), controlled by the site-only `<site-playground>` controller (`web/site/site-playground.ts`). No per-page playground scripts, simulator routes, or one-off editors.
+Build every playground from the `Playground` component and its `<site-playground>` controller, with no per-page scripts, simulator routes or one-off editors. The controller owns state selection, ordering, editing and resizing. Don't reimplement any of it.
 
-- The first state is named `Default` and is the minimal example. Its signals cover only the attributes it must set. Other states reuse the real examples already on the page, with no placeholders like `Variant A`.
-- After `Default`, 1 state per page example, in page order, labeled with its heading and built from the same HTML/CSS vars. Exempt are server-simulator examples and examples that show a change between their own states, such as a morph demo, because 1 of those states alone shows nothing.
-- Each state's HTML is the single source for both its preview and the CodeMirror document. Don't add a separate parameter schema or duplicate the preview markup in the template.
-- State HTML is trusted, repository-authored. The editor runs only in the browser; never persist or send edited HTML to a server.
-- Declare editable signals as a Datastar object expression in `data-signals` (double-quoted attribute, unquoted keys, single-quoted strings, as in `data-signals="{foo_bar: 1, baz: 'x'}"`), and update the markup through normal Datastar bindings. Controls handle scalar string, number, boolean, and null. Namespace signal names to the component/page.
-- Two-way binding a boolean-command attribute (`checked`, `pressed`, `open`) needs the command-string form plus a synchronous write-back, not a bare boolean. Use `data-attr:checked="$sig ? 'true' : 'false'"` with `data-on:neo-<tag>-change="$sig = evt.detail.checked"`. A bare `data-attr:checked="$sig"` makes Datastar remove the attribute on `false`, which the component reads as "no command, keep current state" (DESIGN.md Attribute Contract). The control snaps back and stays visually on until a second interaction. Canonical examples: `checkbox_default.html`, `sidebar_default.html`.
-- The controller owns state selection, reordering, enable/disable, duplication, autoplay, renaming, resizing, mobile options, and code/signal editing. Keep the template declarative; don't reimplement these.
-- Leave the preview height unset so it tracks the active state's content. Set `PlaygroundOpts.Height` only when the component needs a fixed canvas.
+- The first state is `Default`, the minimal example, with signals only for the attributes it must set.
+- After it comes 1 state per page example, in page order, labeled with the example's heading and built from the same sources. Server-simulator examples and examples that show a change between their own states are exempt.
+- A state's HTML is the only source of both its preview and its editor document.
+- State HTML is trusted and comes from the repository. Never persist edited HTML or send it to a server.
+- Declare editable signals as a Datastar object expression in `data-signals`, as in `data-signals="{foo_bar: 1, baz: 'x'}"`. Use scalar values only, and prefix the names with the page.
+- Two-way bind a boolean command attribute with the command string plus a synchronous write-back, as in `data-attr:checked="$sig ? 'true' : 'false'"` with `data-on:neo-<tag>-change="$sig = evt.detail.checked"`. A bare `$sig` removes the attribute on false, which the component reads as no command, and the control stays on.
+- Leave the preview height unset unless the component needs a fixed canvas.

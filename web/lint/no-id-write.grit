@@ -1,0 +1,15 @@
+language js
+
+// A morph pairs a live element with its server copy only when both carry
+// the same id, so a generated id makes the morph replace the element.
+// A node the component created or one in its shadow root may take an id:
+// suppress with `// biome-ignore lint/plugin/no-id-write: <which node>`.
+or {
+	`$el.id = $value`,
+	`$el.setAttribute("id", $value)`,
+	`$el.removeAttribute("id")`,
+	`$el.toggleAttribute("id")`,
+	`$el.toggleAttribute("id", $force)`
+} as $write where {
+	register_diagnostic(span = $write, message = "Don't write id on a server-rendered element. The server owns it, and a changed id makes the morph replace the element. Link by an existing id or by ARIA element reflection (setAriaRef).", severity = "error")
+}

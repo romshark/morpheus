@@ -333,6 +333,7 @@ class SiteCommandPalette extends HTMLElement {
 	#addRow(owner: Entry, kind: "section" | "api", href: string, label: string, tag: string, icon: string): void {
 		if (!this.#list) return;
 		const row = owner.row.cloneNode(true) as HTMLAnchorElement;
+		// biome-ignore lint/plugin/no-id-write: generated clone
 		row.id = `site-cmdk-index-${this.#indexed.length}`;
 		row.href = href;
 		row.dataset.label = label;

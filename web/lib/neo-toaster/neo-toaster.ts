@@ -196,9 +196,6 @@ export class NeoToaster extends HTMLElement {
 	}
 
 	connectedCallback() {
-		if (!this.hasAttribute("position")) {
-			this.setAttribute("position", "bottom-right");
-		}
 		// Only app-level (non-contained) toasters claim the static-API instance.
 		// Contained ones are scoped to their parent frame and mustn't intercept
 		// window-attached NeoToast calls; otherwise an in-frame demo toaster appearing
@@ -867,7 +864,7 @@ export class NeoToaster extends HTMLElement {
 		// visible when the stack unfolds. Bottom-anchored stacks
 		// default to scrollTop=0 (= oldest toasts) and need a jump to the bottom;
 		// top-anchored already match scrollTop=0 by default.
-		if (this.getAttribute("position")?.includes("bottom")) {
+		if ((this.getAttribute("position") ?? "bottom-right").includes("bottom")) {
 			requestAnimationFrame(() => {
 				this.scrollTop = this.scrollHeight;
 			});

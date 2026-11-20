@@ -6,42 +6,70 @@ paths:
   - "web/lib/*.ts"
 ---
 
-These files implement the custom elements. The component design rules in [DESIGN.md](../../../DESIGN.md) (repo root) on morph safety, the attribute contract, light and shadow DOM, styling, and accessibility apply to them. This skill holds the implementation details for satisfying them in the TypeScript.
+These files implement the custom elements and follow the design rules in [DESIGN.md](../../../DESIGN.md). This skill covers how to meet those rules in TypeScript.
 
 ## Reading and reflecting attributes
 
-- Read a boolean with the shared command reader, which is `boolCommand` for the raw `true`/`false`/`null` or `boolAttr(host, name, default)` for a config knob. Never use bare `hasAttribute`; it can't tell `x="false"` from an absent attribute.
-- Interactive-state attributes (`open`, `checked`, ...): keep an internal intent field and reflect it back to the attribute through a guarded writer (a `#reflecting` flag) so the reflected write isn't read back as a command. `neo-popover`'s `open` is the reference implementation.
+Read booleans with `boolCommand` or `boolAttr`. A bare `hasAttribute` can't tell `x="false"` from a missing attribute.
+
+Keep interactive state such as `open` in an internal field, and reflect it to the attribute through a guarded writer. The guard keeps the component from reading its own write back as a command.
+
+## Attribute ownership
+
+Each attribute on a server-rendered element has a single owner. A morph keeps what the server template renders and strips everything else.
+
+- **Server**: `id`, `class`, `style`, `slot`, configuration, `[data-neo-*]` part marks, and any accessible name the author writes. The component only reads these.
+- **Server and component**: interactive state. The server sends it as a command, and the component reflects it.
+- **Component**: `role`, `tabindex`, `aria-roledescription`, ARIA state and references, and a derived `aria-label`. The component re-applies these on every sync and after a morph, and writes a default like `role` only where the server rendered none.
+- **No attribute**: state the component works out at runtime, like a drag in progress, is a custom state (`:state(dragging)`), never an attribute.
+
+Nodes the component generates, and everything in its shadow root, are its own, `id` and `style` included. Prefix a generated `id` with `neo-<tag>-`.
+
+### `id`
+
+Never write `id` on a server-rendered element. A morph pairs elements by `id`, and a changed one makes it replace the element and lose its state. On a generated or shadow node, suppress the `no-id-write` lint rule and name the node in the reason.
+
+### References between elements
+
+Link `aria-controls`, `aria-labelledby`, `aria-describedby` and `aria-activedescendant` with `setAriaRef`, and treat them as managed attributes. A target with an `id` gets an IDREF. A target without one gets ARIA element reflection, never a generated `id`.
+
+A reference can't point into a shadow root from outside it. Point at the slotted light-DOM content instead, or leave the reference out. From inside a shadow root out to the light DOM, only element reflection works.
+
+### Per-instance CSS values
+
+Per-instance CSS values go in the shadow root's `:host` rule from `attachHostStyle`, or in the `style` of a generated node. They never go in the host's `style` or in a document sheet keyed on an `id`. Set each value with `setProperty` rather than building rule text, where 1 malformed value can void the declarations after it.
+
+Mark client state that page CSS must not undo, like a dragged size, as important. Leave values mirrored from configuration attributes at normal priority, which lets page CSS override them.
+
+A value that depends only on configuration attributes can instead live in a shared document sheet keyed on those attributes. Defaults for missing configuration attributes belong in CSS, not in a write.
+
+### State on page-rendered children
+
+A child that is a kit element keeps its state in its own custom state set. The host writes nothing on any other page-rendered child. To hide one, it leaves the child out of its slot (see [Shadow root for a light-DOM host](#shadow-root-for-a-light-dom-host)).
 
 ## Internal state
 
-Runtime-derived state the component exposes to CSS goes into its `ElementInternals` custom state set, never into an attribute. Use `setState(this.#internals, "overlay", on)` from `internal-state.ts`, selected as `neo-sidebar:state(overlay)` (or `:host(:state(overlay))` inside the element's own shadow CSS). Attach internals once in the constructor (`#internals = this.attachInternals()`) and reuse that object; a second `attachInternals()` call throws.
+Runtime-derived state that CSS reads goes in the element's custom state set through `setState`, never in an attribute. Attach `ElementInternals` once, in the constructor, and read state back from the component's own fields rather than from the DOM.
 
-Read the state back through `this.#internals.states.has(name)`, or from a field/getter when the value is derived from something the component already tracks; never re-read it from the DOM.
+State on a child kit element lives in that child's internals and is set through a method on the child. A generated node may carry a state attribute instead, because a morph removes the node and the component rebuilds it.
 
-A state a component sets on a child kit element (a panel it animates out, an item it drags) lives in that child's internals, toggled through a small method on the child class. A plain `<div>` or generated node has no internals. A marker on one stays an attribute, which is safe because a morph removes the node itself and the component rebuilds it.
+## Shadow root for a light-DOM host
+
+A host whose children stay in the light DOM gets a shadow root from `attachSlotRoot` when it needs per-instance CSS or state on its children. Assign every child, authored or generated, with `assignChildren` on connect and on every `childList` change. An unassigned child doesn't render.
 
 ## Surviving morph attribute stripping
 
-A morph strips any attribute the component set at runtime that the server template doesn't carry (role, tabindex, ARIA). A self-targeted `MutationObserver` detects the strip and re-applies through `setAttrIfChanged`, which is idempotent so a no-op pass produces no records and the observer settles instead of looping. Removal takes plain `removeAttribute`, which queues no record when the attribute is absent and needs no wrapper. See `observeManagedAttrs`. This is for attributes the platform or assistive tech reads; anything only CSS reads is internal state instead.
+Restore managed attributes after a morph with `observeManagedAttrs`, and write them with `setAttrIfChanged`, which keeps the observer from looping on its own writes.
 
-The `aria-label` that DESIGN.md requires a control to derive from a wrapping `<label>` is one such attribute. Call `nameFromLabel` from the resync and list `aria-label` among the managed attributes.
+An `aria-label` derived from a wrapping `<label>` through `nameFromLabel` counts as managed. Manage only attributes the platform or assistive tech reads. Anything only CSS reads is a custom state.
 
 ## Children that arrive after connect
 
-When the bundle loads from a blocking script ahead of the markup, `connectedCallback` runs at the start tag, before any child exists. A component whose bind needs children calls `retryWhileParsing` from `document-parsing.ts` when the bind fails, and skips its missing-child warning while `stillParsing()`.
+A component that needs its children to bind retries with `retryWhileParsing` while the document is still parsing. It warns about a missing child only once `stillParsing()` is false.
 
-## Getters, methods, private state
+## Code
 
-- Use a getter for a value that behaves like a property (cheap, pure, derived from existing state, taking no arguments, safe to read repeatedly). Use a method when the operation takes parameters, has side effects, is async, is expensive, or represents an action.
-- Hold private state in `#private` class fields. JavaScript enforces them at runtime, not only the type checker.
-
-## Comments in template-literal strings
-
-Shadow markup and CSS live inside a template-literal (backtick) string, assigned to `innerHTML` or passed to `replaceSync`. The JS minifier treats that string as opaque. A `/* ... */` or `<!-- ... -->` comment inside it ships verbatim in `min/bundle.js`.
-
-Never comment inside the template string. Move the rationale to real `//` TS comments directly above the template-literal declaration, each anchored by its selector or element so it stays findable. Real comments minify out; the _why_ still lives at the source.
-
-## Documentation lives in the doc page, not the source
-
-A component's public surface (attributes, slots, events, `[data-neo-*]` hooks, markup shape) is documented once, in its `internal/site/page_*.templ` doc page. Do not restate it as a doc-style head comment in the `.ts`; the duplicate drifts out of sync. Keep only slim implementation "why" notes (invariants, browser quirks, the reason a construct exists). Utility modules with no doc page are exempt.
+- Use a getter for a cheap, pure value with no arguments, and a method for anything with arguments, side effects, real cost or async work.
+- Keep private state in `#private` fields.
+- Don't put comments inside template-literal markup or CSS, because they ship verbatim in the bundle. Comment above the declaration instead.
+- The doc page documents the public surface. Source files keep only short "why" comments, not doc-style head comments that restate it.

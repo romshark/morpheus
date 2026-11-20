@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Safari Tab order: neo-select and neo-combobox</title>
+	<link rel="stylesheet" href="../min/morpheus.css">
+	<link rel="stylesheet" href="../min/theme-default.css">
+	<!-- A classic deferred script, unlike a module, also loads from file://. -->
+	<script defer src="../min/bundle.js"></script>
+	<style>
+		body {
+			max-width: 46rem;
+			margin: 2rem auto;
+			padding: 0 1rem;
+			font: 16px/1.5 system-ui, sans-serif;
+		}
+
+		.probe {
+			display: grid;
+			grid-template-columns: 14rem 1fr 11rem;
+			gap: 1rem;
+			align-items: center;
+			padding: 0.5rem 0;
+			border-bottom: 1px solid color-mix(in srgb, currentColor 20%, transparent);
+		}
+
+		.result.reached {
+			color: #080;
+		}
+
+		.result.skipped {
+			color: #c00;
+			font-weight: 600;
+		}
+
+		.edge {
+			margin: 1rem 0;
+		}
+
+		#ua {
+			font-size: 0.85em;
+			opacity: 0.7;
+		}
+	</style>
+</head>
+<body>
+	<h1>Safari Tab order: neo-select and neo-combobox</h1>
+	<p>
+		Safari's default Tab order stops on text fields and <code>&lt;select&gt;</code> but
+		skips a <code>&lt;button&gt;</code> without an explicit <code>tabindex</code>. The
+		triggers of <code>&lt;neo-select&gt;</code> and <code>&lt;neo-combobox&gt;</code> are
+		<code>&lt;button&gt;</code>s in shadow DOM and carry <code>tabindex="0"</code> for this
+		reason. Without it, Tab skips both controls.
+	</p>
+	<ol>
+		<li>
+			In Safari, keep Settings &gt; Advanced &gt; "Press Tab to highlight each item on a
+			webpage" off, the default.
+		</li>
+		<li>Click into <b>Before</b>, then press <kbd>Tab</kbd> until focus reaches <b>After</b>.</li>
+	</ol>
+	<p>
+		Each row shows its Tab stop or "skipped". Every row but the native
+		<code>&lt;button&gt;</code> must get a stop. The native <code>&lt;button&gt;</code> row
+		must be skipped, otherwise the setting is on.
+	</p>
+
+	<label class="edge">Before <input id="before"></label>
+
+	<div class="probe" data-probe>
+		<select aria-label="Size">
+			<option>Small</option>
+			<option>Medium</option>
+		</select>
+		<span>Native <code>&lt;select&gt;</code>, the reference</span>
+		<span class="result">-</span>
+	</div>
+	<div class="probe" data-probe>
+		<button type="button">Native button</button>
+		<span>Native <code>&lt;button&gt;</code>, skipped by design</span>
+		<span class="result">-</span>
+	</div>
+	<div class="probe" data-probe>
+		<neo-collapsible>
+			<span slot="summary">Return policy</span>
+			<p>Return unused items within 30 days.</p>
+		</neo-collapsible>
+		<span><code>&lt;neo-collapsible&gt;</code>, shadow <code>&lt;div role="button" tabindex="0"&gt;</code></span>
+		<span class="result">-</span>
+	</div>
+	<div class="probe" data-probe>
+		<neo-select aria-label="Time range" placeholder="Pick a range">
+			<neo-option value="7d">Last 7 days</neo-option>
+			<neo-option value="30d">Last 30 days</neo-option>
+		</neo-select>
+		<span><code>&lt;neo-select&gt;</code>, shadow <code>&lt;button tabindex="0"&gt;</code></span>
+		<span class="result">-</span>
+	</div>
+	<div class="probe" data-probe>
+		<neo-combobox aria-label="City" placeholder="Pick a city">
+			<neo-option value="berlin">Berlin</neo-option>
+			<neo-option value="lisbon">Lisbon</neo-option>
+		</neo-combobox>
+		<span><code>&lt;neo-combobox&gt;</code>, shadow <code>&lt;button tabindex="0"&gt;</code></span>
+		<span class="result">-</span>
+	</div>
+
+	<label class="edge">After <input id="after"></label>
+
+	<p id="ua"></p>
+
+	<script>
+		const probes = [...document.querySelectorAll("[data-probe]")];
+		let stop = 0;
+
+		function show(row, text, kind) {
+			const r = row.querySelector(".result");
+			r.textContent = text;
+			r.className = `result ${kind}`;
+		}
+
+		// document.activeElement stops at a shadow host.
+		function deepActive() {
+			let el = document.activeElement;
+			while (el?.shadowRoot?.activeElement) el = el.shadowRoot.activeElement;
+			return el;
+		}
+
+		function describe(el) {
+			const role = el.getAttribute("role");
+			const shadow = el.getRootNode() instanceof ShadowRoot ? "shadow " : "";
+			return `${shadow}<${el.localName}${role ? ` role=${role}` : ""}>`;
+		}
+
+		// focusin from a shadow root reaches the document retargeted to its host.
+		document.addEventListener("focusin", (e) => {
+			if (e.target.id === "before") {
+				stop = 0;
+				for (const row of probes) show(row, "-", "");
+				return;
+			}
+			if (e.target.id === "after") {
+				for (const row of probes) {
+					if (row.querySelector(".result").textContent === "-") show(row, "skipped", "skipped");
+				}
+				return;
+			}
+			const row = e.target.closest("[data-probe]");
+			if (row && !row.querySelector(".result").classList.contains("reached")) {
+				show(row, `stop ${++stop}, ${describe(deepActive())}`, "reached");
+			}
+		});
+
+		document.getElementById("ua").textContent = navigator.userAgent;
+	</script>
+</body>
+</html>

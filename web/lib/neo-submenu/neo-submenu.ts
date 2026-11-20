@@ -113,6 +113,7 @@ export class NeoSubmenu extends HTMLElement {
 			panel.setAttribute("data-neo-submenu-panel", "");
 			panel.setAttribute("role", "menu");
 			panel.setAttribute("tabindex", "-1");
+			// biome-ignore lint/plugin/no-id-write: generated panel
 			panel.id = `neo-submenu-${++nextId}`;
 
 			// Back row: hidden by CSS in cascade mode, shown in push mode.

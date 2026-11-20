@@ -1,8 +1,10 @@
+import { setAriaRef } from "../aria-ref";
 import { boolAttr, openCommand } from "../command";
 import { retryWhileParsing, stillParsing } from "../document-parsing";
+import { observeManagedAttrs, setAttrIfChanged } from "../neo-morph-resilient";
 import { deepActiveElement, eventEnters } from "../shadow-utils";
 
-let nextId = 0;
+const TRIGGER_ATTRS = ["aria-haspopup", "aria-controls", "aria-expanded", "role", "tabindex"];
 
 const FOCUSABLE =
 	'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), ' +
@@ -215,6 +217,7 @@ export class NeoLightbox extends HTMLElement {
 	static readonly observedAttributes = ["open", "contained", "dismissible"];
 
 	#triggers: HTMLElement[] = [];
+	#triggerObservers: MutationObserver[] = [];
 	#content: HTMLElement | null = null;
 	#defaultSlot!: HTMLSlotElement;
 	#contentSlot!: HTMLSlotElement;
@@ -380,17 +383,13 @@ export class NeoLightbox extends HTMLElement {
 		this.#triggers = newTriggers;
 		this.#content = newContent;
 
-		if (!this.#surface.id) this.#surface.id = `neo-lightbox-${++nextId}`;
 		for (const t of this.#triggers) {
 			t.addEventListener("click", this.#onTriggerClick);
 			t.addEventListener("mouseenter", this.#onTriggerMouseEnter);
 			t.addEventListener("mouseleave", this.#onTriggerMouseLeave);
-			t.setAttribute("aria-haspopup", "dialog");
-			t.setAttribute("aria-controls", this.#surface.id);
-			if (!t.hasAttribute("role")) t.setAttribute("role", "button");
-			if (!t.hasAttribute("tabindex")) t.setAttribute("tabindex", "0");
-			t.setAttribute("aria-expanded", String(this.hasAttribute("open")));
+			this.#triggerObservers.push(observeManagedAttrs(t, TRIGGER_ATTRS, this.#syncTriggerAttrs));
 		}
+		this.#syncTriggerAttrs();
 
 		// Hover-close region is the visible surface.
 		this.#surface.removeEventListener("mouseenter", this.#onSurfaceMouseEnter);
@@ -402,8 +401,7 @@ export class NeoLightbox extends HTMLElement {
 		// to the host's aria-label.
 		const title = this.#content.querySelector<HTMLElement>("[data-neo-lightbox-title]");
 		if (title) {
-			if (!title.id) title.id = `${this.#surface.id}-title`;
-			this.#surface.setAttribute("aria-labelledby", title.id);
+			setAriaRef(this.#surface, "aria-labelledby", [title]);
 			this.#surface.removeAttribute("aria-label");
 		} else {
 			this.#surface.removeAttribute("aria-labelledby");
@@ -438,8 +436,23 @@ export class NeoLightbox extends HTMLElement {
 			t.removeEventListener("mouseenter", this.#onTriggerMouseEnter);
 			t.removeEventListener("mouseleave", this.#onTriggerMouseLeave);
 		}
+		for (const o of this.#triggerObservers) o.disconnect();
+		this.#triggerObservers = [];
 		this.#triggers = [];
 	}
+
+	// aria-controls names the slotted content, because no reference from the
+	// light DOM reaches the surface in the shadow root.
+	#syncTriggerAttrs = (): void => {
+		const expanded = String(this.#openIntent);
+		for (const t of this.#triggers) {
+			setAttrIfChanged(t, "aria-haspopup", "dialog");
+			setAriaRef(t, "aria-controls", this.#content ? [this.#content] : []);
+			if (!t.hasAttribute("role")) t.setAttribute("role", "button");
+			if (!t.hasAttribute("tabindex")) t.setAttribute("tabindex", "0");
+			setAttrIfChanged(t, "aria-expanded", expanded);
+		}
+	};
 
 	show(trigger?: HTMLElement): void {
 		if (!this.#openIntent) this.#applyOpen({ trigger });
@@ -466,7 +479,7 @@ export class NeoLightbox extends HTMLElement {
 		this.#opener = opts.trigger ?? this.#opener ?? this.#triggers[0] ?? null;
 		if (!wasOpen) this.#previousFocus = this.#opener ?? document.activeElement;
 		this.#reflectOpen();
-		for (const t of this.#triggers) t.setAttribute("aria-expanded", "true");
+		this.#syncTriggerAttrs();
 		this.#cancelFlip();
 		this.#present();
 		// Surface is laid out now; zoom it in from the opener's rect.
@@ -487,7 +500,7 @@ export class NeoLightbox extends HTMLElement {
 		this.#openIntent = false;
 		this.#clearHoverTimers();
 		this.#reflectClose();
-		for (const t of this.#triggers) t.setAttribute("aria-expanded", "false");
+		this.#syncTriggerAttrs();
 		this.#cancelFlip();
 		// Surface still at its final rect; shrink it back into the opener.
 		if (this.#transitionMode() === "zoom" && !opts.silent) this.#flipClose();

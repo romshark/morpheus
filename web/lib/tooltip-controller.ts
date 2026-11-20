@@ -11,7 +11,9 @@
 // idempotent and reconnect-safe. A shadow-internal host is re-bound by its
 // owner's connectedCallback (no nested element lifecycle fires for it).
 
+import { setAriaRef } from "./aria-ref";
 import { openCommand } from "./command";
+import { observeManagedAttrs, setAttrIfChanged } from "./neo-morph-resilient";
 import { type Placement, positionPanelResult, resolveCssLengthsPx, visibleViewportRect } from "./neo-position";
 import { setTextInPlace } from "./shadow-utils";
 
@@ -28,6 +30,10 @@ export class TooltipController {
 	#closeTimer: number | null = null;
 	#resizeObserver: ResizeObserver | null = null;
 	#childObserver: MutationObserver | null = null;
+	#ariaObservers: MutationObserver[] = [];
+	// The trigger's aria-describedby ids that aren't the tooltip's, kept ahead
+	// of the tooltip in the chained description.
+	#otherDescIds: string[] = [];
 	#repositionFrame: number | null = null;
 	// Resolved --neo-tooltip-screen-offset and --neo-tooltip-max-width in px,
 	// cached per open. A moving trigger (slider thumb) repositions every frame;
@@ -97,6 +103,8 @@ export class TooltipController {
 		const text = this.#host.getAttribute("text");
 		if (!content && text !== null) {
 			content = document.createElement("span");
+			// biome-ignore lint/plugin/no-id-write: generated content span
+			content.id = `neo-tooltip-${++nextId}`;
 			content.setAttribute("data-neo-tooltip-content", "");
 			content.textContent = text;
 			this.#host.appendChild(content);
@@ -111,15 +119,12 @@ export class TooltipController {
 
 		this.#trigger = trigger;
 		this.#content = content;
-
-		if (!content.id) content.id = `neo-tooltip-${++nextId}`;
-		content.setAttribute("role", "tooltip");
-
-		// Chain aria-describedby; callers may have other descriptions already.
-		const existing = trigger.getAttribute("aria-describedby");
-		const ids = existing ? existing.split(/\s+/).filter(Boolean) : [];
-		if (!ids.includes(content.id)) ids.push(content.id);
-		trigger.setAttribute("aria-describedby", ids.join(" "));
+		this.#otherDescIds = [];
+		this.#syncAria();
+		this.#ariaObservers = [
+			observeManagedAttrs(trigger, ["aria-describedby"], this.#syncAria),
+			observeManagedAttrs(content, ["role"], this.#syncAria),
+		];
 
 		trigger.addEventListener("pointerenter", this.#onPointerEnter);
 		trigger.addEventListener("pointerleave", this.#onPointerLeave);
@@ -140,13 +145,45 @@ export class TooltipController {
 		if (!wasReady) this.#syncOpen();
 	}
 
+	// Chains the tooltip onto the trigger's aria-describedby, after the ids the
+	// trigger already carries. An empty attribute is this method's own
+	// reflection write, not a list from the server.
+	#syncAria = (): void => {
+		const trigger = this.#trigger;
+		const content = this.#content;
+		if (!trigger || !content) return;
+		setAttrIfChanged(content, "role", "tooltip");
+		const raw = trigger.getAttribute("aria-describedby");
+		if (raw !== "") {
+			this.#otherDescIds = (raw ?? "").split(/\s+/).filter((id) => id !== "" && id !== content.id);
+		}
+		// The IDREF list keeps an id whose element doesn't exist yet, as when it
+		// comes later in the page. Reflection takes elements and can't.
+		if (content.id !== "" && content.getRootNode() === trigger.getRootNode()) {
+			setAttrIfChanged(trigger, "aria-describedby", [...this.#otherDescIds, content.id].join(" "));
+			return;
+		}
+		const root = trigger.getRootNode() as Document | ShadowRoot;
+		const others = this.#otherDescIds
+			.map((id) => root.getElementById(id))
+			.filter((el): el is HTMLElement => el !== null);
+		setAriaRef(trigger, "aria-describedby", [...others, content]);
+	};
+
 	#unbind() {
+		for (const o of this.#ariaObservers) o.disconnect();
+		this.#ariaObservers = [];
 		if (this.#trigger) {
 			this.#trigger.removeEventListener("pointerenter", this.#onPointerEnter);
 			this.#trigger.removeEventListener("pointerleave", this.#onPointerLeave);
 			this.#trigger.removeEventListener("focus", this.#onFocus);
 			this.#trigger.removeEventListener("blur", this.#onBlur);
 			this.#trigger.removeEventListener("keydown", this.#onKeyDown);
+			if (this.#otherDescIds.length > 0) {
+				setAttrIfChanged(this.#trigger, "aria-describedby", this.#otherDescIds.join(" "));
+			} else {
+				this.#trigger.removeAttribute("aria-describedby");
+			}
 		}
 		this.#resizeObserver?.disconnect();
 		this.#resizeObserver = null;
@@ -235,8 +272,8 @@ export class TooltipController {
 		this.show();
 	}
 
-	// End a hold() and close. A release off the trigger fires no pointerleave
-	// on it, which would leave the bubble open until blur. On the trigger the
+	// End a hold() and close. A release off the trigger fires no pointerleave on it,
+	// which would leave the bubble open until blur. On the trigger the
 	// browser fires pointerenter after pointerup, which reopens it.
 	release(): void {
 		if (!this.#held) return;
@@ -357,9 +394,9 @@ export class TooltipController {
 
 	// Focus reveals immediately because focus is intentional and a hover
 	// delay would feel unresponsive. Gated on :focus-visible so a tap-induced
-	// focus (which fires after click on iOS Safari and similar) doesn't pop the
-	// tooltip back open after the user activated the trigger; keyboard
-	// focus still satisfies :focus-visible and opens normally.
+	// focus (which fires after click on iOS Safari and similar) doesn't pop
+	// the tooltip back open after the user activated the trigger;
+	// keyboard focus still satisfies :focus-visible and opens normally.
 	#onFocus = () => {
 		this.#clearOpenTimer();
 		this.#clearCloseTimer();

@@ -137,11 +137,17 @@ var revealableDoc = ComponentDoc{
 		{Name: "rehide-after", Type: "number", Default: "0", Observed: true,
 			Description: templ.Raw("Milliseconds before auto re-conceal after a reveal. <code>0</code> or absent keeps it revealed until re-activated.")},
 		{Name: "variant", Type: `"inline" | "media"`, Observed: true,
-			Description: templ.Raw("Obscure treatment. Inferred from the host's height when absent (media when tall, inline when short).")},
+			Description: templ.Raw("Obscure treatment. Inferred from the host's height when absent (media when tall, inline when short). The applied value is <a href=\"#states-inline\"><code>:state(inline)</code></a> or <a href=\"#states-media\"><code>:state(media)</code></a>.")},
 		{Name: "density", Type: "number", Default: "1", Observed: true,
 			Description: templ.Raw("Particle-count multiplier, clamped to 0.3-3.")},
 		{Name: "blur-content", Type: "boolean", Default: "false", Observed: true,
 			Description: templ.Raw("Media variant only: tease the shape with a heavy blur instead of hiding it outright. No effect on text (already hidden, and blurring it would waste a composite).")},
+	},
+	States: []DocState{
+		{Name: "inline",
+			Description: templ.Raw("Set while the inline treatment applies, from <code>variant</code> or inferred.")},
+		{Name: "media",
+			Description: templ.Raw("Set while the media treatment applies, from <code>variant</code> or inferred.")},
 	},
 	Slots: []DocSlot{
 		{Name: "default",

@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Mask: Arabic-Indic and Persian digits</title>
+	<link rel="stylesheet" href="../min/morpheus.css">
+	<link rel="stylesheet" href="../min/theme-default.css">
+	<!-- A classic deferred script, unlike a module, also loads from file://. -->
+	<script defer src="../min/bundle.js"></script>
+	<style>
+		body {
+			max-width: 52rem;
+			margin: 2rem auto;
+			padding: 0 1rem;
+			font: 16px/1.5 system-ui, sans-serif;
+		}
+
+		.case {
+			display: grid;
+			grid-template-columns: 14rem 1fr 1fr;
+			gap: 0.75rem;
+			align-items: center;
+			margin: 0.75rem 0;
+		}
+
+		.case > code {
+			font-size: 13px;
+		}
+
+		table {
+			width: 100%;
+			border-collapse: collapse;
+			font: 14px/1.4 monospace;
+		}
+
+		th,
+		td {
+			padding: 0.25rem 0.5rem;
+			border-bottom: 1px solid;
+			text-align: left;
+		}
+
+		.pass {
+			color: #070;
+		}
+
+		.fail {
+			color: #b00;
+		}
+
+		#manual-value {
+			font: 14px/1.4 monospace;
+		}
+	</style>
+</head>
+<body>
+	<h1>Mask: Arabic-Indic and Persian digits</h1>
+	<p>
+		Arabic and Persian keyboards type Arabic-Indic (U+0660-0669) or Persian (U+06F0-06F9)
+		digits. <code>isDigit</code> in <code>web/lib/mask.ts</code> takes only ASCII
+		<code>0</code>-<code>9</code>. A <code>#</code> slot in <code>&lt;neo-textinput mask&gt;</code>
+		and <code>&lt;neo-otp&gt;</code> drops them, and so do <code>numeric-only</code> and
+		<code>format="number"</code>, which also strips <code>[^\d.-]</code>. The fix maps them to
+		ASCII digits before the test.
+	</p>
+	<ol>
+		<li>Click <b>Run</b>. Each case types the same digits into 2 identical fields, ASCII on the left and Arabic-Indic or Persian on the right, then compares their values.</li>
+		<li>Each row should read PASS. Before the fix, the right field stays empty.</li>
+		<li>To check real input, switch the keyboard to Arabic or Persian and type into the last field, or copy a string from the table and paste it.</li>
+	</ol>
+	<p>
+		<b>typed</b> sends 1 <code>insertText</code> per char, as keystrokes do.
+		<b>pasted</b> sends 1 <code>insertFromPaste</code> with the whole string. Both are synthetic
+		<code>beforeinput</code> events. When the component doesn't cancel one, the page inserts the
+		text and fires <code>input</code>, as the browser would.
+	</p>
+
+	<p><button type="button" id="run">Run</button></p>
+	<div id="cases"></div>
+
+	<table>
+		<thead>
+			<tr>
+				<th>case</th>
+				<th>mode</th>
+				<th>sent</th>
+				<th>ASCII value</th>
+				<th>value</th>
+				<th>result</th>
+			</tr>
+		</thead>
+		<tbody id="log"></tbody>
+	</table>
+
+	<h2>Manual</h2>
+	<div class="case">
+		<code>mask="(###) ###-####"</code>
+		<neo-textinput id="manual" mask="(###) ###-####" aria-label="Phone"></neo-textinput>
+		<span id="manual-value">value: ""</span>
+	</div>
+
+	<script>
+	// A function scope, because the minified bundle is a classic script whose
+	// top-level names (such as `to`) clash with globals declared here.
+	(() => {
+		const AR = "٠١٢٣٤٥٦٧٨٩";
+		const FA = "۰۱۲۳۴۵۶۷۸۹";
+		const to = (digits, set) => [...digits].map((d) => set[d]).join("");
+
+		const CASES = [
+			{ name: 'mask="(###) ###-####"', html: '<neo-textinput mask="(###) ###-####" aria-label="Phone"></neo-textinput>', digits: "5551234567", set: AR },
+			{ name: 'mask="(###) ###-####"', html: '<neo-textinput mask="(###) ###-####" aria-label="Phone"></neo-textinput>', digits: "5551234567", set: FA },
+			{ name: "numeric-only", html: '<neo-textinput numeric-only aria-label="Code"></neo-textinput>', digits: "4207", set: AR },
+			{ name: 'format="number"', html: '<neo-textinput format="number" aria-label="Amount"></neo-textinput>', digits: "12345", set: AR },
+			{ name: "neo-otp", html: '<neo-otp aria-label="Code"></neo-otp>', digits: "824613", set: AR },
+			{ name: "neo-otp", html: '<neo-otp aria-label="Code"></neo-otp>', digits: "824613", set: FA },
+		];
+
+		// The focused <input>, through open shadow roots.
+		function deepActive() {
+			let a = document.activeElement;
+			while (a?.shadowRoot?.activeElement) a = a.shadowRoot.activeElement;
+			return a;
+		}
+
+		// Sends beforeinput as the browser does. When the component doesn't cancel
+		// it, inserts the text at the selection and fires input, the browser's
+		// default action.
+		function insert(text, inputType) {
+			const input = deepActive();
+			if (!(input instanceof HTMLInputElement)) return;
+			const before = new InputEvent("beforeinput", { inputType, data: text, bubbles: true, cancelable: true, composed: true });
+			if (!input.dispatchEvent(before)) return;
+			const s = input.selectionStart ?? input.value.length;
+			const e = input.selectionEnd ?? s;
+			input.value = input.value.slice(0, s) + text + input.value.slice(e);
+			input.setSelectionRange(s + text.length, s + text.length);
+			input.dispatchEvent(new InputEvent("input", { inputType, data: text, bubbles: true, composed: true }));
+		}
+
+		function send(el, text, mode) {
+			(el.shadowRoot?.querySelector("input") ?? el).focus();
+			if (mode === "typed") for (const ch of text) insert(ch, "insertText");
+			else insert(text, "insertFromPaste");
+			document.activeElement?.blur();
+		}
+
+		function row(cells, cls) {
+			const tr = document.createElement("tr");
+			for (const text of cells) {
+				const td = document.createElement("td");
+				td.textContent = text;
+				tr.append(td);
+			}
+			tr.className = cls;
+			document.getElementById("log").append(tr);
+		}
+
+		// Fresh fields per run, so no value carries over between modes.
+		async function run() {
+			document.getElementById("log").replaceChildren();
+			for (const mode of ["typed", "pasted"]) {
+				const box = document.getElementById("cases");
+				box.innerHTML = CASES.map((c) => `<div class="case"><code>${c.name.replace(/</g, "&lt;")}</code>${c.html}${c.html}</div>`).join("");
+				await new Promise(requestAnimationFrame);
+				const blocks = box.querySelectorAll(".case");
+				CASES.forEach((c, i) => {
+					const [ascii, native] = blocks[i].querySelectorAll("neo-textinput, neo-otp");
+					const sent = to(c.digits, c.set);
+					send(ascii, c.digits, mode);
+					send(native, sent, mode);
+					const ok = ascii.value !== "" && native.value === ascii.value;
+					const label = c.set === AR ? "Arabic-Indic" : "Persian";
+					row([`${c.name}, ${label}`, mode, sent, JSON.stringify(ascii.value), JSON.stringify(native.value), ok ? "PASS" : "FAIL"], ok ? "pass" : "fail");
+				});
+			}
+		}
+
+		document.getElementById("run").addEventListener("click", run);
+		const manual = document.getElementById("manual");
+		manual.addEventListener("neo-textinput-input", () => {
+			document.getElementById("manual-value").textContent = `value: ${JSON.stringify(manual.value)}`;
+		});
+	})();
+	</script>
+</body>
+</html>
