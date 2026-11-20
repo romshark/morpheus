@@ -77,7 +77,12 @@ func run(dst, base string) error {
 		}
 	}
 
-	pages, err := buildPages(release, siteVersions)
+	docs, err := site.LoadDocs(release)
+	if err != nil {
+		return fmt.Errorf("loading Markdown doc pages: %w", err)
+	}
+
+	pages, err := buildPages(release, siteVersions, docs)
 	if err != nil {
 		return fmt.Errorf("collecting pages: %w", err)
 	}
@@ -94,6 +99,12 @@ func run(dst, base string) error {
 		p.Body = rewriteHTMLBase(p.Body, base, pagePaths)
 		if err := writePage(dst, p); err != nil {
 			return fmt.Errorf("rendering %s: %w", p.URLPath, err)
+		}
+	}
+	for _, p := range docs.Paths() {
+		out := filepath.Join(filepath.Dir(pageOutPath(dst, p)), "index.md")
+		if err := os.WriteFile(out, docs.Markdown(p), 0o644); err != nil {
+			return fmt.Errorf("writing the Markdown copy of %s: %w", p, err)
 		}
 	}
 
@@ -137,11 +148,11 @@ func run(dst, base string) error {
 	return nil
 }
 
-// buildPages renders every site.Page<X> templ to final HTML bytes.
-// morpheusVersion is the release string stamped into each page frame;
-// bundleVersions are the versions the bundle builder offers.
+// buildPages renders every site.Page<X> templ and every Markdown doc page
+// to final HTML bytes. morpheusVersion is the release string stamped into
+// each page frame; bundleVersions are the versions the bundle builder offers.
 func buildPages(
-	morpheusVersion string, bundleVersions []site.BundleVersion,
+	morpheusVersion string, bundleVersions []site.BundleVersion, docs *site.Docs,
 ) ([]pageEntry, error) {
 	ctx := context.Background()
 	specs := []struct {
@@ -150,79 +161,90 @@ func buildPages(
 	}{
 		{href.PageIndex(), site.PageIndex(morpheusVersion)},
 		{href.PageComponents(), site.PageComponents(morpheusVersion)},
-		{href.PageGettingStarted(), site.PageGettingStarted(morpheusVersion)},
-		{href.PageFrameworks(), site.PageFrameworks(morpheusVersion)},
-		{href.PageTheming(), site.PageTheming(morpheusVersion)},
-		{href.PageServerDriven(), site.PageServerDriven(morpheusVersion)},
-		{href.PageLayout(), site.PageLayout(morpheusVersion)},
-		{href.PageProjectStatus(), site.PageProjectStatus(morpheusVersion)},
+		{href.PageGettingStarted(), docs.Page(href.PageGettingStarted(), morpheusVersion)},
+		{href.PageFrameworks(), docs.Page(href.PageFrameworks(), morpheusVersion)},
+		{href.PageTheming(), docs.Page(href.PageTheming(), morpheusVersion)},
+		{href.PageServerDriven(), docs.Page(href.PageServerDriven(), morpheusVersion)},
+		{href.PageLayout(), docs.Page(href.PageLayout(), morpheusVersion)},
+		{href.PageProjectStatus(), docs.Page(href.PageProjectStatus(), morpheusVersion)},
 		{
 			href.PageBundleBuilder(),
 			site.PageBundleBuilder(morpheusVersion, bundleVersions),
 		},
-		{href.PageAlert(), site.PageAlert(morpheusVersion)},
-		{href.PageAura(), site.PageAura(morpheusVersion)},
-		{href.PageAutohide(), site.PageAutohide(morpheusVersion)},
-		{href.PageAvatar(), site.PageAvatar(morpheusVersion)},
-		{href.PageAvatars(), site.PageAvatars(morpheusVersion)},
-		{href.PageBadge(), site.PageBadge(morpheusVersion)},
-		{href.PageBoundary(), site.PageBoundary(morpheusVersion)},
-		{href.PageBreadcrumb(), site.PageBreadcrumb(morpheusVersion)},
-		{href.PageButton(), site.PageButton(morpheusVersion)},
-		{href.PageButtonGroup(), site.PageButtonGroup(morpheusVersion)},
-		{href.PageCard(), site.PageCard(morpheusVersion)},
-		{href.PageCarousel(), site.PageCarousel(morpheusVersion)},
-		{href.PageCheckbox(), site.PageCheckbox(morpheusVersion)},
-		{href.PageClipcopy(), site.PageClipcopy(morpheusVersion)},
-		{href.PageCollapsible(), site.PageCollapsible(morpheusVersion)},
-		{href.PageCombobox(), site.PageCombobox(morpheusVersion)},
-		{href.PageCompare(), site.PageCompare(morpheusVersion)},
-		{href.PageContextMenu(), site.PageContextMenu(morpheusVersion)},
-		{href.PageColorField(), site.PageColorField(morpheusVersion)},
-		{href.PageDatalist(), site.PageDatalist(morpheusVersion)},
-		{href.PageDialog(), site.PageDialog(morpheusVersion)},
-		{href.PageDrawer(), site.PageDrawer(morpheusVersion)},
-		{href.PageElastic(), site.PageElastic(morpheusVersion)},
-		{href.PageIcon(), site.PageIcon(morpheusVersion)},
-		{href.PageIfNetwork(), site.PageIfNetwork(morpheusVersion)},
-		{href.PageIfPlatform(), site.PageIfPlatform(morpheusVersion)},
-		{href.PageTextInput(), site.PageTextInput(morpheusVersion)},
-		{href.PageInputGroup(), site.PageInputGroup(morpheusVersion)},
-		{href.PageKbd(), site.PageKbd(morpheusVersion)},
-		{href.PageKeys(), site.PageKeys(morpheusVersion)},
-		{href.PageLightbox(), site.PageLightbox(morpheusVersion)},
-		{href.PageLink(), site.PageLink(morpheusVersion)},
-		{href.PageMenu(), site.PageMenu(morpheusVersion)},
-		{href.PageNavgroup(), site.PageNavgroup(morpheusVersion)},
-		{href.PageOdometer(), site.PageOdometer(morpheusVersion)},
-		{href.PageOption(), site.PageOption(morpheusVersion)},
-		{href.PageOptgroup(), site.PageOptgroup(morpheusVersion)},
-		{href.PageOTP(), site.PageOTP(morpheusVersion)},
-		{href.PagePagination(), site.PagePagination(morpheusVersion)},
-		{href.PagePersist(), site.PagePersist(morpheusVersion)},
-		{href.PagePopover(), site.PagePopover(morpheusVersion)},
-		{href.PageProgress(), site.PageProgress(morpheusVersion)},
-		{href.PageRadioGroup(), site.PageRadioGroup(morpheusVersion)},
-		{href.PageRating(), site.PageRating(morpheusVersion)},
-		{href.PageResizable(), site.PageResizable(morpheusVersion)},
-		{href.PageRevealable(), site.PageRevealable(morpheusVersion)},
-		{href.PageSelect(), site.PageSelect(morpheusVersion)},
-		{href.PageSidebar(), site.PageSidebar(morpheusVersion)},
-		{href.PageSkeleton(), site.PageSkeleton(morpheusVersion)},
-		{href.PageSlider(), site.PageSlider(morpheusVersion)},
-		{href.PageSliderRange(), site.PageSliderRange(morpheusVersion)},
-		{href.PageSortable(), site.PageSortable(morpheusVersion)},
-		{href.PageSpinner(), site.PageSpinner(morpheusVersion)},
-		{href.PageSwitch(), site.PageSwitch(morpheusVersion)},
-		{href.PageTabs(), site.PageTabs(morpheusVersion)},
-		{href.PageTextarea(), site.PageTextarea(morpheusVersion)},
-		{href.PageToaster(), site.PageToaster(morpheusVersion)},
-		{href.PageToggle(), site.PageToggle(morpheusVersion)},
-		{href.PageToggleGroup(), site.PageToggleGroup(morpheusVersion)},
-		{href.PageTooltip(), site.PageTooltip(morpheusVersion)},
-		{href.PageTree(), site.PageTree(morpheusVersion)},
+		{href.PageAlert(), docs.Page(href.PageAlert(), morpheusVersion)},
+		{href.PageAura(), docs.Page(href.PageAura(), morpheusVersion)},
+		{href.PageAutohide(), docs.Page(href.PageAutohide(), morpheusVersion)},
+		{href.PageAvatar(), docs.Page(href.PageAvatar(), morpheusVersion)},
+		{href.PageAvatars(), docs.Page(href.PageAvatars(), morpheusVersion)},
+		{href.PageBadge(), docs.Page(href.PageBadge(), morpheusVersion)},
+		{href.PageBoundary(), docs.Page(href.PageBoundary(), morpheusVersion)},
+		{href.PageBreadcrumb(), docs.Page(href.PageBreadcrumb(), morpheusVersion)},
+		{href.PageButton(), docs.Page(href.PageButton(), morpheusVersion)},
+		{href.PageButtonGroup(), docs.Page(href.PageButtonGroup(), morpheusVersion)},
+		{href.PageCard(), docs.Page(href.PageCard(), morpheusVersion)},
+		{href.PageCarousel(), docs.Page(href.PageCarousel(), morpheusVersion)},
+		{href.PageCheckbox(), docs.Page(href.PageCheckbox(), morpheusVersion)},
+		{href.PageClipcopy(), docs.Page(href.PageClipcopy(), morpheusVersion)},
+		{href.PageCollapsible(), docs.Page(href.PageCollapsible(), morpheusVersion)},
+		{href.PageCombobox(), docs.Page(href.PageCombobox(), morpheusVersion)},
+		{href.PageCompare(), docs.Page(href.PageCompare(), morpheusVersion)},
+		{href.PageContextMenu(), docs.Page(href.PageContextMenu(), morpheusVersion)},
+		{href.PageColorField(), docs.Page(href.PageColorField(), morpheusVersion)},
+		{href.PageDatalist(), docs.Page(href.PageDatalist(), morpheusVersion)},
+		{href.PageDialog(), docs.Page(href.PageDialog(), morpheusVersion)},
+		{href.PageDrawer(), docs.Page(href.PageDrawer(), morpheusVersion)},
+		{href.PageElastic(), docs.Page(href.PageElastic(), morpheusVersion)},
+		{href.PageIcon(), docs.Page(href.PageIcon(), morpheusVersion)},
+		{href.PageIfNetwork(), docs.Page(href.PageIfNetwork(), morpheusVersion)},
+		{href.PageIfPlatform(), docs.Page(href.PageIfPlatform(), morpheusVersion)},
+		{href.PageTextInput(), docs.Page(href.PageTextInput(), morpheusVersion)},
+		{href.PageInputGroup(), docs.Page(href.PageInputGroup(), morpheusVersion)},
+		{href.PageKbd(), docs.Page(href.PageKbd(), morpheusVersion)},
+		{href.PageKeys(), docs.Page(href.PageKeys(), morpheusVersion)},
+		{href.PageLightbox(), docs.Page(href.PageLightbox(), morpheusVersion)},
+		{href.PageLink(), docs.Page(href.PageLink(), morpheusVersion)},
+		{href.PageMenu(), docs.Page(href.PageMenu(), morpheusVersion)},
+		{href.PageNavgroup(), docs.Page(href.PageNavgroup(), morpheusVersion)},
+		{href.PageOdometer(), docs.Page(href.PageOdometer(), morpheusVersion)},
+		{href.PageOption(), docs.Page(href.PageOption(), morpheusVersion)},
+		{href.PageOptgroup(), docs.Page(href.PageOptgroup(), morpheusVersion)},
+		{href.PageOTP(), docs.Page(href.PageOTP(), morpheusVersion)},
+		{href.PagePagination(), docs.Page(href.PagePagination(), morpheusVersion)},
+		{href.PagePersist(), docs.Page(href.PagePersist(), morpheusVersion)},
+		{href.PagePopover(), docs.Page(href.PagePopover(), morpheusVersion)},
+		{href.PageProgress(), docs.Page(href.PageProgress(), morpheusVersion)},
+		{href.PageRadioGroup(), docs.Page(href.PageRadioGroup(), morpheusVersion)},
+		{href.PageRating(), docs.Page(href.PageRating(), morpheusVersion)},
+		{href.PageResizable(), docs.Page(href.PageResizable(), morpheusVersion)},
+		{href.PageRevealable(), docs.Page(href.PageRevealable(), morpheusVersion)},
+		{href.PageSelect(), docs.Page(href.PageSelect(), morpheusVersion)},
+		{href.PageSidebar(), docs.Page(href.PageSidebar(), morpheusVersion)},
+		{href.PageSkeleton(), docs.Page(href.PageSkeleton(), morpheusVersion)},
+		{href.PageSlider(), docs.Page(href.PageSlider(), morpheusVersion)},
+		{href.PageSliderRange(), docs.Page(href.PageSliderRange(), morpheusVersion)},
+		{href.PageSortable(), docs.Page(href.PageSortable(), morpheusVersion)},
+		{href.PageSpinner(), docs.Page(href.PageSpinner(), morpheusVersion)},
+		{href.PageSwitch(), docs.Page(href.PageSwitch(), morpheusVersion)},
+		{href.PageTabs(), docs.Page(href.PageTabs(), morpheusVersion)},
+		{href.PageTextarea(), docs.Page(href.PageTextarea(), morpheusVersion)},
+		{href.PageToaster(), docs.Page(href.PageToaster(), morpheusVersion)},
+		{href.PageToggle(), docs.Page(href.PageToggle(), morpheusVersion)},
+		{href.PageToggleGroup(), docs.Page(href.PageToggleGroup(), morpheusVersion)},
+		{href.PageTooltip(), docs.Page(href.PageTooltip(), morpheusVersion)},
+		{href.PageTree(), docs.Page(href.PageTree(), morpheusVersion)},
 		{href.PageDebug(), site.PageDebug(morpheusVersion)},
 		{href.PageDebugBorders(), site.PageDebugBorders(morpheusVersion)},
+	}
+	if files := docs.Unserved(); len(files) > 0 {
+		return nil, fmt.Errorf("no buildPages entry for the Markdown doc pages %s",
+			strings.Join(files, ", "))
+	}
+	paths := make([]string, len(specs))
+	for i, s := range specs {
+		paths[i] = s.path
+	}
+	if err := docs.CheckLinks(paths); err != nil {
+		return nil, err
 	}
 	pages := make([]pageEntry, 0, len(specs))
 	for _, s := range specs {
@@ -302,8 +324,8 @@ func rewriteURLs(s, base string, pagePaths []string, q string) string {
 // URLs baked into copied JS and CSS assets (bundle.js icon/manifest/
 // datasim paths, minified theme @font-face url()s, sim import specifiers).
 // bundle-src/, bundle-css/ and bundle-themes/ are skipped, because they are
-// the in-browser builder's downloadable payloads. Users host them elsewhere, and their
-// root-absolute defaults must stay unprefixed. base=="" is a no-op.
+// the in-browser builder's downloadable payloads. Users host them elsewhere,
+// and their root-absolute defaults must stay unprefixed. base=="" is a no-op.
 func rewriteStaticAssetsBase(staticDir, base string) error {
 	if base == "" {
 		return nil
@@ -425,8 +447,8 @@ func copyMin(dstStatic string) error {
 
 // minifyJSFiles walks src for *.js sources, invoking esbuild only on
 // files whose dst counterpart is missing or older than the source.
-// rsync excludes *.js from --delete, and removed sources leave stale .js in
-// dst. That is acceptable on this incremental dev path.
+// rsync excludes *.js from --delete, and removed sources leave stale .js in dst.
+// That is acceptable on this incremental dev path.
 func minifyJSFiles(src, dstStatic string) error {
 	return filepath.WalkDir(src, func(p string, d fs.DirEntry, err error) error {
 		if err != nil || d.IsDir() || !strings.HasSuffix(p, ".js") {

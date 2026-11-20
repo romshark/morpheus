@@ -46,6 +46,11 @@ and commit message format, see the
 - [Templ](https://templ.guide/)
 - [golangci-lint](https://golangci-lint.run/)
 
+### Doc pages
+
+[internal/site/README.md](internal/site/README.md) explains how to write the
+component doc pages in Markdown, add examples, and preview them with live reload.
+
 ## License
 
 By contributing, you agree that your contributions will be
