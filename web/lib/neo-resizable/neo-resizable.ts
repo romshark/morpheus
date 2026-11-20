@@ -1,4 +1,4 @@
-import { attachHostStyle } from "../host-style";
+import { attachHostStyle, type HostStyle } from "../host-style";
 import { setState } from "../internal-state";
 import { num } from "../num";
 import { assignChildren, attachSlotRoot } from "../slot-root";
@@ -51,7 +51,7 @@ export class NeoResizable extends HTMLElement {
 	#internals: ElementInternals;
 	#slot: HTMLSlotElement;
 	// The size from the attributes and the drag.
-	#hostStyle: CSSStyleDeclaration;
+	#hostStyle: HostStyle;
 
 	constructor() {
 		super();

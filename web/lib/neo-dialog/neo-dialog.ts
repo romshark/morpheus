@@ -4,7 +4,7 @@
 
 import { boolAttr, openCommand } from "../command";
 import { retryWhileParsing, stillParsing } from "../document-parsing";
-import { DialogAria, DialogBackdropClickTracker, lockBodyScroll, unlockBodyScroll } from "../native-dialog";
+import { DialogAria, DialogBackdropClickTracker, lockBodyScroll, takeEscape, unlockBodyScroll } from "../native-dialog";
 
 export class NeoDialog extends HTMLElement {
 	static readonly observedAttributes = ["open"];
@@ -88,6 +88,7 @@ export class NeoDialog extends HTMLElement {
 		this.#dialog?.removeEventListener("close", this.#onDialogClose);
 		this.#dialog?.removeEventListener("cancel", this.#onDialogCancel);
 		this.#dialog?.removeEventListener("keydown", this.#onDialogKeydown, true);
+		this.#dialog?.removeEventListener("keydown", this.#onDialogEscape);
 		this.removeEventListener("click", this.#onContentClick);
 		this.removeEventListener("focusin", this.#onHostFocusIn);
 		this.removeEventListener("focusout", this.#onHostFocusOut);
@@ -255,6 +256,7 @@ export class NeoDialog extends HTMLElement {
 			this.#dialog?.removeEventListener("close", this.#onDialogClose);
 			this.#dialog?.removeEventListener("cancel", this.#onDialogCancel);
 			this.#dialog?.removeEventListener("keydown", this.#onDialogKeydown, true);
+			this.#dialog?.removeEventListener("keydown", this.#onDialogEscape);
 			this.#dialog = newDialog;
 			this.#dialog.addEventListener("pointerdown", this.#onDialogPointerDown);
 			this.#dialog.addEventListener("click", this.#onDialogClick);
@@ -266,6 +268,7 @@ export class NeoDialog extends HTMLElement {
 			// is locked open. Capture phase fires before any descendant
 			// listener.
 			this.#dialog.addEventListener("keydown", this.#onDialogKeydown, true);
+			this.#dialog.addEventListener("keydown", this.#onDialogEscape);
 		}
 
 		this.#aria.bind(this.#trigger, this.#dialog);
@@ -340,6 +343,10 @@ export class NeoDialog extends HTMLElement {
 		e.preventDefault();
 		e.stopPropagation();
 		e.stopImmediatePropagation();
+	};
+
+	#onDialogEscape = (e: KeyboardEvent) => {
+		if (takeEscape(e)) this.hide();
 	};
 
 	#onDialogClose = () => {

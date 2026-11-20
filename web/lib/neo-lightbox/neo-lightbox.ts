@@ -730,6 +730,8 @@ export class NeoLightbox extends HTMLElement {
 
 	#onDocKeyDown = (e: KeyboardEvent) => {
 		if (e.key !== "Escape" || !this.#openIntent || !this.#isDismissible()) return;
+		// Uncanceled, Escape also leaves macOS full screen in Safari.
+		e.preventDefault();
 		e.stopPropagation();
 		this.hide({ restoreFocus: true });
 	};

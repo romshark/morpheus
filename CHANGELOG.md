@@ -27,6 +27,8 @@ This file records the notable changes of each release in the format of [Keep a C
 - Keep the collapsed `<neo-avatars>` row across a Datastar morph. It showed every avatar and lost its "+N" chip.
 - Keep the content of `<neo-elastic>` across a Datastar morph. The morph replaced it with new elements, which lost typed input.
 - Keep the dragged size of `<neo-resizable>` across a Datastar morph, and the size from its attributes in markup without a matching `style`. The morph reset both.
+- Keep Safari in full screen when Escape closes `<neo-dialog>`, `<neo-drawer>`, `<neo-lightbox>`, `<neo-popover>`, an overlay `<neo-sidebar>` or a tooltip. Safari also left full screen.
+- Close only the open `<neo-popover>` or tooltip when Escape is pressed inside `<neo-dialog>` or `<neo-drawer>`. The dialog closed with it.
 
 ## [0.7.0] - 2026-11-20
 

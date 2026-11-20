@@ -3,7 +3,7 @@
 // Height only, because animating width re-wraps text mid-animation and looks broken.
 
 import { boolAttr } from "../command";
-import { attachHostStyle } from "../host-style";
+import { attachHostStyle, type HostStyle } from "../host-style";
 import { assignChildren, attachSlotRoot } from "../slot-root";
 
 // [data-neo-elastic-content] is a block formatting context (flow-root). Without it
@@ -19,7 +19,7 @@ export class NeoElastic extends HTMLElement {
 	#slot: HTMLSlotElement;
 	#inner: HTMLElement;
 	// Holds the pinned height.
-	#hostStyle: CSSStyleDeclaration;
+	#hostStyle: HostStyle;
 	#placeholder: HTMLTemplateElement | null = null;
 	#resizeObserver: ResizeObserver | null = null;
 	#mutationObserver: MutationObserver | null = null;

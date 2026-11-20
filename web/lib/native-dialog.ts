@@ -72,6 +72,19 @@ function linkPart(dialog: HTMLElement, name: AriaRef, partSel: string, owned: bo
 	return false;
 }
 
+// takeEscape cancels an Escape keydown that no descendant handled and reports
+// whether the caller should close. Safari leaves macOS full screen on an Escape
+// the page doesn't cancel, and the native <dialog> close doesn't cancel it.
+// Listen in the bubble phase, which lets a descendant that handles Escape
+// (a listbox, a menu) cancel it first. An open auto or hint popover, which the
+// native close request dismisses first, keeps the key.
+export function takeEscape(e: KeyboardEvent): boolean {
+	if (e.key !== "Escape" || e.defaultPrevented || e.isComposing) return false;
+	if (document.querySelector(':is([popover=""], [popover="auto"], [popover="hint"]):popover-open')) return false;
+	e.preventDefault();
+	return true;
+}
+
 // On a native <dialog>, ::backdrop and dialog-box clicks both target <dialog>.
 
 export class DialogBackdropClickTracker {

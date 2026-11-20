@@ -620,6 +620,8 @@ export class NeoSidebar extends HTMLElement {
 		this.#ensureBackdrop();
 		if (!this.#backdropEl) return;
 		if (getComputedStyle(this.#backdropEl).display === "none") return;
+		// Uncanceled, Escape also leaves macOS full screen in Safari.
+		e.preventDefault();
 		this.hide();
 	};
 

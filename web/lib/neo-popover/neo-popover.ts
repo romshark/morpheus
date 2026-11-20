@@ -738,6 +738,8 @@ export class NeoPopover extends HTMLElement {
 
 	#onKeyDown = (e: KeyboardEvent) => {
 		if (e.key === "Escape" && this.hasAttribute("open")) {
+			// Uncanceled, Escape also leaves macOS full screen in Safari.
+			e.preventDefault();
 			e.stopPropagation();
 			this.hide({ restoreFocus: true });
 		}

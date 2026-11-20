@@ -5,7 +5,7 @@
 import { boolAttr, openCommand } from "../command";
 import { retryWhileParsing, stillParsing } from "../document-parsing";
 import { setState } from "../internal-state";
-import { DialogAria, DialogBackdropClickTracker, lockBodyScroll, unlockBodyScroll } from "../native-dialog";
+import { DialogAria, DialogBackdropClickTracker, lockBodyScroll, takeEscape, unlockBodyScroll } from "../native-dialog";
 import { resolveTouchDismiss } from "../touch-dismiss";
 
 export class NeoDrawer extends HTMLElement {
@@ -101,6 +101,7 @@ export class NeoDrawer extends HTMLElement {
 		this.#dialog?.removeEventListener("close", this.#onDialogClose);
 		this.#dialog?.removeEventListener("cancel", this.#onDialogCancel);
 		this.#dialog?.removeEventListener("keydown", this.#onDialogKeydown, true);
+		this.#dialog?.removeEventListener("keydown", this.#onDialogEscape);
 		this.#dialog?.removeEventListener("touchstart", this.#onTouchStart);
 		this.#dialog?.removeEventListener("touchmove", this.#onTouchMove);
 		this.#dialog?.removeEventListener("touchend", this.#onTouchEnd);
@@ -288,6 +289,7 @@ export class NeoDrawer extends HTMLElement {
 			// handler. Stops descendant Esc handlers (popover etc.) from
 			// acting when the drawer is locked open.
 			this.#dialog.addEventListener("keydown", this.#onDialogKeydown, true);
+			this.#dialog.addEventListener("keydown", this.#onDialogEscape);
 			// Listen on the dialog (the panel), not the host (`display:
 			// contents`). touchmove is non-passive so we can preventDefault
 			// page scroll once the drag commits.
@@ -361,6 +363,10 @@ export class NeoDrawer extends HTMLElement {
 		e.preventDefault();
 		e.stopPropagation();
 		e.stopImmediatePropagation();
+	};
+
+	#onDialogEscape = (e: KeyboardEvent) => {
+		if (takeEscape(e)) this.hide();
 	};
 
 	// The authoritative "actually closed" signal (Esc, backdrop,

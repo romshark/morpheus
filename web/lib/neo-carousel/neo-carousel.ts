@@ -5,7 +5,7 @@
 
 import { boolAttr, warnBadAxis } from "../command";
 import { isRTL, logicalArrow } from "../direction";
-import { attachHostStyle } from "../host-style";
+import { attachHostStyle, type HostStyle } from "../host-style";
 import { setState } from "../internal-state";
 import { labelAttr } from "../label-name";
 
@@ -207,7 +207,7 @@ export class NeoCarousel extends HTMLElement {
 	}
 
 	// Holds --neo-carousel-autoplay-interval.
-	#hostStyle: CSSStyleDeclaration;
+	#hostStyle: HostStyle;
 	#ready = false;
 	#dotsEl: HTMLElement | null = null;
 	#childObserver: MutationObserver | null = null;
